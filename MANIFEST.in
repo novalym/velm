@@ -1,0 +1,50 @@
+
+include scaffold/py.typed
+include scaffold/archetypes
+include scaffold/default_templates
+
+# The Aesthetic Soul (Styles)
+recursive-include scaffold *.css
+recursive-include scaffold *.tcss
+    
+# The Architectural Soul (Blueprints)
+recursive-include scaffold *.scaffold
+recursive-include scaffold *.symphony
+recursive-include scaffold *.arch
+    
+# The Gnostic Memory (JSON Configs/Data)
+recursive-include scaffold *.json
+    
+# The Forges (Templates & Archetypes)
+recursive-include scaffold/archetypes *
+recursive-include scaffold/default_templates *
+    
+# Exclusions (The Void)
+global-exclude *.py[cod]
+global-exclude __pycache__
+global-exclude .DS_Store
+
+# [THE VOID SHIELD]
+# Exclude all environmental DNA and local state
+exclude .env
+exclude .env.*
+exclude *.bak
+exclude *.pyc
+exclude .scaffold/
+exclude .git/
+exclude .github/
+exclude .scaffold
+exclude .arch
+exclude .symphony
+exclude .txt
+exclue .md
+# [THE INCLUSION VOW]
+# Include only the essential logic and metadata
+recursive-include src/scaffold *
+include README.md
+include LICENSE
+include pyproject.toml
+
+# Exclude potential sensitive developer files
+recursive-exclude tests *
+recursive-exclude docs *

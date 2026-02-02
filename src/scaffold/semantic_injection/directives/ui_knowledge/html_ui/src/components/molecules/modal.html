@@ -1,0 +1,29 @@
+<style>
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: 0.3s;
+}
+.modal-overlay:target { opacity: 1; pointer-events: auto; }
+.modal {
+    background: var(--surface); padding: 2rem; border-radius: var(--radius-lg);
+    max-width: 500px; width: 90%; box-shadow: var(--shadow-lg);
+    transform: translateY(20px); transition: 0.3s;
+}
+.modal-overlay:target .modal { transform: translateY(0); }
+.close-btn { float: right; text-decoration: none; color: var(--text-light); }
+</style>
+<!-- Link to #modal-demo to open -->
+<a href="#modal-demo" class="btn btn-outline">Open Modal</a>
+
+<div id="modal-demo" class="modal-overlay">
+    <div class="modal">
+        <a href="#" class="close-btn">×</a>
+        <h2>Confirm Protocol</h2>
+        <p>Are you sure you wish to override the safety parameters?</p>
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+            <a href="#" class="btn btn-ghost">Cancel</a>
+            <a href="#" class="btn btn-primary">Confirm</a>
+        </div>
+    </div>
+</div>

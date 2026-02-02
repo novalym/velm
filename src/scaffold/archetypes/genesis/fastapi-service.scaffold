@@ -1,0 +1,343 @@
+    
+# =================================================================================
+# == GNOSTIC ARCHITECTURAL PROGRAM: FASTAPI CELESTIAL SERVICE (V-Ω-ETERNAL++)    ==
+# =================================================================================
+# @description: A sentient, dynamic, and production-grade FastAPI service that
+#               adapts its very form to the Architect's will. It can be forged
+#               as a simple API, a full database-backed service with JWT auth,
+#               and is ready for celestial deployment via Docker.
+# @author: The Co-Architects
+# @version: 2.0.0 (The Sentient Ascension)
+# =================================================================================
+
+# --- I. The Altar of Gnostic Will (The Architect's Choices) ---
+$$ project_slug = "sentinel-api"
+$$ description = "A sentient FastAPI service."
+$$ author = "The Co-Architects"
+
+# --- Architectural Gnosis ---
+$$ database_type = "postgres"  # Adjudicator understands: 'postgres', 'sqlite', or 'none'
+$$ auth_method = "jwt"         # Adjudicator understands: 'jwt' or 'none'
+$$ environment = "dev"         # Adjudicator understands: 'dev' or 'prod'
+
+# --- Alchemical Transmutations (Derived Gnosis) ---
+# These are now pure Jinja expressions, their Gnosis derived by the God-Engine.
+$$ project_pascal = "{{ project_slug | pascal }}"
+$$ project_title = "{{ project_slug | title }}"
+
+# --- II. The Scripture of Sentient Form ---
+/{{ project_slug }}/
+    .gitignore :: """
+    # Byte-compiled / optimized / DLL files
+    __pycache__/
+    *.py[cod]
+    *$py.class
+
+    # Test & Linter Caches
+    .pytest_cache/
+    .ruff_cache/
+
+    # Ephemeral Gnosis & Secrets
+    .env
+    .env.*
+    !.env.example
+
+    # IDE & OS
+    .vscode/
+    .idea/
+    .DS_Store
+
+    # Database Files (for SQLite)
+    *.db
+    *.db-journal
+    """
+
+    .env.example :: """
+    # Gnostic Secrets for the {{ project_title }}
+    APP_NAME="{{ project_title }}"
+    ENVIRONMENT="{{ environment }}"
+    LOG_LEVEL="INFO"
+    PORT="8000"
+
+    # --- Conditional Gnosis for the Database ---
+    {% if database_type != 'none' %}
+    DATABASE_URL="{{ 'postgresql://user:pass@db:5432/' + project_slug if database_type == 'postgres' else 'sqlite:///./sql_app.db' }}"
+    {% endif %}
+
+    # --- Conditional Gnosis for Authentication ---
+    {% if auth_method == 'jwt' %}
+    # The heresy is annihilated. We summon the Alchemist's global rite directly.
+    SECRET_KEY={{ secret('hex', 32) }}
+    ALGORITHM="HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES=30
+    {% endif %}
+    """
+
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "{{ description }}"
+    authors = ["{{ author }}"]
+    readme = "README.md"
+    packages = [{include = "{{ project_slug }}", from = "src"}]
+
+    [tool.poetry.dependencies]
+    python = "^3.11"
+    fastapi = "^0.110.0"
+    uvicorn = {extras = ["standard"], version = "^0.27.0"}
+    python-dotenv = "^1.0.1"
+    rich = "^13.7.0"
+
+    # --- The Rite of Conditional Dependency ---
+    {% if database_type == 'postgres' %}
+    psycopg2-binary = "^2.9.9"
+    sqlalchemy = "^2.0.28"
+    {% elif database_type == 'sqlite' %}
+    sqlalchemy = "^2.0.28"
+    {% endif %}
+
+    {% if auth_method == 'jwt' %}
+    python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+    passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+    python-multipart = "^0.0.9" # For OAuth2 forms
+    {% endif %}
+
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    ruff = "^0.2.0"
+    black = "^24.2.0"
+    httpx = "^0.27.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+
+    [tool.ruff]
+    line-length = 119
+
+    [tool.black]
+    line-length = 119
+    """
+
+    Makefile :: """
+    .PHONY: help install dev test lint format docker-build docker-run
+
+    # These variables are for the `make` artisan, not our Alchemist.
+    # The sacred `$$` sigil protects them from Jinja's Gaze.
+    INSTALL_CMD = poetry install
+    TEST_CMD = poetry run pytest
+    LINT_CMD = poetry run ruff check .
+    FORMAT_CMD = poetry run black .
+
+    help:
+        @echo "Makefile for {{ project_title }}"
+        @echo "Usage: make [install|dev|test|lint|format|docker-build|docker-run]"
+
+    install:
+        @echo "Installing dependencies via Poetry..."
+        @$$(INSTALL_CMD)
+
+    dev:
+        @echo "Awakening the development reality with live reload..."
+        @poetry run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+    test:
+        @echo "Adjudicating reality with Pytest..."
+        @$$(TEST_CMD)
+
+    lint:
+        @echo "The Gnostic Inquisitor (Ruff) awakens its Gaze..."
+        @$$(LINT_CMD)
+
+    format:
+        @echo "The Scribe of Form (Black) proclaims its will..."
+        @$$(FORMAT_CMD)
+
+    docker-build:
+        @echo "Forging the Unbreakable Vessel (Docker image)..."
+        @docker build -t {{ project_slug }}:latest .
+
+    docker-run:
+        @echo "Awakening the containerized reality..."
+        @docker run -p 8000:8000 -it --rm --name {{ project_slug }} {{ project_slug }}:latest
+    """
+
+    README.md:
+        # {{ project_title }}
+
+        _{{ description }}_
+
+        A high-performance, asynchronous API service forged with FastAPI and the unbreakable, sentient will of Scaffold.
+
+    src/
+        __init__.py
+        
+        main.py:
+            from fastapi import FastAPI
+            from .config import settings
+            
+            {% if database_type != 'none' %}
+            from .database import engine, Base
+            # This rite must be performed before the routes are included.
+            Base.metadata.create_all(bind=engine)
+            {% endif %}
+            
+            app = FastAPI(title=settings.APP_NAME)
+
+            @app.get("/")
+            def root():
+                return {"message": f"Gnosis is truth. Welcome to the {settings.APP_NAME}."}
+            
+            {% if auth_method == 'jwt' %}
+            from .routers import auth, users
+            app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+            app.include_router(users.router, prefix="/users", tags=["Users"])
+            {% endif %}
+
+        config.py:
+            from pydantic_settings import BaseSettings, SettingsConfigDict
+
+            class Settings(BaseSettings):
+                APP_NAME: str = "{{ project_title }}"
+                ENVIRONMENT: str = "development"
+                
+                {% if database_type != 'none' %}
+                DATABASE_URL: str
+                {% endif %}
+
+                {% if auth_method == 'jwt' %}
+                SECRET_KEY: str
+                ALGORITHM: str = "HS256"
+                ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+                {% endif %}
+
+                model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+            settings = Settings()
+
+    # --- The Rite of Conditional Forging (Sanctums & Scriptures) ---
+    {% if database_type != 'none' %}
+    src/database.py:
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker, declarative_base
+        from .config import settings
+
+        engine = create_engine(settings.DATABASE_URL)
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        Base = declarative_base()
+
+        def get_db():
+            db = SessionLocal()
+            try:
+                yield db
+            finally:
+                db.close()
+    
+    src/models.py
+    src/schemas.py
+    src/crud.py
+    {% endif %}
+
+    {% if auth_method == 'jwt' %}
+    src/routers/
+        __init__.py
+        auth.py
+        users.py
+    {% endif %}
+
+    tests/
+        __init__.py
+        
+        test_main.py :: """
+        from fastapi.testclient import TestClient
+        from src.main import app
+        
+        client = TestClient(app)
+
+        def test_root_proclaims_truth():
+            response = client.get("/")
+            assert response.status_code == 200
+            assert "Gnosis is truth" in response.json()["message"]
+        """
+
+    .vscode/
+        settings.json :: """
+        {
+            "python.testing.pytestArgs": ["tests"],
+            "python.testing.unittestEnabled": false,
+            "python.testing.pytestEnabled": true,
+            "[python]": {
+                "editor.defaultFormatter": "ms-python.black-formatter",
+                "editor.formatOnSave": true
+            }
+        }
+        """
+
+    .dockerignore :: """
+    .venv
+    __pycache__
+    .pytest_cache
+    .ruff_cache
+    .git
+    .vscode
+    .env
+    *.db
+    """
+
+    Dockerfile :: """
+    FROM python:3.11-slim as builder
+
+    ENV POETRY_NO_INTERACTION=1
+    ENV POETRY_VIRTUALENVS_IN_PROJECT=1
+    ENV POETRY_VIRTUALENVS_CREATE=1
+
+    WORKDIR /app
+
+    {% if environment == 'prod' %}
+    RUN apt-get update && apt-get install -y build-essential
+    {% endif %}
+
+    RUN pip install poetry
+    COPY pyproject.toml poetry.lock ./
+    RUN poetry install --no-dev --no-root
+
+    FROM python:3.11-slim as production
+    WORKDIR /app
+    COPY --from=builder /.venv /.venv
+    ENV PATH="/.venv/bin:$PATH"
+    COPY src/ ./src/
+    CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    """
+
+    .github/
+        workflows/
+            ci.yml :: """
+    name: FastAPI CI Adjudication Symphony
+    on: [push, pull_request]
+    jobs:
+      adjudicate:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - name: Set up Python and Poetry
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.11'
+            cache: 'poetry'
+        - name: Install Dependencies
+          run: make install
+        - name: Adjudicate with Pytest
+          run: make test
+        - name: Gaze with Ruff Linter
+          run: make lint
+    """
+
+# --- III. The Maestro's Will ---
+%% post-run
+    git init
+    make install
+    git add .
+    git commit -m "feat(init): Initial structure for {{ project_slug }} forged by Scaffold"
+
+  

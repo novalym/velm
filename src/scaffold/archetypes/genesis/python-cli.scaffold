@@ -1,0 +1,124 @@
+# Path: scaffold/archetypes/genesis/python-cli.scaffold
+# -----------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: PYTHON CLI TITAN (V-Ω-TYPER-ASCENDED)            ==
+# =================================================================================
+# @description: A legendary-tier CLI tool forged with Typer, Rich, and Poetry.
+#               It is self-documenting, type-safe, and infinitely extensible.
+# =================================================================================
+
+# --- I. The Altar of Gnostic Will ---
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+$$ author = {{ author }}
+$$ python_version = "3.11"
+
+# --- II. The Scripture of Form ---
+{{ project_slug }}/
+    .gitignore :: """
+    __pycache__/
+    .venv/
+    dist/
+    .pytest_cache/
+    .mypy_cache/
+    .ruff_cache/
+    .env
+    """
+
+    README.md :: """
+    # {{ project_name }}
+
+    A powerful CLI forged with Typer and the Scaffold God-Engine.
+
+    ## Installation & Usage
+
+    ```bash
+    # Install dependencies
+    make install
+
+    # See all available commands
+    poetry run {{ project_slug }} --help
+
+    # Run a command
+    poetry run {{ project_slug }} users create "Gnostic Architect"
+    ```
+    """
+
+    pyproject.toml:
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        description = "{{ description }}"
+        authors = ["{{ author }}"]
+        packages = [{include = "{{ package_name }}", from = "src"}]
+
+        [tool.poetry.scripts]
+        {{ project_slug }} = "{{ package_name }}.main:app"
+
+        [tool.poetry.dependencies]
+        python = "^{{ python_version }}"
+        typer = {extras = ["rich"], version = "^0.9.0"}
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "^8.0.0"
+        ruff = "^0.3.0"
+
+        [build-system]
+        requires = ["poetry-core"]
+        build-backend = "poetry.core.masonry.api"
+
+    Makefile:
+        .PHONY: install run test lint
+
+        install:
+        	poetry install
+
+        run:
+        	poetry run {{ project_slug }}
+
+        test:
+        	poetry run pytest
+
+        lint:
+        	poetry run ruff check .
+
+    src/
+        {{ package_name }}/
+            __init__.py
+
+            main.py:
+                import typer
+                from rich.console import Console
+
+                app = typer.Typer(
+                    name="{{ project_slug }}",
+                    help="{{ description }}",
+                    add_completion=False
+                )
+                console = Console()
+
+                # A subcommand altar for the 'users' domain
+                users_app = typer.Typer(help="Manage user entities.")
+                app.add_typer(users_app, name="users")
+
+                @app.command()
+                def version():
+                    """Proclaims the version of this CLI Titan."""
+                    console.print(f"[bold cyan]{{ project_slug }}[/] version: [yellow]0.1.0[/]")
+
+                @users_app.command("create")
+                def create_user(
+                    username: str = typer.Argument(..., help="The sacred name of the user."),
+                    is_admin: bool = typer.Option(False, "--admin", help="Bestow admin privileges.")
+                ):
+                    """Forge a new user in the system."""
+                    privilege = "[bold green]Admin[/]" if is_admin else "[dim]User[/]"
+                    console.print(f"User '{username}' forged with {privilege} privileges.")
+
+                if __name__ == "__main__":
+                    app()
+
+%% post-run
+    git init
+    poetry install

@@ -1,0 +1,23 @@
+# Path: scaffold/default_templates/template.py.scaffold
+# -----------------------------------------------------
+
+$$ filename = "script.py"
+$$ author = {{ author }}
+$$ project_title = {{ project_name }}
+
+# The First Law is honored. The content is defined by structure (indentation),
+# ensuring that docstrings within the python code do not shatter the parser.
+{{ filename }}:
+    # {{ filename }}
+    # Forged by: {{ author }}
+
+    def main():
+        """
+        The main entry point.
+        The Gnostic Parser sees this docstring as pure content,
+        protected by the indentation of its parent block.
+        """
+        print(f"Gnosis is truth. The '{{ project_title }}' reality is manifest.")
+
+    if __name__ == "__main__":
+        main()

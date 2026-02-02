@@ -1,0 +1,28 @@
+# Path: scaffold/default_templates/template.gitignore.scaffold
+# ------------------------------------------------------------
+.gitignore :: """
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Scaffold
+scaffold.lock
+.scaffold/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+"""

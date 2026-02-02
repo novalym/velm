@@ -1,0 +1,14 @@
+# Path: scaffold/default_templates/template.rs.scaffold
+# -----------------------------------------------------
+
+Cargo.toml:
+    [package]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    edition = "2021"
+
+src/
+    main.rs:
+        fn main() {
+            println!("Gnosis is truth. The Rust reality is manifest!");
+        }

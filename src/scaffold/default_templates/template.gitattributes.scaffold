@@ -1,0 +1,32 @@
+# Path: scaffold/default_templates/template.gitattributes.scaffold
+# --------------------------------------------------------------
+.gitattributes :: """
+# Auto-detect text files and perform LF normalization
+* text=auto
+
+# Custom for Windows
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Custom for Makefiles
+Makefile\ttext noexpand
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.pyc binary
+*.whl binary
+"""

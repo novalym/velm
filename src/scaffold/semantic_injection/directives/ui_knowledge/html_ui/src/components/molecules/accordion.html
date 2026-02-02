@@ -1,0 +1,25 @@
+<style>
+.accordion-item { border-bottom: 1px solid var(--border); }
+.accordion-header {
+    width: 100%; text-align: left; padding: 1rem 0;
+    background: none; border: none; cursor: pointer;
+    font-weight: 600; font-size: 1rem; color: var(--text);
+    display: flex; justify-content: space-between;
+}
+.accordion-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
+    color: var(--text-light);
+}
+/* JavaScript toggle logic required for production, or use details/summary */
+details summary { cursor: pointer; padding: 1rem 0; font-weight: 600; }
+details[open] summary ~ * { animation: sweep .5s ease-in-out; }
+@keyframes sweep { 0% {opacity: 0; margin-top: -10px} 100% {opacity: 1; margin-top: 0px} }
+</style>
+<details class="accordion-item">
+    <summary>System Architecture</summary>
+    <p>The system is built on a distributed node topology.</p>
+</details>
+<details class="accordion-item">
+    <summary>Deployment Strategy</summary>
+    <p>We utilize a blue-green deployment strategy via Kubernetes.</p>
+</details>

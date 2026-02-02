@@ -1,0 +1,27 @@
+# Path: scaffold/default_templates/template.java.scaffold
+# -------------------------------------------------------
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_path = "com/example/{{ project_slug | snake }}"
+
+pom.xml:
+    <project>
+        <modelVersion>4.0.0</modelVersion>
+        <groupId>com.example</groupId>
+        <artifactId>{{ project_slug }}</artifactId>
+        <version>1.0.0</version>
+        <properties>
+            <maven.compiler.source>17</maven.compiler.source>
+            <maven.compiler.target>17</maven.compiler.target>
+        </properties>
+    </project>
+
+src/main/java/{{ package_path }}/
+    App.java:
+        package {{ package_path | replace('/', '.') }};
+
+        public class App {
+            public static void main(String[] args) {
+                System.out.println("Gnosis is truth. The Java reality is manifest.");
+            }
+        }

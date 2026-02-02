@@ -1,0 +1,18 @@
+<style>
+.alert {
+    padding: 1rem; border-radius: var(--radius); border-left: 4px solid;
+    background: var(--surface); box-shadow: var(--shadow-sm);
+    display: flex; align-items: start; gap: 1rem; max-width: 400px;
+}
+.alert-icon { font-size: 1.5rem; }
+.alert-content h4 { margin: 0 0 0.25rem 0; font-size: 1rem; }
+.alert-content p { margin: 0; font-size: 0.9rem; color: var(--text-light); }
+.alert-info { border-color: var(--primary); }
+</style>
+<div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    <div class="alert-content">
+        <h4>Gnostic Update</h4>
+        <p>The system has successfully synchronized with the core.</p>
+    </div>
+</div>

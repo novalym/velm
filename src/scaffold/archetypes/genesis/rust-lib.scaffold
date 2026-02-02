@@ -1,0 +1,145 @@
+# Path: scaffold/archetypes/genesis/rust-lib.scaffold
+# ---------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: RUST GUARDIAN (V-Ω-STRUCTURAL-PURITY)            ==
+# =================================================================================
+# @description: A memory-safe, high-performance library with a separate example
+#               binary, forged with Rust, Cargo, and unbreakable Gnostic Laws.
+# =================================================================================
+
+# --- I. The Altar of Gnostic Will ---
+$$ project_slug = {{ project_name | slug }}
+$$ author = {{ author }}
+
+# --- II. The Scripture of Form ---
+{{ project_slug }}/
+    .gitignore :: """
+    /target
+    Cargo.lock
+    .DS_Store
+    """
+
+    Cargo.toml:
+        [package]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        edition = "2021"
+        description = "{{ description }}"
+        authors = ["{{ author }}"]
+        license = "MIT"
+
+        # The sacred scripture defining the example binary that showcases the library's power.
+        [[bin]]
+        name = "{{ project_slug }}-example"
+        path = "src/main.rs"
+
+        [dependencies]
+        anyhow = "1.0"
+
+    README.md :: """
+    # {{ project_name }}
+
+    A Rust library forged by the Scaffold God-Engine.
+
+    ## Development Rites
+
+    - `make build`: Compile the library and example binary.
+    - `make run`: Run the example binary.
+    - `make test`: Adjudicate the library's purity with tests.
+    - `make lint`: Gaze upon the code with `clippy`.
+    - `make format`: Purify the code's form with `rustfmt`.
+    """
+
+    Makefile:
+        .PHONY: help build run test lint format clean
+
+        build:
+        	@cargo build
+
+        run:
+        	@cargo run
+
+        test:
+        	@cargo test
+
+        lint:
+        	@cargo clippy -- -D warnings
+
+        format:
+        	@cargo fmt
+
+        clean:
+        	@cargo clean
+
+    src/
+        # The reusable soul of the library.
+        lib.rs:
+            use anyhow::Result;
+
+            pub fn proclaim_gnosis(name: &str) -> Result<String> {
+                Ok(format!("Gnostic Greetings, {}! The Rust Guardian is manifest.", name))
+            }
+
+            #[cfg(test)]
+            mod tests {
+                use super::*;
+
+                #[test]
+                fn test_proclamation_is_pure() {
+                    let greeting = proclaim_gnosis("Architect").unwrap();
+                    assert!(greeting.contains("Architect"));
+                }
+            }
+
+        # The example binary that uses the library.
+        main.rs:
+            use anyhow::Result;
+            use {{ project_slug | snake }}::proclaim_gnosis;
+
+            fn main() -> Result<()> {
+                let greeting = proclaim_gnosis("Cosmos")?;
+                println!("{}", greeting);
+                Ok(())
+            }
+
+    tests/
+        integration.rs:
+            use anyhow::Result;
+            use {{ project_slug | snake }}::proclaim_gnosis;
+
+            #[test]
+            fn test_external_gaze() -> Result<()> {
+                let result = proclaim_gnosis("External")?;
+                assert!(result.contains("External"));
+                Ok(())
+            }
+
+    .github/
+        workflows/
+            ci.yml:
+                name: Rust CI
+                on: [push, pull_request]
+                jobs:
+                  adjudicate:
+                    runs-on: ubuntu-latest
+                    steps:
+                      - uses: actions/checkout@v4
+                      - name: Install Rust Toolchain
+                        uses: actions-rs/toolchain@v1
+                        with:
+                          toolchain: stable
+                          components: rustfmt, clippy
+                      - name: Check Formatting
+                        run: make format_check # A prophecy
+                      - name: Lint with Clippy
+                        run: make lint
+                      - name: Run Tests
+                        run: make test
+                      - name: Build Release
+                        run: cargo build --release --verbose
+
+%% post-run
+    git init
+    # The first build forges the Cargo.lock, a sacred act.
+    cargo build

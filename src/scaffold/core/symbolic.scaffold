@@ -1,0 +1,28 @@
+└── symbolic/
+        ├── __init__.py           # The Sovereign Export Gateway
+        ├── engine.py             # The Master Conductor (The Central Intelligence)
+        ├── contracts.py          # Pydantic Vessels for Symbolic Adjudication
+        │
+        ├── inquisitors/          # The Specialized Logic Specialists
+        │   ├── __init__.py
+        │   ├── bouncer.py        # The Disqualifier Specialist (Disqualifiers/Red Flags)
+        │   ├── banker.py         # The Financial Specialist (Minimums/Deposits/Quotes)
+        │   ├── librarian.py      # The FAQ Specialist (Sourcing the FAQ Matrix)
+        │   ├── scrier.py         # The Intent Specialist (Mechanics/Emergency/Urgency)
+        │   ├── chronos.py        # The Spacetime Specialist (Scheduling/Service Windows)
+        │   ├── sentinel.py       # The Compliance Specialist (Legal/Regulatory Disclosures)
+        │   └── retina.py         # The Visual Pre-Processor (Image Target Recognition)
+        │
+        ├── refinement/           # The Transformation Layer
+        │   ├── __init__.py
+        │   ├── purifier.py       # Text Normalization & Symbol Extraction
+        │   └── alchemist.py      # Response Synthesis & Variable Injection
+        │
+        ├── sutures/              # The Integration & Decision Gates
+        │   ├── __init__.py
+        │   ├── neural_bridge.py  # Adjudicator: "Symbolic vs. Neural" Decision logic
+        │   └── vision_gate.py    # Adjudicator: "Retina vs. Human" Decision logic
+        │
+        └── telemetry/            # Ocular Resonance
+            ├── __init__.py
+            └── pulse.py          # HUD Broadcasting for Symbolic Thoughts

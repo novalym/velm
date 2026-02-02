@@ -1,0 +1,54 @@
+# Path: scaffold/default_templates/template.justfile.scaffold
+# -----------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS TEMPLATE: THE JUSTFILE CITADEL (V-Ω-UNIVERSAL-CONDUCTOR)    ==
+# =================================================================================
+
+justfile:
+    # Load environment variables from .env file, if it exists
+    set dotenv-load
+
+    # --- The Sacred Altar of Configuration ---
+    PYTHON_INTERPRETER := "poetry run python"
+    LINTER := "poetry run ruff check"
+    FORMATTER := "poetry run black"
+    TESTER := "poetry run pytest"
+
+    # The default rite, conducted when 'just' is spoken without a plea.
+    default: run
+
+    # A luminous, self-documenting list of all available rites.
+    help:
+        just --list
+
+    # Install all project dependencies.
+    install:
+        poetry install
+
+    # Run the main application.
+    run:
+        {{PYTHON_INTERPRETER}} src/main.py
+
+    # Adjudicate the project's purity with tests. Accepts an optional file/dir.
+    test file='tests/':
+        {{TESTER}} {{file}}
+
+    # Gaze upon the scripture's form for any heresies.
+    lint:
+        {{LINTER}} .
+        {{FORMATTER}} --check .
+
+    # Purify the scripture's form automatically.
+    format:
+        {{LINTER}} --fix .
+        {{FORMATTER}} .
+
+    # Forge the celestial vessel (e.g., a Docker image). Depends on linting first.
+    build: lint
+        echo "Forging the celestial vessel for {{ project_slug }}..."
+        docker build -t {{ project_slug }}:latest .
+
+    # Annihilate all profane, ephemeral artifacts.
+    clean:
+        rm -rf .venv .pytest_cache .ruff_cache __pycache__ dist/ build/

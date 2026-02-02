@@ -1,0 +1,61 @@
+# Path: scaffold/archetypes/genesis/serverless-synapse.scaffold
+# -------------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: SERVERLESS SYNAPSE (V-Ω-EVENT-DRIVEN)            ==
+# =================================================================================
+# @description: An infinitely scalable, event-driven serverless function using the
+#               Serverless Framework and AWS Lambda.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+
+{{ project_slug }}/
+    .gitignore :: ".serverless/\n.venv/"
+    README.md :: "## Serverless Synapse\n- Requires Serverless Framework (`npm install -g serverless`) & AWS credentials.\n- `make deploy` to ascend to the cloud."
+
+    Makefile:
+        .PHONY: deploy remove logs
+
+        deploy:
+        	sls deploy
+
+        remove:
+        	sls remove
+
+        logs:
+        	sls logs -f main -t
+
+    serverless.yml:
+        service: {{ project_slug }}
+        frameworkVersion: '3'
+        provider:
+          name: aws
+          runtime: python3.11
+        functions:
+          main:
+            handler: src/{{ package_name }}/handler.main
+            events:
+              - httpApi:
+                  path: /
+                  method: get
+
+    requirements.txt:
+        # Add Python dependencies here
+
+    src/
+        {{ package_name }}/
+            handler.py:
+                import json
+
+                def main(event, context):
+                    body = {
+                        "message": "Gnosis is truth. The Serverless Synapse is active!",
+                        "input": event,
+                    }
+                    response = {"statusCode": 200, "body": json.dumps(body)}
+                    return response
+
+%% post-run
+    git init

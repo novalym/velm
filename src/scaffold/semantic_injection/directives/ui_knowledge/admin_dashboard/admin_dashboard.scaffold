@@ -1,0 +1,379 @@
+# =================================================================
+# == GNOSTIC ADMIN DASHBOARD BLUEPRINT (V-Ω-FULL-STACK-UI)       ==
+# == A complete, responsive React/Tailwind Admin System          ==
+# =================================================================
+
+$$ app_name = "nexus-dashboard"
+$$ primary_color = "slate"
+
+# --- 1. THE CORE INFRASTRUCTURE ---
+
+src/App.tsx :: """
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '@/providers/AuthProvider';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import AuthGuard from '@/components/auth/AuthGuard';
+import DashboardPage from '@/pages/DashboardPage';
+import UsersPage from '@/pages/UsersPage';
+import SettingsPage from '@/pages/SettingsPage';
+import LoginPage from '@/pages/LoginPage';
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={
+              <AuthGuard>
+                <DashboardLayout />
+              </AuthGuard>
+            }>
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
+  );
+}
+"""
+
+# --- 2. THE LAYOUT SYSTEM (Generated via Logic) ---
+
+src/layouts/DashboardLayout.tsx :: @ui/component(name="DashboardLayout", props="type:dashboard-layout")
+
+src/components/layout/Header.tsx :: """
+import { Bell, Search, Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { UserNav } from '@/components/layout/UserNav';
+
+export function Header({ onMenuClick }: { onMenuClick: () => void }) {
+  return (
+    <header className="border-b bg-card px-6 py-3 flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenuClick}>
+          <Menu className="h-5 w-5" />
+        </Button>
+        <div className="relative w-64 hidden md:block">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <input 
+            placeholder="Search..." 
+            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pl-8"
+          />
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <ThemeToggle />
+        <Button variant="ghost" size="icon">
+          <Bell className="h-5 w-5" />
+        </Button>
+        <UserNav />
+      </div>
+    </header>
+  );
+}
+"""
+
+src/components/layout/Sidebar.tsx :: """
+import { LayoutDashboard, Users, Settings, LogOut, Box } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+
+export function Sidebar() {
+  const { logout } = useAuth();
+  
+  const links = [
+    { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { href: '/users', label: 'Users', icon: Users },
+    { href: '/inventory', label: 'Inventory', icon: Box },
+    { href: '/settings', label: 'Settings', icon: Settings },
+  ];
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex h-16 items-center border-b px-6">
+        <span className="text-lg font-bold tracking-tight">Nexus<span className="text-primary">Admin</span></span>
+      </div>
+      <nav className="flex-1 space-y-1 p-4">
+        {links.map((link) => (
+          <NavLink
+            key={link.href}
+            to={link.href}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                isActive 
+                  ? "bg-primary text-primary-foreground" 
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              )
+            }
+          >
+            <link.icon className="h-4 w-4" />
+            {link.label}
+          </NavLink>
+        ))}
+      </nav>
+      <div className="p-4 border-t">
+        <Button variant="ghost" className="w-full justify-start gap-3" onClick={logout}>
+          <LogOut className="h-4 w-4" />
+          Log Out
+        </Button>
+      </div>
+    </div>
+  );
+}
+"""
+
+src/components/layout/UserNav.tsx :: """
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+export function UserNav() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src="https://github.com/shadcn.png" alt="@user" />
+            <AvatarFallback>AD</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">Architect</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              admin@nexus.io
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem>Billing</DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>Log out</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+"""
+
+# --- 3. THE UI COMPONENT LIBRARY (Generated via Gnosis) ---
+
+# Atomic Design
+src/components/ui/button.tsx :: @ui/component(name="Button", props="variant:enum")
+src/components/ui/input.tsx :: @ui/component(name="Input", props="type:string")
+src/components/ui/card.tsx :: @ui/component(name="Card")
+src/components/ui/avatar.tsx :: @ui/component(name="Avatar")
+src/components/ui/dropdown-menu.tsx :: @ui/component(name="DropdownMenu")
+src/components/ui/skeleton.tsx :: @ui/component(name="Skeleton")
+src/components/ui/badge.tsx :: @ui/component(name="Badge")
+src/components/ui/table.tsx :: @ui/component(name="Table")
+
+# --- 4. THE PAGES & WIDGETS ---
+
+src/components/dashboard/StatsCards.tsx :: """
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DollarSign, Users, Activity, CreditCard } from "lucide-react";
+
+export function StatsCards() {
+  const stats = [
+    { title: "Total Revenue", value: "$45,231.89", icon: DollarSign, desc: "+20.1% from last month" },
+    { title: "Subscriptions", value: "+2350", icon: Users, desc: "+180.1% from last month" },
+    { title: "Active Now", value: "+573", icon: Activity, desc: "+201 since last hour" },
+    { title: "Sales", value: "+12,234", icon: CreditCard, desc: "+19% from last month" },
+  ];
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {stats.map((stat) => (
+        <Card key={stat.title}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+            <stat.icon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stat.value}</div>
+            <p className="text-xs text-muted-foreground">{stat.desc}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+"""
+
+src/components/dashboard/RecentSales.tsx :: """
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+export function RecentSales() {
+  return (
+    <div className="space-y-8">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div className="flex items-center" key={i}>
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={`https://i.pravatar.cc/150?u=${i}`} alt="Avatar" />
+            <AvatarFallback>OM</AvatarFallback>
+          </Avatar>
+          <div className="ml-4 space-y-1">
+            <p className="text-sm font-medium leading-none">Olivia Martin</p>
+            <p className="text-sm text-muted-foreground">olivia.martin@email.com</p>
+          </div>
+          <div className="ml-auto font-medium">+$1,999.00</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+"""
+
+src/pages/DashboardPage.tsx :: """
+import { StatsCards } from '@/components/dashboard/StatsCards';
+import { RecentSales } from '@/components/dashboard/RecentSales';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+
+export default function DashboardPage() {
+  return (
+    <div className="flex-1 space-y-4">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <div className="flex items-center space-x-2">
+          <Button>Download Report</Button>
+        </div>
+      </div>
+      
+      <StatsCards />
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Overview</CardTitle>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+              Chart Component Placeholder
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Recent Sales</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RecentSales />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+"""
+
+src/pages/UsersPage.tsx :: """
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+
+export default function UsersPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-medium">Users</h3>
+        <p className="text-sm text-muted-foreground">Manage system access and roles.</p>
+      </div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell className="font-medium">Alice Smith</TableCell>
+              <TableCell><Badge variant="default">Active</Badge></TableCell>
+              <TableCell>Admin</TableCell>
+              <TableCell className="text-right">$250.00</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Bob Jones</TableCell>
+              <TableCell><Badge variant="destructive">Inactive</Badge></TableCell>
+              <TableCell>Editor</TableCell>
+              <TableCell className="text-right">$120.00</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+"""
+
+# --- 5. UTILITIES & HOOKS ---
+
+src/components/auth/AuthGuard.tsx :: @ui/component(name="AuthGuard", props="children:node", prompt="A guard wrapper that checks auth state")
+
+src/hooks/useAuth.ts :: """
+{% raw %}
+import { useState, useEffect, createContext, useContext } from 'react';
+
+interface AuthContextType {
+  user: any;
+  login: () => void;
+  logout: () => void;
+  isLoading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType>({} as any);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Mock auth check
+    setTimeout(() => {
+      setUser({ name: 'Admin' });
+      setIsLoading(false);
+    }, 500);
+  }, []);
+
+  const login = () => setUser({ name: 'Admin' });
+  const logout = () => setUser(null);
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export const useAuth = () => useContext(AuthContext);
+{% endraw %}
+"""
+
+src/lib/utils.ts :: @ui/utils

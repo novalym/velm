@@ -1,0 +1,63 @@
+# Path: scaffold/archetypes/genesis/node.scaffold
+# -----------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: NODE.JS LEGACY (V-Ω-STRUCTURAL-PURITY)           ==
+# =================================================================================
+# @description: A classic Node.js project with Jest for testing, forged with
+#               unbreakable Gnostic structure.
+# =================================================================================
+
+{{ project_slug }}/
+    .gitignore :: """
+    node_modules/
+    coverage/
+    .env
+    """
+
+    package.json:
+        {
+          "name": "{{ project_slug }}",
+          "version": "0.1.0",
+          "description": "{{ description }}",
+          "main": "src/index.js",
+          "scripts": {
+            "start": "node src/index.js",
+            "test": "jest"
+          },
+          "author": "{{ author }}",
+          "devDependencies": {
+            "jest": "^29.0.0"
+          }
+        }
+
+    src/
+        index.js:
+            function main() {
+                const message = `Gnosis is truth. The '{{ project_name }}' reality is manifest.`;
+                console.log(message);
+                return message;
+            }
+
+            if (require.main === module) {
+                main();
+            }
+
+            module.exports = { main };
+
+    tests/
+        index.test.js:
+            const { main } = require('../src/index');
+
+            describe('main', () => {
+                it('should proclaim the Gnostic truth', () => {
+                    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+                    const result = main();
+                    expect(result).toContain('{{ project_name }}');
+                    consoleSpy.mockRestore();
+                });
+            });
+
+%% post-run
+    npm install
+    git init

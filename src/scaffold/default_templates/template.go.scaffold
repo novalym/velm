@@ -1,0 +1,17 @@
+# Path: scaffold/default_templates/template.go.scaffold
+# -----------------------------------------------------
+
+$$ module_path = "example.com/{{ project_slug }}"
+
+go.mod:
+    module {{ module_path }}
+    go 1.22
+
+main.go:
+    package main
+
+    import "fmt"
+
+    func main() {
+        fmt.Println("Gnosis is truth. The Go reality is manifest.")
+    }

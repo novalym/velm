@@ -1,0 +1,11 @@
+# Path: scaffold/default_templates/template.ruby.scaffold
+# -------------------------------------------------------
+
+Gemfile:
+    source "https://rubygems.org"
+    # gem "rails"
+
+lib/
+    main.rb:
+        # The Ruby reality is manifest
+        puts "Gnosis is truth."

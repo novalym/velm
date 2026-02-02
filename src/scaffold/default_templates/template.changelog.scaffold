@@ -1,0 +1,23 @@
+# Path: scaffold/default_templates/template.changelog.scaffold
+# ----------------------------------------------------------
+$$ project_name = {{ project_name }}
+$$ date = {{ now('local', '%Y-%m-%d') }}
+
+CHANGELOG.md :: """
+# Changelog
+
+All notable changes to **{{ project_name }}** will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- Initial project structure forged by Scaffold.
+
+## [0.1.0] - {{ date }}
+
+### Added
+- Core architecture established.
+"""

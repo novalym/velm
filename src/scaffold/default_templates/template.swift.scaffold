@@ -1,0 +1,17 @@
+# Path: scaffold/default_templates/template.swift.scaffold
+# --------------------------------------------------------
+
+Package.swift:
+    // swift-tools-version: 5.9
+    import PackageDescription
+
+    let package = Package(
+        name: "{{ project_name | pascal }}",
+        targets: [
+            .executableTarget(name: "{{ project_name | pascal }}"),
+        ]
+    )
+
+Sources/{{ project_name | pascal }}/
+    main.swift:
+        print("Gnosis is truth. The Swift reality is manifest.")

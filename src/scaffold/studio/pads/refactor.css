@@ -1,0 +1,222 @@
+/* Path: studio/pads/refactor.css */
+
+/* --- The Cosmos --- */
+Screen {
+    layout: vertical;
+    background: $surface;
+    color: $text;
+}
+
+/* --- The Header --- */
+Header {
+    dock: top;
+    height: 1;
+    background: $accent-darken-2;
+    color: $text;
+    text-style: bold;
+}
+
+/* --- The Main Sanctum (Mutable Layout) --- */
+#main-container {
+    height: 1fr;
+    padding: 1;
+    /* Default: Horizontal */
+    layout: horizontal;
+}
+
+    #main-container.vertical {
+        layout: vertical;
+    }
+
+/* --- The Panes --- */
+.pane {
+    height: 100%;
+    border: heavy $accent-lighten-2;
+    padding: 0 0;
+    background: $surface-darken-1;
+}
+
+#main-container.horizontal .pane {
+    width: 50%;
+}
+
+#main-container.vertical .pane {
+    width: 100%;
+    height: 50%;
+}
+
+.pane-title {
+    text-align: center;
+    background: $accent;
+    color: $text;
+    text-style: bold;
+    padding: 0 1;
+    dock: top;
+}
+
+/* --- The Tree Views --- */
+Tree {
+    height: 1fr;
+    scrollbar-gutter: stable;
+    padding: 1;
+}
+
+/* --- Search Bar (The Omniscient Eye) --- */
+#search-container {
+    dock: top;
+    height: 3;
+    padding: 0 1;
+    background: $surface-darken-1;
+    /* THE FIX: Replaced $dim with $secondary */
+    border-bottom: solid $secondary;
+}
+
+Input#search-input {
+    border: none;
+    background: transparent;
+}
+
+/* --- The Telemetry HUD --- */
+#hud {
+    dock: bottom;
+    height: 1;
+    background: $surface-lighten-1;
+    color: $text-muted;
+    padding: 0 2;
+    text-align: center;
+}
+
+.hud-stat {
+    color: $accent-lighten-2;
+    text-style: bold;
+}
+
+/* --- Tree Node Styling --- */
+.dir-label {
+    color: $secondary-lighten-2;
+    text-style: bold;
+}
+
+.file-label {
+    color: $text;
+}
+
+/* Visual Indicators of Transmutation */
+.node-moved {
+    color: $warning;
+    text-style: italic;
+}
+
+.node-new {
+    color: $success;
+    text-style: bold;
+}
+
+.node-ghost {
+    color: $error;
+    text-style: strike;
+}
+
+.node-hidden {
+    display: none;
+}
+
+/* Mutable Tree Highlight */
+#tree-after {
+    border-left: solid $accent;
+    background: $surface;
+}
+
+    #tree-after:focus {
+        border: double $secondary;
+    }
+
+/* --- Modals --- */
+InputModal, WelcomeModal, PreviewModal, ExecutionModal, RegexModal {
+    align: center middle;
+    background: $surface 80%;
+}
+
+.modal-box {
+    width: 70;
+    height: auto;
+    max-height: 80%;
+    background: $surface;
+    border: thick $primary;
+    padding: 2;
+    layout: vertical;
+}
+
+.modal-title {
+    text-align: center;
+    text-style: bold;
+    color: $accent-lighten-2;
+    margin-bottom: 1;
+    /* THE FIX: Use canonical $secondary */
+    border-bottom: solid $secondary;
+}
+
+.modal-buttons {
+    align: center middle;
+    margin-top: 2;
+    height: 3;
+}
+
+Button {
+    margin: 0 1;
+}
+
+/* --- Preview Modal Specifics --- */
+#preview-table {
+    height: auto;
+    max-height: 20;
+    margin-bottom: 1;
+}
+
+.diff-moved {
+    color: $warning;
+}
+
+.diff-created {
+    color: $success;
+}
+
+.diff-deleted {
+    color: $error;
+}
+
+/* --- Execution Modal Specifics --- */
+#execution-log {
+    height: 20;
+    background: $surface-darken-1;
+    /* THE FIX: Use canonical $secondary */
+    border: solid $secondary;
+    padding: 1;
+    overflow-y: auto;
+}
+
+
+/* --- The Control Altar (New) --- */
+#control-bar {
+    height: 3;
+    background: $surface-darken-1;
+    border-top: solid $secondary;
+    align: center middle;
+    padding: 0 1;
+    margin-top: 0;
+}
+
+    #control-bar Button {
+        min-width: 20;
+        margin: 0 2;
+    }
+
+/* Ensure tree takes remaining space */
+#tree-after {
+    height: 1fr;
+    border-left: solid $accent;
+    background: $surface;
+    margin-bottom: 0;
+}
+
+

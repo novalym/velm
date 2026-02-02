@@ -1,0 +1,25 @@
+<style>
+.table-container {
+    width: 100%; overflow-x: auto; background: var(--surface);
+    border-radius: var(--radius); border: 1px solid var(--border);
+}
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th {
+    background: #f1f5f9; padding: 1rem; font-size: 0.85rem;
+    text-transform: uppercase; color: var(--text-light); letter-spacing: 0.05em;
+}
+td { padding: 1rem; border-top: 1px solid var(--border); color: var(--text); }
+tr:hover td { background: #f8fafc; }
+</style>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr><th>User</th><th>Role</th><th>Status</th><th>Last Active</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Alice</td><td>Admin</td><td><span class="badge badge-success">Active</span></td><td>2m ago</td></tr>
+            <tr><td>Bob</td><td>Editor</td><td><span class="badge badge-warning">Away</span></td><td>2h ago</td></tr>
+            <tr><td>Charlie</td><td>Viewer</td><td><span class="badge">Offline</span></td><td>1d ago</td></tr>
+        </tbody>
+    </table>
+</div>

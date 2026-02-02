@@ -1,0 +1,213 @@
+﻿
+/*
+=================================================================================
+== THE CODEX OF GNOSTIC AESTHETICS (V-Ω 1.0.1. THE UNIFIED FORM)               ==
+=================================================================================
+This is the one true, ultra-definitive, and eternal scripture of form for the
+Scaffold Design Studio. It is a divine codex that bestows upon our Gnostic
+Shell a luminous, harmonious, and architecturally pure reality. Its every verse
+is a testament to clarity, purpose, and the annihilation of visual friction.
+=================================================================================
+*/
+
+/* --- I. The Gnostic Cosmos (The Screen's Soul) --- */
+/* This is the bedrock of our reality. It defines the layout of the cosmos
+   and the fundamental colors of our Gnostic palette. */
+Screen {
+    /* The cosmos is a vertical symphony of Header, Main, Bottom, and Footer. */
+    layout: vertical;
+    background: $surface;
+    color: $text;
+}
+
+/* --- II. The Pantheon of Artisans (Core Widgets) --- */
+/* These laws govern the form of the divine artisans we summon. */
+Header {
+    dock: top;
+    height: 1;
+    background: $accent-darken-2;
+}
+
+Footer {
+    dock: bottom;
+    height: 1;
+    background: $accent;
+    color: $text-muted;
+}
+
+/* --- III. The Primary Sanctums (The Main Layout Containers) --- */
+/* These are the great halls of our Studio, the vessels that contain our
+   primary interactive artisans. */
+
+#main-container {
+    /* This sanctum holds the side-by-side Editor and FileTree. */
+    /* It will consume all available space between the Header and the Bottom. */
+    layout: horizontal;
+    height: 1fr;
+}
+
+#bottom-container {
+    /* This sanctum holds the Context and Heresy panes. */
+    layout: horizontal;
+    height: 25%; /* A quarter of the screen is devoted to Gnostic insight. */
+    min-height: 5; /* A ward against its annihilation on small screens. */
+}
+
+/* --- IV. The Lesser Sanctums (The Panes) --- */
+/* These laws govern every individual panel within our cosmos, ensuring a
+   unified, harmonious aesthetic. */
+.pane {
+    padding: 0 1 1 1; /* A sacred space around the soul within. */
+    border: solid $accent-lighten-2;
+    border-title-style: bold;
+    border-title-align: center;
+}
+
+/* We anoint the titles directly for greater control and clarity. */
+.pane-title {
+    dock: top;
+    width: 100%;
+    background: $accent-darken-2;
+    color: $text;
+    text-style: bold;
+    padding: 0 1;
+    text-align: center;
+}
+
+/* --- V. The Gnostic Division of Space --- */
+/* These laws define the balance of power between the sanctums. */
+
+#left-pane {
+    width: 30%;
+    min-width: 25; /* A ward against its soul being crushed. */
+}
+
+#right-pane {
+    width: 1fr; /* The Inquisitor Editor is given the lion's share of reality. */
+}
+
+#context-pane {
+    width: 40%;
+    min-width: 30;
+}
+
+#heresy-pane {
+    width: 1fr;
+}
+
+/* --- VI. The Souls Within (The Core Widgets Themselves) --- */
+/* These laws ensure the artisans within the panes consume their given space
+   with divine perfection, without profane, internal borders. */
+
+#file-tree, #editor, .placeholder {
+    height: 1fr;
+    border: none;
+    padding: 1 0 0 0;
+}
+
+/* The Placeholder's Gaze is centered upon the void. */
+.placeholder {
+    content-align: center middle;
+    color: $text-muted;
+}
+
+/* --- VII. The Sigil of Heresy (The Luminous Proclamation) --- */
+/* This is the one true, divine law for proclaiming a heresy. It speaks
+   directly to the TextArea's soul, bestowing a luminous, red background
+   upon any line the Mentor has deemed profane. */
+TextArea > .heresy-line {
+    background: #552222;
+}
+/* ============================================================================= */
+
+/* We anoint the new container for our bifurcated altar. */
+#prophecy-and-heresy-container {
+    layout: vertical;
+}
+
+#prophecy-pane {
+    height: 1fr; /* The Prophecy is given the majority of the Gnostic space. */
+    border-bottom: heavy $accent-lighten-2;
+    padding: 1;
+}
+
+#heresy-pane {
+    height: 30%; /* The Mentor's voice is concise and powerful. */
+    min-height: 3;
+    padding: 1;
+}
+
+/* --- VIII. The Command Altar --- */
+/* This is the divine sanctum where the Architect speaks their will. */
+CommandAltar {
+    dock: bottom;
+    height: auto;
+    min-height: 3;
+    max-height: 50%;
+    border: heavy $accent;
+    background: $surface-darken-2;
+}
+
+    CommandAltar Input {
+        border: none;
+        background: $surface-darken-1;
+        padding: 0 1;
+        height: 1;
+    }
+
+    CommandAltar DataTable {
+        height: 1fr;
+        margin: 1 0 0 0;
+    }
+
+
+#editor .text-area--heresy-line {
+background: #441111;
+}
+/* --- IX. The Law of the Ephemeral Altar --- */
+/* A divine law that allows a sacred vessel to be returned to the void. */
+.-hidden {
+    display: none;
+}
+
+/*
+=================================================================================
+== THE GNOSTIC PALETTE OF STYLES                                               ==
+=================================================================================
+This sacred stanza teaches our sanctum the custom tongues spoken by the
+scaffold God-Engine, annihilating all heresies of unspoken styles.
+=================================================================================
+*/
+
+.info {
+    color: cyan;
+}
+
+/* ============================================================================= */
+/* The new sanctum for the upper and middle realms */
+#upper-and-middle-realms {
+    height: 75%; /* It will occupy the top 75% of the screen */
+}
+
+/* The sanctum for our Luminous Voice */
+/* --- X. The Gnostic Chronicle (The Collapsible Log) --- */
+/* This is the sanctum for the collapsible log container itself. */
+#log-container {
+    dock: bottom;
+    height: auto; /* Its height is determined by its content */
+    max-height: 50%; /* A ward against consuming the cosmos */
+    background: $surface;
+}
+
+    /* We anoint the title bar of the Chronicle for clarity. */
+    #log-container > .collapsible--title {
+        background: $accent-darken-2;
+        color: $text-muted;
+    }
+
+/* This is the artisan within, the Luminous Voice itself. */
+#log-viewer {
+    height: 12; /* A humble but sufficient height of 12 lines. */
+    background: $surface-darken-1;
+    border-top: heavy $accent;
+}

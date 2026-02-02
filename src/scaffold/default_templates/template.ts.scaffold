@@ -1,0 +1,23 @@
+# Path: scaffold/default_templates/template.ts.scaffold
+# -----------------------------------------------------
+$$ filename = "service.ts"
+
+{{ filename }}:
+    // Path: {{ filename }}
+
+    interface IServiceOptions {
+      endpoint: string;
+    }
+
+    export class NewService {
+      private readonly endpoint: string;
+
+      constructor(options: IServiceOptions) {
+        this.endpoint = options.endpoint;
+        console.log(`Service initialized: ${this.endpoint}`);
+      }
+
+      public async execute(): Promise<void> {
+        // Gnostic logic here
+      }
+    }

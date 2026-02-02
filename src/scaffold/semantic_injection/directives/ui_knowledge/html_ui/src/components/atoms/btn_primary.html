@@ -1,0 +1,15 @@
+<style>
+.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.75rem 1.5rem; border-radius: var(--radius);
+    font-weight: 600; text-decoration: none; cursor: pointer;
+    transition: all 0.2s; border: none; gap: 0.5rem;
+}
+.btn-primary {
+    background: var(--primary); color: white;
+    box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
+}
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(1px); }
+</style>
+<button class="btn btn-primary">Initialize Core</button>

@@ -1,0 +1,23 @@
+# Path: scaffold/default_templates/template.makefile.scaffold
+# -----------------------------------------------------------
+$$ name = {{ project_slug }}
+
+Makefile:
+    .PHONY: help install test run clean
+
+    help:
+    	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+    install: ## Install dependencies
+    	@echo "Installing dependencies for {{ name }}..."
+    	@pip install -r requirements.txt
+
+    test: ## Run tests
+    	@pytest
+
+    run: ## Run the application
+    	@python src/main.py
+
+    clean: ## Clean build artifacts
+    	@rm -rf __pycache__ .pytest_cache
+    	@find . -name "*.pyc" -delete

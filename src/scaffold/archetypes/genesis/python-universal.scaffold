@@ -1,0 +1,159 @@
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: PYTHON UNIVERSAL (V-Ω-ETERNAL-PURITY)            ==
+# =================================================================================
+# This scripture is now eternally pure. All profane quotes have been annihilated.
+# The Maestro's Will is now a pure, unbreakable Jinja block.
+# =================================================================================
+
+# --- I. The Altar of Gnostic Will (DERIVED GNOSIS ONLY) ---
+$$ project_slug = {{ project_name | slug }}
+$$ description = A new {{ project_type }} project forged by the Scaffold God-Engine.
+$$ author = The Architect
+$$ project_title = {{ project_slug | title }}
+
+# --- II. The Scripture of Form ---
+/{{ project_slug }}/
+    README.md:
+        # {{ project_title }}
+
+        _{{ description }}_
+        
+        A project forged by the Scaffold God-Engine.
+
+        ## Running the Application
+        ```bash
+        {% if use_poetry %}
+        poetry run python src/{{ project_slug | snake }}/main.py
+        {% else %}
+        .venv/Scripts/python src/{{ project_slug | snake }}/main.py
+        {% endif %}
+        ```
+
+    .gitignore:
+        __pycache__/
+        *.py[cod]
+        .pytest_cache/
+        .ruff_cache/
+        build/
+        dist/
+        *.egg-info/
+        .env
+        .env.*
+        !.env.example
+        .vscode/
+        .idea/
+        .DS_Store
+        {% if not use_poetry %}.venv/{% endif %}
+
+    pyproject.toml :: """
+    {% if use_poetry %}
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "{{ description }}"
+    authors = ["{{ author }}"]
+    readme = "README.md"
+    packages = [{include = "{{ project_slug | snake }}", from = "src"}]
+
+    [tool.poetry.dependencies]
+    python = "^{{ python_version | default('3.11') }}"
+    rich = "^13.7.0"
+
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    ruff = "^0.2.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+    {% else %}
+    [project]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "{{ description }}"
+    authors = [ { name = "{{ author }}" } ]
+    requires-python = ">={{ python_version | default('3.11') }}"
+    dependencies = [ "rich>=13.0" ]
+    {% endif %}
+    """
+
+    {% if not use_poetry -%}
+    requirements.txt:
+        rich>=13.0
+    
+    requirements-dev.txt:
+        pytest>=8.0.0
+        ruff>=0.2.0
+    {%- endif %}
+    
+    Makefile :: """
+    .PHONY: help install run test lint
+
+    help:
+        @echo "Makefile for {{ project_title }}"
+        @echo "Usage: make [install|run|test|lint]"
+
+    {% if use_poetry -%}
+    install:
+        @poetry install
+    run:
+        @poetry run python src/{{ project_slug | snake }}/main.py
+    test:
+        @poetry run pytest
+    lint:
+        @poetry run ruff check .
+    {%- else -%}
+    VENV_DIR = .venv
+    PYTHON_EXEC = $(VENV_DIR)/bin/python
+    ifeq ($(OS),Windows_NT)
+        PYTHON_EXEC = $(VENV_DIR)/Scripts/python
+    endif
+
+    install:
+        @python -m venv $(VENV_DIR)
+        @$(PYTHON_EXEC) -m pip install -r requirements.txt -r requirements-dev.txt
+    run:
+        @$(PYTHON_EXEC) src/{{ project_slug | snake }}/main.py
+    test:
+        @$(PYTHON_EXEC) -m pytest
+    lint:
+        @$(PYTHON_EXEC) -m ruff check .
+    {%- endif %}
+    """
+
+    src/
+        {{ project_slug | snake }}/
+            __init__.py
+            main.py:
+                from rich.console import Console
+
+                def main():
+                    console = Console()
+                    console.print(f"Gnosis is truth. The '[bold green]{{ project_title }}[/bold green]' reality is manifest.")
+
+                if __name__ == "__main__":
+                    main()
+
+    tests/
+        test_main.py:
+            def test_placeholder():
+                assert True
+    
+    {% if use_vscode -%}
+    .vscode/
+        settings.json:
+            {
+                "python.testing.pytestArgs": ["tests"],
+                "python.testing.unittestEnabled": false,
+                "python.testing.pytestEnabled": true
+            }
+    {%- endif %}
+
+    {%- if use_git %}
+    # --- III. The Maestro's Will ---
+    %% post-run
+        git init
+        make install
+        git add .
+        git commit -m "feat(init): Initial structure for {{ project_slug }} forged by Scaffold"
+    {%- endif %}

@@ -1,0 +1,103 @@
+# Path: scaffold/archetypes/genesis/grpc-microservice.scaffold
+# ------------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: GRPC MICROSERVICE (V-Ω-CONTRACT-FIRST)           ==
+# =================================================================================
+# @description: A high-performance, contract-first gRPC service using Python,
+#               Poetry, and automated protobuf compilation.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+
+{{ project_slug }}/
+    .gitignore :: ".venv/\n__pycache__/\nsrc/{{ package_name }}/protos/{{ package_name }}_pb2_grpc.py\nsrc/{{ package_name }}/protos/{{ package_name }}_pb2.py"
+    README.md :: "## gRPC Microservice\n1. `make install`\n2. `make protos`\n3. Run `server.py` and `client.py` in separate terminals."
+
+    pyproject.toml:
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        packages = [{include = "{{ package_name }}", from = "src"}]
+
+        [tool.poetry.dependencies]
+        python = "^3.11"
+        grpcio = "^1.62.0"
+        protobuf = "^4.25.0"
+
+        [tool.poetry.group.dev.dependencies]
+        grpcio-tools = "^1.62.0"
+
+    Makefile:
+        install:
+        	poetry install
+
+        protos:
+        	@echo "Compiling Protobuf Gnosis..."
+        	@poetry run python -m grpc_tools.protoc -I./src/{{ package_name }}/protos --python_out=./src/{{ package_name }}/protos --grpc_python_out=./src/{{ package_name }}/protos ./src/{{ package_name }}/protos/{{ package_name }}.proto
+
+        run-server:
+        	@poetry run python src/{{ package_name }}/server.py
+
+        run-client:
+        	@poetry run python src/{{ package_name }}/client.py
+
+    src/
+        {{ package_name }}/
+            protos/
+                # The API Contract
+                {{ package_name }}.proto:
+                    syntax = "proto3";
+
+                    package {{ package_name }};
+
+                    service GnosticOracle {
+                      rpc Proclaim (ProclamationRequest) returns (ProclamationReply);
+                    }
+
+                    message ProclamationRequest {
+                      string name = 1;
+                    }
+
+                    message ProclamationReply {
+                      string message = 1;
+                    }
+
+            server.py:
+                import grpc
+                from concurrent import futures
+                from protos import {{ package_name }}_pb2, {{ package_name }}_pb2_grpc
+
+                class GnosticOracleServicer({{ package_name }}_pb2_grpc.GnosticOracleServicer):
+                    def Proclaim(self, request, context):
+                        return {{ package_name }}_pb2.ProclamationReply(message=f'Gnosis is truth, {request.name}!')
+
+                def serve():
+                    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+                    {{ package_name }}_pb2_grpc.add_GnosticOracleServicer_to_server(GnosticOracleServicer(), server)
+                    server.add_insecure_port('[::]:50051')
+                    server.start()
+                    print("Oracle is listening on port 50051.")
+                    server.wait_for_termination()
+
+                if __name__ == '__main__':
+                    serve()
+
+            client.py:
+                import grpc
+                from protos import {{ package_name }}_pb2, {{ package_name }}_pb2_grpc
+
+                def run():
+                    with grpc.insecure_channel('localhost:50051') as channel:
+                        stub = {{ package_name }}_pb2_grpc.GnosticOracleStub(channel)
+                        response = stub.Proclaim({{ package_name }}_pb2.ProclamationRequest(name='Architect'))
+                    print(f"Oracle proclaimed: \"{response.message}\"")
+
+                if __name__ == '__main__':
+                    run()
+
+%% post-run
+    git init
+    poetry install
+    make protos

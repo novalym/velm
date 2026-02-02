@@ -1,0 +1,112 @@
+﻿/* C:/dev/scaffold-project/scaffold/studio/pads/pad.css */
+
+/*
+=================================================================================
+== THE SCRIPTURE OF GNOSTIC BEAUTY (V-Ω-ULTIMA++. THE FINAL FORM)             ==
+=================================================================================
+This is the final, eternal codex of aesthetics. It contains the sacred law that
+annihilates the Heresy of the Constrained Form. By removing all height and width
+constraints from the children of the VerticalScroll (#pure_pane, #heresy_pane),
+we allow them to have a natural, automatic height. This awakens the Gaze of the
+VerticalScroll, which can now perceive when their souls overflow its bounds and
+righteously manifest the sacred scrollbar. The form is now pure.
+=================================================================================
+*/
+
+Screen {
+    layout: vertical;
+    background: $surface;
+    color: $text;
+}
+
+Header {
+    dock: top;
+    height: 1;
+    background: $accent-darken-2;
+}
+
+Footer {
+    dock: bottom;
+    height: 1;
+    background: $accent;
+    color: $text-muted;
+}
+
+#main-panes {
+    layout: horizontal;
+    height: 1fr;
+    padding: 1;
+    grid-size: 2;
+    grid-columns: 1fr 1fr;
+    grid-gutter: 1;
+}
+
+#input_pane, #output_container {
+    height: 1fr;
+    border: heavy $accent-lighten-2;
+    border-title-style: bold;
+    border-title-align: center;
+}
+
+#input_pane {
+    border-title: "Profane Scripture (Input)";
+}
+
+#output_container {
+    border-title: "Living Prophecy (Output)";
+}
+
+/* --- The Annihilation of the Heresy of the Humble Soul --- */
+/* The height and width constraints are annihilated. The panes now have a natural,
+   automatic height, allowing their parent VerticalScroll to perceive overflow. */
+#pure_pane, #heresy_pane {
+    /* No height or width is specified. They will be auto-sized. */
+}
+
+#heresy_pane {
+    display: none;
+    padding: 1;
+}
+
+#output_container.heresy {
+    border: heavy $error;
+    border-title-color: $text;
+    border-title-background: $error;
+}
+
+/* --- The Gnostic Altar of Command (Overlay) --- */
+#command_palette {
+    layer: top;
+    align: center middle;
+    width: 60%;
+    height: 50%;
+    border: wide $accent;
+    background: $surface-darken-2;
+    padding: 1;
+}
+
+    #command_palette:focus ListItem.-cursor {
+        background: $accent;
+        color: $text;
+    }
+
+/* A ward to hide the Altar when it is not summoned. */
+.-hidden {
+    display: none;
+}
+
+/* Heresy Dialogs (Modal Screens) */
+#quit-dialog {
+    grid-size: 2;
+    grid-gutter: 1 2;
+    grid-rows: 1fr 3;
+    padding: 0 1;
+    width: 60;
+    height: 18;
+    border: thick $primary;
+    background: $surface;
+}
+
+#quit-buttons {
+    column-span: 2;
+}

@@ -1,0 +1,15 @@
+# Path: scaffold/default_templates/template.json.scaffold
+# -------------------------------------------------------
+$$ filename = "data.json"
+$$ project_name = {{ project_name }}
+$$ author = {{ author }}
+
+{{ filename }} :: """
+{
+  "name": "{{ project_name }}",
+  "version": "1.0.0",
+  "description": "Forged by Scaffold",
+  "author": "{{ author }}",
+  "private": true
+}
+"""

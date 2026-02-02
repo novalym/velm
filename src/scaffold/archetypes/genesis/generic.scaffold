@@ -1,0 +1,33 @@
+# Path: scaffold/archetypes/genesis/generic.scaffold
+# --------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: GENERIC SANCTUM (V-Ω-STRUCTURAL-PURITY)          ==
+# =================================================================================
+# @description: The purest void. A minimal, universal starting point for any project.
+# =================================================================================
+
+{{ project_slug }}/
+    .gitignore:
+        # A humble ward against the most common profane artifacts
+        .vscode/
+        .idea/
+        .DS_Store
+        .env
+
+    README.md:
+        # {{ project_name }}
+
+        A new reality forged by the Scaffold God-Engine.
+
+    docs/
+        architecture.md:
+            # Architecture
+
+            This scripture will chronicle the Gnostic soul of '{{ project_name }}'.
+
+    src/
+        main.txt :: "This is the heart of the '{{ project_name }}' reality."
+
+%% post-run
+    git init

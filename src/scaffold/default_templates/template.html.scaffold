@@ -1,0 +1,19 @@
+# Path: scaffold/default_templates/template.html.scaffold
+# -------------------------------------------------------
+$$ filename = "index.html"
+$$ title = {{ project_name }}
+
+{{ filename }} :: """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1>Welcome to {{ title }}</h1>
+    <p>Forged by the Scaffold God-Engine.</p>
+</body>
+</html>
+"""

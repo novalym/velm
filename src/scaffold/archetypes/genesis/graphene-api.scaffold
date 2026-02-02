@@ -1,0 +1,86 @@
+# Path: scaffold/archetypes/genesis/graphene-api.scaffold
+# -------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: GRAPHENE API (V-Ω-GRAPHQL-ASCENSION)             ==
+# =================================================================================
+# @description: A production-grade GraphQL API forged with FastAPI, Strawberry,
+#               and the Gnostic principles of type safety and discoverability.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+
+{{ project_slug }}/
+    .gitignore :: ".venv/\n__pycache__/\n.env"
+    README.md :: "## Graphene API\n- `poetry install`\n- `poetry run dev`\n- Explore at http://localhost:8000/graphql"
+
+    pyproject.toml:
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        packages = [{include = "{{ package_name }}", from = "src"}]
+        [tool.poetry.dependencies]
+        python = "^3.11"
+        fastapi = "^0.110.0"
+        uvicorn = {extras = ["standard"], version = "^0.27.0"}
+        strawberry-graphql = {extras = ["fastapi"], version = "^0.220.0"}
+        
+        [tool.poetry.scripts]
+        dev = "{{ package_name }}.main:run_dev"
+
+    src/
+        {{ package_name }}/
+            __init__.py
+            main.py:
+                import uvicorn
+                from fastapi import FastAPI
+                from strawberry.fastapi import GraphQLRouter
+                from .schema import schema
+
+                graphql_app = GraphQLRouter(schema)
+
+                app = FastAPI()
+                app.include_router(graphql_app, prefix="/graphql")
+
+                @app.get("/health")
+                def health():
+                    return {"status": "pure"}
+
+                def run_dev():
+                    uvicorn.run("{{ package_name }}.main:app", host="0.0.0.0", port=8000, reload=True)
+
+            schema.py:
+                import typing
+                import strawberry
+
+                # In-memory "database" for this example
+                books_db = [
+                    {"title": "The Gnostic Architect", "author": "The First Scribe"},
+                    {"title": "Scaffold: A History", "author": "The Chronicler"},
+                ]
+
+                @strawberry.type
+                class Book:
+                    title: str
+                    author: str
+
+                @strawberry.type
+                class Query:
+                    @strawberry.field
+                    def books(self) -> typing.List[Book]:
+                        return [Book(**b) for b in books_db]
+
+                @strawberry.type
+                class Mutation:
+                    @strawberry.mutation
+                    def add_book(self, title: str, author: str) -> Book:
+                        new_book = {"title": title, "author": author}
+                        books_db.append(new_book)
+                        return Book(**new_book)
+
+                schema = strawberry.Schema(query=Query, mutation=Mutation)
+
+%% post-run
+    git init
+    poetry install

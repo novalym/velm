@@ -1,0 +1,26 @@
+# Path: scaffold/default_templates/template.zig.scaffold
+# ------------------------------------------------------
+
+build.zig:
+    const std = @import("std");
+
+    pub fn build(b: *std.Build) void {
+        const target = b.standardTargetOptions(.{});
+        const optimize = b.standardOptimizeOption(.{});
+        const exe = b.addExecutable(.{
+            .name = "{{ project_slug }}",
+            .root_source_file = .{ .path = "src/main.zig" },
+            .target = target,
+            .optimize = optimize,
+        });
+        b.installArtifact(exe);
+    }
+
+src/
+    main.zig:
+        const std = @import("std");
+
+        pub fn main() !void {
+            const stdout = std.io.getStdOut().writer();
+            try stdout.print("Gnosis is truth. The Zig reality is manifest.\\n", .{});
+        }

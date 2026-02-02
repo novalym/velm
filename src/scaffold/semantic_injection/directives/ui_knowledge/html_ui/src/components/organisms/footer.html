@@ -1,0 +1,28 @@
+<style>
+.footer {
+    padding: 4rem 2rem; background: var(--surface); border-top: 1px solid var(--border);
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;
+    width: 100%;
+}
+.footer-col h4 { color: var(--text); margin-bottom: 1rem; }
+.footer-col ul { list-style: none; padding: 0; }
+.footer-col li { margin-bottom: 0.5rem; }
+.footer-col a { text-decoration: none; color: var(--text-light); transition: 0.2s; }
+.footer-col a:hover { color: var(--primary); }
+.footer-bottom { grid-column: 1 / -1; text-align: center; color: var(--text-light); font-size: 0.9rem; margin-top: 2rem; }
+</style>
+<footer class="footer">
+    <div class="footer-col">
+        <h4>Product</h4>
+        <ul><li><a href="#">Features</a></li><li><a href="#">Pricing</a></li></ul>
+    </div>
+    <div class="footer-col">
+        <h4>Resources</h4>
+        <ul><li><a href="#">Documentation</a></li><li><a href="#">API Reference</a></li></ul>
+    </div>
+    <div class="footer-col">
+        <h4>Company</h4>
+        <ul><li><a href="#">About</a></li><li><a href="#">Blog</a></li></ul>
+    </div>
+    <div class="footer-bottom">© 2024 Gnostic Corp. All rights reserved.</div>
+</footer>

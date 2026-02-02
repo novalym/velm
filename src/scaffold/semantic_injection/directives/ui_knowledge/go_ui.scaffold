@@ -1,0 +1,635 @@
+    
+# =================================================================
+# == THE GNOSTIC GO TUI CITADEL (V-Ω-BUBBLETEA)                  ==
+# == A comprehensive library of Terminal UI components           ==
+# =================================================================
+
+$$ module_name = "gnostic-tui"
+$$ author = "The Architect"
+
+# --- 1. The Foundation (Module & Theme) ---
+
+go_ui/go.mod :: """
+module {{ module_name }}
+
+go 1.21
+
+require (
+    github.com/charmbracelet/bubbletea v0.25.0
+    github.com/charmbracelet/lipgloss v0.9.1
+    github.com/charmbracelet/bubbles v0.18.0
+)
+"""
+
+go_ui/ui/theme/theme.go :: """
+package theme
+
+import "github.com/charmbracelet/lipgloss"
+
+// The Palette of the Cosmos
+var (
+    Primary   = lipgloss.Color("#6366f1") // Indigo
+    Secondary = lipgloss.Color("#ec4899") // Pink
+    Accent    = lipgloss.Color("#10b981") // Emerald
+    Warning   = lipgloss.Color("#f59e0b") // Amber
+    Danger    = lipgloss.Color("#ef4444") // Red
+    Text      = lipgloss.Color("#f8fafc") // Slate 50
+    Subtext   = lipgloss.Color("#94a3b8") // Slate 400
+    Surface   = lipgloss.Color("#1e293b") // Slate 800
+    Border    = lipgloss.Color("#334155") // Slate 700
+)
+
+// The Styles of Form
+var (
+    BaseStyle = lipgloss.NewStyle().
+        Foreground(Text)
+
+    CardStyle = lipgloss.NewStyle().
+        Border(lipgloss.RoundedBorder()).
+        BorderForeground(Border).
+        Padding(1, 2).
+        MarginBottom(1)
+
+    TitleStyle = lipgloss.NewStyle().
+        Foreground(Primary).
+        Bold(true).
+        MarginBottom(1)
+    
+    FocusedStyle = lipgloss.NewStyle().
+        Border(lipgloss.RoundedBorder()).
+        BorderForeground(Primary)
+)
+"""
+
+# --- 2. The Atoms (Primitive Components) ---
+
+go_ui/ui/atoms/button.go :: """
+package atoms
+
+import (
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+// Button represents a clickable action
+type Button struct {
+    Label    string
+    Active   bool
+    OnPress  func()
+}
+
+func NewButton(label string) Button {
+    return Button{Label: label}
+}
+
+func (b Button) View() string {
+    style := lipgloss.NewStyle().
+        Padding(0, 3).
+        MarginRight(1).
+        Foreground(theme.Text).
+        Background(theme.Surface)
+
+    if b.Active {
+        style = style.
+            Background(theme.Primary).
+            Foreground(lipgloss.Color("#ffffff")).
+            Bold(true)
+    }
+
+    return style.Render(b.Label)
+}
+"""
+
+go_ui/ui/atoms/badge.go :: """
+package atoms
+
+import (
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+type BadgeVariant int
+
+const (
+    BadgeInfo BadgeVariant = iota
+    BadgeSuccess
+    BadgeWarning
+    BadgeDanger
+)
+
+func Badge(text string, variant BadgeVariant) string {
+    base := lipgloss.NewStyle().
+        Padding(0, 1).
+        HasForeground(true).
+        Bold(true).
+        CornerRadius(3) // Rounded pills
+
+    switch variant {
+    case BadgeSuccess:
+        return base.Background(theme.Accent).Foreground(lipgloss.Color("#000")).Render(text)
+    case BadgeWarning:
+        return base.Background(theme.Warning).Foreground(lipgloss.Color("#000")).Render(text)
+    case BadgeDanger:
+        return base.Background(theme.Danger).Foreground(lipgloss.Color("#fff")).Render(text)
+    default:
+        return base.Background(theme.Primary).Foreground(lipgloss.Color("#fff")).Render(text)
+    }
+}
+"""
+
+go_ui/ui/atoms/spinner.go :: """
+package atoms
+
+import (
+    "github.com/charmbracelet/bubbles/spinner"
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+// NewGnosticSpinner creates a styled spinner model
+func NewGnosticSpinner() spinner.Model {
+    s := spinner.New()
+    s.Spinner = spinner.Dot
+    s.Style = lipgloss.NewStyle().Foreground(theme.Secondary)
+    return s
+}
+"""
+
+go_ui/ui/atoms/separator.go :: """
+package atoms
+
+import (
+    "strings"
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+func HLine(width int) string {
+    return lipgloss.NewStyle().
+        Foreground(theme.Border).
+        Render(strings.Repeat("─", width))
+}
+
+func VLine(height int) string {
+    return lipgloss.NewStyle().
+        Foreground(theme.Border).
+        Render(strings.Repeat("│\\n", height))
+}
+"""
+
+# --- 3. The Molecules (Composite Components) ---
+
+go_ui/ui/molecules/card.go :: """
+package molecules
+
+import (
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+// Card renders a titled container
+func Card(title string, content string, width int) string {
+    titleRender := theme.TitleStyle.Render(title)
+    
+    // Ensure content wraps or fits
+    contentStyle := lipgloss.NewStyle().Width(width - 4) // Account for padding/border
+    
+    return theme.CardStyle.
+        Width(width).
+        Render(
+            lipgloss.JoinVertical(
+                lipgloss.Left,
+                titleRender,
+                contentStyle.Render(content),
+            ),
+        )
+}
+"""
+
+go_ui/ui/molecules/input_field.go :: """
+package molecules
+
+import (
+    "github.com/charmbracelet/bubbles/textinput"
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+// NewSearchInput creates a styled text input for searching
+func NewSearchInput() textinput.Model {
+    ti := textinput.New()
+    ti.Placeholder = "Search the cosmos..."
+    ti.CharLimit = 156
+    ti.Width = 40
+    
+    ti.Prompt = "🔍 "
+    ti.PromptStyle = lipgloss.NewStyle().Foreground(theme.Primary)
+    ti.TextStyle = lipgloss.NewStyle().Foreground(theme.Text)
+    ti.PlaceholderStyle = lipgloss.NewStyle().Foreground(theme.Subtext)
+    
+    return ti
+}
+"""
+
+go_ui/ui/molecules/progress_bar.go :: """
+package molecules
+
+import (
+    "github.com/charmbracelet/bubbles/progress"
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+func NewProgressBar(width int) progress.Model {
+    return progress.New(
+        progress.WithDefaultGradient(),
+        progress.WithWidth(width),
+        progress.WithoutPercentage(),
+    )
+}
+
+// RenderWithLabel adds a label above the bar
+func RenderProgress(p progress.Model, label string) string {
+    return lipgloss.JoinVertical(
+        lipgloss.Left,
+        lipgloss.NewStyle().Foreground(theme.Subtext).MarginBottom(1).Render(label),
+        p.View(),
+    )
+}
+"""
+
+go_ui/ui/molecules/status_item.go :: """
+package molecules
+
+import (
+    "fmt"
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/atoms"
+    "{{ module_name }}/ui/theme"
+)
+
+// StatusRow renders a "Key: Value [Badge]" row
+func StatusRow(key string, value string, badge string, variant atoms.BadgeVariant) string {
+    k := lipgloss.NewStyle().Foreground(theme.Subtext).Width(15).Render(key + ":")
+    v := lipgloss.NewStyle().Foreground(theme.Text).Width(20).Render(value)
+    b := atoms.Badge(badge, variant)
+    
+    return fmt.Sprintf("%s %s %s", k, v, b)
+}
+"""
+
+# --- 4. The Organisms (Complex Structures) ---
+
+go_ui/ui/organisms/datatable.go :: """
+package organisms
+
+import (
+    "github.com/charmbracelet/bubbles/table"
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+func NewDataTable() table.Model {
+    columns := []table.Column{
+        {Title: "ID", Width: 5},
+        {Title: "Scripture", Width: 20},
+        {Title: "Status", Width: 10},
+        {Title: "Size", Width: 10},
+    }
+
+    rows := []table.Row{
+        {"1", "genesis.py", "Active", "12KB"},
+        {"2", "weaver.go", "Active", "45KB"},
+        {"3", "void.rs", "Dormant", "0KB"},
+        {"4", "prophet.ts", "Active", "18KB"},
+    }
+
+    t := table.New(
+        table.WithColumns(columns),
+        table.WithRows(rows),
+        table.WithFocused(true),
+        table.WithHeight(7),
+    )
+
+    s := table.DefaultStyles()
+    s.Header = s.Header.
+        BorderStyle(lipgloss.NormalBorder()).
+        BorderForeground(theme.Border).
+        BorderBottom(true).
+        Bold(true)
+    
+    s.Selected = s.Selected.
+        Foreground(lipgloss.Color("229")).
+        Background(theme.Primary).
+        Bold(false)
+
+    t.SetStyles(s)
+    return t
+}
+"""
+
+go_ui/ui/organisms/tabs.go :: """
+package organisms
+
+import (
+    "strings"
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+var (
+    activeTabBorder = lipgloss.Border{
+        Top:         "─",
+        Bottom:      " ",
+        Left:        "│",
+        Right:       "│",
+        TopLeft:     "╭",
+        TopRight:    "╮",
+        BottomLeft:  "┘",
+        BottomRight: "└",
+    }
+
+    tabBorder = lipgloss.Border{
+        Top:         "─",
+        Bottom:      "─",
+        Left:        "│",
+        Right:       "│",
+        TopLeft:     "╭",
+        TopRight:    "╮",
+        BottomLeft:  "┴",
+        BottomRight: "┴",
+    }
+
+    inactiveTab = lipgloss.NewStyle().
+        Border(tabBorder, true).
+        BorderForeground(theme.Border).
+        Padding(0, 1)
+
+    activeTab = inactiveTab.Copy().
+        Border(activeTabBorder, true).
+        BorderForeground(theme.Primary).
+        Foreground(theme.Primary)
+
+    tabGap = lipgloss.NewStyle().
+        Border(lipgloss.Border{Bottom: "─"}, false, false, true, false).
+        BorderForeground(theme.Border).
+        Width(2)
+)
+
+func RenderTabs(items []string, activeIndex int, width int) string {
+    var renderedTabs []string
+
+    for i, item := range items {
+        if i == activeIndex {
+            renderedTabs = append(renderedTabs, activeTab.Render(item))
+        } else {
+            renderedTabs = append(renderedTabs, inactiveTab.Render(item))
+        }
+    }
+
+    row := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
+    
+    // Fill remaining width with bottom border
+    gapWidth := width - lipgloss.Width(row)
+    if gapWidth > 0 {
+        gap := lipgloss.NewStyle().
+            Border(lipgloss.Border{Bottom: "─"}, false, false, true, false).
+            BorderForeground(theme.Border).
+            Width(gapWidth).
+            Render("")
+        row = lipgloss.JoinHorizontal(lipgloss.Top, row, gap)
+    }
+
+    return row
+}
+"""
+
+go_ui/ui/organisms/help_footer.go :: """
+package organisms
+
+import (
+    "github.com/charmbracelet/bubbles/help"
+    "github.com/charmbracelet/bubbles/key"
+)
+
+// KeyMap defines the available keybindings
+type KeyMap struct {
+    Up    key.Binding
+    Down  key.Binding
+    Enter key.Binding
+    Quit  key.Binding
+    Help  key.Binding
+}
+
+func (k KeyMap) ShortHelp() []key.Binding {
+    return []key.Binding{k.Quit, k.Help}
+}
+
+func (k KeyMap) FullHelp() [][]key.Binding {
+    return [][]key.Binding{
+        {k.Up, k.Down, k.Enter},
+        {k.Quit, k.Help},
+    }
+}
+
+var Keys = KeyMap{
+    Up:    key.NewBinding(key.WithKeys("up", "k"), key.WithHelp("↑/k", "up")),
+    Down:  key.NewBinding(key.WithKeys("down", "j"), key.WithHelp("↓/j", "down")),
+    Enter: key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "select")),
+    Quit:  key.NewBinding(key.WithKeys("q", "esc"), key.WithHelp("q", "quit")),
+    Help:  key.NewBinding(key.WithKeys("?"), key.WithHelp("?", "toggle help")),
+}
+
+func NewHelp() help.Model {
+    return help.New()
+}
+"""
+
+go_ui/ui/organisms/log_viewport.go :: """
+package organisms
+
+import (
+    "fmt"
+    "github.com/charmbracelet/bubbles/viewport"
+    "github.com/charmbracelet/lipgloss"
+    "{{ module_name }}/ui/theme"
+)
+
+func NewLogViewport(width, height int) viewport.Model {
+    vp := viewport.New(width, height)
+    vp.Style = lipgloss.NewStyle().
+        Border(lipgloss.NormalBorder()).
+        BorderForeground(theme.Border).
+        Padding(0, 1)
+    
+    vp.SetContent("System initialized.\\nListening for Gnostic signals...\\n")
+    return vp
+}
+
+func AppendLog(vp *viewport.Model, msg string) {
+    oldContent := vp.View()
+    // A simple simulation of log appending. 
+    // In a real app, you'd maintain a buffer.
+    newContent := fmt.Sprintf("%s\\n> %s", oldContent, msg)
+    vp.SetContent(newContent)
+    vp.GotoBottom()
+}
+"""
+
+# --- 5. The Gallery (Main Entry Point) ---
+
+go_ui/main.go :: """
+package main
+
+import (
+    "fmt"
+    "os"
+    "strings"
+
+    tea "github.com/charmbracelet/bubbletea"
+    "github.com/charmbracelet/lipgloss"
+    
+    "{{ module_name }}/ui/theme"
+    "{{ module_name }}/ui/atoms"
+    "{{ module_name }}/ui/molecules"
+    "{{ module_name }}/ui/organisms"
+    "github.com/charmbracelet/bubbles/spinner"
+    "github.com/charmbracelet/bubbles/table"
+)
+
+type model struct {
+    // State
+    tabs        []string
+    activeTab   int
+    quitting    bool
+    width       int
+    height      int
+    
+    // Components
+    spinner     spinner.Model
+    dataTable   table.Model
+    help        tea.Model // Using generic model interface for simplicity here
+}
+
+func initialModel() model {
+    s := atoms.NewGnosticSpinner()
+    t := organisms.NewDataTable()
+    
+    return model{
+        tabs:      []string{"Overview", "Data", "System"},
+        activeTab: 0,
+        spinner:   s,
+        dataTable: t,
+    }
+}
+
+func (m model) Init() tea.Cmd {
+    return m.spinner.Tick
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    var cmd tea.Cmd
+    var cmds []tea.Cmd
+
+    switch msg := msg.(type) {
+    case tea.KeyMsg:
+        switch msg.String() {
+        case "q", "ctrl+c":
+            m.quitting = true
+            return m, tea.Quit
+        case "tab", "right":
+            m.activeTab = (m.activeTab + 1) % len(m.tabs)
+        case "shift+tab", "left":
+            if m.activeTab > 0 {
+                m.activeTab--
+            } else {
+                m.activeTab = len(m.tabs) - 1
+            }
+        }
+    case tea.WindowSizeMsg:
+        m.width = msg.Width
+        m.height = msg.Height
+    }
+
+    // Update sub-components
+    m.spinner, cmd = m.spinner.Update(msg)
+    cmds = append(cmds, cmd)
+    
+    m.dataTable, cmd = m.dataTable.Update(msg)
+    cmds = append(cmds, cmd)
+
+    return m, tea.Batch(cmds...)
+}
+
+func (m model) View() string {
+    if m.quitting {
+        return "The Gnostic UI returns to the void.\\n"
+    }
+
+    // 1. Header / Tabs
+    tabBar := organisms.RenderTabs(m.tabs, m.activeTab, m.width-4)
+    
+    var content string
+    
+    // 2. Content Area
+    switch m.activeTab {
+    case 0: // Overview
+        welcome := theme.TitleStyle.Render("Welcome to the Citadel")
+        
+        // Row 1: Metrics
+        metrics := lipgloss.JoinHorizontal(lipgloss.Top,
+            molecules.Card("CPU Usage", molecules.StatusRow("Core 1", "45%", "Normal", atoms.BadgeSuccess), 30),
+            lipgloss.NewStyle().Width(2).Render(""), // Gap
+            molecules.Card("Memory", molecules.StatusRow("Heap", "1.2GB", "High", atoms.BadgeWarning), 30),
+        )
+        
+        // Row 2: Spinner & Buttons
+        controls := lipgloss.JoinHorizontal(lipgloss.Center, 
+            lipgloss.NewStyle().MarginRight(2).Render(m.spinner.View() + " Processing..."),
+            atoms.NewButton("Deploy").View(),
+            atoms.NewButton("Reset").View(),
+        )
+        
+        content = lipgloss.JoinVertical(lipgloss.Left, welcome, metrics, "\\n", controls)
+        
+    case 1: // Data
+        content = lipgloss.JoinVertical(lipgloss.Left,
+            theme.TitleStyle.Render("Scripture Registry"),
+            m.dataTable.View(),
+        )
+        
+    case 2: // System
+        content = lipgloss.JoinVertical(lipgloss.Left,
+            theme.TitleStyle.Render("System Status"),
+            molecules.RenderProgress(molecules.NewProgressBar(40), "Initialization"),
+            "\\n",
+            molecules.Card("Alert", "System integrity at 99%. Gnostic field stable.", 50),
+        )
+    }
+
+    // 3. Layout
+    return lipgloss.JoinVertical(lipgloss.Left,
+        tabBar,
+        "\\n",
+        lipgloss.NewStyle().Padding(1, 2).Render(content),
+        "\\n",
+        lipgloss.NewStyle().Foreground(theme.Subtext).Render("Press 'q' to quit • 'tab' to switch view"),
+    )
+}
+
+func main() {
+    p := tea.NewProgram(initialModel(), tea.WithAltScreen())
+    if _, err := p.Run(); err != nil {
+        fmt.Printf("Alas, there's been an error: %v", err)
+        os.Exit(1)
+    }
+}
+"""
+
+%% post-run
+    echo "The Gnostic Go Citadel has been forged."
+    echo "Initializing module..."
+    go mod tidy
+    echo "Dependencies resolved. Run with: go run main.go"
+
+  

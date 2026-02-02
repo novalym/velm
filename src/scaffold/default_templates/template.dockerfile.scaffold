@@ -1,0 +1,31 @@
+# Path: scaffold/default_templates/template.dockerfile.scaffold
+# -------------------------------------------------------------
+$$ slug = {{ project_slug }}
+
+Dockerfile:
+    # Base Image
+    FROM python:3.11-slim as builder
+
+    # Set environment variables
+    ENV PYTHONDONTWRITEBYTECODE=1 \
+        PYTHONUNBUFFERED=1
+
+    WORKDIR /app
+
+    # Install dependencies
+    COPY requirements.txt .
+    RUN pip install --no-cache-dir -r requirements.txt
+
+    # Copy project
+    COPY . .
+
+    # Runner Stage
+    FROM python:3.11-slim as runner
+    WORKDIR /app
+    COPY --from=builder /app /app
+
+    # User (Security)
+    RUN useradd -m {{ slug }}
+    USER {{ slug }}
+
+    CMD ["python", "src/main.py"]

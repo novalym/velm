@@ -1,0 +1,127 @@
+# Path: scaffold/archetypes/genesis/go-cli.scaffold
+# -------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: GO CLI FORTRESS (V-Ω-STRUCTURAL-PURITY)          ==
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ github_username = {{ git_org | default("your-org") }}
+$$ module_path = "github.com/{{ github_username }}/{{ project_slug }}"
+
+{{ project_slug }}/
+    .gitignore :: """
+    # Binaries
+    {{ project_slug }}
+    *.exe
+    *.dll
+    *.so
+    *.dylib
+
+    # Test artifacts
+    *.test
+    *.out
+
+    # OS
+    .DS_Store
+    """
+
+    go.mod:
+        module {{ module_path }}
+
+        go 1.22
+
+        require (
+            github.com/spf13/cobra v1.8.0
+            github.com/spf13/pflag v1.0.5
+        )
+
+    Makefile:
+        .PHONY: build run test clean
+
+        BINARY_NAME={{ project_slug }}
+
+        build:
+        	@echo "Forging the Titan..."
+        	@go build -o bin/$(BINARY_NAME) main.go
+
+        run:
+        	@go run main.go
+
+        test:
+        	@go test ./...
+
+        clean:
+        	@rm -rf bin/
+
+    # The entry point. Indented block ensures safe parsing of Go syntax.
+    main.go:
+        package main
+
+        import "{{ module_path }}/cmd"
+
+        func main() {
+            cmd.Execute()
+        }
+
+    cmd/
+        root.go:
+            package cmd
+
+            import (
+                "fmt"
+                "os"
+                "github.com/spf13/cobra"
+            )
+
+            var rootCmd = &cobra.Command{
+                Use:   "{{ project_slug }}",
+                Short: "A CLI tool forged by Scaffold",
+                Long: `A longer description of the Gnostic tool known as {{ project_slug }}.`,
+            }
+
+            func Execute() {
+                if err := rootCmd.Execute(); err != nil {
+                    fmt.Println(err)
+                    os.Exit(1)
+                }
+            }
+
+            func init() {
+                // Global flags can be defined here
+            }
+
+        version.go:
+            package cmd
+
+            import (
+                "fmt"
+                "github.com/spf13/cobra"
+            )
+
+            var versionCmd = &cobra.Command{
+                Use:   "version",
+                Short: "Proclaim the version of the binary",
+                Run: func(cmd *cobra.Command, args []string) {
+                    fmt.Println("{{ project_slug }} v0.1.0")
+                },
+            }
+
+            func init() {
+                rootCmd.AddCommand(versionCmd)
+            }
+
+    .goreleaser.yml:
+        project_name: {{ project_slug }}
+        builds:
+          - env:
+              - CGO_ENABLED=0
+            goos:
+              - linux
+              - windows
+              - darwin
+
+%% post-run
+    git init
+    go mod tidy
+    go fmt ./...

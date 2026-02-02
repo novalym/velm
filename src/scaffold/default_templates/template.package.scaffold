@@ -1,0 +1,21 @@
+# Path: scaffold/default_templates/template.package.scaffold
+# --------------------------------------------------------
+$$ name = {{ project_slug }}
+$$ desc = {{ description | default("A new project.") }}
+$$ author = {{ author }}
+
+package.json :: """
+{
+  "name": "{{ name }}",
+  "version": "0.1.0",
+  "description": "{{ desc }}",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "{{ author }}",
+  "license": "MIT"
+}
+"""

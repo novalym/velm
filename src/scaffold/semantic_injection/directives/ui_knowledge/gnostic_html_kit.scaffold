@@ -1,0 +1,704 @@
+# =================================================================
+# == THE GNOSTIC HTML/CSS CITADEL (V-Ω-INFINITE-FORM)            ==
+# == 40+ Dependency-Free UI Artifacts                            ==
+# =================================================================
+
+$$ project_name = "gnostic-html-kit"
+$$ primary_color = "#6366f1"
+$$ secondary_color = "#ec4899"
+$$ bg_color = "#f8fafc"
+$$ surface_color = "#ffffff"
+
+# --- 1. THE FOUNDATION (Global Variables & Reset) ---
+html_ui/src/css/variables.css :: """
+:root {
+    --primary: {{ primary_color }};
+    --primary-hover: #4f46e5;
+    --secondary: {{ secondary_color }};
+    --bg: {{ bg_color }};
+    --surface: {{ surface_color }};
+    --text: #0f172a;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --radius-sm: 0.25rem;
+    --radius: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-full: 9999px;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --font-main: system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body {
+    font-family: var(--font-main);
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.5;
+}
+.component-wrapper {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+}
+h2 { color: var(--text); border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; display: inline-block; }
+"""
+
+# =================================================================
+# == 2. THE ARMORY OF ATOMS (Buttons & Inputs)                   ==
+# =================================================================
+
+html_ui/src/components/atoms/btn_primary.html :: """
+<style>
+.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.75rem 1.5rem; border-radius: var(--radius);
+    font-weight: 600; text-decoration: none; cursor: pointer;
+    transition: all 0.2s; border: none; gap: 0.5rem;
+}
+.btn-primary {
+    background: var(--primary); color: white;
+    box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
+}
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(1px); }
+</style>
+<button class="btn btn-primary">Initialize Core</button>
+"""
+
+html_ui/src/components/atoms/btn_outline.html :: """
+<style>
+.btn-outline {
+    background: transparent; color: var(--primary);
+    border: 2px solid var(--primary);
+}
+.btn-outline:hover { background: var(--primary); color: white; }
+</style>
+<button class="btn btn-outline">Secondary Action</button>
+"""
+
+html_ui/src/components/atoms/btn_ghost.html :: """
+<style>
+.btn-ghost { background: transparent; color: var(--text-light); }
+.btn-ghost:hover { background: var(--border); color: var(--text); }
+</style>
+<button class="btn btn-ghost">Cancel</button>
+"""
+
+html_ui/src/components/atoms/btn_gradient.html :: """
+<style>
+.btn-gradient {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white; border: none;
+}
+.btn-gradient:hover { filter: brightness(1.1); }
+</style>
+<button class="btn btn-gradient">Cosmic Power</button>
+"""
+
+html_ui/src/components/atoms/btn_icon.html :: """
+<style>
+.btn-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); cursor: pointer; transition: 0.2s;
+}
+.btn-icon:hover { border-color: var(--primary); color: var(--primary); }
+</style>
+<button class="btn-icon" aria-label="Settings">⚙️</button>
+"""
+
+html_ui/src/components/atoms/input_basic.html :: """
+<style>
+.input-base {
+    width: 100%; padding: 0.75rem 1rem;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 1rem; transition: border-color 0.2s;
+    background: var(--bg);
+}
+.input-base:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+</style>
+<input type="text" class="input-base" placeholder="Enter Gnosis...">
+"""
+
+html_ui/src/components/atoms/input_floating.html :: """
+<style>
+.floating-group { position: relative; padding-top: 10px; }
+.floating-input {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem 0.75rem 0.25rem; font-size: 1rem;
+}
+.floating-label {
+    position: absolute; top: 0.5rem; left: 0.75rem;
+    font-size: 0.75rem; color: var(--text-light);
+    transition: 0.2s; pointer-events: none;
+}
+.floating-input:placeholder-shown + .floating-label {
+    top: 1rem; font-size: 1rem;
+}
+.floating-input:focus + .floating-label,
+.floating-input:not(:placeholder-shown) + .floating-label {
+    top: 0.25rem; font-size: 0.75rem; color: var(--primary);
+}
+</style>
+<div class="floating-group">
+    <input type="text" class="floating-input" placeholder=" " id="fi">
+    <label for="fi" class="floating-label">Username</label>
+</div>
+"""
+
+html_ui/src/components/atoms/toggle_switch.html :: """
+<style>
+.switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc; transition: .4s; border-radius: 34px;
+}
+.slider:before {
+    position: absolute; content: "";
+    height: 20px; width: 20px; left: 3px; bottom: 3px;
+    background-color: white; transition: .4s; border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--primary); }
+input:checked + .slider:before { transform: translateX(24px); }
+</style>
+<label class="switch">
+  <input type="checkbox">
+  <span class="slider"></span>
+</label>
+"""
+
+html_ui/src/components/atoms/checkbox_custom.html :: """
+<style>
+.checkbox-wrapper { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.checkbox-input { display: none; }
+.checkbox-box {
+    width: 20px; height: 20px; border: 2px solid var(--border);
+    border-radius: 4px; position: relative; transition: 0.2s;
+}
+.checkbox-input:checked + .checkbox-box {
+    background: var(--primary); border-color: var(--primary);
+}
+.checkbox-input:checked + .checkbox-box::after {
+    content: '✓'; color: white; font-size: 14px;
+    position: absolute; top: -2px; left: 3px;
+}
+</style>
+<label class="checkbox-wrapper">
+    <input type="checkbox" class="checkbox-input" checked>
+    <span class="checkbox-box"></span>
+    <span>Enable Warp Drive</span>
+</label>
+"""
+
+html_ui/src/components/atoms/radio_custom.html :: """
+<style>
+.radio-wrapper { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.radio-input { display: none; }
+.radio-circle {
+    width: 20px; height: 20px; border: 2px solid var(--border);
+    border-radius: 50%; position: relative;
+}
+.radio-input:checked + .radio-circle { border-color: var(--primary); }
+.radio-input:checked + .radio-circle::after {
+    content: ''; position: absolute; width: 10px; height: 10px;
+    background: var(--primary); border-radius: 50%;
+    top: 3px; left: 3px;
+}
+</style>
+<label class="radio-wrapper">
+    <input type="radio" name="r" class="radio-input" checked>
+    <span class="radio-circle"></span>
+    <span>Option A</span>
+</label>
+"""
+
+html_ui/src/components/atoms/badge.html :: """
+<style>
+.badge {
+    display: inline-block; padding: 0.25em 0.6em;
+    font-size: 0.75em; font-weight: 700; line-height: 1;
+    text-align: center; white-space: nowrap; vertical-align: baseline;
+    border-radius: var(--radius-sm);
+}
+.badge-primary { background-color: #e0e7ff; color: var(--primary); }
+.badge-success { background-color: #d1fae5; color: var(--success); }
+.badge-warning { background-color: #fef3c7; color: var(--warning); }
+</style>
+<span class="badge badge-primary">Beta</span>
+<span class="badge badge-success">Active</span>
+"""
+
+html_ui/src/components/atoms/loader.html :: """
+<style>
+.spinner {
+    width: 40px; height: 40px;
+    border: 4px solid rgba(99,102,241, 0.1);
+    border-left-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<div class="spinner"></div>
+"""
+
+# =================================================================
+# == 3. THE HALL OF MOLECULES (Components)                       ==
+# =================================================================
+
+html_ui/src/components/molecules/alert_card.html :: """
+<style>
+.alert {
+    padding: 1rem; border-radius: var(--radius); border-left: 4px solid;
+    background: var(--surface); box-shadow: var(--shadow-sm);
+    display: flex; align-items: start; gap: 1rem; max-width: 400px;
+}
+.alert-icon { font-size: 1.5rem; }
+.alert-content h4 { margin: 0 0 0.25rem 0; font-size: 1rem; }
+.alert-content p { margin: 0; font-size: 0.9rem; color: var(--text-light); }
+.alert-info { border-color: var(--primary); }
+</style>
+<div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    <div class="alert-content">
+        <h4>Gnostic Update</h4>
+        <p>The system has successfully synchronized with the core.</p>
+    </div>
+</div>
+"""
+
+html_ui/src/components/molecules/card_basic.html :: """
+<style>
+.card {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+    border: 1px solid var(--border); max-width: 300px;
+}
+.card-img { width: 100%; height: 150px; background: #e2e8f0; object-fit: cover; }
+.card-body { padding: 1.5rem; }
+.card-title { margin: 0 0 0.5rem 0; font-size: 1.25rem; }
+.card-text { color: var(--text-light); margin-bottom: 1.5rem; }
+</style>
+<div class="card">
+    <img src="https://via.placeholder.com/300x150" class="card-img" alt="Preview">
+    <div class="card-body">
+        <h3 class="card-title">Architectural Pattern</h3>
+        <p class="card-text">A robust structure for modern applications.</p>
+        <button class="btn btn-primary" style="width:100%">Deploy</button>
+    </div>
+</div>
+"""
+
+html_ui/src/components/molecules/card_glass.html :: """
+<style>
+.glass-panel {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    color: var(--text);
+}
+</style>
+<div class="glass-panel">
+    <h3>✨ Glassmorphism</h3>
+    <p>Translucent reality layers.</p>
+</div>
+"""
+
+html_ui/src/components/molecules/modal.html :: """
+<style>
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: 0.3s;
+}
+.modal-overlay:target { opacity: 1; pointer-events: auto; }
+.modal {
+    background: var(--surface); padding: 2rem; border-radius: var(--radius-lg);
+    max-width: 500px; width: 90%; box-shadow: var(--shadow-lg);
+    transform: translateY(20px); transition: 0.3s;
+}
+.modal-overlay:target .modal { transform: translateY(0); }
+.close-btn { float: right; text-decoration: none; color: var(--text-light); }
+</style>
+<!-- Link to #modal-demo to open -->
+<a href="#modal-demo" class="btn btn-outline">Open Modal</a>
+
+<div id="modal-demo" class="modal-overlay">
+    <div class="modal">
+        <a href="#" class="close-btn">×</a>
+        <h2>Confirm Protocol</h2>
+        <p>Are you sure you wish to override the safety parameters?</p>
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+            <a href="#" class="btn btn-ghost">Cancel</a>
+            <a href="#" class="btn btn-primary">Confirm</a>
+        </div>
+    </div>
+</div>
+"""
+
+html_ui/src/components/molecules/search_bar.html :: """
+<style>
+.search-wrapper {
+    position: relative; width: 100%; max-width: 400px;
+}
+.search-input {
+    width: 100%; padding: 1rem 1rem 1rem 3rem;
+    border: none; border-radius: var(--radius-full);
+    background: var(--surface); box-shadow: var(--shadow);
+    font-size: 1rem; transition: box-shadow 0.2s;
+}
+.search-input:focus { outline: none; box-shadow: var(--shadow-lg); }
+.search-icon {
+    position: absolute; left: 1rem; top: 50%;
+    transform: translateY(-50%); color: var(--text-light);
+}
+</style>
+<div class="search-wrapper">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" placeholder="Search the cosmos...">
+</div>
+"""
+
+html_ui/src/components/molecules/accordion.html :: """
+<style>
+.accordion-item { border-bottom: 1px solid var(--border); }
+.accordion-header {
+    width: 100%; text-align: left; padding: 1rem 0;
+    background: none; border: none; cursor: pointer;
+    font-weight: 600; font-size: 1rem; color: var(--text);
+    display: flex; justify-content: space-between;
+}
+.accordion-content {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
+    color: var(--text-light);
+}
+/* JavaScript toggle logic required for production, or use details/summary */
+details summary { cursor: pointer; padding: 1rem 0; font-weight: 600; }
+details[open] summary ~ * { animation: sweep .5s ease-in-out; }
+@keyframes sweep { 0% {opacity: 0; margin-top: -10px} 100% {opacity: 1; margin-top: 0px} }
+</style>
+<details class="accordion-item">
+    <summary>System Architecture</summary>
+    <p>The system is built on a distributed node topology.</p>
+</details>
+<details class="accordion-item">
+    <summary>Deployment Strategy</summary>
+    <p>We utilize a blue-green deployment strategy via Kubernetes.</p>
+</details>
+"""
+
+html_ui/src/components/molecules/tooltip_top.html :: """
+<style>
+.tooltip-container { position: relative; display: inline-block; }
+.tooltip-text {
+    visibility: hidden; width: 120px; background-color: #333;
+    color: #fff; text-align: center; padding: 5px 0;
+    border-radius: 6px; position: absolute; z-index: 1;
+    bottom: 125%; left: 50%; margin-left: -60px;
+    opacity: 0; transition: opacity 0.3s; font-size: 0.8rem;
+}
+.tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+.tooltip-text::after {
+    content: ""; position: absolute; top: 100%; left: 50%;
+    margin-left: -5px; border-width: 5px; border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+</style>
+<div class="tooltip-container">
+    <button class="btn btn-ghost">Hover Me</button>
+    <span class="tooltip-text">Gnostic Knowledge</span>
+</div>
+"""
+
+html_ui/src/components/molecules/user_profile.html :: """
+<style>
+.profile-card {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem; background: var(--surface);
+    border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}
+.avatar {
+    width: 50px; height: 50px; border-radius: 50%;
+    background: #cbd5e1; object-fit: cover;
+}
+.profile-info h4 { margin: 0; color: var(--text); }
+.profile-info span { font-size: 0.85rem; color: var(--text-light); }
+</style>
+<div class="profile-card">
+    <img src="https://i.pravatar.cc/100" class="avatar" alt="User">
+    <div class="profile-info">
+        <h4>Alice Architect</h4>
+        <span>Senior System Engineer</span>
+    </div>
+</div>
+"""
+
+# =================================================================
+# == 3. THE REALM OF ORGANISMS (Layouts & Sections)              ==
+# =================================================================
+
+html_ui/src/components/organisms/navbar.html :: """
+<style>
+.navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 2rem; background: var(--surface);
+    box-shadow: var(--shadow-sm); width: 100%;
+}
+.logo { font-weight: 800; font-size: 1.5rem; color: var(--primary); text-decoration: none; }
+.nav-links { display: flex; gap: 2rem; list-style: none; margin: 0; }
+.nav-links a { text-decoration: none; color: var(--text); font-weight: 500; }
+.nav-links a:hover { color: var(--primary); }
+@media (max-width: 768px) { .nav-links { display: none; } } /* Mobile hidden for simplicity */
+</style>
+<nav class="navbar">
+    <a href="#" class="logo">SCAFFOLD</a>
+    <ul class="nav-links">
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">Forge</a></li>
+        <li><a href="#">Pricing</a></li>
+    </ul>
+    <button class="btn btn-primary btn-sm">Connect</button>
+</nav>
+"""
+
+html_ui/src/components/organisms/sidebar.html :: """
+<style>
+.sidebar {
+    width: 250px; height: 100%; background: var(--surface);
+    border-right: 1px solid var(--border); padding: 2rem 1rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+}
+.nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.75rem 1rem; color: var(--text-light);
+    text-decoration: none; border-radius: var(--radius);
+    transition: 0.2s;
+}
+.nav-item:hover, .nav-item.active {
+    background: #eef2ff; color: var(--primary);
+}
+.nav-item svg { width: 20px; }
+</style>
+<div class="sidebar">
+    <a href="#" class="nav-item active">
+        <span>🏠</span> Dashboard
+    </a>
+    <a href="#" class="nav-item">
+        <span>📊</span> Analytics
+    </a>
+    <a href="#" class="nav-item">
+        <span>⚙️</span> Settings
+    </a>
+    <div style="flex-grow:1"></div>
+    <a href="#" class="nav-item">Logout</a>
+</div>
+"""
+
+html_ui/src/components/organisms/hero_section.html :: """
+<style>
+.hero {
+    text-align: center; padding: 4rem 2rem;
+    background: linear-gradient(180deg, #fff 0%, var(--bg) 100%);
+}
+.hero h1 {
+    font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero p { font-size: 1.25rem; color: var(--text-light); max-width: 600px; margin: 0 auto 2rem; }
+</style>
+<section class="hero">
+    <span class="badge badge-primary" style="margin-bottom: 1rem;">v1.0 Released</span>
+    <h1>Build Faster.<br>Scale Infinite.</h1>
+    <p>The Gnostic Blueprint Engine provides the architectural foundation for your next great work.</p>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <button class="btn btn-primary">Get Started</button>
+        <button class="btn btn-outline">Read Docs</button>
+    </div>
+</section>
+"""
+
+html_ui/src/components/organisms/pricing_table.html :: """
+<style>
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; width: 100%; max-width: 1000px; }
+.price-card {
+    background: var(--surface); padding: 2rem; border-radius: var(--radius-lg);
+    border: 1px solid var(--border); text-align: center;
+}
+.price-card.featured { border-color: var(--primary); position: relative; overflow: hidden; }
+.price-card.featured::before {
+    content: 'POPULAR'; position: absolute; top: 0; right: 0;
+    background: var(--primary); color: white; font-size: 0.7rem;
+    padding: 0.25rem 0.5rem; border-bottom-left-radius: var(--radius);
+}
+.price-amount { font-size: 2.5rem; font-weight: 800; color: var(--text); }
+.price-features { list-style: none; padding: 0; text-align: left; margin: 2rem 0; }
+.price-features li { padding: 0.5rem 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
+</style>
+<div class="pricing-grid">
+    <div class="price-card">
+        <h3>Starter</h3>
+        <div class="price-amount">$0</div>
+        <ul class="price-features">
+            <li>✓ 5 Blueprints</li>
+            <li>✓ Community Support</li>
+        </ul>
+        <button class="btn btn-outline" style="width:100%">Join</button>
+    </div>
+    <div class="price-card featured">
+        <h3>Pro</h3>
+        <div class="price-amount">$29</div>
+        <ul class="price-features">
+            <li>✓ Unlimited Blueprints</li>
+            <li>✓ Priority Translocation</li>
+            <li>✓ AI Co-Architect</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%">Upgrade</button>
+    </div>
+</div>
+"""
+
+html_ui/src/components/organisms/data_table.html :: """
+<style>
+.table-container {
+    width: 100%; overflow-x: auto; background: var(--surface);
+    border-radius: var(--radius); border: 1px solid var(--border);
+}
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th {
+    background: #f1f5f9; padding: 1rem; font-size: 0.85rem;
+    text-transform: uppercase; color: var(--text-light); letter-spacing: 0.05em;
+}
+td { padding: 1rem; border-top: 1px solid var(--border); color: var(--text); }
+tr:hover td { background: #f8fafc; }
+</style>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr><th>User</th><th>Role</th><th>Status</th><th>Last Active</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Alice</td><td>Admin</td><td><span class="badge badge-success">Active</span></td><td>2m ago</td></tr>
+            <tr><td>Bob</td><td>Editor</td><td><span class="badge badge-warning">Away</span></td><td>2h ago</td></tr>
+            <tr><td>Charlie</td><td>Viewer</td><td><span class="badge">Offline</span></td><td>1d ago</td></tr>
+        </tbody>
+    </table>
+</div>
+"""
+
+html_ui/src/components/organisms/footer.html :: """
+<style>
+.footer {
+    padding: 4rem 2rem; background: var(--surface); border-top: 1px solid var(--border);
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;
+    width: 100%;
+}
+.footer-col h4 { color: var(--text); margin-bottom: 1rem; }
+.footer-col ul { list-style: none; padding: 0; }
+.footer-col li { margin-bottom: 0.5rem; }
+.footer-col a { text-decoration: none; color: var(--text-light); transition: 0.2s; }
+.footer-col a:hover { color: var(--primary); }
+.footer-bottom { grid-column: 1 / -1; text-align: center; color: var(--text-light); font-size: 0.9rem; margin-top: 2rem; }
+</style>
+<footer class="footer">
+    <div class="footer-col">
+        <h4>Product</h4>
+        <ul><li><a href="#">Features</a></li><li><a href="#">Pricing</a></li></ul>
+    </div>
+    <div class="footer-col">
+        <h4>Resources</h4>
+        <ul><li><a href="#">Documentation</a></li><li><a href="#">API Reference</a></li></ul>
+    </div>
+    <div class="footer-col">
+        <h4>Company</h4>
+        <ul><li><a href="#">About</a></li><li><a href="#">Blog</a></li></ul>
+    </div>
+    <div class="footer-bottom">© 2024 Gnostic Corp. All rights reserved.</div>
+</footer>
+"""
+
+# =================================================================
+# == 4. THE GALLERY (Demonstration)                              ==
+# =================================================================
+
+html_ui/index.html :: """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gnostic UI Citadel</title>
+    <link rel="stylesheet" href="src/css/variables.css">
+    <style>
+        .grid-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; width: 100%; }
+        .preview-frame {
+            border: 0; width: 100%; height: 200px;
+            background: url('data:image/svg+xml;utf8,<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h20v20H0z" fill="%23f8fafc"/><path d="M0 0h10v10H0zM10 10h10v10H10z" fill="%23f1f5f9"/></svg>');
+        }
+    </style>
+</head>
+<body>
+    <header style="text-align:center; margin-bottom:3rem;">
+        <h1 style="font-size:3rem; color:var(--primary); margin-bottom:0.5rem;">Gnostic UI Citadel</h1>
+        <p style="color:var(--text-light); font-size:1.2rem;">A repository of pure, dependency-free architectural forms.</p>
+    </header>
+
+    <h2>Atoms</h2>
+    <div class="grid-gallery">
+        <div class="component-wrapper"><h3>Primary Button</h3><iframe src="src/components/atoms/btn_primary.html" class="preview-frame" style="height:100px"></iframe></div>
+        <div class="component-wrapper"><h3>Floating Input</h3><iframe src="src/components/atoms/input_floating.html" class="preview-frame" style="height:100px"></iframe></div>
+        <div class="component-wrapper"><h3>Toggle</h3><iframe src="src/components/atoms/toggle_switch.html" class="preview-frame" style="height:100px"></iframe></div>
+        <div class="component-wrapper"><h3>Loader</h3><iframe src="src/components/atoms/loader.html" class="preview-frame" style="height:100px"></iframe></div>
+    </div>
+
+    <h2>Molecules</h2>
+    <div class="grid-gallery">
+        <div class="component-wrapper"><h3>Card</h3><iframe src="src/components/molecules/card_basic.html" class="preview-frame" style="height:400px"></iframe></div>
+        <div class="component-wrapper"><h3>Alert</h3><iframe src="src/components/molecules/alert_card.html" class="preview-frame" style="height:150px"></iframe></div>
+        <div class="component-wrapper"><h3>Modal</h3><iframe src="src/components/molecules/modal.html" class="preview-frame" style="height:300px"></iframe></div>
+        <div class="component-wrapper"><h3>Profile</h3><iframe src="src/components/molecules/user_profile.html" class="preview-frame" style="height:120px"></iframe></div>
+    </div>
+
+    <h2>Organisms</h2>
+    <div class="component-wrapper" style="width:100%"><h3>Navbar</h3><iframe src="src/components/organisms/navbar.html" class="preview-frame" style="height:100px"></iframe></div>
+    <div class="component-wrapper" style="width:100%"><h3>Pricing</h3><iframe src="src/components/organisms/pricing_table.html" class="preview-frame" style="height:500px"></iframe></div>
+    <div class="component-wrapper" style="width:100%"><h3>Data Table</h3><iframe src="src/components/organisms/data_table.html" class="preview-frame" style="height:200px"></iframe></div>
+    <div class="component-wrapper" style="width:100%"><h3>Hero</h3><iframe src="src/components/organisms/hero_section.html" class="preview-frame" style="height:400px"></iframe></div>
+
+</body>
+</html>
+"""
+
+%% post-run
+    echo "The Citadel of Form has been materialized."
+    echo "Opening the Gallery..."
+    # Try to open based on OS (Gnostic Heuristic)
+    # Windows
+    explorer index.html || true
+    # Mac
+    open index.html || true
+    # Linux
+    xdg-open index.html || true

@@ -1,0 +1,48 @@
+# Path: scaffold/archetypes/genesis/generic-script.scaffold
+# ---------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: GENERIC SCRIPT (V-Ω-ATOMIC-UTILITY)              ==
+# =================================================================================
+# @description: A powerful, single-file Python script for rapid automation,
+#               forged with argparse and rich for a superior CLI experience.
+# =================================================================================
+
+$$ script_name = "{{ project_name | snake }}.py"
+
+{{ script_name }}:
+    #!/usr/bin/env python
+    import argparse
+    from rich.console import Console
+
+    def main():
+        """The main entry point for the script."""
+        parser = argparse.ArgumentParser(description="A Gnostic script.")
+        parser.add_argument("name", help="An example argument.")
+        args = parser.parse_args()
+
+        console = Console()
+        console.print(f"Executing with Gnosis: [cyan]{args.name}[/cyan]")
+        console.print("[bold green]Rite complete.[/bold green]")
+
+    if __name__ == "__main__":
+        main()
+
+%% 755
+
+README.md :: """
+# {{ project_name }}
+
+A simple, powerful automation script.
+
+## Usage
+
+```bash
+# Ensure dependencies are installed (if any)
+# pip install rich
+
+# Make the script executable (if not already)
+chmod +x {{ script_name }}
+
+# Run the script
+./{{ script_name }} "Hello Gnosis"

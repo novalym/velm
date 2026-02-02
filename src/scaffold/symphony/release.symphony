@@ -1,0 +1,31 @@
+# Path: symphony/release.symphony
+# -------------------------------
+
+# The final, sacred rite of ascension.
+# Usage: scaffold run symphony/release.symphony --var version_bump=patch
+
+%% proclaim: "Beginning the Rite of Celestial Ascension..."
+
+# Vow 1: The Sanctum must be pure.
+>> git status --porcelain as git_status
+?? stdout_contains: ""
+
+# Vow 2: The Architect must proclaim the nature of the ascension.
+?? variable_equals: version_bump, "patch" | "minor" | "major"
+
+# The Rite of Version Transmutation
+>> poetry version {{ version_bump }}
+?? succeeds
+
+# The Rite of Forging
+>> poetry build
+?? succeeds
+
+# The Architect's Final Vow
+?? confirm: "Proclaim this new ascension to the PyPI cosmos?"
+
+# The Final Proclamation
+>> poetry publish
+?? succeeds
+
+%% proclaim: "Apotheosis Complete. The new version is manifest."

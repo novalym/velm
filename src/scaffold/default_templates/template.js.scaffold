@@ -1,0 +1,22 @@
+# Path: scaffold/default_templates/template.js.scaffold
+# -----------------------------------------------------
+$$ filename = "script.js"
+$$ author = {{ author }}
+$$ project_title = {{ project_name }}
+
+{{ filename }}:
+    'use strict';
+
+    /**
+     * @fileoverview {{ filename }}
+     * @author {{ author }}
+     * Forged by the Scaffold God-Engine.
+     */
+
+    console.log('Hello from {{ project_title }}!');
+
+    function main() {
+        // Your code here
+    }
+
+    main();

@@ -1,0 +1,34 @@
+# Path: scaffold/default_templates/template.docker-compose.scaffold
+# -----------------------------------------------------------------
+
+$$ service_name = {{ project_slug | default('my-app') }}
+$$ db_name = "{{ service_name }}_db"
+
+docker-compose.yml:
+    version: '3.8'
+
+    services:
+      api:
+        build:
+          context: .
+          dockerfile: Dockerfile
+        ports:
+          - "8000:8000"
+        volumes:
+          - ./src:/app/src  # For live-reloading
+        env_file:
+          - .env
+        depends_on:
+          - db
+
+      db:
+        image: postgres:15-alpine
+        volumes:
+          - postgres_data:/var/lib/postgresql/data/
+        ports:
+          - "5432:5432"
+        env_file:
+          - .env
+
+    volumes:
+      postgres_data:

@@ -1,0 +1,6 @@
+# Path: scaffold/default_templates/template.scala.scaffold
+# --------------------------------------------------------
+
+Main.scala:
+    @main def main: Unit = 
+      println("Gnosis is truth. The Scala reality is manifest.")

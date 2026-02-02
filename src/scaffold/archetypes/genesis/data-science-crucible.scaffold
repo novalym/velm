@@ -1,0 +1,96 @@
+# Path: scaffold/archetypes/genesis/data-science-crucible.scaffold
+# ----------------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: DATA SCIENCE CRUCIBLE (V-Ω-REPRODUCIBILITY)      ==
+# =================================================================================
+# @description: A reproducible, containerized Data Science environment using
+#               Jupyter Lab, Poetry, and a canonical project structure.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+
+{{ project_slug }}/
+    .gitignore:
+        .venv/
+        __pycache__/
+        data/
+        models/
+        notebooks/.ipynb_checkpoints/
+        .env
+
+    README.md:
+        # {{ project_name }} - Data Science Crucible
+
+        ## Setup & Usage
+
+        1.  **Install Dependencies:** `poetry install`
+        2.  **Launch Jupyter Lab:** `docker-compose up`
+        3.  Access Jupyter at the URL provided in the terminal.
+
+    pyproject.toml:
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        [tool.poetry.dependencies]
+        python = "^3.11"
+        jupyterlab = "^4.1.0"
+        pandas = "^2.2.0"
+        scikit-learn = "^1.4.0"
+
+    docker-compose.yml:
+        version: '3.8'
+        services:
+          notebook:
+            build: .
+            ports: ["8888:8888"]
+            volumes: ["./:/app"]
+            command: poetry run jupyter lab --ip=0.0.0.0 --port=8888 --allow-root --no-browser --NotebookApp.token=''
+
+    Dockerfile:
+        FROM python:3.11-slim
+        WORKDIR /app
+        RUN pip install poetry
+        COPY pyproject.toml poetry.lock ./
+        RUN poetry install --no-root
+        COPY . .
+
+    data/
+        raw/
+            .gitkeep
+        processed/
+            .gitkeep
+    
+    models/
+        .gitkeep
+
+    notebooks/
+        01-initial-exploration.ipynb:
+            {
+             "cells": [
+              {
+               "cell_type": "markdown",
+               "metadata": {},
+               "source": [ "# 1. Initial Data Exploration\n", "\n", "This is where the Great Work begins." ]
+              },
+              {
+               "cell_type": "code",
+               "execution_count": null,
+               "metadata": {},
+               "outputs": [],
+               "source": [ "import pandas as pd\n", "from {{ package_name }} import utils\n", "\n", "print(utils.get_gnosis())" ]
+              }
+             ], "metadata": {}, "nbformat": 4, "nbformat_minor": 2
+            }
+
+    src/
+        {{ package_name }}/
+            __init__.py
+            utils.py:
+                def get_gnosis():
+                    return "The data is pure."
+
+%% post-run
+    git init
+    poetry install

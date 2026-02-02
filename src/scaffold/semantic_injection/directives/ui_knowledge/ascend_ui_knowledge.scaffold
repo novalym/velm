@@ -1,0 +1,421 @@
+# =================================================================
+# == GNOSTIC SCRIPTURE: THE FORGING OF THE FOUR PILLARS (V2.0)   ==
+# == LIF: 10,000,000,000,000 (APOTHEOSIS)                        ==
+# =================================================================
+# @description: This Metascripture forges and registers four new,
+# ultra-definitive UI component artisans into the Gnostic Codex.
+
+$$ knowledge_path = "scaffold/semantic_injection/directives/ui_knowledge"
+
+# --- I. THE FORGING OF THE ARTISANS (THE PYTHON SCRIPTURES) ---
+
+# --- PILLAR I: THE AUTHENTICATION FORM ---
+{{ knowledge_path }}/auth_form.py :: """
+from textwrap import dedent
+from typing import List, Tuple
+from .registry import ComponentRegistry
+
+@ComponentRegistry.register("auth-form")
+def forge_auth_form(name: str, props: List[Tuple[str, str]]) -> str:
+    # This artisan forges a complete, stateful login/signup form organism.
+    return dedent(r'''
+'use client';
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+
+export function AuthForm({ className }: { className?: string }) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => setIsLoading(false), 1500);
+  };
+
+  return (
+    <Tabs defaultValue="login" className={cn("w-[400px]", className)}>
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="login">Login</TabsTrigger>
+        <TabsTrigger value="signup">Sign Up</TabsTrigger>
+      </TabsList>
+      <TabsContent value="login">
+        <Card>
+          <CardHeader>
+            <CardTitle>Login to the Citadel</CardTitle>
+            <CardDescription>Enter your credentials to access the Gnostic realm.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email-login">Email</Label>
+              <Input id="email-login" type="email" placeholder="architect@scaffold.dev" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password-login">Password</Label>
+              <Input id="password-login" type="password" required />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full" onClick={handleSubmit} disabled={isLoading}>
+              {isLoading ? "Authenticating..." : "Enter the Citadel"}
+            </Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+      <TabsContent value="signup">
+        <Card>
+          <CardHeader>
+            <CardTitle>Forge an Identity</CardTitle>
+            <CardDescription>Create your new identity to begin your Great Work.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+             <div className="space-y-2">
+              <Label htmlFor="name-signup">Name</Label>
+              <Input id="name-signup" placeholder="The Architect" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email-signup">Email</Label>
+              <Input id="email-signup" type="email" placeholder="architect@scaffold.dev" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password-signup">Password</Label>
+              <Input id="password-signup" type="password" required />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full" onClick={handleSubmit} disabled={isLoading}>
+              {isLoading ? "Forging..." : "Create Identity"}
+            </Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  );
+}
+''')
+"""
+
+# --- PILLAR II: THE DATA TABLE ---
+{{ knowledge_path }}/data_table.py :: """
+from textwrap import dedent
+from typing import List, Tuple
+from .registry import ComponentRegistry
+
+@ComponentRegistry.register("data-table")
+def forge_data_table(name: str, props: List[Tuple[str, str]]) -> str:
+    # This artisan forges a complete, interactive data table powered by TanStack Table.
+    # Requirements: @tanstack/react-table, lucide-react
+    return dedent(r'''
+'use client';
+
+import React, { useState } from 'react';
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  SortingState,
+  ColumnFiltersState,
+  useReactTable,
+} from '@tanstack/react-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  className?: string;
+}
+
+export function DataTable<TData, TValue>({ columns, data, className }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+  });
+
+  return (
+    <div className={cn("w-full space-y-4", className)}>
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Filter records..."
+          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn("email")?.setFilterValue(event.target.value)}
+          className="max-w-sm"
+        />
+      </div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  The Gnostic Gaze found only a void.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
+''')
+"""
+
+# --- PILLAR III: THE COMMAND PALETTE ---
+{{ knowledge_path }}/command_palette.py :: """
+from textwrap import dedent
+from typing import List, Tuple
+from .registry import ComponentRegistry
+
+@ComponentRegistry.register("command-palette")
+def forge_command_palette(name: str, props: List[Tuple[str, str]]) -> str:
+    # This artisan forges a "Cmd+K" style command palette.
+    # Requirements: cmdk, lucide-react
+    return dedent(r'''
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from '@/components/ui/command';
+import { Calendar, User, Smile } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export function CommandPalette({ className }: { className?: string }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((open) => !open);
+      }
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
+  return (
+    <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandInput placeholder="Type a command or search..." />
+      <CommandList>
+        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandGroup heading="Suggestions">
+          <CommandItem>
+            <Calendar className="mr-2 h-4 w-4" />
+            <span>Calendar</span>
+          </CommandItem>
+          <CommandItem>
+            <Smile className="mr-2 h-4 w-4" />
+            <span>Search Emoji</span>
+          </CommandItem>
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup heading="Settings">
+          <CommandItem>
+            <User className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </CommandDialog>
+  );
+}
+''')
+"""
+
+# --- PILLAR IV: THE MULTI-STEP WIZARD ---
+{{ knowledge_path }}/multi_step_wizard.py :: """
+from textwrap import dedent
+from typing import List, Tuple
+from .registry import ComponentRegistry
+
+@ComponentRegistry.register("multi-step-wizard")
+def forge_multi_step_wizard(name: str, props: List[Tuple[str, str]]) -> str:
+    # This artisan forges a stateful, multi-step form or onboarding flow.
+    return dedent(r'''
+'use client';
+
+import React, { useState, FormEvent, ReactElement } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+
+// The Gnostic Hook for managing wizard state
+function useMultiStepForm(steps: ReactElement[]) {
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+
+  function next() {
+    setCurrentStepIndex(i => {
+      if (i >= steps.length - 1) return i;
+      return i + 1;
+    });
+  }
+
+  function back() {
+    setCurrentStepIndex(i => {
+      if (i <= 0) return i;
+      return i - 1;
+    });
+  }
+
+  function goTo(index: number) {
+    setCurrentStepIndex(index);
+  }
+
+  return {
+    currentStepIndex,
+    step: steps[currentStepIndex],
+    steps,
+    isFirstStep: currentStepIndex === 0,
+    isLastStep: currentStepIndex === steps.length - 1,
+    goTo,
+    next,
+    back,
+  };
+}
+
+// Dummy Step Components (To be replaced by the Architect's will)
+const Step1 = () => <div>Step 1: Welcome</div>;
+const Step2 = () => <div>Step 2: Configuration</div>;
+const Step3 = () => <div>Step 3: Finalization</div>;
+
+export function MultiStepWizard({ className }: { className?: string }) {
+  const { steps, currentStepIndex, step, isFirstStep, isLastStep, back, next } = useMultiStepForm([
+    <Step1 />,
+    <Step2 />,
+    <Step3 />,
+  ]);
+
+  function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!isLastStep) return next();
+    alert("Onboarding Complete!");
+  }
+
+  return (
+    <Card className={cn("w-[450px]", className)}>
+      <form onSubmit={onSubmit}>
+        <CardHeader>
+          <CardTitle>
+            Onboarding ({currentStepIndex + 1} / {steps.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {step}
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          {!isFirstStep && (
+            <Button type="button" variant="ghost" onClick={back}>
+              Back
+            </Button>
+          )}
+          <Button type="submit" className={isFirstStep ? "ml-auto" : ""}>
+            {isLastStep ? "Finish" : "Next"}
+          </Button>
+        </CardFooter>
+      </form>
+    </Card>
+  );
+}
+''')
+"""
+
+# --- II. THE RITE OF GNOSTIC SELF-WIRING (THE APOTHEOSIS) ---
+# We annihilate the profane $$ variable and inscribe the soul of __init__.py
+# directly into the one true, sacred, triple-quoted vessel.
+{{ knowledge_path }}/__init__.py :: """
+# scaffold/semantic_injection/directives/ui_knowledge/__init__.py
+from typing import List, Tuple, Optional
+
+# 1. Summon the Registry (The Memory)
+from .registry import ComponentRegistry
+
+# 2. Summon the Sub-Sanctums (The Registration Side-Effects)
+from . import react
+from . import layouts
+from . import auth_form
+from . import data_table
+from . import command_palette
+from . import multi_step_wizard
+
+# 3. The Public Rite (The Facade)
+def get_deterministic_component(name: str, props_list: List[Tuple[str, str]]) -> Optional[str]:
+    generator = ComponentRegistry.get_generator(name)
+    if generator:
+        return generator(name, props_list)
+    return None
+
+__all__ = ["get_deterministic_component", "ComponentRegistry"]
+"""
+
+# --- III. THE FINAL PROCLAMATION ---
+%% post-run
+    echo "✅ The Four Pillars have been forged and consecrated."
+    echo "   The Gnostic Codex now knows of:"
+    echo "     - @ui/component(name=\"auth-form\")"
+    echo "     - @ui/component(name=\"data-table\")"
+    echo "     - @ui/component(name=\"command-palette\")"
+    echo "     - @ui/component(name=\"multi-step-wizard\")"
+    echo "   The Great Work advances."

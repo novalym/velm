@@ -1,0 +1,22 @@
+# Path: scaffold/default_templates/template.pytest.ini.scaffold
+# -------------------------------------------------------------
+
+# This template can be used to create a standalone pytest.ini
+# or seeded into a pyproject.toml
+
+[tool.pytest.ini_options]:
+    minversion = "6.0"
+    addopts = "-ra -q --color=yes"
+    testpaths = [
+        "tests",
+    ]
+
+    # --- Gaze of the Inquisitor (Code Coverage) ---
+    # Uncomment and install `pytest-cov` to enable.
+    # [tool.coverage.run]
+    # source = ["src"]
+    # omit = ["*/__main__.py"]
+    #
+    # [tool.coverage.report]
+    # fail_under = 80
+    # show_missing = true

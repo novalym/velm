@@ -1,0 +1,198 @@
+# Path: scaffold/archetypes/genesis/cli-tool.scaffold
+# ---------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: PYTHON CLI TITAN (V-Ω-STRUCTURAL-PURITY)         ==
+# =================================================================================
+# @description: A production-grade CLI tool foundation using Poetry, Rich, and
+#               Argparse, forged with the unbreakable Indented Block syntax.
+# =================================================================================
+
+# --- I. The Altar of Gnostic Will ---
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+$$ author = {{ author }}
+$$ python_version = "3.11"
+
+# --- II. The Scripture of Form ---
+{{ project_slug }}/
+    .gitignore :: """
+    __pycache__/
+    *.py[cod]
+    *$py.class
+    .venv/
+    dist/
+    build/
+    *.egg-info/
+    .pytest_cache/
+    .ruff_cache/
+    .coverage
+    .env
+    .vscode/
+    .idea/
+    .DS_Store
+    """
+
+    README.md :: """
+    # {{ project_name }}
+
+    > {{ description | default("A CLI tool forged by the Scaffold God-Engine.") }}
+
+    ## 🚀 Installation
+
+    ```bash
+    poetry install
+    # The CLI is now available in your virtual environment
+    poetry run {{ project_slug }} --help
+    ```
+
+    ## 🛠️ Development
+
+    This project uses [Poetry](https://python-poetry.org/) for dependency management.
+
+    - **Install:** `make install`
+    - **Test:** `make test`
+    - **Lint:** `make lint`
+    """
+
+    pyproject.toml:
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        description = "{{ description }}"
+        authors = ["{{ author }}"]
+        readme = "README.md"
+        packages = [{include = "{{ package_name }}", from = "src"}]
+
+        [tool.poetry.scripts]
+        {{ project_slug }} = "{{ package_name }}.main:main"
+
+        [tool.poetry.dependencies]
+        python = "^{{ python_version }}"
+        rich = "^13.7.0"
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "^8.0.0"
+        ruff = "^0.2.0"
+        black = "^24.2.0"
+        mypy = "^1.8.0"
+
+        [build-system]
+        requires = ["poetry-core"]
+        build-backend = "poetry.core.masonry.api"
+
+        [tool.ruff]
+        line-length = 120
+        select = ["E", "F", "I", "UP", "B"]
+
+        [tool.black]
+        line-length = 120
+
+    Makefile:
+        .PHONY: help install test lint format clean
+
+        help:
+        	@echo "Makefile for {{ project_name }}"
+        	@echo "Usage: make [install|test|lint|format|clean]"
+
+        install:
+        	@echo "Summoning dependencies..."
+        	@poetry install
+
+        test:
+        	@echo "Adjudicating reality..."
+        	@poetry run pytest
+
+        lint:
+        	@echo "The Inquisitor gazes..."
+        	@poetry run ruff check .
+        	@poetry run mypy src/
+
+        format:
+        	@echo "Purifying form..."
+        	@poetry run black .
+        	@poetry run ruff check --fix .
+
+        clean:
+        	@rm -rf dist build .venv .pytest_cache .ruff_cache __pycache__
+
+    src/
+        {{ package_name }}/
+            __init__.py
+
+            # The Heart of the CLI.
+            # We use the Indented Block to safely contain the logic and docstrings.
+            main.py:
+                import argparse
+                import sys
+                from rich.console import Console
+                from rich.panel import Panel
+                from rich.traceback import install
+
+                # Install luminous tracebacks
+                install(show_locals=True)
+                console = Console()
+
+                def handle_hello(args):
+                    """The handler for the 'hello' rite."""
+                    name = args.name or "World"
+                    console.print(Panel(
+                        f"Gnostic Greetings, [bold magenta]{name}[/bold magenta]!",
+                        title="[cyan]Proclamation[/cyan]",
+                        border_style="cyan"
+                    ))
+
+                def build_parser() -> argparse.ArgumentParser:
+                    """Forges the argument parser."""
+                    parser = argparse.ArgumentParser(
+                        description="{{ description }}",
+                        formatter_class=argparse.RawTextHelpFormatter
+                    )
+                    subparsers = parser.add_subparsers(dest="command", required=True, title="Rites")
+
+                    # Rite: Hello
+                    hello_p = subparsers.add_parser("hello", help="Proclaim a greeting.")
+                    hello_p.add_argument("--name", "-n", help="The entity to greet.")
+                    hello_p.set_defaults(func=handle_hello)
+
+                    return parser
+
+                def main():
+                    """The Entry Point."""
+                    parser = build_parser()
+                    # Handle bare execution
+                    if len(sys.argv) == 1:
+                        parser.print_help()
+                        sys.exit(1)
+
+                    args = parser.parse_args()
+                    if hasattr(args, 'func'):
+                        args.func(args)
+
+                if __name__ == "__main__":
+                    main()
+
+    tests/
+        __init__.py
+        conftest.py:
+            import pytest
+
+            @pytest.fixture
+            def runner():
+                """A fixture for testing CLI invocations."""
+                # Logic for capturing stdout/stderr would go here
+                pass
+
+        test_main.py:
+            from {{ package_name }}.main import build_parser
+
+            def test_parser_creation():
+                """Ensures the parser is forged correctly."""
+                parser = build_parser()
+                assert parser is not None
+
+# --- III. The Maestro's Will ---
+%% post-run
+    git init
+    poetry install
+    poetry run {{ project_slug }} --help

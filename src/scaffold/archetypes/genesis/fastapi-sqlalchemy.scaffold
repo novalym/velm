@@ -1,0 +1,130 @@
+# Path: scaffold/archetypes/genesis/fastapi-sqlalchemy.scaffold
+# -----------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: FASTAPI+SQLALCHEMY CITADEL (V-Ω-DATA-LAYER)      ==
+# =================================================================================
+# @description: A production-grade, asynchronous FastAPI service with SQLAlchemy ORM,
+#               Alembic for migrations, and a full Docker Compose setup.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+
+{{ project_slug }}/
+    .gitignore :: ".venv/\n__pycache__/\n.pytest_cache/\nalembic/versions/\n.env"
+    README.md :: "## FastAPI + SQLAlchemy Citadel\n- `make install`\n- `make dev` (requires local Postgres)\n- `make docker-up` (recommended)"
+
+    pyproject.toml:
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        packages = [{include = "{{ package_name }}", from = "src"}]
+        [tool.poetry.dependencies]
+        python = "^3.11"
+        fastapi = "^0.110.0"
+        uvicorn = "^0.27.0"
+        sqlalchemy = {extras = ["asyncio"], version = "^2.0.0"}
+        asyncpg = "^0.29.0" # Postgres driver
+        alembic = "^1.13.0"
+        pydantic-settings = "^2.2.0"
+
+    alembic.ini:
+        [alembic]
+        script_location = src/{{ package_name }}/migrations
+        sqlalchemy.url = driver://user:pass@localhost/dbname
+
+    docker-compose.yml:
+        version: '3.8'
+        services:
+          api:
+            build: .
+            ports: ["8000:8000"]
+            volumes: ["./src:/app/src"]
+            env_file: .env
+            depends_on: [db]
+          db:
+            image: postgres:15-alpine
+            volumes: ["postgres_data:/var/lib/postgresql/data/"]
+            env_file: .env
+        volumes:
+          postgres_data:
+
+    .env.example:
+        DATABASE_URL=postgresql+asyncpg://postgres:postgres@db/{{ package_name }}
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=postgres
+        POSTGRES_DB={{ package_name }}
+
+    Dockerfile:
+        FROM python:3.11-slim
+        WORKDIR /app
+        RUN pip install poetry
+        COPY pyproject.toml poetry.lock ./
+        RUN poetry install --no-root
+        COPY . .
+        CMD ["poetry", "run", "uvicorn", "src.{{ package_name }}.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+    src/
+        {{ package_name }}/
+            __init__.py
+            main.py:
+                from fastapi import FastAPI
+                from .database import engine
+
+                app = FastAPI()
+
+                @app.get("/health")
+                def health_check():
+                    return {"status": "pure"}
+
+            database.py:
+                from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+                from sqlalchemy.orm import sessionmaker, declarative_base
+                from .config import settings
+
+                engine = create_async_engine(settings.DATABASE_URL)
+                AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+                Base = declarative_base()
+
+            config.py:
+                from pydantic_settings import BaseSettings
+
+                class Settings(BaseSettings):
+                    DATABASE_URL: str
+                    class Config:
+                        env_file = ".env"
+                settings = Settings()
+
+            models.py:
+                from sqlalchemy import Column, Integer, String
+                from .database import Base
+
+                class Item(Base):
+                    __tablename__ = "items"
+                    id = Column(Integer, primary_key=True, index=True)
+                    name = Column(String, index=True)
+
+            schemas.py:
+                from pydantic import BaseModel
+
+                class ItemBase(BaseModel):
+                    name: str
+                class Item(ItemBase):
+                    id: int
+                    class Config:
+                        from_attributes = True
+
+            migrations/
+                env.py:
+                    # Alembic env.py script
+                script.py.mako:
+                    # Alembic script template
+                README :: "Alembic migrations"
+
+%% post-run
+    git init
+    poetry install
+    cp .env.example .env
+    # Initialize alembic with the correct models
+    poetry run alembic revision --autogenerate -m "Initial migration"

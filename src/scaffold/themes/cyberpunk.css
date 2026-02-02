@@ -1,0 +1,29 @@
+/* Path: scaffold/themes/cyberpunk.css */
+/* A high-contrast, neon-infused reality */
+Screen {
+    background: #0d0221;
+    color: #00f0ff;
+}
+
+Header {
+    background: #261a3b;
+}
+
+Footer {
+    background: #ff00ff;
+    color: #0d0221;
+}
+
+Tree > .tree--cursor {
+    background: #ff00ff;
+    color: #0d0221;
+}
+
+.pane {
+    border: heavy #ff00ff;
+}
+
+.pane-title {
+    background: #261a3b;
+    color: #00f0ff;
+}

@@ -1,0 +1,25 @@
+# Path: scaffold/default_templates/template.sh.scaffold
+# -----------------------------------------------------
+$$ name = {{ filename }}
+$$ author = {{ author }}
+
+{{ name }}:
+    #!/usr/bin/env bash
+    #
+    # Script: {{ name }}
+    # Author: {{ author }}
+    # Description: Auto-generated shell script.
+
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+
+    main() {
+        echo "Hello from {{ name }}"
+    }
+
+    if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+        main "$@"
+    fi
+
+%% 755

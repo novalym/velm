@@ -1,0 +1,130 @@
+# Path: scaffold/archetypes/genesis/node-basic.scaffold
+# -----------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: NODE TYPESCRIPT CITADEL (V-Ω-STRUCTURAL-PURITY)  ==
+# =================================================================================
+# @description: A production-grade Node.js/TypeScript foundation with a full
+#               toolchain for development, linting, formatting, and building.
+# =================================================================================
+
+# --- I. The Altar of Gnostic Will ---
+$$ project_slug = {{ project_name | slug }}
+$$ author = {{ author }}
+
+# --- II. The Scripture of Form ---
+{{ project_slug }}/
+    .gitignore :: """
+    node_modules/
+    dist/
+    .env
+    .DS_Store
+    .eslintcache
+    """
+
+    README.md :: """
+    # {{ project_name }} - A Node.js Citadel
+
+    Forged with TypeScript and the unbreakable will of Scaffold.
+
+    ## Rites of the Forge
+
+    - `make install`: Summons dependencies.
+    - `make dev`: Awakens the hot-reloading development server.
+    - `make build`: Forges the production JavaScript scripture.
+    - `make start`: Conducts the production scripture.
+    - `make lint`: Summons the Gnostic Inquisitor (ESLint).
+    - `make format`: Purifies the form of all scriptures.
+    """
+
+    package.json:
+        {
+          "name": "{{ project_slug }}",
+          "version": "0.1.0",
+          "description": "{{ description }}",
+          "main": "dist/index.js",
+          "author": "{{ author }}",
+          "license": "MIT",
+          "scripts": {
+            "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+            "build": "rimraf dist && tsc",
+            "start": "node dist/index.js",
+            "lint": "eslint . --ext .ts",
+            "format": "prettier --write ."
+          },
+          "devDependencies": {
+            "@types/node": "^20.11.0",
+            "@typescript-eslint/eslint-plugin": "^7.0.0",
+            "@typescript-eslint/parser": "^7.0.0",
+            "eslint": "^8.56.0",
+            "prettier": "^3.2.0",
+            "rimraf": "^5.0.0",
+            "ts-node-dev": "^2.0.0",
+            "typescript": "^5.3.0"
+          }
+        }
+
+    tsconfig.json:
+        {
+          "compilerOptions": {
+            "target": "ES2022",
+            "module": "commonjs",
+            "rootDir": "./src",
+            "outDir": "./dist",
+            "strict": true,
+            "esModuleInterop": true,
+            "skipLibCheck": true,
+            "forceConsistentCasingInFileNames": true
+          },
+          "include": ["src/**/*"]
+        }
+
+    .prettierrc:
+        {
+          "semi": true,
+          "trailingComma": "all",
+          "singleQuote": true,
+          "printWidth": 100
+        }
+    
+    .eslintrc.json:
+        {
+          "parser": "@typescript-eslint/parser",
+          "extends": ["plugin:@typescript-eslint/recommended"],
+          "rules": {
+            "@typescript-eslint/no-explicit-any": "off"
+          }
+        }
+
+    Makefile:
+        .PHONY: install dev build start lint format
+
+        install:
+        	npm install
+
+        dev:
+        	npm run dev
+
+        build:
+        	npm run build
+
+        start:
+        	npm run start
+
+        lint:
+        	npm run lint
+
+        format:
+        	npm run format
+
+    src/
+        index.ts:
+            const main = (): void => {
+                console.log(`Gnosis is truth. The '{{ project_name }}' reality is manifest.`);
+            };
+
+            main();
+
+%% post-run
+    git init
+    npm install

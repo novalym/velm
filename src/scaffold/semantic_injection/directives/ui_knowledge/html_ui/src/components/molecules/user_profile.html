@@ -1,0 +1,20 @@
+<style>
+.profile-card {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem; background: var(--surface);
+    border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}
+.avatar {
+    width: 50px; height: 50px; border-radius: 50%;
+    background: #cbd5e1; object-fit: cover;
+}
+.profile-info h4 { margin: 0; color: var(--text); }
+.profile-info span { font-size: 0.85rem; color: var(--text-light); }
+</style>
+<div class="profile-card">
+    <img src="https://i.pravatar.cc/100" class="avatar" alt="User">
+    <div class="profile-info">
+        <h4>Alice Architect</h4>
+        <span>Senior System Engineer</span>
+    </div>
+</div>

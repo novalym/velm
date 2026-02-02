@@ -1,0 +1,32 @@
+# Path: scaffold/default_templates/template.dockerignore.scaffold
+# -------------------------------------------------------------
+.dockerignore :: """
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+README.md
+LICENSE
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# IDE
+.vscode
+.idea
+.DS_Store
+"""

@@ -1,0 +1,33 @@
+# Path: scaffold/default_templates/template.editorconfig.scaffold
+# -------------------------------------------------------------
+.editorconfig :: """
+# EditorConfig is awesome: https://EditorConfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{js,jsx,ts,tsx,json,yml,yaml,html,css,scss}]
+indent_size = 2
+
+[Makefile]
+indent_style = tab
+
+[*.go]
+indent_style = tab
+
+[*.{cmd,bat,ps1}]
+end_of_line = crlf
+
+[{package.json,.travis.yml}]
+indent_style = space
+indent_size = 2
+"""

@@ -1,0 +1,14 @@
+# Path: scaffold/default_templates/template.dart.scaffold
+# -------------------------------------------------------
+
+pubspec.yaml:
+    name: {{ project_slug | snake }}
+    description: A new Dart reality.
+    environment:
+      sdk: '>=3.0.0 <4.0.0'
+
+bin/
+    main.dart:
+        void main(List<String> arguments) {
+          print('Gnosis is truth. The Dart reality is manifest.');
+        }

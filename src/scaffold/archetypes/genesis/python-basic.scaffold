@@ -1,0 +1,115 @@
+# Path: scaffold/archetypes/genesis/python-basic.scaffold
+# -------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: PYTHON BASIC SANCTUM (V-Ω-STRUCTURAL-PURITY)     ==
+# =================================================================================
+# @description: A universal, production-ready Python project using pip & venv,
+#               forged with an intelligent Makefile and modern tooling.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+$$ author = {{ author }}
+$$ python_version = "3.11"
+
+{{ project_slug }}/
+    .gitignore :: """
+    .venv/
+    __pycache__/
+    .pytest_cache/
+    .ruff_cache/
+    dist/
+    build/
+    *.egg-info
+    .env
+    """
+
+    README.md :: """
+    # {{ project_name }}
+
+    A Python project forged by Scaffold.
+
+    ## Setup
+
+    ```bash
+    # This single command creates the venv and installs all dependencies.
+    make install
+
+    # To activate the venv
+    source .venv/bin/activate
+    ```
+    """
+
+    requirements.txt:
+        rich
+
+    requirements-dev.txt:
+        pytest
+        ruff
+        black
+
+    pyproject.toml:
+        [build-system]
+        requires = ["setuptools>=61.0"]
+        build-backend = "setuptools.build_meta"
+
+        [project]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        authors = [ { name="{{ author }}" } ]
+
+        [tool.ruff]
+        line-length = 100
+
+    Makefile:
+        .PHONY: help install run test lint format
+
+        VENV_DIR = .venv
+        PYTHON_EXEC = $(VENV_DIR)/bin/python
+
+        help:
+        	@echo "Makefile for {{ project_name }}"
+
+        # This target acts as a guard. It runs only if the venv dir is missing.
+        $(VENV_DIR):
+        	python -m venv $(VENV_DIR)
+
+        install: $(VENV_DIR)
+        	@$(PYTHON_EXEC) -m pip install -r requirements.txt
+        	@$(PYTHON_EXEC) -m pip install -r requirements-dev.txt
+
+        run:
+        	@$(PYTHON_EXEC) src/{{ package_name }}/main.py
+
+        test:
+        	@$(PYTHON_EXEC) -m pytest
+
+        lint:
+        	@$(PYTHON_EXEC) -m ruff check .
+        	@$(PYTHON_EXEC) -m black --check .
+
+        format:
+        	@$(PYTHON_EXEC) -m ruff check --fix .
+        	@$(PYTHON_EXEC) -m black .
+
+    src/
+        {{ package_name }}/
+            __init__.py
+            main.py:
+                from rich.console import Console
+
+                def main():
+                    console = Console()
+                    console.print("Gnosis is truth.", style="bold green")
+
+                if __name__ == "__main__":
+                    main()
+    tests/
+        test_main.py:
+            def test_placeholder():
+                assert True
+
+%% post-run
+    git init
+    make install

@@ -1,0 +1,374 @@
+{
+  "chronicle_version": "9.0-crystal",
+  "provenance": {
+    "scaffold_version": "0.1.0",
+    "timestamp_utc": "2026-01-29T20:29:24.198682+00:00",
+    "architect": "zee66",
+    "machine_id": "MSI",
+    "rite_name": "Genesis: core",
+    "rite_duration_seconds": 0.0044,
+    "rite_stats": {},
+    "blueprint_path": "symbolic.scaffold",
+    "rite_id": "976d6a7a-f07f-43db-9468-e6fa8c0329b5",
+    "git_commit": null,
+    "git_branch": null
+  },
+  "gnosis_delta": {
+    "copyright_holder": "Acme Corp",
+    "scaffold_env": {
+      "os": "windows",
+      "arch": "amd64",
+      "user": "zee66",
+      "ci": "false",
+      "git_branch": "void",
+      "git_commit": "void"
+    },
+    "project_name": "core",
+    "author": "zee66",
+    "python_version": "3.13",
+    "project_type": "generic",
+    "use_poetry": false,
+    "database_type": "none",
+    "frontend_framework": "none",
+    "testing_framework": "none",
+    "project_structure_pattern": "monolithic",
+    "auth_method": "none",
+    "env_vars_setup": false,
+    "default_port": "8000",
+    "license": "None",
+    "use_git": false,
+    "use_ci": "none",
+    "use_docker": false,
+    "use_vscode": false,
+    "ai_code_generation_consent": false,
+    "description": "A new generic project.",
+    "blueprint_path": "symbolic.scaffold"
+  },
+  "edicts": {
+    "executed": [],
+    "fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "heresies": [],
+  "integrity": {
+    "project_merkle_root": "fce2e83c4f351fc6e499a36592fc17e988226ef6d55c14c65a499a98551de822",
+    "manifest_diff_hash": "14550d402463e6dcf9cb72555101db48791d9df07a37f4aae26a36be16f1cef9",
+    "chronicle_hash": "1b014b7fd90fb21d847f355f40284766ddf84fc21a3ca4a1611a6bfd0a03563c"
+  },
+  "manifest": {
+    "symbolic/__init__.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1962347,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/contracts.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1962917,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/engine.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.196332,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/inquisitors/__init__.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1963763,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/inquisitors/banker.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1964357,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/inquisitors/bouncer.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1964738,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/inquisitors/chronos.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1965122,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/inquisitors/librarian.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1965501,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/inquisitors/retina.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1965878,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/inquisitors/scrier.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1966255,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/inquisitors/sentinel.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1966636,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/refinement/__init__.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1967015,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/refinement/alchemist.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1967387,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/refinement/purifier.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1967762,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/sutures/__init__.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.196814,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/sutures/neural_bridge.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1968517,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/sutures/vision_gate.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1968896,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/telemetry/__init__.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1969283,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "symbolic/telemetry/pulse.py": {
+      "action": "CREATED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "timestamp": 1769718564.1969655,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 0,
+        "functions": [],
+        "classes": []
+      }
+    },
+    "scaffold.scaffold": {
+      "action": "CREATED",
+      "sha256": "58b4fef000db8662abbac867e1b4cb64de81f00767cccd74946db273a5b31e9f",
+      "bytes": 1258,
+      "timestamp": 1769718564.1969872,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 44,
+        "functions": [],
+        "classes": []
+      }
+    },
+    ".scaffold/genesis.json": {
+      "action": "CREATED",
+      "sha256": "1f73e2074b3aed8c1c01d9a2fb7ac07fabafc7a98aab6226dcb28dda88a18884",
+      "bytes": 937,
+      "timestamp": 1769718564.1970186,
+      "dependencies": [],
+      "metrics": {
+        "complexity": 1,
+        "function_count": 0,
+        "class_count": 0,
+        "line_count": 36,
+        "functions": [],
+        "classes": []
+      }
+    }
+  }
+}

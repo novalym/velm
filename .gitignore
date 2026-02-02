@@ -1,0 +1,9 @@
+tests/
+build/
+dist/
+.idea/
+scripts/
+rust/target
+dist_backup/
+.env
+.env.local

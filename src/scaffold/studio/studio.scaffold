@@ -1,0 +1,24 @@
+└── studio/
+    ├── __init__.py         # The gateway to the Studio's soul.
+    ├── main.py             # The executable scripture (`python -m scaffold.studio`).
+    │
+    ├── app.py              # The Gnostic Shell: The main `textual.app.App`. Manages modes and global state.
+    │
+    ├── screens/
+    │   ├── __init__.py
+    │   ├── form_mode.py      # The screen for `.scaffold` files (Editor, Preview, Heresy).
+    │   └── will_mode.py      # The screen for `.symphony` files (Editor, Debugger).
+    │
+    ├── widgets/
+    │   ├── __init__.py
+    │   ├── file_tree.py      # A reusable, Gnostic file explorer widget.
+    │   ├── editor.py         # Our enhanced `TextArea` with line highlighting for heresies.
+    │   └── command_altar.py  # The persistent, intelligent command input widget.
+    │
+    ├── services/
+    │   ├── __init__.py
+    │   └── scaffold_bridge.py # THE HEART. This artisan manages all `subprocess` calls.
+    │
+    └── pads/
+        ├── __init__.py
+        └── genesis_pad.py      # The `textual.app.App` for the guided `init` experience.

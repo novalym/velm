@@ -1,0 +1,42 @@
+# Path: scaffold/default_templates/template.nginx.conf.scaffold
+# -------------------------------------------------------------
+
+nginx.conf:
+    server {
+        listen 80;
+        server_name {{ project_slug | default('localhost') }};
+
+        # Security Headers
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-Content-Type-Options "nosniff";
+
+        # Path for static files
+        root /usr/share/nginx/html;
+        index index.html;
+
+        location / {
+            # For a Single Page Application (e.g., React, Vue)
+            # This ensures that any path is routed to index.html to let the client-side router handle it.
+            try_files $uri $uri/ /index.html;
+
+            # For a reverse proxy to a backend application (e.g., FastAPI, Express)
+            # Uncomment the block below and comment out the try_files line above.
+            #
+            # proxy_pass http://api:8000; # Assumes a service named 'api' on port 8000
+            # proxy_set_header Host $host;
+            # proxy_set_header X-Real-IP $remote_addr;
+            # proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            # proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Enable Gzip compression
+        gzip on;
+        gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+        # Cache static assets
+        location ~* \.(?:css|js|jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+          expires 1M;
+          access_log off;
+          add_header Cache-Control "public";
+        }
+    }

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "syntax_react",
+    "tags": ["react", "frontend", "tsx", "jsx", "component", "ui", "view"],
+    "content": "REACT RULES:\n1. Use Functional Components: `const MyComp = () => { ... }`\n2. Files: Use .tsx for components.\n3. Blueprint: `src/components/Button.tsx :: ...`"
+  },
+  {
+    "id": "syntax_python_fastapi",
+    "tags": ["python", "backend", "api", "fastapi", "service", "py"],
+    "content": "FASTAPI RULES:\n1. Entrypoint: `app = FastAPI()` in `main.py`.\n2. Models: Use Pydantic `BaseModel`.\n3. Blueprint: `src/main.py :: ...`"
+  },
+  {
+    "id": "arch_docker",
+    "tags": ["docker", "container", "deploy", "devops", "ship", "image"],
+    "content": "DOCKER RULES:\n1. Always include a .dockerignore.\n2. Use multi-stage builds for smaller images.\n3. Blueprint: `Dockerfile :: FROM python:3.11-slim ...`"
+  },
+  {
+    "id": "arch_monorepo",
+    "tags": ["monorepo", "fullstack", "workspace", "complex", "multi"],
+    "content": "MONOREPO STRUCTURE:\n- apps/ (frontend, backend)\n- packages/ (shared-ui, utils)\n- Use `pnpm-workspace.yaml`."
+  }
+]

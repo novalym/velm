@@ -1,0 +1,45 @@
+    
+# Path: symphony/docs_generator.symphony
+# --------------------------------------
+
+# This symphony forges the VS Code snippets and parts of the Markdown documentation
+# by gazing into the engine's own soul.
+
+%% proclaim: "Awakening the Oracle of Introspection..."
+
+# Capture the complete Gnostic Canon of the engine as a JSON string
+>> scaffold introspect all --json as gnostic_canon_json
+?? succeeds
+
+# Summon a Polyglot Scribe to transmute the Gnosis
+py:
+    import json
+    import os
+
+    # Resurrect the Gnosis from the captured variable
+    gnosis_str = os.environ.get("SC_VAR_GNOSTIC_CANON_JSON", "{}")
+    gnosis = json.loads(gnosis_str)
+
+    # --- FORGE SNIPPETS ---
+    snippets = {}
+    for rite in gnosis.get("help_topics", []):
+        key = f"Scaffold Rite: {rite}"
+        snippets[key] = {
+            "prefix": f"scaffold {rite}",
+            "body": [f"scaffold {rite} $1"],
+            "description": f"Conduct the '{rite}' rite."
+        }
+    
+    # Inscribe the new scripture
+    Path(".vscode/scaffold.code-snippets").write_text(json.dumps(snippets, indent=2))
+    
+    # --- FORGE MARKDOWN DOCS ---
+    md_lines = ["# Gnostic Canon of Rites\n"]
+    for rite in gnosis.get("help_topics", []):
+        md_lines.append(f"- `scaffold {rite}`")
+
+    Path("docs/COMMANDS.md").write_text("\n".join(md_lines))
+
+%% proclaim: "The Living Codex has been updated."
+
+  

@@ -1,0 +1,10 @@
+└── distill_pad/
+            ├── __init__.py
+            ├── distill_pad.css
+            ├── distill_pad_app.py
+            ├── state.py
+            └── widgets/
+                ├── __init__.py
+                ├── config_pane.py
+                ├── file_selector.py
+                └── preview_pane.py

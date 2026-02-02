@@ -1,0 +1,12 @@
+# Path: scaffold/default_templates/template.lua.scaffold
+# ------------------------------------------------------
+
+main.lua:
+    -- The Lua reality is manifest
+    print("Gnosis is truth.")
+
+    local function main()
+        -- The Great Work begins here
+    end
+
+    main()

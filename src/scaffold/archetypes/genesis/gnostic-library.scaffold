@@ -1,0 +1,79 @@
+# Path: scaffold/archetypes/genesis/gnostic-library.scaffold
+# ----------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: GNOSTIC LIBRARY (V-Ω-PYPI-ASCENSION)             ==
+# =================================================================================
+# @description: A production-grade Python library, ready for automated testing,
+#               documentation, and publishing to PyPI.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+
+{{ project_slug }}/
+    .gitignore :: ".venv/\n/dist\n/site\n.pytest_cache/"
+    README.md :: "# {{ project_name }}\n\n`pip install {{ project_slug }}`"
+    
+    pyproject.toml:
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        description = "{{ description }}"
+        authors = ["{{ author }}"]
+        license = "MIT"
+        readme = "README.md"
+        repository = "https://github.com/{{ git_org }}/{{ project_slug }}"
+        packages = [{include = "{{ package_name }}", from = "src"}]
+
+        [tool.poetry.dependencies]
+        python = "^3.9"
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "^8.0"
+        pytest-cov = "^5.0"
+        mkdocs-material = "^9.5"
+
+    .github/
+        workflows/
+            publish.yml:
+                name: Publish to PyPI and GitHub Pages
+                on:
+                  push:
+                    tags:
+                      - 'v*.*.*'
+                jobs:
+                  publish:
+                    runs-on: ubuntu-latest
+                    steps:
+                      - uses: actions/checkout@v4
+                      - uses: actions/setup-python@v5
+                      - name: Install dependencies
+                        run: pip install poetry && poetry install
+                      - name: Build and publish to PyPI
+                        run: poetry publish --build
+                        env:
+                          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+                      - name: Deploy docs to GitHub Pages
+                        run: poetry run mkdocs gh-deploy --force
+
+    src/
+        {{ package_name }}/
+            __init__.py:
+                def get_gnosis():
+                    return "The library is pure."
+
+    tests/
+        test_library.py:
+            from {{ package_name }} import get_gnosis
+
+            def test_gnosis():
+                assert get_gnosis() == "The library is pure."
+
+    docs/
+        index.md:
+            # Welcome to {{ project_name }}
+
+%% post-run
+    git init
+    poetry install

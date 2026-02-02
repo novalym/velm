@@ -1,0 +1,117 @@
+# Path: scaffold/archetypes/genesis/ai-agent-swarm.scaffold
+# ---------------------------------------------------------
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: AI AGENT SWARM (V-Ω-DISTRIBUTED-MIND)            ==
+# =================================================================================
+# @description: A production-ready, distributed AI agent system using Redis as a
+#               message queue for resilience and scalability.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+{{undefind_var}}
+{{project_slug}}/
+    .gitignore :: ".venv/\n__pycache__/\n.env"
+    README.md :: "## AI Agent Swarm\n- `cp .env.example .env`\n- `docker-compose up --build`\n- Send tasks via the producer API."
+
+    .env.example:
+        REDIS_HOST=redis
+        REDIS_PORT=6379
+        # OPENAI_API_KEY=your-key-here
+
+    docker-compose.yml:
+        version: '3.8'
+        services:
+          redis:
+            image: redis:7-alpine
+            ports: ["6379:6379"]
+          producer:
+            build:
+              context: .
+              dockerfile: Dockerfile.producer
+            ports: ["8000:8000"]
+            env_file: .env
+            depends_on: [redis]
+          worker:
+            build:
+              context: .
+              dockerfile: Dockerfile.worker
+            env_file: .env
+            depends_on: [redis]
+            # To scale, run: docker-compose up --scale worker=5
+
+    # Dockerfile for services that need Python dependencies
+    Dockerfile.base:
+        FROM python:3.11-slim
+        WORKDIR /app
+        COPY requirements.txt .
+        RUN pip install -r requirements.txt
+        COPY src/ /app/src/
+    
+    Dockerfile.producer:
+        FROM python:3.11-slim
+        WORKDIR /app
+        COPY requirements.txt .
+        RUN pip install -r requirements.txt
+        COPY src/ /app/src/
+        CMD ["uvicorn", "src.producer:app", "--host", "0.0.0.0", "--port", "8000"]
+
+    Dockerfile.worker:
+        FROM python:3.11-slim
+        WORKDIR /app
+        COPY requirements.txt .
+        RUN pip install -r requirements.txt
+        COPY src/ /app/src/
+        CMD ["python", "src/worker.py"]
+
+    requirements.txt:
+        fastapi
+        uvicorn
+        redis
+        # openai
+
+    src/
+        producer.py:
+            import redis
+            from fastapi import FastAPI, BackgroundTasks
+            
+            app = FastAPI()
+            r = redis.Redis(host='redis', port=6379, db=0)
+
+            @app.post("/task")
+            async def create_task(prompt: str):
+                task_id = r.incr("task_counter")
+                r.lpush("task_queue", f"{task_id}:{prompt}")
+                return {"message": "Task queued", "task_id": task_id}
+
+        worker.py:
+            import redis
+            import time
+            import os
+
+            r = redis.Redis(host='redis', port=6379, db=0)
+            print("Gnostic Worker awakens, awaiting tasks from the queue...")
+
+            def process_with_ai(prompt: str):
+                """The Gnostic heart of the agent."""
+                print(f"  -> AI Cortex gazing upon prompt: '{prompt[:50]}...'")
+                # openai.api_key = os.getenv("OPENAI_API_KEY")
+                # response = openai.ChatCompletion.create(...)
+                time.sleep(5) # Simulate AI work
+                result = f"The AI has processed '{prompt}'"
+                print(f"  -> Gnosis forged: {result}")
+                return result
+
+            while True:
+                # Blocking pop from the queue
+                task = r.brpop("task_queue", 0)
+                if task:
+                    task_str = task[1].decode('utf-8')
+                    task_id, prompt = task_str.split(":", 1)
+                    print(f"Processing Task #{task_id}...")
+                    result = process_with_ai(prompt)
+                    r.set(f"result:{task_id}", result)
+
+
+    %% on-undo
+        git install
+

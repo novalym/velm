@@ -1,0 +1,21 @@
+<style>
+.navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 2rem; background: var(--surface);
+    box-shadow: var(--shadow-sm); width: 100%;
+}
+.logo { font-weight: 800; font-size: 1.5rem; color: var(--primary); text-decoration: none; }
+.nav-links { display: flex; gap: 2rem; list-style: none; margin: 0; }
+.nav-links a { text-decoration: none; color: var(--text); font-weight: 500; }
+.nav-links a:hover { color: var(--primary); }
+@media (max-width: 768px) { .nav-links { display: none; } } /* Mobile hidden for simplicity */
+</style>
+<nav class="navbar">
+    <a href="#" class="logo">SCAFFOLD</a>
+    <ul class="nav-links">
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">Forge</a></li>
+        <li><a href="#">Pricing</a></li>
+    </ul>
+    <button class="btn btn-primary btn-sm">Connect</button>
+</nav>

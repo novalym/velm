@@ -1,0 +1,22 @@
+# Path: scaffold/default_templates/template.cpp.scaffold
+# ------------------------------------------------------
+
+$$ project_slug_cpp = {{ project_name | snake }}
+
+CMakeLists.txt:
+    cmake_minimum_required(VERSION 3.10)
+    project({{ project_slug_cpp }} VERSION 1.0)
+
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+    add_executable({{ project_slug_cpp }} src/main.cpp)
+
+src/
+    main.cpp:
+        #include <iostream>
+
+        int main() {
+            std::cout << "Gnosis is truth. The C++ reality is manifest." << std::endl;
+            return 0;
+        }

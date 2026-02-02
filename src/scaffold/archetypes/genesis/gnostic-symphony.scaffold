@@ -1,0 +1,77 @@
+# Path: scaffold/archetypes/genesis/gnostic-symphony.scaffold
+# -----------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: GNOSTIC SYMPHONY (V-Ω-AUTOMATION-ENGINE)         ==
+# =================================================================================
+# @description: An automation engine forged with the Scaffold Symphony language.
+#               It is a project for orchestrating other projects.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ docker_image_name = "{{ project_slug }}-worker"
+
+{{ project_slug }}/
+    .gitignore :: "reports/\n.env"
+
+    README.md:
+        # {{ project_name }} - Gnostic Symphony
+
+        This project uses the Scaffold Symphony language to automate complex workflows.
+
+        ## Rites of the Conductor
+
+        - `make build`: Build the Docker image used by the symphony.
+        - `make deploy`: Conduct the `deploy.symphony` scripture.
+        - `make test`: Conduct the `test.symphony` scripture.
+
+    Makefile:
+        build:
+        	docker build -t {{ docker_image_name }} .
+
+        deploy:
+        	scaffold symphony conduct symphonies/deploy.symphony --var environment=production
+
+        test:
+        	scaffold symphony conduct symphonies/test.symphony
+
+    # The Docker image that provides the tools for the symphony's rites
+    Dockerfile:
+        FROM alpine:latest
+        RUN apk add --no-cache curl git
+        # Add any other required tools here (aws-cli, kubectl, etc.)
+
+    symphonies/
+        # The main entry point for deployment
+        deploy.symphony:
+            # Import reusable Gnosis
+            @import "lib/common.symphony"
+
+            # Define the task
+            @task deploy_production
+            
+            %% proclaim: "Beginning the Rite of Celestial Ascension..."
+            
+            # Use a macro from the library
+            @call build_docker({{ docker_image_name }})
+            
+            >> echo "Pushing vessel to the celestial registry..."
+            >> docker push {{ docker_image_name }}:latest
+            ?? succeeds
+
+            %% proclaim: "Deployment Symphony is complete and pure."
+
+        # A symphony for running tests or health checks
+        test.symphony:
+            %% proclaim: "Adjudicating the health of the cosmos..."
+            >> echo "Running health checks..."
+            ?? succeeds
+    
+        lib/
+            common.symphony:
+                # A library of reusable macros
+                @macro build_docker(image_name)
+                    %% proclaim: "Forging the Unbreakable Vessel: !{image_name}"
+                    >> docker build -t !{image_name}:latest .
+                    ?? succeeds
+                @endmacro

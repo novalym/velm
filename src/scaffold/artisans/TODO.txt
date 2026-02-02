@@ -1,0 +1,4 @@
+refactor _cli to live in artisans folder, preserve all logic
+
+
+help me with the perfect prompt specifically to the ai responsible for absorbing ALL logic from create_cli into create.py, providing the truly massive, definitive, hyper intelligent create.py that results in us losing nothing!!! this is because im assuming now that every _cli.py file needs to be refactord, and once thats done our system would be MUCH more flexible and easier to reason about right? 

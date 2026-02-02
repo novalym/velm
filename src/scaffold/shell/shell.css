@@ -1,0 +1,172 @@
+/* Path: scaffold/shell/shell.css */
+
+/* =================================================================================
+   == I. THE COSMOS (GLOBAL THEME)                                                ==
+   ================================================================================= */
+Screen {
+    layout: horizontal;
+    background: #1a1b26;
+    color: #a9b1d6;
+}
+
+/* =================================================================================
+   == II. THE ORRERY (SIDEBAR)                                                    ==
+   ================================================================================= */
+#orrery {
+    width: 30;
+    dock: left;
+    height: 100%;
+    background: #16161e;
+    border-right: solid #565f89;
+    transition: margin-left 300ms;
+}
+
+    #orrery.-hidden {
+        margin-left: -31;
+        display: none;
+    }
+
+.orrery-header {
+    background: #7aa2f7;
+    color: #16161e;
+    text-style: bold;
+    text-align: center;
+    padding: 1;
+    height: 3;
+}
+
+/* =================================================================================
+   == III. THE MAIN STAGE                                                         ==
+   ================================================================================= */
+#main-stage {
+    width: 1fr;
+    height: 100%;
+    layout: vertical;
+}
+
+/* --- The Luminous Dossier (Output) --- */
+#dossier {
+    height: 1fr;
+    width: 100%;
+    background: #1a1b26;
+    padding: 1;
+    scrollbar-background: #1a1b26;
+    scrollbar-color: #565f89;
+    border-bottom: solid #565f89;
+}
+
+/* --- The Gnostic Prompter (Input Container) --- */
+#prompter-container {
+    height: 3;
+    min-height: 3;
+    background: #24283b;
+    /* Default border. The Prompter Python logic overrides this color dynamically. */
+    border-top: solid #565f89;
+    padding: 0 1;
+    layout: horizontal;
+    align-vertical: middle;
+}
+
+#prompt-sigil {
+    width: auto;
+    padding-right: 1;
+    color: #7aa2f7;
+    text-style: bold;
+    content-align: center middle;
+}
+
+GnosticPrompter {
+    width: 1fr;
+    height: 1;
+    background: transparent;
+    border: none;
+    color: #c0caf5;
+}
+
+    GnosticPrompter:focus {
+        text-style: bold;
+        color: #ffffff;
+    }
+
+    /* --- Syntax Highlighting States (Text Color Only) --- */
+    /* The container border is handled by Python logic in prompter.py */
+
+    GnosticPrompter.-valid {
+        color: #9ece6a; /* Green text for recognized verbs */
+    }
+
+    GnosticPrompter.-invalid {
+        color: #e0af68; /* Yellow text for unknown verbs */
+    }
+
+/* =================================================================================
+   == IV. STATUS BAR                                                              ==
+   ================================================================================= */
+#status-bar {
+    dock: bottom;
+    height: 1;
+    background: #1a1b26;
+    color: #565f89;
+    border-top: solid #565f89;
+    layout: horizontal;
+    padding: 0 1;
+}
+
+.status-item {
+    margin-right: 2;
+    color: #7aa2f7;
+}
+
+.status-label {
+    color: #565f89;
+}
+
+/* =================================================================================
+   == V. VISUAL ARTIFACTS                                                         ==
+   ================================================================================= */
+.ghost-text {
+    color: #565f89;
+    text-style: italic;
+}
+
+.command-echo {
+    color: #7aa2f7;
+    text-style: bold;
+}
+
+.error-text {
+    color: #f7768e;
+}
+
+.success-text {
+    color: #9ece6a;
+}
+
+/* --- The Holographic Menu --- */
+SuggestionMenu {
+    layer: top; /* Float above all */
+    dock: bottom;
+    margin-bottom: 4; /* Just above the prompt container (height 3 + status 1) */
+    height: auto;
+    max_height: 12;
+    background: #1f2335;
+    border: solid #7aa2f7;
+    width: 100%;
+    display: none; /* Hidden by default */
+}
+
+    SuggestionMenu:focus {
+        border: solid #bb9af7;
+    }
+
+/* Ensure Dossier doesn't overlap visually */
+#dossier {
+    margin-bottom: 0;
+}
+
+/* Correct the prompter container to stay at bottom */
+#prompter-container {
+    dock: bottom;
+    margin-bottom: 1; /* Space for status bar */
+}
+

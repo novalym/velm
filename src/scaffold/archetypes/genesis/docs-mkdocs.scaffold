@@ -1,0 +1,123 @@
+# Path: scaffold/archetypes/genesis/docs-mkdocs.scaffold
+# ------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: LUMINOUS SCRIPTURE (V-Ω-STRUCTURAL-PURITY)       ==
+# =================================================================================
+# @description: A modern, beautiful, and searchable documentation site forged with
+#               MkDocs and Material for MkDocs. Ready for automated deployment.
+# =================================================================================
+
+# --- I. The Altar of Gnostic Will ---
+$$ project_slug = {{ project_name | slug }}
+$$ github_username = {{ git_org | default("your-org") }}
+$$ author = {{ author }}
+
+# --- II. The Scripture of Form ---
+{{ project_slug }}/
+    .gitignore :: """
+    __pycache__/
+    .venv/
+    site/
+    .DS_Store
+    """
+
+    requirements.txt:
+        mkdocs>=1.5.0
+        mkdocs-material>=9.5.0
+
+    README.md :: """
+    # {{ project_name }} - A Luminous Scripture
+
+    This sanctum contains a documentation site forged with [MkDocs](https://www.mkdocs.org/) and [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
+
+    ## Rites of the Scribe
+
+    - `make install`: Summons the Scribe's tools.
+    - `make serve`: Awakens a live-reloading server to gaze upon your work.
+    - `make deploy`: Proclaims your Gnosis to the GitHub Pages cosmos.
+    """
+
+    Makefile:
+        .PHONY: help install serve build deploy
+
+        VENV_DIR = .venv
+        PYTHON_EXEC = $(VENV_DIR)/Scripts/python
+
+        help:
+        	@echo "The Scribe's Makefile for {{ project_name }}"
+        	@echo "Usage: make [install|serve|build|deploy]"
+
+        install:
+        	@python -m venv $(VENV_DIR)
+        	@$(PYTHON_EXEC) -m pip install -r requirements.txt
+
+        serve:
+        	@$(PYTHON_EXEC) -m mkdocs serve
+
+        deploy:
+        	@$(PYTHON_EXEC) -m mkdocs gh-deploy --clean
+
+    mkdocs.yml:
+        site_name: {{ project_name }}
+        site_author: {{ author }}
+        repo_url: https://github.com/{{ github_username }}/{{ project_slug }}
+        repo_name: "{{ project_slug }}"
+        edit_uri: edit/main/docs/
+
+        theme:
+          name: material
+          palette:
+            - scheme: default
+              toggle:
+                icon: material/brightness-7
+                name: Switch to dark mode
+            - scheme: slate
+              toggle:
+                icon: material/brightness-4
+                name: Switch to light mode
+          features:
+            - navigation.tabs
+            - search.suggest
+            - search.highlight
+
+        nav:
+          - 'Home': 'index.md'
+          - 'About': 'about.md'
+
+    docs/
+        index.md:
+            # Welcome to {{ project_name }}
+
+            This is the dawn of a new, luminous scripture.
+
+        about.md:
+            # About this Great Work
+
+            Forged by the divine will of **{{ author }}**.
+
+    .github/
+        workflows/
+            deploy.yml:
+                name: Deploy Docs to GitHub Pages
+                on:
+                  push:
+                    branches:
+                      - main
+                permissions:
+                  contents: write
+                jobs:
+                  deploy:
+                    runs-on: ubuntu-latest
+                    steps:
+                      - uses: actions/checkout@v4
+                      - uses: actions/setup-python@v5
+                        with:
+                          python-version: '3.11'
+                          cache: 'pip'
+                      - run: pip install -r requirements.txt
+                      - run: mkdocs gh-deploy --force
+
+%% post-run
+    git init
+    make install

@@ -1,0 +1,44 @@
+# =================================================================================
+# == Gnostic Blueprint: Core
+# == Forged by: zee66 on 2026-01-29 20:29:23 UTC
+# =================================================================================
+# @description: A new generic project.
+#
+# @gnosis project_name: core
+# @gnosis author: zee66
+# @gnosis description: A new generic project.
+# =================================================================================
+
+# --- II. The Scripture of Form (The Body of the Project) ---
+__init__.py
+engine.py
+contracts.py
+inquisitors/
+    __init__.py
+    banker.py
+    bouncer.py
+    chronos.py
+    librarian.py
+    retina.py
+    scrier.py
+    sentinel.py
+refinement/
+    __init__.py
+    alchemist.py
+    purifier.py
+sutures/
+    __init__.py
+    neural_bridge.py
+    vision_gate.py
+telemetry/
+    __init__.py
+    pulse.py
+
+
+# =================================================================================
+# == Gnostic Dossier of Provenance
+# =================================================================================
+# Scaffold Version:  0.1.0
+# Timestamp (UTC):   2026-01-29 20:29:23
+# Gnosis Hash:       9108b541317a
+# =================================================================================

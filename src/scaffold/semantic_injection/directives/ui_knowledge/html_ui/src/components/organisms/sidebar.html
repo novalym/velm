@@ -1,0 +1,30 @@
+<style>
+.sidebar {
+    width: 250px; height: 100%; background: var(--surface);
+    border-right: 1px solid var(--border); padding: 2rem 1rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+}
+.nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.75rem 1rem; color: var(--text-light);
+    text-decoration: none; border-radius: var(--radius);
+    transition: 0.2s;
+}
+.nav-item:hover, .nav-item.active {
+    background: #eef2ff; color: var(--primary);
+}
+.nav-item svg { width: 20px; }
+</style>
+<div class="sidebar">
+    <a href="#" class="nav-item active">
+        <span>🏠</span> Dashboard
+    </a>
+    <a href="#" class="nav-item">
+        <span>📊</span> Analytics
+    </a>
+    <a href="#" class="nav-item">
+        <span>⚙️</span> Settings
+    </a>
+    <div style="flex-grow:1"></div>
+    <a href="#" class="nav-item">Logout</a>
+</div>

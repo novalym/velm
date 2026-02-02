@@ -1,0 +1,19 @@
+<style>
+.radio-wrapper { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.radio-input { display: none; }
+.radio-circle {
+    width: 20px; height: 20px; border: 2px solid var(--border);
+    border-radius: 50%; position: relative;
+}
+.radio-input:checked + .radio-circle { border-color: var(--primary); }
+.radio-input:checked + .radio-circle::after {
+    content: ''; position: absolute; width: 10px; height: 10px;
+    background: var(--primary); border-radius: 50%;
+    top: 3px; left: 3px;
+}
+</style>
+<label class="radio-wrapper">
+    <input type="radio" name="r" class="radio-input" checked>
+    <span class="radio-circle"></span>
+    <span>Option A</span>
+</label>

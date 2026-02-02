@@ -1,0 +1,23 @@
+<style>
+.floating-group { position: relative; padding-top: 10px; }
+.floating-input {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem 0.75rem 0.25rem; font-size: 1rem;
+}
+.floating-label {
+    position: absolute; top: 0.5rem; left: 0.75rem;
+    font-size: 0.75rem; color: var(--text-light);
+    transition: 0.2s; pointer-events: none;
+}
+.floating-input:placeholder-shown + .floating-label {
+    top: 1rem; font-size: 1rem;
+}
+.floating-input:focus + .floating-label,
+.floating-input:not(:placeholder-shown) + .floating-label {
+    top: 0.25rem; font-size: 0.75rem; color: var(--primary);
+}
+</style>
+<div class="floating-group">
+    <input type="text" class="floating-input" placeholder=" " id="fi">
+    <label for="fi" class="floating-label">Username</label>
+</div>

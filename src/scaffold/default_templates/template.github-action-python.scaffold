@@ -1,0 +1,135 @@
+# Path: scaffold/default_templates/template.github-action-python.scaffold
+# -----------------------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS TEMPLATE: THE GNOSTIC GUARDIAN (V-Ω-CI-CD-COSMOS)           ==
+# =================================================================================
+# This scripture forges a complete, three-part CI/CD and Governance engine for
+# any production-grade Python project.
+# =================================================================================
+
+.github/
+    workflows/
+        # --- I. THE INQUISITOR: THE RITE OF ADJUDICATION ---
+        # This symphony is conducted on every push and pull request to ensure the
+        # code's soul remains pure.
+        ci.yml:
+            name: Gnostic Adjudication (Lint, Test, Secure)
+
+            on:
+              push:
+                branches: [ "main", "develop" ]
+              pull_request:
+                branches: [ "main", "develop" ]
+              workflow_dispatch:
+
+            jobs:
+              # The First Gate: The Gaze of the Scribe
+              lint:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: actions/setup-python@v5
+                    with:
+                      python-version: '3.11'
+                      cache: 'poetry'
+                  - name: Install dependencies
+                    run: poetry install
+                  - name: Gaze of the Linter (Ruff)
+                    run: poetry run ruff check .
+                  - name: Gaze of the Formatter (Black)
+                    run: poetry run black --check .
+
+              # The Second Gate: The Rite of Adjudication
+              test:
+                needs: lint
+                runs-on: ubuntu-latest
+                strategy:
+                  matrix:
+                    python-version: ["3.10", "3.11", "3.12"]
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: actions/setup-python@v5
+                    with:
+                      python-version: ${{ matrix.python-version }}
+                      cache: 'poetry'
+                  - name: Install dependencies
+                    run: poetry install
+                  - name: Adjudicate purity with Pytest
+                    run: poetry run pytest --cov
+
+              # The Third Gate: The Gaze of the Guardian
+              security:
+                needs: lint
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: actions/setup-python@v5
+                  - name: Install dependencies
+                    run: pip install bandit trivy
+                  - name: Gaze for code heresies with Bandit
+                    run: bandit -r .
+                  - name: Gaze for dependency vulnerabilities with Trivy
+                    run: trivy fs . --scanners vuln --exit-code 1
+
+        # --- II. THE HERALD: THE RITE OF ASCENSION ---
+        # This symphony is conducted ONLY when a new version tag is pushed.
+        # It forges the final vessel and proclaims it to the PyPI cosmos.
+        publish.yml:
+            name: Proclaim to PyPI Cosmos
+
+            on:
+              push:
+                tags:
+                  - 'v*.*.*'
+
+            permissions:
+              id-token: write # This is the sacred vow for OIDC trusted publishing
+
+            jobs:
+              ascend:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: actions/setup-python@v5
+                  - name: Install Poetry
+                    run: pip install poetry
+                  - name: Forge the Celestial Vessel (Build)
+                    run: poetry build
+                  - name: Proclaim the Great Work to PyPI
+                    uses: pypa/gh-action-pypi-publish@v1
+                    # This action automatically uses the OIDC token. No secrets needed!
+
+        # --- III. THE CHRONICLER: THE RITE OF PROCLAMATION ---
+        # This symphony is conducted on every push to the main branch to keep
+        # the project's public Gnosis (documentation) eternally pure.
+        docs.yml:
+            name: Proclaim Gnosis to GitHub Pages
+
+            on:
+              push:
+                branches:
+                  - main
+
+            permissions:
+              contents: read
+              pages: write
+              id-token: write
+
+            jobs:
+              deploy-docs:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: actions/setup-python@v5
+                    with:
+                      python-version: '3.11'
+                      cache: 'pip'
+                  - name: Install Scribe's Tools
+                    run: pip install mkdocs mkdocs-material
+                  - name: Forge the Luminous Scripture
+                    run: mkdocs build
+                  - name: Upload Artifact
+                    uses: actions/upload-pages-artifact@v3
+                  - name: Proclaim to GitHub Pages
+                    uses: actions/deploy-pages@v4

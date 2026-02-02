@@ -1,0 +1,20 @@
+# Path: scaffold/default_templates/template.tsx.scaffold
+# ------------------------------------------------------
+$$ filename = "Component.tsx"
+$$ project_name = {{ project_name }}
+
+{{ filename }}:
+    import React from 'react';
+
+    interface Props {
+      title?: string;
+    }
+
+    export const {{ filename | stem }}: React.FC<Props> = ({ title }) => {
+        return (
+            <div className="gnostic-component">
+                <h1>{title || '{{ filename | stem }}'}</h1>
+                <p>Forged for {{ project_name }}</p>
+            </div>
+        );
+    };

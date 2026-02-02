@@ -1,0 +1,20 @@
+<style>
+.tooltip-container { position: relative; display: inline-block; }
+.tooltip-text {
+    visibility: hidden; width: 120px; background-color: #333;
+    color: #fff; text-align: center; padding: 5px 0;
+    border-radius: 6px; position: absolute; z-index: 1;
+    bottom: 125%; left: 50%; margin-left: -60px;
+    opacity: 0; transition: opacity 0.3s; font-size: 0.8rem;
+}
+.tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+.tooltip-text::after {
+    content: ""; position: absolute; top: 100%; left: 50%;
+    margin-left: -5px; border-width: 5px; border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+</style>
+<div class="tooltip-container">
+    <button class="btn btn-ghost">Hover Me</button>
+    <span class="tooltip-text">Gnostic Knowledge</span>
+</div>

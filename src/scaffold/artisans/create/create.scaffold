@@ -1,0 +1,7 @@
+# Path: scaffold/artisans/create/create.scaffold
+# ----------------------------------------------
+scaffold/artisans/create/
+    __init__.py
+    artisan.py
+    builder.py
+    safety.py

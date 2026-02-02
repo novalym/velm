@@ -1,0 +1,271 @@
+﻿/* Path: studio/pads/distill_pad/distill_pad.css */
+/* --------------------------------------------- */
+
+/* 
+=================================================================================
+== THE CODEX OF VISUAL FORM (V-Ω-DISTILLATION-THEME)                           ==
+=================================================================================
+This scripture defines the visual reality of the Distillation Workbench.
+It governs the Split Pane, the World Tree, the Crystal Ball, and the Modal Altars.
+=================================================================================
+*/
+
+/* --- I. THE COSMOS (Global Scope) --- */
+Screen {
+    layout: vertical;
+    background: $surface;
+    color: $text;
+}
+
+/* --- II. THE MAIN SANCTUM (Split Layout) --- */
+#main-container {
+    layout: horizontal;
+    height: 1fr;
+    /* A luminous border to separate the header from the workspace */
+    border-top: solid $accent;
+}
+
+/* Left Pane: The World Tree (File Selector) */
+#file-selector-pane {
+    width: 30%;
+    min-width: 40;
+    height: 100%;
+    border-right: solid $primary;
+    background: $surface-darken-1;
+    layout: vertical;
+    /* We prepare the pane for the folding of space */
+}
+
+    /* The Rite of Folding Space (Hidden Sidebar) */
+    #file-selector-pane.-hidden {
+        width: 0;
+        min-width: 0;
+        display: none;
+        border-right: none;
+    }
+
+/* Right Pane: The Crystal Ball (Preview) */
+#preview-pane {
+    width: 1fr;
+    height: 100%;
+    layout: vertical;
+    background: $surface;
+}
+
+/* --- III. WIDGET STYLING --- */
+
+/* -- A. The File Tree -- */
+
+#file-selector-header {
+    height: 3;
+    dock: top;
+    layout: horizontal;
+    padding: 0 1;
+    align: center middle;
+    background: $surface-darken-2;
+    border-bottom: solid $primary;
+}
+
+#file-tree-search {
+    width: 1fr;
+    height: 1;
+    border: none;
+    background: $surface-lighten-1;
+    color: $text;
+}
+
+/* Compact Icon Buttons */
+.icon-btn {
+    width: 5;
+    min-width: 5;
+    margin-left: 1;
+    border: none;
+    min-height: 1;
+}
+
+#file-tree-main {
+    height: 1fr;
+    scrollbar-gutter: stable;
+    padding-top: 1;
+    background: $surface-darken-1;
+}
+
+/* The Cursor of Selection */
+Tree > .tree--cursor {
+    background: $accent;
+    color: $text;
+    text-style: bold;
+}
+
+/* -- B. The Preview Pane -- */
+
+#preview-command-bar {
+    height: 3;
+    dock: top;
+    padding: 0 1;
+    align: center middle;
+    background: $surface-darken-1;
+    border-bottom: solid $primary;
+}
+
+#search-blueprint-input {
+    width: 1fr;
+    border: none;
+    background: $surface-lighten-1;
+}
+
+#copy-blueprint-btn {
+    margin-right: 1;
+    min-width: 10;
+}
+
+/* The Scripture Display */
+#preview-scroll-container {
+    height: 1fr;
+    scrollbar-gutter: stable;
+    background: $surface;
+}
+
+#preview-display {
+    padding: 1 2;
+    min-height: 100%;
+}
+
+/* -- C. The Telemetry Footer -- */
+
+#telemetry-container {
+    dock: bottom;
+    height: auto;
+    max-height: 14;
+    background: $surface-darken-1;
+    border-top: solid $primary;
+}
+
+#telemetry-table {
+    height: auto;
+    width: 100%;
+    background: transparent;
+    border: none;
+}
+
+#token-scribe-container {
+    height: 3;
+    padding: 0 1;
+    border-top: solid $primary-darken-2;
+    align: center middle;
+    background: $surface-darken-2;
+}
+
+#token-progress {
+    width: 1fr;
+    margin-right: 2;
+}
+
+#token-label {
+    width: auto;
+    min-width: 20;
+    content-align: right middle;
+    color: $text-muted;
+}
+
+/* --- IV. THE MODAL ALTARS (Floating Dialogs) --- */
+
+/* Background Dimming */
+ModalScreen {
+    align: center middle;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* The Generic Modal Box */
+.modal-box {
+    width: 60%;
+    max-width: 80;
+    height: auto;
+    max_height: 80%;
+    background: $surface;
+    border: thick $accent;
+    padding: 0;
+    layout: vertical;
+    box-shadow: 0 0 2 2 rgba(0,0,0,0.5);
+}
+
+.modal-title {
+    dock: top;
+    width: 100%;
+    text-align: center;
+    text-style: bold;
+    background: $accent;
+    color: $text;
+    padding: 1;
+}
+
+.modal-content {
+    padding: 2;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    dock: bottom;
+    height: 4;
+    align: center middle;
+    padding: 1;
+    border-top: solid $primary;
+    background: $surface-darken-1;
+}
+
+.modal-btn {
+    margin: 0 1;
+    min-width: 12;
+}
+
+/* -- Specific Modal: Config -- */
+#config-dialog {
+    width: 70;
+    height: 80%;
+}
+
+.config-group {
+    margin-bottom: 2;
+    padding: 1;
+    border: solid $primary;
+    background: $surface-lighten-1;
+}
+
+.-hidden {
+    display: none;
+}
+
+/* -- Specific Modal: Context Menu -- */
+ContextMenu {
+    align: left top; /* Position handled manually via absolute offsets */
+    background: transparent;
+}
+
+.context-menu-box {
+    width: 35;
+    height: auto;
+    border: solid $accent;
+    background: $surface-lighten-1;
+    padding: 0;
+}
+
+    .context-menu-box ListView {
+        height: auto;
+        border: none;
+    }
+
+    .context-menu-box ListItem {
+        padding: 1 2;
+    }
+
+        .context-menu-box ListItem:hover {
+            background: $accent;
+            color: $text;
+        }
+
+/* -- Specific Modal: File Picker -- */
+/* (Styles inherited from .modal-box, specific overrides here if needed) */
+#picker-tree {
+    border: solid $primary-darken-1;
+    background: $surface-lighten-1;
+}

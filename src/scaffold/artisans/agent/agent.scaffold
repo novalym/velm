@@ -1,0 +1,32 @@
+├── __init__.py             # The Sacred Gateway
+├── artisan.py              # The High Conductor (`scaffold agent` command)
+├── contracts.py            # The Language of Thought (Plan, ToolCall, Observation)
+├── engine.py               # The Heartbeat: The Perceive->Plan->Act->Verify Loop
+│
+├──  Perceive/
+│   ├── __init__.py
+│   └── perceiver.py        # The Eye: Gathers context using `distill`
+│
+├── Plan/
+│   ├── __init__.py
+│   ├── planner.py          # The Mind: Turns intent + context into a Plan
+│   └── prompt_forge.py     # The Soul: Forges the master prompt for the LLM
+│
+├── Act/
+│   ├── __init__.py
+│   ├── executor.py         # The Hand: Executes a Plan using the Tool Registry
+│   └── tools/
+│       ├── __init__.py
+│       ├── base.py         # The Sacred Contract for all Tools
+│       ├── file_system.py  # Read, Write, List
+│       ├── testing.py      # Run tests, get coverage
+│       └── git.py          # Commit, Diff, Status
+│
+├── Verify/
+│   ├── __init__.py
+│   └── critic.py           # The Conscience: Judges the outcome of an Action
+│
+└── Memory/
+    ├── __init__.py
+    ├── short_term.py       # The Scratchpad: Remembers the current conversation
+    └── long_term.py        # The Chronicle: Remembers successful solutions (RAG)

@@ -1,0 +1,24 @@
+/* Path: scaffold/themes/monokai.css */
+/* A classic, comfortable reality */
+Screen {
+    background: #272822;
+    color: #F8F8F2;
+}
+
+Header, Footer {
+    background: #1e1f1c;
+}
+
+Tree > .tree--cursor {
+    background: #FD971F;
+    color: #272822;
+}
+
+.pane {
+    border: heavy #FD971F;
+}
+
+.pane-title {
+    background: #1e1f1c;
+    color: #FD971F;
+}

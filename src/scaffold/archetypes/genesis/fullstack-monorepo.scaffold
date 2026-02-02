@@ -1,0 +1,200 @@
+# Path: scaffold/archetypes/genesis/fullstack-monorepo.scaffold
+# -------------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: FULLSTACK MONOREPO (V-Ω-STRUCTURAL-PURITY)       ==
+# =================================================================================
+
+# --- I. The Altar of Gnostic Will ---
+$$ project_slug = {{ project_name | slug }}
+$$ author = {{ author }}
+$$ backend_port = 8000
+$$ frontend_port = 5173
+
+# --- II. The Scripture of Form ---
+{{ project_slug }}/
+    # The root .gitignore is a Gnostic Guardian for both realities.
+    .gitignore :: """
+    .env*
+    !.env.example
+    .vscode/
+    .DS_Store
+
+    # Python
+    backend/__pycache__/
+    backend/.pytest_cache/
+    backend/.ruff_cache/
+    backend/.venv/
+
+    # Node.js
+    frontend/node_modules/
+    frontend/dist/
+    """
+
+    README.md :: """
+    # {{ project_name }} (Polyglot Monorepo)
+
+    A single repository containing two divine souls:
+    - **`backend/`**: A high-performance API forged with FastAPI.
+    - **`frontend/`**: A luminous UI forged with React + Vite.
+    
+    The entire cosmos is orchestrated by a root `Makefile` and `docker-compose.yml`.
+
+    - `make install`: Forges both realities.
+    - `make dev`: Awakens both souls for live development.
+    """
+
+    Makefile:
+        .PHONY: install dev docker-up docker-down
+
+        install:
+        	@cd backend && make install
+        	@cd frontend && make install
+
+        dev:
+        	@echo "Awakening the Polyglot Cosmos..."
+        	@(cd backend && make dev) & (cd frontend && make dev) & wait
+
+        docker-up:
+        	@docker-compose up --build
+
+        docker-down:
+        	@docker-compose down
+
+    docker-compose.yml:
+        version: '3.8'
+        services:
+          backend:
+            build: ./backend
+            ports:
+              - "{{ backend_port }}:{{ backend_port }}"
+            volumes:
+              - ./backend/src:/app/src
+          frontend:
+            build: ./frontend
+            ports:
+              - "{{ frontend_port }}:{{ frontend_port }}"
+            volumes:
+              - ./frontend/src:/app/src
+
+    backend/
+        Makefile:
+            install:
+            	poetry install
+            dev:
+            	poetry run uvicorn src.main:app --host 0.0.0.0 --port {{ backend_port }} --reload
+
+        pyproject.toml:
+            [tool.poetry]
+            name = "{{ project_slug }}-backend"
+            version = "0.1.0"
+            description = "The FastAPI soul of the cosmos."
+            authors = ["{{ author }}"]
+
+            [tool.poetry.dependencies]
+            python = "^3.11"
+            fastapi = "^0.110.0"
+            uvicorn = {extras = ["standard"], version = "^0.27.0"}
+            python-multipart = "^0.0.9"
+
+        Dockerfile:
+            FROM python:3.11-slim
+            ENV POETRY_NO_INTERACTION=1 \
+                POETRY_VIRTUALENVS_IN_PROJECT=1
+            WORKDIR /app
+            COPY pyproject.toml poetry.lock ./
+            RUN pip install poetry && poetry install --no-root
+            COPY src/ ./src/
+            CMD ["make", "dev"]
+
+        src/
+            main.py:
+                from fastapi import FastAPI
+                from fastapi.middleware.cors import CORSMiddleware
+
+                app = FastAPI(title="{{ project_name }} Backend")
+
+                app.add_middleware(
+                    CORSMiddleware,
+                    allow_origins=["http://localhost:{{ frontend_port }}", "http://127.0.0.1:{{ frontend_port }}"],
+                    allow_credentials=True,
+                    allow_methods=["*"],
+                    allow_headers=["*"],
+                )
+
+                @app.get("/api/v1/gnosis")
+                async def get_gnosis():
+                    return {"message": "The Backend's Gnostic Proclamation is Pure!"}
+
+    frontend/
+        Makefile:
+            install:
+            	npm install
+            dev:
+            	npm run dev -- --host
+
+        vite.config.ts:
+            import { defineConfig } from 'vite'
+            import react from '@vitejs/plugin-react'
+
+            export default defineConfig({
+              plugins: [react()],
+              server: {
+                port: {{ frontend_port }},
+                strictPort: true,
+              },
+            })
+
+        package.json:
+            {
+              "name": "{{ project_slug }}-frontend",
+              "private": true,
+              "version": "0.1.0",
+              "type": "module",
+              "scripts": { "dev": "vite" },
+              "dependencies": { "react": "^18.2.0", "react-dom": "^18.2.0" },
+              "devDependencies": { "@vitejs/plugin-react": "^4.2.1", "vite": "^5.1.4", "typescript": "^5.2.2" }
+            }
+        
+        src/
+            App.tsx:
+                import { useState, useEffect } from 'react'
+
+                function App() {
+                  const [gnosis, setGnosis] = useState<string>('Awaiting Gnosis...')
+                  
+                  useEffect(() => {
+                    fetch(`http://localhost:{{ backend_port }}/api/v1/gnosis`)
+                      .then(res => res.json())
+                      .then(data => setGnosis(data.message))
+                      .catch(() => setGnosis('A paradox occurred.'))
+                  }, [])
+
+                  return <p>The Backend Proclaims: {gnosis}</p>
+                }
+
+                export default App
+            
+            main.tsx:
+                import React from 'react'
+                import ReactDOM from 'react-dom/client'
+                import App from './App.tsx'
+
+                ReactDOM.createRoot(document.getElementById('root')!).render(
+                  <React.StrictMode>
+                    <App />
+                  </React.StrictMode>,
+                )
+
+        index.html:
+            <!doctype html>
+            <html>
+              <body>
+                <div id="root"></div>
+                <script type="module" src="/src/main.tsx"></script>
+              </body>
+            </html>
+
+%% post-run
+    git init
+    make install

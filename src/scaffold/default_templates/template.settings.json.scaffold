@@ -1,0 +1,95 @@
+    
+# Path: scaffold/default_templates/template.settings.json.scaffold
+# ---------------------------------------------------------------
+# == Gnostic VS Code Settings ==
+# This scripture configures the Editor's Sanctum.
+
+$$ project_type = {{ project_type | default('generic') }}
+
+settings.json :: """
+{
+  "files.encoding": "utf8",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+
+  // --- The Gnostic Exclusions (Hiding the Gears) ---
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/.scaffold": false, 
+    "**/__pycache__": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/venv": true,
+    "**/.venv": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.scaffold": true,
+    "scaffold.lock": true
+  },
+
+  // --- Python Gnosis ---
+  @if {{ project_type in ['python', 'poetry', 'fastapi', 'django', 'flask'] }}
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.nosetestsEnabled": false,
+  // Fallback if Ruff is not present
+  "python.formatting.provider": "black",
+  @endif
+
+  // --- Node/TypeScript Gnosis ---
+  @if {{ project_type in ['node', 'react', 'vue', 'nextjs', 'typescript'] }}
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "prettier.requireConfig": true,
+  @endif
+
+  // --- Go Gnosis ---
+  @if {{ project_type == 'go' }}
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  },
+  "go.useLanguageServer": true,
+  "go.lintTool": "golangci-lint",
+  @endif
+
+  // --- Rust Gnosis ---
+  @if {{ project_type == 'rust' }}
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "rust-analyzer.checkOnSave.command": "clippy",
+  @endif
+
+  // --- Scaffold Gnosis (Highlighting) ---
+  "files.associations": {
+    "*.scaffold": "yaml",
+    "*.symphony": "yaml",
+    "*.arch": "yaml"
+  }
+}
+"""
+
+  

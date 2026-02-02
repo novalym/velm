@@ -1,0 +1,28 @@
+    
+# Path: scaffold/default_templates/template.scaffold.scaffold
+# -----------------------------------------------------------
+# == Gnostic Blueprint: {{ project_name }} ==
+# Forged by: {{ author }}
+# This scripture defines the structure of your reality.
+
+$$ project_name = "{{ project_name }}"
+$$ use_git = true
+
+README.md :: """
+# {{ project_name }}
+
+> A new reality forged by Scaffold.
+
+## Usage
+
+```bash
+# Speak your rites here
+"""
+@if {{ use_git }}
+.gitignore :: """
+.scaffold/
+scaffold.lock
+pycache/
+node_modules/
+"""
+@endif

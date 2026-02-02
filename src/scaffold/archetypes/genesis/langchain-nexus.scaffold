@@ -1,0 +1,91 @@
+# Path: scaffold/archetypes/genesis/langchain-nexus.scaffold
+# ----------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: LANGCHAIN NEXUS (V-Ω-AGENTIC-MIND)               ==
+# =================================================================================
+# @description: A complete LLM application foundation using LangChain, FastAPI, and
+#               a FAISS in-memory vector store for RAG.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+
+{{ project_slug }}/
+    .gitignore :: ".venv/\n__pycache__/\n.env"
+    README.md :: "## LangChain Nexus\n- `poetry install`\n- `cp .env.example .env` (and add your OpenAI key)\n- `poetry run dev`"
+
+    .env.example:
+        OPENAI_API_KEY="your-sk-key-here"
+
+    pyproject.toml:
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        packages = [{include = "{{ package_name }}", from = "src"}]
+        [tool.poetry.dependencies]
+        python = "^3.11"
+        langchain = "^0.1.0"
+        langchain-openai = "^0.0.5"
+        fastapi = "^0.110.0"
+        uvicorn = "^0.27.0"
+        faiss-cpu = "^1.7.4" # For vector store
+        tiktoken = "^0.6.0"
+
+        [tool.poetry.scripts]
+        dev = "{{ package_name }}.main:run_dev"
+
+    src/
+        {{ package_name }}/
+            __init__.py
+            main.py:
+                import uvicorn
+                from fastapi import FastAPI
+                from langchain_core.prompts import ChatPromptTemplate
+                from langchain_core.output_parsers import StrOutputParser
+                from langchain_core.runnables import RunnablePassthrough
+                from langchain_openai import ChatOpenAI
+                from .vector_store import vector_store
+
+                app = FastAPI()
+                retriever = vector_store.as_retriever()
+                prompt = ChatPromptTemplate.from_template(
+                    """Answer the question based only on the following context:
+                    {context}
+                    
+                    Question: {question}
+                    """
+                )
+                model = ChatOpenAI()
+                
+                chain = (
+                    {"context": retriever, "question": RunnablePassthrough()}
+                    | prompt
+                    | model
+                    | StrOutputParser()
+                )
+
+                @app.post("/ask")
+                def ask(question: str):
+                    return {"answer": chain.invoke(question)}
+
+                def run_dev():
+                    uvicorn.run("{{ package_name }}.main:app", reload=True)
+
+            vector_store.py:
+                from langchain_community.vectorstores import FAISS
+                from langchain_openai import OpenAIEmbeddings
+                from langchain_core.documents import Document
+
+                # In a real app, this would come from a database or files
+                docs = [
+                    Document(page_content="The Gnostic Architect uses Scaffold."),
+                    Document(page_content="Scaffold is a tool for architectural genesis."),
+                ]
+
+                embeddings = OpenAIEmbeddings()
+                vector_store = FAISS.from_documents(docs, embeddings)
+
+%% post-run
+    git init
+    poetry install

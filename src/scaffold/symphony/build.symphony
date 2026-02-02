@@ -1,0 +1,43 @@
+# Path: symphony/build.symphony
+# -----------------------------
+
+# =================================================================================
+# == THE MASTER SYMPHONY OF THE GNOSTIC FORGE                                    ==
+# =================================================================================
+
+# This scripture is the one true Conductor for building, testing, and purifying
+# the Scaffold God-Engine itself.
+
+@task install
+    %% proclaim: "Summoning all Gnostic dependencies with Poetry..."
+    >> poetry install
+    ?? succeeds
+    %% proclaim: "Summoning the Iron Core's soul with Maturin..."
+    >> cd rust && maturin develop && cd ..
+    ?? succeeds
+
+@task lint
+    %% proclaim: "The Gnostic Inquisitor awakens its Gaze..."
+    >> poetry run ruff check .
+    ?? succeeds
+    >> poetry run black --check .
+    ?? succeeds
+    >> poetry run mypy .
+    ?? succeeds
+
+@task test
+    %% proclaim: "Adjudicating the purity of the cosmos..."
+    >> poetry run pytest
+    ?? succeeds
+
+@task build
+    %% proclaim: "Forging the celestial vessel (wheel)..."
+    @conduct test  # A vow that the build must be pure
+    >> poetry build
+    ?? succeeds
+
+@task all
+    @conduct install
+    @conduct lint
+    @conduct test
+    @conduct build

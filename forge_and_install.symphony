@@ -1,0 +1,48 @@
+    
+# =============================================================================
+# == THE RITE OF THE GNOSTIC LENS (BUILD & INSTALL SYMPHONY)                 ==
+# =============================================================================
+# Purpose: Compiles, packages, and installs the VS Code extension.
+# Context: Run this from the parent directory of 'scaffold-vscode'.
+# =============================================================================
+
+# --- I. GNOSIS DEFINITION ---
+%% let: extension_dir = "scaffold-vscode"
+%% let: package_name = "scaffold-gnostic-lens"
+%% let: version = "0.6.1"
+%% let: vsix_file = "{{ package_name }}-{{ version }}.vsix"
+
+# --- II. THE ENTRY INTO THE SANCTUM ---
+# We verify the sanctum exists before entering.
+?? dir_exists: {{ extension_dir }}
+>> cd {{ extension_dir }}
+
+# --- III. THE SUMMONING OF DEPENDENCIES ---
+%% proclaim: "Summoning Node dependencies..."
+>> npm install
+?? succeeds
+?? dir_exists: node_modules
+
+# --- IV. THE RITE OF COMPILATION ---
+%% proclaim: "Transmuting TypeScript to JavaScript..."
+>> npm run compile
+?? succeeds
+?? dir_exists: out
+
+# --- V. THE RITE OF PACKAGING (THE VSIX) ---
+# We use 'npx' to summon 'vsce' ephemerally, ensuring no global pollution heresy.
+>> echo "Forging the VSIX container..."
+>> npx @vscode/vsce package
+?? succeeds
+?? file_exists: {{ vsix_file }}
+
+# --- VI. THE RITE OF INSTALLATION ---
+# We force the installation to overwrite any previous version.
+%% proclaim: "Bestowing the Gnostic Lens upon VS Code..."
+>> code --install-extension {{ vsix_file }} --force
+?? succeeds
+
+# --- VII. THE FINAL PROCLAMATION ---
+%% proclaim: "Apotheosis Complete. The Gnostic Lens is active."
+
+  

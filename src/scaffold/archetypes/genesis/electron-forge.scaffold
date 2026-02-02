@@ -1,0 +1,103 @@
+# Path: scaffold/archetypes/genesis/electron-forge.scaffold
+# ---------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: ELECTRON FORGE (V-Ω-DESKTOP-ASCENSION)           ==
+# =================================================================================
+# @description: A cross-platform desktop application forged with Electron Forge,
+#               React, and TypeScript.
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+
+{{ project_slug }}/
+    .gitignore :: "node_modules/\nout/\n.vite/"
+
+    package.json:
+        {
+          "name": "{{ project_slug }}",
+          "productName": "{{ project_name }}",
+          "version": "1.0.0",
+          "main": ".vite/build/main.js",
+          "scripts": {
+            "start": "electron-forge start",
+            "package": "electron-forge package",
+            "make": "electron-forge make"
+          },
+          "devDependencies": {
+            "@electron-forge/cli": "^7.3.0",
+            "@electron-forge/maker-squirrel": "^7.3.0",
+            "@electron-forge/maker-zip": "^7.3.0",
+            "@electron-forge/plugin-vite": "^7.3.0",
+            "electron": "29.1.5",
+            "typescript": "^5.3.0"
+          },
+          "dependencies": {
+            "react": "^18.2.0",
+            "react-dom": "^18.2.0"
+          }
+        }
+
+    forge.config.ts:
+        import type { ForgeConfig } from '@electron-forge/shared-types';
+        import { VitePlugin } from '@electron-forge/plugin-vite';
+
+        const config: ForgeConfig = {
+          packagerConfig: {},
+          makers: [],
+          plugins: [
+            new VitePlugin({
+              build: [
+                { entry: 'src/main.ts', config: 'vite.main.config.ts' },
+                { entry: 'src/preload.ts', config: 'vite.preload.config.ts' }
+              ],
+              renderer: [{ name: 'main_window', config: 'vite.renderer.config.ts' }]
+            })
+          ]
+        };
+        export default config;
+
+    vite.main.config.ts:
+        import { defineConfig } from 'vite';
+        export default defineConfig({});
+
+    vite.preload.config.ts:
+        import { defineConfig } from 'vite';
+        export default defineConfig({});
+
+    vite.renderer.config.ts:
+        import { defineConfig } from 'vite';
+        import react from '@vitejs/plugin-react';
+        export default defineConfig({ plugins: [react()] });
+
+    src/
+        main.ts:
+            import { app, BrowserWindow } from 'electron';
+            import path from 'path';
+
+            declare const MAIN_WINDOW_VITE_ENTRY: string;
+            declare const MAIN_WINDOW_PRELOAD_VITE_ENTRY: string;
+
+            function createWindow() {
+              const mainWindow = new BrowserWindow({
+                webPreferences: { preload: MAIN_WINDOW_PRELOAD_VITE_ENTRY }
+              });
+              mainWindow.loadURL(MAIN_WINDOW_VITE_ENTRY);
+            }
+
+            app.whenReady().then(createWindow);
+
+        preload.ts:
+            // Expose Gnostic APIs to the renderer
+            console.log("Preload script is manifest.");
+
+        renderer.tsx:
+            import React from 'react';
+            import ReactDOM from 'react-dom/client';
+
+            const App = () => <h1>Gnosis is truth. The Electron reality is manifest.</h1>;
+            ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+%% post-run
+    git init
+    npm install

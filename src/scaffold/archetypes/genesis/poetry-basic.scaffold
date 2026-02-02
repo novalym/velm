@@ -1,0 +1,114 @@
+# Path: scaffold/archetypes/genesis/poetry-basic.scaffold
+# -------------------------------------------------------
+
+# =================================================================================
+# == GNOSTIC GENESIS ARCHETYPE: POETRY UNIVERSAL (V-Ω-STRUCTURAL-PURITY)         ==
+# =================================================================================
+
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_slug | snake }}
+$$ author = {{ author }}
+$$ python_version = "3.11"
+
+{{ project_slug }}/
+    .gitignore :: """
+    __pycache__/
+    .venv/
+    dist/
+    .pytest_cache/
+    .mypy_cache/
+    .ruff_cache/
+    .env
+    """
+
+    README.md :: """
+    # {{ project_name }}
+
+    A pure Python project managed by Poetry.
+
+    - `make install`: Install dependencies
+    - `make test`: Run tests
+    - `make run`: Run the application
+    """
+
+    Makefile:
+        install:
+        	poetry install
+
+        test:
+        	poetry run pytest
+
+        run:
+        	poetry run python -m {{ package_name }}.main
+
+        lint:
+        	poetry run ruff check .
+        	poetry run black --check .
+        	poetry run mypy src/
+
+    pyproject.toml:
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        description = ""
+        authors = ["{{ author }}"]
+        readme = "README.md"
+        packages = [{include = "{{ package_name }}", from = "src"}]
+
+        [tool.poetry.dependencies]
+        python = "^{{ python_version }}"
+        rich = "^13.0.0"
+
+        [tool.poetry.group.dev.dependencies]
+        pytest = "^8.0.0"
+        ruff = "^0.3.0"
+        black = "^24.0.0"
+        mypy = "^1.8.0"
+
+        [build-system]
+        requires = ["poetry-core"]
+        build-backend = "poetry.core.masonry.api"
+
+        [tool.mypy]
+        python_version = "{{ python_version }}"
+        strict = true
+
+        [tool.ruff]
+        line-length = 100
+
+    src/
+        {{ package_name }}/
+            __init__.py:
+                __version__ = "0.1.0"
+
+            main.py:
+                from rich.console import Console
+
+                def main() -> None:
+                    console = Console()
+                    console.print("Gnosis is truth.", style="bold green")
+
+                if __name__ == "__main__":
+                    main()
+
+    tests/
+        __init__.py
+        conftest.py:
+            import pytest
+
+            @pytest.fixture
+            def sample_fixture() -> str:
+                return "gnosis"
+
+        test_main.py:
+            from {{ package_name }} import __version__
+
+            def test_version():
+                assert __version__ == "0.1.0"
+
+            def test_with_fixture(sample_fixture: str):
+                assert sample_fixture == "gnosis"
+
+%% post-run
+    git init
+    poetry install

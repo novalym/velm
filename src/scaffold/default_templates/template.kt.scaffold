@@ -1,0 +1,23 @@
+# Path: scaffold/default_templates/template.kt.scaffold
+# -----------------------------------------------------
+
+$$ package_path = "com/example/{{ project_slug | snake }}"
+
+build.gradle.kts:
+    plugins {
+        kotlin("jvm") version "1.9.22"
+        application
+    }
+    application {
+        mainClass.set("{{ package_path | replace('/', '.') }}.AppKt")
+    }
+    repositories { mavenCentral() }
+    dependencies { implementation(kotlin("stdlib")) }
+
+src/main/kotlin/{{ package_path }}/
+    App.kt:
+        package {{ package_path | replace('/', '.') }}
+
+        fun main() {
+            println("Gnosis is truth. The Kotlin reality is manifest.")
+        }
