@@ -5,6 +5,7 @@ dist/
 scripts/
 rust/target
 dist_backup/
+wasm/
 scaffold.spec
 .env
 .env.local
