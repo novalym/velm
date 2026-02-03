@@ -37,7 +37,7 @@ exclude .scaffold
 exclude .arch
 exclude .symphony
 exclude .txt
-exclue .md
+exclude .md
 # [THE INCLUSION VOW]
 # Include only the essential logic and metadata
 recursive-include src/velm *
