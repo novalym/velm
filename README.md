@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">V E L M</h1>
-
+![VELM Genesis Demo](assets/genesis-demo.gif)
 <p align="center">
   <strong>The Operating System for Manifestation.</strong><br>
   <em>Powered by the Scaffold God-Engine.</em>
