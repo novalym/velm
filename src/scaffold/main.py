@@ -251,7 +251,7 @@ def _ignite_local_engine():
                 print("Install 'debugpy' to use --debug-boot")
 
         # Import the Conductor
-        from scaffold.core.cli.cli_conductor import conduct_local_rite
+        from velm.core.cli.cli_conductor import conduct_local_rite
 
         # [ASCENSION 19]: GC RE-ENGAGEMENT
         gc.enable()

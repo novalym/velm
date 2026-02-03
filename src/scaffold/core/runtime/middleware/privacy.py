@@ -183,7 +183,7 @@ class PrivacySentinelMiddleware(Middleware):
         Recursive PII encryption and Blind-Hashing with Normalization.
         """
         # [THE CURE]: We import the Alchemist JIT to prevent boot-loops
-        from scaffold.artisans.services.twilio.utils import TelephonicAlchemist
+        from velm.artisans.services.twilio.utils import TelephonicAlchemist
         alchemist = TelephonicAlchemist()
 
         if isinstance(node, dict):

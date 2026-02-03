@@ -12,7 +12,7 @@ package_root = os.path.abspath(os.path.join(current_dir, "../../../.."))
 if package_root not in sys.path:
     sys.path.insert(0, package_root)
 
-from scaffold.core.lsp.scaffold_server.bootstrap import main
+from velm.core.lsp.scaffold_server.bootstrap import main
 
 if __name__ == "__main__":
     """

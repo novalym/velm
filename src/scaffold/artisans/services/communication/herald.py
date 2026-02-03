@@ -14,7 +14,7 @@ from typing import Any, Dict, Tuple, Optional
 
 # --- CORE SCAFFOLD UPLINKS ---
 # We assume the engine's alchemist is passed or accessible
-from scaffold.core.runtime.engine import ScaffoldEngine
+from velm.core.runtime.engine import ScaffoldEngine
 
 Logger = logging.getLogger("Herald:Alchemist")
 

@@ -16,7 +16,7 @@ if __name__ == "__main__":
         sys.path.insert(0, parent_path)
 
     try:
-        from scaffold.main import main
+        from velm.main import main
         main()
     except ImportError:
         # Fallback for direct execution inside the folder

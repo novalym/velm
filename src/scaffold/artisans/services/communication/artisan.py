@@ -107,11 +107,11 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union, Final, Set, Type, Callable
 
 # --- STRATUM-0: CORE SCAFFOLD UPLINKS ---
-from scaffold.logger import Scribe
-from scaffold.core.artisan import BaseArtisan
-from scaffold.interfaces.base import ScaffoldResult, Artifact
-from scaffold.contracts.heresy_contracts import HeresySeverity, ArtisanHeresy, Heresy
-from scaffold.interfaces.requests import (
+from velm.logger import Scribe
+from velm.core.artisan import BaseArtisan
+from velm.interfaces.base import ScaffoldResult, Artifact
+from velm.contracts.heresy_contracts import HeresySeverity, ArtisanHeresy, Heresy
+from velm.interfaces.requests import (
     CommunicationRequest,
     SupabaseRequest,
     CacheRequest,
@@ -219,7 +219,7 @@ class CommunicationArtisan(BaseArtisan[CommunicationRequest]):
     @property
     def twilio(self):
         if self._twilio_hand is None:
-            from scaffold.artisans.services.twilio.artisan import TwilioArtisan
+            from velm.artisans.services.twilio.artisan import TwilioArtisan
             self._twilio_hand = TwilioArtisan(self.engine)
         return self._twilio_hand
 
