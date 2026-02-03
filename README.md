@@ -60,7 +60,7 @@ VELM operates on a Philosophy of Duality, bridging the gap between Abstract Thou
 Install the engine via the Python package manager.
 
 
-pip install scaffold-cli
+pip install velm
 
 Consecrate the Alias:
 To wield the power of VELM properly, bind the internal scaffold command to its true name in your shell (.zshrc or .bashrc):
