@@ -1,23 +1,23 @@
 
-include scaffold/py.typed
-include scaffold/archetypes
-include scaffold/default_templates
+include velm/py.typed
+include velm/archetypes
+include velm/default_templates
 
 # The Aesthetic Soul (Styles)
-recursive-include scaffold *.css
-recursive-include scaffold *.tcss
+recursive-include velm *.css
+recursive-include velm *.tcss
     
 # The Architectural Soul (Blueprints)
-recursive-include scaffold *.scaffold
-recursive-include scaffold *.symphony
-recursive-include scaffold *.arch
+recursive-include velm *.scaffold
+recursive-include velm *.symphony
+recursive-include velm *.arch
     
 # The Gnostic Memory (JSON Configs/Data)
-recursive-include scaffold *.json
+recursive-include velm *.json
     
 # The Forges (Templates & Archetypes)
-recursive-include scaffold/archetypes *
-recursive-include scaffold/default_templates *
+recursive-include velm/archetypes *
+recursive-include velm/default_templates *
     
 # Exclusions (The Void)
 global-exclude *.py[cod]
@@ -40,7 +40,7 @@ exclude .txt
 exclue .md
 # [THE INCLUSION VOW]
 # Include only the essential logic and metadata
-recursive-include src/scaffold *
+recursive-include src/velm *
 include README.md
 include LICENSE
 include pyproject.toml

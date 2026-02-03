@@ -61,9 +61,7 @@ dependencies = [
 # == THE DUAL ENTRY (THE ALIAS)                                              ==
 # =============================================================================
 [project.scripts]
-velm = "scaffold.main:main"      # The new primary rite (replacing 'scaffold')
-arch = "scaffold.main:main"      # The Architect's alias (remains)
-scaffold = "scaffold.main:main" # The legacy connection (remains for compatibility)
+velm = "velm.main:main"      # The new primary rite (replacing 'scaffold')
 
 # =============================================================================
 # == THE FACULTIES OF ASCENSION (OPTIONAL DEPENDENCIES)                      ==
@@ -147,7 +145,7 @@ exclude = [
     "dist",
     "venv",
     ".venv",
-    "scaffold/default_templates", # Do not lint raw templates
+    "velm/default_templates", # Do not lint raw templates
 ]
 
 [tool.ruff.lint]
@@ -182,7 +180,7 @@ check_untyped_defs = true
 # --- SETUPTOOLS (The Build Backend) ---
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["scaffold"]
+packages = ["velm"]
 
 # [ASCENSION 13]: THE EXCLUSION SIEVE
 # This prevents setuptools from finding and including non-code artifacts
@@ -198,10 +196,10 @@ packages = ["scaffold"]
 
 
 [tool.setuptools.dynamic]
-version = { attr = "scaffold.__version__" }
+version = { attr = "velm.__version__" }
 
 [tool.setuptools.package-data]
-scaffold = [
+velm = [
     "default_templates/**/*",
     "archetypes/**/*",
     "themes/*.css",
