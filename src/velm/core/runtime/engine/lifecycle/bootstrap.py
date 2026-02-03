@@ -44,7 +44,7 @@ class EngineBootstrap:
             # 1. Materialize the Interface Gateway
             # We need the Pydantic models to register the keys.
             try:
-                req_mod = importlib.import_module("scaffold.interfaces.requests")
+                req_mod = importlib.import_module("velm.interfaces.requests")
             except ImportError:
                 req_mod = importlib.import_module("interfaces.requests")
 

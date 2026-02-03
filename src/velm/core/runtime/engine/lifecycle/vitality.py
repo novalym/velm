@@ -66,7 +66,13 @@ class VitalityMonitor:
         self.pulse_path: Optional[Path] = None
 
     def start_vigil(self, pulse_file_path: Optional[str] = None):
-        """Ignites the Heartbeat with Adaptive Awareness."""
+        """
+        =============================================================================
+        == THE RITE OF METABOLIC HEARTBEAT (V-Ω-DAEMONIZED-PULSE)                  ==
+        =============================================================================
+        Ignites the Heartbeat with Adaptive Awareness. Consecrated as a Daemon to
+        prevent the "Lingering Soul" heresy during CLI shutdown.
+        """
         if pulse_file_path:
             self.pulse_path = Path(pulse_file_path)
 
@@ -76,12 +82,14 @@ class VitalityMonitor:
             f"Ceiling: {self.memory_limit_mb:.0f}MB"
         )
 
+        # [THE SUTURE]: Consecrated as a Daemon Thread
         self._thread = threading.Thread(
             target=self._vigil_loop,
             name="VitalityVigil",
             daemon=True
         )
         self._thread.start()
+
 
     def stop_vigil(self):
         """The Rite of Graceful Cessation."""

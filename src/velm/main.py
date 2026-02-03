@@ -285,43 +285,71 @@ def _scribe_fracture(e: Exception):
 # =================================================================================
 # == SECTION IV: THE MAIN SEQUENCE                                               ==
 # =================================================================================
-
 def main():
     """
-    The Single Source of Truth.
+    =============================================================================
+    == THE SOVEREIGN ENTRYPOINT (V-Ω-TOTALITY-FINAL-V9)                        ==
+    =============================================================================
+    LIF: ∞ | ROLE: ROOT_CONDUCTOR | RANK: OMEGA_SUPREME
+
+    [THE CURE]: This version resolves the "Terminal Hang" by enforcing the
+    Omega Exit only when Scaffold is acting as a standalone CLI process. It
+    ensures the Profiler is dumped BEFORE the hardware reclamation.
     """
     _stabilize_environment()
 
-    # [ASCENSION 14]: VERSION SHORT-CIRCUIT
+    # --- MOVEMENT I: VERSION SHORT-CIRCUIT ---
     if len(sys.argv) > 1 and sys.argv[1] in ("--version", "-V"):
-        # We assume version is in __init__.py or similar lightweight place
         try:
-            # Minimal import to get version
             from scaffold import __version__
             print(f"Scaffold God-Engine v{__version__}")
-            sys.exit(0)
+            # We use os._exit here because --version is a pure metadata rite.
+            os._exit(0)
         except:
-            pass
+            sys.exit(0)
 
-    # [ASCENSION 10]: PROFILER INJECTION
+    # --- MOVEMENT II: THE PROFILER INCEPTION ---
+    profiler = None
     if os.environ.get("SCAFFOLD_PROFILE") == "1":
         import cProfile
-        import pstats
         profiler = cProfile.Profile()
         profiler.enable()
 
-    # 1. Attempt Telepathy (Daemon)
-    # If this succeeds, the process exits inside the function.
-    _try_commune_with_daemon()
+    try:
+        # --- MOVEMENT III: THE DAEMON COMMUNION (HOT EXECUTION) ---
+        # If a running Daemon accepts the plea, we exit immediately.
+        # The Daemon handles the work; the CLI is just a hollow proxy.
+        if _try_commune_with_daemon():
+            os._exit(0)
 
-    # 2. Fallback to Local Physics
-    _ignite_local_engine()
+        # --- MOVEMENT IV: LOCAL PHYSICS (COLD START) ---
+        # If the Daemon is silent, we ignite the heavy machinery locally.
+        _ignite_local_engine()
 
-    # [ASCENSION 10]: PROFILER DUMP
-    if os.environ.get("SCAFFOLD_PROFILE") == "1":
-        profiler.disable()
-        stats = pstats.Stats(profiler).sort_stats('cumtime')
-        stats.print_stats(20)
+    except Exception as catastrophic_fracture:
+        # Final safety ward for errors that escaped _ignite_local_engine
+        sys.stderr.write(f"\n[BOOT FRACTURE] {catastrophic_fracture}\n")
+        os._exit(1)
+
+    finally:
+        # --- MOVEMENT V: THE RITE OF FINALITY ---
+
+        # 1. [THE PROFILER DUMP]: We must do this BEFORE os._exit
+        if profiler:
+            import pstats
+            profiler.disable()
+            stats = pstats.Stats(profiler).sort_stats('cumtime')
+            stats.print_stats(20)
+
+        # 2. [THE OMEGA EXIT]: The "Hard Kill" for CLI Purity
+        # This only triggers if we are running as the main script.
+        # Integration logic importing ScaffoldEngine will NEVER hit this code.
+        if __name__ == "__main__" or os.environ.get("SCAFFOLD_CLI_PID"):
+            # We perform a final sync of the terminal buffers
+            sys.stdout.flush()
+            sys.stderr.flush()
+            # Absolute OS Reclamation. Bypasses Python thread-joining.
+            os._exit(0)
 
 
 if __name__ == "__main__":

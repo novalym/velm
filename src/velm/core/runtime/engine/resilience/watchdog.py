@@ -100,7 +100,13 @@ class SystemWatchdog:
     # =========================================================================
 
     def start_vigil(self):
-        """Ignites the Sentinel thread."""
+        """
+        =============================================================================
+        == THE RITE OF VIGILANCE (V-Ω-DAEMONIZED-SENTINEL)                         ==
+        =============================================================================
+        Ignites the Sentinel thread as a Daemon. This ensures that when the main
+        symphony concludes, the Watchdog does not hold the process in stasis.
+        """
         if not psutil:
             self.logger.error("Psutil not manifest. Watchdog is blind.")
             return
@@ -109,6 +115,8 @@ class SystemWatchdog:
             if self._thread and self._thread.is_alive():
                 return
             self._stop_event.clear()
+
+            # [THE SUTURE]: Consecrated as a Daemon Thread
             self._thread = threading.Thread(
                 target=self._vigil_loop,
                 name="GnosticWatchdog",
