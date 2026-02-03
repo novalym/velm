@@ -217,14 +217,14 @@ def _handle_final_invocation_shim(
 
         # [ROBUST IMPORT]: Handle different import roots for dev vs prod
         try:
-            req_mod = importlib.import_module("scaffold.interfaces.requests")
+            req_mod = importlib.import_module("velm.interfaces.requests")
         except ImportError:
             req_mod = importlib.import_module("interfaces.requests")
 
         RequestClass = getattr(req_mod, RequestClassName)
 
         # Import the Artisan module dynamically
-        art_mod = importlib.import_module(f"scaffold.{mod_info[0]}")
+        art_mod = importlib.import_module(f"velm.{mod_info[0]}")
         ArtisanClass = getattr(art_mod, ArtisanClassName)
 
         # Consecrate the current reality
