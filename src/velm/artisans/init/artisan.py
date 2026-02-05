@@ -137,12 +137,21 @@ class InitArtisan(BaseArtisan[InitRequest]):
 
     def _conduct_genesis_symphony(self, request: InitRequest, root_path: Path,
                                   master_blueprint: Path) -> ScaffoldResult:
-        """[FACULTY 5, 9, 10, 11] The Standard Genesis Flow."""
+        """
+        =================================================================================
+        == THE SYMPHONY OF GENESIS (V-Ω-TOTALITY-V2-HEALED)                            ==
+        =================================================================================
+        LIF: 100x | ROLE: KINETIC_GENESIS_CONDUCTOR | RANK: OMEGA
+        """
+
+        # [FACULTY 0] THE MATTER STABILIZER
+        # Ensure variables are manifest to prevent the "NoneType" or "KeyError" heresy.
+        if request.variables is None:
+            # We use object.__setattr__ to bypass Pydantic's frozen model protection if active
+            object.__setattr__(request, 'variables', {})
 
         # [FACULTY 5] THE DEPENDENCY ORACLE & SMART PROFILE SELECTION
-        # If no profile is specified, we try to guess based on the environment
-        if not request.profile and not request.quick:
-            # Look for hints in the directory or environment
+        if not request.profile and not getattr(request, 'quick', False):
             if (root_path / "package.json").exists():
                 request.profile = "node-basic"
                 self.logger.info("Detected Node.js environment. Selecting 'node-basic' profile.")
@@ -150,34 +159,31 @@ class InitArtisan(BaseArtisan[InitRequest]):
                 request.profile = "python-universal"
                 self.logger.info("Detected Python environment. Selecting 'python-universal' profile.")
 
-        profile_name = request.profile or (QUICK_START_PROFILE_NAME if request.quick else None)
+        profile_name = request.profile or (QUICK_START_PROFILE_NAME if getattr(request, 'quick', False) else None)
         if profile_name:
             self._check_profile_dependencies(profile_name)
 
         try:
             # [FACULTY 4] THE TRANSACTIONAL WOMB
-            with GnosticTransaction(root_path, "Rite of Inception", use_lock=True) as tx:
+            with GnosticTransaction(root_path, f"Genesis: {profile_name or 'custom'}", use_lock=True) as tx:
 
                 # [FACULTY 10] THE ANNIHILATION OF THE DOUBLE GIT HERESY
                 if (root_path / ".git").exists():
                     self.logger.verbose("Git Repository detected. Suppressing duplicate initialization.")
-                    # Inject variable to prevent `git init`
                     request.variables['use_git'] = False
 
-                    # [FACULTY 7] THE GENESIS BRIDGE
+                # [FACULTY 7] THE GENESIS BRIDGE
+                # We forge the Namespace with surgical precision to bridge the Legacy Gap.
                 namespace_args = self._request_to_namespace(request)
+
                 engine = GenesisEngine(project_root=root_path, engine=self.engine)
                 engine.cli_args = namespace_args
 
-                # We inject the force flag directly into the GenesisEngine if present in request
-                if request.force:
-                    # This ensures the GenesisEngine knows we are in Force mode
-                    pass
+                # Synchronize the Gnostic Context with the Transactional Vault
+                tx.context.update(request.variables)
 
+                # Conduct the Rite of Creation
                 engine.conduct()
-
-                if master_blueprint.exists():
-                    pass
 
             return self.success(
                 f"Inception complete. The soul of the project resides in [cyan]{master_blueprint.name}[/cyan].",
@@ -260,29 +266,50 @@ class InitArtisan(BaseArtisan[InitRequest]):
         self.console.print(error_panel)
 
     def _request_to_namespace(self, request: InitRequest) -> argparse.Namespace:
-        """[FACULTY 11] Adapts the Request to the Legacy Namespace."""
-        set_vars = [f"{k}={v}" for k, v in request.variables.items()]
-        # If we force, we are implicitly non-interactive unless pad is requested
-        is_silent_mode = request.non_interactive or request.quick or request.force
+        """
+        =================================================================================
+        == THE NAMESPACE FORGE (V-Ω-LEGENDARY-BRIDGE-HEALED)                             ==
+        =================================================================================
+        [THE CURE]: Surgically sanitizes the 'set' keyword to prevent KeyError and
+        multiple-value heresies in the GenesisEngine.
+        """
+        # Ensure variables strata is grounded
+        variables = request.variables or {}
+
+        # Transmute the internal dictionary to the legacy "key=value" list format
+        # This satisfies the GenesisEngine's thirst for the '--set' CLI dialect.
+        set_vars = [f"{k}={v}" for k, v in variables.items()]
+
+        # [ASCENSION] The Silent Mode Adjudicator
+        # Determines if the Engine should speak or remain in the shadows.
+        is_silent_mode = getattr(request, 'non_interactive', False) or \
+                         getattr(request, 'quick', False) or \
+                         getattr(request, 'force', False)
+
+        # Extract extra data, shielding the 'set' and 'lint' keys from duplicate injection
+        extra_data = request.model_extra or {}
+        sanitized_extra = {k: v for k, v in extra_data.items() if k not in ('set', 'lint')}
 
         return argparse.Namespace(
-            launch_pad_with_path=request.launch_pad_with_path,
-            quick=request.quick,
-            profile=request.profile,
-            type=request.type,
-            from_remote=request.from_remote,
-            manual=request.manual,
-            distill=request.distill,
-            force=request.force,
+            launch_pad_with_path=getattr(request, 'launch_pad_with_path', False),
+            quick=getattr(request, 'quick', False),
+            profile=getattr(request, 'profile', None),
+            type=getattr(request, 'type', 'project'),
+            from_remote=getattr(request, 'from_remote', None),
+            manual=getattr(request, 'manual', False),
+            distill=getattr(request, 'distill', False),
+            force=getattr(request, 'force', False),
             non_interactive=is_silent_mode,
             silent=(request.verbosity < 0),
             verbose=(request.verbosity > 0),
-            dry_run=request.dry_run,
-            preview=request.preview,
-            audit=request.audit,
-            lint=request.lint,
+            dry_run=getattr(request, 'dry_run', False),
+            preview=getattr(request, 'preview', False),
+            audit=getattr(request, 'audit', False),
+            # [HEALED]: Explicitly mapping the sutured attribute from the previous rite
+            lint=getattr(request, 'lint', False),
+            # [HEALED]: Resolving the 'set' KeyError by providing the alchemized list
             set=set_vars,
-            no_edicts=request.no_edicts,
+            no_edicts=getattr(request, 'no_edicts', False),
             ignore=[],
-            **request.model_extra if request.model_extra else {}
+            **sanitized_extra
         )
