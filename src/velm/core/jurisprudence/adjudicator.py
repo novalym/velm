@@ -70,7 +70,7 @@ class VowAdjudicator:
             package_path = Path(vow_registry.__file__).parent
             for _, name, _ in pkgutil.iter_modules([str(package_path)]):
                 if name == "base": continue
-                module_name = f"scaffold.core.jurisprudence.vows.{name}"
+                module_name = f"velm.core.jurisprudence.vows.{name}"
                 module = importlib.import_module(module_name)
                 for attr_name in dir(module):
                     attr = getattr(module, attr_name)
