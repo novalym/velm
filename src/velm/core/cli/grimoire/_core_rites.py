@@ -109,12 +109,23 @@ RITES = {
         "args": [("blueprint_path", {"nargs": "?", "default": ".", "help": "Path to the .scaffold blueprint or an archetype name."})],
     },
     "init": {
-        "module_path": "artisans.init",
-        "artisan_class_name": "InitArtisan",
-        "request_class_name": "InitRequest",
-        "help": "The Rite of Inception. Begins the Sacred Dialogue to forge a new project.",
-        "flags": [add_common_flags, add_variable_flags],
-        "args": [("profile", {"nargs": "?", "help": "The name of the Gnostic Archetype to use (e.g., 'fastapi-service')."})],
+            "module_path": "artisans.init",
+            "artisan_class_name": "InitArtisan",
+            "request_class_name": "InitRequest",
+            "help": "The Rite of Inception. Begins the Sacred Dialogue to forge a new project.",
+            # [ASCENSION]: We now correctly map the Pydantic fields to CLI flags
+            "flags": [
+                add_common_flags,
+                add_variable_flags,
+                # Bestowing the power of flags upon the Inception Rite
+                lambda p: p.add_argument('--profile', help="Use a specific Genesis Profile (e.g. 'fastapi-service')."),
+                lambda p: p.add_argument('--quick', action='store_true', help="Skip prompts, use intelligent defaults."),
+                lambda p: p.add_argument('--manual', action='store_true', help="Manually forge a blank scripture."),
+                lambda p: p.add_argument('--distill', action='store_true', help="Initialize by distilling the current directory."),
+                lambda p: p.add_argument('--type', help="Quick init by type alias (e.g. 'node').")
+            ],
+            # We remove the positional "args" entry to allow --profile to be the primary selector.
+            "args": [],
     },
     "run": {
         "module_path": "artisans.run.conductor",
