@@ -5,6 +5,8 @@ dist/
 scripts/
 rust/target
 dist_backup/
+
+__pycache__
 wasm/
 public/
 scaffold.spec
