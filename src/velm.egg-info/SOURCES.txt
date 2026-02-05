@@ -2554,6 +2554,7 @@ src/velm/parser_core/parser/parser_scribes/symphony_scribes/__pycache__/symphony
 src/velm/parser_core/parser/parser_scribes/symphony_scribes/__pycache__/symphony_parallel_scribe.cpython-313.pyc
 src/velm/parser_core/parser/parser_scribes/symphony_scribes/__pycache__/symphony_polyglot_scribe.cpython-313.pyc
 src/velm/prophecy/__Init__.py
+src/velm/prophecy/__init__.py
 src/velm/prophecy/grimoires.py
 src/velm/prophecy/oracle.py
 src/velm/prophecy/__pycache__/__init__.cpython-313.pyc

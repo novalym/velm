@@ -3,7 +3,7 @@
 # ==   PURPOSE: To serve as the one, true, and stable gateway to all utility artisans,  ==
 # ==            annihilating the paradox of circularity through explicit proclamation.  ==
 # ========================================================================================
-__version__ = "0.1.0"
+from .. import __version__
 from .archetype_utils import *
 # --- I. THE PROCLAMATION OF THE PURE FOUNDATION ---
 # The Gnosis from the new, pure converters codex is summoned first. It has no
