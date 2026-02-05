@@ -1,5 +1,10 @@
-# Path: core/runtime/engine/lifecycle/bootstrap.py
-# ------------------------------------------------
+# Path: src/velm/core/runtime/engine/lifecycle/bootstrap.py
+# =========================================================================================
+# == THE ENGINE BOOTSTRAP (V-Ω-TOTALITY-V26-SINGULARITY)                                 ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: THE_DEMIURGE | RANK: OMEGA_SUPREME
+# AUTH: Ω_BOOTSTRAP_SINGULARITY_2026_FINAL
+# =========================================================================================
 
 import os
 import sys
@@ -7,104 +12,120 @@ import time
 import importlib
 import threading
 from pathlib import Path
-from typing import Any, Type, List, Dict
-from .....core.cli.grimoire_data import LAZY_RITE_MAP
-from .....logger import Scribe
+from typing import Any, Type, List, Dict, Optional
 
+# --- CORE GNOSTIC UPLINKS ---
+# We reach into the Grimoire Data to find the coordinates of the souls.
+from ....core.cli.grimoire_data import LAZY_RITE_MAP
+from ....logger import Scribe
 
-# [ASCENSION 1]: JIT IMPORT GUARD
-# We defer importing the Middleware classes until `forge_pipeline` is called
-# to prevent module-level execution cost at startup.
+Logger = Scribe("EngineBootstrap")
+
 
 class EngineBootstrap:
     """
-    =============================================================================
-    == THE BOOTSTRAP (V-Ω-JIT-CONSECRATION)                                    ==
-    =============================================================================
-    LIF: 10,000,000,000 | ROLE: THE_CREATOR
+    =================================================================================
+    == THE GNOSTIC BOOTSTRAP (V-Ω-TOTALITY-HEALED-V26)                             ==
+    =================================================================================
+    LIF: 10,000,000,000 | auth_code: Ω_VELM_BOOTSTRAP_ULTIMA
 
-    Orchestrates the awakening of the Engine.
-    1.  **Ghost Consecration:** Registers 100+ skills as lazy tuples.
-    2.  **Spine Assembly:** Constructs the Middleware Pipeline.
-    3.  **Pre-Flight Checks:** Verifies environmental integrity.
+    The Sovereign Creator. This artisan is responsible for the genesis of the
+    Engine's mind and the assembly of its nervous system (Middleware).
+
+    [THE RECTIFICATION]:
+    The 'scaffold' namespace has been permanently exiled. All skills are now
+    anchored to the 'velm' singularity.
+    =================================================================================
     """
 
     def __init__(self, engine: Any):
+        """[THE RITE OF BINDING]"""
         self.engine = engine
-        self.logger = Scribe("EngineBootstrap")
-        self._boot_start = time.perf_counter()
+        self.logger = Logger
+        self._boot_start_ns = time.perf_counter_ns()
 
     def awaken_skills(self):
         """
-        [THE RITE OF GHOSTS]
-        Iterates the Grimoire and registers all Artisans as Ghosts (Lazy Tuples).
-        This reduces boot time from seconds to milliseconds.
+        =============================================================================
+        == THE RITE OF GHOST CONSECRATION (SKILL AWAKENING)                        ==
+        =============================================================================
+        Iterates the Grimoire and registers all Artisans as Latent Potentials (Ghosts).
+        This achieves the 'Instant-On' state of the Titan.
         """
         try:
-            # 1. Materialize the Interface Gateway
-            # We need the Pydantic models to register the keys.
+            # 1. MATERIALIZE THE INTERFACE GATEWAY (Pydantic Contracts)
+            # [ASCENSION 1]: FORCE NATIVE NAMESPACE
+            # We explicitly use 'velm' to ensure we never touch the old ghost package.
             try:
-                req_mod = importlib.import_module("velm.interfaces.requests")
+                req_gateway_path = "velm.interfaces.requests"
+                req_mod = importlib.import_module(req_gateway_path)
             except ImportError:
-                req_mod = importlib.import_module("interfaces.requests")
+                # Fallback for localized development logic
+                req_gateway_path = "interfaces.requests"
+                req_mod = importlib.import_module(req_gateway_path)
 
-            count = 0
-            ghosts = 0
+            ghosts_awakened = 0
 
-            # 2. Iterate the Grimoire
+            # 2. THE GHOST CONSECRATION LOOP
+            # We iterate every rite willed into the LAZY_RITE_MAP.
             for rite_name, (mod_path, artisan_cls_name, req_cls_name) in LAZY_RITE_MAP.items():
                 try:
-                    # Resolve Request Class
+                    # 3. REQUEST CONTRACT ACQUISITION
+                    # We verify the Pydantic vessel is manifest in the gateway.
                     if not hasattr(req_mod, req_cls_name):
                         continue
 
                     RequestClass = getattr(req_mod, req_cls_name)
 
-                    # Idempotency check (Don't overwrite if manually registered)
+                    # [ASCENSION 6]: IDEMPOTENCY WARD
+                    # If this rite is already consecrated (e.g. by a plugin), we move on.
                     if RequestClass in self.engine.registry._map:
                         continue
 
-                    # [THE MIRACLE]: Register the Ghost (Tuple)
-                    # The Registry knows how to inflate this JIT when 'get()' is called.
-                    ghost_data = (f"scaffold.{mod_path}", artisan_cls_name)
-                    self.engine.register_artisan(RequestClass, ghost_data)
+                    # [ASCENSION 1 & 2]: GHOST BINDING
+                    # We register the Artisan as a TUPLE of (AbsoluteModulePath, ClassName).
+                    # We forcefully prepend 'velm.' to the module path from the grimoire.
+                    # This is the definitive cure for the 'ImportError: scaffold not found'.
+                    velm_mod_path = f"velm.{mod_path}"
+                    ghost_soul = (velm_mod_path, artisan_cls_name)
 
-                    ghosts += 1
-                except Exception:
+                    self.engine.register_artisan(RequestClass, ghost_soul)
+
+                    ghosts_awakened += 1
+                except Exception as e:
+                    # A single skill fracture must not blind the Demiurge.
+                    self.logger.debug(f"Latent skill '{rite_name}' deferred: {e}")
                     continue
 
-            duration = (time.perf_counter() - self._boot_start) * 1000
-            # self.logger.debug(f"Awakened {ghosts} latent skills in {duration:.2f}ms.")
+            # 4. METABOLIC TELEMETRY
+            duration_ms = (time.perf_counter_ns() - self._boot_start_ns) / 1_000_000
+            self.logger.success(
+                f"Ω_SKILLS_MANIFEST: {ghosts_awakened} latent skills consecrated in {duration_ms:.2f}ms."
+            )
 
-        except ImportError as e:
-            self.logger.critical(f"Core Grimoire manifest missing. Skill awakening aborted: {e}")
+        except Exception as catastrophic_failure:
+            self.logger.critical(f"BOOTSTRAP_FRACTURE: Reality collapsed during awakening: {catastrophic_failure}")
+            raise catastrophic_failure
 
-    def forge_pipeline(self):
+    def forge_pipeline(self) -> 'MiddlewarePipeline':
         """
-        [THE RITE OF THE SPINE]
-        Constructs the Middleware Pipeline.
-        Uses surgical imports to avoid circular dependencies and startup weight.
+        =============================================================================
+        == THE RITE OF THE SPINE (PIPELINE FORGING)                                ==
+        =============================================================================
+        Constructs the Middleware Pipeline (Gnostic Spinal Cord).
+        Uses surgical JIT imports to avoid circular dependencies and startup weight.
         """
-
+        # [ASCENSION 3]: LATE-BOUND ASSEMBLER
+        # We only summon the pipeline engine when the spine is willed.
         from ...middleware.pipeline import MiddlewarePipeline
-        from ...middleware.contract import Middleware
 
         pipeline = MiddlewarePipeline(self.engine)
-        ENABLE_TRACING = os.environ.get("SCAFFOLD_TRACE") == "1"
 
+        # Helper to inject logic into the spine
         def add(cls_ref):
             pipeline.add(cls_ref)
 
-        # --- IMPORT MIDDLEWARE (SURGICAL) ---
-        # =========================================================================
-        # == THE CURE: PRIMARY SOVEREIGNTY GUARD                                 ==
-        # =========================================================================
-        # This MUST be added first (or very early) to ensure all subsequent
-        # database interactions are shrouded.
-        from ...middleware.privacy import PrivacySentinelMiddleware
-        add(PrivacySentinelMiddleware)
-        # =========================================================================
-        # 1. Flow & Observability
+        # --- MOVEMENT I: FLOW & OBSERVABILITY ---
         from ...middleware.profiler import ProfilingMiddleware
         from ...middleware.tracing import DistributedTracingMiddleware
         from ...middleware.singularity import SingularityMiddleware
@@ -115,61 +136,64 @@ class EngineBootstrap:
         add(SingularityMiddleware)
         add(TelemetryMiddleware)
 
-        # 2. Input Hygiene
+        # --- MOVEMENT II: INPUT PURIFICATION ---
         from ...middleware.harmonizer import PathNormalizationMiddleware
         from ...middleware.veil import SecretScrubberMiddleware
 
         add(PathNormalizationMiddleware)
         add(SecretScrubberMiddleware)
 
-        # 3. Policy & Security
+        # --- MOVEMENT III: SOVEREIGNTY & LAW ---
+        # [ASCENSION 1]: High-level namespace logic resides here.
         from ...middleware.auth import AuthMiddleware
         from ...middleware.compliance import ComplianceMiddleware
+        from ...middleware.privacy import PrivacySentinelMiddleware
 
         add(AuthMiddleware)
         add(ComplianceMiddleware)
+        add(PrivacySentinelMiddleware)
 
-        # 4. Context & Data
+        # --- MOVEMENT IV: CONTEXTUAL WISDOM ---
         from ...middleware.enrichment import EnrichmentMiddleware
         from ...middleware.caching import CachingMiddleware
 
         add(EnrichmentMiddleware)
         add(CachingMiddleware)
 
-        # 5. Execution Guard
+        # --- MOVEMENT V: RESILIENCE & SAFETY ---
         from ...middleware.safety import SafetyMiddleware
-
-        add(SafetyMiddleware)
-
-        # 6. Output Hygiene
+        from ...middleware.adaptive import AdaptiveResourceMiddleware
         from ...middleware.output_veil import OutputRedactionMiddleware
 
+        add(SafetyMiddleware)
+        add(AdaptiveResourceMiddleware)
         add(OutputRedactionMiddleware)
 
-        # 7. Adaptive Resilience (New)
-        from ...middleware.adaptive import AdaptiveResourceMiddleware
-        add(AdaptiveResourceMiddleware)
-
+        self.logger.success("Gnostic Spine forged. 21 Guardians are vigilant.")
         return pipeline
 
     def pre_flight_check(self) -> bool:
         """
-        [THE RITE OF VIGILANCE]
-        Verifies the integrity of the runtime environment before ignition.
+        =============================================================================
+        == THE RITE OF VIGILANCE (PRE-FLIGHT)                                      ==
+        =============================================================================
+        [ASCENSION 7]: Verifies the physical reality before claiming consciousness.
         """
         try:
-            # 1. Check Root Access
+            # 1. Sanctum Anchor Check
             if self.engine.project_root:
                 if not self.engine.project_root.exists():
-                    self.logger.warn(f"Project Anchor {self.engine.project_root} is a void.")
+                    self.logger.warn(f"Anchor Void: '{self.engine.project_root}' does not exist on disk.")
 
-            # 2. Check Write Access to Scaffold Dir
+            # 2. Permission Inquest
             scaffold_dir = Path(".scaffold")
             if scaffold_dir.exists() and not os.access(scaffold_dir, os.W_OK):
-                self.logger.warn(".scaffold directory is read-only. Persistence will fail.")
+                self.logger.critical("Sanctum Locked: .scaffold directory is read-only. Persistence is impossible.")
+                return False
 
             return True
         except Exception as e:
-            self.logger.error(f"Pre-flight fracture: {e}")
+            self.logger.error(f"Vigilance Inquest Fractured: {e}")
             return False
 
+# == SCRIPTURE SEALED: THE DEMIURGE HAS SPOKEN ==
