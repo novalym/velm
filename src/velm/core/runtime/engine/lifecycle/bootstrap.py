@@ -16,8 +16,8 @@ from typing import Any, Type, List, Dict, Optional
 
 # --- CORE GNOSTIC UPLINKS ---
 # We reach into the Grimoire Data to find the coordinates of the souls.
-from ....core.cli.grimoire_data import LAZY_RITE_MAP
-from ....logger import Scribe
+from .....core.cli.grimoire_data import LAZY_RITE_MAP
+from .....logger import Scribe
 
 Logger = Scribe("EngineBootstrap")
 
