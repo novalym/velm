@@ -16,7 +16,7 @@ from ....contracts.symphony_contracts import (
     ConductorEvent, EventType, SymphonyResult, Edict, ActionResult
 )
 from ....logger import Scribe
-
+from ....contracts.heresy_contracts import ArtisanHeresy
 Logger = Scribe('BasicRendererFacade')
 
 
