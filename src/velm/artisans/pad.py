@@ -46,7 +46,7 @@ class PadArtisan(BaseArtisan[PadRequest]):
 
             # 4. The Just-In-Time Alchemist (Dynamic Import)
             # We must resolve the package relative to the pad_launcher's location
-            package_base = "scaffold.studio.pads"
+            package_base = "velm.studio.pads"
             module_path = pad_gnosis["module_path"]  # e.g. ".distill_pad.distill_pad_app"
 
             # [DIAGNOSTIC] Proclaim intent to import

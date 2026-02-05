@@ -115,7 +115,7 @@ class SemanticRegistry:
 
         # --- MOVEMENT I: THE GAZE OF THE INTERNAL SOUL (ASCENDED & LUMINOUS) ---
         try:
-            internal_directives_path_str = "scaffold.semantic_injection.directives"
+            internal_directives_path_str = "velm.semantic_injection.directives"
             package = importlib.import_module(internal_directives_path_str)
 
             if not hasattr(package, '__path__') or not package.__path__:

@@ -156,7 +156,7 @@ def _forge_the_grimoire() -> Dict[str, Dict[str, Any]]:
 
     }
 
-    internal_archetype_path = 'scaffold.archetypes.genesis'
+    internal_archetype_path = 'velm.archetypes.genesis'
     for profile_name, profile_data in INTERNAL_CANON.items():
         if profile_name not in profiles:  # The Law of Gnostic Precedence
             try:
@@ -169,7 +169,7 @@ def _forge_the_grimoire() -> Dict[str, Dict[str, Any]]:
                 profiles[profile_name] = {
                     "archetype_path": f"{internal_archetype_path}:{archetype_filename}",
                     "description": profile_data["description"],
-                    "source": "Scaffold Canon",
+                    "source": "Velm Canon",
                     "gnosis_overrides": profile_data.get("gnosis_overrides", {})
                 }
             except (ModuleNotFoundError, FileNotFoundError):

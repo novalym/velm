@@ -149,7 +149,7 @@ class AltarScreen(Screen):
         """The sacred rite of the Gaze Worker."""
         archetype_list = []
         try:
-            package = "scaffold.archetypes.genesis"
+            package = "velm.archetypes.genesis"
             for resource in pkg_resources.files(package).iterdir():
                 if resource.is_file() and resource.name.endswith('.scaffold'):
                     content = resource.read_text(encoding='utf-8')
