@@ -871,6 +871,8 @@ class InitRequest(BaseRequest):
     """
     Plea to initialize a new project (The Rite of Inception).
     """
+    lint: bool = Field(default=False, description="Whether to conduct a Gnostic Lint Inquest post-inception.")
+    # -----------------------------
     launch_pad_with_path: Optional[str] = Field(
         default=None,
         description="Launch the Genesis Pad TUI. Optional starting path."
@@ -1077,10 +1079,49 @@ class ArchRequest(BaseRequest):
 
 class SettingsRequest(BaseRequest):
     """
-    Plea to open the Settings TUI.
-    """
-    scope: Literal['global', 'project'] = 'global'
+    =============================================================================
+    == THE SETTINGS REQUEST VESSEL (V-Ω-TOTALITY-V2)                           ==
+    =============================================================================
+    LIF: 10x | ROLE: CONFIGURATION_PLEA | RANK: OMEGA_LEVEL
 
+    The sacred plea to open the Altar of Configuration or to perform a surgical
+    strike upon the Gnostic Settings.
+    """
+
+    scope: Literal['global', 'project'] = Field(
+        default='global',
+        description="The axis of reality to manipulate. 'global' affects the Architect's machine; 'project' affects the local sanctum."
+    )
+
+    domain: Optional[Literal['ai', 'runtimes', 'templates', 'security', 'telemetry', 'ui']] = Field(
+        default=None,
+        description="The specific Gnostic Domain to focus upon. If None, the Panoptic TUI awakens."
+    )
+
+    # --- KINETIC OVERRIDES (Direct Manipulation) ---
+    key: Optional[str] = Field(
+        default=None,
+        description="The specific Gnostic key to transmute (e.g., 'ai.model'). Used for non-interactive setting."
+    )
+
+    value: Optional[Any] = Field(
+        default=None,
+        description="The new soul (value) to bestow upon the key."
+    )
+
+    reset: bool = Field(
+        default=False,
+        description="If True, returns the target key or domain to the primordial void (defaults)."
+    )
+
+    interactive: bool = Field(
+        default=True,
+        description="If True, summons the interactive TUI Altar. If False, performs a silent execution."
+    )
+
+    def is_silent_strike(self) -> bool:
+        """Determines if the Architect willed a direct state change."""
+        return self.key is not None and self.value is not None
 
 # =============================================================================
 # == 19. DAEMON RITE (scaffold daemon)                                       ==
