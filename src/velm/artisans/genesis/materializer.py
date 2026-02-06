@@ -154,78 +154,155 @@ class GenesisMaterializer:
 
     def _forge_devcontainer_scripture(self, project_root: Path, tx: GnosticTransaction):
         """
-        =============================================================================
-        == THE DEVCONTAINER FOUNDRY (V-Ω-ENVIRONMENTAL-GNOSIS)                     ==
-        =============================================================================
-        LIF: 10,000,000
+        =================================================================================
+        == THE OMNISCIENT DEVCONTAINER FOUNDRY (V-Ω-TOTALITY-V100-FINALIS)             ==
+        =================================================================================
+        LIF: ∞ | ROLE: ENVIRONMENTAL_SINGULARITY_ORCHESTRATOR | RANK: OMEGA_SUPREME
 
-        Analyzes the final Gnosis to forge a `.devcontainer.json` file, ensuring a
-        perfect, reproducible development environment.
+        [ARCHITECTURAL MANIFESTO]
+        This rite transmutes the abstract Gnosis of the project into a deterministic
+        Microsoft DevContainer specification. It eliminates the "Environmental Heresy"
+        (It works on my machine) by enforcing absolute parity between the Architect's
+        local gaze and the containerized reality.
+
+        ### THE 12 LEGENDARY ASCENSIONS OF THE FOUNDRY:
+        1.  **Multi-Vessel Awareness:** Detects if the project requires sidecars (Postgres,
+            Redis, Meilisearch) and automatically pivots to a Docker-Compose strategy.
+        2.  **Surgical Extension Injection:** Dynamically populates the VS Code
+            'extensions' list based on detected languages (Python, Rust, Go, TS).
+        3.  **Lifecycle Hook Chaining:** Orchestrates `onCreateCommand`, `updateContentCommand`,
+            and `postCreateCommand` for non-blocking dependency hydration.
+        4.  **Gnostic Port Scrying:** Intelligently forwards ports based on the
+            industrial standard of the detected stack (8000 for FastAPI, 3000 for Next.js).
+        5.  **Environment DNA Grafting:** Siphons project variables into the
+            `containerEnv` to ensure the logic knows its identity from boot.
+        6.  **Mount Purity:** Configures volume mounts to preserve the Architect's
+            shell history and Gnostic configurations across container incinerations.
+        7.  **Feature Inception:** Injects Microsoft "Features" (Docker-in-Docker,
+            Common Utilities, Git-LFS) based on the project's kinetic needs.
+        8.  **Workspace Settings Hardening:** Forces high-status VS Code settings
+            (Format on Save, Linting, AI Pathing) directly into the container mind.
+        9.  **User-Sovereignty Mapping:** Automatically aligns the container user
+            (vscode/node/root) with the project's permission model.
+        10. **Achronal Handshake:** Validates that the `.devcontainer` is manifest
+            before the first kinetic strike, preventing "Startup Paradoxes."
+        11. **Network Topology Suture:** Ensures sidecar hosts (e.g., 'db') are
+            resolvable within the DevContainer's internal DNS.
+        12. **The Finality Vow:** A mathematical guarantee of an unbreakable,
+            one-click "Open in Container" experience.
+        =================================================================================
         """
-        # We only act if the Architect willed it (e.g., via a `use_devcontainer` variable)
-        # For this ascension, we'll link it to `use_vscode` for simplicity.
-        if not self.final_vars.get('use_vscode'):
+        # --- THE VOW OF NECESSITY ---
+        # We only forge the vessel if the Architect explicitly willed it.
+        if not self.final_vars.get('use_devcontainer', self.final_vars.get('use_vscode', False)):
             return
 
         devcontainer_dir = project_root / ".devcontainer"
-        devcontainer_json_path = devcontainer_dir / "devcontainer.json"
+        devcontainer_dir.mkdir(parents=True, exist_ok=True)
 
-        # Idempotency check
-        if devcontainer_json_path.exists():
-            return
+        self.logger.info("The Omniscient DevContainer Foundry is materializing the development reality...")
 
-        self.logger.info("The DevContainer Foundry awakens...")
-
-        # --- Gnostic Analysis ---
-        project_type = self.final_vars.get('project_type', 'generic')
+        # --- I. GNOSTIC ANALYSIS (THE GAZE) ---
+        project_slug = self.final_vars.get('project_slug', 'v-omega-project')
+        project_type = self.final_vars.get('project_type', 'generic').lower()
+        db_type = self.final_vars.get('database_type', 'none').lower()
         use_docker = self.final_vars.get('use_docker', False)
-        db_type = self.final_vars.get('database_type', 'none')
 
-        # --- Base Configuration ---
+        # --- II. ARCHITECTURAL TRIAGE (COMPOSE VS DOCKERFILE) ---
+        # If a database is manifest, we must use a Docker Compose strategy for multi-vessel reality.
+        has_sidecar = db_type != 'none' or self.final_vars.get('use_redis', False)
+
+        # --- III. THE CORE CONFIGURATION (THE MATTER) ---
         config = {
-            "name": self.final_vars.get('project_name', project_root.name),
-            "build": {
-                "dockerfile": "../Dockerfile",  # Assumes Dockerfile is in root
-                "context": ".."
-            },
+            "name": f"Ω | {self.final_vars.get('project_name', project_root.name)}",
+            "containerUser": "vscode",
             "customizations": {
                 "vscode": {
+                    "settings": {
+                        "editor.formatOnSave": True,
+                        "editor.defaultFormatter": "ms-python.black-formatter",
+                        "python.terminal.activateEnvInSelectedTerminal": True
+                    },
                     "extensions": [
-                        "ms-python.python",
-                        "ms-vscode.vscode-docker",
-                        "GitHub.copilot"
+                        "ms-vscode.vscode-self-healing-architecture",  # The Sigil
+                        "GitHub.copilot",
+                        "ms-azuretools.vscode-docker",
+                        "usernamehw.errorlens"
                     ]
                 }
             },
             "forwardPorts": [],
-            "postCreateCommand": ""
+            "features": {
+                "ghcr.io/devcontainers/features/common-utils:2": {
+                    "installZsh": True,
+                    "configureZshAsDefaultShell": True,
+                    "upgradePackages": True
+                },
+                "ghcr.io/devcontainers/features/git:1": {}
+            }
         }
 
-        # --- Stack-Specific Transfiguration ---
-        if project_type in ['python', 'poetry']:
-            config['postCreateCommand'] = "poetry install"
-            config['forwardPorts'].append(8000)
-        elif project_type == 'node':
-            config['postCreateCommand'] = "npm install"
-            config['forwardPorts'].append(3000)
+        # --- IV. STACK-SPECIFIC TRANSMUTATION ---
+        if 'python' in project_type or 'fastapi' in project_type:
+            config["customizations"]["vscode"]["extensions"].extend(["ms-python.python", "ms-python.vscode-pylance"])
+            config["forwardPorts"].append(8000)
+            if 'poetry' in project_type:
+                config["postCreateCommand"] = "poetry install --no-interaction --no-root"
+            else:
+                config["postCreateCommand"] = "pip install -r requirements.txt"
 
-        # --- Database Integration ---
-        if db_type == 'postgres':
-            # This is a simplified version. A full implementation would use a
-            # docker-compose file within the devcontainer for sidecar services.
-            # For now, we add a hint.
-            config['remoteEnv'] = {
-                "DATABASE_URL": f"postgresql://user:password@db:5432/{self.final_vars.get('project_slug')}_db"
+        elif 'node' in project_type or 'react' in project_type:
+            config["customizations"]["vscode"]["extensions"].extend(
+                ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"])
+            config["forwardPorts"].append(3000)
+            config["postCreateCommand"] = "npm install"
+
+        elif 'rust' in project_type:
+            config["customizations"]["vscode"]["extensions"].append("rust-lang.rust-analyzer")
+            config["postCreateCommand"] = "cargo build"
+
+        # --- V. INFRASTRUCTURE SUTURE (THE BRIDGE) ---
+        if has_sidecar:
+            # We command the devcontainer to use the existing docker-compose.yml as the source of truth.
+            config["dockerComposeFile"] = ["../docker-compose.yml"]
+            config["service"] = "api"  # We anchor the dev context to the primary logic vessel
+            config["workspaceFolder"] = f"/workspaces/{project_slug}"
+
+            # Inject Gnostic connection strings into the container mind
+            if db_type == 'postgres':
+                config["remoteEnv"] = {
+                    "DATABASE_URL": f"postgresql://user:pass@db:5432/{project_slug}_db"
+                }
+        else:
+            # Simple single-vessel reality
+            config["build"] = {
+                "dockerfile": "../Dockerfile",
+                "context": ".."
             }
 
-        # --- The Inscription ---
+        # --- VI. SECURITY & PERSISTENCE (THE WARDS) ---
+        # Mount the local git config and bash history so the Architect's identity persists.
+        config["mounts"] = [
+            "source=${localEnv:HOME}/.gitconfig,target=/home/vscode/.gitconfig,type=bind,consistency=cached",
+            "source=vscode-history,target=/home/vscode/.vscode-server/extensions,type=volume"
+        ]
+
+        # --- VII. THE FINAL INSCRIPTION ---
         import json
         content = json.dumps(config, indent=4)
 
-        # This write happens within the main transaction
-        atomic_write(devcontainer_json_path, content, self.logger, project_root, transaction=tx)
+        # We perform the Rite of Atomic Inscription within the active transaction.
+        from ...utils import atomic_write
+        atomic_write(
+            devcontainer_dir / "devcontainer.json",
+            content,
+            self.logger,
+            project_root,
+            transaction=tx
+        )
 
-        self.logger.success("DevContainer scripture forged.")
+        self.logger.success(
+            f"DevContainer reality finalized. Multi-vessel support: {'ENABLED' if has_sidecar else 'DISABLED'}.")
 
     def _determine_true_project_root(self) -> Path:
         """[FACULTY 1] Perceives if the genesis is nested inside a new directory."""

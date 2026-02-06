@@ -1,204 +1,314 @@
-# Path: scaffold/genesis/genesis_profiles.py
+# Path: src/velm/genesis/genesis_profiles.py
 # ------------------------------------------
+# =========================================================================================
+# == THE OMNISCIENT PROFILE ORACLE (V-Ω-TOTALITY-V120.0-UNBREAKABLE-FINALIS)             ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: ARCHETYPAL_DNA_RECONSTRUCTOR | RANK: OMEGA_SUPREME
+# AUTH: Ω_PROFILES_V120_NAMESPACE_PURIFICATION_TOTALITY
+# =========================================================================================
 
-"""
-=================================================================================
-== THE SACRED GRIMOIRE OF GENESIS PROFILES (V-Ω-ETERNAL-APOTHEOSIS-ULTIMA++)    ==
-=================================================================================
-LIF: 10,000,000,000,000
-
-This is not a scripture of data. It is a divine, sentient Oracle. Its Prime
-Directive is to perform a Gnostic Gaze upon the cosmos of all known archetypes—
-both the divine, internal ones and the Architect's own forged souls—and to
-dynamically proclaim them as a unified Grimoire of Genesis Profiles. It is a
-living, self-aware artisan that makes the `init` command infinitely extensible.
-
-Its soul has been ascended. It no longer contains profane, hardcoded Gnosis. It
-is now a pure map between a Profile's sacred name and the Archetype it summons,
-bestowing upon that Archetype a complete, whole, and unbreakable vessel of
-Gnostic Overrides to ensure a perfect, non-interactive genesis.
-=================================================================================
-"""
 import importlib.resources as pkg_resources
 import re
+import os
+import hashlib
+import json
+import time
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional, Set, Final, Tuple
+from types import MappingProxyType
+from pydantic import BaseModel, Field, ConfigDict
 
 from ..core.alchemist import get_alchemist
 from ..logger import Scribe
 
-Logger = Scribe("GenesisProfiles")
+Logger = Scribe("GenesisOracle")
 
 
-def _perceive_archetype_description(content: str) -> str:
-    """A humble Scribe that gazes for the sacred @description marker."""
-    match = re.search(r'#\s*@description:\s*(.*)', content, re.IGNORECASE)
-    return match.group(1).strip() if match else "No description provided."
+# =========================================================================================
+# == SECTION I: GNOSTIC DATA CONTRACTS                                                   ==
+# =========================================================================================
 
-
-def _forge_the_grimoire() -> Dict[str, Dict[str, Any]]:
+class ArchetypeProfile(BaseModel):
     """
-    [THE GRAND SYMPHONY OF DISCOVERY]
-    This is the one true rite that forges the living Grimoire. It performs a
-    divine, two-fold Gaze and unifies all perceived Gnosis.
+    [THE IMMUTABLE VESSEL]
+    The sacred contract for every manifest reality's DNA.
     """
-    profiles: Dict[str, Dict[str, Any]] = {}
+    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
 
-    # --- MOVEMENT I: THE GAZE OF THE MORTAL SOUL (USER'S GLOBAL FORGE) ---
-    user_archetype_path = Path.home() / ".scaffold" / "archetypes"
-    if user_archetype_path.is_dir():
-        for f in user_archetype_path.glob('*.scaffold'):
-            try:
-                profile_name = f.stem
-                content = f.read_text(encoding='utf-8')
-                # For user archetypes, we don't assume overrides.
-                profiles[profile_name] = {
-                    "archetype_path": str(f),
-                    "description": _perceive_archetype_description(content),
-                    "source": "User Forge",
-                    "gnosis_overrides": {}  # User archetypes are self-contained by default.
-                }
-            except Exception as e:
-                Logger.warn(f"A minor paradox occurred while perceiving user archetype '{f.name}': {e}")
+    name: str
+    archetype_path: str
+    description: str
+    category: str
+    difficulty: str = "Adept"
+    source: str = "Velm_Canon"
+    gnosis_overrides: Dict[str, Any] = Field(default_factory=dict)
+    fingerprint: str
+    timestamp: float
+    mass_bytes: int = 0
 
-    # --- MOVEMENT II: THE GAZE OF THE IMMORTAL SOUL (INTERNAL ARCHETYPES) ---
-    # This is the new, divine scripture of our internal, canonical profiles.
-    # It marries a simple name to a rich, Gnostic purpose.
-    INTERNAL_CANON = {
-        # =====================================================================
-        # ==           THE DIVINE HEALING: THE MISSING KEY RESTORED          ==
-        # =====================================================================
-        # We explicitly register the 'generic' profile here.
-        "generic": {
-            "archetype": "generic.scaffold",
-            "description": "The purest void. A minimal, universal starting point for any project.",
-            "gnosis_overrides": {"project_type": "generic"}
-        },
-        # =====================================================================
 
-        "python-universal": {
-            "archetype": "python-universal.scaffold",
-            "description": "A fully-featured, production-grade Python project using either pip/venv or Poetry.",
-            "gnosis_overrides": {"use_poetry": False, "project_type": "python", "use_git": True, "use_vscode": True,
-                                 "use_ci": True}
-        },
-        "python-basic": {
-            "archetype": "python-universal.scaffold",
-            "description": "A universal, production-ready Python project using pip & venv.",
-            "gnosis_overrides": {"use_poetry": False, "project_type": "python", "use_git": True, "use_vscode": True,
-                                 "use_ci": True}
-        },
-        "poetry-basic": {
-            "archetype": "python-universal.scaffold",
-            "description": "A modern, professional Python project using Poetry.",
-            "gnosis_overrides": {"use_poetry": True, "project_type": "poetry", "use_git": True, "use_vscode": True,
-                                 "use_ci": True}
-        },
-        "fastapi-service": {
-            "archetype": "fastapi-service.scaffold",
-            "description": "A high-performance, containerized FastAPI web service with Poetry.",
-            "gnosis_overrides": {
-                "use_poetry": True, "use_docker": True, "use_ci": True, "use_git": True,
-                "use_vscode": True, "project_type": "python",
-                # [[[ THE DIVINE BESTOWAL OF THE ALCHEMIST'S SOUL ]]]
-                "secret": get_alchemist()._forge_secret_rite
-            }
-        },
-        "python-cli": {
-            "archetype": "cli-tool.scaffold",
-            "description": "A starter kit for forging a new Python CLI tool with Rich and Poetry.",
-            "gnosis_overrides": {"use_poetry": True, "project_type": "python", "use_git": True, "use_vscode": True,
-                                 "use_ci": True}
-        },
-        "node-basic": {
-            "archetype": "node-basic.scaffold",
-            "description": "A clean, modern Node.js project using TypeScript and npm.",
-            "gnosis_overrides": {"project_type": "node", "use_git": True, "use_vscode": True, "use_ci": True}
-        },
-        "react-vite": {
-            "archetype": "react-vite.scaffold",
-            "description": "A hyper-modern frontend project with React, TypeScript, and Vite.",
-            "gnosis_overrides": {"project_type": "node", "frontend_framework": "react", "use_git": True,
-                                 "use_vscode": True, "use_ci": True, "use_docker": True}
-        },
-        "express-api": {
-            "archetype": "express-api.scaffold",
-            "description": "A robust, containerized Express.js API in TypeScript.",
-            "gnosis_overrides": {"project_type": "node", "use_docker": True, "use_ci": True, "use_git": True,
-                                 "use_vscode": True}
-        },
-        "fullstack-monorepo": {
-            "archetype": "fullstack-monorepo.scaffold",
-            "description": "A polyglot monorepo with a FastAPI backend and a React frontend.",
-            "gnosis_overrides": {"use_poetry": True, "use_docker": True, "frontend_framework": "react", "use_git": True,
-                                 "use_vscode": True, "use_ci": True}
-        },
-        "go-cli": {
-            "archetype": "go-cli.scaffold",
-            "description": "A high-performance, statically-compiled CLI tool with Go.",
-            "gnosis_overrides": {"project_type": "go", "use_git": True, "use_ci": True}
-        },
-        "rust-lib": {
-            "archetype": "rust-lib.scaffold",
-            "description": "A memory-safe, high-performance library with Rust and Cargo.",
-            "gnosis_overrides": {"project_type": "rust", "use_git": True, "use_ci": True}
-        },
-        "docs-mkdocs": {
-            "archetype": "docs-mkdocs.scaffold",
-            "description": "A beautiful, searchable documentation site using MkDocs Material.",
-            "gnosis_overrides": {"project_type": "docs"}
-        },
-        "generic-container": {
-            "archetype": "generic-container.scaffold",
-            "description": "A generic project with a multi-stage Dockerfile, ready for containerization.",
-            "gnosis_overrides": {"project_type": "generic", "use_docker": True}
-        },
+# =========================================================================================
+# == SECTION II: THE CANON DNA (THE IMMORTAL OVERRIDES)                                  ==
+# =========================================================================================
+# These are the hardcoded Gnostic Laws for specific high-order archetypes.
+# They override scried metadata to ensure structural integrity and automation.
+# =========================================================================================
 
+CANON_DNA: Final[Dict[str, Dict[str, Any]]] = {
+    "fastapi-service": {
+        "category": "Backend",
+        "gnosis_overrides": {
+            "database_type": "postgres",
+            "auth_method": "jwt",
+            "use_docker": True,
+            "use_poetry": True,
+            "port": 8000
+        }
+    },
+    "fastapi-sqlalchemy": {
+        "category": "Backend",
+        "gnosis_overrides": {"database_type": "postgres", "use_alembic": True, "use_poetry": True}
+    },
+    "ai-agent-swarm": {
+        "category": "Intelligence",
+        "gnosis_overrides": {"use_redis": True, "agent_count": 3, "use_docker": True}
+    },
+    "langchain-nexus": {
+        "category": "Intelligence",
+        "gnosis_overrides": {"use_vector_db": True, "provider": "openai", "use_poetry": True}
+    },
+    "fullstack-monorepo": {
+        "category": "System",
+        "gnosis_overrides": {"use_docker": True, "frontend_framework": "react", "use_poetry": True}
+    },
+    "react-vite": {
+        "category": "Frontend",
+        "gnosis_overrides": {"use_docker": True, "project_type": "node", "port": 3000}
+    },
+    "nextjs-fortress": {
+        "category": "Frontend",
+        "gnosis_overrides": {"project_type": "node", "use_tailwind": True, "port": 3000}
+    },
+    "poetry-basic": {
+        "category": "Language",
+        "gnosis_overrides": {"use_poetry": True}
+    },
+    "new-artisan": {
+        "category": "Meta",
+        "gnosis_overrides": {"is_scaffold_extension": True}
+    },
+    "generic": {
+        "category": "General",
+        "gnosis_overrides": {"project_type": "generic"}
+    }
+}
+
+
+# =========================================================================================
+# == SECTION III: THE HEURISTIC ENGINE (THE DIVINER)                                     ==
+# =========================================================================================
+
+def _divine_category(slug: str) -> str:
+    """[ASCENSION 3]: Heuristic Industrial Categorization."""
+    slug = slug.lower()
+    if any(k in slug for k in ["fastapi", "express", "api", "service", "grpc", "graphene"]): return "Backend"
+    if any(k in slug for k in ["react", "nextjs", "astro", "chrome", "vite", "frontend", "ui"]): return "Frontend"
+    if any(k in slug for k in ["ai", "langchain", "agent", "nexus", "brain", "neural"]): return "Intelligence"
+    if any(k in slug for k in ["cli", "tool", "script", "generic-script", "utility"]): return "Utility"
+    if any(k in slug for k in ["rust", "go", "python", "node", "poetry", "kt", "zig", "java", "cpp"]): return "Language"
+    if any(k in slug for k in ["monorepo", "citadel", "monad", "splane", "workspace"]): return "System"
+    if any(
+        k in slug for k in ["docker", "container", "synapse", "cloud", "infra", "deployment"]): return "Infrastructure"
+    if any(k in slug for k in ["docs", "mkdocs", "grimoire", "wiki"]): return "Documentation"
+    return "General"
+
+
+def _perceive_metadata(content: str, slug: str) -> Dict[str, str]:
+    """[ASCENSION 7]: Socratic Metadata Scrying from blueprint comments."""
+    meta = {
+        "description": "A new reality forged in the Gnostic Forge.",
+        "category": _divine_category(slug),
+        "difficulty": "Adept"
     }
 
-    internal_archetype_path = 'velm.archetypes.genesis'
-    for profile_name, profile_data in INTERNAL_CANON.items():
-        if profile_name not in profiles:  # The Law of Gnostic Precedence
+    # Scrying for explicit @markers in the first 2KB of the file
+    header = content[:2048]
+    desc = re.search(r'#\s*@description:\s*(.*)', header, re.I)
+    if desc: meta["description"] = desc.group(1).strip()
+
+    cat = re.search(r'#\s*@category:\s*(.*)', header, re.I)
+    if cat: meta["category"] = cat.group(1).strip()
+
+    diff = re.search(r'#\s*@difficulty:\s*(.*)', header, re.I)
+    if diff: meta["difficulty"] = diff.group(1).strip()
+
+    return meta
+
+
+# =========================================================================================
+# == SECTION IV: THE DISCOVERY SYMPHONY (THE FIX)                                       ==
+# =========================================================================================
+
+def _forge_the_grimoire() -> Dict[str, Any]:
+    """
+    [THE RITE OF RECTIFIED DISCOVERY]
+    Recursive, namespace-pure discovery of every archetype in the cosmos.
+    """
+    found_profiles: Dict[str, Any] = {}
+
+    # [THE CURE]: THE PURE ANCHOR
+    # We strictly define the internal package path.
+    # We do NOT use relative pathing to avoid 'src' pollution.
+    INTERNAL_PACKAGE_NAME = 'velm'
+    ARCHETYPES_SUBPACKAGE = 'archetypes'
+
+    try:
+        # 1. Gaze into the Archetypes Universe
+        # We anchor at the root of the package.
+        root_resource = pkg_resources.files(INTERNAL_PACKAGE_NAME).joinpath(ARCHETYPES_SUBPACKAGE)
+
+        # [ASCENSION 2]: Recursive Stratum Scrying
+        # Finds every .scaffold file across all sub-packages (genesis, components, etc.)
+        for entry in root_resource.rglob('*.scaffold'):
+            slug = entry.name.replace('.scaffold', '')
+            content = entry.read_text(encoding='utf-8')
+
+            # --- [ASCENSION 1]: THE LOGICAL NAMESPACE SUTURE (THE FIX) ---
+            # We must derive the dotted Python path from the Traversable's internal hierarchy.
+            # We ignore the physical disk path and use the package-relative path.
+
+            # entry.parts might be ('...', 'velm', 'archetypes', 'genesis', 'file.scaffold')
+            # We MUST find the index of the root package 'velm' to anchor the namespace.
             try:
-                archetype_filename = profile_data["archetype"]
-                # This Gaze verifies the immortal soul exists before proclaiming it.
-                # We check existence by trying to open it via importlib.resources
-                # Note: read_text expects (package, resource).
-                pkg_resources.read_text(internal_archetype_path, archetype_filename)
+                # Find the start of the logical package
+                # This kills the 'velm.src.velm' double-naming heresy.
+                parts = entry.parts
+                # We look for the LAST occurrence of 'velm' to handle edge cases
+                # where the user's home folder contains the string 'velm'.
+                indices = [idx for idx, part in enumerate(parts) if part == INTERNAL_PACKAGE_NAME]
+                if not indices:
+                    raise ValueError(f"Package root '{INTERNAL_PACKAGE_NAME}' not found in traversable parts.")
 
-                profiles[profile_name] = {
-                    "archetype_path": f"{internal_archetype_path}:{archetype_filename}",
-                    "description": profile_data["description"],
-                    "source": "Velm Canon",
-                    "gnosis_overrides": profile_data.get("gnosis_overrides", {})
-                }
-            except (ModuleNotFoundError, FileNotFoundError):
-                Logger.warn(
-                    f"A Gnostic schism was detected. The canonical archetype '{archetype_filename}' for profile '{profile_name}' is a void.")
-            except Exception as e:
-                Logger.warn(f"A minor paradox occurred while perceiving internal profile '{profile_name}': {e}")
+                start_idx = indices[-1]  # Take the most specific package root
+                # Extract parts from 'velm' to the parent of the file.
+                # Result: ['velm', 'archetypes', 'genesis']
+                logical_parts = list(parts[start_idx:-1])
+                logical_package_path = ".".join(logical_parts)
 
-    return dict(sorted(profiles.items()))
+            except (ValueError, IndexError):
+                # Fallback to a safe hardcoded path if scrying fails
+                logical_package_path = f"{INTERNAL_PACKAGE_NAME}.{ARCHETYPES_SUBPACKAGE}.genesis"
+
+            # 3. Perception & DNA Merging
+            meta = _perceive_metadata(content, slug)
+            dna = CANON_DNA.get(slug, {})
+
+            # [ASCENSION 4]: Cryptographic Fingerprinting
+            fingerprint = hashlib.md5(content.encode()).hexdigest()[:12]
+
+            # 4. Materialization of the Contract
+            profile = ArchetypeProfile(
+                name=slug,
+                archetype_path=f"{logical_package_path}:{entry.name}",
+                description=dna.get("description") or meta["description"],
+                category=dna.get("category") or meta["category"],
+                difficulty=dna.get("difficulty") or meta["difficulty"],
+                source="Velm_Canon",
+                gnosis_overrides={
+                    "use_git": True,
+                    "use_vscode": True,
+                    "author": "The Architect",
+                    "secret": get_alchemist()._forge_secret_rite,
+                    **dna.get("gnosis_overrides", {})
+                },
+                fingerprint=fingerprint,
+                timestamp=time.time(),
+                mass_bytes=len(content)
+            )
+            found_profiles[slug] = profile.model_dump()
+
+    except Exception as e:
+        # [ASCENSION 6]: NoneType Sarcophagus
+        Logger.error(f"Namespace Discovery Paradox: {e}")
+
+    # 5. Global Extension Phase (The User's local ~/.scaffold/archetypes)
+    user_forge = Path.home() / ".scaffold" / "archetypes"
+    if user_forge.is_dir():
+        for f in user_forge.glob('**/*.scaffold'):
+            if f.stem in found_profiles: continue  # System Sovereignty
+            try:
+                content = f.read_text(encoding='utf-8')
+                meta = _perceive_metadata(content, f.stem)
+                fingerprint = hashlib.md5(content.encode()).hexdigest()[:12]
+
+                profile = ArchetypeProfile(
+                    name=f.stem,
+                    archetype_path=str(f),
+                    description=meta["description"],
+                    category="User_Extension",
+                    difficulty="Architect",
+                    source="Local_Forge",
+                    gnosis_overrides={"author": "The Architect"},
+                    fingerprint=fingerprint,
+                    timestamp=f.stat().st_mtime,
+                    mass_bytes=len(content)
+                )
+                found_profiles[f.stem] = profile.model_dump()
+            except Exception:
+                continue
+
+    return dict(sorted(found_profiles.items()))
 
 
-# =================================================================================
-# == THE PANTHEON OF GENESIS (THE LIVING, DYNAMICALLY FORGED GRIMOIRE)           ==
-# =================================================================================
-PROFILES: Dict[str, Dict[str, Any]] = _forge_the_grimoire()
+# =========================================================================================
+# == SECTION V: THE PROCLAIMED API (LOCKED)                                             ==
+# =========================================================================================
+
+# [ASCENSION 8]: MappingProxy Immutability
+# The Grimoire is now read-only to prevent runtime profanation.
+PROFILES: Final[MappingProxyType] = MappingProxyType(_forge_the_grimoire())
 
 
-# =================================================================================
-# == THE GNOSIS OF HASTE (THE QUICK START DEFAULT)                             ==
-# =================================================================================
-def _get_quick_start_profile_name() -> str:
-    """Finds the most divine Python profile to serve as the default."""
-    if "poetry-basic" in PROFILES:
-        return "poetry-basic"
-    if "python-basic" in PROFILES:
-        return "python-basic"
-    if "python-universal" in PROFILES:
-        return "python-universal"
-    return next(iter(PROFILES), None)
+def get_profile(name: str) -> Optional[Dict[str, Any]]:
+    """Retrieves a specific profile with absolute error-warding."""
+    return PROFILES.get(name)
 
 
-QUICK_START_PROFILE_NAME = _get_quick_start_profile_name()
+def list_profiles(category: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Lists all manifest profiles, optionally filtered by category."""
+    all_p = list(PROFILES.values())
+    if category:
+        return [p for p in all_p if p['category'].lower() == category.lower()]
+    return all_p
+
+
+def get_categories() -> List[str]:
+    """Returns the unique industrial categories manifest in the Canon."""
+    return sorted(list(set(p['category'] for p in PROFILES.values())))
+
+
+# [ASCENSION 11]: Semantic Resonance Search
+def search_canon(query: str) -> List[Dict[str, Any]]:
+    """Performs a fuzzy Gaze to find resonant archetypes."""
+    query = query.lower()
+    results = []
+    for data in PROFILES.values():
+        score = 0
+        if query in data['name'].lower(): score += 10
+        if query in data['description'].lower(): score += 5
+        if query in data['category'].lower(): score += 3
+
+        if score > 0:
+            res = data.copy()
+            res['relevance'] = score
+            results.append(res)
+
+    return sorted(results, key=lambda x: x['relevance'], reverse=True)
+
+
+# The Default Anchor
+DEFAULT_PROFILE_NAME: Final[str] = "fastapi-service" if "fastapi-service" in PROFILES else "generic"
+
+Logger.success(f"Gnostic Grimoire forged. [bold cyan]{len(PROFILES)}[/bold cyan] archetypes manifest in the namespace.")
+
+# == SCRIPTURE SEALED: THE CANON IS NOW UNBREAKABLE ==

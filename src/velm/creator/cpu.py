@@ -40,6 +40,7 @@ class QuantumCPU:
         Maestro—as gifts from its Creator, annihilating the Ouroboros heresy.
         =============================================================================
         """
+        self.Logger = Logger
         self.regs = registers
         self.io = io_conductor
         self.maestro = maestro
@@ -92,7 +93,7 @@ class QuantumCPU:
     def execute(self):
         """
         =============================================================================
-        == THE GRAND SYMPHONY OF EXECUTION                                         ==
+        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-STAGING-AWARE-FINALIS)             ==
         =============================================================================
         """
         total_ops = len(self.program)
@@ -108,15 +109,25 @@ class QuantumCPU:
                     self.program_counter = i
                     self.regs.ops_executed += 1
 
+                    # [ASCENSION 13]: JUST-IN-TIME MATERIALIZATION
+                    # If we are about to execute a shell command, we MUST flush
+                    # the staging area to the physical disk so the tools (make/npm)
+                    # can see the files we just 'created'.
+                    if instr.op == OpCode.EXEC:
+                        if self.regs.transaction and not self.regs.is_simulation:
+                            self.Logger.verbose("Materializing staged reality before Kinetic Strike...")
+                            # This moves files from .scaffold/staging to the real project root
+                            self.regs.transaction.materialize()
+
                     if not self.regs.silent:
                         status_ctx.update(
-                            f"[bold green]Quantum VM: Executing Op {i + 1}/{total_ops} ({instr.op.name})...[/bold green]")
+                            f"[bold green]Quantum VM: Op {i + 1}/{total_ops} ({instr.op.name})...[/bold green]")
 
                     handler = self._handler_map.get(instr.op)
                     if handler:
                         handler(instr)
                     else:
-                        Logger.warn(f"Opcode '{instr.op.name}' has no handler. The rite is ignored.")
+                        self.Logger.warn(f"Opcode '{instr.op.name}' has no handler.")
 
         except Exception as e:
             raise ArtisanHeresy(

@@ -1,78 +1,96 @@
-    
+# Path: src/velm/archetypes/genesis/fastapi-service.scaffold
+# ----------------------------------------------------------
 # =================================================================================
-# == GNOSTIC ARCHITECTURAL PROGRAM: FASTAPI CELESTIAL SERVICE (V-Ω-ETERNAL++)    ==
+# == GNOSTIC ARCHITECTURAL PROGRAM: FASTAPI CELESTIAL SERVICE (V-Ω-TITANIUM)     ==
 # =================================================================================
-# @description: A sentient, dynamic, and production-grade FastAPI service that
-#               adapts its very form to the Architect's will. It can be forged
-#               as a simple API, a full database-backed service with JWT auth,
-#               and is ready for celestial deployment via Docker.
+# @description: A sentient, dynamic, and production-grade FastAPI service.
+#               Forged with the "Titanium Dependency Matrix" to survive Python 3.13+.
 # @author: The Co-Architects
-# @version: 2.0.0 (The Sentient Ascension)
+# @version: 1000.0.0 (The Python 3.13 Ascension)
 # =================================================================================
 
-# --- I. The Altar of Gnostic Will (The Architect's Choices) ---
-$$ project_slug = "sentinel-api"
-$$ description = "A sentient FastAPI service."
+# --- I. THE ALTAR OF GNOSTIC WILL (Variables) ---
+$$ project_slug = "sentinel_api"
+$$ description = "A high-performance Gnostic API service."
 $$ author = "The Co-Architects"
 
-# --- Architectural Gnosis ---
-$$ database_type = "postgres"  # Adjudicator understands: 'postgres', 'sqlite', or 'none'
-$$ auth_method = "jwt"         # Adjudicator understands: 'jwt' or 'none'
-$$ environment = "dev"         # Adjudicator understands: 'dev' or 'prod'
+# --- Architectural Feature Flags ---
+$$ database_type = "postgres"  # Options: 'postgres', 'sqlite', 'none'
+$$ auth_method = "jwt"         # Options: 'jwt', 'none'
+$$ use_docker = true           # Options: true, false
+$$ use_ci = true               # Options: true, false
 
 # --- Alchemical Transmutations (Derived Gnosis) ---
-# These are now pure Jinja expressions, their Gnosis derived by the God-Engine.
 $$ project_pascal = "{{ project_slug | pascal }}"
 $$ project_title = "{{ project_slug | title }}"
+# [THE GEOMETRIC TRUTH]: Valid Python Package Name (snake_case)
+$$ package_name = "{{ project_slug | snake }}"
 
-# --- II. The Scripture of Sentient Form ---
+# --- II. THE SCRIPTURE OF SENTIENT FORM ---
 /{{ project_slug }}/
+
+    # [ASCENSION 1]: THE OMNISCIENT GITIGNORE
     .gitignore :: """
-    # Byte-compiled / optimized / DLL files
+    # Python
     __pycache__/
     *.py[cod]
     *$py.class
+    .venv/
+    venv/
+    *.egg-info/
 
-    # Test & Linter Caches
+    # Testing & Quality
     .pytest_cache/
     .ruff_cache/
+    .mypy_cache/
+    .coverage
+    htmlcov/
 
-    # Ephemeral Gnosis & Secrets
+    # Environment & Secrets (The Veil)
     .env
     .env.*
     !.env.example
-
+    
     # IDE & OS
     .vscode/
     .idea/
     .DS_Store
+    Thumbs.db
 
-    # Database Files (for SQLite)
+    # Database
     *.db
     *.db-journal
+    *.sqlite
     """
 
+    # [ASCENSION 2]: THE SELF-DOCUMENTING ENVIRONMENT
     .env.example :: """
-    # Gnostic Secrets for the {{ project_title }}
+    # =========================================================
+    # == GNOSTIC SECRETS FOR {{ project_title }} ==
+    # =========================================================
     APP_NAME="{{ project_title }}"
-    ENVIRONMENT="{{ environment }}"
+    ENVIRONMENT="development"
     LOG_LEVEL="INFO"
-    PORT="8000"
-
-    # --- Conditional Gnosis for the Database ---
-    {% if database_type != 'none' %}
-    DATABASE_URL="{{ 'postgresql://user:pass@db:5432/' + project_slug if database_type == 'postgres' else 'sqlite:///./sql_app.db' }}"
+    PORT=8000
+    
+    # --- Database Gnosis ---
+    {% if database_type == 'postgres' %}
+    # [THE CURE]: Using asyncpg for high-performance async I/O
+    DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/{{ package_name }}"
+    {% elif database_type == 'sqlite' %}
+    DATABASE_URL="sqlite+aiosqlite:///./{{ package_name }}.db"
     {% endif %}
 
-    # --- Conditional Gnosis for Authentication ---
+    # --- Authentication Gnosis ---
     {% if auth_method == 'jwt' %}
-    # The heresy is annihilated. We summon the Alchemist's global rite directly.
     SECRET_KEY={{ secret('hex', 32) }}
     ALGORITHM="HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES=30
     {% endif %}
     """
 
+    # [ASCENSION 3]: THE TITANIUM DEPENDENCY MATRIX
+    # Updated to ensure compatibility with Python 3.13 and Windows Build Tools.
     pyproject.toml :: """
     [tool.poetry]
     name = "{{ project_slug }}"
@@ -80,127 +98,164 @@ $$ project_title = "{{ project_slug | title }}"
     description = "{{ description }}"
     authors = ["{{ author }}"]
     readme = "README.md"
-    packages = [{include = "{{ project_slug }}", from = "src"}]
+    packages = [{include = "{{ package_name }}", from = "src"}]
 
     [tool.poetry.dependencies]
-    python = "^3.11"
+    # [THE CURE]: Wide python range to allow 3.13
+    python = ">=3.10,<4.0"
     fastapi = "^0.110.0"
     uvicorn = {extras = ["standard"], version = "^0.27.0"}
+    pydantic = "^2.6.0"
+    pydantic-settings = "^2.2.0"
     python-dotenv = "^1.0.1"
     rich = "^13.7.0"
 
-    # --- The Rite of Conditional Dependency ---
     {% if database_type == 'postgres' %}
-    psycopg2-binary = "^2.9.9"
-    sqlalchemy = "^2.0.28"
+    # [THE CURE]: asyncpg 0.30.0+ required for Python 3.13 compat
+    sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
+    asyncpg = ">=0.30.0"
+    alembic = "^1.13.1"
+    # Fallback for sync operations (e.g. initial Alembic setup)
+    psycopg2-binary = "^2.9.9" 
     {% elif database_type == 'sqlite' %}
-    sqlalchemy = "^2.0.28"
+    sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
+    aiosqlite = "^0.20.0"
+    alembic = "^1.13.1"
     {% endif %}
 
     {% if auth_method == 'jwt' %}
     python-jose = {extras = ["cryptography"], version = "^3.3.0"}
     passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-    python-multipart = "^0.0.9" # For OAuth2 forms
+    python-multipart = "^0.0.9"
     {% endif %}
 
     [tool.poetry.group.dev.dependencies]
     pytest = "^8.0.0"
-    ruff = "^0.2.0"
+    pytest-asyncio = "^0.23.5"
+    ruff = "^0.3.0"
     black = "^24.2.0"
     httpx = "^0.27.0"
+    mypy = "^1.8.0"
 
     [build-system]
     requires = ["poetry-core"]
     build-backend = "poetry.core.masonry.api"
 
+    # --- Tool Configuration ---
     [tool.ruff]
-    line-length = 119
+    line-length = 100
+    target-version = "py311"
 
-    [tool.black]
-    line-length = 119
+    [tool.pytest.ini_options]
+    addopts = "-v --asyncio-mode=auto"
+    testpaths = ["tests"]
+    python_files = "test_*.py"
     """
 
+    # [ASCENSION 4]: THE HEALED MAKEFILE
+    # Using single-dollar variable expansion to appease the Windows Shell.
     Makefile :: """
-    .PHONY: help install dev test lint format docker-build docker-run
+    .PHONY: help install dev test lint format clean docker-up
 
-    # These variables are for the `make` artisan, not our Alchemist.
-    # The sacred `$$` sigil protects them from Jinja's Gaze.
-    INSTALL_CMD = poetry install
-    TEST_CMD = poetry run pytest
-    LINT_CMD = poetry run ruff check .
-    FORMAT_CMD = poetry run black .
+    # Variables
+    APP_NAME = {{ project_slug }}
+    PKG_NAME = {{ package_name }}
+    
+    help:  ## Show this help message
+        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-    help:
-        @echo "Makefile for {{ project_title }}"
-        @echo "Usage: make [install|dev|test|lint|format|docker-build|docker-run]"
+    install: ## Install dependencies via Poetry
+        @echo "📦 Summoning dependencies..."
+        # [THE CURE]: Single Dollar Sign
+        @poetry install
 
-    install:
-        @echo "Installing dependencies via Poetry..."
-        @$$(INSTALL_CMD)
+    dev: ## Run the development server
+        @echo "🚀 Awakening {{ project_title }}..."
+        @poetry run uvicorn src.$(PKG_NAME).main:app --host 0.0.0.0 --port 8000 --reload
 
-    dev:
-        @echo "Awakening the development reality with live reload..."
-        @poetry run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    test: ## Run tests
+        @echo "🧪 Conducting Inquest..."
+        @poetry run pytest
 
-    test:
-        @echo "Adjudicating reality with Pytest..."
-        @$$(TEST_CMD)
+    lint: ## Run linter (Ruff)
+        @echo "🔍 Gazing for heresies..."
+        @poetry run ruff check .
 
-    lint:
-        @echo "The Gnostic Inquisitor (Ruff) awakens its Gaze..."
-        @$$(LINT_CMD)
+    format: ## Format code (Black + Ruff)
+        @echo "✨ Purifying form..."
+        @poetry run ruff check --fix .
+        @poetry run black .
 
-    format:
-        @echo "The Scribe of Form (Black) proclaims its will..."
-        @$$(FORMAT_CMD)
+    clean: ## Remove artifacts
+        @rm -rf .venv __pycache__ .pytest_cache .ruff_cache dist build
 
-    docker-build:
-        @echo "Forging the Unbreakable Vessel (Docker image)..."
-        @docker build -t {{ project_slug }}:latest .
+    {% if use_docker %}
+    docker-build: ## Build Docker image
+        @docker build -t $(APP_NAME):latest .
 
-    docker-run:
-        @echo "Awakening the containerized reality..."
-        @docker run -p 8000:8000 -it --rm --name {{ project_slug }} {{ project_slug }}:latest
+    docker-up: ## Run with Docker Compose
+        @docker-compose up --build -d
+    {% endif %}
     """
 
-    README.md:
-        # {{ project_title }}
+    # [ASCENSION 5]: THE DYNAMIC README
+    README.md :: """
+    # {{ project_title }}
 
-        _{{ description }}_
+    > {{ description }}
 
-        A high-performance, asynchronous API service forged with FastAPI and the unbreakable, sentient will of Scaffold.
+    ## ⚡ Quick Start
 
+    1. **Install Dependencies:**
+       ```bash
+       make install
+       ```
+
+    2. **Configure Environment:**
+       ```bash
+       cp .env.example .env
+       ```
+
+    3. **Awaken the API:**
+       ```bash
+       make dev
+       ```
+    """
+
+    # [ASCENSION 6]: THE EDITOR ANOINTMENT
+    .vscode/
+        settings.json :: """
+        {
+            "python.defaultInterpreterPath": ".venv/bin/python",
+            "python.testing.pytestArgs": ["tests"],
+            "python.testing.unittestEnabled": false,
+            "python.testing.pytestEnabled": true,
+            "editor.formatOnSave": true,
+            "python.formatting.provider": "black",
+            "[python]": {
+                "editor.defaultFormatter": "ms-python.black-formatter",
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": "explicit"
+                }
+            }
+        }
+        """
+
+    # --- SOURCE CODE SANCTUM ---
     src/
-        __init__.py
-        
-        main.py:
-            from fastapi import FastAPI
-            from .config import settings
-            
-            {% if database_type != 'none' %}
-            from .database import engine, Base
-            # This rite must be performed before the routes are included.
-            Base.metadata.create_all(bind=engine)
-            {% endif %}
-            
-            app = FastAPI(title=settings.APP_NAME)
+        # [THE GEOMETRIC TRUTH]: Snake Case Package Directory
+        {{ package_name }}/
+            __init__.py :: "__version__ = '0.1.0'"
 
-            @app.get("/")
-            def root():
-                return {"message": f"Gnosis is truth. Welcome to the {settings.APP_NAME}."}
-            
-            {% if auth_method == 'jwt' %}
-            from .routers import auth, users
-            app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
-            app.include_router(users.router, prefix="/users", tags=["Users"])
-            {% endif %}
-
-        config.py:
+            # [ASCENSION 7]: THE CONFIGURATION SINGLETON
+            config.py :: """
             from pydantic_settings import BaseSettings, SettingsConfigDict
+            from typing import Optional
 
             class Settings(BaseSettings):
                 APP_NAME: str = "{{ project_title }}"
                 ENVIRONMENT: str = "development"
+                LOG_LEVEL: str = "INFO"
                 
                 {% if database_type != 'none' %}
                 DATABASE_URL: str
@@ -212,85 +267,143 @@ $$ project_title = "{{ project_slug | title }}"
                 ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
                 {% endif %}
 
-                model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+                model_config = SettingsConfigDict(
+                    env_file=".env", 
+                    env_file_encoding="utf-8", 
+                    extra="ignore"
+                )
 
             settings = Settings()
+            """
 
-    # --- The Rite of Conditional Forging (Sanctums & Scriptures) ---
-    {% if database_type != 'none' %}
-    src/database.py:
-        from sqlalchemy import create_engine
-        from sqlalchemy.orm import sessionmaker, declarative_base
-        from .config import settings
+            # [ASCENSION 8]: THE MAIN ENTRYPOINT
+            main.py :: """
+            from contextlib import asynccontextmanager
+            from fastapi import FastAPI
+            from .config import settings
 
-        engine = create_engine(settings.DATABASE_URL)
-        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-        Base = declarative_base()
+            {% if database_type != 'none' %}
+            from .database import init_db
+            {% endif %}
 
-        def get_db():
-            db = SessionLocal()
-            try:
-                yield db
-            finally:
-                db.close()
-    
-    src/models.py
-    src/schemas.py
-    src/crud.py
-    {% endif %}
+            @asynccontextmanager
+            async def lifespan(app: FastAPI):
+                print(f"✨ {settings.APP_NAME} is awakening...")
+                {% if database_type != 'none' %}
+                await init_db()
+                {% endif %}
+                yield
+                print(f"💀 {settings.APP_NAME} is dissolving...")
 
-    {% if auth_method == 'jwt' %}
-    src/routers/
-        __init__.py
-        auth.py
-        users.py
-    {% endif %}
+            app = FastAPI(
+                title=settings.APP_NAME,
+                version="0.1.0",
+                lifespan=lifespan
+            )
 
+            @app.get("/")
+            async def root():
+                return {
+                    "message": "Gnosis is truth.",
+                    "service": settings.APP_NAME,
+                    "status": "ONLINE"
+                }
+
+            @app.get("/health")
+            async def health():
+                return {"status": "ok"}
+
+            {% if auth_method == 'jwt' %}
+            from .routers import auth, users
+            app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
+            app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
+            {% endif %}
+            """
+
+            # [ASCENSION 9]: THE ASYNC DATABASE ENGINE
+            {% if database_type != 'none' %}
+            database.py :: """
+            from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+            from sqlalchemy.orm import DeclarativeBase
+            from .config import settings
+
+            # [THE CURE]: Echo enabled for dev visibility
+            engine = create_async_engine(settings.DATABASE_URL, echo=(settings.ENVIRONMENT == "development"))
+            AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+            class Base(DeclarativeBase):
+                pass
+
+            async def init_db():
+                async with engine.begin() as conn:
+                    await conn.run_sync(Base.metadata.create_all)
+
+            async def get_db():
+                async with AsyncSessionLocal() as session:
+                    yield session
+            """
+            
+            models.py :: """
+            from sqlalchemy import Column, Integer, String, Boolean
+            from .database import Base
+
+            class User(Base):
+                __tablename__ = "users"
+                id = Column(Integer, primary_key=True, index=True)
+                email = Column(String, unique=True, index=True)
+                is_active = Column(Boolean, default=True)
+            """
+            {% endif %}
+
+            # [ASCENSION 10]: MODULAR ROUTERS
+            {% if auth_method == 'jwt' %}
+            routers/
+                __init__.py
+                auth.py :: """
+                from fastapi import APIRouter, Depends
+                router = APIRouter()
+
+                @router.post("/login")
+                async def login():
+                    return {"token": "gnostic_token_placeholder"}
+                """
+
+                users.py :: """
+                from fastapi import APIRouter
+                router = APIRouter()
+
+                @router.get("/me")
+                async def read_users_me():
+                    return {"username": "architect"}
+                """
+            {% endif %}
+
+    # --- TEST SANCTUM ---
     tests/
         __init__.py
         
+        # [ASCENSION 11]: CORRECT IMPORT PATHS
         test_main.py :: """
-        from fastapi.testclient import TestClient
-        from src.main import app
-        
-        client = TestClient(app)
+        import pytest
+        from httpx import AsyncClient
+        from src.{{ package_name }}.main import app
 
-        def test_root_proclaims_truth():
-            response = client.get("/")
+        @pytest.mark.asyncio
+        async def test_root():
+            async with AsyncClient(app=app, base_url="http://test") as ac:
+                response = await ac.get("/")
             assert response.status_code == 200
-            assert "Gnosis is truth" in response.json()["message"]
+            assert response.json()["status"] == "ONLINE"
         """
 
-    .vscode/
-        settings.json :: """
-        {
-            "python.testing.pytestArgs": ["tests"],
-            "python.testing.unittestEnabled": false,
-            "python.testing.pytestEnabled": true,
-            "[python]": {
-                "editor.defaultFormatter": "ms-python.black-formatter",
-                "editor.formatOnSave": true
-            }
-        }
-        """
-
-    .dockerignore :: """
-    .venv
-    __pycache__
-    .pytest_cache
-    .ruff_cache
-    .git
-    .vscode
-    .env
-    *.db
-    """
-
+    # --- DOCKER INFRASTRUCTURE ---
+    {% if use_docker %}
     Dockerfile :: """
     FROM python:3.11-slim as builder
 
-    ENV POETRY_NO_INTERACTION=1
-    ENV POETRY_VIRTUALENVS_IN_PROJECT=1
-    ENV POETRY_VIRTUALENVS_CREATE=1
+    ENV POETRY_NO_INTERACTION=1 \
+        POETRY_VIRTUALENVS_IN_PROJECT=1 \
+        POETRY_VIRTUALENVS_CREATE=1
 
     WORKDIR /app
 
@@ -300,53 +413,58 @@ $$ project_title = "{{ project_slug | title }}"
 
     RUN pip install poetry
     COPY pyproject.toml poetry.lock ./
-    RUN poetry install --no-dev --no-root
+    RUN poetry install --no-root
 
     FROM python:3.11-slim as production
     WORKDIR /app
-    COPY --from=builder /.venv /.venv
-    ENV PATH="/.venv/bin:$PATH"
-    COPY src/ ./src/
-    CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    COPY --from=builder /app/.venv /app/.venv
+    ENV PATH="/app/.venv/bin:$PATH"
+    COPY src /app/src
+
+    # [THE CURE]: Correct Entrypoint
+    CMD ["uvicorn", "src.{{ package_name }}.main:app", "--host", "0.0.0.0", "--port", "8000"]
     """
 
-    .github/
-        workflows/
-            ci.yml :: """
-    name: FastAPI CI Adjudication Symphony
-    on: [push, pull_request]
-    jobs:
-      adjudicate:
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v4
-        - name: Set up Python and Poetry
-          uses: actions/setup-python@v5
-          with:
-            python-version: '3.11'
-            cache: 'poetry'
-        - name: Install Dependencies
-          run: make install
-        - name: Adjudicate with Pytest
-          run: make test
-        - name: Gaze with Ruff Linter
-          run: make lint
-    """
+    docker-compose.yml :: """
+    version: '3.8'
+    services:
+      api:
+        build: .
+        ports: ["8000:8000"]
+        volumes: ["./src:/app/src"]
+        env_file: .env
+        {% if database_type != 'none' %}depends_on: [db]{% endif %}
 
-# --- III. The Maestro's Will ---
+      {% if database_type == 'postgres' %}
+      db:
+        image: postgres:15-alpine
+        volumes: ["postgres_data:/var/lib/postgresql/data/"]
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: {{ package_name }}
+      {% endif %}
+
+    {% if database_type == 'postgres' %}
+    volumes:
+      postgres_data:
+    {% endif %}
+    """
+    {% endif %}
+
+# --- IV. THE MAESTRO'S WILL (KINETIC EXECUTION) ---
 %% post-run
-    # [THE CURE]: We must shift the sanctum into the created project folder.
-    # Otherwise, 'make' looks in the parent directory and finds a void.
-    cd {{ project_slug }}
-    
-    # Now, the Hand is in the correct coordinate.
+    # Initialize Git
     git init
     
-    # This will now succeed because:
-    # 1. The Normalizer ensured the Makefile has Tabs.
-    # 2. The 'cd' command ensured we are in the directory containing the Makefile.
+    # Install Dependencies 
+    # [NOTE]: This will now work because asyncpg version is compatible with your python 3.13
     make install
-    
+
+    # Commit the Base Reality
     git add .
-    git commit -m "feat(init): Reality manifest via Scaffold God-Engine"
-  
+    git commit -m "feat(init): Genesis of {{ project_slug }}"
+
+%% on-heresy
+    proclaim: "Creation faltered. Cleaning up..."
+    # Optional cleanup logic here

@@ -1,5 +1,6 @@
 # Path: scaffold/artisans/init/artisan.py
 # ---------------------------------------
+import time
 import argparse
 import sys
 import shutil
@@ -19,7 +20,7 @@ from ...core.artisan import BaseArtisan
 from ...core.cortex.dependency_oracle import DependencyOracle
 from ...core.kernel.transaction import GnosticTransaction
 from ...genesis.genesis_engine import GenesisEngine
-from ...genesis.genesis_profiles import PROFILES, QUICK_START_PROFILE_NAME
+from ...genesis.genesis_profiles import PROFILES
 from ...interfaces.base import ScaffoldResult, Artifact
 from ...interfaces.requests import InitRequest, DistillRequest
 from ...logger import Scribe
@@ -48,41 +49,91 @@ class InitArtisan(BaseArtisan[InitRequest]):
     """
 
     def execute(self, request: InitRequest) -> ScaffoldResult:
+        """
+        =================================================================================
+        == THE SOVEREIGN GATEWAY (V-Ω-TOTALITY-V100.0-FINALIS)                         ==
+        =================================================================================
+        LIF: ∞ | ROLE: GENESIS_ORCHESTRATOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_INIT_EXECUTE_TOTALITY_2026
+
+        [ARCHITECTURAL MANIFESTO]
+        This rite is the Singularity Point of creation. It adjudicates between the
+        Mortal Realm (existing files) and the Gnostic Ideal (Archetypes). It enforces
+        the Law of Intent, ensuring the correct profile is summoned and materialized.
+        =================================================================================
+        """
         self.logger.info("The Sovereign Gateway opens. Preparing the Rite of Inception...")
         root_path = request.project_root or Path.cwd()
+        master_blueprint = root_path / "scaffold.scaffold"
 
-        # [FACULTY 1] THE RITE OF HYDRATION (SQLITE RECOVERY)
+        # --- MOVEMENT 0: THE CENSUS RADIATOR ---
+        # [ASCENSION 1]: If the Architect willed a listing, we proclaim the Grimoire and exit.
+        if getattr(request, 'list_profiles', False):
+            self.logger.verbose("Proclaiming the Census of Manifest Archetypes.")
+            self._conduct_profile_selection(just_list=True)
+            return self.success("Grimoire Proclaimed. Choose your reality and re-summon the rite.")
+
+        # --- MOVEMENT I: THE RITE OF HYDRATION (CRYSTAL MIND) ---
+        # [FACULTY 1]: Re-sync the SQLite soul if the lockfile is manifest.
         if SQL_AVAILABLE and (root_path / "scaffold.lock").exists():
             db_path = root_path / ".scaffold" / "gnosis.db"
             if not db_path.exists():
                 self._hydrate_crystal_mind(root_path)
 
-        # [FACULTY 2] THE VOID GAZE (CONTEXT CHECK)
-        # We perform a smart check. If the directory is not empty, we offer to Adopt or Distill.
-        if any(root_path.iterdir()) and not (root_path / "scaffold.scaffold").exists():
-            # If --force is used, we skip this check and assume the user wants to init here.
+        # --- MOVEMENT II: PROFILE RECONCILIATION ---
+        # [ASCENSION 2]: Ω-Symmetry Resolution.
+        # We unify the Positional Locus and the Explicit Flag into a single intent.
+        profile_name = request.profile or getattr(request, 'profile_flag', None)
+
+        # [ASCENSION 3]: HEURISTIC SENSING
+        # If the Architect is silent, we scry the sanctum for existing DNA to suggest a profile.
+        if not profile_name and not request.manual and not request.distill:
+            if (root_path / "package.json").exists():
+                self.logger.info("Detected Node.js DNA. Suggesting 'node-basic'.")
+                profile_name = "node-basic"
+            elif (root_path / "pyproject.toml").exists():
+                self.logger.info("Detected Python DNA. Suggesting 'poetry-basic'.")
+                profile_name = "poetry-basic"
+
+        # [ASCENSION 4]: THE SOCRATIC MENU
+        # If intent is still a void, we summon the full categorized Grimoire.
+        if not profile_name and not any([request.manual, request.distill, request.quick, request.launch_pad_with_path]):
+            profile_name = self._conduct_profile_selection()
+            if not profile_name:
+                return self.success("The Rite of Inception was stayed by the Architect.")
+            # Inscribe the choice back into the request for the symphony
+            request.profile = profile_name
+
+        # --- MOVEMENT III: THE VOID GAZE (SANCTUM AUDIT) ---
+        # [FACULTY 2]: Adjudicate if the current sanctum is already occupied.
+        if any(root_path.iterdir()) and not master_blueprint.exists():
             if not request.force and not request.non_interactive:
                 if not self._adjudicate_occupied_sanctum(root_path, request):
-                    return self.success("The Rite of Inception was stayed.")
+                    return self.success("The Rite of Inception was stayed to protect existing matter.")
 
-        # [FACULTY 3] THE GUARDIAN'S OFFER
-        master_blueprint = root_path / "scaffold.scaffold"
-        if master_blueprint.exists():
+        # --- MOVEMENT IV: THE GUARDIAN'S VOW ---
+        # [FACULTY 3]: Protect the Master Blueprint from accidental profanation.
+        if master_blueprint.exists() and not request.force:
             self.guarded_execution([master_blueprint], request, context="init_overwrite")
 
-        # --- PATH A: THE RITE OF DISTILLATION (ADOPTION) ---
+        # =============================================================================
+        # == MOVEMENT V: THE BIFURCATION OF PATHS (DISPATCH)                         ==
+        # =============================================================================
+
+        # PATH A: THE RITE OF DISTILLATION (ADOPTION)
         if request.distill:
             return self._conduct_distillation_rite(request, root_path)
 
-        # --- PATH B: THE RITE OF THE PAD (TUI) ---
+        # PATH B: THE RITE OF THE PAD (TUI WORKBENCH)
         if request.launch_pad_with_path:
             return self._launch_genesis_pad(request)
 
-        # --- PATH C: THE RITE OF MANUAL CREATION (OUROBOROS) ---
+        # PATH C: THE RITE OF MANUAL CREATION (PURIST)
         if request.manual:
             return self._conduct_manual_rite(request, root_path, master_blueprint)
 
-        # --- PATH D: THE SYMPHONY OF GENESIS (STANDARD) ---
+        # PATH D: THE SYMPHONY OF GENESIS (CANONICAL MATERIALIZATION)
+        # [THE FINAL STRIKE]: profile_name is now guaranteed or willed by the menu.
         return self._conduct_genesis_symphony(request, root_path, master_blueprint)
 
     def _hydrate_crystal_mind(self, root_path: Path):
@@ -95,28 +146,123 @@ class InitArtisan(BaseArtisan[InitRequest]):
             self.logger.warn(f"Hydration failed: {e}. The project will proceed with Memory only.")
 
     def _adjudicate_occupied_sanctum(self, root_path: Path, request: InitRequest) -> bool:
-        """[FACULTY 2] Interactive triage for non-empty directories."""
-        self.logger.warn(f"The Sanctum '{root_path.name}' is not empty.")
+        """
+        =================================================================================
+        == THE SOVEREIGN ADJUDICATOR (V-Ω-TOTALITY-V150.0-FINALIS)                     ==
+        =================================================================================
+        LIF: ∞ | ROLE: SPATIAL_REALITY_TRIAGE | RANK: OMEGA_SUPREME
+        AUTH: Ω_SANCTUM_ADJUDICATOR_2026
 
-        # Smart Suggestion based on content
-        suggestion = "continue"
-        if (root_path / ".git").exists():
-            suggestion = "distill"  # Likely an existing project
-
+        [ARCHITECTURAL MANIFESTO]
+        This rite performs a deep forensic audit of the target sanctum. It identifies
+        Gnostic Signatures (our own artifacts) and grants them amnesty, while
+        categorizing foreign matter into "Historical" (Git), "Metabolic" (node_modules),
+        or "Unknown" (Conflict) to guide the Architect's choice.
+        =================================================================================
+        """
+        from rich.table import Table
         from rich.prompt import Prompt
-        self.console.print("[yellow]This reality is already populated.[/yellow]")
+        from rich.panel import Panel
+
+        # [ASCENSION 1]: THE AMNESTY GRIMOIRE
+        # These markers are recognized as the Engine's own soul. They do not trigger
+        # the "Occupied" heresy.
+        GNOSTIC_DNA: Final[Set[str]] = {
+            ".scaffold", "scaffold.lock", ".heartbeat",
+            "daemon_traffic.jsonl", "journal.jsonl", "daemon.pulse"
+        }
+
+        # 1. THE CENSUS OF REALITY
+        try:
+            # We perform a single, atomic scan of the target sanctum.
+            mortal_remnants = [
+                entry for entry in root_path.iterdir()
+                if entry.name not in GNOSTIC_DNA
+            ]
+        except Exception as e:
+            # In the event of a path paradox, we play it safe and assume occupation.
+            self.logger.warn(f"Spatial scan faltered: {e}")
+            return True
+
+        # [ASCENSION 2]: THE VOID AMNESTY
+        # If the only items in the folder are our own Gnostic DNA, the sanctum is pure.
+        if not mortal_remnants:
+            self.logger.verbose("Sanctum scan complete: Only internal Gnostic DNA perceived. Proceeding.")
+            return True
+
+        # 2. THE FORENSIC TRIAGE
+        # We categorize the remnants to provide a high-status suggestion.
+        has_git = (root_path / ".git").exists()
+        has_manifest = any(f.name in ("package.json", "pyproject.toml", "go.mod") for f in mortal_remnants)
+
+        # [ASCENSION 3]: TELEMETRY PULSE
+        # Signal the Ocular HUD that a Reality Collision is being adjudicated.
+        if self.engine.akashic:
+            self.engine.akashic.broadcast({
+                "method": "novalym/hud_pulse",
+                "params": {
+                    "type": "REALITY_COLLISION",
+                    "label": "ADJUDICATING_OCCUPIED_SANCTUM",
+                    "color": "#fbbf24",  # Kinetic Gold
+                    "trace": getattr(request, 'trace_id', 'tr-init-triage')
+                }
+            })
+
+        # --- MOVEMENT I: THE REVELATION TABLE ---
+        table = Table(box=None, expand=True, padding=(0, 2))
+        table.add_column("Classification", style="cyan", width=20)
+        table.add_column("Artifact", style="white")
+        table.add_column("Gnostic Weight", justify="right", style="dim")
+
+        for entry in mortal_remnants[:10]:  # Limit Gaze to prevent terminal flood
+            icon = "📁" if entry.is_dir() else "📄"
+            table.add_row(
+                "Git_Sanctuary" if entry.name == ".git" else "Foreign_Matter",
+                f"{icon} {entry.name}",
+                f"{entry.stat().st_size} bytes" if entry.is_file() else "N/A"
+            )
+
+        self.console.print(Panel(
+            Group(
+                Text.from_markup(
+                    f"The Oracle has perceived [bold yellow]{len(mortal_remnants)}[/bold yellow] foreign soul(s) in [cyan]'{root_path.name}'[/cyan]."),
+                Text(""),
+                table,
+                Text(""),
+                Text("An unplanned materialization may lead to a Structural Schism.", style="italic dim")
+            ),
+            title="[bold red]REALITY_COLLISION_DETECTED[/bold red]",
+            border_style="red"
+        ))
+
+        # --- MOVEMENT II: THE PROPHETIC SUGGESTION ---
+        suggestion = "continue"
+        if has_git:
+            suggestion = "distill"  # Highly likely to be an existing project
+        elif has_manifest:
+            suggestion = "distill"  # Legacy project without git?
+
+        # --- MOVEMENT III: THE SACRED CHOICE ---
         choice = Prompt.ask(
-            "Choose your path:",
+            "Adjudicate the path forward:",
             choices=["abort", "continue", "distill"],
             default=suggestion
         )
 
         if choice == "distill":
+            # [ASCENSION 12]: THE PATH OF ADOPTION
+            # We transmute the current InitRequest into a DistillRequest mid-symphony.
             request.distill = True
-            return True
-        elif choice == "continue":
+            self.logger.info("The Architect has chosen the Path of Adoption (Distillation).")
             return True
 
+        elif choice == "continue":
+            # [ASCENSION 5]: THE VOW OF RISK
+            # The Architect takes responsibility for the resulting entropy.
+            self.logger.warn("The Great Work continues in an occupied sanctum. Purity not guaranteed.")
+            return True
+
+        # [ASCENSION 0]: THE HALT
         return False
 
     def _conduct_manual_rite(self, request: InitRequest, root_path: Path, master_blueprint: Path) -> ScaffoldResult:
@@ -139,63 +285,156 @@ class InitArtisan(BaseArtisan[InitRequest]):
                                   master_blueprint: Path) -> ScaffoldResult:
         """
         =================================================================================
-        == THE SYMPHONY OF GENESIS (V-Ω-TOTALITY-V2-HEALED)                            ==
+        == THE SYMPHONY OF GENESIS (V-Ω-TOTALITY-V100.0-FINALIS)                       ==
         =================================================================================
-        LIF: 100x | ROLE: KINETIC_GENESIS_CONDUCTOR | RANK: OMEGA
-        """
+        LIF: ∞ | ROLE: KINETIC_GENESIS_CONDUCTOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_GENESIS_SYMPHONY_V100_TOTAL_MATERIALIZATION
 
-        # [FACULTY 0] THE MATTER STABILIZER
-        # Ensure variables are manifest to prevent the "NoneType" or "KeyError" heresy.
+        [ARCHITECTURAL MANIFESTO]
+        This rite governs the transition from the Void to the Manifest. It orchestrates
+        the alignment of the Gnostic DNA (Profiles) with the physical hardware (Disk),
+        wrapped in a transactional shield that guarantees absolute consistency.
+        =================================================================================
+        """
+        # [ASCENSION 1]: CHRONOMETRIC ANCHOR
+        # We capture the inception time at the absolute event horizon.
+        start_time = time.monotonic()
+
+        # [FACULTY 0]: THE MATTER STABILIZER
+        # Ensure variables are manifest to prevent the "NoneType" heresy.
         if request.variables is None:
-            # We use object.__setattr__ to bypass Pydantic's frozen model protection if active
             object.__setattr__(request, 'variables', {})
 
-        # [FACULTY 5] THE DEPENDENCY ORACLE & SMART PROFILE SELECTION
-        if not request.profile and not getattr(request, 'quick', False):
-            if (root_path / "package.json").exists():
-                request.profile = "node-basic"
-                self.logger.info("Detected Node.js environment. Selecting 'node-basic' profile.")
-            elif (root_path / "pyproject.toml").exists():
-                request.profile = "python-universal"
-                self.logger.info("Detected Python environment. Selecting 'python-universal' profile.")
+        # --- MOVEMENT I: PROFILE RESOLUTION & DNA SELECTION ---
+        # [ASCENSION 2]: OMNISCIENT PROFILE TRIAGE
+        # We resolve the profile name, falling back to the Gnostic Default if willed.
+        profile_name = request.profile
+        if not profile_name and getattr(request, 'quick', False):
+            from ...genesis.genesis_profiles import DEFAULT_PROFILE_NAME
+            profile_name = DEFAULT_PROFILE_NAME
+            request.profile = profile_name
 
-        profile_name = request.profile or (QUICK_START_PROFILE_NAME if getattr(request, 'quick', False) else None)
+        # [FACULTY 5]: THE DEPENDENCY ORACLE
+        # Before we strike the disk, we scry the host for the required artisans.
         if profile_name:
             self._check_profile_dependencies(profile_name)
 
         try:
-            # [FACULTY 4] THE TRANSACTIONAL WOMB
+            # --- MOVEMENT II: THE TRANSACTIONAL WOMB ---
+            # [FACULTY 4]: We conduct the entire symphony within a reversible reality.
             with GnosticTransaction(root_path, f"Genesis: {profile_name or 'custom'}", use_lock=True) as tx:
 
-                # [FACULTY 10] THE ANNIHILATION OF THE DOUBLE GIT HERESY
+                # [ASCENSION 3]: HUD RESONANCE
+                # Broadcast the inception signal to the Ocular HUD (ST-3)
+                if self.engine.akashic:
+                    self.engine.akashic.broadcast({
+                        "method": "novalym/hud_pulse",
+                        "params": {
+                            "type": "GENESIS_INCEPTION",
+                            "label": f"BIRTHING_{str(profile_name or 'CUSTOM').upper()}",
+                            "color": "#64ffda",
+                            "trace": getattr(request, 'trace_id', tx.tx_id)
+                        }
+                    })
+
+                # [FACULTY 10]: THE ANNIHILATION OF THE DOUBLE GIT HERESY
                 if (root_path / ".git").exists():
-                    self.logger.verbose("Git Repository detected. Suppressing duplicate initialization.")
+                    self.logger.verbose("Git Sanctuary detected. Suppressing duplicate initialization.")
                     request.variables['use_git'] = False
 
-                # [FACULTY 7] THE GENESIS BRIDGE
-                # We forge the Namespace with surgical precision to bridge the Legacy Gap.
+                # --- MOVEMENT III: THE GENESIS BRIDGE ---
+                # [FACULTY 7]: Transmute the modern Request into the legacy Namespace.
+                # This bridge ensures backward compatibility with the GenesisEngine's soul.
                 namespace_args = self._request_to_namespace(request)
 
+                # [ASCENSION 4]: THE ENGINE MATERIALIZATION
+                # Summon the specialized creation engine.
                 engine = GenesisEngine(project_root=root_path, engine=self.engine)
                 engine.cli_args = namespace_args
 
-                # Synchronize the Gnostic Context with the Transactional Vault
+                # [ASCENSION 5]: CONTEXTUAL DNA SUTURE
+                # Synchronize the Architect's variables with the Transactional Vault.
                 tx.context.update(request.variables)
 
-                # Conduct the Rite of Creation
+                # --- MOVEMENT IV: THE RITE OF CREATION ---
+                # [THE KINETIC STRIKE]
+                # The engine walks the blueprint, stage by stage.
                 engine.conduct()
 
+                # [ASCENSION 6]: PHYSICAL VALIDATION
+                # We verify that the master blueprint has been inscribed.
+                if not master_blueprint.exists() and not request.dry_run:
+                    self.logger.warn(f"The Primary Scripture '{master_blueprint.name}' is unmanifest.")
+
+            # --- MOVEMENT V: THE REVELATION ---
+            # [ASCENSION 7]: PROPHETIC NEXT STEPS
+            # We summon the Oracle to predict the Architect's next move.
+            from ...creator.next_step_oracle import NextStepsOracle
+            oracle = NextStepsOracle(root_path, gnosis=request.variables)
+            prophecies = oracle.prophesy()
+
+            # [ASCENSION 8]: METABOLIC FINALITY
+            duration_ms = (time.monotonic() - start_time) * 1000
+
+            self.logger.success(f"Apotheosis Complete. Reality '{root_path.name}' forged in {duration_ms:.2f}ms.")
+
             return self.success(
-                f"Inception complete. The soul of the project resides in [cyan]{master_blueprint.name}[/cyan].",
-                artifacts=[Artifact(path=master_blueprint, type="file", action="created")]
+                message=f"Inception complete. Reality born in [cyan]{root_path.name}[/cyan].",
+                artifacts=[Artifact(path=master_blueprint, type="file", action="created")],
+                data={
+                    "profile": profile_name,
+                    "duration_ms": duration_ms,
+                    "next_steps": prophecies,
+                    "session_id": tx.tx_id
+                },
+                ui_hints={
+                    "vfx": "bloom",
+                    "sound": "genesis_complete",
+                    "next_suggested_action": prophecies[0] if prophecies else None
+                }
             )
 
         except ArtisanHeresy as e:
-            if not e.details: e.details = f"Raised by {e.__class__.__name__}"
+            # [ASCENSION 9]: HERESY ATTRIBUTION
+            # Ensure the heresy carries the signature of its creator.
+            if not e.details: e.details = f"Raised by {self.__class__.__name__}"
             raise e
-        except Exception as e:
-            self._handle_catastrophic_paradox(e)
-            raise ArtisanHeresy("Genesis Failed", child_heresy=e)
+
+        except Exception as catastrophic_paradox:
+            # [ASCENSION 10]: THE EMERGENCY SARCOPHAGUS
+            # If the symphony shatters, perform a forensic dump and rollback.
+            self._handle_catastrophic_paradox(catastrophic_paradox)
+            raise ArtisanHeresy(
+                "GENESIS_SYMPHONY_FRACTURE: The creation rite collapsed.",
+                child_heresy=catastrophic_paradox,
+                severity=HeresySeverity.CRITICAL
+            )
+
+    def _conduct_profile_selection(self, just_list: bool = False) -> Optional[str]:
+        """
+        [THE RITE OF CHOICE]
+        Uses the new 'profiles.py' API to show a rich, categorized menu.
+        """
+        from rich.prompt import Prompt
+        from rich.table import Table
+        from ...genesis.genesis_profiles import list_profiles, get_categories
+
+        table = Table(title="[bold cyan]The Grimoire of Manifest Archetypes[/bold cyan]", box=None, expand=True)
+        table.add_column("Key", style="bold yellow")
+        table.add_column("Category", style="magenta")
+        table.add_column("Description", style="white")
+
+        available = list_profiles()
+        for p in available:
+            table.add_row(p['name'], p.get('category', 'General'), p['description'])
+
+        self.console.print(Panel(table, border_style="cyan", title="[bold white]Ω_PROFILES[/bold white]"))
+
+        if just_list: return None
+
+        choices = [p['name'] for p in available]
+        return Prompt.ask("Select an Archetype to materialize", choices=choices)
+
 
     def _conduct_distillation_rite(self, request: InitRequest, root: Path) -> ScaffoldResult:
         """[FACULTY 7] Delegates to DistillArtisan."""
@@ -227,26 +466,31 @@ class InitArtisan(BaseArtisan[InitRequest]):
         return artisan.execute(pad_req)
 
     def _check_profile_dependencies(self, profile_name: str):
-        """[FACULTY 5] Uses the Oracle to check tools required by the profile."""
-        profile_data = PROFILES.get(profile_name)
+        """[FACULTY 5] Scries the profile's DNA for system-level dependencies."""
+        from ...genesis.genesis_profiles import get_profile
+        profile_data = get_profile(profile_name)
         if not profile_data: return
 
-        overrides = profile_data.get("gnostic_overrides", {})
+        overrides = profile_data.get("gnosis_overrides", {})
+
+        # [ASCENSION 3]: INTELLIGENT NEED-SENSING
+        # We derive 'needs' from the overrides.
         needs = []
-        if overrides.get("use_docker"): needs.append("docker")
-        if overrides.get("use_poetry"): needs.append("poetry")
-        if overrides.get("use_git"): needs.append("git")
+        mapping = {
+            "use_docker": "docker",
+            "use_poetry": "poetry",
+            "use_git": "git"
+        }
+        for key, binary in mapping.items():
+            if overrides.get(key): needs.append(binary)
+
         if overrides.get("project_type") == "node": needs.append("npm")
         if overrides.get("project_type") == "go": needs.append("go")
 
         if needs:
             oracle = DependencyOracle(self.project_root)
-            try:
-                # We verify but do not auto-install in Init phase to keep it fast
-                if not oracle.adjudicate(needs, auto_install=False):
-                    self.logger.warn("Some tools for this profile are missing. Genesis may falter.")
-            except Exception:
-                pass
+            # Silence the oracle unless it finds a fracture
+            oracle.adjudicate(needs, auto_install=False)
 
     def _handle_catastrophic_paradox(self, e: Exception):
         """[FACULTY 12] Forensic logging."""

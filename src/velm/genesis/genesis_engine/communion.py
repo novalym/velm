@@ -14,7 +14,7 @@ from rich.status import Status
 from rich.text import Text
 
 # --- THE DIVINE SUMMONS ---
-from ..genesis_profiles import PROFILES, QUICK_START_PROFILE_NAME
+from ..genesis_profiles import PROFILES
 from ..genesis_orchestrator import GenesisDialogueOrchestrator
 from ...artisans.transfigure import TransfigureArtisan
 from ...contracts.data_contracts import ScaffoldItem, GnosticDossier

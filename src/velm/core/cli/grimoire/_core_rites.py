@@ -113,19 +113,77 @@ RITES = {
             "artisan_class_name": "InitArtisan",
             "request_class_name": "InitRequest",
             "help": "The Rite of Inception. Begins the Sacred Dialogue to forge a new project.",
-            # [ASCENSION]: We now correctly map the Pydantic fields to CLI flags
+            "description": (
+                "The `init` command is the luminous portal of the God-Engine. It initiates a "
+                "Sacred Dialogue between the Architect and the Oracle, materializing a "
+                "production-grade reality from the Gnostic Grimoire of Archetypes.\n\n"
+                "LIF: INFINITY | ROLE: GENESIS_CONDUCTOR | RANK: OMEGA_SUPREME"
+            ),
+            # =========================================================================
+            # == THE VOWS OF INCEPTION (FLAGS & DIRECTIVES)                         ==
+            # =========================================================================
             "flags": [
-                add_common_flags,
-                add_variable_flags,
-                # Bestowing the power of flags upon the Inception Rite
-                lambda p: p.add_argument('--profile', help="Use a specific Genesis Profile (e.g. 'fastapi-service')."),
-                lambda p: p.add_argument('--quick', action='store_true', help="Skip prompts, use intelligent defaults."),
-                lambda p: p.add_argument('--manual', action='store_true', help="Manually forge a blank scripture."),
-                lambda p: p.add_argument('--distill', action='store_true', help="Initialize by distilling the current directory."),
-                lambda p: p.add_argument('--type', help="Quick init by type alias (e.g. 'node').")
+                add_common_flags,    # Verbositiy, Force, Root, and Trace DNA
+                add_variable_flags,  # The --set alchemical injections
+
+                # [ASCENSION 1]: THE PROFILE ORACLE
+                # This lambda performs a dual-binding. It allows the profile to be passed
+                # as a flag for legacy/explicit scripts, or as a positional locus for
+                # high-speed manual initiation.
+                lambda p: p.add_argument(
+                    '--profile',
+                    dest='profile_flag',
+                    help="Summon a specific Archetype Profile (e.g., 'fastapi-service')."
+                ),
+
+                # [ASCENSION 2]: THE CENSUS RADIATOR
+                lambda p: p.add_argument(
+                    '--list',
+                    action='store_true',
+                    dest='list_profiles',
+                    help="Proclaim the census of all manifest and user-forged profiles."
+                ),
+
+                # [ASCENSION 3]: THE SPEED VOWS
+                lambda p: p.add_argument(
+                    '--quick',
+                    action='store_true',
+                    help="The Vow of Haste. Skips the Sacred Dialogue and materializes using intelligent defaults."
+                ),
+                lambda p: p.add_argument(
+                    '--manual',
+                    action='store_true',
+                    help="The Scribe's Altar. Forges a minimal, blank blueprint for manual inscription."
+                ),
+
+                # [ASCENSION 4]: THE ADOPTION RITE
+                lambda p: p.add_argument(
+                    '--distill',
+                    action='store_true',
+                    help="Gaze upon the current reality and adopt it into a Gnostic Blueprint before initializing."
+                ),
+
+                # [ASCENSION 5]: THE SEMANTIC ALIAS
+                lambda p: p.add_argument(
+                    '--type',
+                    dest='type_alias',
+                    help="A semantic alias for quick-selection (e.g., 'node', 'python')."
+                )
             ],
-            # We remove the positional "args" entry to allow --profile to be the primary selector.
-            "args": [],
+
+            # =========================================================================
+            # == THE POSITIONAL LOCUS (ARGUMENTS)                                    ==
+            # =========================================================================
+            "args": [
+                # [ASCENSION 6]: POSITIONAL SOVEREIGNTY
+                # We define 'profile' as an optional positional argument.
+                # The InitArtisan will perform the Rite of Unification:
+                # If 'profile' is void, check 'profile_flag'. If both are void, trigger the menu.
+                ("profile", {
+                    "nargs": "?",
+                    "help": "The sacred name of the Archetype to materialize."
+                })
+            ],
     },
     "run": {
         "module_path": "artisans.run.conductor",
