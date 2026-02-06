@@ -335,9 +335,18 @@ $$ project_title = "{{ project_slug | title }}"
 
 # --- III. The Maestro's Will ---
 %% post-run
+    # [THE CURE]: We must shift the sanctum into the created project folder.
+    # Otherwise, 'make' looks in the parent directory and finds a void.
+    cd {{ project_slug }}
+    
+    # Now, the Hand is in the correct coordinate.
     git init
+    
+    # This will now succeed because:
+    # 1. The Normalizer ensured the Makefile has Tabs.
+    # 2. The 'cd' command ensured we are in the directory containing the Makefile.
     make install
+    
     git add .
-    git commit -m "feat(init): Initial structure for {{ project_slug }} forged by Scaffold"
-
+    git commit -m "feat(init): Reality manifest via Scaffold God-Engine"
   
