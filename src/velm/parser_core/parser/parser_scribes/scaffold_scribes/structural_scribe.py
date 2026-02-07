@@ -117,7 +117,20 @@ class StructuralScribe(ScaffoldBaseScribe):
         "private": "600",
         "public": "644"
     }
+    # [ASCENSION 13]: THE ANTI-MATTER SIEVE V4
+    # Aggressively identifies code-logic that has leaked onto the topographical line.
+    # If a line matches this and has no sigil (::, <<), it is REJECTED as a path.
+    MATTER_LEAK_REGEX: Final[re.Pattern] = re.compile(
+        r'[\(\)\[\]\=]|^\s*(def|class|import|from|return|if|for|while|const|let|var)\b'
+    )
 
+    # [ASCENSION 14]: THE EXTENSION ORACLE
+    # A comprehensive census of manifest Gnostic tongues.
+    # If a line ends in these, it is willed to be a FILE, regardless of slashes.
+    FILE_EXTENSION_REGEX: Final[re.Pattern] = re.compile(
+        r'\.(py|js|ts|tsx|jsx|css|html|json|md|yaml|yml|toml|sh|bash|go|rs|c|cpp|h|java|kt|rb|php|lua|zig|arch|symphony|scaffold|lock)$',
+        re.I
+    )
     def __init__(self, parser: 'ApotheosisParser'):
         """[THE RITE OF INCEPTION]"""
         super().__init__(parser, "StructuralScribe")
@@ -130,58 +143,129 @@ class StructuralScribe(ScaffoldBaseScribe):
     def conduct(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
         """
         =================================================================================
-        == THE GRAND SYMPHONY OF PERCEPTION (CONDUCT)                                  ==
+        == THE SOVEREIGN CONDUCTOR (V-Ω-TOTALITY-V200.0-LOCKDOWN)                      ==
         =================================================================================
+        LIF: ∞ | ROLE: TOPOGRAPHICAL_ADJUDICATOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_STRUCTURAL_SCRIBE_V200_UNBREAKABLE
         """
         start_ts = time.perf_counter()
         line_num = vessel.line_num
+        raw_line = vessel.raw_scripture.strip()
 
         try:
-            # --- MOVEMENT I: THE META-GAZE (TRAITS) ---
+            # --- MOVEMENT 0: THE VOID GUARD ---
+            if not raw_line:
+                return i + 1
+
+            # --- MOVEMENT I: THE META-GAZE (TRAITS & SPECIALS) ---
             if vessel.line_type == GnosticLineType.TRAIT_DEF:
                 return self._conduct_trait_definition(lines, i, vessel)
             if vessel.line_type == GnosticLineType.TRAIT_USE:
                 return self._conduct_trait_usage(lines, i, vessel)
 
-            # --- MOVEMENT II: THE ANTI-MATTER SIEVE (THE FIREWALL) ---
-            # We audit the RAW scripture string before any Lexer atomization.
-            if not self._adjudicate_semantic_purity(vessel):
-                # Leak detected. We stay our hand. Control remains with the main loop.
-                return i + 1
+            # --- MOVEMENT II: THE HEURISTIC TRIAGE (THE CORE TRANSMUTATION) ---
+
+            # 1. Scry for Structural Markers
+            has_slash = raw_line.endswith(('/', '\\'))
+            has_extension = bool(self.FILE_EXTENSION_REGEX.search(raw_line.split()[0]))
+
+            # [ASCENSION 1]: THE LAW OF HIERARCHY
+            # We look ahead to see if this line has indented children.
+            # If it does, it is POSITIVELY a structural anchor (Form).
+            has_indented_disciples = self._is_followed_by_indented_children(lines, i)
+
+            # 2. Scry for Explicit Intent
+            # Check for ::, <<, +=, ~=, ^=, or @()
+            is_explicit_file = any([
+                vessel.content is not None,
+                vessel.seed_path is not None,
+                vessel.mutation_op is not None,
+                vessel.semantic_selector is not None
+            ])
+
+            # 3. [ASCENSION 3]: THE ANTI-MATTER SIEVE V4
+            # We only judge code-leakage if the line does NOT have children.
+            # This allows "app.config/" to be a valid directory.
+            if not has_indented_disciples and not is_explicit_file and not has_extension:
+                if self.MATTER_LEAK_REGEX.search(raw_line):
+                    # Matter Leak detected. We do not proclaim an item.
+                    # We return to the main loop so the Inquisitor can proclaim the Heresy.
+                    return i + 1
+
+            # 4. THE IDENTITY DECREE
+            # [THE CURE]: Logic for determining Directory (Sanctum) vs File (Scripture)
+            if has_slash:
+                vessel.is_dir = True
+            elif is_explicit_file or has_extension:
+                vessel.is_dir = False
+            elif has_indented_disciples:
+                # [ASCENSION 2]: Implicit Sanctum Promotion
+                # No slash, no extension, but has children -> Must be a directory.
+                vessel.is_dir = True
+            else:
+                # Legacy Fallback: Single word with no markers defaults to File.
+                vessel.is_dir = False
 
             # --- MOVEMENT III: GEOMETRIC ROUTING ---
-            # We decide if this line defines an Atomic Form, an Indented Block,
-            # or an Explicit Multi-line block.
 
-            # Case A: Explicit Triple-Quoted Block (:: """)
-            if vessel.content in ('"""', "'''"):
-                next_i = self._conduct_explicit_block_rite(lines, i, vessel)
+            # Case A: Explicit Multi-line Blocks (:: """ or += """)
+            # [ASCENSION 2]: These now use Indentation Parity in the BlockConsumer.
+            if vessel.content in ('"""', "'''") or (vessel.mutation_op and '"""' in vessel.mutation_op):
+                next_index = self._conduct_explicit_block_rite(lines, i, vessel)
 
-            # Case B: Indented Block (Terminated by colon or implicit)
-            elif vessel.raw_scripture.rstrip().endswith(':') or vessel.line_type == GnosticLineType.BLOCK_START:
-                next_i = self._conduct_indented_block_rite(lines, i, vessel)
+            # Case B: Indented Blocks (Structure or Code)
+            elif raw_line.endswith(':') or has_indented_disciples:
+                if vessel.is_dir:
+                    # Directory with children: Proclaim anchor and move to next line.
+                    self._proclaim_item(vessel)
+                    next_index = i + 1
+                else:
+                    # File with indented content: Consume the disciples as matter.
+                    next_index = self._conduct_indented_block_rite(lines, i, vessel)
 
-            # Case C: Atomic Item (Single-line file/dir/symlink)
+            # Case C: Atomic Items (Single-line file/dir/link)
             else:
                 self._proclaim_item(vessel)
-                next_i = i + 1
+                next_index = i + 1
 
             # --- MOVEMENT IV: TELEMETRY PULSE ---
             latency = (time.perf_counter() - start_ts) * 1000
             if latency > 10.0:
-                self.Logger.verbose(f"L{line_num:03d}: Heavy structural scan concluded in {latency:.2f}ms.")
+                self.Logger.verbose(f"L{line_num:03d}: Complex Triage concluded in {latency:.2f}ms.")
 
-            return next_i
+            return next_index
 
         except Exception as catastrophic_paradox:
-            # [WARD 12]: Wrap all structural thoughts in a diagnostic sarcophagus.
+            # [ASCENSION 12]: THE FINALITY VOW
             self.parser._proclaim_heresy(
                 "META_HERESY_STRUCTURAL_SCRIBE_FRACTURED",
                 vessel,
-                details=f"A catastrophic paradox shattered the Structural Scribe: {catastrophic_paradox}",
+                details=f"The Scribe's mind shattered: {str(catastrophic_paradox)}",
                 exception_obj=catastrophic_paradox
             )
             return i + 1
+
+    def _is_followed_by_indented_children(self, lines: List[str], current_idx: int) -> bool:
+        """
+        [ASCENSION 15]: THE GAZE OF THE FUTURE.
+        Perceives if the next manifest soul is indented deeper than the current one.
+        """
+        if current_idx + 1 >= len(lines):
+            return False
+
+        parent_indent = self.parser._calculate_original_indent(lines[current_idx])
+
+        # Scry for the next non-empty, non-comment scripture
+        for next_idx in range(current_idx + 1, len(lines)):
+            line = lines[next_idx]
+            if not line.strip() or line.strip().startswith(('#', '//')):
+                continue
+
+            next_indent = self.parser._calculate_original_indent(line)
+            return next_indent > parent_indent
+
+        return False
+
 
     # =========================================================================
     # == THE SIEVE OF PURITY (ADJUDICATION)                                  ==

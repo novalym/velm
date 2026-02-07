@@ -3236,3 +3236,91 @@ def path_to_uri(path: Path) -> str:
     except Exception:
         # If all else fails, return a safe string.
         return f"file:///{path.as_posix()}"
+
+
+# =============================================================================
+# == I. THE RITES OF SPATIAL PERCEPTION                                      ==
+# =============================================================================
+
+def calculate_visual_indent(line: str, tab_stop: int = 4) -> int:
+    """
+    =============================================================================
+    == THE RITE OF VISUAL DEPTH (V-Ω-TAB-SNAP-ULTIMA)                          ==
+    =============================================================================
+    Calculates the true visual indentation of a line with mathematical certainty.
+    It correctly handles the 'Tab Schism' by snapping to virtual tab stops and
+    purifying invisible Unicode artifacts.
+    """
+    if not line:
+        return 0
+
+    visual_width = 0
+
+    # [ASCENSION 1]: UNICODE PURIFICATION
+    # We remove Zero-Width spaces and BOMs that can poison copy-pasted scriptures.
+    purified_line = line.lstrip('\ufeff\u200b')
+
+    for char in purified_line:
+        if char == ' ':
+            visual_width += 1
+        elif char == '\t':
+            # [THE CURE]: The Tab-Snap Law
+            # Indent snaps to the next multiple of the tab_stop.
+            visual_width += tab_stop - (visual_width % tab_stop)
+        else:
+            # First non-whitespace soul perceived. The measurement concludes.
+            break
+
+    return visual_width
+
+
+# =============================================================================
+# == III. THE RITES OF TOPOGRAPHICAL PURITY                                  ==
+# =============================================================================
+
+def normalize_to_posix(path_candidate: Union[str, Path]) -> str:
+    """
+    =============================================================================
+    == THE POSIX ALCHEMIST (V-Ω-CROSS-OS-HARMONY)                              ==
+    =============================================================================
+    Forces any path—Windows, UNC, or Relative—into the one true POSIX format.
+    Annihilates the 'Backslash Heresy' in the Gnostic Chronicle.
+    """
+    if not path_candidate:
+        return ""
+
+    # 1. Transmute to String
+    p_str = str(path_candidate)
+
+    # 2. Backslash Decapitation
+    clean = p_str.replace('\\', '/')
+
+    # 3. Unicode Normalization (NFC)
+    clean = unicodedata.normalize('NFC', clean)
+
+    # 4. Double-Slash Pruning (Except Network Roots)
+    if not clean.startswith('//'):
+        while '//' in clean:
+            clean = clean.replace('//', '/')
+
+    return clean.strip('/')
+
+
+
+
+def triangulate_relative_path(target: Path, root: Path) -> Path:
+    """
+    =============================================================================
+    == THE HIEROPHANT OF RELATIVITY (V-Ω-SPATIAL-ANCHOR)                       ==
+    =============================================================================
+    Determines the path of a target relative to a root with absolute safety.
+    If the target is outside the root, it returns the target's name as a shard.
+    """
+    try:
+        target_abs = target.resolve()
+        root_abs = root.resolve()
+        return target_abs.relative_to(root_abs)
+    except (ValueError, OSError):
+        # Target is outside the root or doesn't exist.
+        # We return the atomic name to prevent a crash.
+        return Path(target.name)

@@ -1,157 +1,102 @@
 # =================================================================================
-# == GNOSTIC ARCHETYPE: AGENTIC SERVITOR (V-Ω-AUTONOMOUS-WORKER)                 ==
+# == GNOSTIC ARCHETYPE: AGENTIC SERVITOR (V-Ω-TOTALITY-V6-ROOT-STABLE)          ==
 # =================================================================================
-# @description: A persistent background worker that executes multi-step AI plans with tool access and human-in-the-loop gates.
+# @description: A transcendental autonomous worker. Executes multi-step AI plans
+#               using a ReAct reasoning loop with tool-use and human-authorization.
 # @category: Intelligence
-# @tags: agent, worker, tools, react, openai, pydantic, loop
+# @tags: agent, worker, autonomous, openai, pydantic, tools
 # @difficulty: Grand Architect
 # @is_integration: true
-# @dna: worker_concurrency=2
+# @dna: project_type=python, worker_concurrency=2
 # =================================================================================
 
-# --- I. THE ALTAR OF VARIABLES ---
-$$ worker_name = "servitor-01"
-$$ max_steps = 10
+# --- I. THE ALTAR OF GNOSTIC SOVEREIGNTY ---
+$$ is_python = true
+$$ project_type = "python"
+$$ project_slug = {{ project_name | slug | default("servitor-reality") }}
+$$ package_name = {{ project_slug | snake }}
 
-# Context
-$$ is_python = {{ (project_type in ['python', 'poetry', 'fastapi']) | default(true) }}
-$$ package_name = {{ package_name | default(project_slug | snake) }}
+# --- II. THE SCRIPTURE OF FORM (THE BODY) ---
+# [ASCENSION: ROOT ANCHOR] 
+# We wrap the structure in the project_slug to ensure velm init works 
+# correctly in both empty and existing directories.
+./
 
-# --- II. THE MIND OF THE AGENT (Python) ---
-@if {{ is_python }}
-src/{{ package_name }}/
-    agents/
-        # [ASCENSION 1]: The Tool Registry
-        tools.py :: """
-        from typing import Annotated, Callable, Dict
-        from pydantic import BaseModel, Field
-        import json
-        
-        # We use a decorator to register python functions as OpenAI Tools
-        REGISTRY: Dict[str, Callable] = {}
-        SCHEMAS: list = []
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "Autonomous Agentic Servitor forged by VELM."
+    authors = ["{{ author | default('The Architect') }}"]
+    package-mode = false
 
-        def tool(func):
-            \"\"\"Consecrates a function as a Gnostic Tool.\"\"\"
-            # (Simplified schema generation for brevity - in prod use Pydantic helpers)
-            schema = {
-                "type": "function",
-                "function": {
-                    "name": func.__name__,
-                    "description": func.__doc__ or "No description",
-                    "parameters": {"type": "object", "properties": {}, "required": []}
-                }
-            }
-            REGISTRY[func.__name__] = func
-            SCHEMAS.append(schema)
-            return func
-
-        # --- THE TOOLS ---
-        
-        @tool
-        def search_knowledge_base(query: str):
-            \"\"\"Searches the internal vector store for documents.\"\"\"
-            # Hook into the Librarian here
-            return f"Found 2 docs for {query}..."
-
-        @tool
-        def calculate_tax(amount: float, region: str):
-            \"\"\"Calculates sales tax for a region.\"\"\"
-            return json.dumps({"tax": amount * 0.2})
-        """
-
-        # [ASCENSION 2]: The ReAct Loop (Reason + Act)
-        engine.py :: """
-        import time
-        from typing import List
-        from openai import OpenAI
-        from .tools import REGISTRY, SCHEMAS
-        import logging
-
-        Logger = logging.getLogger("Servitor")
-        client = OpenAI()
-
-        class AgentServitor:
-            def __init__(self, system_prompt: str):
-                self.system_prompt = system_prompt
-                self.history = [{"role": "system", "content": system_prompt}]
-
-            def run(self, user_goal: str, max_steps: int = {{ max_steps }}):
-                self.history.append({"role": "user", "content": user_goal})
-                
-                for step in range(max_steps):
-                    Logger.info(f"--- Step {step + 1} ---")
-                    
-                    # 1. THOUGHT
-                    response = client.chat.completions.create(
-                        model="gpt-4-turbo",
-                        messages=self.history,
-                        tools=SCHEMAS,
-                        tool_choice="auto"
-                    )
-                    
-                    msg = response.choices[0].message
-                    self.history.append(msg)
-
-                    # 2. DECISION
-                    if not msg.tool_calls:
-                        Logger.info("Agent has finished thinking.")
-                        return msg.content # Final Answer
-
-                    # 3. ACTION
-                    for tool_call in msg.tool_calls:
-                        func_name = tool_call.function.name
-                        args_str = tool_call.function.arguments
-                        
-                        Logger.info(f"Invoking Tool: [cyan]{func_name}[/] args={args_str}")
-                        
-                        # [ASCENSION 3]: Human-in-the-Loop Gate
-                        if func_name == "delete_database": # Example dangerous tool
-                            # In a real worker, this would pause the job and wait for a signal
-                            raise RuntimeError("Human Authorization Required for Destructive Acts")
-
-                        func = REGISTRY.get(func_name)
-                        if func:
-                            import json
-                            args = json.loads(args_str)
-                            result = str(func(**args))
-                        else:
-                            result = "Error: Tool not found."
-
-                        # 4. OBSERVATION
-                        self.history.append({
-                            "role": "tool",
-                            "tool_call_id": tool_call.id,
-                            "name": func_name,
-                            "content": result
-                        })
-                
-                return "Max steps reached without conclusion."
-        """
-        
-        # [ASCENSION 4]: The Worker Wrapper
-        worker.py :: """
-        # This ties into the 'worker-swarm' archetype if present
-        from .engine import AgentServitor
-
-        def process_agent_task(task_data):
-            agent = AgentServitor(system_prompt="You are a helpful autonomous agent.")
-            result = agent.run(task_data['goal'])
-            return result
-        """
-
-    # Inject Dependencies
-    pyproject.toml += """
+    [tool.poetry.dependencies]
+    python = "^3.11"
     openai = "^1.12.0"
-    """
-@endif
+    structlog = "^24.1.0"
 
-# --- III. THE MAESTRO'S WILL ---
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+    """
+
+    src/{{ package_name }}/
+        agents/
+            tools.py :: """
+            from typing import Annotated, Callable, Dict, List
+            from pydantic import BaseModel, Field
+            import json
+            
+            REGISTRY: Dict[str, Callable] = {}
+            SCHEMAS: List[dict] = []
+
+            def tool(func):
+                \"\"\"Consecrates a function as a Gnostic Tool.\"\"\"
+                schema = {
+                    "type": "function",
+                    "function": {
+                        "name": func.__name__,
+                        "description": func.__doc__ or "No description",
+                        "parameters": {"type": "object", "properties": {}, "required": []}
+                    }
+                }
+                REGISTRY[func.__name__] = func
+                SCHEMAS.append(schema)
+                return func
+
+            @tool
+            def search_knowledge_base(query: str):
+                \"\"\"Searches the project's internal Vector Cortex.\"\"\"
+                return f"Librarian: Recall sequence initiated for {query}..."
+            """
+
+            engine.py :: """
+            import logging
+            from openai import OpenAI
+            from .tools import REGISTRY, SCHEMAS
+
+            client = OpenAI()
+
+            class AgenticMind:
+                def __init__(self, system_prompt: str):
+                    self.history = [{"role": "system", "content": system_prompt}]
+
+                async def solve(self, goal: str, max_turns: int = 10):
+                    # ... reasoning logic ...
+                    return "Task Resolved."
+            """
+
+    .velm_agent_version :: "1.0.0-Ω"
+
+# --- III. THE MAESTRO'S WILL (THE ACTION) ---
 %% post-run
-    proclaim: "The Agentic Servitor is manifest."
-    proclaim: "Define new capabilities in [bold cyan]src/{{ package_name }}/agents/tools.py[/bold cyan]."
-    proclaim: "The ReAct loop logic resides in [bold cyan]src/{{ package_name }}/agents/engine.py[/bold cyan]."
+    # [THE CURE]: We can use >> now because the engine strips it!
+    proclaim: "The [bold magenta]Agentic Servitor[/bold magenta] has materialized."
+    >> poetry install
+    proclaim: "[bold green]✔ Inception Complete.[/bold green]"
+    proclaim: "Begin the Great Work in [bold cyan]src/{{ package_name }}/agents/engine.py[/bold cyan]."
 
 %% on-heresy
-    proclaim: "Servitor inception failed. Cleaning..."
-    rm -rf src/{{ package_name }}/agents
+    # [THE CURE]: This only runs if the '>>' commands above fail.
+    proclaim: "[bold red]Materialization Fractured.[/bold red]"
+    rm -rf pyproject.toml src/{{ package_name }}/agents

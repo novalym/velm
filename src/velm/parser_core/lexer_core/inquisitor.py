@@ -1,4 +1,4 @@
-# Path: scaffold/parser_core/lexer_core/inquisitor.py
+# Path: src/velm/parser_core/lexer_core/inquisitor.py
 # ---------------------------------------------------
 
 import re
@@ -6,12 +6,12 @@ import traceback
 from pathlib import Path
 from typing import Optional, List, Union, Dict, Any, TYPE_CHECKING
 
+# --- THE DIVINE IMPORTS ---
 from .contracts import TokenType
-from ...contracts.data_contracts import GnosticVessel, GnosticLineType
+from ...contracts.data_contracts import GnosticVessel, GnosticLineType, ScaffoldItem
 from .deconstructor import DeconstructionScribe
 from .lexer import GnosticLexer
 from ...contracts.heresy_contracts import HeresySeverity, ArtisanHeresy, Heresy
-from ...contracts.data_contracts import ScaffoldItem
 from ...contracts.symphony_contracts import EdictType
 from ...logger import Scribe
 
@@ -24,7 +24,7 @@ class GnosticLineInquisitor:
     =================================================================================
     == THE GOD-ENGINE OF GNOSTIC PERCEPTION (V-Ω-ULTRA-DEFINITIVE-ASCENDED)        ==
     =================================================================================
-    LIF: 10,000,000,000,000
+    LIF: 10,000,000,000,000 | ROLE: LEXICAL_TRIAGE_MASTER | RANK: OMEGA
 
     This is the divine, sentient Inquisitor in its final, eternal form. Its Prime
     Directive is to gaze upon a raw line of scripture, perform a Gnostic Triage to
@@ -50,8 +50,8 @@ class GnosticLineInquisitor:
     10. **The Anointed Soul:** Its `_conduct_symphony_rite` is anointed with the
         `DeconstructionScribe` to perceive the full grammar of the Language of Will.
     11. **The Symlink Sentinel:** Detects `->` patterns to preemptively categorize links.
-    12. **The Final Word:** This is the apotheosis of the Lexical Core. This artisan
-        will annihilate the Void Prophecy.
+    12. **The Gaze of Redemption:** Explicitly recognizes `%% on-heresy` as a distinct
+        metaphysical state, separating failure handling from standard execution.
     """
 
     def __init__(
@@ -73,28 +73,45 @@ class GnosticLineInquisitor:
             original_indent=original_indent
         )
 
-        # The Grimoire of Perception
+        # =========================================================================
+        # == THE GRIMOIRE OF PERCEPTION (THE DECLARATIVE MIND)                   ==
+        # =========================================================================
         # Order matters: Specific directives must be caught before generic variable assignments.
         self.PERCEPTION_GRIMOIRE = [
+            # 1. The Void
             (lambda s: not s, GnosticLineType.VOID, "Void"),
+
+            # 2. The Whispers (Comments)
             (lambda s: s.startswith(('#', '//')), GnosticLineType.COMMENT, "Comment"),
+
+            # 3. The Logic of the Alchemist
             (lambda s: s.startswith(('{%', '{#')), GnosticLineType.JINJA_CONSTRUCT, "Jinja Construct"),
+
+            # 4. The Contracts of Law
             (lambda s: s.startswith('%% contract'), GnosticLineType.CONTRACT_DEF, "Contract Definition"),
 
-            # [THE FIX] The Recognition of Traits
+            # 5. The Traits (Mixins)
             (lambda s: s.startswith('%% trait'), GnosticLineType.TRAIT_DEF, "Trait Definition"),
             (lambda s: s.startswith('%% use'), GnosticLineType.TRAIT_USE, "Trait Usage"),
 
-            # [THE FIX] The Recognition of Reversal (Must precede generic POST_RUN)
+            # 6. [ASCENSION]: THE RITE OF REDEMPTION
+            # Must precede generic POST_RUN to prevent the "False Equivalence" heresy.
+            (lambda s: s.startswith('%% on-heresy'), GnosticLineType.ON_HERESY, "On-Heresy Block"),
+
+            # 7. The Rite of Reversal
+            # Must precede generic POST_RUN.
             (lambda s: s.startswith('%% on-undo'), GnosticLineType.ON_UNDO, "On-Undo Block"),
 
-            # The Generic Catch-All for %% (post-run, pre-run, weave)
+            # 8. The Generic State Change (post-run, pre-run, weave)
             (lambda s: s.startswith('%%'), GnosticLineType.POST_RUN, "Post-Run Block"),
 
+            # 9. The Variables of State
             (lambda s: s.startswith(('$$', 'let ', 'def ', 'const ')), GnosticLineType.VARIABLE, "Variable Definition"),
+
+            # 10. The Directives of Logic
             (lambda s: s.startswith('@'), GnosticLineType.LOGIC, "Logic Directive"),
 
-            # Bare assignments (var = val)
+            # 11. The Bare Assignments (Legacy Support)
             (lambda s: re.match(r"^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*(?::[^=]+)?\s*=", s), GnosticLineType.VARIABLE,
              "Bare Assignment"),
         ]
@@ -102,20 +119,30 @@ class GnosticLineInquisitor:
     def _proclaim_heresy(self, key: str, item: Union[GnosticVessel, ScaffoldItem, str], **kwargs):
         """Delegates the forging of the heresy vessel to the one true, universal rite."""
         from ...jurisprudence_core.jurisprudence import forge_heresy_vessel
+
         raw_scripture = getattr(item, 'raw_scripture', str(item))
         line_num = getattr(item, 'line_num', self.line_num)
         exception_obj = kwargs.get('exception_obj')
         details = kwargs.get('details', "")
 
         if exception_obj:
+            # Forensic Traceback Extraction
             tb_list = traceback.extract_tb(exception_obj.__traceback__)
             scaffold_frames = [frame for frame in tb_list if 'scaffold' in frame.filename]
             last_frame = scaffold_frames[-1] if scaffold_frames else tb_list[-1]
-            forensic_report = (f"Paradox Soul: {type(exception_obj).__name__}: {str(exception_obj)}\n"
-                               f"Locus: {Path(last_frame.filename).name}:{last_frame.lineno} in `{last_frame.name}`")
+
+            forensic_report = (
+                f"Paradox Soul: {type(exception_obj).__name__}: {str(exception_obj)}\n"
+                f"Locus: {Path(last_frame.filename).name}:{last_frame.lineno} in `{last_frame.name}`"
+            )
             details = f"{details}\n{forensic_report}"
 
-        heresy = forge_heresy_vessel(key=key, line_num=line_num, line_content=raw_scripture, details=details)
+        heresy = forge_heresy_vessel(
+            key=key,
+            line_num=line_num,
+            line_content=raw_scripture,
+            details=details
+        )
 
         if severity_override := kwargs.get('severity'):
             heresy.severity = severity_override
@@ -129,7 +156,10 @@ class GnosticLineInquisitor:
             self.parser.all_rites_are_pure = False
 
     def _conduct_inquest(self) -> GnosticVessel:
-        """The God-Engine of Gnostic Perception."""
+        """
+        The God-Engine of Gnostic Perception.
+        Determines the grammar and dispatches the specialized inquest.
+        """
         try:
             if self.grammar_codex_key == "scaffold":
                 self._conduct_scaffold_rite()
@@ -137,7 +167,9 @@ class GnosticLineInquisitor:
                 self._conduct_symphony_rite()
             else:
                 raise ArtisanHeresy(f"META-HERESY: Unknown grammar key '{self.grammar_codex_key}'")
+
             return self.vessel
+
         except Exception as e:
             self.vessel.is_valid = False
             self._proclaim_heresy(
@@ -147,35 +179,47 @@ class GnosticLineInquisitor:
             return self.vessel
 
     def _conduct_scaffold_rite(self):
-        """The mind of the Gnostic Parser, now a declarative Grimoire."""
+        """The mind of the Gnostic Parser, utilizing the declarative Grimoire."""
         l_stripped_line = self.raw_line.lstrip()
 
-        # The Gnostic Triage
+        # 1. The Gnostic Triage
         for detector, line_type, name in self.PERCEPTION_GRIMOIRE:
             if detector(l_stripped_line):
                 self.vessel.line_type = line_type
-                # We still need to populate name/content for these simple types
-                if line_type in (GnosticLineType.COMMENT, GnosticLineType.JINJA_CONSTRUCT,
-                                 GnosticLineType.POST_RUN, GnosticLineType.VARIABLE,
-                                 GnosticLineType.LOGIC, GnosticLineType.CONTRACT_DEF,
-                                 GnosticLineType.TRAIT_DEF, GnosticLineType.TRAIT_USE):
+
+                # For simple types, we set the name to the raw line immediately
+                if line_type in (
+                        GnosticLineType.COMMENT,
+                        GnosticLineType.JINJA_CONSTRUCT,
+                        GnosticLineType.POST_RUN,
+                        GnosticLineType.VARIABLE,
+                        GnosticLineType.LOGIC,
+                        GnosticLineType.CONTRACT_DEF,
+                        GnosticLineType.TRAIT_DEF,
+                        GnosticLineType.TRAIT_USE,
+                        # [ASCENSION]: Redemption & Reversal
+                        GnosticLineType.ON_HERESY,
+                        GnosticLineType.ON_UNDO
+                ):
                     self.vessel.name = self.raw_line.strip()
+
                     if line_type == GnosticLineType.JINJA_CONSTRUCT:
                         self.vessel.is_jinja_construct = True
                         self.vessel.jinja_expression = self.raw_line.strip()
                 return
 
-        # Default to FORM if no other type matches (Files, Dirs, Symlinks)
+        # 2. Default to FORM (Structure)
         self.vessel.line_type = GnosticLineType.FORM
 
-        # Summon the Lexer
+        # 3. Summon the Lexer for Deep Analysis
         lexer = GnosticLexer(grammar_key="scaffold")
         tokens = lexer.tokenize(self.raw_line)
+
         if not tokens:
             self.vessel.line_type = GnosticLineType.VOID
             return
 
-        # Summon the Deconstructor
+        # 4. Summon the Deconstructor
         scribe = DeconstructionScribe(
             raw_scripture=self.raw_line,
             line_num=self.line_num,
@@ -183,13 +227,11 @@ class GnosticLineInquisitor:
             logger=self.Logger,
             original_indent=self.vessel.original_indent,
             variables=self.parser.variables,
-            # [NEW] Pass the parser reference for heresy proclamation
             parser=self.parser
         )
         deconstructed_vessel = scribe.inquire()
 
-        # Merge deconstructed Gnosis into our main vessel
-        # We manually map fields to ensure complete transference of the soul
+        # 5. Merge Deconstructed Gnosis
         self.vessel.name = deconstructed_vessel.name
         self.vessel.path = deconstructed_vessel.path
         self.vessel.is_dir = deconstructed_vessel.is_dir
@@ -208,7 +250,7 @@ class GnosticLineInquisitor:
         self.vessel.trait_path = deconstructed_vessel.trait_path
         self.vessel.trait_args = deconstructed_vessel.trait_args
 
-        # If the Deconstructor found a Trait definition/usage via tokens, upgrade the Line Type
+        # 6. Type Promotion (Traits)
         if deconstructed_vessel.line_type in (GnosticLineType.TRAIT_DEF, GnosticLineType.TRAIT_USE):
             self.vessel.line_type = deconstructed_vessel.line_type
 
@@ -216,6 +258,7 @@ class GnosticLineInquisitor:
         """The High Inquisitor of Will, now with the Anointed Soul."""
         lexer = GnosticLexer(grammar_key="symphony")
         tokens = lexer.tokenize(self.raw_line)
+
         if not tokens:
             self.vessel.line_type = GnosticLineType.VOID
             return
@@ -231,7 +274,7 @@ class GnosticLineInquisitor:
         )
         deconstructed_vessel = scribe.inquire()
 
-        # Just transfer the core type, the scribes will handle the rest
+        # Transfer the Core Type Gnosis
         self.vessel.line_type = deconstructed_vessel.line_type
         self.vessel.edict_type = deconstructed_vessel.edict_type
         self.vessel.command = deconstructed_vessel.command
@@ -258,11 +301,14 @@ class GnosticLineInquisitor:
                 original_indent=original_indent
             )
             return inquest._conduct_inquest()
+
         except Exception as e:
             tb = traceback.format_exc()
             heresy_vessel = GnosticVessel(
-                raw_scripture=raw_line, line_num=line_num,
-                is_valid=False, original_indent=original_indent
+                raw_scripture=raw_line,
+                line_num=line_num,
+                is_valid=False,
+                original_indent=original_indent
             )
             error_details = (
                 f"High Inquisitor's soul fractured on line {line_num}.\n"
@@ -270,6 +316,9 @@ class GnosticLineInquisitor:
                 f"[bold red]EXCEPTION:[/bold red] {type(e).__name__}: {e}\n"
                 f"[dim]Traceback:\n{tb}[/dim]"
             )
+
+            # We append directly to the parser if available, or raise if not.
+            # In classmethod context, we rely on the parser passed in.
             parser.heresies.append(Heresy(
                 message="META_HERESY_INQUISITOR_FRACTURED",
                 line_num=line_num,

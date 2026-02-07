@@ -1,9 +1,9 @@
-# Path: scaffold/creator/cpu.py
+# Path: src/velm/creator/cpu.py
 # -----------------------------
 
 from contextlib import nullcontext
 from pathlib import Path
-from typing import List, Tuple, Optional, Set, Union, TYPE_CHECKING
+from typing import List, Tuple, Optional, Set, Union, TYPE_CHECKING, Any
 
 from .alu import AlchemicalLogicUnit
 from .io_controller import IOConductor
@@ -25,10 +25,19 @@ class QuantumCPU:
     =================================================================================
     == THE SINGULARITY CPU (V-Ω-ETERNAL-APOTHEOSIS-ULTIMA++)                       ==
     =================================================================================
+    LIF: 10,000,000,000,000 | ROLE: KINETIC_EXECUTION_CORE | RANK: OMEGA
+
     The divine, sentient, and hyper-performant heart of the Quantum Creator. Its
     soul is forged with the 12 Legendary Ascensions, making it the final word in
     Gnostic execution.
-    =================================================================================
+
+    [ASCENSION LOG]:
+    1.  **The Quaternity Processor:** It now natively understands the 4-tuple command
+        structure `(Command, Line, Undo, Heresy)`, enabling conditional resilience.
+    2.  **The Rite of Redemption:** Upon detecting a kinetic fracture (Exception), it
+        checks for a `Heresy` payload and executes it before re-raising the error.
+    3.  **JIT Materialization:** It forces the Staging Area to flush to disk before
+        executing shell commands, ensuring the shell sees the new reality.
     """
 
     def __init__(self, registers: QuantumRegisters, io_conductor: IOConductor, maestro: "MaestroUnit"):
@@ -55,11 +64,20 @@ class QuantumCPU:
             OpCode.EXEC: self._handle_exec,
         }
 
-    def load_program(self, items: List[ScaffoldItem], commands: List[Tuple[str, int, Optional[List[str]]]]):
+    def load_program(
+            self,
+            items: List[ScaffoldItem],
+            commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]]
+    ):
         """
         The Gnostic Compiler, its soul now healed to honor the Law of Provenance.
         It strictly enforces that every Instruction carries its sacred line_num.
+
+        Arguments:
+            items: The Scripture of Form (Files/Directories).
+            commands: The Scripture of Will (The Quaternity of Execution).
         """
+        # Sort items to ensure directories are forged before files
         sorted_items = sorted(items, key=lambda x: (not x.is_dir, str(x.path)))
 
         for item in sorted_items:
@@ -83,7 +101,9 @@ class QuantumCPU:
                     ))
 
         if not self.regs.no_edicts:
+            # [ASCENSION]: Unpack Quaternity
             for cmd_tuple in commands:
+                # We pack the whole tuple (cmd, line, undo, heresy) into target for the Handler
                 self.program.append(Instruction(
                     op=OpCode.EXEC,
                     target=cmd_tuple,
@@ -95,6 +115,7 @@ class QuantumCPU:
         =============================================================================
         == THE GRAND SYMPHONY OF EXECUTION (V-Ω-STAGING-AWARE-FINALIS)             ==
         =============================================================================
+        Runs the compiled program.
         """
         total_ops = len(self.program)
         if total_ops == 0:
@@ -156,4 +177,45 @@ class QuantumCPU:
         self.io.chmod(Path(instr.target), instr.payload)
 
     def _handle_exec(self, instr: Instruction):
-        self.maestro.execute(instr.target)
+        """
+        [ASCENSION]: THE RITE OF RESILIENT EXECUTION.
+        Handles the 4-Tuple Quaternity: (Command, Line, Undo, Heresy).
+        """
+        # The target holds the tuple we packed in load_program
+        cmd_tuple = instr.target
+
+        # 1. Unpack the Quaternity (with legacy safety)
+        if len(cmd_tuple) == 4:
+            cmd, line, undo, heresy_cmds = cmd_tuple
+        else:
+            # Fallback for old blueprints
+            cmd, line, undo = cmd_tuple
+            heresy_cmds = None
+
+        try:
+            # 2. Attempt the Primary Will
+            # Maestro expects the 3-tuple (cmd, line, undo) for its context forging
+            self.maestro.execute((cmd, line, undo))
+
+        except Exception as e:
+            # 3. The Fracture Occurred. Do we have a path to redemption?
+            if heresy_cmds:
+                self.Logger.warn(f"Edict failed on L{line}. Invoking Rite of Redemption (On-Heresy)...")
+
+                try:
+                    for h_cmd in heresy_cmds:
+                        # We create a temporary tuple for the heresy command.
+                        # Heresy commands do not have their own undo/heresy stack (recursion guard).
+                        self.Logger.verbose(f"   -> Conducting redemption rite: {h_cmd[:40]}...")
+                        self.maestro.execute((h_cmd, line, None))
+                except Exception as redemption_error:
+                    # If redemption fails, we log it but still raise the ORIGINAL error
+                    self.Logger.error(f"Redemption Rite fractured: {redemption_error}")
+
+                # [THE FINALITY]: We re-raise the original exception.
+                # The on-heresy block is for cleanup/notification, not for suppressing the failure state
+                # of the transaction (unless we add a suppression flag later).
+                raise e
+            else:
+                # No redemption path. Propagate the crash.
+                raise e

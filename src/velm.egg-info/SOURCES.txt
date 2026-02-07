@@ -28,7 +28,6 @@ src/velm/__pycache__/herald.cpython-313.pyc
 src/velm/__pycache__/logger.cpython-313.pyc
 src/velm/__pycache__/main.cpython-313.pyc
 src/velm/archetypes/__init__.py
-src/velm/archetypes/__pycache__/__init__.cpython-313.pyc
 src/velm/archetypes/automation/ansible-citadel.scaffold
 src/velm/archetypes/automation/ci-cd-hardening.scaffold
 src/velm/archetypes/automation/docker-compose-swarm.scaffold

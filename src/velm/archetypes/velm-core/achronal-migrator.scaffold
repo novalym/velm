@@ -1,12 +1,9 @@
 # =================================================================================
 # == GNOSTIC ARCHETYPE: ACHRONAL MIGRATOR (V-Ω-TOTALITY-SCHEMA-EVOLUTION)        ==
 # =================================================================================
-# @description: Forges a self-migrating project core. Detects drift between the engine's internal schema (V25 -> V26) and the project's 'scaffold.lock', performing automatic alchemical transmutation to keep the project eternally compatible.
-# @category: Velm-Core
-# @tags: migration, evolution, schema, lockfile, compatibility, temporal-drift
-# @difficulty: Master
-# @is_integration: true
-# @dna: engine_version=V25, support_auto_patch=true, backup_on_migrate=true
+# @description: Forges a self-migrating project core. Detects drift between the 
+#               engine's internal schema (V25 -> V26) and the project's 
+#               'scaffold.lock', performing automatic alchemical transmutation.
 # =================================================================================
 
 # --- I. THE ALTAR OF GNOSTIC WILL ---
@@ -15,8 +12,9 @@ $$ package_name = {{ package_name | default(project_slug | snake) }}
 
 # --- II. THE MIGRATION ORACLE (The Transmutation Script) ---
 scripts/meta/
-    # [ASCENSION 1]: THE TEMPORAL DRIFT DETECTOR
-    # This script gazes into the lockfile and the engine to find the schism.
+    # [ASCENSION 1]: Block-End Resonance
+    # We use unescaped triple-quotes for the boundary. The engine's Backslash 
+    # Healing will handle internal quotes if they existed.
     migrate_chronicle.py :: """
     #!/usr/bin/env python3
     import json
@@ -58,11 +56,8 @@ scripts/meta/
         print(f"📜 [MIGRATOR] Past reality enshrined in {backup_path.name}")
 
         # 3. ALCHEMICAL PATCHING (V25 -> V26 logic)
-        # Example: In V26, we moved 'metadata' into 'provenance'
         if lock_version.startswith("25"):
-             # Perform surgical JSON mutation
              lock_data["chronicle_version"] = ENGINE_VERSION
-             # Add any new mandatory fields for the new engine version
              if "integrity" not in lock_data:
                  lock_data["integrity"] = {"merkle_root": "0xVOID"}
         
@@ -72,22 +67,28 @@ scripts/meta/
 
     if __name__ == "__main__":
         evolve_chronicle()
-    \"\"\"
+    """
 
 # --- III. THE KINETIC SYMPHONY ---
-Makefile:
-	.PHONY: evolve-core
+# [ASCENSION 2]: Sigil Sovereignty
+# We explicitly add the '::' sigil to the Makefile to ensure its soul is 
+# recognized as content, not a directory.
+Makefile :: """
+.PHONY: evolve-core
 
-	evolve-core: ## Transmute the project chronicle to match the latest engine
-		@poetry run python scripts/meta/migrate_chronicle.py
+evolve-core: ## Transmute the project chronicle to match the latest engine
+    @poetry run python scripts/meta/migrate_chronicle.py
+"""
 
 # --- IV. THE MAESTRO'S WILL ---
+# [ASCENSION 3]: Absolute Indentation Anchoring
+# This block is now outside the Python file's scope because the block closed correctly.
 %% post-run
     proclaim: "Achronal Migrator manifest in 'scripts/meta/'."
     proclaim: "Target Engine Version: [magenta]{{ current_engine_version }}[/magenta]"
     
     # Automatically check for drift on every inception
-    >> python scripts/meta/migrate_chronicle.py
+    python scripts/meta/migrate_chronicle.py
     
     proclaim: "[bold green]✅ Evolution Logic Ready.[/bold green]"
     proclaim: "To sync your chronicle after an engine update: [bold cyan]make evolve-core[/bold cyan]"

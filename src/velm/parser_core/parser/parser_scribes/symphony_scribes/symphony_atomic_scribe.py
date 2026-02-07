@@ -177,95 +177,105 @@ class SymphonyAtomicScribe(SymphonyBaseScribe):
     def conduct(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
         """
         =================================================================================
-        == THE GRAND SYMPHONY OF ATOMIC PERCEPTION (V-Ω-ETERNAL-APOTHEOSIS-PROCLAIM)   ==
+        == THE GRAND SYMPHONY OF ATOMIC PERCEPTION (V-Ω-TOTALITY-V200.0-DECAPITATED)   ==
         =================================================================================
-        This rite has been ascended with the **Gnostic Law of Proclamation**. It now
-        perceives the profane 'echo' rite and alchemically transmutes it into a pure,
-        internal 'proclaim' state change, annihilating a costly communion with the
-        mortal shell for all time.
-        =================================================================================
+        LIF: ∞ | ROLE: KINETIC_INTENT_PURIFIER | RANK: OMEGA_SUPREME
+        AUTH: Ω_CONDUCT_V200_SIGIL_STRIP_FINALIS
         """
+        # 1. MATERIALIZE THE EDICT SOUL
         edict = forge_edict_from_vessel(vessel)
         edict.type = vessel.edict_type
         edict.raw_scripture = vessel.raw_scripture
         edict.line_num = vessel.line_num
 
+        # The purified, stripped line for semantic analysis
         clean_line = vessel.raw_scripture.strip()
 
-        # --- THE RITE OF SILENCE (COMMENT) ---
+        # --- MOVEMENT I: THE RITE OF SILENCE (COMMENT) ---
         if vessel.edict_type == EdictType.COMMENT:
             edict.command = clean_line
             self.parser.edicts.append(edict)
             return i + 1
 
-        # --- THE RITE OF INTERCESSION (BREAKPOINT) ---
+        # --- MOVEMENT II: THE RITE OF INTERCESSION (BREAKPOINT) ---
         if vessel.edict_type == EdictType.BREAKPOINT:
             self.parser.edicts.append(edict)
             self._proclaim_gnostic_anchor(vessel, edict)
             return i + 1
 
-        # --- THE RITE OF ACTION (KINETIC WILL) ---
+        # --- MOVEMENT III: THE RITE OF ACTION (KINETIC WILL) ---
         if vessel.edict_type == EdictType.ACTION:
-            content = clean_line.lstrip('>').strip()
+            # [ASCENSION 1]: GREEDY SIGIL DECAPITATION
+            # Surgically remove any leading '>' sigils and their associated whitespace.
+            # '>> poetry install' -> 'poetry install'
+            content = re.sub(r'^>+\s*', '', clean_line)
+
+            # [ASCENSION 11]: TRAILING COLON PURIFICATION
+            # Removes potential block markers if they were accidentally included in the command.
+            if content.endswith(':'):
+                content = content[:-1].strip()
+
             if not content:
                 self.parser._proclaim_heresy("VOID_ACTION_HERESY", vessel)
                 return i + 1
 
-            # ★★★ THE RITE OF GNOSTIC TRANSMUTATION (ECHO -> PROCLAIM) ★★★
-            # We perform a Gaze to see if this Action is secretly a Proclamation.
-            # We check for 'echo ' with a space to avoid matching 'echo-server'.
+            # [ASCENSION 2]: IMPLICIT PROCLAMATION SUTURE
+            # Transmutes shell 'echo' into internal 'proclaim' state.
             if content.lower().startswith("echo "):
-                self.Logger.verbose(f"L{vessel.line_num}: Transmuting profane 'echo' into sacred 'proclaim' state.")
+                self.Logger.verbose(f"L{vessel.line_num}: Transmuting 'echo' -> 'proclaim'")
                 edict.type = EdictType.STATE
                 edict.state_key = "proclaim"
-                # The value is everything after 'echo '. We let the ProclaimHandler
-                # strip quotes later for maximum flexibility.
                 edict.state_value = content[5:].strip()
-                # Annihilate the kinetic will to prevent shell execution.
                 edict.command = ""
-            # ★★★ THE APOTHEOSIS IS COMPLETE ★★★
-            else:
-                # The Alias Resolver (cd -> sanctum) remains pure.
-                if content.startswith(
-                        "cd ") and "&&" not in content and ";" not in content and "as" not in content and "using" not in content:
-                    target_path = content[3:].strip()
-                    self.Logger.info(f"L{vessel.line_num}: Transmuting profane 'cd' into sacred 'sanctum' state.")
-                    edict.type = EdictType.STATE
-                    edict.state_key = "sanctum"
-                    edict.state_value = target_path
-                    edict.command = ""
-                else:
-                    # This is a true kinetic rite. Parse its metadata.
-                    edict.command = self._parse_command_metadata_and_capture(content, edict)
 
-        # --- THE RITE OF JUDGMENT (VOW) ---
+            # [ASCENSION 3]: NAVIGATION ALCHEMY
+            # Transmutes 'cd' into internal 'sanctum' shift.
+            elif content.startswith("cd ") and not any(op in content for op in ["&&", ";", "|"]):
+                target_path = content[3:].strip()
+                self.Logger.info(f"L{vessel.line_num}: Transmuting 'cd' -> 'sanctum'")
+                edict.type = EdictType.STATE
+                edict.state_key = "sanctum"
+                edict.state_value = target_path
+                edict.command = ""
+
+            else:
+                # [ASCENSION 6]: METADATA PEELING
+                # Edict.command is now the pure, bare command (e.g. 'poetry install')
+                edict.command = self._parse_command_metadata_and_capture(content, edict)
+
+        # --- MOVEMENT IV: THE RITE OF JUDGMENT (VOW) ---
         elif vessel.edict_type == EdictType.VOW:
-            content = clean_line.lstrip('?').strip()
+            # [ASCENSION 1]: VOW SIGIL ANNIHILATION
+            # '?? succeeds' -> 'succeeds'
+            content = re.sub(r'^\?+\s*', '', clean_line)
             if not content:
                 self.parser._proclaim_heresy("VOID_VOW_HERESY", vessel)
                 return i + 1
             self._parse_vow_details(content, edict)
 
-        # --- THE RITE OF METAPHYSICS (STATE) ---
+        # --- MOVEMENT V: THE RITE OF METAPHYSICS (STATE) ---
         elif vessel.edict_type == EdictType.STATE:
-            content = clean_line.lstrip('%').strip()
-            # This now also handles `proclaim:` as a native state.
+            # [ASCENSION 1]: STATE SIGIL ANNIHILATION
+            # '%% let: var = 1' -> 'let: var = 1'
+            content = re.sub(r'^%+\s*', '', clean_line)
+
+            # [ASCENSION 7]: MULTI-DIALECT NORMALIZATION
             if ':' in content:
                 key, val = content.split(':', 1)
-                # If the key is 'proclaim', it's a valid state change.
                 if key.strip().lower() == 'proclaim':
                     edict.state_key = 'proclaim'
                     edict.state_value = val.strip()
                 else:
-                    # It's a standard state change, let the original logic handle it.
                     self._parse_state_details(content, edict)
             else:
                 self._parse_state_details(content, edict)
 
-        # Inscribe the Edict into the Parser's memory
+        # --- MOVEMENT VI: FINAL CHRONICLING ---
+        # Inscribe the purified Edict into the Parser's memory
         self.parser.edicts.append(edict)
 
-        # The Anchor Forger
+        # [ASCENSION 8]: ANCHOR THE SOUL FOR THE AST
+        # Forges the ScaffoldItem that represents this Edict in the Topography.
         self._proclaim_gnostic_anchor(vessel, edict)
 
         return i + 1

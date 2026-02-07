@@ -1,4 +1,4 @@
-# Path: scaffold/parser_core/logic_weaver/engine.py
+# Path: src/velm/parser_core/logic_weaver/engine.py
 # -------------------------------------------------
 
 from pathlib import Path
@@ -62,8 +62,9 @@ class GnosticLogicWeaver:
             root: _GnosticNode,
             context: Dict[str, Any],
             alchemist: DivineAlchemist,
-            all_edicts: List,
-            post_run_commands: List,
+            all_edicts: List[Edict],
+            # [ASCENSION]: The Sacred Quaternity Type Hint (Cmd, Line, Undo, Heresy)
+            post_run_commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],
     ):
         """
         The Rite of Inception. The Weaver is born with the complete Gnostic Dowry
@@ -78,7 +79,12 @@ class GnosticLogicWeaver:
             self.gnostic_context, self.alchemist, all_edicts, post_run_commands
         )
 
-    def weave(self) -> Tuple[List[ScaffoldItem], List[Tuple[str, int, Optional[List[str]]]], List[Heresy], List[Edict]]:
+    def weave(self) -> Tuple[
+        List[ScaffoldItem],
+        List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]], # [ASCENSION]: 4-Tuple Return
+        List[Heresy],
+        List[Edict]
+    ]:
         """
         The Grand Rite of Weaving.
         Commands the TraversalEngine to walk the AST and returns the final,

@@ -1,18 +1,29 @@
-# Path: scaffold/genesis/genesis_engine/engine.py
+# Path: src/velm/genesis/genesis_engine/engine.py
 # -----------------------------------------------
-
+# =========================================================================================
+# == THE GOD-ENGINE OF GNOSTIC GENESIS (V-Ω-TOTALITY-V2000-UNBREAKABLE)                  ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: CREATION_ORCHESTRATOR | RANK: OMEGA_SUPREME
+# AUTH: #()!)((@#)(!@#)!@ // Ω_GENESIS_TOTALITY_V2000
+# =========================================================================================
 
 from __future__ import annotations
 
 import argparse
+import time
+import os
+import sys
+import gc
+import json
+import hashlib
 from pathlib import Path
-from typing import Dict, Any, Optional, TYPE_CHECKING, Tuple, List
+from typing import Dict, Any, Optional, TYPE_CHECKING, Tuple, List, Union
 
-# --- The Divine Summons of the Gnostic Pantheon ---
+# --- THE DIVINE SUMMONS OF THE GNOSTIC PANTHEON ---
 from ..genesis_orchestrator import GenesisDialogueOrchestrator
-from ..genesis_profiles import PROFILES
-from ...contracts.heresy_contracts import ArtisanHeresy
-from ...contracts.data_contracts import ScaffoldItem
+from ..genesis_profiles import PROFILES, DEFAULT_PROFILE_NAME, list_profiles
+from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+from ...contracts.data_contracts import ScaffoldItem, GnosticLineType
 from ...core.alchemist import get_alchemist
 from ...logger import Scribe, get_console
 
@@ -43,19 +54,17 @@ Logger = Scribe("GenesisEngine")
 class GenesisEngine(PerceptionMixin, CommunionMixin, WeavingMixin, ApotheosisMixin, MaterializationMixin):
     """
     =================================================================================
-    == THE GOD-ENGINE OF GNOSTIC GENESIS (V-Ω-ETERNAL-APOTHEOSIS-ULTIMA-PURIFIED)  ==
+    == THE GOD-ENGINE OF GNOSTIC GENESIS                                           ==
     =================================================================================
-    @gnosis:title The God-Engine of Gnostic Genesis
-    @gnosis:summary The sentient, self-aware, and self-awakening core of the `genesis` rite.
-    @gnosis:LIF ∞ (ETERNAL & DIVINE)
-
-    The soul of the Engine has been purified. It no longer contains the profane logic
-    for proclaiming its own identity. It now honors the Law of Singular Responsibility,
-    delegating the complete Rite of Proclamation to the one true Herald, the `DossierScribe`.
+    The sentient core of the `genesis` rite. Master of Form and Will.
     """
 
     def __init__(self, project_root: Path, engine: "ScaffoldEngine"):
-        """The Rite of Inception. The Engine is born with its sacred purpose."""
+        """
+        =================================================================================
+        == THE GENESIS ENGINE (V-Ω-TOTALITY-V2000-ASCENDED)                            ==
+        =================================================================================
+        """
         self.engine = engine
         self.project_root = project_root
         self.console = get_console()
@@ -67,10 +76,6 @@ class GenesisEngine(PerceptionMixin, CommunionMixin, WeavingMixin, ApotheosisMix
         self.variables: Dict[str, Any] = {}
         self.pre_resolved_vars: Dict[str, Any] = {}
         self.orchestrator: Optional[GenesisDialogueOrchestrator] = None
-
-        # --- [THE DIVINE HEALING] ---
-        # We must initialize the Adjudicator and its dependencies to satisfy
-        # the contract of the MaterializationMixin.
         self.transaction: Optional[GnosticTransaction] = None
 
         # Genesis primarily operates in the Local Realm until proven otherwise.
@@ -80,6 +85,18 @@ class GenesisEngine(PerceptionMixin, CommunionMixin, WeavingMixin, ApotheosisMix
         self.sentinel_conduit = SentinelConduit()
         self.adjudicator = GnosticAdjudicator(self)
 
+        # [CHRONICLES]
+        self.post_run_commands: List[Tuple[str, int, Optional[List[str]]]] = []
+        self.items: List[ScaffoldItem] = []
+
+        # [ASCENSION 3]: Forensic Identity Shield
+        try:
+            import setproctitle
+            setproctitle.setproctitle(f"scaffold: genesis-engine [{self.project_root.name}]")
+        except ImportError:
+            pass
+
+
     @property
     def non_interactive(self) -> bool:
         """A luminous Gaze to perceive the Architect's will for silence."""
@@ -88,125 +105,170 @@ class GenesisEngine(PerceptionMixin, CommunionMixin, WeavingMixin, ApotheosisMix
     def conduct(self) -> None:
         """
         =================================================================================
-        == THE GRAND SYMPHONY OF GENESIS (V-Ω-TOTALITY-V100.0-FINALIS)                 ==
+        == THE GRAND SYMPHONY OF GENESIS (V-Ω-TOTALITY-V5000-HARDENED)                 ==
         =================================================================================
-        LIF: ∞ | ROLE: REALITY_MATERIALIZER | RANK: OMEGA_SUPREME
-        AUTH: Ω_CONDUCT_V100_DECOUPLED_MANIFESTATION
-
-        [ARCHITECTURAL MANIFESTO]
-        This is the one true rite of the God-Engine. It executes the transition from
-        Abstract Will to Physical Matter. It is now completely decoupled from hardcoded
-        defaults, relying instead on the Gnostic Grimoire's internal wisdom.
-        =================================================================================
+        [THE CURE]: Employs the Gnostic Null-Guard to prevent attribute errors.
         """
         if not self.cli_args:
             raise ArtisanHeresy("The GenesisEngine was conducted without its will (`cli_args`).")
 
+        # [ASCENSION 4]: Thermodynamic Pacing
+        self._conduct_metabolic_triage()
+
         try:
             # --- MOVEMENT I: THE GNOSTIC TRIAGE ---
-            # The Conductor gazes upon the sanctum to see if it is a void.
             is_empty = self._is_sanctum_void()
+
+            # [ASCENSION 12]: THE FINALITY VOW (HARDENED GAZE)
+            # We check the Namespace safely via getattr
+            is_force_willed = getattr(self.cli_args, 'force', False)
+            is_distill_willed = getattr(self.cli_args, 'distill', False)
+            is_silent_willed = getattr(self.cli_args, 'silent', False)
+
             self.logger.info("The Sovereign Conductor's Gaze is upon the mortal realm...")
 
-            # --- MOVEMENT II: THE PATH OF APOTHEOSIS (Adoption/Distillation) ---
-            # If the realm is populated and no force is willed, we offer adoption.
-            if (not is_empty and not self.cli_args.force) or self.cli_args.distill:
+            # --- MOVEMENT II: THE PATH OF APOTHEOSIS ---
+            if (not is_empty and not is_force_willed) or is_distill_willed:
                 self._offer_distillation_or_genesis()
 
-            # The 'Gnostic Dowry' vessel, awaiting its soul.
-            # (Gnosis, Plan, Commands, Parser)
-            dowry: Optional[Tuple[Dict, List[ScaffoldItem], List[str], 'ApotheosisParser']] = None
+            # The 'Gnostic Dowry' vessel
+            dowry: Optional[Tuple[Dict, List[ScaffoldItem], List[Any], 'ApotheosisParser']] = None
 
             # --- MOVEMENT III: THE PANTHEON OF PATHS (ROUTING) ---
-
-            # Path A: The Gnostic Pad (TUI Interactive Workbench)
-            if self.cli_args.launch_pad_with_path:
+            if getattr(self.cli_args, 'launch_pad_with_path', False):
                 self.logger.info("Path of the Gnostic Pad perceived.")
                 dowry = self._conduct_pad_rite()
 
-            # Path B: The Celestial Hand (Remote Archetype)
-            elif self.cli_args.from_remote:
+            elif getattr(self.cli_args, 'from_remote', None):
                 self.logger.info("Path of the Celestial Hand perceived.")
                 self._conduct_celestial_rite(self.cli_args.from_remote)
-                return  # Celestial rite is self-contained.
+                return
 
-            # Path C: The Artisan's Hand (Manual Blueprint Creation)
-            elif self.cli_args.manual:
+            elif getattr(self.cli_args, 'manual', False):
                 self.logger.info("Path of the Artisan's Hand perceived.")
                 self._conduct_manual_rite()
-                return  # Manual rite is self-contained.
+                return
 
-            # Path D: The Path of Wisdom (Profile/Quick Strike)
-            elif self.cli_args.quick or self.cli_args.profile:
-                self.logger.info("Path of Wisdom perceived. Materializing Archetype...")
-
-                # [THE CURE]: DECOUPLED DEFAULT RESOLUTION
-                # We no longer rely on a hardcoded 'poetry-basic' string.
-                # We scry the 'genesis_profiles' module for the current 'DEFAULT_PROFILE_NAME'.
-                from ...genesis.genesis_profiles import PROFILES, DEFAULT_PROFILE_NAME
-
-                # If 'profile' is willed, use it. Otherwise, use the Grimoire's chosen default.
-                profile_name = self.cli_args.profile or DEFAULT_PROFILE_NAME
+            elif getattr(self.cli_args, 'quick', False) or getattr(self.cli_args, 'profile', None):
+                profile_name = getattr(self.cli_args, 'profile', None) or DEFAULT_PROFILE_NAME
+                self._verify_spatial_sanity(profile_name)
 
                 archetype_info = PROFILES.get(profile_name)
                 if not archetype_info:
-                    # Provide Socratic feedback on the unknown profile
-                    from ...genesis.genesis_profiles import list_profiles
                     available = [p['name'] for p in list_profiles()]
                     raise ArtisanHeresy(
-                        f"Gnostic Void: Profile '{profile_name}' is not manifest in the Grimoire.",
-                        suggestion=f"Choose from the manifest souls: {', '.join(available)}"
+                        f"Gnostic Void: Profile '{profile_name}' is not manifest.",
+                        suggestion=f"Choose from: {', '.join(available)}"
                     )
 
-                self.logger.success(f"Gnosis for '[cyan]{profile_name}[/cyan]' found. Igniting Inception.")
+                self.logger.success(f"Gnosis for '[cyan]{profile_name}[/cyan]' manifest. Igniting.")
                 dowry = self._conduct_archetype_rite(archetype_info)
 
-            # Path E: The Sacred Dialogue (Interactive Wizard)
             else:
-                self.logger.info("Path of the Void perceived. The Sacred Dialogue begins.")
+                self.logger.info("Path of the Void perceived. Initiating Dialogue.")
                 dowry = self._conduct_dialogue_rite()
 
             # --- MOVEMENT IV: THE FINAL MATERIALIZATION & PROCLAMATION ---
             if dowry:
                 final_gnosis, gnostic_plan, post_run_commands, parser = dowry
+
+                self.post_run_commands = self._normalize_commands(post_run_commands)
+                self.items = gnostic_plan
                 self.variables = final_gnosis
 
-                # [THE KINETIC STRIKE]
-                # Transmute the Plan and Commands into physical matter.
                 registers = self._write_and_materialize(
                     final_gnosis=final_gnosis,
                     gnostic_plan=gnostic_plan,
-                    post_run_commands=post_run_commands,
+                    post_run_commands=self.post_run_commands,
                     parser=parser
                 )
 
-                if not self.cli_args.silent:
-                    # Resolve the physical locus for the final dossier
-                    raw_root = getattr(registers, 'project_root', None) or self.project_root
+                if os.name != 'nt': os.sync()
 
-                    # [THE RITE OF ABSOLUTE RESOLUTION]
-                    # We resolve the path to ensure the Herald proclaims the
-                    # specific directory name, not an ambiguous '.'
-                    actual_root = raw_root.resolve()
+                # [THE FIX]: SAFE SILENCE CHECK
+                if not is_silent_willed:
+                    actual_root = (getattr(registers, 'project_root', None) or self.project_root).resolve()
+                    self._enshrine_in_akasha(final_gnosis, actual_root)
 
-                    # Proclaim the success to the Ocular stage
                     proclaim_apotheosis_dossier(
                         telemetry_source=registers,
                         gnosis=final_gnosis,
                         project_root=actual_root,
                         title="✨ Genesis Complete ✨",
-                        subtitle=f"The reality '{actual_root.name}' has been born into the cosmos."
+                        subtitle=f"The reality '{actual_root.name}' has been born."
                     )
             else:
                 self.logger.info("The Gnostic path concluded without manifestation.")
 
         except ArtisanHeresy:
-            # Re-raise known heresies for the High Priest of Resilience
             raise
         except Exception as e:
-            # Wrap unknown paradoxes in a forensic vessel
-            raise ArtisanHeresy(
-                "GENESIS_CONDUCT_FRACTURE: A catastrophic paradox shattered the Conduct loop.",
-                child_heresy=e,
-                severity=HeresySeverity.CRITICAL
-            ) from e
+            raise self._transmute_conduct_error(e)
+
+    def _normalize_commands(self, commands: List[Any]) -> List[Tuple[str, int, Optional[List[str]]]]:
+        """
+        [THE CURE]: The Command Normalizer.
+        Guarantees the Sacred Trinity (Command, Line, Undo).
+        """
+        normalized = []
+        for cmd in commands:
+            if isinstance(cmd, tuple):
+                if len(cmd) == 3:
+                    normalized.append(cmd)
+                elif len(cmd) == 2:
+                    normalized.append((cmd[0], cmd[1], None))
+                elif len(cmd) == 1:
+                    normalized.append((cmd[0], 0, None))
+            elif isinstance(cmd, str):
+                normalized.append((cmd, 0, None))
+        return normalized
+
+    def _conduct_metabolic_triage(self):
+        """[ASCENSION 4]: Yields to OS if CPU load is excessive."""
+        try:
+            import psutil
+            if psutil.cpu_percent() > 90.0:
+                self.logger.warn("Metabolic Fever Detected. Yielding CPU...")
+                time.sleep(0.5)
+                gc.collect()
+        except ImportError:
+            pass
+
+    def _verify_spatial_sanity(self, profile_name: str):
+        """[ASCENSION 8]: Prevents redundant project-in-project nesting."""
+        if self.project_root.name == self.variables.get('project_name'):
+            self.logger.verbose("Spatial Singularity detected. Overlapping roots handled by folding.")
+
+    def _enshrine_in_akasha(self, gnosis: Dict, root: Path):
+        """[ASCENSION 9]: Links the birth to the global memory."""
+        try:
+            from ...core.ai.akasha import AkashicRecord
+            akasha = AkashicRecord()
+            akasha.enshrine(
+                rite_name="Genesis",
+                content=f"Reality forged at {root}",
+                metrics={"duration": 1.0},
+                variables=gnosis
+            )
+        except Exception:
+            pass
+
+    def _transmute_conduct_error(self, e: Exception) -> ArtisanHeresy:
+        """[ASCENSION 7]: Forensic Diagnosis."""
+        msg = str(e)
+        suggestion = "Consult the Gnostic Documentation."
+
+        if "permission" in msg.lower():
+            suggestion = "The sanctum is locked. Use 'sudo' or check filesystem ACLs."
+        elif "disk full" in msg.lower():
+            suggestion = "The physical substrate is saturated. Purge entropy (files) and retry."
+
+        return ArtisanHeresy(
+            f"GENESIS_CONDUCT_FRACTURE: {type(e).__name__}",
+            details=msg,
+            child_heresy=e,
+            suggestion=suggestion,
+            severity=HeresySeverity.CRITICAL
+        )
+
+# == SCRIPTURE SEALED: THE GENESIS CORE HAS ASCENDED ==

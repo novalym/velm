@@ -1,4 +1,5 @@
-# scaffold/parser_core/parser/parser_scribes/__init__.py
+# Path: src/velm/parser_core/parser/parser_scribes/__init__.py
+# ------------------------------------------------------------
 
 """
 =================================================================================
@@ -11,18 +12,32 @@ ApotheosisParser which Scribes to summon for each Gnostic tongue.
 To teach the parser a new grammar, one must only inscribe it here.
 =================================================================================
 """
-from ....contracts.data_contracts import GnosticLineType, EdictType
+from ....contracts.data_contracts import GnosticLineType
+from ....contracts.symphony_contracts import EdictType
 from .base_scribe import FormScribe
+
 # --- The Scribes of Form (.scaffold) ---
 from .scaffold_scribes import (
-    CommentScribe, ContractScribe, DirectiveScribe, JinjaScribe,
-    MakefileScribe, PostRunScribe, StructuralScribe, VariableScribe, OnUndoScribe
+    CommentScribe,
+    ContractScribe,
+    DirectiveScribe,
+    JinjaScribe,
+    MakefileScribe,
+    PostRunScribe,
+    StructuralScribe,
+    VariableScribe,
+    OnUndoScribe,
+    OnHeresyScribe  # <--- THE NEW GUARDIAN OF REDEMPTION
 )
 
 # --- The Scribes of Will (.symphony) ---
 from .symphony_scribes import (
-    SymphonyAtomicScribe, SymphonyCommunionScribe, SymphonyDirectiveScribe,
-    SymphonyLogicScribe, SymphonyParallelScribe, SymphonyPolyglotScribe
+    SymphonyAtomicScribe,
+    SymphonyCommunionScribe,
+    SymphonyDirectiveScribe,
+    SymphonyLogicScribe,
+    SymphonyParallelScribe,
+    SymphonyPolyglotScribe
 )
 
 # =================================================================================
@@ -40,8 +55,10 @@ SCRIBE_PANTHEON = {
         GnosticLineType.JINJA_CONSTRUCT: JinjaScribe,
         GnosticLineType.TRAIT_DEF: StructuralScribe,
         GnosticLineType.TRAIT_USE: StructuralScribe,
-        # The new law for reversing the Maestro's Will
+
+        # The Laws of Reversal and Redemption
         GnosticLineType.ON_UNDO: OnUndoScribe,
+        GnosticLineType.ON_HERESY: OnHeresyScribe,  # <--- MAPPED AND VIGILANT
     },
     "symphony": {
         # The Gaze is first upon the Edict's Soul (Highest Precedence)
@@ -55,6 +72,7 @@ SCRIBE_PANTHEON = {
         EdictType.PARALLEL_RITE: SymphonyParallelScribe,
         EdictType.DIRECTIVE: SymphonyDirectiveScribe,
         EdictType.POLYGLOT_ACTION: SymphonyPolyglotScribe,
+
         # The Gaze falls back to the LineType's Soul for non-Edict Gnosis
         GnosticLineType.COMMENT: CommentScribe,
     }
@@ -62,4 +80,3 @@ SCRIBE_PANTHEON = {
 # =================================================================================
 
 __all__ = list(SCRIBE_PANTHEON.keys())  # Proclaim the known grammars
-

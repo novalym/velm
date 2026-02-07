@@ -1,6 +1,8 @@
 # Path: scaffold/genesis/genesis_engine/weaving.py
 # ------------------------------------------------
-
+import os
+import sys
+import time
 import importlib.resources as pkg_resources
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List, TYPE_CHECKING
@@ -68,105 +70,152 @@ class WeavingMixin:
             overrides: Optional[Dict[str, Any]] = None
     ) -> Tuple[Dict, List[ScaffoldItem], List[Tuple[str, int, Optional[List[str]]]], 'ApotheosisParser']:
         """
-        [THE ONE TRUE WEAVER]
-        Parses the archetype scripture and prepares the Gnostic Dowry.
+        =================================================================================
+        == THE MASTER WEAVER (V-Ω-TOTALITY-V2000-ASCENDED)                             ==
+        =================================================================================
+        LIF: INFINITY | ROLE: REALITY_WEAVER | RANK: OMEGA_SUPREME
+        AUTH: Ω_WEAVER_V2000_TOTALITY_FINALIS
+
+        [THE RITE OF WEAVING]:
+        This is the supreme rite of the GenesisEngine. It materializes the "Mind"
+        (Parser) and uses it to scry the "Soul" (Archetype), resulting in the
+        "Dowry" (The Plan of Creation).
+        =================================================================================
         """
         archetype_name = archetype_info.get('name', 'Unknown')
+        start_time_ns = time.perf_counter_ns()
 
         with self.logger.indent(f"Rite of the Master Weaver: '{archetype_name}'"):
-            # --- MOVEMENT I: THE GAZE UPON THE ARCHETYPE'S SACRED SCRIPTURE ---
+            # --- MOVEMENT I: THE GAZE UPON THE SACRED SCRIPTURE ---
             self.logger.info("Perceiving the Archetype's sacred, untransmuted soul...")
-            archetype_path_ref = archetype_info["archetype_path"]
+            archetype_path_ref = str(archetype_info["archetype_path"])
             archetype_content = ""
 
             try:
-                # [FACULTY 2] The Resource Alchemist
+                # [ASCENSION 1]: MODERN COORDINATE TRIAGE
+                # We use importlib.resources for modern Pythonic resource scrying.
+                is_package_resource = False
                 if ":" in archetype_path_ref:
-                    # System Archetype (Package Resource)
-                    package, resource_name = archetype_path_ref.split(":")
+                    # Windows Drive Letter Check (C:\)
+                    if os.name == 'nt' and len(archetype_path_ref) > 1 and archetype_path_ref[1] == ':':
+                        is_package_resource = False
+                    else:
+                        is_package_resource = True
+
+                if is_package_resource:
+                    # --- PATH A: SYSTEM ARCHETYPE (PACKAGE RESOURCE) ---
+                    package, resource_name = archetype_path_ref.split(":", 1)
+                    self.logger.verbose(
+                        f"Librarian: Summoning internal resource: [soul]{package}.{resource_name}[/soul]")
+
                     try:
-                        # Modern API (Python 3.9+)
-                        archetype_content = pkg_resources.files(package).joinpath(resource_name).read_text(
-                            encoding='utf-8')
-                    except (AttributeError, ImportError):
-                        # Legacy API fallback
-                        archetype_content = pkg_resources.read_text(package, resource_name, encoding='utf-8')
+                        from importlib import resources
+                        # [ASCENSION 1]: Modern Resource API (Python 3.9+)
+                        archetype_content = resources.files(package).joinpath(resource_name).read_text(encoding='utf-8')
+                    except (ImportError, AttributeError, FileNotFoundError):
+                        # Fallback for legacy environments
+                        import pkg_resources
+                        archetype_content = pkg_resources.resource_string(package, resource_name).decode('utf-8')
                 else:
-                    # Local/Global Archetype (File Path)
+                    # --- PATH B: LOCAL/GLOBAL ARCHETYPE (PHYSICAL COORD) ---
                     archetype_path = Path(archetype_path_ref).resolve()
+                    self.logger.verbose(f"Librarian: Striking physical coordinate: [locus]{archetype_path}[/locus]")
+
                     if not archetype_path.exists():
-                        raise FileNotFoundError(f"File not found: {archetype_path}")
+                        raise FileNotFoundError(f"Scripture not manifest at: {archetype_path}")
+
                     archetype_content = archetype_path.read_text(encoding='utf-8')
 
-                # [FACULTY 4] The Void Guard
-                if not archetype_content.strip():
+                # [ASCENSION 3]: THE VOID SARCOPHAGUS
+                if not archetype_content or not archetype_content.strip():
                     raise ArtisanHeresy(
-                        f"The archetype scripture at '{archetype_path_ref}' is a void (empty content).",
-                        severity=HeresySeverity.CRITICAL
+                        f"The archetype '{archetype_name}' is a void.",
+                        severity=HeresySeverity.CRITICAL,
+                        suggestion="Ensure the .scaffold file contains valid Gnostic instructions."
                     )
 
-            except (FileNotFoundError, ModuleNotFoundError) as e:
+            except Exception as e:
+                # [ASCENSION 11]: FORENSIC DIAGNOSIS
                 raise ArtisanHeresy(
-                    f"The sacred archetype scripture at '{archetype_path_ref}' could not be summoned.",
-                    child_heresy=e,
-                    suggestion="Verify the archetype path or reinstall the scaffold package."
+                    f"Archetype Summoning Fracture: '{archetype_path_ref}' could not be perceived.",
+                    details=f"Paradox: {type(e).__name__}: {str(e)}",
+                    severity=HeresySeverity.CRITICAL,
+                    suggestion="Verify the archetype path or check permissions."
                 ) from e
 
             # --- MOVEMENT II: THE DIVINE ANOINTMENT OF THE SCRIBE ---
-            self.logger.info("Awakening the one true Scribe (ApotheosisParser) and anointing it with Gnosis...")
-            parser = self.parser_factory()
+            self.logger.info("Awakening the one true Scribe (ApotheosisParser)...")
 
-            # [FACULTY 3] The Contextual Anchor
-            # We inject metadata about the archetype itself into the variables
+            # [ASCENSION: THE FIX]
+            # We invoke the factory from the Kernel (ScaffoldEngine).
+            # This ensures the Parser is correctly anchored to the Engine's soul.
+            parser = self.engine.parser_factory()
+
+            # [ASCENSION 4 & 7]: CONTEXTUAL DNA SUTURE & TELEMETRY
             parsing_context = final_gnosis.copy()
             parsing_context['_scaffold_archetype_source'] = archetype_path_ref
             parsing_context['_scaffold_archetype_name'] = archetype_name
 
-            # The Rite of Parsing.
+            # [ASCENSION 7]: BROADCAST INITIALIZATION
+            if hasattr(self.engine, 'akashic') and self.engine.akashic:
+                self.engine.akashic.broadcast({
+                    "method": "scaffold/weaving_init",
+                    "params": {"archetype": archetype_name, "trace": getattr(self.cli_args, 'trace_id', 'tr-void')}
+                })
+
+            # --- MOVEMENT III: THE RITE OF TRANSMUTATION (PARSING) ---
             try:
+                # [ASCENSION 6]: GEOMETRIC NORMALIZATION
+                # Assign a deterministic, normalized path for the ephemeral context.
+                ephemeral_path = (self.project_root / f"ephemeral_{archetype_name}.scaffold").resolve()
+
                 parser.parse_string(
                     content=archetype_content,
-                    file_path_context=self.project_root / "ephemeral_archetype.scaffold",
+                    file_path_context=ephemeral_path,
                     pre_resolved_vars=parsing_context,
                     overrides=overrides or {}
                 )
             except Exception as e:
-                # [FACULTY 7] The Syntax Healer
-                if "TemplateSyntaxError" in type(e).__name__:
-                    raise ArtisanHeresy(
-                        f"Jinja2 Syntax Heresy in Archetype '{archetype_name}'.",
-                        details=str(e),
-                        suggestion="Check for malformed {{ variables }} or {% blocks %}.",
-                        severity=HeresySeverity.CRITICAL
-                    ) from e
-                raise ArtisanHeresy(
-                    f"Failed to parse archetype '{archetype_name}': {e}",
-                    child_heresy=e
-                )
+                # [ASCENSION 5]: THE SYNTAX INQUISITOR
+                # We surgically identify Template errors to guide the Architect.
+                is_template_error = "TemplateSyntaxError" in type(e).__name__ or "Jinja" in str(type(e))
 
-            # --- MOVEMENT III: THE RESOLUTION OF REALITY ---
-            # [FACULTY 5] The Logic Weaver Integration
-            # We must summon the LogicWeaver to resolve @if/@for blocks and prune the tree.
-            # The parser's `resolve_reality` method returns the purified list.
+                raise ArtisanHeresy(
+                    f"{'Alchemical Syntax' if is_template_error else 'Gnostic'} Fracture in Archetype '{archetype_name}'.",
+                    details=str(e),
+                    suggestion="Check for malformed braces '{{ }}' or logical blocks '{% %}' in the blueprint." if is_template_error else None,
+                    severity=HeresySeverity.CRITICAL
+                ) from e
+
+            # --- MOVEMENT IV: THE RESOLUTION OF REALITY ---
+            # [ASCENSION 9]: COMMAND THE WEAVER
+            # resolve_reality flattens the AST and adjudicates @if/@for logic.
             gnostic_plan = parser.resolve_reality()
 
-            # --- MOVEMENT IV: THE PRESERVATION OF THE TRINITY ---
-            # [FACULTY 1] The Trinity Preservation (THE FIX)
-            # We extract the full (command, line, undo) tuples. We DO NOT unpack them here.
-            # parser.post_run_commands is List[Tuple[str, int, Optional[List[str]]]]
+            # --- MOVEMENT V: THE PROCLAMATION OF THE TRINITY ---
+            # [ASCENSION 6 & 9]: PRESERVATION OF THE TRINITY
+            # We capture the full list of (command, line_num, undo_stack) tuples.
+            # This is the "Will" section of the Dowry.
             post_run_commands = parser.post_run_commands
-
             final_variables = parser.variables
 
-            # [FACULTY 12] The Sovereign State
-            # We update the engine's state with the variables fully resolved by the parser/alchemist
+            # [ASCENSION 10]: ISOMORPHIC STATE SYNC
+            # Update the parent engine's memory with the resolved truths.
             self.variables.update(final_variables)
 
+            # [ASCENSION 10]: THE SOCRATIC WARNING
             if not gnostic_plan and not post_run_commands:
-                self.logger.warn("The final Gnostic plan is a void. No reality will be made manifest.")
+                self.logger.warn(f"Logic Gap: The final plan for '{archetype_name}' results in a void reality.")
 
-            self.logger.success("The Gnostic Dowry has been forged. Proclaiming the final reality to the Conductor.")
+            # --- MOVEMENT VI: METABOLIC FINALITY ---
+            duration_ms = (time.perf_counter_ns() - start_time_ns) / 1_000_000
+            self.logger.success(
+                f"Gnostic Dowry forged in {duration_ms:.2f}ms. "
+                f"{len(gnostic_plan)} items manifest, {len(post_run_commands)} edicts willed."
+            )
 
+            # [ASCENSION 12]: THE FINALITY VOW
+            # The Dowry is certified.
             return final_variables, gnostic_plan, post_run_commands, parser
 
     def _conduct_archetype_rite(self: 'GenesisEngine', archetype_info: Dict[str, Any]) -> Optional[

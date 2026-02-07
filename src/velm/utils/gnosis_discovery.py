@@ -244,25 +244,45 @@ class OmegaInquisitor:
     def _stream_all_gnosis(
             self,
             execution_plan: List[ScaffoldItem],
-            post_run_commands: List[Tuple[str, int, Optional[List[str]]]],
+            post_run_commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],
             blueprint_vars: Dict[str, Any]
     ) -> Generator[Tuple[str, str], None, None]:
-        """[ASCENSION 7] A pure generator that yields all strings requiring analysis."""
-        # A. File Paths, Content, and Seed Paths
-        for item in execution_plan:
-            if item.path: yield "path", str(item.path)
-            if item.content: yield "content", item.content
-            if item.seed_path: yield "seed_path", str(item.seed_path)
+        """
+        =============================================================================
+        == THE GNOSTIC STREAMER (V-Ω-QUATERNITY-RESONANT)                          ==
+        =============================================================================
+        LIF: ∞ | ROLE: SENSORY_DATA_EMITTER | RANK: OMEGA
 
-        # B. Maestro's Edicts (Forward and Inverse Timelines)
-        # [ASCENSION 2]
-        for command, _, undo_cmds in post_run_commands:
+        [ASCENSION 7]: A pure generator that yields all strings requiring analysis.
+        Healed to support the 4-tuple command contract (Cmd, Line, Undo, Heresy).
+        """
+        # --- MOVEMENT A: TOPOGRAPHICAL SOULS (Paths & Content) ---
+        for item in execution_plan:
+            if item.path:
+                yield "path", str(item.path)
+            if item.content:
+                yield "content", item.content
+            if item.seed_path:
+                yield "seed_path", str(item.seed_path)
+
+        # --- MOVEMENT B: KINETIC SOULS (The Maestro's Will) ---
+        # [THE CURE]: We now unpack the Quaternity (4 values)
+        for command, line_num, undo_cmds, heresy_cmds in post_run_commands:
+            # 1. The Forward Path
             yield "command", command
+
+            # 2. The Reversal Path (Undo)
             if undo_cmds:
                 for undo in undo_cmds:
                     yield "on-undo", undo
 
-        # C. Variable Values (Recursive Resolution)
+            # [ASCENSION]: The Redemption Path (Heresy)
+            # We now perceive the "On-Heresy" scriptures in the stream.
+            if heresy_cmds:
+                for heresy in heresy_cmds:
+                    yield "on-heresy", heresy
+
+        # --- MOVEMENT C: ALCHEMICAL SOULS (Variables) ---
         for value in blueprint_vars.values():
             if isinstance(value, str):
                 yield "variable", value

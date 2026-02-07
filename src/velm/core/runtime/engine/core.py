@@ -153,6 +153,19 @@ class ScaffoldEngine:
         if not silent and log_level == "DEBUG":
             self.logger.verbose(f"Quantum Engine Online. Session: {self.context.session_id}")
 
+    def parser_factory(self) -> 'ApotheosisParser':
+        """
+        =================================================================================
+        == THE UNIFIED FACTORY (V-Ω-THE-CURE)                                          ==
+        =================================================================================
+        LIF: ∞ | ROLE: GNOSTIC_SENSE_PROVIDER
+
+        [THE CURE]: This rite materializes the ApotheosisParser JIT. It is anchored in
+        the Kernel to ensure all Artisans share the same sensory grammar.
+        Annihilates 'AttributeError' and 'Import Cycle' heresies across all timelines.
+        """
+        from ....parser_core.parser import ApotheosisParser
+        return ApotheosisParser()
     # =========================================================================
     # == LAZY FACULTIES (JIT)                                                ==
     # =========================================================================

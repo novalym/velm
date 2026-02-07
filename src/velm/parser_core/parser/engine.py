@@ -162,6 +162,8 @@ class ApotheosisParser:
         self.variable_contracts: Dict[str, str] = {}
         self.pending_permissions: Optional[str] = None
         self.imported_files: set[Path] = set()
+        self.pending_undo_block: Optional[List[str]] = None
+        self.pending_heresy_block: Optional[List[str]] = None
 
     def parse_string(
             self,
@@ -171,12 +173,13 @@ class ApotheosisParser:
             line_offset: int = 0,
             overrides: Optional[Dict[str, Any]] = None
     ) -> Tuple[
-        'ApotheosisParser',
-        List[ScaffoldItem],
-        List[Tuple[str, int, Optional[List[str]]]],  # The one true, sacred 3-tuple contract
-        List[Edict],
-        Dict[str, Any],
-        GnosticDossier
+        'ApotheosisParser',  # 0. The Engine Itself
+        List[ScaffoldItem],  # 1. The Scripture of Form
+        List[Tuple[
+            str, int, Optional[List[str]], Optional[List[str]]]],  # 2. The Quaternity of Will (Cmd, Line, Undo, Heresy)
+        List[Edict],  # 3. The Symphony Edicts
+        Dict[str, Any],  # 4. The Alchemical Context
+        GnosticDossier  # 5. The Forensic Dossier
     ]:
         """
         =================================================================================
@@ -250,7 +253,14 @@ class ApotheosisParser:
         )
         self.dossier.heresies.extend(self.heresies)
 
-        return (self, self.raw_items, self.post_run_commands, self.edicts, all_gnosis, self.dossier)
+        return (
+            self,
+            self.raw_items,
+            self.post_run_commands,
+            self.edicts,
+            all_gnosis,
+            self.dossier
+        )
 
     def _adjudicate_contracts(self, all_gnosis):
         """Validates variables against registered contracts."""
@@ -406,16 +416,57 @@ class ApotheosisParser:
             self.all_rites_are_pure = False
 
     def resolve_reality(self) -> List[ScaffoldItem]:
-        """[ELEVATION 9] The Bridge of Realization."""
-        weaver = GnosticASTWeaver(self)
-        self.gnostic_ast = weaver.weave_gnostic_ast()
+        """
+        =============================================================================
+        == THE BRIDGE OF REALIZATION (V-Ω-TOTALITY-V200.0-SINGULARITY)             ==
+        =============================================================================
+        LIF: ∞ | ROLE: REALITY_CONVERGENCE_ENGINE | RANK: OMEGA_SUPREME
+        AUTH: Ω_RESOLVE_REALITY_V200_FINALIS
+
+        [THE CURE]: This rite enforces the Law of Sequential Inception. It ensures
+        the Gnostic Graph (Mind) reaches absolute convergence before the
+        LogicWeaver (Hand) attempts to materialize the physical path hierarchy.
+        This annihilates the 'Geometric Paradox' for all time.
+        =============================================================================
+        """
+        self.Logger.info("Bridge of Realization: Initiating Convergence Sequence.")
+
+        # --- MOVEMENT I: DNA STABILIZATION (THE MIND) ---
+        # [ASCENSION 1]: We merge the Blueprint's internal will with the Architect's
+        # external plea to forge the Primordial Gnosis.
         merged_vars = {**self.variables, **self.blueprint_vars}
+
+        # [ASCENSION 2]: THE OMEGA-PASS TRIGGER.
+        # We command the Alchemist to conduct the multi-pass resolution.
+        # This flattens the variable hierarchy into pure, manifest matter.
         if hasattr(self.alchemist, 'resolve_gnostic_graph'):
+            self.Logger.verbose("Alchemist: Conducting the Omega-Pass Resolution.")
             resolved_vars = self.alchemist.resolve_gnostic_graph(merged_vars)
+
+            # [ASCENSION 3]: L1 MEMORY SYNCHRONIZATION.
+            # We update the Parser's L1 memory with the absolute truth.
+            # This ensures the LogicWeaver sees grounded literals, not templates.
             self.variables.update(resolved_vars)
 
-        # This is where the magic happens for symphony files. The weaver resolves the AST
-        # into a final list of edicts, tasks, and macros. For scaffold files, it resolves
-        # logic into a flat list of file items.
+        # --- MOVEMENT II: SKELETON FORGING (THE FORM) ---
+        # [ASCENSION 4]: We construct the hierarchical Gnostic AST.
+        # Node names here are still 'Scriptures' (potentially containing sigils);
+        # they will be transmuted in the next movement.
+        weaver = GnosticASTWeaver(self)
+        self.gnostic_ast = weaver.weave_gnostic_ast()
+
+        # --- MOVEMENT III: REALITY MAPPING (THE WILL) ---
+        # [ASCENSION 5]: THE RITE OF REALIZATION.
+        # We command the Weaver to walk the AST and resolve the Causal Path.
+        # 1. For Form (.scaffold): Resolves @if/@for and flattens path strings.
+        # 2. For Will (.symphony): Resolves the task/macro call graph.
+        self.Logger.verbose("LogicWeaver: Walking the Gnostic AST to materialize the Plan of Form.")
         final_items = weaver.resolve_paths_from_ast(self.gnostic_ast)
+
+        # --- MOVEMENT IV: FINALITY ADJUDICATION ---
+        # [ASCENSION 12]: THE FINALITY VOW.
+        # We verify if the convergence resulted in a manifest reality.
+        if not final_items and not self.post_run_commands:
+            self.Logger.warn("Convergence Warning: The resulting reality is a void. No form or will perceived.")
+
         return final_items

@@ -45,6 +45,9 @@ class GnosticLineType(Enum):
     == THE SOUL OF THE SCRIPTURE (GnosticLineType)                             ==
     =============================================================================
     Defines the fundamental purpose of a parsed line in a blueprint.
+
+    [ASCENSION LOG]:
+    - Added ON_HERESY to distinguish Redemption Rites from Standard Execution.
     """
     VOW = auto()  # ?? Assertion (Symphony)
     JINJA_CONSTRUCT = auto()  # {% ... %} (Logic)
@@ -53,7 +56,12 @@ class GnosticLineType(Enum):
     VARIABLE = auto()  # $$ var = val (State)
     FORM = auto()  # File or Directory definition (Reality)
     VOID = auto()  # Empty line (Silence)
-    POST_RUN = auto()  # %% post-run (Maestro)
+
+    # --- The Trinity of Automation ---
+    POST_RUN = auto()  # %% post-run (Maestro's Will)
+    ON_UNDO = auto()  # %% on-undo (The Reversal Rite)
+    ON_HERESY = auto()  # %% on-heresy (The Redemption Rite) <--- THE CRITICAL MISSING ATOM
+
     BLOCK_START = auto()  # Indented block header
     LOGIC = auto()  # @if, @else (Control Flow)
     CONTRACT_DEF = auto()  # %% contract (Type Safety)
@@ -62,7 +70,6 @@ class GnosticLineType(Enum):
     TRAIT_DEF = auto()  # %% trait Name = ... (Mixin Definition)
     TRAIT_USE = auto()  # %% use Name (Mixin Usage)
     SYMLINK = auto()  # source -> target (Symbolic Link)
-    ON_UNDO = auto() # undo
 
 
 class InscriptionAction(str, Enum):

@@ -8,3 +8,4 @@ from .post_run_scribe import PostRunScribe
 from .structural_scribe import StructuralScribe
 from .scaffold_base_scribe import ScaffoldBaseScribe
 from .on_undo_scribe import OnUndoScribe
+from .on_heresy_scribe import OnHeresyScribe
