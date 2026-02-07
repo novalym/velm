@@ -1,0 +1,155 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: SENTINEL OF CONSECRATION (V-Ω-TOTALITY)                 ==
+# =================================================================================
+# @description: An environmental inquisitor that scries the host machine for missing artisans (Docker, Poetry, Node, etc.). It automatically forges OS-specific 'consecrate_machine' scripts to heal the environment and ensure Titanium-Ready status.
+# @category: Meta
+# @tags: security, audit, hardening, environment, devops, installation, provisioning
+# @difficulty: Master
+# @is_integration: true
+# @dna: auto_scan=true, support_os=windows,linux,darwin
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tool_name = "consecrator"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE ORACLE OF BINARIES (Forensic Scrier) ---
+scripts/forensics/
+    # [ASCENSION 1]: MULTI-STRATA BINARY SCRYING
+    # This script goes beyond a simple 'which'. It probes known app paths and 
+    # environment DNA to identify missing system capabilities.
+    binary_oracle.py :: """
+    #!/usr/bin/env python3
+    import os
+    import shutil
+    import platform
+    from pathlib import Path
+
+    # The Gnostic Requirements for the Velm Pantheon
+    ARTISANS = {
+        "docker": "Container Orchestration",
+        "poetry": "Pythonic Sovereignty",
+        "git": "Temporal Chronology",
+        "node": "Ocular Logic (JS/TS)",
+        "rustc": "Iron Core (Performance)",
+        "go": "System Conduction"
+    }
+
+    def scry_environment():
+        print("🔍 [SENTINEL] Scrying the host strata for manifest artisans...")
+        os_type = platform.system().lower()
+        missing = []
+        found = []
+
+        for bin_name, desc in ARTISANS.items():
+            path = shutil.which(bin_name)
+            
+            # [ASCENSION 3]: Windows Script Suture
+            if not path and os_type == "windows":
+                # Check standard Python/npm scripts path if not in global PATH
+                appdata = Path(os.getenv("APPDATA", ""))
+                candidates = [
+                    appdata / "Python" / "Python312" / "Scripts" / f"{bin_name}.exe",
+                    appdata / "npm" / f"{bin_name}.cmd"
+                ]
+                for cand in candidates:
+                    if cand.exists(): path = str(cand)
+
+            if path:
+                found.append(f"✅ {bin_name:<10} | [dim]Manifest at:[/] {path}")
+            else:
+                missing.append(bin_name)
+
+        print("\\n".join(found))
+        
+        if missing:
+            print(f"\\n⚠️  [VOID_DETECTED] {len(missing)} artisans are missing from the Iron Core.")
+            _forge_consecration_script(missing, os_type)
+        else:
+            print("\\n✨ [TITANIUM] The Iron Core is whole. No consecration required.")
+
+    def _forge_consecration_script(missing, os_type):
+        \"\"\"
+        [ASCENSION 2]: OS-AWARE SCRIPT GENERATION
+        Forges the precisely correct script to heal the specific OS.
+        \"\"\"
+        script_name = "consecrate_machine.sh" if os_type != "windows" else "consecrate_machine.ps1"
+        script_path = Path(script_name)
+        lines = []
+
+        if os_type == "windows":
+            lines.append("# == Gnostic Rite of Consecration (Windows) ==\\n")
+            if "docker" in missing: lines.append("winget install Docker.DockerDesktop")
+            if "poetry" in missing: lines.append("pip install poetry")
+            if "git" in missing: lines.append("winget install Git.Git")
+            if "node" in missing: lines.append("winget install OpenJS.NodeJS")
+        else:
+            lines.append("#!/bin/bash\\n# == Gnostic Rite of Consecration (POSIX) ==\\n")
+            mgr = "brew" if os_type == "darwin" else "sudo apt-get"
+            for tool in missing:
+                lines.append(f"{mgr} install {tool}")
+
+        # [ASCENSION 5]: Global Alias Bestowal
+        lines.append("\\n# Bestowing Sovereign Aliases")
+        lines.append("alias v='velm'")
+        lines.append("alias vi='velm init'")
+
+        script_path.write_text('\\n'.join(lines), encoding='utf-8')
+        print(f"📜 [SENTINEL] Rite of Consecration forged: [bold cyan]{script_name}[/bold cyan]")
+
+    if __name__ == "__main__":
+        scry_environment()
+    \"\"\"
+
+# --- III. THE KINETIC SYMPHONY (Environmental Hardening) ---
+consecrate.symphony :: """
+# == Symphony of Consecration ==
+# Hardens the host environment to Velm-Ready status.
+
+# 1. Initiate Inquest
+%% proclaim: "Sentinel awakening. Tomography of the host machine starting..."
+>> python scripts/forensics/binary_oracle.py
+?? succeeds
+
+# 2. Adjudicate Path
+%% let has_sh = ?? file_exists: "consecrate_machine.sh"
+%% let has_ps1 = ?? file_exists: "consecrate_machine.ps1"
+
+@if {{ has_sh or has_ps1 }}:
+    %% let choice = @ask("Artisans are missing from the Core. Shall the Sentinel conduct the Consecration now? (y/n)")
+    @if {{ choice == 'y' }}:
+        %% proclaim: "Igniting the Consecration... (This may require your Vow of Elevation/Sudo)"
+        @on_os windows:
+            >> powershell ./consecrate_machine.ps1
+        @else:
+            >> chmod +x consecrate_machine.sh
+            >> ./consecrate_machine.sh
+        @endif
+        %% proclaim: "Consecration complete. Reality is now Titanium-Ready."
+    @else:
+        %% proclaim: "Consecration deferred. Gnosis remains manual."
+    @endif
+@endif
+"""
+
+# --- IV. THE UNIVERSAL SUTURE ---
+Makefile:
+    .PHONY: consecrate
+
+    consecrate: ## Audit and harden the host machine environment for Velm
+        @poetry run velm run consecrate.symphony
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Sentinel of Consecration manifest in 'scripts/forensics/' and 'consecrate.symphony'."
+    
+    # Trigger an immediate non-destructive scan
+    proclaim: "Initiating pre-flight environmental scan..."
+    >> python scripts/forensics/binary_oracle.py
+    
+    proclaim: "[bold green]✅ Sentinel is vigilant.[/bold green]"
+    proclaim: "To harden your environment, speak: [bold cyan]make consecrate[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Sentinel activation failed.[/bold red]"
+    rm -rf scripts/forensics/binary_oracle.py consecrate.symphony

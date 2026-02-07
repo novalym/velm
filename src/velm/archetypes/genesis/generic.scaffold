@@ -1,33 +1,207 @@
-# Path: scaffold/archetypes/genesis/generic.scaffold
-# --------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: UNIVERSAL SOVEREIGN FOUNDATION (V-Ω-TOTALITY)            ==
+# =================================================================================
+# @description: The definitive, language-agnostic foundation for any high-status 
+#               software project. Establishes the laws of structure, documentation,
+#               automation, and governance.
+# @category: System
+# @tags: universal, foundation, boilerplate, architecture, governance, system
+# @difficulty: Novice
+# @is_integration: false
+# @dna: use_git=true, include_docs=true, license_type=MIT
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: GENERIC SANCTUM (V-Ω-STRUCTURAL-PURITY)          ==
-# =================================================================================
-# @description: The purest void. A minimal, universal starting point for any project.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "new-reality"
+$$ author = "The Architect"
+$$ description = "A new reality manifest by the VELM God-Engine."
+$$ version = "0.1.0"
+$$ license_type = "MIT"
 
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
+$$ year = {{ now('local', '%Y') }}
+
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore:
-        # A humble ward against the most common profane artifacts
-        .vscode/
-        .idea/
-        .DS_Store
-        .env
 
-    README.md:
-        # {{ project_name }}
+    # [1] THE ABYSSAL SENTINEL (Ignorance)
+    .gitignore :: """
+    # == The Abyss ==
+    # Environment & Secrets
+    .env
+    .env.*
+    !.env.example
 
-        A new reality forged by the Scaffold God-Engine.
+    # OS Artifacts
+    .DS_Store
+    Thumbs.db
+    *.log
+
+    # IDE & Build
+    .vscode/
+    .idea/
+    dist/
+    build/
+    out/
+    node_modules/
+    __pycache__/
+    .venv/
+    
+    # Scaffold Chronicles
+    scaffold.lock
+    .scaffold/
+    """
+
+    # [2] THE GEOMETRIC LAW (Consistency)
+    .editorconfig :: """
+    # editorconfig.org
+    root = true
+
+    [*]
+    indent_style = space
+    indent_size = 4
+    charset = utf-8
+    trim_trailing_whitespace = true
+    insert_final_newline = true
+    end_of_line = lf
+
+    [*.{json,yaml,yml,md,js,ts,tsx,css}]
+    indent_size = 2
+
+    [Makefile]
+    indent_style = tab
+    """
+
+    # [3] THE MAESTRO'S HAND (Orchestration)
+    Makefile:
+        .PHONY: help install test clean sync
+        
+        help: ## Proclaim available rites for this reality
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
+
+        install: ## Consecrate the environment
+            @echo "Summoning initial dependencies..."
+
+        test: ## Adjudicate the soul of the project
+            @echo "Conducting unit inquisition..."
+
+        sync: ## Synchronize reality with the Gnostic Chronicle
+            velm verify
+
+        clean: ## Return ephemeral artifacts to the void
+            rm -rf dist/ build/ *.log
+
+    # [4] THE CHRONICLE SANCTUM (Documentation)
+    README.md :: """
+    # {{ project_name }} v{{ version }}
+
+    > {{ description }}
+
+    Forged by **{{ author }}** via the **VELM God-Engine**.
+
+    ## 🏛️ Architectural Gnosis
+    This project adheres to the Universal Sovereign structure. 
+    It is designed for clarity, safety, and deterministic evolution.
+
+    ## 🚀 The Rites of Initiation
+    1.  **Consecrate**: `make install`
+    2.  **Verify**: `make test`
+    3.  **Conduct**: [Inscribe your primary execution command here]
+
+    ## 📜 Sovereignty
+    - **Created**: {{ now('local', '%Y-%m-%d') }}
+    - **Engine**: VELM V2.5.0
+    - **License**: {{ license_type }}
+    """
+
+    CHANGELOG.md :: """
+    # Chronicle of Evolution
+    
+    All notable transfigurations of **{{ project_name }}** are recorded here.
+
+    ## [0.1.0] - {{ now('local', '%Y-%m-%d') }}
+    ### Born
+    - Initial structure manifest via the Universal Sovereign archetype.
+    """
 
     docs/
-        architecture.md:
-            # Architecture
+        architecture.md :: """
+        # Architectural Topography
+        
+        ## Intent
+        The core purpose of '{{ project_name }}' is to {{ description | lower }}.
 
-            This scripture will chronicle the Gnostic soul of '{{ project_name }}'.
+        ## Layers
+        - **`src/`**: The material soul of the logic.
+        - **`docs/`**: The Gnostic records of the architecture.
+        - **`scripts/`**: The kinetic limbs of the project.
+        """
+        
+        governance.md :: """
+        # Laws of Contribution
+        
+        1.  **Immutability**: Rites should be recorded in the Gnostic Chronicle.
+        2.  **Purity**: Logic must remain separated from infrastructure.
+        3.  **Traceability**: Every transfiguration must bear the signature of its author.
+        """
 
+    # [5] THE KINETIC LIMBS (Scripts)
+    scripts/
+        setup.sh :: """
+        #!/bin/bash
+        # Gnostic Setup Rite
+        echo "⚒️  Initializing {{ project_name }}..."
+        # Add your initialization logic here
+        """
+    %% 755
+
+    # [6] THE CELESTIAL GATE (CI/CD)
+    .github/
+        workflows/
+            integrity.yml :: """
+            name: Ω | Integrity Adjudication
+            on: [push, pull_request]
+            jobs:
+              audit:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/checkout@v4
+                  - name: Proclaim Intent
+                    run: echo "Verifying the integrity of {{ project_name }}..."
+            """
+
+    # [7] THE ENVIRONMENT DNA
+    .env.example:
+        # == System Identity ==
+        APP_NAME="{{ project_name }}"
+        ARCHITECT="{{ author }}"
+        ENVIRONMENT="development"
+        LOG_LEVEL="INFO"
+        
+        # == Secret Keys ==
+        # Replace with true Gnosis in your local .env
+        SECRET_KEY="void"
+
+    # [8] THE SOUL (Source)
     src/
-        main.txt :: "This is the heart of the '{{ project_name }}' reality."
+        {{ package_name }}/
+            __init__.py :: "__version__ = '{{ version }}'"
+            core.txt :: "This is the primary sanctum for the logic of {{ project_name }}."
 
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
+    # 1. Initialize the Cosmos
+    @if {{ use_git }} -> git init
+
+    # 2. Proclamation of Guidance
+    proclaim: "The Universal Sovereign Foundation is manifest in '{{ project_slug }}/'."
+    proclaim: "To begin the Great Work:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make help[/bold cyan] (See available rites)"
+    proclaim: "  3. Inscribe your logic within [bold cyan]src/{{ package_name }}/[/bold cyan]"
+
+%% on-heresy
+    proclaim: "The foundation fractured. Cleaning the ruins..."
+    rm -rf docs/ scripts/ .github/ Makefile

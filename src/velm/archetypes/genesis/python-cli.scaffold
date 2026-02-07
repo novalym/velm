@@ -1,124 +1,389 @@
-# Path: scaffold/archetypes/genesis/python-cli.scaffold
-# -----------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: PYTHON CLI TITAN (V-Ω-TOTALITY)                         ==
+# =================================================================================
+# @description: Materializes a professional, high-performance CLI application using Typer and Rich. Features a modular subcommand architecture, Pydantic V2 configuration, high-fidelity forensics, and an automated release pipeline.
+# @category: Genesis
+# @tags: python, cli, typer, rich, pydantic, poetry, docker, subcommands, automation
+# @difficulty: Adept
+# @is_integration: false
+# @dna: use_poetry=true, python_version=3.12, use_docker=true, use_rich=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: PYTHON CLI TITAN (V-Ω-TYPER-ASCENDED)            ==
-# =================================================================================
-# @description: A legendary-tier CLI tool forged with Typer, Rich, and Poetry.
-#               It is self-documenting, type-safe, and infinitely extensible.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "titan-tool"
+$$ author = "{{ author | default('The Architect') }}"
+$$ email = "{{ email | default('architect@novalym.systems') }}"
+$$ python_version = "3.12"
+$$ version = "0.1.0"
 
-# --- I. The Altar of Gnostic Will ---
+# [THE ALCHEMY]: Case Normalization
 $$ project_slug = {{ project_name | slug }}
-$$ package_name = {{ project_slug | snake }}
-$$ author = {{ author }}
-$$ python_version = "3.11"
+$$ package_name = {{ project_name | snake }}
 
-# --- II. The Scripture of Form ---
+# --- II. THE SCRIPTURE OF FORM (The Command Fortress) ---
 {{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
     .gitignore :: """
+    # == The Abyss (CLI) ==
     __pycache__/
+    *.py[cod]
+    *$py.class
     .venv/
-    dist/
-    .pytest_cache/
-    .mypy_cache/
-    .ruff_cache/
+    venv/
     .env
+    .env.*
+    !.env.example
+    
+    # Distribution / Build
+    dist/
+    build/
+    *.egg-info/
+    
+    # Testing & Forensics
+    .pytest_cache/
+    .ruff_cache/
+    .mypy_cache/
+    .coverage
+    htmlcov/
+    .DS_Store
     """
 
-    README.md :: """
-    # {{ project_name }}
-
-    A powerful CLI forged with Typer and the Scaffold God-Engine.
-
-    ## Installation & Usage
-
-    ```bash
-    # Install dependencies
-    make install
-
-    # See all available commands
-    poetry run {{ project_slug }} --help
-
-    # Run a command
-    poetry run {{ project_slug }} users create "Gnostic Architect"
-    ```
+    .editorconfig :: """
+    root = true
+    [*]
+    indent_style = space
+    indent_size = 4
+    charset = utf-8
+    trim_trailing_whitespace = true
+    insert_final_newline = true
+    end_of_line = lf
+    [Makefile]
+    indent_style = tab
     """
 
-    pyproject.toml:
-        [tool.poetry]
-        name = "{{ project_slug }}"
-        version = "0.1.0"
-        description = "{{ description }}"
-        authors = ["{{ author }}"]
-        packages = [{include = "{{ package_name }}", from = "src"}]
+    # [2] THE FOUNDRY (pyproject.toml)
+    # Defines the CLI entry point and the artisan toolset.
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "{{ version }}"
+    description = "A high-performance CLI forged by the VELM engine."
+    authors = ["{{ author }} <{{ email }}>"]
+    readme = "README.md"
+    packages = [{include = "{{ package_name }}", from = "src"}]
 
-        [tool.poetry.scripts]
-        {{ project_slug }} = "{{ package_name }}.main:app"
+    [tool.poetry.scripts]
+    {{ project_slug }} = "{{ package_name }}.main:app"
 
-        [tool.poetry.dependencies]
-        python = "^{{ python_version }}"
-        typer = {extras = ["rich"], version = "^0.9.0"}
+    [tool.poetry.dependencies]
+    python = "^{{ python_version }}"
+    typer = {extras = ["rich"], version = "^0.12.0"}
+    pydantic = "^2.6.0"
+    pydantic-settings = "^2.2.0"
+    rich = "^13.7.0"
+    shellingham = "^1.5.4"
+    python-dotenv = "^1.0.1"
+    structlog = "^24.1.0"
 
-        [tool.poetry.group.dev.dependencies]
-        pytest = "^8.0.0"
-        ruff = "^0.3.0"
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    pytest-cov = "^5.0.0"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+    mypy = "^1.8.0"
+    bandit = "^1.7.7"
 
-        [build-system]
-        requires = ["poetry-core"]
-        build-backend = "poetry.core.masonry.api"
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
 
-    Makefile:
-        .PHONY: install run test lint
+    [tool.black]
+    line-length = 110
 
-        install:
-        	poetry install
+    [tool.ruff]
+    line-length = 110
+    target-version = "py312"
+    lint.select = ["E", "F", "I", "UP", "B", "S", "T20"]
+    lint.ignore = ["S101"]
 
-        run:
-        	poetry run {{ project_slug }}
+    [tool.mypy]
+    python_version = "3.12"
+    strict = true
+    """
 
-        test:
-        	poetry run pytest
+    # [3] THE CONTROL PLANE (Makefile)
+    # Absolute Makefile sovereignty via Single Dollar ($) syntax.
+    Makefile :: """
+    .PHONY: help install dev test lint format build docker-build clean
+    
+    # Gnostic Path Resolution
+    $PY = poetry run python
+    $PKG = src/{{ package_name }}
+    $EXE = poetry run {{ project_slug }}
 
-        lint:
-        	poetry run ruff check .
+    help: ## Proclaim available Titan rites
+        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
 
+    install: ## Consecrate the local environment and dependencies
+        @echo "📦 Summoning dependencies via Poetry..."
+        poetry install
+
+    dev: ## Ignite the CLI in debug mode
+        $($EXE) --help
+
+    test: ## Conduct the unit inquisition
+        @echo "🧪 Verifying logic via Pytest..."
+        poetry run pytest --cov=$($PKG)
+
+    lint: ## Audit the soul of the code for structural and security heresies
+        @echo "🔍 Scrying for logic-gaps and vulnerabilities..."
+        poetry run ruff check .
+        poetry run mypy src/
+        poetry run bandit -r src/
+
+    format: ## Apply sacred geometry to the code
+        @echo "✨ Purifying code form..."
+        poetry run ruff check --fix .
+        poetry run black .
+
+    build: clean ## Forge the celestial wheel (distribution)
+        poetry build
+
+    docker-build: ## Forge the production-grade vessel
+        docker build -t {{ project_slug }}:latest .
+
+    clean: ## Return artifacts to the void
+        rm -rf dist/ build/ .pytest_cache/ .ruff_cache/ .mypy_cache/ .coverage
+        find . -name "*.pyc" -delete
+    """
+
+    # [4] THE ENVIRONMENT DNA
+    .env.example :: """
+    # == {{ project_name | upper }} CLI CONFIGURATION ==
+    ENVIRONMENT=development
+    LOG_LEVEL=INFO
+    
+    # == Gnostic Secrets ==
+    # Add your project-specific variables here
+    # Use the prefix TITAN_ to auto-inject into Settings
+    TITAN_API_KEY=void-placeholder
+    """
+
+    # [5] THE SOURCE CODE (The Command Mind)
     src/
         {{ package_name }}/
-            __init__.py
+            __init__.py :: "__version__ = '{{ version }}'"
 
-            main.py:
-                import typer
-                from rich.console import Console
+            # --- THE CONSCIENCE (CONFIG) ---
+            config.py :: """
+            from pydantic_settings import BaseSettings, SettingsConfigDict
+            from typing import Optional
+            import logging
 
-                app = typer.Typer(
-                    name="{{ project_slug }}",
-                    help="{{ description }}",
-                    add_completion=False
+            class Settings(BaseSettings):
+                \"\"\"
+                =============================================================================
+                == THE GNOSTIC SETTINGS (V-Ω-SINGLETON)                                    ==
+                =============================================================================
+                Siphons environment DNA into typed logic via Pydantic V2.
+                \"\"\"
+                APP_NAME: str = "{{ project_name }}"
+                ENVIRONMENT: str = "development"
+                LOG_LEVEL: str = "INFO"
+                
+                # Custom Gnosis (Inject via TITAN_API_KEY)
+                API_KEY: Optional[str] = None
+
+                model_config = SettingsConfigDict(
+                    env_prefix="TITAN_",
+                    env_file=".env", 
+                    env_file_encoding="utf-8", 
+                    extra="ignore"
                 )
-                console = Console()
 
-                # A subcommand altar for the 'users' domain
-                users_app = typer.Typer(help="Manage user entities.")
-                app.add_typer(users_app, name="users")
+            settings = Settings()
+            """
 
-                @app.command()
-                def version():
-                    """Proclaims the version of this CLI Titan."""
-                    console.print(f"[bold cyan]{{ project_slug }}[/] version: [yellow]0.1.0[/]")
+            # --- THE KINETIC INTERFACE (MAIN ENTRY) ---
+            main.py :: """
+            \"\"\"
+            =============================================================================
+            == THE KINETIC INTERFACE (THE VOICE OF THE TITAN)                          ==
+            =============================================================================
+            Generated by the VELM God-Engine.
+            \"\"\"
+            import typer
+            from rich.console import Console
+            from .config import settings
+            from .commands import system, logic
 
-                @users_app.command("create")
-                def create_user(
-                    username: str = typer.Argument(..., help="The sacred name of the user."),
-                    is_admin: bool = typer.Option(False, "--admin", help="Bestow admin privileges.")
+            # The Ocular Membrane for the CLI
+            console = Console()
+
+            # The Root Altar
+            app = typer.Typer(
+                name="{{ project_slug }}",
+                help=\"\"\"
+                [bold cyan]{{ project_name | upper }}[/] - V-Ω-TOTALITY
+                
+                {{ description | default('A high-performance command engine.') }}
+                \"\"\",
+                add_completion=True,
+                rich_markup_mode="rich"
+            )
+
+            # --- MOVEMENT I: SUB-COMMAND REGISTRATION ---
+            app.add_typer(system.app, name="sys", help="Forensic system rites.")
+            app.add_typer(logic.app, name="run", help="Primary execution logic.")
+
+            @app.command()
+            def version():
+                \"\"\"Proclaim the version of the Titan.\"\"\"
+                console.print(f"[bold cyan]{settings.APP_NAME}[/] v{{ version }}")
+
+            @app.callback()
+            def global_options(
+                verbose: bool = typer.Option(
+                    False, "--verbose", "-v", help="Enable luminous logging."
+                )
+            ):
+                \"\"\"Universal configurations for all rites.\"\"\"
+                if verbose:
+                    console.print("[dim]Luminous logging enabled.[/dim]")
+
+            if __name__ == "__main__":
+                app()
+            """
+
+            # --- THE SUB-COMMAND STRATA ---
+            commands/
+                __init__.py :: ""
+                system.py :: """
+                import typer
+                import platform
+                from rich.table import Table
+                from ..main import console
+
+                app = typer.Typer()
+
+                @app.command("inquest")
+                def inquest():
+                    \"\"\"Perform a forensic audit of the host environment.\"\"\"
+                    table = Table(title="[bold cyan]Host Tomography[/]", border_style="dim")
+                    table.add_column("Organ", style="magenta")
+                    table.add_column("Status", style="white")
+
+                    table.add_row("OS", platform.system())
+                    table.add_row("Release", platform.release())
+                    table.add_row("Arch", platform.machine())
+                    table.add_row("Python", platform.python_version())
+
+                    console.print(table)
+                """
+
+                logic.py :: """
+                import typer
+                import time
+                from rich.progress import Progress, SpinnerColumn, TextColumn
+                from ..main import console
+
+                app = typer.Typer()
+
+                @app.command("strike")
+                def strike(
+                    target: str = typer.Argument(..., help="The target of the kinetic rite.")
                 ):
-                    """Forge a new user in the system."""
-                    privilege = "[bold green]Admin[/]" if is_admin else "[dim]User[/]"
-                    console.print(f"User '{username}' forged with {privilege} privileges.")
+                    \"\"\"Execute a logic strike upon a target.\"\"\"
+                    console.print(f"Initiating rite upon: [bold yellow]{target}[/]")
+                    
+                    with Progress(
+                        SpinnerColumn(),
+                        TextColumn("[progress.description]{task.description}"),
+                        console=console,
+                        transient=True,
+                    ) as progress:
+                        progress.add_task(description="Processing Gnosis...", total=None)
+                        time.sleep(1.5) # Simulate work
+                    
+                    console.print(f"[bold green]✔ Rite Complete.[/] Target '{target}' manifest.")
+                """
 
-                if __name__ == "__main__":
-                    app()
+    # [6] THE INQUISITION (Tests)
+    tests/
+        __init__.py :: ""
+        test_cli.py :: """
+        from typer.testing import CliRunner
+        from {{ package_name }}.main import app
 
+        runner = CliRunner()
+
+        def test_version_proclamation():
+            result = runner.invoke(app, ["version"])
+            assert result.exit_code == 0
+            assert "v0.1.0" in result.stdout
+
+        def test_system_inquest():
+            result = runner.invoke(app, ["sys", "inquest"])
+            assert result.exit_code == 0
+            assert "Host Tomography" in result.stdout
+        """
+
+    # [7] THE CELESTIAL VESSEL (Docker)
+    Dockerfile :: """
+    # --- STAGE 1: THE FORGE (BUILDER) ---
+    FROM python:{{ python_version }}-slim-bookworm as builder
+    
+    WORKDIR /app
+    ENV POETRY_NO_INTERACTION=1 \
+        POETRY_VIRTUALENVS_IN_PROJECT=1 \
+        POETRY_VIRTUALENVS_CREATE=1
+
+    RUN apt-get update && apt-get install -y --no-install-recommends build-essential curl
+    RUN pip install poetry==1.8.2
+
+    COPY pyproject.toml poetry.lock* ./
+    RUN poetry install --no-root --only main
+
+    # --- STAGE 2: THE CELESTIAL VESSEL (PRODUCTION) ---
+    FROM python:{{ python_version }}-slim-bookworm
+    WORKDIR /app
+    
+    # [SECURITY]: Non-root execution
+    RUN useradd -m -u 1000 scaf_artisan
+    
+    COPY --from=builder /app/.venv /app/.venv
+    ENV PATH="/app/.venv/bin:$PATH"
+    
+    COPY src /app/src
+    COPY .env.example /app/.env
+
+    RUN chown -R scaf_artisan:scaf_artisan /app
+    USER scaf_artisan
+
+    # [THE VOW]: Unbuffered I/O
+    ENV PYTHONUNBUFFERED=1
+
+    # Entrypoint
+    ENTRYPOINT ["{{ project_slug }}"]
+    """
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
 %% post-run
-    git init
-    poetry install
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the dependencies
+    proclaim: "Summoning the Typer and Rich toolchain... (Poetry Install)"
+    @if {{ shell('which poetry') }} -> poetry install
+    @else -> proclaim: "[bold yellow]Poetry not detected. Please install it to complete the forge.[/bold yellow]"
+
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ CLI Titan '{{ project_name }}' is manifest in '{{ project_slug }}/'.[/bold green]"
+    proclaim: "To awaken the Titan:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]poetry run {{ project_slug }} --help[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]The CLI inception rite fractured.[/bold red] Purging the ruins..."
+    rm -rf src/ tests/ pyproject.toml Makefile Dockerfile

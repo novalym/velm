@@ -1,0 +1,282 @@
+# Path: src/velm/archetypes/integrations/worker-swarm.scaffold
+# ----------------------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: WORKER SWARM CITADEL (V-Ω-TOTALITY)                      ==
+# =================================================================================
+# @description: A transcendent distributed task engine. Orchestrates a 
+#               resilient Swarm using Celery (Python) or BullMQ (Node), 
+#               backed by a high-availability Redis sidecar. 
+# @category: System
+# @tags: celery, bullmq, redis, distributed-systems, python, node, worker, scale
+# @difficulty: Master
+# @is_integration: true
+# @dna: use_redis=true, use_docker=true, swarm_concurrency=4
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ redis_host = "redis-vault"
+$$ redis_port = 6379
+$$ swarm_concurrency = 4
+$$ dashboard_port = 5555
+
+# Contextual Triage (Divining the Project DNA)
+$$ is_python = {{ (project_type in ['python', 'poetry', 'fastapi']) | default(true) }}
+$$ is_node = {{ (project_type in ['node', 'nextjs', 'express']) | default(false) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF SCALE (Infrastructure) ---
+docker-compose.worker.yml :: """
+version: '3.8'
+
+services:
+  # [ASCENSION 1]: THE REDIS VAULT (The Nervous Core)
+  redis-vault:
+    image: redis:7-alpine
+    container_name: {{ project_slug }}_redis_vault
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gnostic_mesh
+
+  # [ASCENSION 2]: THE KINETIC SWARM (The Executing Limbs)
+  worker:
+    build: .
+    container_name: {{ project_slug }}_worker
+    {% if is_python %}
+    # Celery execution edict with concurrency and event monitoring
+    command: poetry run celery -A src.{{ package_name }}.worker worker --loglevel=info --concurrency={{ swarm_concurrency }} -E
+    {% else %}
+    # Node execution edict
+    command: npm run worker
+    {% endif %}
+    env_file: .env
+    depends_on:
+      redis-vault:
+        condition: service_healthy
+    networks:
+      - gnostic_mesh
+    deploy:
+      resources:
+        limits:
+          memory: 512M # Prevents memory leaks from choking the host
+
+  # [ASCENSION 3]: THE DASHBOARD (The Ocular Monitor)
+  {% if is_python %}
+  flower:
+    image: mher/flower
+    container_name: {{ project_slug }}_flower
+    environment:
+      - CELERY_BROKER_URL=redis://{{ redis_host }}:{{ redis_port }}/0
+    ports:
+      - "{{ dashboard_port }}:5555"
+    depends_on:
+      - redis-vault
+    networks:
+      - gnostic_mesh
+  {% endif %}
+
+networks:
+  gnostic_mesh:
+    external: true
+    name: {{ project_slug }}_gnostic_mesh
+"""
+
+# --- III. THE SURGICAL WEAVE: PYTHON / CELERY (The Soul) ---
+@if {{ is_python }}
+src/{{ package_name }}/
+    # [ASCENSION 4]: The Worker Blueprint
+    worker.py :: """
+    import os
+    import time
+    from celery import Celery
+    from celery.utils.log import get_task_logger
+
+    Logger = get_task_logger(__name__)
+
+    # --- THE CONDUCTOR ---
+    # We initialize the Celery organ with Gnostic settings.
+    app = Celery(
+        '{{ project_slug }}',
+        broker=os.getenv('REDIS_URL', 'redis://{{ redis_host }}:{{ redis_port }}/0'),
+        backend=os.getenv('REDIS_URL', 'redis://{{ redis_host }}:{{ redis_port }}/0'),
+        include=['src.{{ package_name }}.worker']
+    )
+
+    # Global Configuration
+    app.conf.update(
+        task_serializer='json',
+        accept_content=['json'],
+        result_serializer='json',
+        timezone='UTC',
+        enable_utc=True,
+        task_track_started=True,
+        task_time_limit=3600, # 1 hour max execution
+    )
+
+    @app.task(name="{{ project_slug }}.forge_gnosis", bind=True, max_retries=3)
+    def forge_gnosis(self, data: dict):
+        \"\"\"
+        =============================================================================
+        == THE RITE OF DATA ALCHEMY (V-Ω-ATOMIC-TASK)                             ==
+        =============================================================================
+        Performs high-order transmutation in a parallel reality.
+        \"\"\"
+        try:
+            Logger.info(f"Swarm perceiving intent: {data.get('intent', 'UNKNOWN')}")
+            
+            # [SIMULATION]: Time-dilation for heavy work
+            time.sleep(2)
+            
+            result = {
+                "status": "TRANSMUTED",
+                "rite_id": data.get("id"),
+                "timestamp": time.time(),
+                "node": os.uname().nodename
+            }
+            
+            Logger.info(f"Rite complete. Gnosis manifest for ID: {data.get('id')}")
+            return result
+
+        except Exception as heresy:
+            Logger.error(f"Task Fracture: {heresy}")
+            # Automatic retry logic using exponential backoff
+            self.retry(exc=heresy, countdown=2 ** self.request.retries)
+    """
+
+    # [ASCENSION 5]: The Dispatching Mind
+    core/
+        swarm_client.py :: """
+        from typing import Dict, Any
+        from ..worker import app as celery_app
+
+        class SwarmDispatcher:
+            \"\"\"
+            The interface between the synchronous Mind and the asynchronous Swarm.
+            \"\"\"
+            
+            @staticmethod
+            def dispatch_rite(intent: str, payload: Dict[str, Any]):
+                \"\"\"Commands the Swarm to conduct a rite.\"\"\"
+                data = {"intent": intent, **payload}
+                return celery_app.send_task(
+                    "{{ project_slug }}.forge_gnosis", 
+                    args=[data],
+                    queue='celery' # The default queue of will
+                )
+
+            @staticmethod
+            def scry_result(task_id: str):
+                \"\"\"Perceives the outcome of a past rite.\"\"\"
+                return celery_app.AsyncResult(task_id)
+        """
+
+    # [ASCENSION 6]: Update the Dependency Grimoire
+    {% if project_type == 'poetry' %}
+    pyproject.toml += """
+    celery = {extras = ["redis"], version = "^5.3.6"}
+    redis = "^5.0.1"
+    """
+    {% else %}
+    requirements.txt += """
+    celery[redis]>=5.3.6
+    redis>=5.0.1
+    """
+    {% endif %}
+@endif
+
+# --- IV. THE SURGICAL WEAVE: NODE / BULLMQ (The Membrane) ---
+@if {{ is_node }}
+src/worker/
+    # [ASCENSION 7]: The BullMQ Worker Node
+    swarm.ts :: """
+    import { Worker, Job, QueueEvents } from 'bullmq';
+    import IORedis from 'ioredis';
+
+    const connection = new IORedis(process.env.REDIS_URL || 'redis://{{ redis_host }}:{{ redis_port }}', {
+        maxRetriesPerRequest: null 
+    });
+
+    /**
+     * =============================================================================
+     * == THE SWARM ACCOLYTE (V-Ω-NODE-WORKER)                                     ==
+     * =============================================================================
+     */
+    const worker = new Worker('{{ project_slug }}_queue', async (job: Job) => {
+        console.log(`[SWARM] Perceiving Job ${job.id}:`, job.name);
+        
+        // [SIMULATION]: Performing kinetic transmutation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        return { 
+            status: 'MANIFESTED',
+            origin: 'BullMQ_Node_Swarm',
+            data: job.data 
+        };
+    }, { 
+        connection,
+        concurrency: {{ swarm_concurrency }}
+    });
+
+    worker.on('completed', (job) => console.log(`[SWARM] Job ${job.id} resolved.`));
+    worker.on('failed', (job, err) => console.error(`[HERESY] Job ${job?.id} fractured:`, err));
+    """
+
+src/core/
+    # [ASCENSION 8]: The BullMQ Dispatcher
+    swarmClient.ts :: """
+    import { Queue } from 'bullmq';
+    import IORedis from 'ioredis';
+
+    const connection = new IORedis(process.env.REDIS_URL || 'redis://{{ redis_host }}:{{ redis_port }}', {
+        maxRetriesPerRequest: null 
+    });
+
+    export const swarmQueue = new Queue('{{ project_slug }}_queue', { connection });
+
+    /**
+     * [THE KINETIC DISPATCH]
+     */
+    export const dispatchToSwarm = async (name: string, data: any) => {
+        return await swarmQueue.add(name, data, {
+            attempts: 3,
+            backoff: {
+                type: 'exponential',
+                delay: 1000
+            }
+        });
+    };
+    """
+
+    package.json:
+        # [ASCENSION 9]: Injecting Node dependencies
+        dependencies += {
+            "bullmq": "^5.4.1",
+            "ioredis": "^5.3.2"
+        }
+@endif
+
+# --- V. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Worker Swarm Citadel[/bold cyan] is materializing."
+    
+    # [ASCENSION 10]: Forge the Mesh Network
+    proclaim: "Forging the Gnostic Mesh Network..."
+    >> docker network create {{ project_slug }}_gnostic_mesh || true
+    
+    # [ASCENSION 11]: Final Instructions
+    proclaim: "[bold green]✅ Swarm Ready.[/bold green] To ignite the limbs:"
+    proclaim: "  1. [bold cyan]make install[/bold cyan] (To update the package registries)"
+    proclaim: "  2. [bold cyan]docker-compose -f docker-compose.worker.yml up -d[/bold cyan]"
+    proclaim: "  3. To scale the acolytes to [magenta]{{ swarm_concurrency }}[/magenta]:"
+    proclaim: "     [bold cyan]docker-compose -f docker-compose.worker.yml up -d --scale worker={{ swarm_concurrency }}[/bold cyan]"
+    
+    {% if is_python %}
+    proclaim: "  4. Scry the Swarm vitals at [bold magenta]http://localhost:{{ dashboard_port }}[/bold magenta]"
+    {% endif %}
+
+%% on-heresy
+    proclaim: "[danger]Swarm inception failed.[/danger] Verify Redis accessibility and container permissions."

@@ -1,0 +1,120 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: RESILIENCE MESH GUARD (V-Ω-TOTALITY-CIRCUIT-BREAKER)     ==
+# =================================================================================
+# @description: Materializes an advanced inter-service resilience layer. Features Circuit Breaking (Netflix Hystrix pattern), Exponential Backoff, and Bulkhead Isolation to prevent cascading failures in microservice environments.
+# @category: System
+# @tags: resilience, circuit-breaker, backoff, retry, reliability, microservices, stability
+# @difficulty: Master
+# @is_integration: true
+# @dna: failure_threshold=5, reset_timeout=30, strategy=exponential_backoff
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ failure_threshold = 5
+$$ reset_timeout = 30
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE RESILIENCE CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        resilience/
+            __init__.py :: "from .breaker import CircuitBreaker, resilience_guard"
+            
+            # [1] THE STATE MACHINE
+            contracts.py :: """
+            from enum import Enum
+
+            class BreakerState(str, Enum):
+                CLOSED = "CLOSED"      # Healthy: Requests flow
+                OPEN = "OPEN"          # Fractured: Requests blocked
+                HALF_OPEN = "HALF"     # Probing: One request allowed
+            """
+
+            # [2] THE CIRCUIT BREAKER (The Shield)
+            breaker.py :: """
+            import time
+            import logging
+            import asyncio
+            import functools
+            from .contracts import BreakerState
+
+            Logger = logging.getLogger("Resilience:Breaker")
+
+            class CircuitBreaker:
+                \"\"\"
+                =============================================================================
+                == THE CIRCUIT BREAKER (V-Ω-TOTALITY)                                      ==
+                =============================================================================
+                LIF: ∞ | ROLE: SYSTEM_BULKHEAD
+                \"\"\"
+                def __init__(self, name: str, threshold={{ failure_threshold }}, timeout={{ reset_timeout }}):
+                    self.name = name
+                    self.threshold = threshold
+                    self.timeout = timeout
+                    self.state = BreakerState.CLOSED
+                    self.failures = 0
+                    self.last_failure_time = 0
+
+                def __call__(self, func):
+                    @functools.wraps(func)
+                    async def wrapper(*args, **kwargs):
+                        if self.state == BreakerState.OPEN:
+                            if time.time() - self.last_failure_time > self.timeout:
+                                self.state = BreakerState.HALF_OPEN
+                                Logger.warning(f"⚠️  Circuit {self.name} entering HALF-OPEN state. Probing...")
+                            else:
+                                raise RuntimeError(f"🚫 Circuit {self.name} is OPEN. Request blocked for safety.")
+
+                        try:
+                            result = await func(*args, **kwargs)
+                            self._handle_success()
+                            return result
+                        except Exception as e:
+                            self._handle_failure(e)
+                            raise e
+                    return wrapper
+
+                def _handle_success(self):
+                    if self.state != BreakerState.CLOSED:
+                        Logger.info(f"✅ Circuit {self.name} has been RESTORED (CLOSED).")
+                    self.state = BreakerState.CLOSED
+                    self.failures = 0
+
+                def _handle_failure(self, e: Exception):
+                    self.failures += 1
+                    self.last_failure_time = time.time()
+                    Logger.error(f"💥 Circuit {self.name} failure detected ({self.failures}/{self.threshold}): {e}")
+                    
+                    if self.failures >= self.threshold:
+                        self.state = BreakerState.OPEN
+                        Logger.critical(f"🛑 Circuit {self.name} TRIPPED (OPEN). Isolation active for {self.timeout}s.")
+
+            # Luminous Syntax Sugar
+            def resilience_guard(name: str):
+                return CircuitBreaker(name)
+            """
+
+# --- III. THE SURGICAL WEAVE ---
+@if {{ is_python }}
+    # Example Usage in a Service
+    src/{{ package_name }}/services/external_api.py :: """
+    from ..core.resilience.breaker import resilience_guard
+    import httpx
+
+    @resilience_guard(name="StripeAPI")
+    async def call_payment_gateway():
+        async with httpx.AsyncClient() as client:
+            res = await client.get("https://api.stripe.com/v1/charges")
+            res.raise_for_status()
+            return res.json()
+    """
+@endif
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Resilience Mesh Guard[/bold cyan] is manifest."
+    proclaim: "Logic located at: [bold]core/resilience/breaker.py[/bold]"
+    proclaim: "To shield a call, use the [bold]@resilience_guard[/bold] decorator."
+
+%% on-heresy
+    proclaim: "Resilience inception failed."

@@ -1,66 +1,109 @@
-# Path: scaffold/archetypes/genesis/fullstack-monorepo.scaffold
-# -------------------------------------------------------------
-
 # =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: FULLSTACK MONOREPO (V-Ω-STRUCTURAL-PURITY)       ==
+# == GNOSTIC ARCHETYPE: FULLSTACK MONOREPO (V-Ω-TOTALITY)                        ==
+# =================================================================================
+# @description: The definitive polyglot foundation. Orchestrates a FastAPI 
+#               Intelligence Layer and a React/Vite Ocular Membrane within a 
+#               unified, Docker-ready Monorepo structure.
+# @category: System
+# @tags: python, typescript, fastapi, react, vite, monorepo, docker, orchestration
+# @difficulty: Master
+# @is_integration: false
+# @dna: use_docker=true, use_poetry=true, use_typescript=true, node_version=20
 # =================================================================================
 
-# --- I. The Altar of Gnostic Will ---
-$$ project_slug = {{ project_name | slug }}
-$$ author = {{ author }}
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "omega-workspace"
+$$ author = "The Architect"
 $$ backend_port = 8000
 $$ frontend_port = 5173
 
-# --- II. The Scripture of Form ---
-{{ project_slug }}/
-    # The root .gitignore is a Gnostic Guardian for both realities.
-    .gitignore :: """
-    .env*
-    !.env.example
-    .vscode/
-    .DS_Store
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
 
-    # Python
+# --- II. THE SCRIPTURE OF FORM ---
+{{ project_slug }}/
+
+    # [1] THE UNIFIED GUARDIAN (Root Config)
+    .gitignore :: """
+    # Environment & Secrets
+    .env
+    .env.*
+    !.env.example
+
+    # OS & IDE
+    .DS_Store
+    .vscode/
+    .idea/
+
+    # Backend Reality
     backend/__pycache__/
     backend/.pytest_cache/
     backend/.ruff_cache/
     backend/.venv/
+    backend/dist/
 
-    # Node.js
+    # Frontend Reality
     frontend/node_modules/
     frontend/dist/
+    frontend/.eslintcache
     """
 
     README.md :: """
-    # {{ project_name }} (Polyglot Monorepo)
+    # {{ project_name }}
 
-    A single repository containing two divine souls:
-    - **`backend/`**: A high-performance API forged with FastAPI.
-    - **`frontend/`**: A luminous UI forged with React + Vite.
-    
-    The entire cosmos is orchestrated by a root `Makefile` and `docker-compose.yml`.
+    > A Polyglot Cosmos forged by the VELM God-Engine.
 
-    - `make install`: Forges both realities.
-    - `make dev`: Awakens both souls for live development.
+    ## 🪐 The Multiverse Structure
+
+    - **`backend/`**: FastAPI Intelligence Layer (Python 3.11+ / Poetry)
+    - **`frontend/`**: React Ocular Membrane (TypeScript / Vite / Tailwind)
+    - **`infra/`**: Shared Docker and Provisioning logic.
+
+    ## 🚀 Orchestration Rites
+
+    | Rite | Command | Description |
+    | :--- | :--- | :--- |
+    | **Ignite** | `make dev` | Awakens both souls for synchronous development. |
+    | **Summon** | `make install` | Consecrates both environments locally. |
+    | **Forge** | `make build` | Transmutes the workspace into production artifacts. |
+    | **Vessel** | `make docker-up` | Manifests the cosmos within Docker containers. |
     """
 
+    # [2] THE ROOT CONDUCTOR (Makefile)
     Makefile:
-        .PHONY: install dev docker-up docker-down
+        .PHONY: help install dev docker-up docker-down clean
+        
+        help: ## Proclaim available rites for the workspace
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
 
-        install:
-        	@cd backend && make install
-        	@cd frontend && make install
+        install: ## Consecrate both backend and frontend environments
+            @echo "🧪 Summoning Backend dependencies..."
+            @cd backend && make install
+            @echo "🎨 Summoning Frontend dependencies..."
+            @cd frontend && make install
 
-        dev:
-        	@echo "Awakening the Polyglot Cosmos..."
-        	@(cd backend && make dev) & (cd frontend && make dev) & wait
+        dev: ## Ignite the dual-sun system (Concurrent Development)
+            @echo "🚀 Awakening the Polyglot Cosmos..."
+            @$(MAKE) -j 2 dev-backend dev-frontend
 
-        docker-up:
-        	@docker-compose up --build
+        dev-backend:
+            @cd backend && make dev
 
-        docker-down:
-        	@docker-compose down
+        dev-frontend:
+            @cd frontend && make dev
 
+        docker-up: ## Manifest the cosmos in the container realm
+            docker-compose up --build
+
+        docker-down: ## Dissolve the containerized reality
+            docker-compose down
+
+        clean: ## Return all ephemeral artifacts to the void
+            @cd backend && make clean
+            @cd frontend && rm -rf dist node_modules
+
+    # [3] THE CELESTIAL MESH (Docker Compose)
     docker-compose.yml:
         version: '3.8'
         services:
@@ -70,131 +113,304 @@ $$ frontend_port = 5173
               - "{{ backend_port }}:{{ backend_port }}"
             volumes:
               - ./backend/src:/app/src
+            env_file: ./backend/.env.example
+            networks:
+              - gnostic_mesh
+
           frontend:
             build: ./frontend
             ports:
               - "{{ frontend_port }}:{{ frontend_port }}"
             volumes:
               - ./frontend/src:/app/src
+            environment:
+              - VITE_API_URL=http://localhost:{{ backend_port }}
+            networks:
+              - gnostic_mesh
 
+        networks:
+          gnostic_mesh:
+            driver: bridge
+
+    # =========================================================================
+    # == III. THE BACKEND REALITY (FastAPI)                                  ==
+    # =========================================================================
     backend/
         Makefile:
             install:
-            	poetry install
+                poetry install
             dev:
-            	poetry run uvicorn src.main:app --host 0.0.0.0 --port {{ backend_port }} --reload
+                poetry run uvicorn src.main:app --host 0.0.0.0 --port {{ backend_port }} --reload
+            clean:
+                rm -rf .venv __pycache__ .pytest_cache
 
-        pyproject.toml:
-            [tool.poetry]
-            name = "{{ project_slug }}-backend"
-            version = "0.1.0"
-            description = "The FastAPI soul of the cosmos."
-            authors = ["{{ author }}"]
+        pyproject.toml :: """
+        [tool.poetry]
+        name = "{{ project_slug }}-backend"
+        version = "0.1.0"
+        description = "The Intelligence Layer of {{ project_name }}"
+        authors = ["{{ author }}"]
+        packages = [{include = "src"}]
 
-            [tool.poetry.dependencies]
-            python = "^3.11"
-            fastapi = "^0.110.0"
-            uvicorn = {extras = ["standard"], version = "^0.27.0"}
-            python-multipart = "^0.0.9"
+        [tool.poetry.dependencies]
+        python = "^3.11"
+        fastapi = "^0.110.0"
+        uvicorn = {extras = ["standard"], version = "^0.27.0"}
+        pydantic = "^2.6.0"
+        pydantic-settings = "^2.2.0"
+        cors-middleware = "^0.1.0"
 
-        Dockerfile:
-            FROM python:3.11-slim
-            ENV POETRY_NO_INTERACTION=1 \
-                POETRY_VIRTUALENVS_IN_PROJECT=1
-            WORKDIR /app
-            COPY pyproject.toml poetry.lock ./
-            RUN pip install poetry && poetry install --no-root
-            COPY src/ ./src/
-            CMD ["make", "dev"]
+        [tool.poetry.group.dev.dependencies]
+        pytest = "^8.0.0"
+        ruff = "^0.3.0"
+        black = "^24.2.0"
+        """
+
+        Dockerfile :: """
+        FROM python:3.11-slim
+        WORKDIR /app
+        RUN pip install poetry
+        COPY pyproject.toml poetry.lock* ./
+        RUN poetry config virtualenvs.create false && poetry install --no-root
+        COPY . .
+        CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "{{ backend_port }}"]
+        """
 
         src/
-            main.py:
-                from fastapi import FastAPI
-                from fastapi.middleware.cors import CORSMiddleware
+            main.py :: """
+            from fastapi import FastAPI
+            from fastapi.middleware.cors import CORSMiddleware
+            from pydantic import BaseModel
+            import time
 
-                app = FastAPI(title="{{ project_name }} Backend")
+            app = FastAPI(title="{{ project_name }} API")
 
-                app.add_middleware(
-                    CORSMiddleware,
-                    allow_origins=["http://localhost:{{ frontend_port }}", "http://127.0.0.1:{{ frontend_port }}"],
-                    allow_credentials=True,
-                    allow_methods=["*"],
-                    allow_headers=["*"],
-                )
+            # [THE CURE]: Explicit CORS for the Frontend reality
+            app.add_middleware(
+                CORSMiddleware,
+                allow_origins=[
+                    "http://localhost:{{ frontend_port }}",
+                    "http://127.0.0.1:{{ frontend_port }}"
+                ],
+                allow_credentials=True,
+                allow_methods=["*"],
+                allow_headers=["*"],
+            )
 
-                @app.get("/api/v1/gnosis")
-                async def get_gnosis():
-                    return {"message": "The Backend's Gnostic Proclamation is Pure!"}
+            class GnosisResponse(BaseModel):
+                message: str
+                timestamp: float
+                status: str
 
-    frontend/
-        Makefile:
-            install:
-            	npm install
-            dev:
-            	npm run dev -- --host
-
-        vite.config.ts:
-            import { defineConfig } from 'vite'
-            import react from '@vitejs/plugin-react'
-
-            export default defineConfig({
-              plugins: [react()],
-              server: {
-                port: {{ frontend_port }},
-                strictPort: true,
-              },
-            })
-
-        package.json:
-            {
-              "name": "{{ project_slug }}-frontend",
-              "private": true,
-              "version": "0.1.0",
-              "type": "module",
-              "scripts": { "dev": "vite" },
-              "dependencies": { "react": "^18.2.0", "react-dom": "^18.2.0" },
-              "devDependencies": { "@vitejs/plugin-react": "^4.2.1", "vite": "^5.1.4", "typescript": "^5.2.2" }
-            }
-        
-        src/
-            App.tsx:
-                import { useState, useEffect } from 'react'
-
-                function App() {
-                  const [gnosis, setGnosis] = useState<string>('Awaiting Gnosis...')
-                  
-                  useEffect(() => {
-                    fetch(`http://localhost:{{ backend_port }}/api/v1/gnosis`)
-                      .then(res => res.json())
-                      .then(data => setGnosis(data.message))
-                      .catch(() => setGnosis('A paradox occurred.'))
-                  }, [])
-
-                  return <p>The Backend Proclaims: {gnosis}</p>
+            @app.get("/api/v1/gnosis", response_model=GnosisResponse)
+            async def get_gnosis():
+                \"\"\"Proclaims the Backend truth to the Ocular Membrane.\"\"\"
+                return {
+                    "message": "The Intelligence Layer is Resonant.",
+                    "timestamp": time.time(),
+                    "status": "ONLINE"
                 }
+            """
 
-                export default App
-            
-            main.tsx:
-                import React from 'react'
-                import ReactDOM from 'react-dom/client'
-                import App from './App.tsx'
+    # =========================================================================
+    # == IV. THE FRONTEND REALITY (React + Vite)                             ==
+    # =========================================================================
+    frontend/
+        package.json :: """
+        {
+          "name": "{{ project_slug }}-frontend",
+          "private": true,
+          "version": "0.1.0",
+          "type": "module",
+          "scripts": {
+            "dev": "vite",
+            "build": "tsc && vite build",
+            "preview": "vite preview"
+          },
+          "dependencies": {
+            "react": "^18.2.0",
+            "react-dom": "^18.2.0",
+            "lucide-react": "latest",
+            "axios": "latest"
+          },
+          "devDependencies": {
+            "@types/react": "^18.2.0",
+            "@types/react-dom": "^18.2.0",
+            "@vitejs/plugin-react": "^4.2.1",
+            "typescript": "^5.2.2",
+            "vite": "^5.1.4",
+            "tailwindcss": "^3.4.1",
+            "autoprefixer": "^10.4.17",
+            "postcss": "^8.4.35"
+          }
+        }
+        """
 
-                ReactDOM.createRoot(document.getElementById('root')!).render(
-                  <React.StrictMode>
-                    <App />
-                  </React.StrictMode>,
+        vite.config.ts :: """
+        import { defineConfig } from 'vite'
+        import react from '@vitejs/plugin-react'
+
+        export default defineConfig({
+          plugins: [react()],
+          server: {
+            port: {{ frontend_port }},
+            strictPort: true,
+            // [ASCENSION]: Bridge the API gap during local dev
+            proxy: {
+              '/api': {
+                target: 'http://localhost:{{ backend_port }}',
+                changeOrigin: true
+              }
+            }
+          }
+        })
+        """
+
+        src/
+            # --- THE OCULAR UI ---
+            App.tsx :: """
+            import React, { useState, useEffect } from 'react'
+            import { Zap, Activity, ShieldCheck } from 'lucide-react'
+
+            interface Gnosis {
+                message: string;
+                timestamp: number;
+                status: string;
+            }
+
+            function App() {
+                const [gnosis, setGnosis] = useState<Gnosis | null>(null);
+                const [loading, setLoading] = useState(true);
+
+                useEffect(() => {
+                    const scry = async () => {
+                        try {
+                            const res = await fetch('http://localhost:{{ backend_port }}/api/v1/gnosis');
+                            const data = await res.json();
+                            setGnosis(data);
+                        } catch (e) {
+                            console.error("Communion fractured.");
+                        } finally {
+                            setLoading(false);
+                        }
+                    };
+                    scry();
+                }, []);
+
+                return (
+                    <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-8 font-sans">
+                        <div className="max-w-2xl w-full space-y-12">
+                            <header className="flex items-center gap-6 border-l-4 border-teal-400 pl-8">
+                                <Zap className="text-teal-400" size={48} />
+                                <div>
+                                    <h1 className="text-6xl font-black uppercase tracking-tighter italic">
+                                        {{ project_name }}
+                                    </h1>
+                                    <p className="text-zinc-500 font-mono text-sm tracking-widest uppercase">
+                                        Ocular_Membrane_v1.0
+                                    </p>
+                                </div>
+                            </header>
+
+                            <main className="bg-zinc-900/50 border border-white/5 p-12 rounded-sm backdrop-blur-xl">
+                                {loading ? (
+                                    <div className="flex items-center gap-4 text-zinc-600 animate-pulse">
+                                        <Activity size={20} />
+                                        <span className="font-mono text-xs uppercase tracking-widest">Awaiting_Backend_Gnosis...</span>
+                                    </div>
+                                ) : gnosis ? (
+                                    <div className="space-y-6">
+                                        <p className="text-2xl font-light italic text-zinc-300">
+                                            "{gnosis.message}"
+                                        </p>
+                                        <div className="flex items-center gap-4 text-[10px] font-mono text-teal-400/60 uppercase tracking-widest">
+                                            <span className="bg-teal-400/10 px-2 py-1 rounded">STATUS: {gnosis.status}</span>
+                                            <span>TS: {new Date(gnosis.timestamp * 1000).toISOString()}</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-red-400 font-mono text-xs italic">A temporal paradox occurred. Link severed.</p>
+                                )}
+                            </main>
+
+                            <footer className="flex justify-between items-center opacity-20 hover:opacity-100 transition-opacity duration-1000">
+                                <span className="text-[10px] font-mono tracking-[0.5em] uppercase">Ω_NOVALYM_SYSTEMS</span>
+                                <ShieldCheck size={16} />
+                            </footer>
+                        </div>
+                    </div>
                 )
+            }
+
+            export default App
+            """
+
+            main.tsx :: """
+            import React from 'react'
+            import ReactDOM from 'react-dom/client'
+            import App from './App'
+            import './index.css'
+
+            ReactDOM.createRoot(document.getElementById('root')!).render(
+                <React.StrictMode>
+                    <App />
+                </React.StrictMode>,
+            )
+            """
+
+            index.css :: """
+            @tailwind base;
+            @tailwind components;
+            @tailwind utilities;
+
+            body {
+                @apply bg-zinc-950 selection:bg-teal-400 selection:text-black;
+            }
+            """
 
         index.html:
             <!doctype html>
-            <html>
+            <html lang="en">
+              <head>
+                <meta charset="UTF-8" />
+                <title>{{ project_name }}</title>
+              </head>
               <body>
                 <div id="root"></div>
                 <script type="module" src="/src/main.tsx"></script>
               </body>
             </html>
 
+    # [4] THE DEPLOYMENT ARTIFACT (Root Docker)
+    frontend/Dockerfile:
+        FROM node:20-alpine as builder
+        WORKDIR /app
+        COPY package*.json ./
+        RUN npm install
+        COPY . .
+        RUN npm run build
+
+        FROM nginx:alpine
+        COPY --from=builder /app/dist /usr/share/nginx/html
+        EXPOSE 80
+        CMD ["nginx", "-g", "daemon off;"]
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
+    # 1. Initialize the Cosmos Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the Workspace
+    proclaim: "Consecrating the Monorepo Workspace... (This will take time)"
     make install
+
+    # 3. Final Proclamation
+    proclaim: "The Fullstack Monorepo is manifest."
+    proclaim: "To ignite the dual-sun system:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make dev[/bold cyan]"
+    proclaim: "  3. Scry the UI at http://localhost:{{ frontend_port }}"
+
+%% on-heresy
+    proclaim: "The workspace forge fractured. Cleaning the multiverse..."
+    rm -rf backend/ frontend/ Makefile docker-compose.yml

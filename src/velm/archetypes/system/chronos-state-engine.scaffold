@@ -1,0 +1,228 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: CHRONOS STATE ENGINE (V-Ω-TOTALITY)                      ==
+# =================================================================================
+# @description: Materializes an immutable, deterministic Finite State Machine (FSM) infrastructure. Turns volatile business logic into a queryable Gnostic Graph, forbidding illegal transitions and ensuring absolute workflow integrity across distributed sessions.
+# @category: System
+# @tags: fsm, logic, workflow, determinism, system, state-machine, pydantic, graph
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: initial_state=VOID, machine_name=prime_workflow, use_persistence=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ machine_name = "order_lifecycle"
+$$ initial_state = "VOID"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE CHRONOS CORE (The State Machine) ---
+src/{{ package_name }}/
+    core/
+        chronos/
+            __init__.py :: "from .engine import ChronosMachine, Transition"
+            
+            # [1] THE CONTRACTS (The Laws of Spacetime)
+            contracts.py :: """
+            from pydantic import BaseModel, Field
+            from enum import Enum
+            from typing import Set, List, Optional, Dict, Any
+
+            class MachineStatus(str, Enum):
+                RESONANT = "RESONANT"
+                FRACTURED = "FRACTURED"
+                TERMINATED = "TERMINATED"
+
+            class Transition(BaseModel):
+                \"\"\"A sacred bridge between two logical realities.\"\"\"
+                trigger: str = Field(..., description="The event that sparks the change.")
+                source: str = Field(..., description="The required origin state.")
+                destination: str = Field(..., description="The destined state upon success.")
+                
+            class StateSnapshot(BaseModel):
+                \"\"\"A forensic record of a moment in time.\"\"\"
+                machine_id: str
+                current_state: str
+                history: List[Dict[str, Any]]
+                timestamp: float
+                status: MachineStatus
+            """
+
+            # [2] THE ENGINE (The Adjudicator)
+            engine.py :: """
+            import time
+            import logging
+            from typing import Dict, List, Set, Optional, Any, Callable
+            from .contracts import Transition, MachineStatus, StateSnapshot
+
+            Logger = logging.getLogger("Chronos:Engine")
+
+            class ChronosMachine:
+                \"\"\"
+                =============================================================================
+                == THE CHRONOS ENGINE (V-Ω-DETERMINISTIC-GAZE)                             ==
+                =============================================================================
+                LIF: ∞ | ROLE: LOGIC_ADJUDICATOR | RANK: OMEGA
+                
+                Ensures that logic only flows through the consecrated paths willed by 
+                the Architect. Prevents 'Illegal State' heresies at the kernel level.
+                \"\"\"
+                def __init__(self, name: str, states: Set[str], transitions: List[Transition], initial: str):
+                    self.name = name
+                    self.states = states
+                    self.transitions = transitions
+                    self.current_state = initial
+                    self.history: List[Dict[str, Any]] = []
+                    self.status = MachineStatus.RESONANT
+                    self._hooks: Dict[str, List[Callable]] = {"pre": [], "post": []}
+
+                def handle_event(self, event: str, payload: Optional[Dict] = None) -> bool:
+                    \"\"\"
+                    Attempts to move the machine across the Gnostic Graph.
+                    \"\"\"
+                    # 1. Scry for valid transition
+                    valid_path = next(
+                        (t for t in self.transitions if t.trigger == event and t.source == self.current_state), 
+                        None
+                    )
+                    
+                    if not valid_path:
+                        Logger.error(f"❌ [CHRONOS] Illegal Transition: {self.current_state} --({event})--> ???")
+                        self.status = MachineStatus.FRACTURED
+                        return False
+                    
+                    # 2. Execute Pre-Transition Rites
+                    self._trigger_hooks("pre", event, self.current_state, valid_path.destination)
+
+                    # 3. Transmute State
+                    origin = self.current_state
+                    self.current_state = valid_path.destination
+                    
+                    # 4. Inscribe to Chronicle
+                    self.history.append({
+                        "ts": time.time(),
+                        "event": event,
+                        "from": origin,
+                        "to": self.current_state,
+                        "payload": payload or {}
+                    })
+                    
+                    # 5. Execute Post-Transition Rites
+                    self._trigger_hooks("post", event, origin, self.current_state)
+                    
+                    Logger.info(f"⏳ [CHRONOS] {self.name} Shift: {origin} -> {self.current_state}")
+                    return True
+
+                def register_hook(self, timing: str, func: Callable):
+                    if timing in self._hooks:
+                        self._hooks[timing].append(func)
+
+                def _trigger_hooks(self, timing: str, event: str, src: str, dst: str):
+                    for hook in self._hooks[timing]:
+                        try:
+                            hook(event, src, dst)
+                        except Exception as e:
+                            Logger.warning(f"Hook Fracture: {e}")
+
+                def snapshot(self) -> StateSnapshot:
+                    return StateSnapshot(
+                        machine_id=self.name,
+                        current_state=self.current_state,
+                        history=self.history,
+                        timestamp=time.time(),
+                        status=self.status
+                    )
+            """
+
+        # [3] THE WORKFLOW MANIFEST (The Implementation)
+        workflows/
+            __init__.py :: "from .{{ machine_name }} import OrderMachine"
+            {{ machine_name }}.py :: """
+            from ..chronos.engine import ChronosMachine, Transition
+
+            # =========================================================================
+            # == THE DETERMINISTIC ORDER LIFECYCLE (V-Ω-BLUEPRINT)
+            # =========================================================================
+            
+            OrderMachine = ChronosMachine(
+                name="{{ machine_name }}",
+                states={"VOID", "PENDING", "PAID", "SHIPPED", "COMPLETED", "CANCELLED"},
+                transitions=[
+                    Transition(trigger="INITIATE", source="VOID",      destination="PENDING"),
+                    Transition(trigger="PAY",      source="PENDING",   destination="PAID"),
+                    Transition(trigger="SHIP",     source="PAID",      destination="SHIPPED"),
+                    Transition(trigger="DELIVER",  source="SHIPPED",   destination="COMPLETED"),
+                    Transition(trigger="CANCEL",   source="PENDING",   destination="CANCELLED"),
+                    Transition(trigger="CANCEL",   source="PAID",      destination="CANCELLED"),
+                    Transition(trigger="REFUND",   source="COMPLETED", destination="CANCELLED"),
+                ],
+                initial="{{ initial_state }}"
+            )
+            """
+
+# --- III. THE OCULAR MIRROR (Visualization) ---
+docs/visuals/
+    {{ machine_name }}_graph.md :: """
+    # State Machine Graph: {{ machine_name }}
+    
+    > "A Gnostic projection of the deterministic paths allowed within the system."
+
+    ```mermaid
+    stateDiagram-v2
+        direction LR
+        [*] --> {{ initial_state }}
+        
+        state "The Void" as VOID
+        state "Awaiting Payment" as PENDING
+        state "Payment Secured" as PAID
+        state "In Transit" as SHIPPED
+        state "Finality" as COMPLETED
+        state "Collapsed" as CANCELLED
+
+        VOID --> PENDING: INITIATE
+        PENDING --> PAID: PAY
+        PAID --> SHIPPED: SHIP
+        SHIPPED --> COMPLETED: DELIVER
+        
+        PENDING --> CANCELLED: CANCEL
+        PAID --> CANCELLED: CANCEL
+        COMPLETED --> CANCELLED: REFUND
+
+        COMPLETED --> [*]
+        CANCELLED --> [*]
+    ```
+    """
+
+# --- IV. THE CONTROL PLANE (Makefile Integration) ---
+Makefile:
+    .PHONY: chronos-verify
+
+    $PY = poetry run python
+
+    chronos-verify: ## Adjudicate the state machine logic
+        @$($PY) -c "import sys; sys.path.append('src'); from {{ package_name }}.core.workflows import OrderMachine; print('Resonance Test:', 'Success' if OrderMachine.handle_event('INITIATE') else 'Failed')"
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Chronos State Engine[/bold cyan] is manifest in 'core/chronos/'."
+    proclaim: "Specific workflow '{{ machine_name }}' willed into 'core/workflows/'."
+    
+    # [ASCENSION 12]: THE FINALITY VOW (Integrity Check)
+    # We conduct a silent Python rite to verify the machine's geometric integrity.
+    py:
+        import sys
+        import os
+        sys.path.append(os.getcwd())
+        try:
+            from src.{{ package_name }}.core.workflows.{{ machine_name }} import OrderMachine
+            # Try a valid transition
+            if OrderMachine.handle_event("INITIATE"):
+                print("✅ Chronos: Integrity Verified. The timeline is stable.")
+            else:
+                print("❌ Chronos: Integrity Fractured. Check transition definitions.")
+        except Exception as e:
+            print(f"⚠️  Chronos: Automated verification deferred (Import logic: {e})")
+
+    proclaim: "[bold green]Deterministic Reality Established.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Chronos Inception Fractured.[/bold red] Cleaning temporal shards..."
+    rm -rf src/{{ package_name }}/core/chronos

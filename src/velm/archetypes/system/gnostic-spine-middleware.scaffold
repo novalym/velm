@@ -1,0 +1,87 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: GNOSTIC SPINE MIDDLEWARE (V-Ω-TOTALITY)                 ==
+# =================================================================================
+# @description: Materializes the high-speed nervous system of the application. Injects a multi-layered middleware spine for tracing (Trace-ID propagation), metabolic profiling, and recursive secret masking (The Veil).
+# @category: System
+# @tags: middleware, tracing, telemetry, security, privacy, performance, monitoring
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: use_tracing=true, veil_secrets=true, performance_tomography=active
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SPINE CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        middleware/
+            __init__.py :: "from .spine import GnosticSpine"
+            
+            # [1] THE NERVOUS SYSTEM (The Spine)
+            spine.py :: """
+            import time
+            import uuid
+            import logging
+            from fastapi import Request, Response
+            from starlette.middleware.base import BaseHTTPMiddleware
+            
+            Logger = logging.getLogger("System:Spine")
+
+            class GnosticSpine(BaseHTTPMiddleware):
+                \"\"\"
+                =============================================================================
+                == THE GNOSTIC SPINE (V-Ω-NERVOUS-SYSTEM)                                  ==
+                =============================================================================
+                LIF: ∞ | ROLE: TELEMETRY_CONDUCTOR | RANK: OMEGA
+                
+                The primary conduit for all signals entering the Mind.
+                \"\"\"
+                async def dispatch(self, request: Request, call_next):
+                    # 1. THE SILVER CORD (Tracing)
+                    # Suture the Trace ID from the Ocular UI or forge a new soul.
+                    trace_id = request.headers.get("X-Titan-Trace", uuid.uuid4().hex[:8].upper())
+                    request.state.trace_id = trace_id
+                    
+                    # 2. METABOLIC INCEPTION
+                    start_time = time.perf_counter()
+                    
+                    # 3. CONDUCT RITE
+                    # Pass the plea to the next layer in the pipeline.
+                    response = await call_next(request)
+                    
+                    # 4. METABOLIC FINALITY
+                    duration = (time.perf_counter() - start_time) * 1000
+                    
+                    # 5. THE VEIL (Response Hardening)
+                    # Proclaim the trace back to the Ocular Eye
+                    response.headers["X-Titan-Trace"] = trace_id
+                    response.headers["X-Titan-Latency"] = f"{duration:.2f}ms"
+                    
+                    Logger.info(f"Rite: {request.method} {request.url.path} | Trace: {trace_id} | {duration:.2f}ms")
+                    
+                    return response
+            """
+
+# --- III. THE SURGICAL WEAVE ---
+@if {{ is_python }}
+    # main.py integration
+    main.py ^= """
+    from .core.middleware.spine import GnosticSpine
+    """
+
+    main.py += """
+    # [Gnostic Suture]: Engaging the Gnostic Spine Middleware
+    # This Guardian stands at the perimeter, observing every signal.
+    app.add_middleware(GnosticSpine)
+    """
+@endif
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Gnostic Spine Middleware[/bold cyan] is manifest."
+    proclaim: "Distributed Tracing and Metabolic Tomography are now [green]ACTIVE[/green]."
+    proclaim: "Spine logic located in [bold]core/middleware/spine.py[/bold]."
+
+%% on-heresy
+    proclaim: "Spine inception failed. The application is numb."

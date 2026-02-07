@@ -1,0 +1,117 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: TELEMETRY BEACON (V-Ω-TOTALITY)                          ==
+# =================================================================================
+# @description: Materializes an autonomous background heartbeat that scries hardware vitals (CPU, RAM, I/O) and broadcasts them to the Reactive Hub. Provides the high-fidelity telemetry stream required for the Ocular HUD.
+# @category: System
+# @tags: telemetry, metrics, psutil, background-task, monitoring, system, heartbeat
+# @difficulty: Master
+# @is_integration: true
+# @dna: interval_seconds=5, use_psutil=true, broadcast_to=gnostic_synapse
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ interval_seconds = 5
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE BEACON CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        telemetry/
+            __init__.py :: "from .beacon import TelemetryBeacon"
+            
+            # [1] THE SENSORY ARRAY (The Scrier)
+            beacon.py :: """
+            import asyncio
+            import time
+            import os
+            import psutil
+            import logging
+            from typing import Dict, Any
+
+            Logger = logging.getLogger("Telemetry:Beacon")
+
+            class TelemetryBeacon:
+                \"\"\"
+                =============================================================================
+                == THE GNOSTIC BEACON (V-Ω-METABOLIC-VOICE)                                ==
+                =============================================================================
+                LIF: ∞ | ROLE: SYSTEM_BIOLOGIST | RANK: MASTER
+                
+                Scries the hardware substrate and proclaims the metabolic state
+                of the machine to the multiverse.
+                \"\"\"
+                def __init__(self, bus: Any, interval: int = {{ interval_seconds }}):
+                    self.bus = bus
+                    self.interval = interval
+                    self._stop_event = asyncio.Event()
+                    self._process = psutil.Process(os.getpid())
+
+                async def ignite(self):
+                    \"\"\"Ignites the background sensory vigil.\"\"\"
+                    Logger.info(f"🛰️  Beacon ignited. Pulse interval: {self.interval}s")
+                    while not self._stop_event.is_set():
+                        try:
+                            vitals = self._scry()
+                            # Broadcast to the Reactive Hub (Synapse)
+                            await self.bus.broadcast("system/vitals", vitals)
+                        except Exception as e:
+                            Logger.error(f"Beacon Pulse Muted: {e}")
+                        
+                        await asyncio.sleep(self.interval)
+
+                def _scry(self) -> Dict[str, Any]:
+                    \"\"\"Performs a biological tomography of the host.\"\"\"
+                    return {
+                        "ts": time.time(),
+                        "cpu_percent": psutil.cpu_percent(),
+                        "mem_percent": psutil.virtual_memory().percent,
+                        "process_mem_mb": self._process.memory_info().rss / (1024 * 1024),
+                        "threads": len(self._process.threads()),
+                        "status": "RESONANT"
+                    }
+
+                def stop(self):
+                    \"\"\"Extinguishes the beacon.\"\"\"
+                    self._stop_event.set()
+            """
+
+# --- III. THE SURGICAL WEAVE ---
+@if {{ is_python }}
+    # Dependency Suture
+    pyproject.toml += """
+    psutil = "^5.9.8"
+    """
+
+    # main.py integration
+    main.py += """
+    # [Gnostic Suture]: Awakening the Telemetry Beacon
+    from .core.telemetry.beacon import TelemetryBeacon
+    
+    @app.on_event("startup")
+    async def ignite_beacon():
+        beacon = TelemetryBeacon(bus=app.state.synapse)
+        asyncio.create_task(beacon.ignite())
+    """
+@endif
+
+# --- IV. THE CONTROL PLANE (Makefile) ---
+Makefile:
+	.PHONY: system-vitals
+
+	system-vitals: ## Scry the current metabolic state of the machine
+		@poetry run python -c "import psutil; print(f'CPU: {psutil.cpu_percent()}% | RAM: {psutil.virtual_memory().percent}%')"
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Gnostic Telemetry Beacon[/bold cyan] is manifest."
+    
+    # 1. Install psutil
+    proclaim: "Summoning the Metabolic Senses... (psutil)"
+    >> poetry add psutil
+    ?? succeeds
+
+    proclaim: "[bold green]✅ Beacon Online.[/bold green]"
+    proclaim: "Metabolic data will stream to [bold]/ws/gnosis[/bold] every {{ interval_seconds }} seconds."
+
+%% on-heresy
+    proclaim: "Beacon inception failed."

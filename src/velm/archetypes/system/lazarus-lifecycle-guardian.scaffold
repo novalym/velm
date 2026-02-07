@@ -1,0 +1,98 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: LAZARUS LIFECYCLE GUARDIAN (V-Ω-TOTALITY)               ==
+# =================================================================================
+# @description: Materializes a sovereign process-lifecycle manager. Intercepts OS termination signals (SIGINT, SIGTERM) to ensure the application "unravels" cleanly, closing database connections, flushing logs, and finalizing transactions before dissolution.
+# @category: System
+# @tags: lifecycle, signal-handling, graceful-shutdown, reliability, system, devops
+# @difficulty: Adept
+# @is_integration: true
+# @dna: shutdown_timeout=30, trap_signals=SIGINT,SIGTERM, allow_force_exit=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ shutdown_timeout = 30
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE GUARDIAN CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        system/
+            __init__.py :: "from .lifecycle import LifecycleGuardian, on_shutdown"
+            
+            # [1] THE LIFECYCLE ENGINE
+            lifecycle.py :: """
+            import signal
+            import sys
+            import asyncio
+            import logging
+            from typing import List, Callable, Awaitable
+
+            Logger = logging.getLogger("Lazarus:Lifecycle")
+
+            class LifecycleGuardian:
+                \"\"\"
+                =============================================================================
+                == THE LAZARUS GUARDIAN (V-Ω-SHUTDOWN-WARD)                                ==
+                =============================================================================
+                LIF: ∞ | ROLE: SYSTEM_REAPER | RANK: SOVEREIGN
+                
+                Orchestrates the transition from Existence to the Void.
+                Ensures no Gnostic threads are left hanging.
+                \"\"\"
+                _hooks: List[Callable[[], Awaitable[None]]] = []
+                _is_shutting_down: bool = False
+
+                @classmethod
+                def arm(cls):
+                    \"\"\"Arms the Signal Interceptors.\"\"\"
+                    for sig in (signal.SIGINT, signal.SIGTERM):
+                        signal.signal(sig, lambda s, f: asyncio.create_task(cls.dissolve(s)))
+                    Logger.info("🛡️  Lazarus Lifecycle Guardian ARMED.")
+
+                @classmethod
+                def register_hook(cls, func: Callable[[], Awaitable[None]]):
+                    \"\"\"Registers a sacred rite to be performed during dissolution.\"\"\"
+                    cls._hooks.append(func)
+
+                @classmethod
+                async def dissolve(cls, sig: int):
+                    \"\"\"Performs the Rite of Dissolution.\"\"\"
+                    if cls._is_shutting_down:
+                        Logger.warning("⚠️ Forced exit detected. Shattering the timeline.")
+                        sys.exit(1)
+                    
+                    cls._is_shutting_down = True
+                    Logger.warning(f"💀 Signal {sig} perceived. Initiating Graceful Unraveling...")
+                    
+                    # Execute all hooks in parallel
+                    if cls._hooks:
+                        Logger.info(f"⏳ Executing {len(cls._hooks)} shutdown hooks...")
+                        tasks = [asyncio.create_task(hook()) for hook in cls._hooks]
+                        try:
+                            await asyncio.wait_for(asyncio.gather(*tasks), timeout={{ shutdown_timeout }})
+                        except asyncio.TimeoutError:
+                            Logger.error("💥 Shutdown timeout exceeded. Some matter remains unpurified.")
+                    
+                    Logger.success("✨ Reality dissolved. Returning to the void.")
+                    sys.exit(0)
+
+            def on_shutdown(func: Callable[[], Awaitable[None]]):
+                \"\"\"Luminous decorator to register shutdown rites.\"\"\"
+                LifecycleGuardian.register_hook(func)
+                return func
+            """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Lazarus Lifecycle Guardian[/bold cyan] is manifest."
+    
+    # 1. Verification
+    proclaim: "Testing signal registry..."
+    >> python -c "from src.{{ package_name }}.core.system.lifecycle import LifecycleGuardian; LifecycleGuardian.arm(); print('Registry Resonance: OK')"
+    ?? succeeds
+
+    proclaim: "[bold green]✅ Lifecycle Watcher Active.[/bold green]"
+    proclaim: "Register cleanup rites via: [cyan]@on_shutdown[/cyan]"
+
+%% on-heresy
+    proclaim: "Guardian inception failed."

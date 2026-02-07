@@ -1,314 +1,243 @@
 # Path: src/velm/genesis/genesis_profiles.py
 # ------------------------------------------
-# =========================================================================================
-# == THE OMNISCIENT PROFILE ORACLE (V-Ω-TOTALITY-V120.0-UNBREAKABLE-FINALIS)             ==
-# =========================================================================================
-# LIF: INFINITY | ROLE: ARCHETYPAL_DNA_RECONSTRUCTOR | RANK: OMEGA_SUPREME
-# AUTH: Ω_PROFILES_V120_NAMESPACE_PURIFICATION_TOTALITY
-# =========================================================================================
+"""
+=================================================================================
+== THE OMEGA REGISTRY (V-Ω-TOTALITY-V200-QUADRATIC-FUSION)                     ==
+=================================================================================
+LIF: ∞ | ROLE: ARCHETYPE_GOVERNOR | RANK: OMEGA_SOVEREIGN
+AUTH_CODE: Ω_REGISTRY_V200_TOTALITY_FINALIS
 
-import importlib.resources as pkg_resources
-import re
+The supreme conductor of Gnostic discovery. This artisan unifies four planes
+of reality into a single, prioritized Grimoire, enabling the instantaneous
+streaming and materialization of architectural patterns.
+=================================================================================
+"""
+
 import os
-import hashlib
 import json
 import time
+import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Set, Final, Tuple
-from types import MappingProxyType
-from pydantic import BaseModel, Field, ConfigDict
+from typing import List, Dict, Any, Optional, Final
 
-from ..core.alchemist import get_alchemist
-from ..logger import Scribe
+# --- THE GNOSTIC UPLINKS ---
+from .canon_dna import GnosticDNAOracle
 
-Logger = Scribe("GenesisOracle")
+# --- LOGGING PROCLAMATION ---
+try:
+    from ..logger import Scribe
+
+    Logger = Scribe("GnosticRegistry")
+except ImportError:
+    Logger = logging.getLogger("GnosticRegistry")
+
+# =============================================================================
+# == THE PHYSICAL ANCHORS (THE FOUR REALMS)                                  ==
+# =============================================================================
+
+# I. SYSTEM CORE (The Primordial Seeds)
+SYSTEM_DIR: Final[Path] = Path(__file__).parent.parent / "archetypes"
+
+# II. GLOBAL FORGE (The User's Universal Library)
+GLOBAL_DIR: Final[Path] = Path.home() / ".scaffold" / "archetypes"
+
+# III. LOCAL SANCTUM (The Project's Private Logic)
+LOCAL_DIR: Final[Path] = Path.cwd() / ".scaffold" / "archetypes"
+
+# IV. CELESTIAL CACHE (The Local Echo of the Cloud Index)
+# This file is materialised by the ArchetypeArtisan during the 'sync' rite.
+CELESTIAL_CACHE: Final[Path] = Path.home() / ".scaffold" / "celestial_index.json"
+
+DEFAULT_PROFILE_NAME: Final[str] = "python-basic"
 
 
-# =========================================================================================
-# == SECTION I: GNOSTIC DATA CONTRACTS                                                   ==
-# =========================================================================================
-
-class ArchetypeProfile(BaseModel):
+class ArchetypeRegistry:
     """
-    [THE IMMUTABLE VESSEL]
-    The sacred contract for every manifest reality's DNA.
+    The Singleton Mind of the Registry.
+    Performs the Quadratic Fusion of all known architectural strata.
     """
-    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
+    _cache: Dict[str, Dict[str, Any]] = {}
+    _last_scan_time: float = 0.0
+    _scan_ttl: float = 2.0  # Metabolic cooldown
 
-    name: str
-    archetype_path: str
-    description: str
-    category: str
-    difficulty: str = "Adept"
-    source: str = "Velm_Canon"
-    gnosis_overrides: Dict[str, Any] = Field(default_factory=dict)
-    fingerprint: str
-    timestamp: float
-    mass_bytes: int = 0
+    @classmethod
+    def refresh(cls) -> Dict[str, Dict[str, Any]]:
+        """
+        =============================================================================
+        == THE RITE OF QUADRATIC FUSION (REFRESH)                                  ==
+        =============================================================================
+        LIF: 100x | Scans all four strata and weaves them into the Unified Grimoire.
+        """
+        now = time.time()
+        if cls._cache and (now - cls._last_scan_time < cls._scan_ttl):
+            return cls._cache
 
+        start_time = time.perf_counter()
 
-# =========================================================================================
-# == SECTION II: THE CANON DNA (THE IMMORTAL OVERRIDES)                                  ==
-# =========================================================================================
-# These are the hardcoded Gnostic Laws for specific high-order archetypes.
-# They override scried metadata to ensure structural integrity and automation.
-# =========================================================================================
+        # Build the registry from LOWEST to HIGHEST precedence.
+        # Celestial -> System -> Global -> Local
+        new_registry: Dict[str, Dict[str, Any]] = {}
 
-CANON_DNA: Final[Dict[str, Dict[str, Any]]] = {
-    "fastapi-service": {
-        "category": "Backend",
-        "gnosis_overrides": {
-            "database_type": "postgres",
-            "auth_method": "jwt",
-            "use_docker": True,
-            "use_poetry": True,
-            "port": 8000
-        }
-    },
-    "fastapi-sqlalchemy": {
-        "category": "Backend",
-        "gnosis_overrides": {"database_type": "postgres", "use_alembic": True, "use_poetry": True}
-    },
-    "ai-agent-swarm": {
-        "category": "Intelligence",
-        "gnosis_overrides": {"use_redis": True, "agent_count": 3, "use_docker": True}
-    },
-    "langchain-nexus": {
-        "category": "Intelligence",
-        "gnosis_overrides": {"use_vector_db": True, "provider": "openai", "use_poetry": True}
-    },
-    "fullstack-monorepo": {
-        "category": "System",
-        "gnosis_overrides": {"use_docker": True, "frontend_framework": "react", "use_poetry": True}
-    },
-    "react-vite": {
-        "category": "Frontend",
-        "gnosis_overrides": {"use_docker": True, "project_type": "node", "port": 3000}
-    },
-    "nextjs-fortress": {
-        "category": "Frontend",
-        "gnosis_overrides": {"project_type": "node", "use_tailwind": True, "port": 3000}
-    },
-    "poetry-basic": {
-        "category": "Language",
-        "gnosis_overrides": {"use_poetry": True}
-    },
-    "new-artisan": {
-        "category": "Meta",
-        "gnosis_overrides": {"is_scaffold_extension": True}
-    },
-    "generic": {
-        "category": "General",
-        "gnosis_overrides": {"project_type": "generic"}
-    }
-}
+        # 1. STRATUM-3: THE CELESTIAL STREAM (Cloud Base)
+        cls._hydrate_celestial_stratum(new_registry)
 
+        # 2. STRATUM-2: THE SYSTEM CORE (Built-ins)
+        cls._scan_physical_stratum(SYSTEM_DIR, "System", new_registry)
 
-# =========================================================================================
-# == SECTION III: THE HEURISTIC ENGINE (THE DIVINER)                                     ==
-# =========================================================================================
+        # 3. STRATUM-1: THE GLOBAL FORGE (User Universal)
+        if GLOBAL_DIR.exists():
+            cls._scan_physical_stratum(GLOBAL_DIR, "Global", new_registry)
 
-def _divine_category(slug: str) -> str:
-    """[ASCENSION 3]: Heuristic Industrial Categorization."""
-    slug = slug.lower()
-    if any(k in slug for k in ["fastapi", "express", "api", "service", "grpc", "graphene"]): return "Backend"
-    if any(k in slug for k in ["react", "nextjs", "astro", "chrome", "vite", "frontend", "ui"]): return "Frontend"
-    if any(k in slug for k in ["ai", "langchain", "agent", "nexus", "brain", "neural"]): return "Intelligence"
-    if any(k in slug for k in ["cli", "tool", "script", "generic-script", "utility"]): return "Utility"
-    if any(k in slug for k in ["rust", "go", "python", "node", "poetry", "kt", "zig", "java", "cpp"]): return "Language"
-    if any(k in slug for k in ["monorepo", "citadel", "monad", "splane", "workspace"]): return "System"
-    if any(
-        k in slug for k in ["docker", "container", "synapse", "cloud", "infra", "deployment"]): return "Infrastructure"
-    if any(k in slug for k in ["docs", "mkdocs", "grimoire", "wiki"]): return "Documentation"
-    return "General"
+        # 4. STRATUM-0: THE LOCAL SANCTUM (Project Overrides)
+        if LOCAL_DIR.exists():
+            cls._scan_physical_stratum(LOCAL_DIR, "Local", new_registry)
 
+        cls._cache = new_registry
+        cls._last_scan_time = now
 
-def _perceive_metadata(content: str, slug: str) -> Dict[str, str]:
-    """[ASCENSION 7]: Socratic Metadata Scrying from blueprint comments."""
-    meta = {
-        "description": "A new reality forged in the Gnostic Forge.",
-        "category": _divine_category(slug),
-        "difficulty": "Adept"
-    }
+        duration = (time.perf_counter() - start_time) * 1000
+        if duration > 10.0:  # Only log heavy metabolics
+            Logger.debug(f"Registry Refused. {len(new_registry)} shards active. Latency: {duration:.2f}ms")
 
-    # Scrying for explicit @markers in the first 2KB of the file
-    header = content[:2048]
-    desc = re.search(r'#\s*@description:\s*(.*)', header, re.I)
-    if desc: meta["description"] = desc.group(1).strip()
+        return new_registry
 
-    cat = re.search(r'#\s*@category:\s*(.*)', header, re.I)
-    if cat: meta["category"] = cat.group(1).strip()
+    @classmethod
+    def _hydrate_celestial_stratum(cls, registry: Dict[str, Any]):
+        """[FACULTY 3]: Celestial Index Siphoning."""
+        if not CELESTIAL_CACHE.exists():
+            return
 
-    diff = re.search(r'#\s*@difficulty:\s*(.*)', header, re.I)
-    if diff: meta["difficulty"] = diff.group(1).strip()
+        try:
+            raw_data = CELESTIAL_CACHE.read_text(encoding='utf-8')
+            index_scripture = json.loads(raw_data)
 
-    return meta
+            # Extract list regardless of V200 wrapper
+            archetypes = index_scripture.get("archetypes", index_scripture)
+
+            if isinstance(archetypes, list):
+                for dna in archetypes:
+                    name = dna.get("name")
+                    if name:
+                        dna["source_realm"] = "Celestial"
+                        # We use the Gist URL as the temporary path
+                        dna["path"] = dna.get("url", "void://")
+                        registry[name] = dna
+        except Exception as e:
+            Logger.warn(f"Celestial Cache Paradox: {e}. Cloud patterns may be obscured.")
+
+    @staticmethod
+    def _scan_physical_stratum(root: Path, realm: str, registry: Dict[str, Any]):
+        """[THE ATOMIC SCAN]: Recursive Gaze into local matter."""
+        try:
+            for dirpath, _, filenames in os.walk(root):
+                for filename in filenames:
+                    if filename.endswith(".scaffold"):
+                        slug = filename.replace(".scaffold", "")
+                        full_path = Path(dirpath) / filename
+
+                        try:
+                            # [ASCENSION 3]: The DNA Oracle Communion
+                            content = full_path.read_text(encoding="utf-8")
+                            dna = GnosticDNAOracle.divine(slug, content)
+
+                            dna["source_realm"] = realm
+                            dna["path"] = str(full_path.resolve())
+
+                            # [ASCENSION 2]: Priority Overwrite (Precedence Law)
+                            registry[slug] = dna
+
+                        except Exception as e:
+                            Logger.warn(f"Heresy in {realm} archetype '{slug}': {e}")
+        except Exception as e:
+            Logger.error(f"Sanctum scan failure at {root}: {e}")
 
 
-# =========================================================================================
-# == SECTION IV: THE DISCOVERY SYMPHONY (THE FIX)                                       ==
-# =========================================================================================
-
-def _forge_the_grimoire() -> Dict[str, Any]:
-    """
-    [THE RITE OF RECTIFIED DISCOVERY]
-    Recursive, namespace-pure discovery of every archetype in the cosmos.
-    """
-    found_profiles: Dict[str, Any] = {}
-
-    # [THE CURE]: THE PURE ANCHOR
-    # We strictly define the internal package path.
-    # We do NOT use relative pathing to avoid 'src' pollution.
-    INTERNAL_PACKAGE_NAME = 'velm'
-    ARCHETYPES_SUBPACKAGE = 'archetypes'
-
-    try:
-        # 1. Gaze into the Archetypes Universe
-        # We anchor at the root of the package.
-        root_resource = pkg_resources.files(INTERNAL_PACKAGE_NAME).joinpath(ARCHETYPES_SUBPACKAGE)
-
-        # [ASCENSION 2]: Recursive Stratum Scrying
-        # Finds every .scaffold file across all sub-packages (genesis, components, etc.)
-        for entry in root_resource.rglob('*.scaffold'):
-            slug = entry.name.replace('.scaffold', '')
-            content = entry.read_text(encoding='utf-8')
-
-            # --- [ASCENSION 1]: THE LOGICAL NAMESPACE SUTURE (THE FIX) ---
-            # We must derive the dotted Python path from the Traversable's internal hierarchy.
-            # We ignore the physical disk path and use the package-relative path.
-
-            # entry.parts might be ('...', 'velm', 'archetypes', 'genesis', 'file.scaffold')
-            # We MUST find the index of the root package 'velm' to anchor the namespace.
-            try:
-                # Find the start of the logical package
-                # This kills the 'velm.src.velm' double-naming heresy.
-                parts = entry.parts
-                # We look for the LAST occurrence of 'velm' to handle edge cases
-                # where the user's home folder contains the string 'velm'.
-                indices = [idx for idx, part in enumerate(parts) if part == INTERNAL_PACKAGE_NAME]
-                if not indices:
-                    raise ValueError(f"Package root '{INTERNAL_PACKAGE_NAME}' not found in traversable parts.")
-
-                start_idx = indices[-1]  # Take the most specific package root
-                # Extract parts from 'velm' to the parent of the file.
-                # Result: ['velm', 'archetypes', 'genesis']
-                logical_parts = list(parts[start_idx:-1])
-                logical_package_path = ".".join(logical_parts)
-
-            except (ValueError, IndexError):
-                # Fallback to a safe hardcoded path if scrying fails
-                logical_package_path = f"{INTERNAL_PACKAGE_NAME}.{ARCHETYPES_SUBPACKAGE}.genesis"
-
-            # 3. Perception & DNA Merging
-            meta = _perceive_metadata(content, slug)
-            dna = CANON_DNA.get(slug, {})
-
-            # [ASCENSION 4]: Cryptographic Fingerprinting
-            fingerprint = hashlib.md5(content.encode()).hexdigest()[:12]
-
-            # 4. Materialization of the Contract
-            profile = ArchetypeProfile(
-                name=slug,
-                archetype_path=f"{logical_package_path}:{entry.name}",
-                description=dna.get("description") or meta["description"],
-                category=dna.get("category") or meta["category"],
-                difficulty=dna.get("difficulty") or meta["difficulty"],
-                source="Velm_Canon",
-                gnosis_overrides={
-                    "use_git": True,
-                    "use_vscode": True,
-                    "author": "The Architect",
-                    "secret": get_alchemist()._forge_secret_rite,
-                    **dna.get("gnosis_overrides", {})
-                },
-                fingerprint=fingerprint,
-                timestamp=time.time(),
-                mass_bytes=len(content)
-            )
-            found_profiles[slug] = profile.model_dump()
-
-    except Exception as e:
-        # [ASCENSION 6]: NoneType Sarcophagus
-        Logger.error(f"Namespace Discovery Paradox: {e}")
-
-    # 5. Global Extension Phase (The User's local ~/.scaffold/archetypes)
-    user_forge = Path.home() / ".scaffold" / "archetypes"
-    if user_forge.is_dir():
-        for f in user_forge.glob('**/*.scaffold'):
-            if f.stem in found_profiles: continue  # System Sovereignty
-            try:
-                content = f.read_text(encoding='utf-8')
-                meta = _perceive_metadata(content, f.stem)
-                fingerprint = hashlib.md5(content.encode()).hexdigest()[:12]
-
-                profile = ArchetypeProfile(
-                    name=f.stem,
-                    archetype_path=str(f),
-                    description=meta["description"],
-                    category="User_Extension",
-                    difficulty="Architect",
-                    source="Local_Forge",
-                    gnosis_overrides={"author": "The Architect"},
-                    fingerprint=fingerprint,
-                    timestamp=f.stat().st_mtime,
-                    mass_bytes=len(content)
-                )
-                found_profiles[f.stem] = profile.model_dump()
-            except Exception:
-                continue
-
-    return dict(sorted(found_profiles.items()))
-
-
-# =========================================================================================
-# == SECTION V: THE PROCLAIMED API (LOCKED)                                             ==
-# =========================================================================================
-
-# [ASCENSION 8]: MappingProxy Immutability
-# The Grimoire is now read-only to prevent runtime profanation.
-PROFILES: Final[MappingProxyType] = MappingProxyType(_forge_the_grimoire())
-
-
-def get_profile(name: str) -> Optional[Dict[str, Any]]:
-    """Retrieves a specific profile with absolute error-warding."""
-    return PROFILES.get(name)
-
+# =============================================================================
+# == THE PUBLIC API (THE OMEGA INTERFACE)                                    ==
+# =============================================================================
 
 def list_profiles(category: Optional[str] = None) -> List[Dict[str, Any]]:
-    """Lists all manifest profiles, optionally filtered by category."""
-    all_p = list(PROFILES.values())
+    """
+    =============================================================================
+    == THE OMEGA CENSUS                                                        ==
+    =============================================================================
+    Proclaims the complete list of manifest and latent architectural patterns.
+    """
+    registry = ArchetypeRegistry.refresh()
+    profiles = list(registry.values())
+
     if category:
-        return [p for p in all_p if p['category'].lower() == category.lower()]
-    return all_p
+        profiles = [p for p in profiles if p.get("category", "").lower() == category.lower()]
+
+    # [ASCENSION 7]: Sorted by Stratum Priority and Name
+    # Priority: Local (0) > Global (1) > System (2) > Celestial (3)
+    def rank_stratum(p):
+        r = p.get("source_realm", "Celestial")
+        return {"Local": 0, "Global": 1, "System": 2, "Celestial": 3}.get(r, 4)
+
+    return sorted(profiles, key=lambda x: (rank_stratum(x), x.get("category", ""), x["name"]))
+
+
+def get_profile(slug: str) -> Optional[Dict[str, Any]]:
+    """[THE RITE OF RECALL] Instant O(1) metadata retrieval."""
+    if not slug: return None
+    registry = ArchetypeRegistry.refresh()
+    return registry.get(slug)
 
 
 def get_categories() -> List[str]:
-    """Returns the unique industrial categories manifest in the Canon."""
-    return sorted(list(set(p['category'] for p in PROFILES.values())))
+    """[ASCENSION 7] Proclaims the unique strata taxonomies."""
+    profiles = list_profiles()
+    return sorted(list({p.get("category", "Unclassified") for p in profiles}))
 
 
-# [ASCENSION 11]: Semantic Resonance Search
 def search_canon(query: str) -> List[Dict[str, Any]]:
-    """Performs a fuzzy Gaze to find resonant archetypes."""
-    query = query.lower()
+    """
+    =============================================================================
+    == THE FUZZY RESONANCE ORACLE                                              ==
+    =============================================================================
+    Searches the Gnostic Corpus (Names, Tags, Descriptions) for intent.
+    """
+    if not query: return list_profiles()
+
+    q_tokens = query.lower().split()
     results = []
-    for data in PROFILES.values():
-        score = 0
-        if query in data['name'].lower(): score += 10
-        if query in data['description'].lower(): score += 5
-        if query in data['category'].lower(): score += 3
+    all_profiles = list_profiles()
 
-        if score > 0:
-            res = data.copy()
-            res['relevance'] = score
-            results.append(res)
+    for p in all_profiles:
+        # Build the Semantic Corpus for this shard
+        corpus = (
+            f"{p['name']} "
+            f"{p.get('description', '')} "
+            f"{' '.join(p.get('tags', []))} "
+            f"{p.get('category', '')} "
+            f"{p.get('source_realm', '')}"
+        ).lower()
 
-    return sorted(results, key=lambda x: x['relevance'], reverse=True)
+        # The Gnostic Match: All query tokens must resonate within the corpus.
+        if all(token in corpus for token in q_tokens):
+            results.append(p)
+
+    return results
 
 
-# The Default Anchor
-DEFAULT_PROFILE_NAME: Final[str] = "fastapi-service" if "fastapi-service" in PROFILES else "generic"
+def get_default_profile() -> Dict[str, Any]:
+    """Returns the DNA of the Default Archetype."""
+    profile = get_profile(DEFAULT_PROFILE_NAME)
+    if profile:
+        return profile
 
-Logger.success(f"Gnostic Grimoire forged. [bold cyan]{len(PROFILES)}[/bold cyan] archetypes manifest in the namespace.")
+    # [ASCENSION 12]: THE SOVEREIGN DEFAULT
+    return {
+        "name": "void-genesis",
+        "description": "The universe is a void. Forging from primordial atoms.",
+        "category": "System",
+        "tags": ["fallback", "primordial"],
+        "gnosis_overrides": {},
+        "is_integration": False,
+        "difficulty": "Unknown",
+        "source_realm": "Void",
+        "path": "void://"
+    }
 
-# == SCRIPTURE SEALED: THE CANON IS NOW UNBREAKABLE ==
+# == SCRIPTURE SEALED: THE REGISTRY IS NOW UNIVERSAL AND OMEGA ==

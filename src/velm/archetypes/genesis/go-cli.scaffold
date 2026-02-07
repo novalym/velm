@@ -1,127 +1,253 @@
-# Path: scaffold/archetypes/genesis/go-cli.scaffold
-# -------------------------------------------------
-
 # =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: GO CLI FORTRESS (V-Ω-STRUCTURAL-PURITY)          ==
+# == GNOSTIC ARCHETYPE: GO CLI FORTRESS (V-Ω-TOTALITY)                           ==
+# =================================================================================
+# @description: A legendary, production-grade Go CLI foundation. Features 
+#               Cobra subcommands, Viper configuration, structured logging, 
+#               multi-stage Docker builds, and automated cross-compilation.
+# @category: Utility
+# @tags: go, golang, cli, cobra, viper, docker, static-binary, system
+# @difficulty: Adept
+# @is_integration: false
+# @dna: project_type=go, use_docker=true, use_makefile=true
 # =================================================================================
 
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "nebula-cli"
+$$ author = "The Architect"
+$$ github_username = {{ git_org | default('novalym') }}
+$$ go_version = "1.22"
+
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
-$$ github_username = {{ git_org | default("your-org") }}
 $$ module_path = "github.com/{{ github_username }}/{{ project_slug }}"
 
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: """
-    # Binaries
-    {{ project_slug }}
-    *.exe
-    *.dll
-    *.so
-    *.dylib
 
-    # Test artifacts
-    *.test
-    *.out
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        bin/
+        dist/
+        .env
+        *.log
+        vendor/
+        .DS_Store
 
-    # OS
-    .DS_Store
+    # [2] THE MODULE DEFINITION
+    go.mod :: """
+    module {{ module_path }}
+
+    go {{ go_version }}
+
+    require (
+        github.com/spf13/cobra v1.8.0
+        github.com/spf13/viper v1.18.2
+        github.com/rs/zerolog v1.32.0
+    )
     """
 
-    go.mod:
-        module {{ module_path }}
-
-        go 1.22
-
-        require (
-            github.com/spf13/cobra v1.8.0
-            github.com/spf13/pflag v1.0.5
-        )
-
+    # [3] THE CONTROL PLANE (MAKEFILE)
+    # [ASCENSION 8]: Honoring the Single Dollar ($) syntax
     Makefile:
-        .PHONY: build run test clean
+        .PHONY: help build run test clean
+        
+        $BINARY_NAME = {{ project_slug }}
+        $PKG = {{ module_path }}
 
-        BINARY_NAME={{ project_slug }}
+        help: ## Proclaim available Go rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
 
-        build:
-        	@echo "Forging the Titan..."
-        	@go build -o bin/$(BINARY_NAME) main.go
+        build: clean ## Forge the static titan binary
+            @echo "Forging binary: bin/$($BINARY_NAME)"
+            CGO_ENABLED=0 go build -ldflags="-s -w" -o bin/$($BINARY_NAME) main.go
 
-        run:
-        	@go run main.go
+        run: ## Execute the logic within the local realm
+            go run main.go
 
-        test:
-        	@go test ./...
+        test: ## Conduct the unit inquisition
+            go test -v ./...
 
-        clean:
-        	@rm -rf bin/
+        clean: ## Return artifacts to the void
+            rm -rf bin/ dist/
+            find . -name "*.log" -delete
 
-    # The entry point. Indented block ensures safe parsing of Go syntax.
-    main.go:
-        package main
+    # [4] THE SOURCE CODE (THE SOUL)
+    # We use Explicit Block Syntax to preserve the braces and Go formatting.
+    main.go :: """
+    package main
 
-        import "{{ module_path }}/cmd"
+    import (
+        "{{ module_path }}/cmd"
+    )
 
-        func main() {
-            cmd.Execute()
-        }
+    func main() {
+        // The entrypoint is a pure conduit to the Command Altar.
+        cmd.Execute()
+    }
+    """
 
     cmd/
-        root.go:
-            package cmd
+        root.go :: """
+        package cmd
 
-            import (
-                "fmt"
-                "os"
-                "github.com/spf13/cobra"
-            )
+        import (
+            "fmt"
+            "os"
 
-            var rootCmd = &cobra.Command{
-                Use:   "{{ project_slug }}",
-                Short: "A CLI tool forged by Scaffold",
-                Long: `A longer description of the Gnostic tool known as {{ project_slug }}.`,
+            "github.com/spf13/cobra"
+            "github.com/spf13/viper"
+            "github.com/rs/zerolog"
+            "github.com/rs/zerolog/log"
+        )
+
+        var cfgFile string
+
+        // RootCmd represents the base command when called without any subcommands
+        var RootCmd = &cobra.Command{
+            Use:   "{{ project_slug }}",
+            Short: "{{ description }}",
+            Long: `================================================================================
+{{ project_name | upper }} - FORGED BY VELM
+================================================================================
+A high-performance Gnostic tool for system orchestration.`,
+        }
+
+        func Execute() {
+            err := RootCmd.Execute()
+            if err != nil {
+                os.Exit(1)
+            }
+        }
+
+        func init() {
+            cobra.OnInitialize(initConfig)
+            RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.{{ project_slug }}.yaml)")
+            
+            // Gnostic Logging Level
+            zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+            log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+        }
+
+        func initConfig() {
+            if cfgFile != "" {
+                viper.SetConfigFile(cfgFile)
+            } else {
+                home, err := os.UserHomeDir()
+                cobra.CheckErr(err)
+                viper.AddConfigPath(home)
+                viper.SetConfigType("yaml")
+                viper.SetConfigName(".{{ project_slug }}")
             }
 
-            func Execute() {
-                if err := rootCmd.Execute(); err != nil {
-                    fmt.Println(err)
-                    os.Exit(1)
-                }
+            viper.AutomaticEnv()
+            if err := viper.ReadInConfig(); err == nil {
+                log.Info().Msgf("Using Gnostic Config: %s", viper.ConfigFileUsed())
+            }
+        }
+        """
+
+        version.go :: """
+        package cmd
+
+        import (
+            "fmt"
+            "github.com/spf13/cobra"
+        )
+
+        func init() {
+            RootCmd.AddCommand(versionCmd)
+        }
+
+        var versionCmd = &cobra.Command{
+            Use:   "version",
+            Short: "Proclaim the version of the binary",
+            Run: func(cmd *cobra.Command, args []string) {
+                fmt.Println("{{ project_name }} v0.1.0 -- RESONANT")
+            },
+        }
+        """
+
+    # [5] THE INTERNAL CORE (BUSINESS LOGIC)
+    internal/
+        engine/
+            engine.go :: """
+            package engine
+
+            import "github.com/rs/zerolog/log"
+
+            // Engine represents the core logic processor
+            type Engine struct {
+                ID string
             }
 
-            func init() {
-                // Global flags can be defined here
+            func New() *Engine {
+                return &Engine{ID: "TITAN-01"}
             }
 
-        version.go:
-            package cmd
-
-            import (
-                "fmt"
-                "github.com/spf13/cobra"
-            )
-
-            var versionCmd = &cobra.Command{
-                Use:   "version",
-                Short: "Proclaim the version of the binary",
-                Run: func(cmd *cobra.Command, args []string) {
-                    fmt.Println("{{ project_slug }} v0.1.0")
-                },
+            func (e *Engine) RunRite(name string) {
+                log.Info().Str("rite", name).Msg("Conducting Gnostic Rite")
             }
+            """
 
-            func init() {
-                rootCmd.AddCommand(versionCmd)
-            }
+    # [6] THE CELESTIAL VESSEL (DOCKER)
+    Dockerfile :: """
+    # --- STAGE 1: THE FORGE ---
+    FROM golang:{{ go_version }}-alpine AS builder
+    WORKDIR /app
+    RUN apk add --no-cache git make
+    COPY go.mod go.sum ./
+    RUN go mod download
+    COPY . .
+    RUN make build
 
-    .goreleaser.yml:
-        project_name: {{ project_slug }}
-        builds:
-          - env:
-              - CGO_ENABLED=0
-            goos:
-              - linux
-              - windows
-              - darwin
+    # --- STAGE 2: THE CELESTIAL VESSEL ---
+    # SCRATCH results in a binary-only image of ~5MB
+    FROM scratch
+    COPY --from=builder /app/bin/{{ project_slug }} /{{ project_slug }}
+    ENTRYPOINT ["/{{ project_slug }}"]
+    """
 
+    README.md :: """
+    # {{ project_name }}
+
+    > {{ description }}
+
+    Forged with **Go**, **Cobra**, and **Viper**. 
+    Manifested by the **VELM God-Engine**.
+
+    ## 🚀 Quick Start
+
+    ```bash
+    # Forge the binary
+    make build
+    
+    # Proclaim identity
+    ./bin/{{ project_slug }} version
+    ```
+
+    ## 🏛️ Architecture
+    - `cmd/`: Command-line interface definitions (The Voice).
+    - `internal/`: Private business logic (The Will).
+    - `pkg/`: Publicly importable logic (The Gnosis).
+    """
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
-    go mod tidy
-    go fmt ./...
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the dependencies
+    proclaim: "Summoning Go Modules..."
+    @if {{ shell('which go') }} -> go mod tidy
+    @else -> proclaim: "[yellow]Go not detected. Run 'go mod tidy' once the toolchain is manifest.[/yellow]"
+
+    # 3. Final Proclamation
+    proclaim: "The Go CLI Fortress is manifest in '{{ project_slug }}/'."
+    proclaim: "To awaken the Titan:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make build[/bold cyan]"
+    proclaim: "  3. [bold cyan]./bin/{{ project_slug }} --help[/bold cyan]"
+
+%% on-heresy
+    proclaim: "The forge collapsed. Purging the shards..."
+    rm -rf cmd/ internal/ go.mod Makefile

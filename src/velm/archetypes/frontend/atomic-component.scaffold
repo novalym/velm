@@ -1,0 +1,87 @@
+# Path: src/velm/archetypes/frontend/atomic-component.scaffold
+# -----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: ATOMIC COMPONENT FORGE (V-Ω-REACT-TOTALITY)              ==
+# =================================================================================
+# @description: The reusable pattern for forging a new, strictly-typed React component.
+#               Includes prop validation, forwarding refs, and Tailwind class merging logic.
+# @category: Frontend
+# @tags: react, typescript, component, ui, atomic, code-generation
+# @difficulty: Novice
+# @is_integration: false
+# @dna: use_typescript=true, use_react=true, use_tailwind=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ component_name = "Button"
+$$ project_root = "src"
+
+# Alchemical Case Normalization
+$$ component_pascal = {{ component_name | pascal }}
+$$ component_file = "{{ component_pascal }}.tsx"
+$$ target_path = "{{ project_root }}/components/ui/{{ component_file }}"
+
+# --- II. THE SCRIPTURE OF FORM ---
+{{ target_path }} :: """
+import * as React from "react"
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+import { Loader2 } from 'lucide-react'
+
+// --- 1. THE HARMONIZER ---
+// Merges and purifies classes for a single source of truth.
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+// --- 2. THE GNOSTIC CONTRACT ---
+export interface {{ component_pascal }}Props extends React.HTMLAttributes<HTMLDivElement> {
+  // A minimum set of core Gnosis
+  label: string;
+  isLoading?: boolean;
+  variant?: 'primary' | 'secondary' | 'ghost';
+}
+
+/**
+ * =============================================================================
+ * == THE {{ component_pascal }} COMPONENT (V-Ω-ATOMIC)
+ * =============================================================================
+ * Forged by the VELM God-Engine.
+ */
+const {{ component_pascal }} = React.forwardRef<HTMLDivElement, {{ component_pascal }}Props>(
+  ({ className, label, isLoading = false, variant = 'primary', ...props }, ref) => {
+    
+    // The Law of Style Differentiation
+    const baseStyle = "inline-flex items-center justify-center rounded-sm text-sm font-medium transition-colors disabled:opacity-50 px-4 py-2";
+    
+    const variants = {
+      primary: "bg-teal-400 text-black hover:bg-teal-300",
+      secondary: "bg-purple-500 text-white hover:bg-purple-600",
+      ghost: "text-white hover:bg-white/10"
+    };
+
+    return (
+      <div
+        className={cn(baseStyle, variants[variant], className)}
+        ref={ref}
+        {...props}
+      >
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <span className="font-black uppercase tracking-widest">{label}</span>
+        )}
+      </div>
+    );
+  }
+);
+
+{{ component_pascal }}.displayName = "{{ component_pascal }}"
+
+export { {{ component_pascal }} }
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Atomic Component [bold cyan]{{ component_pascal }}[/bold cyan] forged at '{{ target_path }}'."
+    proclaim: "Ensure the dependencies (clsx, tailwind-merge, lucide-react) are installed in the host project."

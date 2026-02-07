@@ -1,0 +1,280 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: EDGE PULSE CITADEL (V-Ω-TOTALITY)                        ==
+# =================================================================================
+# @description: A legendary Cloudflare Worker for edge-first Gnosis. Features
+#               HMAC request signing, structured logging, KV/Durable Object bindings,
+#               and a full production-ready TypeScript/Vite build pipeline.
+# @category: Cloud
+# @tags: cloudflare, worker, edge, serverless, typescript, hmac, security, cache
+# @difficulty: Master
+# @is_integration: true
+# @dna: use_typescript=true, use_cloudflare_workers=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ backend_url = "https://api.{{ project_slug | default('my-app') }}.com"
+$$ cache_ttl_seconds = 3600
+$$ log_level = "info"
+$$ worker_name = "{{ project_slug | default('my-app') }}-edge"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE PERIMETER SANCTUM (EDGE CODE) ---
+edge/
+
+    # [1] THE KERNEL CONFIGURATION
+    package.json :: """
+    {
+      "name": "{{ worker_name }}",
+      "version": "1.0.0",
+      "private": true,
+      "scripts": {
+        "dev": "wrangler dev",
+        "deploy": "wrangler deploy",
+        "test": "vitest",
+        "lint": "eslint .",
+        "format": "prettier --write ."
+      },
+      "dependencies": {},
+      "devDependencies": {
+        "wrangler": "^3.28.0",
+        "typescript": "^5.3.3",
+        "@cloudflare/workers-types": "^4.20240208.0",
+        "vitest": "^1.3.0",
+        "eslint": "^8.56.0",
+        "prettier": "^3.2.5"
+      }
+    }
+    """
+
+    tsconfig.json:
+        {
+          "compilerOptions": {
+            "target": "ESNext",
+            "module": "ESNext",
+            "lib": ["ESNext"],
+            "moduleResolution": "node",
+            "esModuleInterop": true,
+            "strict": true,
+            "resolveJsonModule": true,
+            "skipLibCheck": true,
+            "types": ["@cloudflare/workers-types"]
+          },
+          "include": ["src/**/*.ts"]
+        }
+
+    # [2] THE CELESTIAL BLUEPRINT (WRANGLER)
+    wrangler.toml :: """
+    # == Gnostic Blueprint for the Edge Citadel ==
+    name = "{{ worker_name }}"
+    main = "src/index.ts"
+    compatibility_date = "{{ now('utc', '%Y-%m-%d') }}"
+
+    # [vars] are public. Use [secrets] for Gnostic keys.
+    [vars]
+    BACKEND_URL = "{{ backend_url }}"
+    CACHE_TTL = "{{ cache_ttl_seconds }}"
+    LOG_LEVEL = "{{ log_level }}"
+    
+    # [secrets]
+    # To set a secret: wrangler secret put SIGNING_SECRET
+    # SIGNING_SECRET = ""
+
+    # [ASCENSION 1]: Gnostic Bindings for persistent memory
+    # Uncomment to bind a KV Namespace for key-value storage
+    # [[kv_namespaces]]
+    # binding = "GNOSIS_VAULT"
+    # id = "your_kv_namespace_id"
+
+    # Uncomment to bind a Durable Object for stateful sessions
+    # [[durable_objects.bindings]]
+    # name = "SESSION_ORACLE"
+    # class_name = "SessionOracle"
+
+    # [migrations]
+    # - { tag = "v1", new_classes = ["SessionOracle"] }
+    """
+
+    # [3] THE SOURCE (THE SOUL)
+    src/
+        # --- THE ENTRYPOINT ---
+        index.ts :: """
+        import { handleRequest } from './handler';
+        import { GnosticEnv } from './types';
+
+        export default {
+            async fetch(request: Request, env: GnosticEnv, ctx: ExecutionContext): Promise<Response> {
+                try {
+                    return await handleRequest(request, env, ctx);
+                } catch (e) {
+                    // [ASCENSION 2]: Structured Exception Logging
+                    const error = e instanceof Error ? e : new Error('Unknown heresy');
+                    console.error(JSON.stringify({
+                        level: 'critical',
+                        message: 'Uncaught Heresy in Edge Citadel',
+                        error: error.message,
+                        stack: error.stack,
+                        cf: request.cf,
+                    }));
+                    return new Response("A temporal paradox occurred at the edge.", { status: 500 });
+                }
+            },
+        };
+        """
+
+        # --- THE CORE LOGIC ---
+        handler.ts :: """
+        import { GnosticEnv } from './types';
+
+        /**
+         * [ASCENSION 3]: HMAC Request Signing
+         * Forges a cryptographic signature to verify the request originated from the edge.
+         */
+        async function signRequest(request: Request, secret: string): Promise<void> {
+            const timestamp = Date.now().toString();
+            const url = new URL(request.url);
+            
+            const dataToSign = `${timestamp}.${request.method}.${url.hostname}${url.pathname}`;
+            
+            const key = await crypto.subtle.importKey(
+                "raw",
+                new TextEncoder().encode(secret),
+                { name: "HMAC", hash: "SHA-256" },
+                false,
+                ["sign"]
+            );
+            
+            const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(dataToSign));
+            const signatureHex = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+            request.headers.set("X-Gnostic-Timestamp", timestamp);
+            request.headers.set("X-Gnostic-Signature", signatureHex);
+        }
+
+        export async function handleRequest(
+            request: Request,
+            env: GnosticEnv,
+            ctx: ExecutionContext
+        ): Promise<Response> {
+            const url = new URL(request.url);
+
+            // [ASCENSION 4]: Gnostic Health Check
+            if (url.pathname === '/_health') {
+                return new Response(JSON.stringify({ status: 'RESONANT', edge: 'ONLINE' }), {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+
+            // 1. THE CACHE GAZE
+            if (request.method === "GET") {
+                const cache = caches.default;
+                let response = await cache.match(request);
+                if (response) {
+                    console.log(`CACHE_HIT for ${url.pathname}`);
+                    return response;
+                }
+            }
+
+            // 2. THE KINETIC SIGNAL (Forwarding)
+            const backendRequest = new Request(`${env.BACKEND_URL}${url.pathname}`, request);
+            
+            // 3. THE CRYPTOGRAPHIC SEAL
+            if (env.SIGNING_SECRET) {
+                await signRequest(backendRequest, env.SIGNING_SECRET);
+            }
+            backendRequest.headers.set("X-Edge-Trace-ID", crypto.randomUUID());
+            
+            const response = await fetch(backendRequest);
+
+            // 4. THE CACHE INSCRIBER
+            if (request.method === "GET" && response.ok) {
+                const cacheableResponse = response.clone();
+                cacheableResponse.headers.set("Cache-Control", `public, max-age=${env.CACHE_TTL}`);
+                ctx.waitUntil(caches.default.put(request, cacheableResponse));
+            }
+
+            return response;
+        }
+        """
+
+        # --- THE GNOSTIC CONTRACTS ---
+        types.ts :: """
+        export interface GnosticEnv {
+            BACKEND_URL: string;
+            CACHE_TTL: string;
+            LOG_LEVEL: string;
+
+            // [ASCENSION 5]: Secrets are injected by Wrangler, not in vars
+            SIGNING_SECRET: string;
+
+            // [ASCENSION 6]: Gnostic Bindings
+            GNOSIS_VAULT: KVNamespace;
+            SESSION_ORACLE: DurableObjectNamespace;
+        }
+        """
+
+# --- III. THE SURGICAL WEAVE (BACKEND TRUST) ---
+# This remains the same, but its importance is now magnified.
+@if {{ project_type in ['python', 'poetry', 'fastapi'] }}
+src/{{ package_name }}/
+    core/
+        edge_warden.py :: """
+        import hmac
+        import hashlib
+        import time
+        from fastapi import Request, HTTPException, status
+        from ..config import settings # Assuming a core config
+
+        async def verify_edge_signature(request: Request):
+            \"\"\"
+            [ASCENSION 3]: HMAC Signature Adjudication.
+            An unbreakable cryptographic ward to verify the request came from our Edge.
+            \"\"\"
+            if not settings.EDGE_SIGNING_SECRET:
+                # In dev mode or if secret is not set, we can allow passage (or fail closed)
+                return
+
+            timestamp_str = request.headers.get("X-Gnostic-Timestamp")
+            signature = request.headers.get("X-Gnostic-Signature")
+
+            if not timestamp_str or not signature:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Missing Gnostic Signature")
+
+            # Prevent replay attacks
+            timestamp = int(timestamp_str)
+            if abs(time.time() * 1000 - timestamp) > 30000: # 30 second tolerance
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Temporal Paradox Detected")
+
+            # Recreate the signature
+            data_to_sign = f"{timestamp}.{request.method}.{request.url.hostname}{request.url.path}"
+            
+            key = settings.EDGE_SIGNING_SECRET.encode()
+            expected_signature = hmac.new(key, data_to_sign.encode(), hashlib.sha256).hexdigest()
+
+            if not hmac.compare_digest(expected_signature, signature):
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Profane Signature")
+        """
+    
+    # We must patch the main.py to use this new, more powerful warden.
+    main.py += """
+    # [Gnostic Suture]: The Edge Citadel Synchronization
+    from .core.edge_warden import verify_edge_signature
+    @app.middleware("http")
+    async def edge_pulse_middleware(request: Request, call_next):
+        # We only check API routes, not static assets or docs
+        if request.url.path.startswith("/api"):
+            await verify_edge_signature(request)
+        return await call_next(request)
+    """
+@endif
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Edge Pulse Citadel[/bold cyan] is manifest in 'edge/'."
+    proclaim: "To deploy the Perimeter Sentinel:"
+    proclaim: "  1. [bold cyan]cd edge[/bold cyan]"
+    proclaim: "  2. [bold cyan]npx wrangler secret put SIGNING_SECRET[/bold cyan] (Crucial for security)"
+    proclaim: "  3. [bold cyan]npx wrangler deploy[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[danger]Edge Citadel materialization faltered.[/danger]"
+    proclaim: "Ensure Node.js and the Wrangler CLI (`npm install -g wrangler`) are manifest."

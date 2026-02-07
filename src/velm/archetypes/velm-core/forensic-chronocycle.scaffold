@@ -1,0 +1,143 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: FORENSIC CHRONOCYCLE (V-Ω-TOTALITY)                      ==
+# =================================================================================
+# @description: Materializes an advanced post-mortem analysis engine. Scries 'scaffold.lock' and crash reports to identify causal loops and indentation floor collapses, proclaiming the precise 'Cure' for engine paradoxes.
+# @category: System
+# @tags: forensics, debugging, automated-resolution, logs, lockfile, diagnostics
+# @difficulty: Master
+# @is_integration: true
+# @dna: vault_path=.scaffold/crashes, report_format=markdown, auto_open=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tool_name = "chronocycle"
+$$ crash_vault = ".scaffold/crashes"
+$$ report_path = "FORENSIC_REPORT.md"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE CORONER'S TOOLS (Forensic Scripts) ---
+scripts/forensics/
+    # [ASCENSION 1]: The Chronos Autopsy Engine
+    # This script performs high-order causal traceback reconstruction.
+    autopsy.py :: """
+    #!/usr/bin/env python3
+    import json
+    import os
+    import re
+    import sys
+    from pathlib import Path
+    from datetime import datetime
+
+    def perform_autopsy(vault_path: Path):
+        \"\"\"
+        =============================================================================
+        == THE CHRONOCYCLE AUTOPSY (V-Ω-FORENSIC-SCRIER)                           ==
+        =============================================================================
+        \"\"\"
+        print("🔍 [CHRONOCYCLE] Awakening the Forensic Scrier...")
+        
+        if not vault_path.exists():
+            print("❌ ERROR: The Crash Vault is a void. No paradoxes to scry.")
+            return
+
+        # 1. FIND THE LATEST FRACTURE
+        reports = sorted(list(vault_path.glob("crash_*.json")), key=os.path.getmtime, reverse=True)
+        if not reports:
+            print("❓ No recent fractures found in the vault.")
+            return
+
+        latest_fracture = reports[0]
+        print(f"🕵️  Gazing into the latest fracture: {latest_fracture.name}")
+
+        try:
+            data = json.loads(latest_fracture.read_text(encoding='utf-8'))
+            error_msg = data.get("error", "")
+            traceback = data.get("traceback", "")
+            
+            # [ASCENSION 2]: THE INDENTATION FLOOR SCANNER
+            # Detects the dreaded 'WinError 123' caused by parser leaks.
+            is_parser_leak = "WinError 123" in error_msg or "<" in error_msg or ">" in error_msg
+
+            report_lines = [
+                "# ⚖️ GNOSTIC FORENSIC REPORT",
+                f"> **Locus of Fracture:** {latest_fracture.name}",
+                f"> **Timestamp:** {datetime.now().isoformat()}",
+                "",
+                "## I. The Nature of the Paradox",
+                f"```\n{error_msg}\n```",
+                ""
+            ]
+
+            # [ASCENSION 10]: AUTOMATIC CURE GENERATION
+            if is_parser_leak:
+                report_lines.append("### 🚩 DIAGNOSIS: THE INDENTATION FLOOR HAS COLLAPSED")
+                report_lines.append("The Parser leaked code-matter into the topography.")
+                report_lines.append("**Cure:** Increase indentation of the code block by 4 spaces.")
+            elif "Memory" in error_msg:
+                report_lines.append("### 🚩 DIAGNOSIS: METABOLIC TAX OVERFLOW")
+                report_lines.append("**Cure:** Reduce 'token_budget' in your request variables.")
+            else:
+                report_lines.append("### 🚩 DIAGNOSIS: UNKNOWN ARCHITECTURAL DRIFT")
+                report_lines.append("**Cure:** Re-conduct the rite with '--verbose' to illuminate the shadow.")
+
+            report_lines.append("\\n## II. Forensic Traceback")
+            report_lines.append(f"```python\\n{traceback[-2000:]}\\n```")
+
+            report_file = Path("{{ report_path }}")
+            report_file.write_text("\\n".join(report_lines))
+            print(f"✨ [CHRONOCYCLE] Autopsy complete. Gaze upon [bold green]{{ report_path }}[/bold green]")
+
+        except Exception as e:
+            print(f"💥 Autopsy failed: {e}")
+
+    if __name__ == "__main__":
+        perform_autopsy(Path("{{ crash_vault }}"))
+    \"\"\"
+
+# --- III. THE KINETIC SYMPHONY (Automated Workflow) ---
+# A symphony to automate the Coroner's work.
+chronocycle.symphony :: """
+# == Symphony of the Chronocycle ==
+# Conducts the Post-Mortem Inquest.
+
+# 1. Initiate Autopsy
+%% proclaim: "Sentinel awakening. Scrying the .scaffold vault for fractures..."
+>> python scripts/forensics/autopsy.py
+?? succeeds
+
+# 2. Present Revelation
+@on_os windows:
+    >> start {{ report_path }}
+@else:
+    >> open {{ report_path }} || cat {{ report_path }}
+@endif
+
+%% proclaim: "Adjudication complete. Reality awaits your correction."
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile:
+    .PHONY: autopsy clean-vault
+
+    $PY = poetry run python
+
+    autopsy: ## Resolve the last engine crash or paradox
+        @poetry run velm run chronocycle.symphony
+
+    clean-vault: ## Return all crash reports to the void
+        @rm -rf {{ crash_vault }}/*.json
+        @echo "✨ Crash Vault purified."
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Forensic Chronocycle manifest in 'scripts/forensics' and 'chronocycle.symphony'."
+    
+    # Ensure the vault exists
+    >> mkdir -p {{ crash_vault }}
+    
+    proclaim: "[bold green]✅ Coroner Online.[/bold green]"
+    proclaim: "To resolve your next engine fracture, speak: [bold cyan]make autopsy[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Chronocycle Inception Failed.[/bold red]"
+    rm -rf scripts/forensics chronocycle.symphony

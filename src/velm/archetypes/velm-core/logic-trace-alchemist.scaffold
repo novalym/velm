@@ -1,0 +1,66 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: LOGIC TRACE ALCHEMIST (V-Ω-TOTALITY-DEBUGGER)           ==
+# =================================================================================
+# @description: Materializes a transparent logic-tracing system. Injects metadata headers into every generated file (in Dev mode) that chronicles the exact @if/@else conditions and alchemical variables used to forge that specific file. Annihilates "Why was this created?" confusion.
+# @category: Velm-Core
+# @tags: debugging, transparency, logic, tracing, jinja, development-mode, metadata
+# @difficulty: Master
+# @is_integration: true
+# @dna: trace_header=true, dev_only=true, inject_git_hash=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE TRACE CORE (Logic Middleware) ---
+src/{{ package_name }}/
+    core/
+        alchemist/
+            __init__.py :: "from .trace_decorator import trace_materialization"
+            
+            # [1] THE TRACE INJECTOR
+            # This logic is intended to be called by the GnosticWriter during materialization.
+            trace_decorator.py :: """
+            import os
+            import time
+            from pathlib import Path
+            from typing import Dict, Any
+
+            def trace_materialization(content: str, path: Path, context: Dict[str, Any]) -> str:
+                \"\"\"
+                =============================================================================
+                == THE TRACE DECORATOR (V-Ω-FORENSIC-INJECTION)                            ==
+                =============================================================================
+                LIF: ∞ | ROLE: LOGIC_RECORDER
+                
+                Surgically injects a Gnostic header into the scripture to chronicle its
+                provenance. Only active in DEVELOPMENT mode.
+                \"\"\"
+                if os.getenv("SCAFFOLD_ENV") != "development":
+                    return content
+
+                timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+                
+                # Filter out heavy/secret variables from the trace
+                safe_context = {k: v for k, v in context.items() if "secret" not in k.lower() and "key" not in k.lower()}
+                
+                # Forge the Trace Scripture
+                trace_header = [
+                    f"# == GNOSTIC TRACE: {path.name} ==",
+                    f"# Materialized: {timestamp}",
+                    f"# Blueprint Locus: {os.getenv('SC_RITE_CWD', 'unknown')}",
+                    f"# Active Variables: {safe_context}",
+                    f"# =====================================\\n"
+                ]
+                
+                return "\\n".join(trace_header) + content
+            """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Logic Trace Alchemist manifest in 'core/alchemist/trace_decorator.py'."
+    proclaim: "[bold cyan]Transparency Engine Active.[/bold cyan]"
+    proclaim: "When [bold]SCAFFOLD_ENV=development[/bold], generated files will now bear a Gnostic Trace Header."
+
+%% on-heresy
+    proclaim: "Trace Alchemist failed to materialize."

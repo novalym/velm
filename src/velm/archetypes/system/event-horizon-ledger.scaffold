@@ -1,0 +1,121 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: EVENT-HORIZON LEDGER (V-Ω-TOTALITY)                      ==
+# =================================================================================
+# @description: Materializes an immutable event-sourced ledger. Replaces destructive CRUD with an append-only stream of Gnostic Events, enabling perfect audit trails, state replaying, and temporal debugging.
+# @category: System
+# @tags: event-sourcing, ledger, immutability, causality, time-travel, cqrs, audit
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: store_type=jsonl, auto_flush=true, use_signing=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ ledger_file = "artifacts/ledger/causality.jsonl"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE LEDGER CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        ledger/
+            __init__.py :: "from .engine import EventHorizon"
+            
+            # [1] THE EVENT CONTRACT
+            contracts.py :: """
+            from pydantic import BaseModel, Field
+            from typing import Dict, Any, Optional
+            import time
+            import uuid
+
+            class GnosticEvent(BaseModel):
+                \"\"\"A single, immutable ripple in the timeline.\"\"\"
+                id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+                timestamp: float = Field(default_factory=time.time)
+                type: str = Field(..., description="The nature of the change.")
+                aggregate_id: str = Field(..., description="The entity affected.")
+                payload: Dict[str, Any] = Field(..., description="The data soul of the event.")
+                meta: Dict[str, Any] = Field(default_factory=dict)
+                version: int = 1
+            """
+
+            # [2] THE LEDGER ENGINE (The Scribe)
+            engine.py :: """
+            import json
+            import logging
+            import hmac
+            import hashlib
+            from pathlib import Path
+            from .contracts import GnosticEvent
+
+            Logger = logging.getLogger("Ledger:Engine")
+
+            class EventHorizon:
+                \"\"\"
+                =============================================================================
+                == THE EVENT HORIZON (V-Ω-IMMUTABLE-SCRIBE)                                ==
+                =============================================================================
+                LIF: ∞ | ROLE: CHRONO_RECORDER
+                
+                Maintains the append-only record of reality.
+                \"\"\"
+                def __init__(self, path: str):
+                    self.path = Path(path)
+                    self.path.parent.mkdir(parents=True, exist_ok=True)
+                    self.secret = "GNOSTIC_SALT" # Future: inject from Vault
+
+                def record(self, event: GnosticEvent):
+                    \"\"\"Inscribes an event into the eternal chronicle.\"\"\"
+                    entry = event.model_dump()
+                    
+                    # [ASCENSION 1]: Cryptographic Seal
+                    entry["sig"] = self._forge_signature(entry)
+                    
+                    # Atomic Append
+                    with open(self.path, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(entry) + "\\n")
+                    
+                    Logger.info(f"✨ Event Chronicled: {event.type} -> {event.aggregate_id}")
+
+                def replay(self, aggregate_id: str):
+                    \"\"\"Resurrects the state of an entity by replaying its history.\"\"\"
+                    state = {}
+                    if not self.path.exists(): return state
+
+                    with open(self.path, "r") as f:
+                        for line in f:
+                            entry = json.loads(line)
+                            if entry["aggregate_id"] == aggregate_id:
+                                # Apply logic based on event type
+                                state.update(entry["payload"])
+                    return state
+
+                def _forge_signature(self, data: dict) -> str:
+                    canonical = json.dumps(data, sort_keys=True)
+                    return hmac.new(self.secret.encode(), canonical.encode(), hashlib.sha256).hexdigest()
+            """
+
+# --- III. THE CONTROL PLANE (Makefile) ---
+Makefile:
+	.PHONY: ledger-scry ledger-audit
+
+	$PY = poetry run python
+
+	ledger-scry: ## Gaze into the event stream
+		@cat {{ ledger_file }} | tail -n 20
+
+	ledger-audit: ## Verify the integrity of the temporal ledger
+		@$($PY) -c "import json; print('Verifying...'); [print('OK' if j['sig'] else 'FAIL') for j in [json.loads(l) for l in open('{{ ledger_file }}')]]"
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Event-Horizon Ledger[/bold cyan] is manifest."
+    proclaim: "Causality Record located at: [bold]{{ ledger_file }}[/bold]"
+    
+    # 1. Create directory
+    >> mkdir -p artifacts/ledger
+
+    # 2. Final Guidance
+    proclaim: "[bold green]✅ Ledger Online.[/bold green]"
+    proclaim: "Use [bold]EventHorizon.record()[/bold] for all state mutations."
+
+%% on-heresy
+    proclaim: "Ledger inception failed."

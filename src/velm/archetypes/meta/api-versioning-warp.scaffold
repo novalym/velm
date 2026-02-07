@@ -1,0 +1,239 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: API VERSIONING WARP (V-Ω-TOTALITY)                       ==
+# =================================================================================
+# @description: Materializes a high-fidelity Temporal Proxy Layer that transparently bridges legacy API consumers to modern structures via semantic payload remapping, brownouts, and automated sunset protocols.
+# @category: Meta
+# @tags: fastapi, versioning, proxy, migration, asgi, maintenance-free, middleware
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: legacy_version=v1, target_version=v2, brownout_rate=0.0, sunset_date=2026-12-31
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ legacy_version = "v1"
+$$ target_version = "v2"
+$$ sunset_date = "2026-12-31"
+$$ brownout_rate = 0.05 # 5% failure rate for legacy nudge
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE TEMPORAL SANCTUM (Architecture) ---
+src/{{ package_name }}/
+    core/
+        versioning/
+            __init__.py :: """
+            from .warp_bridge import WarpBridge
+            from .grimoire import WARP_MAP
+            
+            __all__ = ["WarpBridge", "WARP_MAP"]
+            """
+
+            # [1] THE SCRIPTURE OF CONTRACTS
+            contracts.py :: """
+            from pydantic import BaseModel, Field
+            from typing import Callable, Dict, Any, Optional, Awaitable
+
+            # The Soul of a Transformation Rite
+            # Input: Legacy JSON -> Output: Modern JSON
+            AlchemistRite = Callable[[Dict[str, Any]], Dict[str, Any]]
+
+            class WarpRoute(BaseModel):
+                \"\"\"Defines the coordinates for a temporal leap.\"\"\"
+                target_path: str = Field(..., description="The modern V2 path.")
+                alchemist: Optional[AlchemistRite] = Field(None, description="The payload transformer.")
+                is_deprecated: bool = True
+                brownout_enabled: bool = False
+            """
+
+            # [2] THE GRIMOIRE OF MAPPINGS
+            # This is where the Architect defines the laws of translation.
+            grimoire.py :: """
+            from typing import Dict, Optional
+            from datetime import datetime
+            from .contracts import WarpRoute
+
+            # The Event Horizon: After this date, the Warp collapses (410 Gone).
+            SUNSET_DATE = datetime.fromisoformat("{{ sunset_date }}")
+
+            def transform_v1_auth(body: Dict) -> Dict:
+                \"\"\"Transmutes 'username' into 'email' for the V2 endpoint.\"\"\"
+                if "username" in body:
+                    body["email"] = body.pop("username")
+                return body
+
+            # THE SOVEREIGN MAPPING TABLE
+            # Format: { "legacy_path": WarpRoute(...) }
+            WARP_MAP: Dict[str, WarpRoute] = {
+                # 1. SIMPLE DISPLACEMENT
+                "/{{ legacy_version }}/users/profile": WarpRoute(
+                    target_path="/{{ target_version }}/accounts/me"
+                ),
+                
+                # 2. ALCHEMICAL TRANSMUTATION (Body Rewrite)
+                "/{{ legacy_version }}/auth/login": WarpRoute(
+                    target_path="/{{ target_version }}/identity/token",
+                    alchemist=transform_v1_auth,
+                    brownout_enabled=True # Nudge users off the legacy login
+                ),
+
+                # 3. COLLECTION ALIASING
+                "/{{ legacy_version }}/inventory": WarpRoute(
+                    target_path="/{{ target_version }}/vault/items"
+                )
+            }
+            """
+
+            # [3] THE TEMPORAL ENGINE (Middleware)
+            warp_bridge.py :: """
+            import json
+            import random
+            import logging
+            import time
+            from datetime import datetime
+            from typing import Callable, Awaitable, Dict, Any
+            
+            from fastapi import Request, Response, status
+            from starlette.middleware.base import BaseHTTPMiddleware
+            from starlette.responses import JSONResponse
+            from starlette.types import Message
+
+            from .grimoire import WARP_MAP, SUNSET_DATE
+
+            Logger = logging.getLogger("WarpBridge")
+
+            class WarpBridge(BaseHTTPMiddleware):
+                \"\"\"
+                =============================================================================
+                == THE WARP BRIDGE (V-Ω-TOTALITY-ENGINE)                                   ==
+                =============================================================================
+                LIF: ∞ | ROLE: TEMPORAL_PROXY_GUARDIAN | RANK: OMEGA_SUPREME
+                
+                Intercepts legacy requests, transmutes their path and body, and forwards
+                them to the new reality. Enforces the Sunset Protocol and Brownouts.
+                \"\"\"
+
+                async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+                    path = request.url.path
+                    
+                    # 1. RELEVANCE INQUEST
+                    route = WARP_MAP.get(path)
+                    if not route:
+                        return await call_next(request)
+
+                    # 2. THE EVENT HORIZON (Sunset Protocol)
+                    if datetime.now() > SUNSET_DATE:
+                        return self._proclaim_sunset()
+
+                    # 3. THE BROWNOUT NUDGE
+                    if route.brownout_enabled and random.random() < {{ brownout_rate }}:
+                         return self._proclaim_brownout()
+
+                    # 4. DISPLACEMENT LOGIC
+                    # We surgically alter the ASGI scope to fool the router
+                    Logger.info(f"🌀 [WARP] Mapping: {path} -> {route.target_path}")
+                    request.scope['path'] = route.target_path
+                    
+                    # 5. STREAM RE-SEEDING (Body Alchemy)
+                    # We must read and replace the body stream if a transformer is willed.
+                    if route.alchemist and request.method in ("POST", "PUT", "PATCH"):
+                        await self._conduct_body_alchemy(request, route.alchemist)
+
+                    # 6. KINETIC EXECUTION
+                    start_time = time.perf_counter()
+                    response = await call_next(request)
+                    duration = (time.perf_counter() - start_time) * 1000
+
+                    # 7. METADATA GRAFTING (Deprecation Headers)
+                    response.headers["X-Temporal-Warp"] = "active"
+                    response.headers["X-API-Deprecated"] = "true"
+                    response.headers["X-API-Sunset-Date"] = SUNSET_DATE.isoformat()
+                    response.headers["X-API-Warp-Latency"] = f"{duration:.2f}ms"
+                    response.headers["Link"] = f'<{route.target_path}>; rel="successor-version"'
+                    
+                    return response
+
+                async def _conduct_body_alchemy(self, request: Request, alchemist: Callable):
+                    \"\"\"
+                    The Hardest Rite. Consumes the ASGI stream, transmutes the JSON, 
+                    and re-seeds the channel with a new generator.
+                    \"\"\"
+                    try:
+                        body_bytes = await request.body()
+                        if not body_bytes: return
+                        
+                        data = json.loads(body_bytes)
+                        new_data = alchemist(data)
+                        new_bytes = json.dumps(new_data).encode("utf-8")
+                        
+                        # Re-Seed the ASGI Receive channel
+                        # This prevents the 'Body already consumed' heresy.
+                        async def new_receive() -> Message:
+                            return {"type": "http.request", "body": new_bytes, "more_body": False}
+                        
+                        request._receive = new_receive
+                        
+                        # Synchronize the Content-Length
+                        headers = dict(request.scope['headers'])
+                        headers[b'content-length'] = str(len(new_bytes)).encode('ascii')
+                        request.scope['headers'] = list(headers.items())
+
+                    except Exception as e:
+                        Logger.error(f"💥 [WARP] Alchemy Failed for {request.url.path}: {e}")
+
+                def _proclaim_sunset(self) -> JSONResponse:
+                    return JSONResponse(
+                        status_code=status.HTTP_410_GONE,
+                        content={
+                            "error": "PROTOCOL_SEVERED",
+                            "message": f"This endpoint was sunset on {SUNSET_DATE.date()}. Use V2.",
+                            "docs": "/docs"
+                        }
+                    )
+
+                def _proclaim_brownout(self) -> JSONResponse:
+                    return JSONResponse(
+                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                        content={
+                            "error": "TEMPORAL_INSTABILITY",
+                            "message": "Legacy endpoint brownout. This failure is intentional to force migration."
+                        }
+                    )
+            """
+
+# --- III. THE SURGICAL WEAVE (Main Injection) ---
+# We prepend the import to main.py
+main.py ^= """
+from .core.versioning.warp_bridge import WarpBridge
+"""
+
+# We append the middleware registration
+main.py += """
+# [Gnostic Suture]: Engaging the API Versioning Warp
+# This Guardian must stand at the very edge of the pipeline.
+app.add_middleware(WarpBridge)
+"""
+
+# --- IV. THE KINETIC CONTROL PLANE ---
+Makefile += """
+# [Gnostic Suture]: Temporal Warp Rites
+check-warp: ## Proclaim the state of the API Versioning Grimoire
+    @echo "🔍 Scrying Warp Mappings..."
+    @grep -E "^\s*\"/" src/{{ package_name }}/core/versioning/grimoire.py
+    @echo "📅 Event Horizon: {{ sunset_date }}"
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]API Versioning Warp[/bold cyan] is now manifest."
+    proclaim: "Temporal Coordinates: [magenta]{{ legacy_version }}[/magenta] -> [magenta]{{ target_version }}[/magenta]"
+    
+    # 1. Metadata Verification
+    proclaim: "Adjudicating Grimoire Integrity..."
+    >> python -c "from src.{{ package_name }}.core.versioning.grimoire import WARP_MAP; print(f'Registered {len(WARP_MAP)} temporal leaps.')"
+    ?? succeeds
+
+    # 2. Final Guidance
+    proclaim: "[bold green]✅ Warp Core Online.[/bold green]"
+    proclaim: "To define new displacements, edit: [bold cyan]src/{{ package_name }}/core/versioning/grimoire.py[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[danger]Warp Inception Failed.[/danger] Ensure FastAPI and Starlette are manifest in the environment."

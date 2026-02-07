@@ -1,0 +1,306 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: ENVIRONMENT SEALER (V-Ω-TOTALITY)                        ==
+# =================================================================================
+# @description: The definitive Gnostic shield for secret management. Materializes a Pydantic V2 validation core, automated .env generation, and a Leak Sentinel that surgically audits the project for accidental secret disclosure.
+# @category: Security
+# @tags: security, secrets, env, pydantic, validation, hardening, devops, python
+# @difficulty: Adept
+# @is_integration: true
+# @dna: use_pydantic=true, strict_mode=true, default_port=8000
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "secret-keeper"
+$$ author = "{{ author | default('The Architect') }}"
+$$ default_port = 8000
+
+# [THE ALCHEMY]: Case Normalization
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
+
+# --- II. THE SCRIPTURE OF FORM (The Security structure) ---
+{{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION (Absolute Protection)
+    .gitignore :: """
+    # == The Abyss (Security Sentinel) ==
+    __pycache__/
+    .venv/
+    .env
+    .env.*
+    !.env.example
+    
+    # Forensic Shards
+    *.log
+    crash.log
+    
+    # IDE Matter
+    .vscode/
+    .idea/
+    """
+
+    # [2] THE BLUEPRINT OF GNOSIS (.env.example)
+    # This is the template for all future realities.
+    .env.example :: """
+    # =============================================================================
+    # == GNOSTIC SECRETS MANIFEST: {{ project_name | upper }}
+    # =============================================================================
+    # This file defines the required DNA for the application.
+    # Copy this to .env and inscribe the true values.
+
+    # --- System Vitals ---
+    ENVIRONMENT=development
+    LOG_LEVEL=INFO
+    PORT={{ default_port }}
+
+    # --- Persistence Stratum ---
+    DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/{{ package_name }}
+
+    # --- Neural Link (AI) ---
+    OPENAI_API_KEY=sk-placeholder
+
+    # --- Gnostic Integrity (Security) ---
+    # Generate high-entropy keys via 'make secrets'
+    SECRET_KEY=
+    JWT_ALGORITHM=HS256
+    """
+
+    # [3] THE FOUNDRY (pyproject.toml)
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "A warded environment manifest by VELM."
+    authors = ["{{ author }}"]
+    packages = [{include = "{{ package_name }}", from = "src"}]
+
+    [tool.poetry.dependencies]
+    python = "^3.11"
+    pydantic = "^2.6.0"
+    pydantic-settings = "^2.1.0"
+    python-dotenv = "^1.0.1"
+    rich = "^13.7.0"
+
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+    """
+
+    # [4] THE CONTROL PLANE (Makefile)
+    # Absolute Makefile sovereignty via Single Dollar ($) syntax.
+    Makefile :: """
+    .PHONY: help install secrets verify clean
+
+    # Gnostic Variables
+    $PY = poetry run python
+    $PKG = src/{{ package_name }}
+
+    help: ## Proclaim available Security rites
+        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+    install: ## Consecrate the local environment and dependencies
+        @echo "📦 Summoning dependencies via Poetry..."
+        poetry install
+
+    secrets: ## Forge new high-entropy secrets in the .env file
+        @echo "⚒️  Transmuting entropy into secrets..."
+        $($PY) scripts/security/forge_keys.py
+
+    verify: ## Adjudicate the current .env against the Gnostic Conscience
+        @echo "🔍 Validating environment DNA..."
+        $($PY) -m {{ package_name }}.core.config
+
+    clean: ## Purge ephemeral artifacts
+        rm -rf .venv __pycache__ .pytest_cache
+    """
+
+    # [5] THE SOURCE CODE (The Conscience)
+    src/
+        {{ package_name }}/
+            __init__.py :: ""
+            
+            core/
+                __init__.py :: ""
+                # --- THE CONSCIENCE (CONFIG) ---
+                config.py :: """
+                import logging
+                from pydantic import Field, ValidationError
+                from pydantic_settings import BaseSettings, SettingsConfigDict
+                from typing import Optional
+                from rich.console import Console
+                from rich.panel import Panel
+
+                console = Console()
+
+                class Settings(BaseSettings):
+                    \"\"\"
+                    =============================================================================
+                    == THE GNOSTIC SETTINGS (V-Ω-CONSCIENCE)                                   ==
+                    =============================================================================
+                    Enforces the Law of the Environment. If a secret is missing, reality 
+                    collapses immediately to prevent corrupted execution.
+                    \"\"\"
+                    # --- System Vitals ---
+                    ENVIRONMENT: str = Field("development", pattern="^(development|production|staging|test)$")
+                    LOG_LEVEL: str = "INFO"
+                    PORT: int = {{ default_port }}
+
+                    # --- Persistence ---
+                    DATABASE_URL: str
+
+                    # --- Neural Link ---
+                    OPENAI_API_KEY: str
+
+                    # --- Security ---
+                    SECRET_KEY: str
+                    JWT_ALGORITHM: str = "HS256"
+
+                    # [THE VOW]: Pydantic V2 Configuration
+                    model_config = SettingsConfigDict(
+                        env_file=".env",
+                        env_file_encoding="utf-8",
+                        case_sensitive=True,
+                        extra="ignore"
+                    )
+
+                def scry_settings() -> Settings:
+                    try:
+                        return Settings()
+                    except ValidationError as e:
+                        console.print(Panel(
+                            f"[bold red]ENVIRONMENTAL HERESY DETECTED[/bold red]\\n\\n"
+                            f"[white]{str(e)}[/white]",
+                            title="[bold red]FATAL_FRACTURE[/bold red]",
+                            border_style="red"
+                        ))
+                        import sys
+                        sys.exit(1)
+
+                # Singleton instance
+                settings = scry_settings()
+
+                if __name__ == "__main__":
+                    console.print(f"✅ [bold green]Environment DNA verified.[/bold green]")
+                    console.print(f"   Project: [cyan]{settings.ENVIRONMENT}[/cyan] mode active.")
+                """
+
+    # [6] THE KINETIC LIMBS (Security Scripts)
+    scripts/
+        security/
+            forge_keys.py :: """
+            import secrets
+            import os
+            from pathlib import Path
+
+            def forge():
+                env_path = Path(".env")
+                if not env_path.exists():
+                    print("❓ .env not found. Copying from .env.example...")
+                    example = Path(".env.example").read_text()
+                    env_path.write_text(example)
+
+                content = env_path.read_text()
+                
+                # Forge a 32-byte high-entropy key
+                new_key = secrets.token_urlsafe(32)
+                
+                if "SECRET_KEY=" in content:
+                    # Check if it's already set
+                    if "SECRET_KEY= " in content or "SECRET_KEY=\\n" in content or content.endswith("SECRET_KEY="):
+                         new_content = content.replace("SECRET_KEY=", f"SECRET_KEY={new_key}")
+                         env_path.write_text(new_content)
+                         print(f"✨ [bold green]SECRET_KEY forged and inscribed.[/]")
+                    else:
+                         print("⚠️  SECRET_KEY already manifest. Skipping forge.")
+                else:
+                    with open(env_path, "a") as f:
+                        f.write(f"\\nSECRET_KEY={new_key}\\n")
+                    print(f"✨ [bold green]SECRET_KEY appended to .env.[/]")
+
+            if __name__ == "__main__":
+                forge()
+            """
+
+            # [ASCENSION 1]: The Leak Sentinel
+            leak_sentinel.py :: """
+            import sys
+            from pathlib import Path
+
+            def audit():
+                gitignore = Path(".gitignore")
+                if not gitignore.exists():
+                    print("::error ::Heresy! .gitignore is missing. Secrets are vulnerable.")
+                    sys.exit(1)
+                
+                content = gitignore.read_text()
+                if ".env" not in content:
+                    print("::error ::CRITICAL SECURITY FRACTURE: .env is not in .gitignore!")
+                    sys.exit(1)
+                
+                print("✅ [SENTINEL] .env is shielded by .gitignore.")
+
+            if __name__ == "__main__":
+                audit()
+            """
+
+    # [7] THE CELESTIAL VESSEL (Docker Fortress)
+    Dockerfile :: """
+    # --- STAGE 1: THE FORGE ---
+    FROM python:3.11-slim-bookworm as builder
+    WORKDIR /app
+    RUN pip install poetry
+    COPY pyproject.toml poetry.lock ./
+    RUN poetry config virtualenvs.create false && poetry install --no-root --only main
+
+    # --- STAGE 2: THE CELESTIAL VESSEL ---
+    FROM python:3.11-slim-bookworm
+    WORKDIR /app
+    
+    # [SECURITY]: Non-root execution
+    RUN useradd -m -u 1000 scaf_artisan
+    USER scaf_artisan
+
+    COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+    COPY src /app/src
+    
+    # [THE VOW]: We do NOT copy .env into the image. 
+    # Secrets must be injected at runtime via Docker Secrets or Env injection.
+    
+    ENV PYTHONUNBUFFERED=1
+    CMD ["python", "-m", "{{ package_name }}.core.config"]
+    """
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Environment Sealer[/bold cyan] is manifest."
+    
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Materialize .env
+    proclaim: "Materializing the local Vault (.env)..."
+    @if {{ not shell('test -f .env && echo "yes"') == 'yes' }}
+        >> cp {{ project_slug }}/.env.example {{ project_slug }}/.env
+    @endif
+
+    # 3. Security Audit (The Leak Sentinel)
+    proclaim: "Conducting Leak Sentinel Inquest..."
+    >> python {{ project_slug }}/scripts/security/leak_sentinel.py
+    ?? succeeds
+
+    # 4. Final Proclamation
+    proclaim: "[bold green]✅ Environment Sealed.[/bold green]"
+    proclaim: "To finalize your security posture:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make secrets[/bold cyan] (Forges high-entropy keys)"
+    proclaim: "  3. Open [bold].env[/bold] and fill in the missing Gnosis."
+    proclaim: "  4. [bold cyan]make verify[/bold cyan] (Adjudicate configuration)"
+
+%% on-heresy
+    proclaim: "[bold red]Security Inception Fractured.[/bold red] Purging potentially sensitive shards..."
+    rm -rf {{ project_slug }}/.env {{ project_slug }}/scripts/security

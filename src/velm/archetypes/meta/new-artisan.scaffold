@@ -1,0 +1,177 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: ARTISAN OUROBOROS (V-Ω-TOTALITY)                         ==
+# =================================================================================
+# @description: The supreme meta-artisan for expanding the God-Engine's kinetic limbs. It performs surgical sutures across the request registry and lazy grimoire, materializing a production-ready, HUD-aware artisan skeleton with automated test mirroring.
+# @category: Meta
+# @tags: meta, artisan, plugin, extensibility, codegen, core, python
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: artisan_type=sync, auto_register=true, author=The_Architect
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ artisan_name = "void-walker"
+$$ description = "A new kinetic limb manifest via the Ouroboros rite."
+$$ artisan_category = "Utility"
+$$ author = "{{ author | default('The Architect') }}"
+
+# Alchemical Case Normalization
+$$ artisan_slug = {{ artisan_name | slug }}
+$$ artisan_pascal = {{ artisan_name | pascal }}
+$$ artisan_snake = {{ artisan_name | snake }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The New Limb) ---
+
+# [1] THE ARTISAN SKELETON (The implementation)
+src/velm/artisans/{{ artisan_snake }}.py :: """
+\"\"\"
+=================================================================================
+== THE {{ artisan_name | upper }} ARTISAN (V-Ω-KINETIC-LIMB)
+=================================================================================
+LIF: ∞ | ROLE: KINETIC_EXECUTOR | RANK: ADEPT
+Forged by: {{ author }}
+Generated via the Ouroboros Rite.
+=================================================================================
+\"\"\"
+
+import time
+from typing import Any, Dict, Optional, List
+from pathlib import Path
+
+from ..core.artisan import BaseArtisan
+from ..interfaces.base import ScaffoldResult, Artifact
+from ..interfaces.requests import {{ artisan_pascal }}Request
+from ..help_registry import register_artisan
+from ..logger import Scribe
+
+Logger = Scribe("{{ artisan_pascal }}")
+
+@register_artisan("{{ artisan_slug }}")
+class {{ artisan_pascal }}Artisan(BaseArtisan[{{ artisan_pascal }}Request]):
+    \"\"\"
+    @gnosis:title The {{ artisan_pascal }} Artisan
+    @gnosis:summary {{ description }}
+    \"\"\"
+
+    def execute(self, request: {{ artisan_pascal }}Request) -> ScaffoldResult:
+        \"\"\"
+        The primary rite of execution for the {{ artisan_slug }} command.
+        \"\"\"
+        start_time = time.monotonic()
+        self.logger.info(f"The '{{ artisan_slug }}' rite is being conducted by the Hand.")
+        
+        # [ASCENSION 1]: METABOLIC HUD PULSE
+        # Signal the Ocular UI that a kinetic strike has begun.
+        if self.engine.akashic:
+            self.engine.akashic.broadcast({
+                "method": "novalym/hud_pulse",
+                "params": {
+                    "type": "KINETIC_STRIKE",
+                    "label": "{{ artisan_slug | upper }}_ACTIVE",
+                    "color": "#64ffda",
+                    "trace": getattr(request, 'trace_id', 'tr-void')
+                }
+            })
+
+        # --- THE CORE LOGIC ---
+        # TODO: Implement the Gnostic will of this artisan.
+        # Access variables: request.variables
+        # Access project: self.engine.project_root
+        
+        # [SIMULATION]: Mocking work
+        time.sleep(0.1)
+
+        # --- THE FINAL PROCLAMATION ---
+        duration_ms = (time.monotonic() - start_time) * 1000
+        
+        return self.success(
+            message="The rite of {{ artisan_name }} has concluded successfully.",
+            data={"status": "manifested", "latency_ms": duration_ms},
+            ui_hints={"vfx": "bloom", "sound": "consecration_complete"}
+        )
+\"\"\"
+
+# [2] THE REQUEST VESSEL SUTURE
+# We surgically append the new Request contract to the central registry.
+src/velm/interfaces/requests.py += """
+
+class {{ artisan_pascal }}Request(BaseRequest):
+    \"\"\"
+    The sacred plea for the '{{ artisan_slug }}' rite.
+    Forged by the Ouroboros.
+    \"\"\"
+    target_path: Optional[str] = Field(
+        default=None, 
+        description="The physical locus where the rite shall be performed."
+    )
+    # [ASCENSION]: Add additional Gnostic Fields here
+"""
+
+# [3] THE GRIMOIRE DATA SUTURE
+# We update the lazy-loading map so the Conductor perceives the new skill instantly.
+src/velm/core/cli/grimoire_data.py += """
+    "{{ artisan_slug }}": ("artisans.{{ artisan_snake }}", "{{ artisan_pascal }}Artisan", "{{ artisan_pascal }}Request"),
+"""
+
+# [4] THE TEST SHADOW (Adjudication)
+tests/artisans/test_{{ artisan_snake }}.py :: """
+import pytest
+from velm.core.runtime import ScaffoldEngine
+from velm.interfaces.requests import {{ artisan_pascal }}Request
+
+def test_{{ artisan_snake }}_inception():
+    \"\"\"Verifies the artisan can be summoned and executed in a void context.\"\"\"
+    # 1. Awaken Engine
+    engine = ScaffoldEngine(silent=True)
+    
+    # 2. Forge Plea
+    request = {{ artisan_pascal }}Request(
+        project_root=".",
+        variables={}
+    )
+    
+    # 3. Dispatch
+    result = engine.dispatch(request)
+    
+    # 4. Adjudicate
+    assert result.success is True
+    assert "concluded" in result.message.lower()
+\"\"\"
+
+# --- III. THE CONTROL PLANE (Makefile) ---
+Makefile:
+    .PHONY: test-{{ artisan_slug }}
+    
+    $PY = poetry run python
+
+    test-{{ artisan_slug }}: ## Conduct the inquisition for the new artisan
+        poetry run pytest tests/artisans/test_{{ artisan_snake }}.py
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The Ouroboros has completed the rite. New Artisan [bold cyan]{{ artisan_pascal }}[/bold cyan] forged."
+    
+    # Forensic Verification of Sutures
+    proclaim: "Verifying Gnostic Sutures..."
+    
+    # 1. Check Request Interface
+    @if {{ shell('grep -q "{{ artisan_pascal }}Request" src/velm/interfaces/requests.py && echo "yes" || echo "no"') == 'yes' }}
+        -> proclaim: "  - Request Contract: [green]RESONANT[/green]"
+    @else
+        -> proclaim: "  - Request Contract: [bold red]FRACTURED[/bold red] (Manual Suture Required)"
+
+    # 2. Check Lazy Map
+    @if {{ shell('grep -q "{{ artisan_slug }}" src/velm/core/cli/grimoire_data.py && echo "yes" || echo "no"') == 'yes' }}
+        -> proclaim: "  - Lazy Grimoire: [green]RESONANT[/green]"
+    @else
+        -> proclaim: "  - Lazy Grimoire: [bold red]FRACTURED[/bold red] (Manual Suture Required)"
+
+    proclaim: "[bold green]✅ Limb Materialized.[/bold green]"
+    proclaim: "To test your new power, speak:"
+    proclaim: "  1. [bold cyan]velm {{ artisan_slug }} --help[/bold cyan]"
+    proclaim: "  2. [bold cyan]make test-{{ artisan_slug }}[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Ouroboros Rite Fractured.[/bold red] Reversing surgical strikes..."
+    # Transactional rollback will handle file deletion automatically.

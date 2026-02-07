@@ -1,0 +1,143 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: RBAC SENTINEL (V-Ω-TOTALITY)                            ==
+# =================================================================================
+# @description: Materializes a declarative Role-Based Access Control (RBAC) engine. Decouples permissions from logic via a YAML-based Policy Scripture and provides high-performance FastAPI middleware for perimeter adjudication.
+# @category: Security
+# @tags: rbac, authorization, permissions, security, policy, middleware, fastapi
+# @difficulty: Adept
+# @is_integration: true
+# @dna: policy_format=yaml, use_middleware=true, default_role=guest
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ policy_file = "access_policy.yaml"
+
+# --- II. THE POLICY SCRIPTURE (The Law) ---
+src/{{ package_name }}/
+    core/
+        security/
+            # [1] THE CODEX OF PERMISSIONS
+            # Define your hierarchy here.
+            {{ policy_file }} :: """
+            # == Gnostic Access Policy ==
+            # Pattern: module:action
+            
+            roles:
+              guest:
+                description: "The Uninitiated."
+                permissions:
+                  - "public:read"
+              
+              acolyte:
+                description: "The Initiated."
+                permissions:
+                  - "public:read"
+                  - "blueprint:read"
+                  - "artifact:download"
+              
+              architect:
+                description: "The Sovereign."
+                permissions:
+                  - "*" # Total Gnostic Authority
+            """
+
+            # [2] THE SENTINEL ENGINE (Logic)
+            sentinel.py :: """
+            import yaml
+            import fnmatch
+            import logging
+            from pathlib import Path
+            from typing import List, Dict, Set, Optional
+            from fastapi import Request, HTTPException, status, Depends
+            
+            Logger = logging.getLogger("Security:Sentinel")
+            POLICY_PATH = Path(__file__).parent / "{{ policy_file }}"
+
+            class AccessSentinel:
+                \"\"\"
+                =============================================================================
+                == THE RBAC SENTINEL (V-Ω-POLICY-ENFORCER)                                 ==
+                =============================================================================
+                LIF: ∞ | ROLE: JURISPRUDENCE_ENGINE
+                
+                Adjudicates the Architect's plea against the Declarative Law.
+                \"\"\"
+                _policy_cache: Dict[str, Any] = {}
+
+                def __init__(self, required_permission: str):
+                    self.required_permission = required_permission
+
+                def __call__(self, request: Request):
+                    \"\"\"
+                    The Rite of Adjudication.
+                    Expects 'user_role' to be manifest in request.state (set by Auth).
+                    \"\"\"
+                    user_role = getattr(request.state, "role", "guest")
+                    policy = self._load_policy()
+                    
+                    # 1. Retrieve Role DNA
+                    role_data = policy.get("roles", {}).get(user_role, {})
+                    permissions = role_data.get("permissions", [])
+                    
+                    # 2. Adjudicate (Wildcard-Aware)
+                    granted = False
+                    for pattern in permissions:
+                        if fnmatch.fnmatch(self.required_permission, pattern):
+                            granted = True
+                            break
+                    
+                    if not granted:
+                        Logger.warning(f"🚫 ACCESS_DENIED: Role '{user_role}' attempted forbidden rite '{self.required_permission}'")
+                        raise HTTPException(
+                            status_code=status.HTTP_403_FORBIDDEN,
+                            detail=f"Gnostic Restriction: Role '{user_role}' lacks permission '{self.required_permission}'."
+                        )
+
+                @classmethod
+                def _load_policy(cls) -> Dict:
+                    if not cls._policy_cache:
+                        try:
+                            with open(POLICY_PATH, "r") as f:
+                                cls._policy_cache = yaml.safe_load(f)
+                        except Exception as e:
+                            Logger.error(f"Policy Fracture: Could not read {POLICY_PATH.name}: {e}")
+                            return {}
+                    return cls._policy_cache
+
+            # Luminous Syntax Sugar
+            def Guard(permission: str):
+                return AccessSentinel(permission)
+            """
+
+# --- III. THE SURGICAL WEAVE ---
+@if {{ is_python }}
+    # Dependency Suture
+    pyproject.toml += """
+    PyYAML = "^6.0.1"
+    """
+
+    # Example Route Hardening
+    src/{{ package_name }}/api/routes/admin.py :: """
+    from fastapi import APIRouter, Depends
+    from ...core.security.sentinel import Guard
+
+    router = APIRouter()
+
+    @router.post("/forge", dependencies=[Depends(Guard("reality:forge"))])
+    async def forge_new_reality():
+        return {"msg": "The Sovereign's will is manifest."}
+    """
+@endif
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]RBAC Sentinel[/bold cyan] is manifest."
+    
+    proclaim: "Declarative Policy established at: [bold]core/security/{{ policy_file }}[/bold]"
+    proclaim: "To secure a route, use the [bold]Guard[/bold] dependency:"
+    proclaim: "[cyan]  @app.get('/path', dependencies=[Depends(Guard('scope:action'))])[/cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Sentinel Inception Failed.[/bold red]"
+    rm -rf src/{{ package_name }}/core/security/sentinel.py

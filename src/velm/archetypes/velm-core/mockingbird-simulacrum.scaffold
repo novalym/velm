@@ -1,0 +1,113 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: MOCKINGBIRD SIMULACRUM (V-Ω-TOTALITY-PROTOTYPER)        ==
+# =================================================================================
+# @description: The ultimate prototyping artisan. Scries Pydantic models and API contracts to automatically forge high-fidelity mock data generators. Enables the Frontend to breathe before the Backend is even manifest.
+# @category: Velm-Core
+# @tags: mocking, testing, faker, prototyping, frontend-sync, pydantic, data-generation
+# @difficulty: Master
+# @is_integration: true
+# @dna: use_faker=true, mock_depth=2, output_format=json
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tool_name = "mockingbird"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SIMULACRUM ENGINE (Logic) ---
+scripts/intelligence/
+    # [ASCENSION 1]: THE DATA MIMIC
+    # This script scries your Pydantic schemas and forges a 'faker' script.
+    mock_forge.py :: """
+    #!/usr/bin/env python3
+    import ast
+    import os
+    from pathlib import Path
+
+    def forge_mimic(source_dir: Path):
+        \"\"\"
+        =============================================================================
+        == THE MOCKINGBIRD FORGE (V-Ω-MIMICRY)                                     ==
+        =============================================================================
+        Scans models.py or schemas.py and forges a data-factory.
+        \"\"\"
+        print("🔍 [MOCKINGBIRD] Scrying schemas for data-mimicry...")
+        
+        # Seek the schemas
+        targets = list(source_dir.rglob("*schemas.py")) + list(source_dir.rglob("*models.py"))
+        
+        if not targets:
+            print("❓ No schemas perceived. The Mockingbird is silent.")
+            return
+
+        # Simple logic to find class names ending in 'Schema' or 'Model'
+        found_models = []
+        for t in targets:
+            content = t.read_text()
+            found_models.extend(re.findall(r'class\s+(\w+)\(BaseModel\):', content))
+
+        if found_models:
+            _generate_factory_script(found_models)
+
+    def _generate_factory_script(models: list):
+        script_path = Path("scripts/intelligence/generate_mock_data.py")
+        script_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        lines = [
+            "import json",
+            "from faker import Faker",
+            "fake = Faker()",
+            "",
+            "def generate_mock():",
+            "    data = {"
+        ]
+        
+        for m in models:
+            lines.append(f"        '{m.lower()}s': [")
+            lines.append(f"            {{'id': i, 'name': fake.name(), 'email': fake.email()}}")
+            lines.append(f"            for i in range(5)")
+            lines.append(f"        ],")
+            
+        lines.extend([
+            "    }",
+            "    with open('artifacts/mock_data.json', 'w') as f:",
+            "        json.dump(data, f, indent=2)",
+            "    print('✨ Mock Data Materialized: artifacts/mock_data.json')",
+            "",
+            "if __name__ == '__main__': generate_mock()"
+        ])
+        
+        script_path.write_text('\\n'.join(lines))
+        print(f"✨ [MOCKINGBIRD] Data Factory manifest: {script_path}")
+
+    if __name__ == "__main__":
+        import re
+        forge_mimic(Path('src'))
+    \"\"\"
+
+# --- III. THE CONTROL PLANE ---
+Makefile:
+	.PHONY: mock-forge mock-run
+
+	mock-forge: ## Scry schemas and forge the data factory
+		@poetry run python scripts/intelligence/mock_forge.py
+
+	mock-run: ## Generate high-fidelity JSON mock data
+		@mkdir -p artifacts
+		@poetry run python scripts/intelligence/generate_mock_data.py
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Mockingbird Simulacrum manifest in 'scripts/intelligence/'."
+    
+    # Dependencies
+    proclaim: "Summoning the Mimicry toolchain... (faker)"
+    >> poetry add faker --group dev
+    ?? succeeds
+
+    proclaim: "[bold green]✅ Prototyping Engine Online.[/bold green]"
+    proclaim: "1. [bold cyan]make mock-forge[/bold cyan] (Create Factory)"
+    proclaim: "2. [bold cyan]make mock-run[/bold cyan] (Generate Data)"
+
+%% on-heresy
+    proclaim: "Mockingbird failed to hatch."
+    rm -rf scripts/intelligence/mock_forge.py

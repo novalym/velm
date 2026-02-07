@@ -1,0 +1,139 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: ADOPTIVE SCRIBE (V-Ω-TOTALITY-LEGACY-BRIDGE)             ==
+# =================================================================================
+# @description: The definitive legacy migration engine. Scries any unmanaged directory and transmutes it into a structured .scaffold blueprint, automatically identifying and replacing hardcoded strings with alchemical variables (project_slug, package_name).
+# @category: Velm-Core
+# @tags: migration, legacy, adoption, reverse-engineering, automation, blueprint-forge
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: scan_mode=aggressive, auto_abstract=true, output_format=scaffold
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tool_name = "adoptive-scribe"
+$$ output_blueprint = "adopted_reality.scaffold"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE ADOPTION ENGINE (The Alchemist Script) ---
+scripts/meta/
+    # [ASCENSION 1]: THE SEMANTIC ABSTRACTOR
+    # This script performs the "Reverse-Genesis" rite. 
+    # It gazes at a folder and divines what should be a variable.
+    adopt_reality.py :: """
+    #!/usr/bin/env python3
+    import os
+    import sys
+    import re
+    from pathlib import Path
+
+    class AdoptiveScribe:
+        \"\"\"
+        =============================================================================
+        == THE ADOPTIVE SCRIBE (V-Ω-REVERSE-GENESIS)                               ==
+        =============================================================================
+        LIF: ∞ | ROLE: REALITY_TRANSCRIBER | RANK: OMEGA
+        \"\"\"
+        
+        # Files that define the soul of the project (to detect slugs)
+        DNA_MARKERS = ["package.json", "pyproject.toml", "go.mod", "Cargo.toml"]
+        
+        # Matter to ignore during the Gaze
+        ABYSS = {".git", ".scaffold", "__pycache__", "node_modules", ".venv", "dist", "build"}
+
+        def __init__(self, target_dir: Path):
+            self.target_dir = target_dir
+            self.project_slug = target_dir.name
+            self.package_name = self.project_slug.replace('-', '_')
+            self.project_title = self.project_slug.replace('-', ' ').title()
+
+        def transcribe(self) -> str:
+            print(f"🌀 [SCRIBE] Transcribing Legacy Reality: {self.project_slug}...")
+            
+            lines = [
+                f"# == Gnostic Blueprint: {self.project_title} ==",
+                f"# @description: Distilled from legacy directory: {self.project_slug}",
+                "",
+                f"$$ project_slug = \"{{{{ project_name | slug }}}}\"",
+                f"$$ package_name = \"{{{{ project_slug | snake }}}}\"",
+                "",
+                f"{{{{ project_slug }}}}/"
+            ]
+
+            for root, dirs, files in os.walk(self.target_dir):
+                # Prune the Abyss
+                dirs[:] = [d for d in dirs if d not in self.ABYSS]
+                
+                for file in files:
+                    if file.startswith(".") and file not in (".env.example", ".gitignore"):
+                        continue
+                        
+                    abs_path = Path(root) / file
+                    rel_path = abs_path.relative_to(self.target_dir)
+                    
+                    try:
+                        content = abs_path.read_text(encoding='utf-8', errors='ignore')
+                        
+                        # [ASCENSION 5]: ALCHEMICAL ABSTRACTION
+                        # Replace the found slug/package name with Jinja variables
+                        content = content.replace(self.project_slug, "{{ project_slug }}")
+                        content = content.replace(self.package_name, "{{ package_name }}")
+                        
+                        # [THE CLOAKING RITE]: Use triple quotes to preserve nested docstrings
+                        lines.append(f"    {rel_path.as_posix()} :: \\\"\\\"\\\"")
+                        lines.append(content)
+                        lines.append("    \\\"\\\"\\\"")
+                        lines.append("")
+                    except Exception as e:
+                        print(f"⚠️  [SCRIBE] Skipping {file} (Unreadable matter): {e}")
+
+            return "\\n".join(lines)
+
+    if __name__ == "__main__":
+        if len(sys.argv) < 2:
+            print("Usage: python adopt_reality.py <directory>")
+            sys.exit(1)
+            
+        target = Path(sys.argv[1]).resolve()
+        scribe = AdoptiveScribe(target)
+        blueprint = scribe.transcribe()
+        
+        output = Path("{{ output_blueprint }}")
+        output.write_text(blueprint, encoding='utf-8')
+        print(f"✨ [SCRIBE] Gnostic Blueprint forged: [bold cyan]{output}[/bold cyan]")
+    \"\"\"
+
+# --- III. THE KINETIC SYMPHONY ---
+# We use a .symphony to make the migration interactive.
+adopt.symphony :: """
+# == Symphony of Adoption ==
+# Bridges a legacy project into the Velm Universe.
+
+# 1. Identify Target
+%% let target_path = @ask("Enter the path of the legacy sanctum to adopt:")
+?? dir_exists: {{ target_path }}
+
+# 2. Conduct Transcription
+%% proclaim: "Oracle is scrying the legacy matter. This is a heavy rite..."
+>> python scripts/meta/adopt_reality.py {{ target_path }}
+?? succeeds
+
+# 3. Final Adjudication
+%% proclaim: "Adoption complete. To manifest this project as a Velm native, speak:"
+%% proclaim: "[bold cyan]velm genesis adopted_reality.scaffold[/bold cyan]"
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile:
+	.PHONY: adopt-legacy
+
+	adopt-legacy: ## Transmute an existing directory into a Velm Blueprint
+		@poetry run velm run adopt.symphony
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Gnostic Adoptive Scribe manifest in 'scripts/meta/'."
+    proclaim: "[bold green]✅ Legacy-to-Gnosis bridge active.[/bold green]"
+    proclaim: "To adopt any existing project, speak: [bold cyan]make adopt-legacy[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Adoption failed.[/bold red] Verify directory permissions."

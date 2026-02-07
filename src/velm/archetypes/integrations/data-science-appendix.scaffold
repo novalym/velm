@@ -1,0 +1,231 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: DATA SCIENCE APPENDIX (V-Ω-TOTALITY)                    ==
+# =================================================================================
+# @description: Materializes an integrated analytical laboratory. Features a containerized JupyterLab environment with GPU support, automated data hydration pipelines, and a Gnostic Bridge to scry into the project's source code.
+# @category: Integrations
+# @tags: jupyter, pandas, numpy, scikit-learn, pytorch, data-science, laboratory, r
+# @difficulty: Master
+# @is_integration: true
+# @dna: lab_port=8888, use_gpu=false, environment=research, python_version=3.12
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ lab_port = 8888
+$$ use_gpu = {{ use_gpu | default(false) }}
+$$ python_version = "3.12"
+$$ data_sanctum = "data/vault"
+
+# Derived Gnosis
+$$ project_slug = {{ project_slug | default('nebula-research') }}
+$$ package_name = {{ project_name | snake }}
+
+# --- II. THE LABORATORY INFRASTRUCTURE (Matter) ---
+infra/analytical/
+    # [1] THE CELESTIAL MESH (Docker Compose)
+    docker-compose.lab.yml :: """
+    version: '3.8'
+
+    services:
+      # [THE CRUCIBLE]: JupyterLab Laboratory
+      lab:
+        build:
+          context: ../../notebooks
+          dockerfile: Dockerfile.lab
+        container_name: {{ project_slug }}_lab
+        ports:
+          - "{{ lab_port }}:8888"
+        env_file:
+          - ../../.env
+        volumes:
+          - ../../notebooks:/lab/notebooks
+          - ../../src:/lab/src          # [THE SUTURE]: Direct access to Mind
+          - ../../{{ data_sanctum }}:/lab/data # [THE MATTER]: Persistent Data
+        environment:
+          - JUPYTER_TOKEN=${SCAFFOLD_LAB_TOKEN:-gnostic}
+          - PYTHONPATH=/lab/src
+        {% if use_gpu %}
+        # [ASCENSION]: The GPU Command
+        deploy:
+          resources:
+            reservations:
+              devices:
+                - driver: nvidia
+                  count: all
+                  capabilities: [gpu]
+        {% endif %}
+        networks:
+          - gnostic_mesh
+
+    networks:
+      gnostic_mesh:
+        external: true
+        name: {{ project_slug }}_gnostic_mesh
+    """
+
+# --- III. THE ANALYTICAL SANCTUM (Structure) ---
+notebooks/
+    # [2] THE HERMETIC ENVIRONMENT (Dockerfile)
+    Dockerfile.lab :: """
+    FROM python:{{ python_version }}-slim-bookworm
+    
+    WORKDIR /lab
+    
+    # [ASCENSION 1]: System Utilities
+    RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        curl \
+        git \
+        libgomp1 \
+        && rm -rf /var/lib/apt/lists/*
+
+    # [ASCENSION 2]: The Analytical Trinity
+    # Install core analytical deities
+    RUN pip install --no-cache-dir \
+        jupyterlab \
+        pandas \
+        numpy \
+        scipy \
+        matplotlib \
+        seaborn \
+        scikit-learn \
+        plotly \
+        pydantic \
+        ipywidgets
+
+    # [ASCENSION 3]: Conditional Deep Learning Inception
+    {% if use_gpu %}
+    RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+    {% else %}
+    RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+    {% endif %}
+
+    # [THE VOW]: Unbuffered I/O for real-time logging
+    ENV PYTHONUNBUFFERED=1
+    
+    EXPOSE 8888
+    
+    CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token='gnostic'"]
+    """
+
+    # [3] THE GENESIS NOTEBOOK (Initial Perception)
+    01_initial_perception.ipynb :: """
+    {
+     "cells": [
+      {
+       "cell_type": "markdown",
+       "metadata": {},
+       "source": [
+        "# 🧪 Gnostic Perception: {{ project_name }}\\n",
+        "**Architect:** {{ author }}\\n",
+        "**Timestamp:** {{ now('utc') }}\\n",
+        "\\n",
+        "This is the genesis notebook of your laboratory. It is anchored to the live source code in `src/`."
+       ]
+      },
+      {
+       "cell_type": "code",
+       "execution_count": null,
+       "metadata": {},
+       "outputs": [],
+       "source": [
+        "import sys\\n",
+        "import os\\n",
+        "import pandas as pd\\n",
+        "import numpy as np\\n",
+        "import matplotlib.pyplot as plt\\n",
+        "\\n",
+        "# Verify Gnostic Suture\\n",
+        "try:\\n",
+        "    import {{ package_name }}\\n",
+        "    print(f'✅ Link established to: {{ package_name }}')\\n",
+        "except ImportError:\\n",
+        "    print('❌ Heresy: Source code not found in path.')"
+       ]
+      }
+     ],
+     "metadata": {
+      "kernelspec": {
+       "display_name": "Python 3",
+       "language": "python",
+       "name": "python3"
+      }
+     },
+     "nbformat": 4,
+     "nbformat_minor": 5
+    }
+    """
+
+# --- IV. THE KINETIC LIMBS (Data Hydration) ---
+scripts/analytical/
+    hydrate.py :: """
+    \"\"\"
+    =============================================================================
+    == THE DATA HYDRATOR (V-Ω-ACHRONAL-INGESTION)                             ==
+    =============================================================================
+    Surgically fetches matter from remote sources into the local sanctum.
+    \"\"\"
+    import os
+    from pathlib import Path
+    import requests
+
+    DATA_VAULT = Path("{{ data_sanctum }}")
+
+    def hydrate_reality():
+        DATA_VAULT.mkdir(parents=True, exist_ok=True)
+        print(f"🌀 Hydrating the Data Sanctum: {DATA_VAULT}...")
+        
+        # Placeholder for real datasets
+        # example_url = "https://example.com/dataset.csv"
+        # res = requests.get(example_url)
+        # (DATA_VAULT / "raw_matter.csv").write_bytes(res.content)
+        
+        (DATA_VAULT / "genesis_marker.txt").write_text("Matter is manifest.")
+        print("✨ Hydration complete.")
+
+    if __name__ == "__main__":
+        hydrate_reality()
+    """
+
+# --- V. THE CONTROL PLANE (Makefile Integration) ---
+Makefile:
+    .PHONY: lab-up lab-down lab-hydrate
+
+    $COMPOSE_LAB = infra/analytical/docker-compose.lab.yml
+
+    lab-up: ## Ignite the Analytical Laboratory
+      @echo "🔭 Awakening the Crucible..."
+      @docker network create {{ project_slug }}_gnostic_mesh 2>/dev/null || true
+      @docker-compose -f $($COMPOSE_LAB) up --build -d
+      @echo "✅ Laboratory active at http://localhost:{{ lab_port }}?token=gnostic"
+
+    lab-down: ## Dissolve the Laboratory
+      @docker-compose -f $($COMPOSE_LAB) down
+
+    lab-hydrate: ## Conduct the Data Hydration rite
+      @poetry run python scripts/analytical/hydrate.py
+
+# --- VI. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Data Science Appendix[/bold cyan] is materializing in 'notebooks/'."
+    
+    # 1. Create the Data Sanctum
+    proclaim: "Forging the Data Sanctum at '{{ data_sanctum }}'..."
+    >> mkdir -p {{ data_sanctum }}/raw {{ data_sanctum }}/processed
+
+    # 2. Preparation of scripts
+    >> mkdir -p scripts/analytical
+
+    # 3. Network Verification
+    proclaim: "Verifying Gnostic Mesh network..."
+    >> docker network create {{ project_slug }}_gnostic_mesh || true
+    
+    # 4. Final Proclamation
+    proclaim: "[bold green]✅ Laboratory manifest.[/bold green]"
+    proclaim: "To ignite the Crucible:"
+    proclaim: "  1. [bold cyan]make lab-up[/bold cyan]"
+    proclaim: "  2. [bold cyan]make lab-hydrate[/bold cyan] (Initialize Data)"
+    proclaim: "  3. Scry the Workset: [bold]http://localhost:{{ lab_port }}[/bold]"
+
+%% on-heresy
+    proclaim: "[bold red]Analytical inception fractured.[/bold red] Cleaning shards..."
+    rm -rf infra/analytical/ notebooks/ scripts/analytical/

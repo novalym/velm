@@ -1,91 +1,428 @@
-# Path: scaffold/archetypes/genesis/langchain-nexus.scaffold
-# ----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: LANGCHAIN AGENTIC NEXUS (V-Ω-TOTALITY)                  ==
+# =================================================================================
+# @description: A transcendent agentic platform. Features LCEL chain composition,
+#               persistent ChromaDB memory, streaming FastAPI endpoints, 
+#               and a suite of autonomous Gnostic tools.
+# @category: Intelligence
+# @tags: python, langchain, ai, agents, rag, chromadb, fastapi, openai, intelligence
+# @difficulty: Master
+# @is_integration: false
+# @dna: use_docker=true, use_poetry=true, python_version=3.11, use_rag=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: LANGCHAIN NEXUS (V-Ω-AGENTIC-MIND)               ==
-# =================================================================================
-# @description: A complete LLM application foundation using LangChain, FastAPI, and
-#               a FAISS in-memory vector store for RAG.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "neural-nexus"
+$$ author = "The Architects"
+$$ primary_model = "gpt-4-turbo"
+$$ embedding_model = "text-embedding-3-small"
+$$ vector_db_port = 8000
 
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
-$$ package_name = {{ project_slug | snake }}
+$$ package_name = {{ project_name | snake }}
 
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: ".venv/\n__pycache__/\n.env"
-    README.md :: "## LangChain Nexus\n- `poetry install`\n- `cp .env.example .env` (and add your OpenAI key)\n- `poetry run dev`"
 
+    # [1] THE ABYSSAL SENTINEL (Ignorance)
+    .gitignore:
+        __pycache__/
+        *.py[cod]
+        .venv/
+        .env
+        .env.*
+        !.env.example
+        # Vector Matter
+        .chroma/
+        dist/
+        .pytest_cache/
+        .ruff_cache/
+        .DS_Store
+
+    # [2] THE FOUNDRY (POETRY)
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "An Agentic Intelligence Hub forged by VELM."
+    authors = ["{{ author }}"]
+    readme = "README.md"
+    packages = [{include = "{{ package_name }}", from = "src"}]
+
+    [tool.poetry.dependencies]
+    python = "^3.11"
+    fastapi = "^0.110.0"
+    uvicorn = {extras = ["standard"], version = "^0.27.0"}
+    langchain = "^0.1.0"
+    langchain-openai = "^0.0.8"
+    langchain-community = "^0.0.24"
+    chromadb = "^0.4.24"
+    pydantic = {extras = ["email"], version = "^2.6.0"}
+    pydantic-settings = "^2.2.0"
+    tiktoken = "^0.6.0"
+    rich = "^13.7.0"
+    python-dotenv = "^1.0.1"
+
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    pytest-asyncio = "^0.23.5"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+    httpx = "^0.27.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+
+    [tool.black]
+    line-length = 110
+    target-version = ['py311']
+
+    [tool.ruff]
+    line-length = 110
+    target-version = "py311"
+    """
+
+    # [3] THE CONTROL PLANE (MAKEFILE)
+    Makefile:
+        .PHONY: help install dev ingest test clean docker-up
+        
+        $PY = poetry run python
+        $PKG = {{ package_name }}
+
+        help: ## Proclaim available Intelligence rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
+
+        install: ## Consecrate the local neural environment
+            @echo "📦 Summoning dependencies..."
+            @poetry install
+
+        dev: ## Ignite the Intelligence Gateway (FastAPI)
+            @echo "🚀 Awakening the Nexus..."
+            @poetry run uvicorn src.$(PKG_NAME).main:app --host 0.0.0.0 --port 8080 --reload
+
+        ingest: ## Feed raw scriptures into the Vector Vault
+            @$PY src/$($PKG)/scripts/ingest_matter.py
+
+        test: ## Conduct the unit inquisition
+            @poetry run pytest
+
+        docker-up: ## Awaken the containerized cosmos (API + Chroma)
+            @docker-compose up --build -d
+
+        clean: ## Return artifacts to the void
+            rm -rf .chroma/ dist/ .venv/
+            find . -name "*.pyc" -delete
+
+    # [4] THE ENVIRONMENT DNA
     .env.example:
-        OPENAI_API_KEY="your-sk-key-here"
+        # == System Identity ==
+        APP_NAME="{{ project_name }}"
+        ENVIRONMENT="development"
+        LOG_LEVEL="INFO"
+        
+        # == Neural Keys (Bestow your Gnosis) ==
+        OPENAI_API_KEY="sk-..."
+        
+        # == Vector Store ==
+        CHROMA_DB_HOST="localhost"
+        CHROMA_DB_PORT={{ vector_db_port }}
+        VECTOR_COLLECTION="gnostic_memory"
 
-    pyproject.toml:
-        [tool.poetry]
-        name = "{{ project_slug }}"
-        version = "0.1.0"
-        packages = [{include = "{{ package_name }}", from = "src"}]
-        [tool.poetry.dependencies]
-        python = "^3.11"
-        langchain = "^0.1.0"
-        langchain-openai = "^0.0.5"
-        fastapi = "^0.110.0"
-        uvicorn = "^0.27.0"
-        faiss-cpu = "^1.7.4" # For vector store
-        tiktoken = "^0.6.0"
-
-        [tool.poetry.scripts]
-        dev = "{{ package_name }}.main:run_dev"
-
+    # [5] THE SOURCE CODE (THE SOUL)
     src/
         {{ package_name }}/
-            __init__.py
-            main.py:
-                import uvicorn
-                from fastapi import FastAPI
-                from langchain_core.prompts import ChatPromptTemplate
-                from langchain_core.output_parsers import StrOutputParser
-                from langchain_core.runnables import RunnablePassthrough
-                from langchain_openai import ChatOpenAI
-                from .vector_store import vector_store
+            __init__.py :: "__version__ = '0.1.0'"
 
-                app = FastAPI()
-                retriever = vector_store.as_retriever()
-                prompt = ChatPromptTemplate.from_template(
-                    """Answer the question based only on the following context:
-                    {context}
+            # --- THE CONSCIENCE (CONFIG) ---
+            core/
+                __init__.py :: ""
+                config.py :: """
+                from pydantic_settings import BaseSettings, SettingsConfigDict
+                from typing import Optional
+
+                class Settings(BaseSettings):
+                    \"\"\"The Gnostic Settings Singleton.\"\"\"
+                    APP_NAME: str = "{{ project_name }}"
+                    ENVIRONMENT: str = "development"
                     
-                    Question: {question}
-                    """
-                )
-                model = ChatOpenAI()
-                
-                chain = (
-                    {"context": retriever, "question": RunnablePassthrough()}
-                    | prompt
-                    | model
-                    | StrOutputParser()
-                )
+                    # AI Configuration
+                    OPENAI_API_KEY: str
+                    PRIMARY_MODEL: str = "{{ primary_model }}"
+                    EMBEDDING_MODEL: str = "{{ embedding_model }}"
+                    
+                    # Vector Persistence
+                    CHROMA_DB_HOST: str = "localhost"
+                    CHROMA_DB_PORT: int = {{ vector_db_port }}
+                    VECTOR_COLLECTION: str = "gnostic_memory"
 
-                @app.post("/ask")
-                def ask(question: str):
-                    return {"answer": chain.invoke(question)}
+                    model_config = SettingsConfigDict(
+                        env_file=".env", 
+                        env_file_encoding="utf-8", 
+                        extra="ignore"
+                    )
 
-                def run_dev():
-                    uvicorn.run("{{ package_name }}.main:app", reload=True)
+                settings = Settings()
+                """
+                logging.py :: """
+                import structlog
+                import logging
 
-            vector_store.py:
-                from langchain_community.vectorstores import FAISS
+                def setup_logging():
+                    structlog.configure(
+                        processors=[
+                            structlog.processors.add_log_level,
+                            structlog.processors.TimeStamper(fmt="iso"),
+                            structlog.processors.JSONRenderer()
+                        ],
+                        logger_factory=structlog.PrintLoggerFactory(),
+                        wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+                        cache_logger_on_first_use=True,
+                    )
+                """
+
+            # --- THE BRAIN (AGENTIC LOGIC) ---
+            logic/
+                __init__.py :: ""
+                brain.py :: """
+                from langchain_openai import ChatOpenAI
+                from langchain.agents import AgentExecutor, create_openai_tools_agent
+                from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+                from .tools import GnosticTools
+                from ..core.config import settings
+
+                class AgenticMind:
+                    \"\"\"
+                    =============================================================================
+                    == THE AGENTIC MIND (V-Ω-REASONING-CORE)                                   ==
+                    =============================================================================
+                    \"\"\"
+                    def __init__(self):
+                        self.llm = ChatOpenAI(
+                            model=settings.PRIMARY_MODEL, 
+                            temperature=0, 
+                            api_key=settings.OPENAI_API_KEY
+                        )
+                        self.tools = GnosticTools().get_all()
+                        
+                        self.prompt = ChatPromptTemplate.from_messages([
+                            ("system", "You are the Gnostic Architect, a sentient agent of VELM. Use your tools to scry the project and manifest truth."),
+                            MessagesPlaceholder(variable_name="chat_history"),
+                            ("human", "{input}"),
+                            MessagesPlaceholder(variable_name="agent_scratchpad"),
+                        ])
+                        
+                        self.agent = create_openai_tools_agent(self.llm, self.tools, self.prompt)
+                        self.executor = AgentExecutor(agent=self.agent, tools=self.tools, verbose=True)
+
+                    async def think(self, user_input: str, history: list = []):
+                        return await self.executor.ainvoke({
+                            "input": user_input,
+                            "chat_history": history
+                        })
+                """
+                tools.py :: """
+                import os
+                from langchain.tools import tool
+                from typing import List
+
+                class GnosticTools:
+                    \"\"\"The kinetic limbs of the Agentic Mind.\"\"\"
+                    
+                    @staticmethod
+                    @tool
+                    def scry_sanctum(directory: str) -> List[str]:
+                        \"\"\"Gaze into a directory to list its manifest files.\"\"\"
+                        try:
+                            return os.listdir(directory)
+                        except Exception as e:
+                            return [f"Perception failed: {str(e)}"]
+
+                    @staticmethod
+                    @tool
+                    def read_scripture(path: str) -> str:
+                        \"\"\"Read the soul of a specific file.\"\"\"
+                        try:
+                            with open(path, 'r', encoding='utf-8') as f:
+                                return f.read()
+                        except Exception as e:
+                            return f"Rite of Reading failed: {str(e)}"
+
+                    def get_all(self):
+                        return [self.scry_sanctum, self.read_scripture]
+                """
+
+            # --- THE MEMORY (VECTOR STORE) ---
+            memory/
+                __init__.py :: ""
+                vector_vault.py :: """
                 from langchain_openai import OpenAIEmbeddings
+                from langchain_community.vectorstores import Chroma
+                from ..core.config import settings
+
+                class VectorVault:
+                    \"\"\"The persistent Gnostic memory of the project.\"\"\"
+                    def __init__(self):
+                        self.embeddings = OpenAIEmbeddings(
+                            model=settings.EMBEDDING_MODEL,
+                            api_key=settings.OPENAI_API_KEY
+                        )
+                        self.store = Chroma(
+                            collection_name=settings.VECTOR_COLLECTION,
+                            embedding_function=self.embeddings,
+                            persist_directory="./.chroma"
+                        )
+
+                    def get_retriever(self):
+                        return self.store.as_retriever(search_kwargs={"k": 5})
+
+                    def add_scriptures(self, documents):
+                        self.store.add_documents(documents)
+                """
+
+            # --- THE ENTRYPOINT (FASTAPI) ---
+            main.py :: """
+            from fastapi import FastAPI, HTTPException
+            from pydantic import BaseModel
+            from .logic.brain import AgenticMind
+            from .memory.vector_vault import VectorVault
+            from .core.config import settings
+            from .core.logging import setup_logging
+
+            setup_logging()
+            app = FastAPI(title=settings.APP_NAME)
+            
+            # Global Organs
+            mind = AgenticMind()
+            vault = VectorVault()
+
+            class ChatRequest(BaseModel):
+                message: str
+                session_id: str = "default"
+
+            @app.post("/v1/commune")
+            async def commune(request: ChatRequest):
+                \"\"\"Commune with the Agentic Mind.\"\"\"
+                try:
+                    result = await mind.think(request.message)
+                    return {"revelation": result["output"]}
+                except Exception as e:
+                    raise HTTPException(status_code=500, detail=str(e))
+
+            @app.get("/health")
+            async def health():
+                return {"status": "vital", "engine": "LangChain-Nexus-V1"}
+            """
+
+            # --- THE SCRIPTS (KINETIC RITES) ---
+            scripts/
+                ingest_matter.py :: """
+                import os
                 from langchain_core.documents import Document
+                from ..memory.vector_vault import VectorVault
+                
+                def run_ingestion():
+                    vault = VectorVault()
+                    # Example Inception
+                    docs = [
+                        Document(page_content="Scaffold is a God-Engine for architectural manifestation.", metadata={"source": "canon"}),
+                        Document(page_content="LangChain Nexus provides the agentic mind for the project.", metadata={"source": "manual"})
+                    ]
+                    print("🌀 Inscribing Gnosis into the Vector Vault...")
+                    vault.add_scriptures(docs)
+                    print("✨ Inscription complete.")
 
-                # In a real app, this would come from a database or files
-                docs = [
-                    Document(page_content="The Gnostic Architect uses Scaffold."),
-                    Document(page_content="Scaffold is a tool for architectural genesis."),
-                ]
+                if __name__ == "__main__":
+                    run_ingestion()
+                """
 
-                embeddings = OpenAIEmbeddings()
-                vector_store = FAISS.from_documents(docs, embeddings)
+    # [6] THE CELESTIAL VESSEL (DOCKER)
+    Dockerfile:
+        FROM python:3.11-slim-bookworm as builder
+        WORKDIR /app
+        ENV POETRY_NO_INTERACTION=1 \
+            POETRY_VIRTUALENVS_IN_PROJECT=1 \
+            POETRY_VIRTUALENVS_CREATE=1
+        RUN apt-get update && apt-get install -y build-essential curl
+        RUN pip install poetry==1.7.1
+        COPY pyproject.toml poetry.lock* ./
+        RUN poetry install --no-root --only main
+        
+        FROM python:3.11-slim-bookworm
+        WORKDIR /app
+        COPY --from=builder /app/.venv /app/.venv
+        ENV PATH="/app/.venv/bin:$PATH"
+        COPY src /app/src
+        EXPOSE 8080
+        CMD ["uvicorn", "src.{{ package_name }}.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
+    docker-compose.yml:
+        version: '3.8'
+        services:
+          nexus:
+            build: .
+            ports: ["8080:8080"]
+            env_file: .env
+            volumes: [".chroma:/app/.chroma", "./src:/app/src"]
+            depends_on:
+              chroma-vault:
+                condition: service_healthy
+
+          chroma-vault:
+            image: chromadb/chroma:latest
+            ports: ["{{ vector_db_port }}:8000"]
+            volumes: ["chroma_data:/chroma/data"]
+            healthcheck:
+              test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+              interval: 10s
+              timeout: 5s
+              retries: 5
+
+        volumes:
+          chroma_data:
+
+    # [7] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name }} (LangChain Nexus)
+
+    > {{ description }}
+
+    Forged by **{{ author }}** via the **VELM God-Engine**.
+    This platform provides the **Agentic Reasoning Core** for your architecture.
+
+    ## 🚀 Quick Inception
+
+    1.  **Consecrate**: `make install`
+    2.  **Prepare the Veil**: `cp .env.example .env` (Add your `OPENAI_API_KEY`)
+    3.  **Feed the Memory**: `make ingest`
+    4.  **Awaken the Mind**: `make dev`
+
+    ## 🏛️ Neural Topography
+
+    - `src/{{ package_name }}/logic/brain.py`: The Agentic Reasoning Engine.
+    - `src/{{ package_name }}/logic/tools.py`: Kinetic Limbs (Filesystem access).
+    - `src/{{ package_name }}/memory/vector_vault.py`: Persistent Semantic Storage.
+    - `src/{{ package_name }}/main.py`: The Ocular API Interface.
+    """
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
-    poetry install
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the dependencies
+    proclaim: "Summoning the Neural toolchain... (LangChain & ChromaDB)"
+    make install
+
+    # 3. Final Proclamation
+    proclaim: "The LangChain Agentic Nexus is manifest."
+    proclaim: "To ignite the mind:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]cp .env.example .env[/bold cyan]"
+    proclaim: "  3. [bold cyan]make dev[/bold cyan]"
+    proclaim: "  4. Commune via [bold]POST http://localhost:8080/v1/commune[/bold]"
+
+%% on-heresy
+    proclaim: "The intelligence forge fractured. Purging the shards..."
+    rm -rf src/ .chroma/ pyproject.toml Makefile

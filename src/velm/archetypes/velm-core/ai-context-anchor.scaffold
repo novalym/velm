@@ -1,0 +1,145 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: AI CONTEXT ANCHOR (V-Ω-TOTALITY)                         ==
+# =================================================================================
+# @description: Injects a high-gravity Gnostic Anchor into the project's soul. Materializes the '.scaffold/' sanctum containing the definitive architectural rules and semantic weights required for a hyper-performant, hallucination-free AI Co-Pilot.
+# @category: Meta
+# @tags: ai, rag, context, metadata, vector, system, documentation, llm-optimized
+# @difficulty: Adept
+# @is_integration: true
+# @dna: context_version=1.0, indexing_strategy=surgical, auto_index=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_philosophy = "Gnostic Clean Architecture"
+$$ naming_convention = "snake_case for logic, kebab-case for topography"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE CONTEXT SANCTUM (The AI's Mind) ---
+.scaffold/
+    # [1] THE LIBRARIAN'S PRIMARY SOURCE
+    # This file is given priority 1.0 (Maximum Gravity) in the Vector Cortex.
+    # It acts as the "Constitution" for any AI agent entering the codebase.
+    context.md :: """
+    # 📜 PROJECT CONSTITUTION: {{ project_title }}
+    
+    ## I. Core Philosophy
+    - **Architecture:** {{ project_philosophy }}
+    - **Primary Artisan:** {{ author | default('The Architect') }}
+    - **Intent:** {{ description }}
+
+    ## II. Structural Laws (Non-Negotiable)
+    1.  **Immutability:** All filesystem mutations MUST be conducted through `velm` rites.
+    2.  **Sovereignty:** Domain logic must remain hermetically sealed from infrastructure (I/O, DB).
+    3.  **Integrity:** The `scaffold.lock` file is the final authority on reality.
+    4.  **Geometry:** {{ naming_convention }}.
+
+    ## III. Semantic Topography
+    - `src/{{ package_name }}/api`: The Ocular layer. No business logic permitted here.
+    - `src/{{ package_name }}/services`: The Mind. Orchestrates intent.
+    - `src/{{ package_name }}/core`: The Soul. Pure entities and invariants.
+    - `tests/`: The Inquisition. No code is manifest until verified.
+
+    ## IV. The Alchemist's Grimoire
+    - Use Pydantic V2 for all data vessels.
+    - Use `structlog` for structured forensic logging.
+    - Favor composition over inheritance to avoid the Ouroboros paradox.
+    """
+
+    # [2] THE VECTOR INDEXING PROTOCOL
+    # Tells the 'velm vector' artisan exactly how to weight different files.
+    vector_rules.json :: """
+    {
+      "indexing_strategy": "surgical",
+      "priority_files": [
+        "scaffold.scaffold",
+        ".scaffold/context.md",
+        "README.md"
+      ],
+      "semantic_weights": {
+        "context.md": 2.0,
+        "api/": 1.2,
+        "core/": 1.5,
+        "tests/": 0.5
+      },
+      "ignore_patterns": [
+        "*.log",
+        "*.tmp",
+        "__pycache__"
+      ]
+    }
+    """
+
+# --- III. THE KINETIC LIMBS (Sync Logic) ---
+scripts/intelligence/
+    # [ASCENSION 1]: The Anchor Scrier
+    # This script verifies the context is resonant with the actual code.
+    verify_context.py :: """
+    #!/usr/bin/env python3
+    \"\"\"
+    =============================================================================
+    == THE CONTEXT SENTINEL (V-Ω-VIGILANT)                                     ==
+    =============================================================================
+    Verifies that the physical reality of the project matches the 
+    Constitutional Gnosis defined in .scaffold/context.md.
+    \"\"\"
+    import os
+    from pathlib import Path
+
+    def scry_alignment():
+        print("🔍 [SENTINEL] Scrying for architectural alignment...")
+        root = Path(os.getcwd())
+        context_file = root / ".scaffold" / "context.md"
+        
+        if not context_file.exists():
+            print("❌ ERROR: Gnostic Anchor is unmanifest. AI is blind.")
+            return False
+
+        # Simple verification: Ensure core packages exist as willed
+        package = "{{ package_name }}"
+        core_path = root / "src" / package / "core"
+        
+        if not core_path.exists():
+            print(f"⚠️  WARNING: Soul Sanctum '{core_path}' not found. Reality has drifted.")
+        else:
+            print("✅ Reality is in alignment with the Constitution.")
+        return True
+
+    if __name__ == "__main__":
+        scry_alignment()
+    \"\"\"
+
+# --- IV. THE CONTROL PLANE ---
+Makefile:
+  .PHONY: ai-index ai-verify
+
+  $PY = poetry run python
+  $VELM = poetry run velm
+
+  ai-index: ## Command the Librarian to embed the project soul
+    @echo "🌀 Summoning the Vector Librarian..."
+    $($VELM) vector index --config .scaffold/vector_rules.json
+
+  ai-verify: ## Adjudicate alignment between code and AI context
+    @$($PY) scripts/intelligence/verify_context.py
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "AI Context Anchor manifest in '.scaffold/'."
+    
+    # 1. Create directory structure
+    >> mkdir -p .scaffold scripts/intelligence
+
+    # 2. Trigger initial indexing
+    @if {{ dna.auto_index }}:
+        proclaim: "Summoning the Vector Librarian for initial Inception..."
+        @try:
+            >> make ai-index
+        @catch:
+            proclaim: "[yellow]Initial indexing deferred. Ensure 'velm vector' is configured.[/yellow]"
+    @endif
+    
+    proclaim: "[bold green]✅ Context Anchored.[/bold green]"
+    proclaim: "The AI Co-Pilot now perceives your intent through [bold].scaffold/context.md[/bold]."
+
+%% on-heresy
+    proclaim: "[bold red]Anchoring failed.[/bold red] Ensure the '.scaffold' directory is writable."

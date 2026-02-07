@@ -1,0 +1,245 @@
+# Path: src/velm/archetypes/frontend/mosaic-gateway.scaffold
+# ----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: MOSAIC GATEWAY CITADEL (V-Ω-TOTALITY)                    ==
+# =================================================================================
+# @description: The definitive Micro-Frontend Sovereign Shell. Uses Module 
+#               Federation and a shared Zustand state bridge to unify multiple,
+#               independently developed UI segments into a single reality.
+# @category: Frontend
+# @tags: react, vite, module-federation, micro-frontend, zustand, typescript, ui
+# @difficulty: Grand Architect
+# @is_integration: false
+# @dna: use_typescript=true, node_version=20, use_react=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "mosaic-hub"
+$$ shell_port = 3000
+$$ dashboard_url = "http://localhost:3001"
+$$ settings_url = "http://localhost:3002"
+$$ project_title = {{ project_name | title }}
+$$ author = "The Architect"
+
+# --- II. THE SOVEREIGN SHELL (FORM) ---
+{{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        /node_modules
+        /dist
+        .env
+        .env.local
+        .DS_Store
+
+    package.json :: """
+    {
+      "name": "{{ project_slug }}-shell",
+      "version": "1.0.0",
+      "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "lint": "eslint src/**",
+        "format": "prettier --write ."
+      },
+      "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "zustand": "latest",
+        "react-router-dom": "^6.22.0",
+        "lucide-react": "^0.340.0"
+      },
+      "devDependencies": {
+        "vite": "^5.1.4",
+        "@vitejs/plugin-react": "^4.2.0",
+        "@originjs/vite-plugin-federation": "latest",
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "@types/node": "^20.11.24",
+        "typescript": "^5.3.3",
+        "eslint": "^8.56.0",
+        "prettier": "^3.2.5"
+      }
+    }
+    """
+
+    tsconfig.json:
+        {
+          "compilerOptions": {
+            "target": "ESNext",
+            "module": "ESNext",
+            "moduleResolution": "bundler",
+            "lib": ["DOM", "DOM.Iterable", "ESNext"],
+            "jsx": "react-jsx",
+            "strict": true,
+            "esModuleInterop": true,
+            "skipLibCheck": true,
+            "isolatedModules": true,
+            "paths": { "@/*": ["./src/*"] }
+          },
+          "include": ["src/**/*"]
+        }
+
+    vite.config.ts :: """
+    import { defineConfig } from 'vite';
+    import react from '@vitejs/plugin-react';
+    import federation from '@originjs/vite-plugin-federation';
+
+    export default defineConfig({
+      plugins: [
+        react(),
+        federation({
+          name: 'shell',
+          remotes: {
+            dashboard: '{{ dashboard_url }}/assets/remoteEntry.js',
+            settings: '{{ settings_url }}/assets/remoteEntry.js',
+          },
+          // [ASCENSION 1]: The Gnostic Shared Library
+          shared: ['react', 'react-dom', 'zustand', 'react-router-dom']
+        })
+      ],
+      server: { port: {{ shell_port }}, host: true }
+    });
+    """
+
+    # [3] THE GNOSTIC STATE BRIDGE
+    src/store/
+        bridge.ts :: """
+        import { create } from 'zustand';
+
+        interface GnosticState {
+          realityAnchor: string;
+          userRole: 'ARCHITECT' | 'ACCLOYTE' | 'GUEST';
+          setAnchor: (val: string) => void;
+          setUserRole: (role: 'ARCHITECT' | 'ACCLOYTE' | 'GUEST') => void;
+        }
+
+        /**
+         * [THE GNOSTIC CONDUIT]
+         * The central, shared cognitive state of the entire Micro-Frontend Mosaic.
+         */
+        export const useGnosticBridge = create<GnosticState>((set) => ({
+          realityAnchor: 'PRIMORDIAL_VOID',
+          userRole: 'GUEST',
+          setAnchor: (val) => set({ realityAnchor: val }),
+          setUserRole: (role) => set({ userRole: role }),
+        }));
+        """
+
+    src/
+        App.tsx :: """
+        import React, { Suspense, lazy } from 'react';
+        import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+        import { Zap, Settings, LayoutDashboard, Loader2 } from 'lucide-react';
+        import { useGnosticBridge } from './store/bridge';
+
+        // [ASCENSION 2]: Dynamic Module Federation Imports
+        const Dashboard = lazy(() => import('dashboard/App'));
+        const SettingsPanel = lazy(() => import('settings/App'));
+
+        const Fallback = () => (
+          <div className="flex items-center justify-center h-full min-h-[500px] text-teal-400">
+            <Loader2 className="animate-spin mr-2" size={20} /> Summoning Portal...
+          </div>
+        );
+
+        export default function SovereignShell() {
+          const { userRole, realityAnchor } = useGnosticBridge();
+
+          return (
+            <BrowserRouter>
+              <div className="min-h-screen bg-zinc-950 text-white font-sans">
+                {/* --- HEADER: THE COMMAND DECK --- */}
+                <header className="flex justify-between items-center p-4 border-b border-white/10 bg-black/40">
+                  <div className="flex items-center gap-3">
+                    <Zap className="text-teal-400" />
+                    <h1 className="text-xl font-black uppercase tracking-tighter">{{ project_title }}</h1>
+                  </div>
+                  <nav className="flex items-center gap-6 text-sm font-bold tracking-widest uppercase">
+                    <Link to="/" className="flex items-center gap-2 hover:text-teal-400 transition-colors">
+                        <LayoutDashboard size={16} /> Dashboard
+                    </Link>
+                    <Link to="/settings" className="flex items-center gap-2 hover:text-teal-400 transition-colors">
+                        <Settings size={16} /> Settings
+                    </Link>
+                  </nav>
+                  <span className="text-[10px] font-mono text-zinc-500">ROLE: {userRole}</span>
+                </header>
+
+                {/* --- MAIN: THE MOSAIC CANVAS --- */}
+                <main className="p-8">
+                  <Suspense fallback={<Fallback />}>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/settings" element={<SettingsPanel />} />
+                      <Route path="*" element={<Fallback />} />
+                    </Routes>
+                  </Suspense>
+                </main>
+              </div>
+            </BrowserRouter>
+          );
+        }
+        """
+        
+        index.css :: """
+        /* Global styles for the Shell */
+        @layer base {
+          body {
+            margin: 0;
+            @apply bg-zinc-950 text-white font-sans antialiased;
+          }
+          a {
+            text-decoration: none;
+          }
+        }
+        """
+        
+    index.html:
+        <!doctype html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>{{ project_title }}</title>
+          </head>
+          <body>
+            <div id="root"></div>
+            <script type="module" src="/src/App.tsx"></script>
+          </body>
+        </html>
+
+
+    # [4] THE LINTING CONSCIENCE
+    .eslintrc.json:
+        {
+          "parser": "@typescript-eslint/parser",
+          "plugins": ["react", "react-hooks"],
+          "extends": [
+            "eslint:recommended",
+            "plugin:react/recommended",
+            "plugin:react-hooks/recommended",
+            "plugin:@typescript-eslint/recommended"
+          ],
+          "rules": {
+            "react/react-in-jsx-scope": "off",
+            "react-hooks/rules-of-hooks": "error"
+          }
+        }
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Mosaic Gateway Citadel manifest in '{{ project_slug }}/'."
+    
+    # We install the required tooling.
+    >> cd {{ project_slug }} && npm install
+    
+    proclaim: "Mosaic shell forged. To complete the multiverse, forge remote vessels at:"
+    proclaim: "  - [bold magenta]http://localhost:3001[/bold magenta] (Dashboard)"
+    proclaim: "  - [bold magenta]http://localhost:3002[/bold magenta] (Settings)"
+    proclaim: "To ignite the Portal, speak: [bold cyan]cd {{ project_slug }} && npm run dev[/bold cyan]"
+
+%% on-heresy
+    proclaim: "Portal materialization failed. Purging profane artifacts..."
+    rm -rf src/ package.json vite.config.ts .eslintrc.json

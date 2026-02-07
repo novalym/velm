@@ -1,0 +1,235 @@
+# Path: src/velm/archetypes/cloud/fargate-serverless.scaffold
+# -----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: AWS FARGATE SERVERLESS COMPUTE (V-Ω-TOTALITY)            ==
+# =================================================================================
+# @description: A zero-management, serverless compute layer. Forges an AWS ECS 
+#               Fargate cluster, Task Definition, and Auto-Scaling Service using
+#               pure, modular Terraform.
+# @category: Infrastructure
+# @tags: aws, ecs, fargate, serverless, terraform, compute, container, autoscaling
+# @difficulty: Grand Architect
+# @is_integration: false
+# @dna: use_terraform=true, use_aws=true, use_ecs=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "fargate-compute"
+$$ author = "The Architect"
+$$ aws_region = "us-east-1"
+$$ environment = "staging"
+$$ container_port = 8000
+$$ desired_tasks = 2
+$$ max_tasks = 5
+$$ image_repo = "my-docker-hub/my-service" # The source of the container soul
+
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+$$ project_title = {{ project_name | title }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+{{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        .terraform/
+        *.tfstate
+        *.tfstate.backup
+        .terraform.lock.hcl
+        
+    # [2] THE GNOSTIC PROVIDER
+    providers.tf :: """
+    terraform {
+      required_providers {
+        aws = {
+          source  = "hashicorp/aws"
+          version = "~> 5.0"
+        }
+        random = {
+          source  = "hashicorp/random"
+          version = "~> 3.0"
+        }
+      }
+      # Future: Remote state backend (e.g. S3/DynamoDB)
+    }
+
+    provider "aws" {
+      region = var.aws_region
+    }
+    """
+
+    # [3] THE GNOSTIC VARIABLES
+    variables.tf :: """
+    variable "aws_region" {
+      description = "The AWS region to forge resources in."
+      type        = string
+      default     = "{{ aws_region }}"
+    }
+    variable "environment" {
+      description = "The target environment (e.g., staging, production)."
+      type        = string
+      default     = "{{ environment }}"
+    }
+    variable "project_name" {
+      description = "The Gnostic name for resource tagging."
+      type        = string
+      default     = "{{ project_name }}"
+    }
+    variable "vpc_id" {
+      description = "The VPC to deploy into (CRITICAL: MUST BE PROVIDED)."
+      type        = string
+    }
+    variable "subnet_ids" {
+      description = "List of private subnets for the service."
+      type        = list(string)
+    }
+    variable "image_repo" {
+      description = "The Docker image repository to pull the container soul from."
+      type        = string
+      default     = "{{ image_repo }}"
+    }
+    """
+
+    # [4] THE MASTER SYMPHONY (MAIN)
+    main.tf :: """
+    // [ASCENSION 1]: The ECS Cluster (The Serverless Execution Plane)
+    resource "aws_ecs_cluster" "main" {
+      name = "${var.project_name}-${var.environment}"
+      tags = { Project = var.project_name, Environment = var.environment }
+    }
+
+    // [ASCENSION 2]: The Task Definition (The Immutable Soul of the Container)
+    resource "aws_ecs_task_definition" "main" {
+      family             = "${var.project_name}-${var.environment}-task"
+      requires_compatibilities = ["FARGATE"]
+      network_mode       = "awsvpc"
+      cpu                = "256"
+      memory             = "512"
+      execution_role_arn = aws_iam_role.ecs_execution_role.arn
+      task_role_arn      = aws_iam_role.ecs_task_role.arn
+      
+      container_definitions = jsonencode([
+        {
+          name      = "app"
+          image     = var.image_repo
+          cpu       = 256
+          memory    = 512
+          essential = true
+          portMappings = [
+            { containerPort = var.container_port, hostPort = var.container_port }
+          ]
+          logConfiguration = {
+            logDriver = "awslogs"
+            options   = {
+              "awslogs-group" = aws_cloudwatch_log_group.main.name
+              "awslogs-region" = var.aws_region
+              "awslogs-stream-prefix" = "ecs"
+            }
+          }
+        }
+      ])
+    }
+
+    // [ASCENSION 3]: The Service (The Service Weaver)
+    resource "aws_ecs_service" "main" {
+      name             = "${var.project_name}-${var.environment}"
+      cluster          = aws_ecs_cluster.main.arn
+      task_definition  = aws_ecs_task_definition.main.arn
+      desired_count    = var.desired_tasks
+      launch_type      = "FARGATE"
+      
+      network_configuration {
+        subnets          = var.subnet_ids
+        security_groups  = [aws_security_group.app_sg.id]
+        assign_public_ip = true
+      }
+      
+      # Health Check and Deployment Configuration
+      deployment_controller { type = "ECS" }
+      health_check_grace_period_seconds = 60
+    }
+
+    # [ASCENSION 4]: AUTO-SCALING (The Autonomic Governor)
+    resource "aws_appautoscaling_target" "ecs_target" {
+      service_namespace  = "ecs"
+      resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.main.name}"
+      scalable_dimension = "ecs:service:DesiredCount"
+      min_capacity       = var.desired_tasks
+      max_capacity       = var.max_tasks
+    }
+    
+    # --- IAM and Security Group Boilerplate (Pure Gnosis) ---
+    resource "aws_security_group" "app_sg" { name = "${var.project_name}-app-sg"; vpc_id = var.vpc_id }
+    resource "aws_cloudwatch_log_group" "main" { name = "/ecs/${var.project_name}/${var.environment}" }
+    resource "aws_iam_role" "ecs_execution_role" { name = "${var.project_name}-ecs-exec-role" }
+    resource "aws_iam_role" "ecs_task_role" { name = "${var.project_name}-ecs-task-role" }
+
+    # [ASCENSION 5]: Expose Service Discovery Name
+    output "service_dns" {
+      value = aws_ecs_service.main.name
+    }
+    """
+
+    # [5] THE ARCHITECT'S MANIFESTO
+    scripts/
+        deploy.sh :: """
+        #!/bin/bash
+        # RITE OF CELESTIAL ASCENSION (FARGATE)
+        set -euo pipefail
+
+        if [ "$#" -ne 1 ]; then
+            echo "Usage: $0 <vpc_id>"
+            exit 1
+        fi
+        VPC_ID=$1
+        SUBNETS="subnet-xxx,subnet-yyy" # CRITICAL: Replace with actual subnet IDs
+
+        echo "🚀 Initializing Fargate Fortress..."
+        terraform init
+        
+        echo "🧐 Proclaiming Prophecy..."
+        terraform plan -var="vpc_id=$VPC_ID" -var="subnet_ids=[$SUBNETS]"
+
+        echo "🔥 Making Reality Manifest..."
+        terraform apply -auto-approve -var="vpc_id=$VPC_ID" -var="subnet_ids=[$SUBNETS]"
+        
+        echo "✅ Ascension Complete."
+        """
+        %% 755
+        
+    README.md :: """
+    # {{ project_name }} - AWS Fargate Compute
+
+    > Forged with modular Terraform. Defines the serverless compute layer.
+
+    ## ⚠️ Pre-Flight Check
+    
+    - You must have a **VPC ID** and **Private Subnet IDs** ready.
+    - The container image (default: `{{ image_repo }}`) must exist and be accessible.
+
+    ## 🚀 The Rites of Ascension
+    
+    1.  **Customize Script**: Edit `./scripts/deploy.sh` to include your VPC and Subnet IDs.
+    2.  **Conduct Staging Rite**: `./scripts/deploy.sh vpc-xxxxxxxx`
+    
+    ## 📜 Gnosis Proclaimed
+    
+    The service is deployed without a public IP, accessible only within the VPC.
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Final Proclamation
+    proclaim: "The Fargate Serverless Compute Fortress is manifest in '{{ project_slug }}/'."
+    proclaim: "[bold red]CRITICAL:[/bold red] This module requires external VPC and Subnet IDs."
+    proclaim: "To ascend to the cloud:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]terraform init[/bold cyan]"
+    proclaim: "  3. Consult the README for the full deploy command."
+
+%% on-heresy
+    proclaim: "The Fargate forge fractured. Cleaning the shards..."
+    rm -rf scripts/ providers.tf main.tf variables.tf

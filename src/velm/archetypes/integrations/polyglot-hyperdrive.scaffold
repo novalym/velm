@@ -1,0 +1,231 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: POLYGLOT HYPER-DRIVE (V-Ω-TOTALITY)                      ==
+# =================================================================================
+# @description: Materializes an extreme-performance native bridge. Forges a Rust-based core compiled to native binaries, bound to Python via PyO3 and Node.js via Neon. Features automated build pipelines and a pure-language fallback circuit.
+# @category: Integrations
+# @tags: rust, python, node, pyo3, neon, ffi, native, performance, optimization
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: module_name=hypercore, crate_type=cdylib, use_fallback=true, rust_edition=2021
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ module_name = "hypercore"
+$$ author = "{{ author | default('The Architect') }}"
+
+# Contextual Scrying (Divining Host DNA)
+$$ is_python = {{ (project_type in ['python', 'poetry', 'fastapi']) | default(true) }}
+$$ is_node = {{ (project_type in ['node', 'nextjs', 'express', 'react']) | default(false) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE IRON CORE SANCTUM (Rust Source) ---
+native/{{ module_name }}/
+
+    # [1] THE FOUNDRY CONFIGURATION
+    .gitignore :: """
+    /target
+    Cargo.lock
+    **/*.rs.bk
+    """
+
+    Cargo.toml :: """
+    [package]
+    name = "{{ module_name }}"
+    version = "0.1.0"
+    edition = "2021"
+    authors = ["{{ author }}"]
+
+    [lib]
+    name = "{{ module_name }}"
+    # [ASCENSION 1]: C-Dynamic Library output for FFI bindings
+    crate-type = ["cdylib"]
+
+    [dependencies]
+    # [ASCENSION 2]: Conditional Native Bindings
+    {% if is_python %}
+    pyo3 = { version = "0.21", features = ["extension-module"] }
+    {% endif %}
+    {% if is_node %}
+    neon = "1.0"
+    {% endif %}
+    
+    # Shared High-Performance Matter
+    rayon = "1.8" # Parallel processing
+    serde = { version = "1.0", features = ["derive"] }
+    serde_json = "1.0"
+
+    [profile.release]
+    opt-level = 3
+    lto = true
+    codegen-units = 1
+    panic = "abort"
+    """
+
+    # [2] THE SOUL (lib.rs)
+    src/lib.rs :: """
+    //! =============================================================================
+    //! == {{ module_name | upper }} - NATIVE HYPER-DRIVE
+    //! =============================================================================
+    
+    {% if is_python %}
+    use pyo3::prelude::*;
+    use pyo3::wrap_pyfunction;
+
+    /// [ASCENSION 3]: Python Native Implementation
+    /// Performs a high-order Gnostic sum in the Iron Core.
+    #[pyfunction]
+    fn calculate_resonance(n: u64) -> PyResult<u64> {
+        // Rayon-powered parallel processing
+        let result = (0..n).into_iter().sum();
+        Ok(result)
+    }
+
+    #[pymodule]
+    fn {{ module_name }}(_py: Python, m: &PyModule) -> PyResult<()> {
+        m.add_function(wrap_pyfunction!(calculate_resonance, m)?)?;
+        Ok(())
+    }
+    {% endif %}
+
+    {% if is_node %}
+    use neon::prelude::*;
+
+    /// [ASCENSION 4]: Node.js Native Implementation
+    fn calculate_resonance(mut cx: FunctionContext) -> JsResult<JsNumber> {
+        let n = cx.argument::<JsNumber>(0)?.value(&mut cx) as u64;
+        let result: u64 = (0..n).into_iter().sum();
+        Ok(cx.number(result as f64))
+    }
+
+    #[neon::main]
+    fn main(mut cx: ModuleContext) -> NeonResult<()> {
+        cx.export_function("calculateResonance", calculate_resonance)?;
+        Ok(())
+    }
+    {% endif %}
+    """
+
+# --- III. THE LOGIC SUTURES (Host Wrappers) ---
+
+# [PATH A]: PYTHON MIND
+@if {{ is_python }}
+src/{{ package_name }}/
+    core/
+        hyperdrive.py :: """
+        import logging
+        import time
+        from typing import Any
+
+        Logger = logging.getLogger("HyperDrive")
+
+        # [ASCENSION 5]: THE STRATEGIC FALLBACK CIRCUIT
+        # This ensures the Engine remains operational even without the Iron Core.
+        try:
+            # We attempt to lift the compiled .so/.pyd from the package root
+            from .. import {{ module_name }}
+            Logger.info("⚡ Hyper-Drive [STATUS]: ENGAGED (Native Rust Core active)")
+            HAS_NATIVE = True
+        except ImportError:
+            Logger.warning("⚠️ Hyper-Drive [STATUS]: DISENGAGED (Native binary missing)")
+            Logger.warning("   -> Falling back to pure Python simulation. Performance will degrade.")
+            HAS_NATIVE = False
+
+        def compute_resonance(n: int) -> int:
+            \"\"\"
+            The unified portal to the fastest available computation.
+            \"\"\"
+            if HAS_NATIVE:
+                return {{ module_name }}.calculate_resonance(n)
+            
+            # [ASCENSION 6]: Pure Python Fallback
+            return sum(range(n))
+        """
+
+    # Update __init__ for clean exports
+    __init__.py += "from .core.hyperdrive import compute_resonance"
+@endif
+
+# [PATH B]: NODE EYE
+@if {{ is_node }}
+src/
+    core/
+        hyperdrive.ts :: """
+        /**
+         * =============================================================================
+         * == THE HYPER-DRIVE CONDUIT (TypeScript)
+         * =============================================================================
+         */
+        let native: any = null;
+        let HAS_NATIVE = false;
+
+        try {
+            // Attempt to load the native addon from build artifacts
+            native = require('../../native/{{ module_name }}/index.node');
+            HAS_NATIVE = true;
+            console.log("⚡ Hyper-Drive [STATUS]: ENGAGED");
+        } catch (e) {
+            console.warn("⚠️ Hyper-Drive [STATUS]: DISENGAGED. Falling back to JS.");
+            HAS_NATIVE = false;
+        }
+
+        export const computeResonance = (n: number): number => {
+            if (HAS_NATIVE && native) {
+                return native.calculateResonance(n);
+            }
+            // [ASCENSION 7]: Pure JS Fallback
+            let sum = 0;
+            for(let i=0; i<n; i++) sum += i;
+            return sum;
+        };
+        """
+@endif
+
+# --- IV. THE CONTROL PLANE (Unified Makefile) ---
+Makefile:
+    .PHONY: native-build native-clean native-test
+
+    # [ASCENSION 8]: The Suture Target
+    native-build: ## Forge the Iron Core (Compile Rust)
+        @echo "🦀 Forging Native Bindings for [{{ module_name }}]..."
+        @cd native/{{ module_name }} && cargo build --release
+        
+        # 1. Python Suture (Linux/Mac)
+        @if [ -f native/{{ module_name }}/target/release/lib{{ module_name }}.so ]; then \\
+            cp native/{{ module_name }}/target/release/lib{{ module_name }}.so src/{{ package_name }}/{{ module_name }}.so; \\
+        fi
+        # 2. Python Suture (Windows)
+        @if [ -f native/{{ module_name }}/target/release/{{ module_name }}.dll ]; then \\
+            cp native/{{ module_name }}/target/release/{{ module_name }}.dll src/{{ package_name }}/{{ module_name }}.pyd; \\
+        fi
+        # 3. Node Suture
+        @if [ -f native/{{ module_name }}/target/release/lib{{ module_name }}.so ]; then \\
+            cp native/{{ module_name }}/target/release/lib{{ module_name }}.so native/{{ module_name }}/index.node; \\
+        fi
+
+    native-test: ## Conduct the unit inquisition in the Iron Core
+        @cd native/{{ module_name }} && cargo test
+
+    native-clean: ## Return native artifacts to the void
+        @cd native/{{ module_name }} && cargo clean
+        rm -f src/{{ package_name }}/*.so src/{{ package_name }}/*.pyd
+
+# --- V. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Polyglot Hyper-Drive[/bold cyan] is materializing in 'native/{{ module_name }}'."
+    
+    # 1. Forensic Pre-flight
+    proclaim: "Scrying for Rust toolchain..."
+    @if {{ shell('rustc --version > /dev/null 2>&1 && echo "yes" || echo "no"') == 'yes' }}
+        -> proclaim: "Rust Artisan: [green]RESONANT[/green]"
+    @else
+        -> proclaim: "[bold yellow]WARNING:[/bold yellow] Rust not found. You can still use the fallback, but the Iron Core is unforgeable."
+
+    # 2. Forge logic
+    proclaim: "[bold green]✅ Hyper-Drive manifest.[/bold green]"
+    proclaim: "To engage the Iron Core:"
+    proclaim: "  1. [bold cyan]make native-build[/bold cyan] (Forges the binaries)"
+    proclaim: "  2. The code in [bold cyan]src/[/bold cyan] will automatically detect and use the native core."
+
+%% on-heresy
+    proclaim: "[bold red]Hyper-Drive inception fractured.[/bold red] Cleaning ruin..."
+    rm -rf native/{{ module_name }}

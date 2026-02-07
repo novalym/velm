@@ -1,0 +1,108 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: CAUSAL DEPENDENCY ORACLE (V-Ω-TOTALITY)                 ==
+# =================================================================================
+# @description: Injects a high-fidelity runtime reflection engine. Scries the project's own AST to map the internal dependency graph, enabling the AI and system to reason about the impact of logical changes at the micro-level.
+# @category: System
+# @tags: reflection, ast, dependencies, graph, metadata, introspection, python
+# @difficulty: Master
+# @is_integration: true
+# @dna: scan_mode=lazy, cache_graph=true, ignore_external=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE ORACLE CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        intelligence/
+            __init__.py :: "from .oracle import DependencyOracle"
+            
+            # [1] THE AST SCRIER
+            oracle.py :: """
+            import ast
+            import os
+            import sys
+            import logging
+            from pathlib import Path
+            from typing import Dict, Set, List, Optional
+
+            Logger = logging.getLogger("System:Oracle")
+
+            class DependencyOracle:
+                \"\"\"
+                =============================================================================
+                == THE DEPENDENCY ORACLE (V-Ω-CAUSAL-MIRROR)                               ==
+                =============================================================================
+                LIF: ∞ | ROLE: ARCHITECTURAL_INTROSPECTOR | RANK: OMEGA
+                
+                Allows the application to perceive its own internal bonds.
+                \"\"\"
+                def __init__(self, project_root: Optional[Path] = None):
+                    self.root = project_root or Path(os.getcwd())
+                    self._graph: Dict[str, Set[str]] = {}
+                    self._is_warm = False
+
+                def warm_up(self):
+                    \"\"\"Performs a full Gnostic Scan of the source tree.\"\"\"
+                    if self._is_warm: return
+                    Logger.info("🌀 Oracle is scrying the project's internal causal bonds...")
+                    
+                    for path in self.root.rglob("*.py"):
+                        if "__pycache__" in str(path): continue
+                        self._analyze_file(path)
+                    
+                    self._is_warm = True
+                    Logger.success(f"✅ Gnostic Graph Materialized. {len(self._graph)} nodes indexed.")
+
+                def _analyze_file(self, path: Path):
+                    try:
+                        rel_path = str(path.relative_to(self.root))
+                        content = path.read_text(encoding='utf-8', errors='ignore')
+                        tree = ast.parse(content)
+                        
+                        dependencies = set()
+                        for node in ast.walk(tree):
+                            if isinstance(node, ast.Import):
+                                for n in node.names:
+                                    dependencies.add(n.name)
+                            elif isinstance(node, ast.ImportFrom):
+                                dependencies.add(f"{node.module}.{node.names[0].name}")
+                        
+                        # Only track internal dependencies (relative to package)
+                        internal_deps = {d for d in dependencies if d.startswith("{{ package_name }}")}
+                        self._graph[rel_path] = internal_deps
+                    except Exception as e:
+                        Logger.warn(f"Gaze clouded for {path.name}: {e}")
+
+                def get_impact(self, target_module: str) -> List[str]:
+                    \"\"\"Finds all scriptures that depend on the target.\"\"\"
+                    self.warm_up()
+                    dependents = []
+                    for file, deps in self._graph.items():
+                        if any(target_module in d for d in deps):
+                            dependents.append(file)
+                    return dependents
+            """
+
+# --- III. THE CONTROL PLANE (Makefile) ---
+Makefile:
+	.PHONY: oracle-scry
+
+	oracle-scry: ## Use the Oracle to scry internal bonds
+		@poetry run python -c "from src.{{ package_name }}.core.intelligence.oracle import DependencyOracle; o = DependencyOracle(); o.warm_up(); print('Causal Map:', o._graph)"
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Causal Dependency Oracle[/bold cyan] is manifest."
+    proclaim: "Introspection logic willed into 'core/intelligence/oracle.py'."
+    
+    # Adjudicate Alignment
+    >> make oracle-scry
+    ?? succeeds
+
+    proclaim: "[bold green]✅ Oracle Online.[/bold green]"
+    proclaim: "Your application is now self-aware of its own dependency topology."
+
+%% on-heresy
+    proclaim: "Oracle inception failed."

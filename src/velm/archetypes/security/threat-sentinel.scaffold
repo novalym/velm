@@ -1,0 +1,198 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: THREAT SENTINEL (V-Ω-TOTALITY-ACTIVE-IDS)               ==
+# =================================================================================
+# @description: Materializes an active Intrusion Detection and Prevention System. Scans ingress traffic for SQLi, XSS, and Path Traversal signatures using a compiled Grimoire of Malice. Automatically banishes hostile IPs to a Redis-backed Void.
+# @category: Security
+# @tags: security, ids, waf, firewall, redis, intrusion-prevention, proactive
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: redis_url=redis://localhost:6379/0, ban_duration=86400, risk_threshold=3
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ redis_url = "redis://security-vault:6379/0"
+$$ ban_duration_seconds = 86400 # 24 Hours in the Void
+$$ risk_threshold = 3           # Strikes before banishment
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE INFRASTRUCTURE OF THE VOID (Redis) ---
+infra/security/
+    docker-compose.sentinel.yml :: """
+    version: '3.8'
+    services:
+      # [THE VOID]: Persistent memory for Banned IPs
+      security-vault:
+        image: redis:7-alpine
+        container_name: {{ project_slug }}_sentinel_vault
+        command: redis-server --save 60 1 --loglevel warning --maxmemory 128mb --maxmemory-policy allkeys-lru
+        ports:
+          - "6379:6379"
+        networks:
+          - gnostic_mesh
+
+    networks:
+      gnostic_mesh:
+        external: true
+        name: {{ project_slug }}_gnostic_mesh
+    """
+
+# --- III. THE SENTINEL ENGINE (Logic) ---
+src/{{ package_name }}/
+    core/
+        security/
+            # [1] THE GRIMOIRE OF MALICE
+            signatures.py :: """
+            import re
+            from typing import List
+
+            # =============================================================================
+            # == THE GRIMOIRE OF MALICE (V-Ω-SIGNATURES)                                 ==
+            # =============================================================================
+            # A collection of regex patterns representing profane architectural intent.
+            
+            SIGNATURES: List[re.Pattern] = [
+                # 1. SQL Injection (The Ouroboros Query)
+                re.compile(r"(?i)(\%27)|(\')|(\-\-)|(\%23)|(#)"),
+                re.compile(r"(?i)\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|EXEC|TRUNCATE)\b"),
+                
+                # 2. XSS (The Ocular Blinding)
+                re.compile(r"(?i)<script"),
+                re.compile(r"(?i)javascript:"),
+                re.compile(r"(?i)onerror="),
+                
+                # 3. Path Traversal (The Sanctum Escape)
+                re.compile(r"\.\./"),
+                re.compile(r"\.\.\\\\"),
+                re.compile(r"/etc/passwd"),
+                
+                # 4. Remote Code Execution (The Puppet Master)
+                re.compile(r"(?i)\b(base64_decode|eval|system|exec|passthru|shell_exec)\b")
+            ]
+            """
+
+            # [2] THE ACTIVE SENTINEL (Middleware)
+            sentinel.py :: """
+            import logging
+            import time
+            from typing import Callable, Awaitable
+            from fastapi import Request, Response, status
+            from starlette.middleware.base import BaseHTTPMiddleware
+            from starlette.responses import JSONResponse
+            import redis.asyncio as redis
+
+            from .signatures import SIGNATURES
+
+            Logger = logging.getLogger("Security:Sentinel")
+
+            class ThreatSentinel(BaseHTTPMiddleware):
+                \"\"\"
+                =============================================================================
+                == THE THREAT SENTINEL (V-Ω-TOTALITY)                                      ==
+                =============================================================================
+                LIF: ∞ | ROLE: PERIMETER_GUARDIAN
+                
+                Scans every ingress signal for signatures of chaos. Bans hostile IPs.
+                \"\"\"
+                def __init__(self, app):
+                    super().__init__(app)
+                    self.vault = redis.from_url("{{ redis_url }}")
+                    self.ban_ttl = {{ ban_duration_seconds }}
+                    self.threshold = {{ risk_threshold }}
+
+                async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+                    client_ip = request.client.host if request.client else "0.0.0.0"
+                    
+                    # 1. THE VOID CHECK
+                    if await self._is_banished(client_ip):
+                        return self._proclaim_banished(client_ip)
+
+                    # 2. THE SCRYING RITE
+                    # We scan URL, Query Params, and Headers.
+                    profane_matter = await self._scry_malice(request)
+                    
+                    if profane_matter:
+                        return await self._record_strike(client_ip, profane_matter)
+
+                    # 3. PASSTHROUGH
+                    return await call_next(request)
+
+                async def _is_banished(self, ip: str) -> bool:
+                    return await self.vault.exists(f"void:{ip}")
+
+                async def _scry_malice(self, request: Request) -> Optional[str]:
+                    \"\"\"Performs a Gaze upon the request metadata for malicious patterns.\"\"\"
+                    # Scan the path and query
+                    target = f"{request.url.path}?{request.url.query}"
+                    for sig in SIGNATURES:
+                        if sig.search(target):
+                            return f"URL_MALICE: {sig.pattern}"
+                    
+                    # Scan specific headers
+                    for key, val in request.headers.items():
+                        if key.lower() in ("user-agent", "referer", "x-forwarded-for"):
+                            for sig in SIGNATURES:
+                                if sig.search(val):
+                                    return f"HEADER_MALICE: {key}"
+                    
+                    return None
+
+                async def _record_strike(self, ip: str, evidence: str) -> JSONResponse:
+                    \"\"\"Increments the sin-count for an IP and banishes if threshold is met.\"\"\"
+                    strike_key = f"strikes:{ip}"
+                    strikes = await self.vault.incr(strike_key)
+                    await self.vault.expire(strike_key, 3600) # Reset strikes after 1 hour of peace
+
+                    Logger.warning(f"⚠️ [SENTINEL] Strike {strikes}/{self.threshold} for {ip}. Evidence: {evidence}")
+
+                    if strikes >= self.threshold:
+                        Logger.critical(f"💀 [SENTINEL] BANISHING {ip} to the Void for {self.ban_ttl}s.")
+                        await self.vault.set(f"void:{ip}", "1", ex=self.ban_ttl)
+                        return self._proclaim_banished(ip)
+
+                    return JSONResponse(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        content={"error": "MALICIOUS_INTENT", "message": " پروفان (Profane) patterns detected."}
+                    )
+
+                def _proclaim_banished(self, ip: str) -> JSONResponse:
+                    return JSONResponse(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        content={
+                            "error": "IP_BANISHED", 
+                            "message": "Your IP has been banished to the Void for hostile architectural intent."
+                        }
+                    )
+            """
+
+# --- IV. THE SURGICAL WEAVE ---
+@if {{ is_python }}
+    # Dependency Suture
+    pyproject.toml += """
+    redis = {extras = ["hiredis"], version = "^5.0.0"}
+    """
+
+    # Middleware Injection
+    main.py ^= """
+    from .core.security.sentinel import ThreatSentinel
+    """
+    main.py += """
+    # [Gnostic Suture]: Awakening the Threat Sentinel
+    # Stand this Guardian at the very edge of the pipeline.
+    app.add_middleware(ThreatSentinel)
+    """
+@endif
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Threat Sentinel[/bold cyan] is manifest and vigilant."
+    
+    # Network Verification
+    proclaim: "Forging the Gnostic Mesh network..."
+    >> docker network create {{ project_slug }}_gnostic_mesh || true
+    
+    proclaim: "To power the Sentinel's memory:"
+    proclaim: "  [bold cyan]docker-compose -f infra/security/docker-compose.sentinel.yml up -d[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Sentinel inception fractured.[/bold red] Cleaning shards..."
+    rm -rf src/{{ package_name }}/core/security/sentinel.py

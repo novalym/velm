@@ -1,103 +1,376 @@
-# Path: scaffold/archetypes/genesis/grpc-microservice.scaffold
+# Path: src/velm/archetypes/genesis/grpc-microservice.scaffold
 # ------------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: gRPC CONTRACT FORTRESS (V-Ω-TOTALITY)                    ==
+# =================================================================================
+# @description: A transcendent, async-native gRPC microservice. Features 
+#               Contract-First design, Server Reflection, Health Checking, 
+#               Logging Interceptors, and automated Protobuf codegen.
+# @category: Backend
+# @tags: python, grpc, protobuf, microservice, async, performance, docker, poetry
+# @difficulty: Master
+# @is_integration: false
+# @dna: python_version=3.11, use_docker=true, use_poetry=true, grpc_port=50051
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: GRPC MICROSERVICE (V-Ω-CONTRACT-FIRST)           ==
-# =================================================================================
-# @description: A high-performance, contract-first gRPC service using Python,
-#               Poetry, and automated protobuf compilation.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "oracle-service"
+$$ author = "The Architects"
+$$ grpc_port = 50051
+$$ health_port = 50052
 
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
-$$ package_name = {{ project_slug | snake }}
+$$ package_name = {{ project_name | snake }}
 
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: ".venv/\n__pycache__/\nsrc/{{ package_name }}/protos/{{ package_name }}_pb2_grpc.py\nsrc/{{ package_name }}/protos/{{ package_name }}_pb2.py"
-    README.md :: "## gRPC Microservice\n1. `make install`\n2. `make protos`\n3. Run `server.py` and `client.py` in separate terminals."
 
-    pyproject.toml:
-        [tool.poetry]
-        name = "{{ project_slug }}"
-        version = "0.1.0"
-        packages = [{include = "{{ package_name }}", from = "src"}]
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        __pycache__/
+        *.py[cod]
+        .venv/
+        .env
+        dist/
+        build/
+        .pytest_cache/
+        # We ignore generated files in the repo to ensure codegen is the source of truth
+        src/{{ package_name }}/generated/*_pb2*
+        !.gitkeep
 
-        [tool.poetry.dependencies]
-        python = "^3.11"
-        grpcio = "^1.62.0"
-        protobuf = "^4.25.0"
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "A gRPC Contract Fortress forged by VELM."
+    authors = ["{{ author }}"]
+    readme = "README.md"
+    packages = [{include = "{{ package_name }}", from = "src"}]
 
-        [tool.poetry.group.dev.dependencies]
-        grpcio-tools = "^1.62.0"
+    [tool.poetry.dependencies]
+    python = "^3.11"
+    grpcio = "^1.60.0"
+    grpcio-reflection = "^1.60.0"
+    grpcio-health-checking = "^1.60.0"
+    protobuf = "^4.25.0"
+    pydantic = "^2.6.0"
+    pydantic-settings = "^2.2.0"
+    rich = "^13.7.0"
+    python-dotenv = "^1.0.1"
 
+    [tool.poetry.group.dev.dependencies]
+    grpcio-tools = "^1.60.0"
+    pytest = "^8.0.0"
+    pytest-asyncio = "^0.23.0"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+    """
+
+    # [2] THE CONTROL PLANE (MAKEFILE)
     Makefile:
-        install:
-        	poetry install
+        .PHONY: help install protos dev client test docker-build
+        
+        $PY = poetry run python
+        $PKG = {{ package_name }}
 
-        protos:
-        	@echo "Compiling Protobuf Gnosis..."
-        	@poetry run python -m grpc_tools.protoc -I./src/{{ package_name }}/protos --python_out=./src/{{ package_name }}/protos --grpc_python_out=./src/{{ package_name }}/protos ./src/{{ package_name }}/protos/{{ package_name }}.proto
+        help: ## Proclaim available gRPC rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $1, $2}'
 
-        run-server:
-        	@poetry run python src/{{ package_name }}/server.py
+        install: ## Consecrate the local environment
+            poetry install
 
-        run-client:
-        	@poetry run python src/{{ package_name }}/client.py
+        protos: ## Transmute Protobuf laws into Python scriptures
+            @echo "⚒️  Compiling Protobuf Gnosis..."
+            @mkdir -p src/$($PKG)/generated
+            @touch src/$($PKG)/generated/__init__.py
+            @poetry run python -m grpc_tools.protoc \
+                -I./proto \
+                --python_out=./src/$($PKG)/generated \
+                --grpc_python_out=./src/$($PKG)/generated \
+                ./proto/*.proto
+            @echo "✅ Codegen complete."
 
+        dev: protos ## Ignite the async gRPC server
+            @echo "🚀 Awakening the Conduit..."
+            @poetry run python src/$($PKG)/server.py
+
+        client: ## Summon the test client
+            @poetry run python src/$($PKG)/client.py
+
+        test: protos ## Conduct the unit inquisition
+            @poetry run pytest
+
+        docker-build: ## Forge the celestial production vessel
+            docker build -t {{ project_slug }}:latest .
+
+    # [3] THE SACRED CONTRACT (PROTOBUF)
+    proto/
+        {{ package_name }}.proto :: """
+        syntax = "proto3";
+
+        package {{ package_name }};
+
+        import "google/protobuf/timestamp.proto";
+
+        // [ASCENSION 1]: The Gnostic Oracle Service
+        service GnosticOracle {
+          // The Synchronous Strike
+          rpc Proclaim (ProclamationRequest) returns (ProclamationReply);
+          
+          // The Streaming Revelation
+          rpc StreamVitals (VitalsRequest) returns (stream VitalsReply);
+        }
+
+        message ProclamationRequest {
+          string name = 1;
+          string intent = 2;
+        }
+
+        message ProclamationReply {
+          string message = 1;
+          google.protobuf.Timestamp timestamp = 2;
+          bool resonant = 3;
+        }
+
+        message VitalsRequest {
+          int32 interval_seconds = 1;
+        }
+
+        message VitalsReply {
+          double cpu_load = 1;
+          double memory_usage = 2;
+          string status = 3;
+        }
+        """
+
+    # [4] THE SOURCE CODE (THE SOUL)
     src/
         {{ package_name }}/
-            protos/
-                # The API Contract
-                {{ package_name }}.proto:
-                    syntax = "proto3";
+            __init__.py :: "__version__ = '0.1.0'"
+            
+            # --- THE CONSCIENCE (CONFIG) ---
+            config.py :: """
+            from pydantic_settings import BaseSettings, SettingsConfigDict
 
-                    package {{ package_name }};
+            class Settings(BaseSettings):
+                APP_NAME: str = "{{ project_name }}"
+                GRPC_PORT: int = {{ grpc_port }}
+                LOG_LEVEL: str = "INFO"
+                
+                model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-                    service GnosticOracle {
-                      rpc Proclaim (ProclamationRequest) returns (ProclamationReply);
-                    }
+            settings = Settings()
+            """
 
-                    message ProclamationRequest {
-                      string name = 1;
-                    }
+            # --- THE INTERCEPTORS (THE WATCHERS) ---
+            interceptors.py :: """
+            import time
+            import grpc
+            from rich.console import Console
 
-                    message ProclamationReply {
-                      string message = 1;
-                    }
+            console = Console()
 
-            server.py:
-                import grpc
-                from concurrent import futures
-                from protos import {{ package_name }}_pb2, {{ package_name }}_pb2_grpc
+            class LoggingInterceptor(grpc.aio.ServerInterceptor):
+                \"\"\"[ASCENSION 2]: Forensic Logging Interceptor.\"\"\"
+                async def intercept_service(self, continuation, handler_call_details):
+                    method = handler_call_details.method
+                    start_time = time.time()
+                    
+                    console.print(f"[dim]🌀 Received Plea:[/] [cyan]{method}[/]")
+                    
+                    response = await continuation(handler_call_details)
+                    
+                    duration = (time.time() - start_time) * 1000
+                    console.print(f"[dim]✅ Rite Resolved:[/] [green]{method}[/] [dim]({duration:.2f}ms)[/]")
+                    
+                    return response
+            """
 
-                class GnosticOracleServicer({{ package_name }}_pb2_grpc.GnosticOracleServicer):
-                    def Proclaim(self, request, context):
-                        return {{ package_name }}_pb2.ProclamationReply(message=f'Gnosis is truth, {request.name}!')
+            # --- THE SERVER (THE MIND) ---
+            server.py :: """
+            import asyncio
+            import logging
+            import grpc
+            from grpc_reflection.v1alpha import reflection
+            from grpc_health.v1 import health, health_pb2, health_pb2_grpc
+            from google.protobuf import timestamp_pb2
+            import time
 
-                def serve():
-                    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-                    {{ package_name }}_pb2_grpc.add_GnosticOracleServicer_to_server(GnosticOracleServicer(), server)
-                    server.add_insecure_port('[::]:50051')
-                    server.start()
-                    print("Oracle is listening on port 50051.")
-                    server.wait_for_termination()
+            from .config import settings
+            from .interceptors import LoggingInterceptor
+            from .generated import {{ package_name }}_pb2, {{ package_name }}_pb2_grpc
 
-                if __name__ == '__main__':
-                    serve()
+            class GnosticOracleServicer({{ package_name }}_pb2_grpc.GnosticOracleServicer):
+                \"\"\"The implementation of the Gnostic Law.\"\"\"
 
-            client.py:
-                import grpc
-                from protos import {{ package_name }}_pb2, {{ package_name }}_pb2_grpc
+                async def Proclaim(self, request, context):
+                    ts = timestamp_pb2.Timestamp()
+                    ts.FromFloat(time.time())
+                    
+                    return {{ package_name }}_pb2.ProclamationReply(
+                        message=f"Gnosis is truth, {request.name}. Your intent '{request.intent}' is manifest.",
+                        timestamp=ts,
+                        resonant=True
+                    )
 
-                def run():
-                    with grpc.insecure_channel('localhost:50051') as channel:
-                        stub = {{ package_name }}_pb2_grpc.GnosticOracleStub(channel)
-                        response = stub.Proclaim({{ package_name }}_pb2.ProclamationRequest(name='Architect'))
-                    print(f"Oracle proclaimed: \"{response.message}\"")
+                async def StreamVitals(self, request, context):
+                    \"\"\"[ASCENSION 5]: Server-Side Streaming.\"\"\"
+                    while True:
+                        yield {{ package_name }}_pb2.VitalsReply(
+                            cpu_load=1.5, # Mock metrics
+                            memory_usage=42.0,
+                            status="RESONANT"
+                        )
+                        await asyncio.sleep(request.interval_seconds or 5)
 
-                if __name__ == '__main__':
-                    run()
+            async def serve():
+                # 1. Initialize Async Server with Interceptors
+                server = grpc.aio.server(interceptors=[LoggingInterceptor()])
+                
+                # 2. Register Implementation
+                {{ package_name }}_pb2_grpc.add_GnosticOracleServicer_to_server(
+                    GnosticOracleServicer(), server
+                )
 
+                # 3. [ASCENSION 3]: Add Standard Health Check
+                health_servicer = health.HealthServicer()
+                health_pb2_grpc.add_HealthServicer_to_server(health_servicer, server)
+                health_servicer.set("", health_pb2.HealthCheckResponse.SERVING)
+
+                # 4. [ASCENSION 4]: Enable Server Reflection (For discovery)
+                SERVICE_NAMES = (
+                    {{ package_name }}_pb2.DESCRIPTOR.services_by_name['GnosticOracle'].full_name,
+                    reflection.SERVICE_NAME,
+                    health.SERVICE_NAME,
+                )
+                reflection.enable_server_reflection(SERVICE_NAMES, server)
+
+                # 5. Ignite
+                listen_addr = f"[::]:{settings.GRPC_PORT}"
+                server.add_insecure_port(listen_addr)
+                print(f"🐍 [gRPC] Conduit open at {listen_addr}")
+                
+                await server.start()
+                await server.wait_for_termination()
+
+            if __name__ == "__main__":
+                logging.basicConfig(level=logging.INFO)
+                asyncio.run(serve())
+            """
+
+            # --- THE CLIENT (THE HAND) ---
+            client.py :: """
+            import asyncio
+            import grpc
+            from .generated import {{ package_name }}_pb2, {{ package_name }}_pb2_grpc
+            from rich.console import Console
+
+            console = Console()
+
+            async def run():
+                async with grpc.aio.insecure_channel('localhost:50051') as channel:
+                    stub = {{ package_name }}_pb2_grpc.GnosticOracleStub(channel)
+                    
+                    # 1. Atomic Proclamation
+                    console.print("[yellow]Dispatching Proclamation Plea...[/]")
+                    response = await stub.Proclaim(
+                        {{ package_name }}_pb2.ProclamationRequest(
+                            name="Architect", 
+                            intent="ASCENSION"
+                        )
+                    )
+                    console.print(f"Oracle proclaimed: [bold green]'{response.message}'[/]")
+
+                    # 2. Monitoring the Stream
+                    console.print("[yellow]Subscribing to Vitals Stream (Top 3)...[/]")
+                    vitals_stream = stub.StreamVitals({{ package_name }}_pb2.VitalsRequest(interval_seconds=1))
+                    
+                    count = 0
+                    async for vital in vitals_stream:
+                        console.print(f"   -> Metabolic Pulse: CPU {vital.cpu_load}% | Status: {vital.status}")
+                        count += 1
+                        if count >= 3: break
+
+            if __name__ == "__main__":
+                asyncio.run(run())
+            """
+
+    # [5] THE CELESTIAL VESSEL (DOCKER)
+    Dockerfile :: """
+    # --- STAGE 1: THE FORGE ---
+    FROM python:3.11-slim-bookworm as builder
+    WORKDIR /app
+    ENV POETRY_NO_INTERACTION=1 POETRY_VIRTUALENVS_IN_PROJECT=1
+    RUN apt-get update && apt-get install -y build-essential curl
+    RUN pip install poetry==1.7.1
+    COPY pyproject.toml poetry.lock* ./
+    RUN poetry install --no-root --only main
+    
+    # --- STAGE 2: THE CODEGEN ---
+    COPY proto/ ./proto/
+    COPY src/ ./src/
+    # Trigger Protobuf compilation inside the build stage
+    RUN ./.venv/bin/python -m grpc_tools.protoc \
+        -I./proto --python_out=./src/{{ package_name }}/generated \
+        --grpc_python_out=./src/{{ package_name }}/generated ./proto/*.proto
+
+    # --- STAGE 3: THE CELESTIAL VESSEL ---
+    FROM python:3.11-slim-bookworm
+    WORKDIR /app
+    COPY --from=builder /app/.venv /app/.venv
+    ENV PATH="/app/.venv/bin:$PATH"
+    COPY --from=builder /app/src /app/src
+    EXPOSE {{ grpc_port }}
+    CMD ["python", "-m", "{{ package_name }}.server"]
+    """
+
+    README.md :: """
+    # {{ project_name }} (gRPC Fortress)
+
+    > {{ description }}
+
+    A contract-first, high-performance microservice manifest by VELM.
+
+    ## 🚀 The Rites of Conduction
+
+    1.  **Consecrate:** `make install`
+    2.  **Transmute (Codegen):** `make protos`
+    3.  **Awaken:** `make dev`
+    4.  **Test Client:** `make client`
+
+    ## 🏛️ Architecture
+
+    - `proto/`: The Immutable Law.
+    - `src/{{ package_name }}/generated/`: CODEX (Codegen output).
+    - `src/{{ package_name }}/server.py`: The Async Conductor.
+    - `src/{{ package_name }}/interceptors.py`: The Gnostic Watchers.
+    """
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
-    poetry install
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the dependencies
+    proclaim: "Summoning the gRPC toolchain... (This will take time)"
+    make install
+
+    # 3. Conduct the first Transmutation
+    proclaim: "Compiling the initial Protobuf Law..."
     make protos
+
+    # 4. Final Proclamation
+    proclaim: "The gRPC Contract Fortress is manifest."
+    proclaim: "To begin the dialogue:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make dev[/bold cyan] (Ignite Server)"
+    proclaim: "  3. [bold cyan]make client[/bold cyan] (Conduct Test)"
+
+%% on-heresy
+    proclaim: "The microservice forge fractured. Purging the shards..."
+    rm -rf src/ proto/ Makefile pyproject.toml

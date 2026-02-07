@@ -1,0 +1,166 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: DOCKER COMPOSE SWARM (V-Ω-TOTALITY)                      ==
+# =================================================================================
+# @description: A legendary Docker Compose stack for orchestrating a polyglot
+#               microservice reality. Features health checks, mesh networking,
+#               and persistent named volumes.
+# @category: Automation
+# @tags: docker, docker-compose, orchestration, microservices, devops
+# @difficulty: Adept
+# @is_integration: false
+# @dna: use_docker=true, use_makefile=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "microservice-swarm"
+$$ api_port = 8000
+$$ db_port = 5432
+$$ cache_port = 6379
+
+# --- II. THE SCRIPTURE OF FORM ---
+{{ project_name }}/
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        .env
+        db_data/
+        cache_data/
+
+    # [2] THE CONTROL PLANE
+    Makefile:
+        .PHONY: help up down logs restart ps
+        
+        up: ## Ignite the swarm in the background
+        	docker-compose up --build -d
+
+        down: ## Dissolve the swarm and its ephemeral matter
+        	docker-compose down -v
+
+        logs: ## Gaze upon the collective consciousness
+        	docker-compose logs -f
+
+        restart: ## Reincarnate a specific service
+        	docker-compose restart $(s)
+
+        ps: ## Proclaim the vitals of all living services
+        	docker-compose ps
+
+    # [3] THE ENVIRONMENT DNA
+    .env.example:
+        # == API Service ==
+        API_PORT={{ api_port }}
+        DB_HOST=db
+        
+        # == Database ==
+        POSTGRES_USER=gnostic
+        POSTGRES_PASSWORD=password
+        POSTGRES_DB=swarm_db
+
+        # == Cache ==
+        REDIS_HOST=cache
+
+    # [4] THE ORCHESTRATION SCRIPTURE
+    docker-compose.yml :: """
+    version: '3.8'
+
+    services:
+      # --- The Intelligence Layer ---
+      api:
+        build: ./services/api
+        container_name: {{ project_name }}-api
+        ports:
+          - "{{ api_port }}:8000"
+        env_file: .env
+        networks:
+          - internal_mesh
+        depends_on:
+          db:
+            condition: service_healthy
+          cache:
+            condition: service_healthy
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+          interval: 20s
+          timeout: 5s
+          retries: 3
+
+      # --- The Persistence Layer ---
+      db:
+        image: postgres:16-alpine
+        container_name: {{ project_name }}-db
+        environment:
+          - POSTGRES_USER=${POSTGRES_USER}
+          - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          - POSTGRES_DB=${POSTGRES_DB}
+        volumes:
+          - db_data:/var/lib/postgresql/data
+        networks:
+          - internal_mesh
+        healthcheck:
+          test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+          interval: 5s
+          timeout: 5s
+          retries: 5
+
+      # --- The Caching Layer ---
+      cache:
+        image: redis:7-alpine
+        container_name: {{ project_name }}-cache
+        networks:
+          - internal_mesh
+        healthcheck:
+          test: ["CMD", "redis-cli", "ping"]
+          interval: 5s
+          timeout: 3s
+          retries: 5
+
+    volumes:
+      db_data:
+        driver: local
+
+    networks:
+      internal_mesh:
+        driver: bridge
+    """
+
+    # [5] THE SERVICE SOULS (Placeholders)
+    services/
+        api/
+            Dockerfile:
+                FROM python:3.11-slim
+                WORKDIR /app
+                COPY requirements.txt .
+                RUN pip install -r requirements.txt
+                COPY . .
+                CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+            
+            main.py :: """
+            from fastapi import FastAPI
+            app = FastAPI()
+            @app.get("/health")
+            def health(): return {"status": "resonant"}
+            """
+            
+            requirements.txt:
+                fastapi
+                uvicorn
+
+    # [6] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name }} - Docker Compose Swarm
+
+    An orchestrated, multi-service reality.
+
+    ## 🚀 Rites
+    - `make up` - Awaken the swarm.
+    - `make logs` - Gaze into the logs.
+    - `make down` - Dissolve the swarm.
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The Docker Compose Swarm is manifest in '{{ project_name }}/'."
+    proclaim: "To begin:"
+    proclaim: "  1. [bold cyan]cd {{ project_name }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]cp .env.example .env[/bold cyan]"
+    proclaim: "  3. [bold cyan]make up[/bold cyan]"

@@ -1,0 +1,361 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: MONOREPO CITADEL (V-Ω-TOTALITY)                         ==
+# =================================================================================
+# @description: Materializes a sovereign polyglot multiverse. Orchestrates Next.js, FastAPI, and shared internal libraries using Turborepo and Poetry. Features unified CI/CD, cross-service Docker networking, and a central Gnostic conductor.
+# @category: Genesis
+# @tags: monorepo, turborepo, poetry, pnpm, fastapi, nextjs, docker, microservices
+# @difficulty: Grand Architect
+# @is_integration: false
+# @dna: use_turbo=true, use_poetry=true, api_port=8000, web_port=3000, db_type=postgres
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "omega-citadel"
+$$ author = "{{ author | default('The Architect') }}"
+$$ api_port = 8000
+$$ web_port = 3000
+
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
+
+# --- II. THE MASTER GOVERNANCE (The Citadel Root) ---
+{{ project_slug }}/
+
+    # [1] THE UNIFIED ABYSS (Root Ignore)
+    .gitignore :: """
+    # == The Abyss ==
+    node_modules/
+    .next/
+    dist/
+    .turbo/
+    .venv/
+    __pycache__/
+    *.log
+    .DS_Store
+    
+    # Environment & Local Gnosis
+    .env
+    .env.local
+    !.env.example
+    
+    # Project Memory
+    scaffold.lock
+    .scaffold/
+    """
+
+    # [2] THE JS CONDUCTOR (Turborepo)
+    turbo.json :: """
+    {
+      "$schema": "https://turbo.build/schema.json",
+      "globalDependencies": [".env"],
+      "pipeline": {
+        "build": {
+          "dependsOn": ["^build"],
+          "outputs": [".next/**", "dist/**"]
+        },
+        "lint": {},
+        "dev": {
+          "cache": false,
+          "persistent": true
+        }
+      }
+    }
+    """
+
+    pnpm-workspace.yaml :: """
+    packages:
+      - 'apps/*'
+      - 'packages/*'
+    """
+
+    # [3] THE PYTHON CONDUCTOR (Root Poetry)
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}-citadel"
+    version = "1.0.0"
+    description = "Root orchestration for the {{ project_name }} multiverse."
+    authors = ["{{ author }}"]
+    package-mode = false
+
+    [tool.poetry.dependencies]
+    python = "^3.11"
+
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+    """
+
+    # [4] THE UNIVERSAL REMOTE (Makefile)
+    Makefile :: """
+    .PHONY: help install dev build docker-up clean
+
+    # Gnostic Variables
+    $COMPOSE = docker-compose
+    $PNPM = pnpm
+    $POETRY = poetry
+
+    help: ## Proclaim available rites for the entire Citadel
+      @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+    install: ## Consecrate the polyglot environment (JS & Python)
+      @echo "🧪 Summoning Pythonic Artisans..."
+      $($POETRY) install
+      @echo "🎨 Summoning Ocular Artisans..."
+      $($PNPM) install
+
+    dev: ## Ignite the dual-sun system (Concurrent API & Web)
+      @echo "🚀 Awakening {{ project_name }} multiverse..."
+      $($PNPM) dev
+
+    build: ## Transmute the multiverse into production vessels
+      $($PNPM) build
+      $($POETRY) build
+
+    docker-up: ## Manifest the Citadel in the containerized realm
+      $($COMPOSE) up --build -d
+
+    clean: ## Return ephemeral artifacts to the void
+      rm -rf node_modules .turbo .next .venv
+      find . -name "__pycache__" -type d -exec rm -rf {} +
+    """
+
+    # [5] THE CELESTIAL MESH (Docker Compose)
+    docker-compose.yml :: """
+    version: '3.8'
+
+    services:
+      # --- The Intelligence Layer ---
+      api:
+        build: 
+          context: .
+          dockerfile: apps/api/Dockerfile
+        container_name: {{ project_slug }}_api
+        ports:
+          - "{{ api_port }}:8000"
+        env_file: .env.example
+        networks:
+          - citadel_mesh
+
+      # --- The Ocular Layer ---
+      web:
+        build:
+          context: .
+          dockerfile: apps/web/Dockerfile
+        container_name: {{ project_slug }}_web
+        ports:
+          - "{{ web_port }}:3000"
+        environment:
+          - NEXT_PUBLIC_API_URL=http://localhost:{{ api_port }}
+        networks:
+          - citadel_mesh
+
+    networks:
+      citadel_mesh:
+        driver: bridge
+    """
+
+    # =========================================================================
+    # == III. THE APPS STRATUM (Realized Will)                               ==
+    # =========================================================================
+    apps/
+        # --- THE CORE API (Python/FastAPI) ---
+        api/
+            pyproject.toml :: """
+            [tool.poetry]
+            name = "api"
+            version = "0.1.0"
+            description = "Intelligence Layer for {{ project_name }}"
+            authors = ["{{ author }}"]
+            packages = [{include = "src"}]
+
+            [tool.poetry.dependencies]
+            python = "^3.11"
+            fastapi = "^0.110.0"
+            uvicorn = {extras = ["standard"], version = "^0.27.0"}
+            gnosis-core = {path = "../../packages/gnosis-py", develop = true}
+
+            [build-system]
+            requires = ["poetry-core"]
+            build-backend = "poetry.core.masonry.api"
+            """
+            
+            src/
+                __init__.py :: ""
+                main.py :: """
+                from fastapi import FastAPI
+                from fastapi.middleware.cors import CORSMiddleware
+                from gnosis_core.schemas import GnosticStatus
+                import time
+
+                app = FastAPI(title="{{ project_name }} API")
+
+                # [THE CURE]: Multi-Origin CORS Policy
+                app.add_middleware(
+                    CORSMiddleware,
+                    allow_origins=["*"],
+                    allow_credentials=True,
+                    allow_methods=["*"],
+                    allow_headers=["*"],
+                )
+
+                @app.get("/api/v1/status")
+                async def get_status():
+                    return GnosticStatus(
+                        message="Intelligence Layer: RESONANT",
+                        timestamp=time.time(),
+                        version="1.0.0"
+                    )
+                """
+
+            Dockerfile :: """
+            FROM python:3.11-slim
+            WORKDIR /app
+            RUN pip install poetry
+            COPY . .
+            RUN poetry config virtualenvs.create false && poetry install --no-root
+            CMD ["uvicorn", "apps.api.src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+            """
+
+        # --- THE OCULAR MEMBRANE (Next.js) ---
+        web/
+            package.json :: """
+            {
+              "name": "web",
+              "version": "0.1.0",
+              "private": true,
+              "scripts": {
+                "dev": "next dev -p {{ web_port }}",
+                "build": "next build",
+                "start": "next start"
+              },
+              "dependencies": {
+                "next": "15.1.0",
+                "react": "^19.0.0",
+                "react-dom": "^19.0.0",
+                "@{{ project_slug }}/ui-citadel": "workspace:*"
+              }
+            }
+            """
+
+            app/
+                page.tsx :: """
+                import { GnosticButton } from "@{{ project_slug }}/ui-citadel";
+
+                export default function Home() {
+                  return (
+                    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-black text-white">
+                      <div className="flex flex-col items-center gap-8 border-l-2 border-teal-400 pl-10">
+                          <h1 className="text-8xl font-black italic tracking-tighter uppercase">
+                            THE <br /> <span className="text-teal-400">CITADEL.</span>
+                          </h1>
+                          <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest">
+                            Project: {{ project_name }} // Ocular_Interface
+                          </p>
+                          <GnosticButton label="Ignite Multiverse" />
+                      </div>
+                    </main>
+                  );
+                }
+                """
+
+            Dockerfile :: """
+            FROM node:20-alpine AS builder
+            WORKDIR /app
+            RUN npm install -g pnpm
+            COPY . .
+            RUN pnpm install && pnpm build
+            
+            FROM node:20-alpine
+            WORKDIR /app
+            COPY --from=builder /app/apps/web/.next ./apps/web/.next
+            COPY --from=builder /app/node_modules ./node_modules
+            CMD ["pnpm", "--filter", "web", "start"]
+            """
+
+    # =========================================================================
+    # == IV. THE PACKAGES STRATUM (Shared Gnosis)                            ==
+    # =========================================================================
+    packages/
+        # --- SHARED PYTHON LOGIC (Pydantic V2) ---
+        gnosis-py/
+            pyproject.toml :: """
+            [tool.poetry]
+            name = "gnosis-core"
+            version = "0.1.0"
+            description = "Shared Gnostic Data Contracts"
+            authors = ["{{ author }}"]
+
+            [tool.poetry.dependencies]
+            python = "^3.11"
+            pydantic = "^2.6.0"
+
+            [build-system]
+            requires = ["poetry-core"]
+            build-backend = "poetry.core.masonry.api"
+            """
+            
+            gnosis_core/
+                __init__.py :: ""
+                schemas.py :: """
+                from pydantic import BaseModel
+                from typing import Optional
+
+                class GnosticStatus(BaseModel):
+                    message: str
+                    timestamp: float
+                    version: str
+                """
+
+        # --- SHARED UI COMPONENTS (React) ---
+        ui-citadel/
+            package.json :: """
+            {
+              "name": "@{{ project_slug }}/ui-citadel",
+              "version": "0.1.0",
+              "private": true,
+              "main": "./index.tsx",
+              "types": "./index.tsx",
+              "peerDependencies": {
+                "react": "^19.0.0"
+              }
+            }
+            """
+            
+            index.tsx :: """
+            import * as React from "react";
+
+            export const GnosticButton = ({ label }: { label: string }) => (
+              <button className="px-8 py-4 bg-teal-400 text-black font-black uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(100,255,218,0.4)]">
+                {label}
+              </button>
+            );
+            """
+
+# --- V. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Monorepo Citadel[/bold cyan] is materializing."
+    
+    # 1. Initialize the Cosmos Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the Multiverse
+    proclaim: "Summoning the Multiverse (PNPM & Poetry)..."
+    >> make install
+    
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Citadel manifest in '{{ project_slug }}/'.[/bold green]"
+    proclaim: "To awaken the multiverse:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make dev[/bold cyan] (Starts Turbo Conductor)"
+    proclaim: "  3. Scry the Membrane: [bold]http://localhost:{{ web_port }}[/bold]"
+    proclaim: "  4. Scry the Mind: [bold]http://localhost:{{ api_port }}/api/v1/status[/bold]"
+
+%% on-heresy
+    proclaim: "[bold red]Citadel Materialization Fractured.[/bold red] Cleaning the multiverse shards..."
+    rm -rf apps/ packages/ Makefile turbo.json pnpm-workspace.yaml pyproject.toml docker-compose.yml

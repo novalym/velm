@@ -1,159 +1,554 @@
 # =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: PYTHON UNIVERSAL (V-Ω-ETERNAL-PURITY)            ==
+# == GNOSTIC ARCHETYPE: PYTHON UNIVERSAL SOVEREIGN (V-Ω-TOTALITY)               ==
 # =================================================================================
-# This scripture is now eternally pure. All profane quotes have been annihilated.
-# The Maestro's Will is now a pure, unbreakable Jinja block.
+# @description: The ultimate polymorphic Python foundation. Dynamically transmutes between Poetry and Pip/Venv denominations while enforcing a production-hardened structure with Pydantic V2, Ruff, and a multi-stage Docker fortress.
+# @category: Genesis
+# @tags: python, poetry, pip, venv, pydantic, ruff, docker, polymorphic, universal
+# @difficulty: Grand Architect
+# @is_integration: false
+# @dna: python_version=3.12, use_poetry=true, use_docker=true, use_vscode=true
 # =================================================================================
 
-# --- I. The Altar of Gnostic Will (DERIVED GNOSIS ONLY) ---
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "universal-core"
+$$ author = "{{ author | default('The Architect') }}"
+$$ email = "{{ email | default('architect@novalym.systems') }}"
+$$ python_version = "3.12"
+$$ version = "0.1.0"
+
+# [THE CONSCIENCE]: Choice Logic (Transmutable DNA)
+$$ use_poetry = {{ use_poetry | default(true) }}
+$$ use_docker = {{ use_docker | default(true) }}
+$$ use_vscode = {{ use_vscode | default(true) }}
+$$ use_git = {{ use_git | default(true) }}
+
+# [THE ALCHEMY]: Case Normalization
 $$ project_slug = {{ project_name | slug }}
-$$ description = A new {{ project_type }} project forged by the Scaffold God-Engine.
-$$ author = The Architect
-$$ project_title = {{ project_slug | title }}
+$$ project_title = {{ project_name | title }}
+$$ package_name = {{ project_name | snake }}
 
-# --- II. The Scripture of Form ---
-/{{ project_slug }}/
-    README.md:
-        # {{ project_title }}
+# --- II. THE SCRIPTURE OF FORM (The Fortress Structure) ---
+{{ project_slug }}/
 
-        _{{ description }}_
-        
-        A project forged by the Scaffold God-Engine.
+    # [1] THE KERNEL CONFIGURATION (Environmental Shielding)
+    .gitignore :: """
+    # == The Abyss (Python) ==
+    __pycache__/
+    *.py[cod]
+    *$py.class
+    .venv/
+    venv/
+    env/
+    .env
+    .env.*
+    !.env.example
 
-        ## Running the Application
-        ```bash
-        {% if use_poetry %}
-        poetry run python src/{{ project_slug | snake }}/main.py
-        {% else %}
-        .venv/Scripts/python src/{{ project_slug | snake }}/main.py
-        {% endif %}
-        ```
+    # Distribution / Build Shards
+    dist/
+    build/
+    *.egg-info/
+    *.egg
+    
+    # Testing & Quality Forensics
+    .pytest_cache/
+    .ruff_cache/
+    .mypy_cache/
+    .coverage
+    htmlcov/
+    
+    # OS & IDE Meta-Matter
+    .vscode/
+    .idea/
+    .DS_Store
+    """
 
-    .gitignore:
-        __pycache__/
-        *.py[cod]
-        .pytest_cache/
-        .ruff_cache/
-        build/
-        dist/
-        *.egg-info/
-        .env
-        .env.*
-        !.env.example
-        .vscode/
-        .idea/
-        .DS_Store
-        {% if not use_poetry %}.venv/{% endif %}
+    .editorconfig :: """
+    root = true
+    [*]
+    indent_style = space
+    indent_size = 4
+    charset = utf-8
+    trim_trailing_whitespace = true
+    insert_final_newline = true
+    end_of_line = lf
 
-    pyproject.toml :: """
+    [Makefile]
+    indent_style = tab
+    """
+
+    # [2] THE FOUNDRY (DENOMINATION SELECTION)
+    # The Alchemist bifurcates the reality based on the 'use_poetry' Vow.
+    
     {% if use_poetry %}
+    # --- Denomination: Poetry (The Modern Way) ---
+    pyproject.toml :: """
     [tool.poetry]
     name = "{{ project_slug }}"
-    version = "0.1.0"
-    description = "{{ description }}"
-    authors = ["{{ author }}"]
+    version = "{{ version }}"
+    description = "A universal Python reality manifest by the VELM engine."
+    authors = ["{{ author }} <{{ email }}>"]
     readme = "README.md"
-    packages = [{include = "{{ project_slug | snake }}", from = "src"}]
+    packages = [{include = "{{ package_name }}", from = "src"}]
 
     [tool.poetry.dependencies]
-    python = "^{{ python_version | default('3.11') }}"
+    python = "^{{ python_version }}"
+    pydantic = "^2.6.0"
+    pydantic-settings = "^2.2.0"
+    python-dotenv = "^1.0.1"
     rich = "^13.7.0"
+    structlog = "^24.1.0"
 
     [tool.poetry.group.dev.dependencies]
     pytest = "^8.0.0"
-    ruff = "^0.2.0"
+    pytest-cov = "^5.0.0"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+    mypy = "^1.8.0"
+    pre-commit = "^3.6.0"
+
+    [tool.poetry.scripts]
+    {{ project_slug }} = "{{ package_name }}.main:main"
 
     [build-system]
     requires = ["poetry-core"]
     build-backend = "poetry.core.masonry.api"
+
+    [tool.black]
+    line-length = 110
+    target-version = ['py312']
+
+    [tool.ruff]
+    line-length = 110
+    target-version = "py312"
+    lint.select = ["E", "F", "I", "UP", "B", "S", "T20"]
+    lint.ignore = ["S101"]
+
+    [tool.mypy]
+    python_version = "{{ python_version }}"
+    strict = true
+    """
     {% else %}
+    # --- Denomination: Pip/Venv (The Pure Way) ---
+    requirements.txt :: """
+    pydantic>=2.6.0
+    pydantic-settings>=2.2.0
+    python-dotenv>=1.0.1
+    rich>=13.7.0
+    structlog>=24.1.0
+    """
+    
+    requirements-dev.txt :: """
+    pytest>=8.0.0
+    pytest-cov>=5.0.0
+    ruff>=0.3.0
+    black>=24.2.0
+    mypy>=1.8.0
+    pip-tools>=7.3.0
+    """
+    
+    pyproject.toml :: """
+    [build-system]
+    requires = ["setuptools>=61.0", "wheel"]
+    build-backend = "setuptools.build_meta"
+
     [project]
     name = "{{ project_slug }}"
-    version = "0.1.0"
-    description = "{{ description }}"
-    authors = [ { name = "{{ author }}" } ]
-    requires-python = ">={{ python_version | default('3.11') }}"
-    dependencies = [ "rich>=13.0" ]
+    version = "{{ version }}"
+    description = "A universal Python reality manifest by the VELM engine."
+    authors = [{ name = "{{ author }}", email = "{{ email }}" }]
+    readme = "README.md"
+    requires-python = ">={{ python_version }}"
+    dependencies = [
+        "pydantic>=2.6.0",
+        "pydantic-settings>=2.2.0",
+        "python-dotenv>=1.0.1",
+        "rich>=13.7.0",
+        "structlog>=24.1.0"
+    ]
+
+    [tool.black]
+    line-length = 110
+
+    [tool.ruff]
+    line-length = 110
+    lint.select = ["E", "F", "I", "UP", "B", "S"]
+    """
+    {% endif %}
+
+    # [3] THE CONTROL PLANE (Makefile)
+    # The Maestro-Makefile provides a unified interface regardless of Denomination.
+    Makefile :: """
+    .PHONY: help install run test lint format build clean venv
+    
+    # Gnostic Variables
+    $PROJECT_NAME = {{ project_slug }}
+    $PKG = src/{{ package_name }}
+    
+    # Denomination Detection
+    {% if use_poetry %}
+    $RUNNER = poetry run
+    $INSTALLER = poetry install
+    $PY = poetry run python
+    {% else %}
+    $VENV = .venv
+    $BIN = $($VENV)/bin
+    ifeq ($(OS),Windows_NT)
+        $BIN = $($VENV)/Scripts
+    endif
+    $RUNNER = $($BIN)/
+    $INSTALLER = $($BIN)/pip install -r requirements.txt -r requirements-dev.txt
+    $PY = $($BIN)/python
+    {% endif %}
+
+    help: ## Proclaim available rites for this reality
+        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
+
+    {% if not use_poetry %}
+    venv: ## Incept the Virtual Environment
+        python -m venv $($VENV)
+    {% endif %}
+
+    install: {% if not use_poetry %}venv{% endif %} ## Consecrate the local environment and summon dependencies
+        @echo "📦 Summoning dependencies..."
+        $($INSTALLER)
+    {% if use_poetry %}
+        poetry run pre-commit install
+    {% endif %}
+
+    run: ## Execute the kinetic entrypoint
+        {% if use_poetry %}
+        poetry run $($PROJECT_NAME)
+        {% else %}
+        $($PY) src/{{ package_name }}/main.py
+        {% endif %}
+
+    test: ## Conduct the unit inquisition
+        $($RUNNER) pytest --cov=$($PKG)
+
+    lint: ## Audit the soul of the code for heresies
+        @echo "🔍 Scrying for logic-gaps..."
+        $($RUNNER) ruff check .
+        $($RUNNER) mypy src/
+
+    format: ## Apply sacred geometry to the code
+        $($RUNNER) ruff check --fix .
+        $($RUNNER) black .
+
+    build: clean ## Forge the celestial wheel (distribution)
+        {% if use_poetry %}
+        poetry build
+        {% else %}
+        $($PY) -m build
+        {% endif %}
+
+    clean: ## Return artifacts to the void
+        rm -rf dist/ build/ .pytest_cache/ .ruff_cache/ .mypy_cache/ .coverage
+        find . -name "*.pyc" -delete
+    """
+
+    # [4] THE ENVIRONMENT DNA
+    .env.example :: """
+    # == {{ project_name | upper }} CONFIGURATION ==
+    ENVIRONMENT=development
+    LOG_LEVEL=INFO
+    
+    # == Business Gnosis ==
+    # Add your custom variables here
+    # Use the prefix SC_ to auto-inject into Settings
+    SC_DATABASE_URL="sqlite:///./reality.db"
+    """
+
+    # [5] THE SOURCE CODE (The Living Mind)
+    src/
+        {{ package_name }}/
+            __init__.py :: "__version__ = '{{ version }}'"
+            py.typed :: "" # [FACULTY]: PEP 561 compliance
+
+            # --- THE CONSCIENCE (CONFIG) ---
+            config.py :: """
+            from pydantic_settings import BaseSettings, SettingsConfigDict
+            from typing import Optional
+            import logging
+
+            class Settings(BaseSettings):
+                \"\"\"
+                =============================================================================
+                == THE GNOSTIC SETTINGS (V-Ω-SINGLETON)                                    ==
+                =============================================================================
+                Siphons environment DNA into typed logic via Pydantic V2.
+                \"\"\"
+                APP_NAME: str = "{{ project_name }}"
+                ENVIRONMENT: str = "development"
+                LOG_LEVEL: str = "INFO"
+                
+                # Custom Gnosis (Inject via SC_ prefix)
+                DATABASE_URL: Optional[str] = None
+
+                model_config = SettingsConfigDict(
+                    env_prefix="SC_",
+                    env_file=".env", 
+                    env_file_encoding="utf-8", 
+                    extra="ignore"
+                )
+
+            settings = Settings()
+            """
+
+            # --- THE KINETIC INTERFACE ---
+            main.py :: """
+            \"\"\"
+            The Main Conductor for {{ project_title }}.
+            Generated by the VELM God-Engine.
+            \"\"\"
+            import sys
+            from rich.console import Console
+            from .config import settings
+            from .core.engine import GnosticEngine
+
+            console = Console()
+
+            def main():
+                \"\"\"The high-level entry point.\"\"\"
+                console.print(f"[bold cyan]✨ {settings.APP_NAME} Awakening...[/]")
+                
+                try:
+                    engine = GnosticEngine()
+                    engine.ignite()
+                except Exception as e:
+                    console.print(f"[bold red]CATASTROPHIC_FRACTURE:[/] {e}")
+                    sys.exit(1)
+
+            if __name__ == "__main__":
+                main()
+            """
+
+            # --- THE SOUL (CORE LOGIC) ---
+            core/
+                __init__.py :: ""
+                engine.py :: """
+                from rich.console import Console
+                from ..config import settings
+
+                class GnosticEngine:
+                    \"\"\"
+                    The sovereign logic of the project.
+                    Separated from the I/O shell for absolute purity.
+                    \"\"\"
+                    
+                    def __init__(self):
+                        self.console = Console()
+                        self.resonance = "STABLE"
+
+                    def ignite(self):
+                        \"\"\"Performs the primary mission of the reality.\"\"\"
+                        self.console.print(
+                            f"Gnosis is truth. The [green]{self.resonance}[/] reality is manifest."
+                        )
+                        self.console.print(f"Environment: [yellow]{settings.ENVIRONMENT}[/]")
+                """
+
+    # [6] THE INQUISITION (Tests)
+    tests/
+        __init__.py :: ""
+        conftest.py :: """
+        import pytest
+
+        @pytest.fixture
+        def gnostic_truth():
+            return "STABLE"
+        """
+        test_logic.py :: """
+        from {{ package_name }}.core.engine import GnosticEngine
+
+        def test_engine_resonance(gnostic_truth):
+            \"\"\"Verifies the initial state of the engine.\"\"\"
+            engine = GnosticEngine()
+            assert engine.resonance == gnostic_truth
+        """
+
+    # [7] THE CELESTIAL VESSEL (Docker)
+    {% if use_docker %}
+    Dockerfile :: """
+    # =============================================================================
+    # == THE SOVEREIGN TITAN VESSEL (V-Ω-TOTALITY-MULTISTAGE)                    ==
+    # =============================================================================
+    
+    # --- STAGE 1: THE FORGE (BUILDER) ---
+    FROM python:{{ python_version }}-slim-bookworm as builder
+    
+    WORKDIR /app
+    
+    # System DNA
+    ENV PYTHONUNBUFFERED=1 \
+        PYTHONDONTWRITEBYTECODE=1 \
+        PIP_NO_CACHE_DIR=1
+
+    RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential curl \
+        && rm -rf /var/lib/apt/lists/*
+
+    {% if use_poetry %}
+    RUN pip install poetry==1.8.2
+    COPY pyproject.toml poetry.lock* ./
+    RUN poetry config virtualenvs.create false && poetry install --no-root --only main
+    {% else %}
+    COPY requirements.txt ./
+    RUN pip install --no-cache-dir -r requirements.txt
+    {% endif %}
+
+    # --- STAGE 2: THE CELESTIAL VESSEL (PRODUCTION) ---
+    FROM python:{{ python_version }}-slim-bookworm as production
+    WORKDIR /app
+    
+    # [SECURITY]: Non-root execution
+    RUN useradd -m -u 1000 scaf_artisan
+    
+    # Copy site-packages from builder
+    COPY --from=builder /usr/local/lib/python{{ python_version }}/site-packages /usr/local/lib/python{{ python_version }}/site-packages
+    {% if use_poetry %}
+    COPY --from=builder /usr/local/bin /usr/local/bin
+    {% endif %}
+    
+    COPY src /app/src
+    COPY .env.example /app/.env
+
+    RUN chown -R scaf_artisan:scaf_artisan /app
+    USER scaf_artisan
+
+    # [THE VOW]: Execution logic
+    ENV PYTHONUNBUFFERED=1
+    
+    {% if use_poetry %}
+    CMD ["python", "-m", "{{ package_name }}.main"]
+    {% else %}
+    CMD ["python", "src/{{ package_name }}/main.py"]
+    {% endif %}
+    """
+    {% endif %}
+
+    # [8] THE CELESTIAL GATE (CI)
+    .github/workflows/integrity.yml :: """
+    name: Ω | Integrity Adjudication
+
+    on:
+      push:
+        branches: [ main ]
+      pull_request:
+        branches: [ main ]
+
+    jobs:
+      audit:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-python@v5
+            with: { python-version: '{{ python_version }}' }
+          
+          {% if use_poetry %}
+          - name: Install Poetry
+            run: curl -sSL https://install.python-poetry.org | python3 -
+          - name: Summon Dependencies
+            run: poetry install
+          - name: Audit Gnostic Form (Lint)
+            run: |
+              poetry run ruff check .
+              poetry run mypy src/
+          - name: Verify Logic (Test)
+            run: poetry run pytest --cov=src
+          {% else %}
+          - name: Install Dependencies
+            run: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt -r requirements-dev.txt
+          - name: Audit Gnostic Form (Lint)
+            run: |
+              ruff check .
+              mypy src/
+          - name: Verify Logic (Test)
+            run: pytest --cov=src
+          {% endif %}
+    """
+
+    # [9] THE EDITOR ANOINTMENT (VS Code)
+    {% if use_vscode %}
+    .vscode/settings.json :: """
+    {
+        "python.defaultInterpreterPath": "{{ '.venv/bin/python' if not use_poetry else '' }}",
+        "python.testing.pytestArgs": ["tests"],
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
+        "editor.formatOnSave": true,
+        "python.formatting.provider": "none",
+        "[python]": {
+            "editor.defaultFormatter": "charliermarsh.ruff",
+            "editor.codeActionsOnSave": {
+                "source.organizeImports": "explicit"
+            }
+        }
+    }
+    """
+    {% endif %}
+
+    # [10] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_title }}
+    
+    [![Status](https://img.shields.io/badge/Status-Resonant-teal.svg)]()
+    [![Python](https://img.shields.io/badge/Python-{{ python_version }}-blue.svg)]()
+
+    > {{ description | default('A universal Python reality manifest by the VELM engine.') }}
+
+    ## 🚀 Initiation Rites
+
+    ```bash
+    # 1. Consecrate the environment
+    make install
+
+    # 2. Awaken the logic
+    make run
+
+    # 3. Adjudicate the soul
+    make test
+    ```
+
+    ## 🏛️ Topography
+
+    - `src/{{ package_name }}/main.py`: The Kinetic Shell (Entry Point).
+    - `src/{{ package_name }}/core/`: The Gnostic Soul (Business Logic).
+    - `src/{{ package_name }}/config.py`: The Pydantic V2 Conscience.
+    - `tests/`: The Forensic Chambers.
+    - `Makefile`: The Sovereign Interface.
+
+    ## 🐳 Containerization
+    {% if use_docker %}
+    ```bash
+    make docker-build
+    docker run {{ project_slug }}:latest
+    ```
     {% endif %}
     """
 
-    {% if not use_poetry -%}
-    requirements.txt:
-        rich>=13.0
-    
-    requirements-dev.txt:
-        pytest>=8.0.0
-        ruff>=0.2.0
-    {%- endif %}
-    
-    Makefile :: """
-    .PHONY: help install run test lint
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
 
-    help:
-        @echo "Makefile for {{ project_title }}"
-        @echo "Usage: make [install|run|test|lint]"
+    # 2. Summon the dependencies
+    proclaim: "Summoning the {{ 'Poetry' if use_poetry else 'Pip/Venv' }} toolchain..."
+    @if {{ use_poetry }}
+        @if {{ shell('which poetry') }} -> >> poetry install
+        @else -> proclaim: "[bold yellow]Poetry not detected. Please install it to finalize the forge.[/bold yellow]"
+    @else
+        >> make install
+    @endif
 
-    {% if use_poetry -%}
-    install:
-        @poetry install
-    run:
-        @poetry run python src/{{ project_slug | snake }}/main.py
-    test:
-        @poetry run pytest
-    lint:
-        @poetry run ruff check .
-    {%- else -%}
-    VENV_DIR = .venv
-    PYTHON_EXEC = $(VENV_DIR)/bin/python
-    ifeq ($(OS),Windows_NT)
-        PYTHON_EXEC = $(VENV_DIR)/Scripts/python
-    endif
+    # 3. Final Proclamation
+    proclaim: "The Universal Python Sovereign '{{ project_name }}' is manifest in '{{ project_slug }}/'."
+    proclaim: "The chosen stratum is [bold cyan]{{ 'POETRY' if use_poetry else 'PIP/VENV' }}[/bold cyan]."
+    proclaim: "To begin the Great Work:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make run[/bold cyan]"
 
-    install:
-        @python -m venv $(VENV_DIR)
-        @$(PYTHON_EXEC) -m pip install -r requirements.txt -r requirements-dev.txt
-    run:
-        @$(PYTHON_EXEC) src/{{ project_slug | snake }}/main.py
-    test:
-        @$(PYTHON_EXEC) -m pytest
-    lint:
-        @$(PYTHON_EXEC) -m ruff check .
-    {%- endif %}
-    """
-
-    src/
-        {{ project_slug | snake }}/
-            __init__.py
-            main.py:
-                from rich.console import Console
-
-                def main():
-                    console = Console()
-                    console.print(f"Gnosis is truth. The '[bold green]{{ project_title }}[/bold green]' reality is manifest.")
-
-                if __name__ == "__main__":
-                    main()
-
-    tests/
-        test_main.py:
-            def test_placeholder():
-                assert True
-    
-    {% if use_vscode -%}
-    .vscode/
-        settings.json:
-            {
-                "python.testing.pytestArgs": ["tests"],
-                "python.testing.unittestEnabled": false,
-                "python.testing.pytestEnabled": true
-            }
-    {%- endif %}
-
-    {%- if use_git %}
-    # --- III. The Maestro's Will ---
-    %% post-run
-        git init
-        make install
-        git add .
-        git commit -m "feat(init): Initial structure for {{ project_slug }} forged by Scaffold"
-    {%- endif %}
+%% on-heresy
+    proclaim: "[bold red]The Inception Rite fractured.[/bold red] Purging the ruins..."
+    rm -rf src/ tests/ .venv/ Makefile pyproject.toml

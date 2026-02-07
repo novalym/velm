@@ -1,0 +1,223 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: API GATEWAY MONAD (V-Ω-TOTALITY-UNIFIED-INGRESS)         ==
+# =================================================================================
+# @description: Materializes a sovereign unified ingress point using Caddy and high-fidelity proxy logic. Orchestrates automatic SSL, request normalization, and cross-service mesh routing for a multi-tenant microservice multiverse.
+# @category: Integrations
+# @tags: gateway, proxy, caddy, ingress, microservices, ssl, networking, infrastructure
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: public_port=80, secure_port=443, admin_port=2019, mesh_network=gnostic_mesh
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ public_domain = "{{ project_slug }}.local"
+$$ api_vessel = "api-service"
+$$ ui_vessel = "web-service"
+$$ api_port = 8000
+$$ ui_port = 3000
+$$ mesh_network = "{{ project_slug }}_gnostic_mesh"
+
+# [THE ALCHEMY]: Case Normalization
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
+
+# --- II. THE SCRIPTURE OF FORM (The Gateway Structure) ---
+infra/gateway/
+
+    # [1] THE GNOSTIC INGRESS POLICY (Caddyfile)
+    # This is the Law of the Aperture.
+    Caddyfile :: """
+    {
+        # --- GLOBAL SETTINGS ---
+        # [ASCENSION 1]: Security enforcement and diagnostic exposure
+        admin 0.0.0.0:2019
+        debug
+        
+        # [ASCENSION 2]: Persistence for the Certificate Vault
+        storage file_system /data
+    }
+
+    # [ASCENSION 3]: THE SOVEREIGN DOMAIN HANDLER
+    # Caddy automatically manages SSL for this domain.
+    # For local development, use '.local' or 'localhost'.
+    {{ public_domain }} {
+        
+        # --- GNOSTIC LOGGING ---
+        log {
+            output file /var/log/caddy/access.log
+            format json
+        }
+
+        # --- THE SHIELD (Security Headers) ---
+        header {
+            # Banish Iframe kidnapping
+            X-Frame-Options DENY
+            # Annihilate MIME-type sniffing
+            X-Content-Type-Options nosniff
+            # Enforce the strictness of the Secure Socket
+            Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+            # The Content Security Policy (Strict)
+            Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';"
+            # Remove server identity to minimize fingerprinting
+            -Server
+        }
+
+        # --- COMPRESSION (Metabolic Efficiency) ---
+        encode zstd gzip
+
+        # --- ROUTE I: THE INTELLIGENCE LAYER (/api/*) ---
+        handle_path /api/* {
+            # [ASCENSION 4]: Forward intent to the API service
+            reverse_proxy {{ api_vessel }}:{{ api_port }} {
+                header_up X-Real-IP {remote_host}
+                header_up X-Forwarded-Proto {scheme}
+                # Forward the Trace ID for distributed forensics
+                header_up X-Titan-Trace {header.X-Titan-Trace}
+            }
+        }
+
+        # --- ROUTE II: THE OCULAR LAYER (/*) ---
+        handle {
+            # [ASCENSION 5]: Fallback to the frontend/UI vessel
+            reverse_proxy {{ ui_vessel }}:{{ ui_port }}
+        }
+
+        # --- THE REDEMPTION (Custom Error Page) ---
+        handle_errors {
+            rewrite * /{err.status_code}.html
+            file_server
+        }
+    }
+    """
+
+    # [2] THE CELESTIAL MESH (Docker Compose Overlay)
+    docker-compose.gateway.yml :: """
+    version: '3.8'
+
+    services:
+      # [THE GATEWAY]: Caddy Ingress
+      gateway:
+        image: caddy:2.7-alpine
+        container_name: {{ project_slug }}_gateway
+        restart: unless-stopped
+        ports:
+          - "80:80"
+          - "443:443"
+          - "2019:2019" # Admin API
+        volumes:
+          - ./Caddyfile:/etc/caddy/Caddyfile
+          - gateway_data:/data
+          - gateway_config:/config
+          - /var/log/caddy:/var/log/caddy
+        networks:
+          - gnostic_mesh
+        environment:
+          - DOMAIN={{ public_domain }}
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:2019/metrics"]
+          interval: 30s
+          timeout: 5s
+          retries: 3
+
+    networks:
+      gnostic_mesh:
+        external: true
+        name: {{ mesh_network }}
+
+    volumes:
+      gateway_data:
+      gateway_config:
+    """
+
+# --- III. THE KINETIC LIMBS (Python Support) ---
+src/{{ package_name }}/
+    core/
+        gateway/
+            __init__.py :: ""
+            
+            # [ASCENSION 6]: THE ROUTE SCRIER
+            # A utility to verify that the Gateway can see its backends.
+            scrier.py :: """
+            import socket
+            import logging
+            from typing import List, Tuple
+
+            Logger = logging.getLogger("GatewayScrier")
+
+            class GatewayScrier:
+                \"\"\"
+                Performs a network-level Gaze to ensure the backends are breathing.
+                \"\"\"
+                BACKENDS: List[Tuple[str, int]] = [
+                    ("{{ api_vessel }}", {{ api_port }}),
+                    ("{{ ui_vessel }}", {{ ui_port }})
+                ]
+
+                @classmethod
+                def verify_resonance(cls) -> bool:
+                    \"\"\"Scries all configured backends.\"\"\"
+                    all_stable = True
+                    for host, port in cls.BACKENDS:
+                        try:
+                            with socket.create_connection((host, port), timeout=2):
+                                print(f"✅ Backend [cyan]{host}:{port}[/cyan] is RESONANT.")
+                        except (socket.timeout, ConnectionRefusedError, socket.gaierror):
+                            print(f"❌ Backend [bold red]{host}:{port}[/bold red] is FRACTURED.")
+                            all_stable = False
+                    return all_stable
+
+            if __name__ == "__main__":
+                import sys
+                success = GatewayScrier.verify_resonance()
+                sys.exit(0 if success else 1)
+            """
+
+# --- IV. THE CONTROL PLANE (Makefile) ---
+Makefile:
+    .PHONY: gateway-up gateway-down gateway-check gateway-logs
+
+    # Gnostic Variables
+    $GW_COMPOSE = infra/gateway/docker-compose.gateway.yml
+    $MESH_NET = {{ mesh_network }}
+
+    gateway-up: ## Ignite the API Gateway Monad
+        @echo "🔭 Awakening the Aperture..."
+        @docker network create $($MESH_NET) 2>/dev/null || true
+        @docker-compose -f $($GW_COMPOSE) up -d
+        @echo "✅ Gateway manifest at http://{{ public_domain }}"
+
+    gateway-down: ## Dissolve the Gateway
+        @echo "🌑 Returning the Gateway to the void..."
+        @docker-compose -f $($GW_COMPOSE) down
+
+    gateway-check: ## Conduct a health inquest on all backends
+        @echo "🔍 Scrying the Mesh Network..."
+        @docker exec -it {{ project_slug }}_gateway caddy validate --config /etc/caddy/Caddyfile
+        @poetry run python src/{{ package_name }}/core/gateway/scrier.py
+
+    gateway-logs: ## Gaze upon the Ingress chronicles
+        @docker-compose -f $($GW_COMPOSE) logs -f gateway
+
+# --- V. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]API Gateway Monad[/bold cyan] is materializing."
+    
+    # 1. Create directory structure
+    proclaim: "Forging the gateway sanctum..."
+    >> mkdir -p infra/gateway
+    >> mkdir -p src/{{ package_name }}/core/gateway
+
+    # 2. Create the Gnostic Mesh Network
+    proclaim: "Forging the Gnostic Mesh network..."
+    >> docker network create {{ mesh_network }} || true
+    
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Gateway Monad manifest.[/bold green]"
+    proclaim: "To ignite the Aperture:"
+    proclaim: "  1. [bold cyan]make gateway-up[/bold cyan]"
+    proclaim: "  2. Ensure your local [bold]hosts file[/bold] points [magenta]{{ public_domain }}[/magenta] to 127.0.0.1."
+    proclaim: "  3. Scry the admin dashboard at [bold]http://localhost:2019[/bold]"
+
+%% on-heresy
+    proclaim: "[bold red]Gateway Inception Fractured.[/bold red] Cleaning the temporal shards..."
+    rm -rf infra/gateway/ src/{{ package_name }}/core/gateway/

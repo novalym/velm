@@ -1,38 +1,443 @@
-# Path: scaffold/archetypes/genesis/fastapi-sqlalchemy.scaffold
-# -----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: FASTAPI-SQLALCHEMY CITADEL (V-Ω-TOTALITY)                ==
+# =================================================================================
+# @description: A legendary, async-first FastAPI monolith with SQLAlchemy 2.0 ORM,
+#               Alembic migrations, and the Repository Pattern for pure decoupling.
+# @category: Backend
+# @tags: python, fastapi, sqlalchemy, postgres, alembic, repository-pattern, pydantic
+# @difficulty: Master
+# @is_integration: false
+# @dna: use_docker=true, use_poetry=true, python_version=3.13, async_db=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: FASTAPI+SQLALCHEMY CITADEL (V-Ω-DATA-LAYER)      ==
-# =================================================================================
-# @description: A production-grade, asynchronous FastAPI service with SQLAlchemy ORM,
-#               Alembic for migrations, and a full Docker Compose setup.
-# =================================================================================
+# --- I. THE ALTAR OF VARIABLES ---
+$$ project_name = "data-citadel"
+$$ author = "The Architect"
+$$ db_name = "citadel_db"
 
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
-$$ package_name = {{ project_slug | snake }}
+$$ package_name = {{ project_name | snake }}
 
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: ".venv/\n__pycache__/\n.pytest_cache/\nalembic/versions/\n.env"
-    README.md :: "## FastAPI + SQLAlchemy Citadel\n- `make install`\n- `make dev` (requires local Postgres)\n- `make docker-up` (recommended)"
 
-    pyproject.toml:
-        [tool.poetry]
-        name = "{{ project_slug }}"
-        version = "0.1.0"
-        packages = [{include = "{{ package_name }}", from = "src"}]
-        [tool.poetry.dependencies]
-        python = "^3.11"
-        fastapi = "^0.110.0"
-        uvicorn = "^0.27.0"
-        sqlalchemy = {extras = ["asyncio"], version = "^2.0.0"}
-        asyncpg = "^0.29.0" # Postgres driver
-        alembic = "^1.13.0"
-        pydantic-settings = "^2.2.0"
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        __pycache__/
+        *.py[cod]
+        *$py.class
+        .venv/
+        .env
+        .env.local
+        dist/
+        build/
+        *.egg-info/
+        .pytest_cache/
+        .ruff_cache/
+        .mypy_cache/
+        .coverage
+        htmlcov/
+        .DS_Store
+        *.db
+        *.sqlite
+        # Alembic transient souls
+        alembic/versions/*
 
-    alembic.ini:
-        [alembic]
-        script_location = src/{{ package_name }}/migrations
-        sqlalchemy.url = driver://user:pass@localhost/dbname
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "An Asynchronous Data Citadel forged by VELM."
+    authors = ["{{ author }}"]
+    readme = "README.md"
+    packages = [{include = "{{ package_name }}", from = "src"}]
+
+    [tool.poetry.dependencies]
+    python = "^3.11"
+    fastapi = "^0.110.0"
+    uvicorn = {extras = ["standard"], version = "^0.27.0"}
+    pydantic = {extras = ["email"], version = "^2.6.0"}
+    pydantic-settings = "^2.2.0"
+    sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
+    asyncpg = ">=0.30.0"
+    alembic = "^1.13.1"
+    psycopg2-binary = "^2.9.9"
+    rich = "^13.7.0"
+    python-dotenv = "^1.0.1"
+
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    pytest-asyncio = "^0.23.5"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+    httpx = "^0.27.0"
+    mypy = "^1.8.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+
+    [tool.black]
+    line-length = 110
+    target-version = ['py311']
+
+    [tool.ruff]
+    line-length = 110
+    target-version = "py311"
+    """
+
+    # [2] THE CONTROL PLANE
+    Makefile:
+        .PHONY: help install dev test lint format migrate-gen migrate-run docker-up
+
+        $APP_NAME = {{ project_slug }}
+        $PKG_NAME = {{ package_name }}
+        
+        help: ## Proclaim available rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
+
+        install: ## Consecrate the local environment
+            @echo "📦 Summoning dependencies..."
+            @poetry install
+
+        dev: ## Ignite the development server
+            @poetry run uvicorn src.$(PKG_NAME).main:app --host 0.0.0.0 --port 8000 --reload
+
+        test: ## Conduct the unit inquisition
+            @poetry run pytest
+
+        lint: ## Audit for architectural heresies
+            @poetry run ruff check .
+            @poetry run mypy src/
+
+        format: ## Apply sacred geometry to the code
+            @poetry run ruff check --fix .
+            @poetry run black .
+
+        migrate-gen: ## Generate a new temporal migration
+            @poetry run alembic revision --autogenerate -m "Transmutation"
+
+        migrate-run: ## Apply pending migrations to reality
+            @poetry run alembic upgrade head
+
+        docker-up: ## Awaken the containerized reality
+            @docker-compose up --build -d
+
+    # [3] THE ENVIRONMENT DNA
+    .env.example:
+        APP_NAME="{{ project_name }}"
+        ENVIRONMENT="development"
+        LOG_LEVEL="INFO"
+        
+        # --- Database Gnosis ---
+        # Format: postgresql+asyncpg://user:pass@host:port/db
+        DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/{{ db_name }}"
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=postgres
+        POSTGRES_DB={{ db_name }}
+
+    # [4] THE MIGRATION ORACLE (ALEMBIC)
+    alembic.ini :: """
+    [alembic]
+    script_location = src/{{ package_name }}/migrations
+    prepend_sys_path = src
+    version_path_separator = os
+    sqlalchemy.url = driver://user:pass@localhost/dbname
+
+    [loggers]
+    keys = root,sqlalchemy,alembic
+
+    [handlers]
+    keys = console
+
+    [formatters]
+    keys = generic
+
+    [logger_root]
+    level = WARN
+    handlers = console
+    qualname =
+
+    [logger_sqlalchemy]
+    level = WARN
+    handlers =
+    qualname = sqlalchemy.engine
+
+    [logger_alembic]
+    level = INFO
+    handlers =
+    qualname = alembic
+
+    [handler_console]
+    class = StreamHandler
+    args = (sys.stderr,)
+    level = NOTSET
+    formatter = generic
+
+    [formatter_generic]
+    format = %(levelname)-5.5s [%(name)s] %(message)s
+    datefmt = %H:%M:%S
+    """
+
+    # [5] THE SOURCE CODE (THE SOUL)
+    src/
+        {{ package_name }}/
+            __init__.py :: "__version__ = '0.1.0'"
+
+            config.py :: """
+            from pydantic_settings import BaseSettings, SettingsConfigDict
+
+            class Settings(BaseSettings):
+                \"\"\"
+                The Gnostic Settings Singleton.
+                Siphons environment DNA into typed logic.
+                \"\"\"
+                APP_NAME: str = "{{ project_name }}"
+                ENVIRONMENT: str = "development"
+                DATABASE_URL: str
+                
+                model_config = SettingsConfigDict(
+                    env_file=".env", 
+                    env_file_encoding="utf-8", 
+                    extra="ignore"
+                )
+
+            settings = Settings()
+            """
+
+            database.py :: """
+            from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+            from sqlalchemy.orm import DeclarativeBase
+            from .config import settings
+
+            # [THE CURE]: Modern SQLAlchemy 2.0 Async Engine
+            engine = create_async_engine(
+                settings.DATABASE_URL, 
+                echo=(settings.ENVIRONMENT == "development")
+            )
+
+            AsyncSessionLocal = async_sessionmaker(
+                engine, 
+                class_=AsyncSession, 
+                expire_on_commit=False
+            )
+
+            class Base(DeclarativeBase):
+                \"\"\"The Ancestral Declarative Base.\"\"\"
+                pass
+
+            async def get_db():
+                \"\"\"Gnostic Context for Database Communion.\"\"\"
+                async with AsyncSessionLocal() as session:
+                    yield session
+            """
+
+            # --- THE HIERARCHICAL STRATA ---
+            models/
+                __init__.py :: "from ..database import Base"
+                item.py :: """
+                from sqlalchemy import Column, Integer, String, DateTime
+                from sqlalchemy.sql import func
+                from ..database import Base
+
+                class Item(Base):
+                    __tablename__ = "items"
+
+                    id = Column(Integer, primary_key=True, index=True)
+                    name = Column(String, index=True, nullable=False)
+                    description = Column(String, nullable=True)
+                    created_at = Column(DateTime(timezone=True), server_default=func.now())
+                """
+
+            schemas/
+                __init__.py
+                item.py :: """
+                from pydantic import BaseModel, ConfigDict
+                from datetime import datetime
+                from typing import Optional
+
+                class ItemBase(BaseModel):
+                    name: str
+                    description: Optional[str] = None
+
+                class ItemCreate(ItemBase):
+                    pass
+
+                class ItemRead(ItemBase):
+                    id: int
+                    created_at: datetime
+
+                    model_config = ConfigDict(from_attributes=True)
+                """
+
+            repositories/
+                __init__.py
+                base.py :: """
+                from typing import Generic, TypeVar, List, Optional
+                from sqlalchemy.ext.asyncio import AsyncSession
+                from sqlalchemy import select
+
+                T = TypeVar("T")
+
+                class BaseRepository(Generic[T]):
+                    def __init__(self, model: T, session: AsyncSession):
+                        self.model = model
+                        self.session = session
+
+                    async def get_all(self) -> List[T]:
+                        stmt = select(self.model)
+                        result = await self.session.execute(stmt)
+                        return list(result.scalars().all())
+
+                    async def create(self, obj_in: dict) -> T:
+                        obj = self.model(**obj_in)
+                        self.session.add(obj)
+                        await self.session.commit()
+                        await self.session.refresh(obj)
+                        return obj
+                """
+                item_repo.py :: """
+                from .base import BaseRepository
+                from ..models.item import Item
+
+                class ItemRepository(BaseRepository[Item]):
+                    def __init__(self, session):
+                        super().__init__(Item, session)
+                """
+
+            routers/
+                __init__.py
+                items.py :: """
+                from fastapi import APIRouter, Depends, HTTPException
+                from sqlalchemy.ext.asyncio import AsyncSession
+                from ..database import get_db
+                from ..repositories.item_repo import ItemRepository
+                from ..schemas.item import ItemRead, ItemCreate
+
+                router = APIRouter()
+
+                @router.get("/", response_model=list[ItemRead])
+                async def read_items(db: AsyncSession = Depends(get_db)):
+                    repo = ItemRepository(db)
+                    return await repo.get_all()
+
+                @router.post("/", response_model=ItemRead)
+                async def create_item(item: ItemCreate, db: AsyncSession = Depends(get_db)):
+                    repo = ItemRepository(db)
+                    return await repo.create(item.model_dump())
+                """
+
+            main.py :: """
+            from fastapi import FastAPI
+            from .routers import items
+            from .config import settings
+
+            app = FastAPI(title=settings.APP_NAME)
+
+            app.include_router(items.router, prefix="/api/v1/items", tags=["Items"])
+
+            @app.get("/health")
+            async def health():
+                return {"status": "resonant"}
+            """
+
+            # --- THE TEMPORAL MIGRATION STRATUM ---
+            migrations/
+                env.py :: """
+                import asyncio
+                from logging.config import fileConfig
+                from sqlalchemy import engine_from_config, pool
+                from sqlalchemy.ext.asyncio import AsyncEngine
+                from alembic import context
+                from {{ package_name }}.database import Base
+                from {{ package_name }}.models.item import Item # Import all models here
+
+                config = context.config
+                if config.config_file_name is not None:
+                    fileConfig(config.config_file_name)
+
+                target_metadata = Base.metadata
+
+                def run_migrations_offline() -> None:
+                    url = config.get_main_option("sqlalchemy.url")
+                    context.configure(
+                        url=url,
+                        target_metadata=target_metadata,
+                        literal_binds=True,
+                        dialect_opts={"paramstyle": "named"},
+                    )
+                    with context.begin_transaction():
+                        context.run_migrations()
+
+                def do_run_migrations(connection):
+                    context.configure(connection=connection, target_metadata=target_metadata)
+                    with context.begin_transaction():
+                        context.run_migrations()
+
+                async def run_migrations_online() -> None:
+                    connectable = AsyncEngine(
+                        engine_from_config(
+                            config.get_section(config.config_section, {}),
+                            prefix="sqlalchemy.",
+                            poolclass=pool.NullPool,
+                        )
+                    )
+                    async with connectable.connect() as connection:
+                        await connection.run_sync(do_run_migrations)
+                    await connectable.dispose()
+
+                if context.is_offline_mode():
+                    run_migrations_offline()
+                else:
+                    asyncio.run(run_migrations_online())
+                """
+                script.py.mako :: """
+                \"\"\"${message}
+
+                Revision ID: ${up_revision}
+                Revises: ${down_revision | comma,n}
+                Create Date: ${create_date}
+
+                \"\"\"
+                from typing import Sequence, Union
+                from alembic import op
+                import sqlalchemy as sa
+                ${imports if imports else ""}
+
+                # revision identifiers, used by Alembic.
+                revision: str = ${repr(up_revision)}
+                down_revision: Union[str, None] = ${repr(down_revision)}
+                branch_labels: Union[str, Sequence[str], None] = ${repr(branch_labels)}
+                depends_on: Union[str, Sequence[str], None] = ${repr(depends_on)}
+
+                def upgrade() -> None:
+                    ${upgrades if upgrades else "pass"}
+
+                def downgrade() -> None:
+                    ${downgrades if downgrades else "pass"}
+                """
+
+    # [6] THE DOCKER INFRASTRUCTURE
+    Dockerfile:
+        FROM python:3.13-slim as builder
+        WORKDIR /app
+        ENV POETRY_NO_INTERACTION=1 \
+            POETRY_VIRTUALENVS_IN_PROJECT=1 \
+            POETRY_VIRTUALENVS_CREATE=1
+        RUN apt-get update && apt-get install -y build-essential curl
+        RUN pip install poetry==1.8.2
+        COPY pyproject.toml poetry.lock ./
+        RUN poetry install --no-root --only main
+        
+        FROM python:3.13-slim
+        WORKDIR /app
+        COPY --from=builder /app/.venv /app/.venv
+        ENV PATH="/app/.venv/bin:$PATH"
+        COPY src /app/src
+        COPY .env.example /app/.env
+        EXPOSE 8000
+        CMD ["uvicorn", "src.{{ package_name }}.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
     docker-compose.yml:
         version: '3.8'
@@ -40,91 +445,41 @@ $$ package_name = {{ project_slug | snake }}
           api:
             build: .
             ports: ["8000:8000"]
+            env_file: .env
             volumes: ["./src:/app/src"]
-            env_file: .env
-            depends_on: [db]
+            depends_on:
+              db:
+                condition: service_healthy
+
           db:
-            image: postgres:15-alpine
-            volumes: ["postgres_data:/var/lib/postgresql/data/"]
-            env_file: .env
-        volumes:
-          postgres_data:
+            image: postgres:16-alpine
+            environment:
+              POSTGRES_USER: postgres
+              POSTGRES_PASSWORD: postgres
+              POSTGRES_DB: {{ db_name }}
+            healthcheck:
+              test: ["CMD-SHELL", "pg_isready -U postgres"]
+              interval: 5s
+              timeout: 5s
+              retries: 5
 
-    .env.example:
-        DATABASE_URL=postgresql+asyncpg://postgres:postgres@db/{{ package_name }}
-        POSTGRES_USER=postgres
-        POSTGRES_PASSWORD=postgres
-        POSTGRES_DB={{ package_name }}
-
-    Dockerfile:
-        FROM python:3.11-slim
-        WORKDIR /app
-        RUN pip install poetry
-        COPY pyproject.toml poetry.lock ./
-        RUN poetry install --no-root
-        COPY . .
-        CMD ["poetry", "run", "uvicorn", "src.{{ package_name }}.main:app", "--host", "0.0.0.0", "--port", "8000"]
-
-    src/
-        {{ package_name }}/
-            __init__.py
-            main.py:
-                from fastapi import FastAPI
-                from .database import engine
-
-                app = FastAPI()
-
-                @app.get("/health")
-                def health_check():
-                    return {"status": "pure"}
-
-            database.py:
-                from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-                from sqlalchemy.orm import sessionmaker, declarative_base
-                from .config import settings
-
-                engine = create_async_engine(settings.DATABASE_URL)
-                AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-                Base = declarative_base()
-
-            config.py:
-                from pydantic_settings import BaseSettings
-
-                class Settings(BaseSettings):
-                    DATABASE_URL: str
-                    class Config:
-                        env_file = ".env"
-                settings = Settings()
-
-            models.py:
-                from sqlalchemy import Column, Integer, String
-                from .database import Base
-
-                class Item(Base):
-                    __tablename__ = "items"
-                    id = Column(Integer, primary_key=True, index=True)
-                    name = Column(String, index=True)
-
-            schemas.py:
-                from pydantic import BaseModel
-
-                class ItemBase(BaseModel):
-                    name: str
-                class Item(ItemBase):
-                    id: int
-                    class Config:
-                        from_attributes = True
-
-            migrations/
-                env.py:
-                    # Alembic env.py script
-                script.py.mako:
-                    # Alembic script template
-                README :: "Alembic migrations"
-
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
-    poetry install
-    cp .env.example .env
-    # Initialize alembic with the correct models
-    poetry run alembic revision --autogenerate -m "Initial migration"
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the Dependencies
+    proclaim: "Summoning the SQLAlchemy Pantheon... (Poetry Install)"
+    make install
+
+    # 3. Final Proclamation
+    proclaim: "The FastAPI-SQLAlchemy Citadel is manifest."
+    proclaim: "To enter the cockpit:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]cp .env.example .env[/bold cyan]"
+    proclaim: "  3. [bold cyan]make docker-up[/bold cyan] (Ignites the Database)"
+    proclaim: "  4. [bold cyan]make dev[/bold cyan]"
+
+%% on-heresy
+    proclaim: "The data layer forge fractured. Purging the shards..."
+    rm -rf src/ pyproject.toml alembic.ini Dockerfile

@@ -1,0 +1,129 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: METABOLIC PROFILER (V-Ω-TOTALITY)                        ==
+# =================================================================================
+# @description: Injects a high-fidelity performance tomography engine. Measures the metabolic tax (latency, memory flux, I/O wait) of any rite or function, generating interactive flamegraphs and identifying cognitive bottlenecks in the logic layer.
+# @category: Velm-Core
+# @tags: performance, profiling, optimization, benchmarks, flamegraph, metabolic-tax
+# @difficulty: Master
+# @is_integration: true
+# @dna: profiler_type=deterministic, output_dir=artifacts/metabolism, use_viz=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ report_dir = "artifacts/metabolism"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE PROFILER CORE (Logic) ---
+src/{{ package_name }}/
+    core/
+        forensics/
+            __init__.py :: "from .metabolism import profile_rite, MetabolicReport"
+            
+            # [1] THE METABOLIC SENSORS
+            metabolism.py :: """
+            import time
+            import functools
+            import cProfile
+            import pstats
+            import io
+            import os
+            from pathlib import Path
+            from typing import Any, Callable
+
+            # [ASCENSION 1]: The Metabolic Report Vessel
+            class MetabolicReport:
+                def __init__(self, name: str, duration: float, memory_delta: float):
+                    self.name = name
+                    self.duration = duration
+                    self.memory_delta = memory_delta
+
+            def profile_rite(name: str):
+                \"\"\"
+                =============================================================================
+                == THE RITE OF TOMOGRAPHY (V-Ω-DECORATOR)                                  ==
+                =============================================================================
+                LIF: ∞ | ROLE: PRESSURE_SENSOR
+                \"\"\"
+                def decorator(func: Callable):
+                    @functools.wraps(func)
+                    def wrapper(*args, **kwargs):
+                        # [ASCENSION 2]: Deterministic Tomography
+                        pr = cProfile.Profile()
+                        pr.enable()
+                        
+                        start_time = time.perf_counter()
+                        result = func(*args, **kwargs)
+                        duration = time.perf_counter() - start_time
+                        
+                        pr.disable()
+                        
+                        # [ASCENSION 5]: Materialize Findings
+                        _inscribe_finding(name, pr, duration)
+                        
+                        return result
+                    return wrapper
+                return decorator
+
+            def _inscribe_finding(name: str, profile: cProfile.Profile, duration: float):
+                dest = Path("{{ report_dir }}")
+                dest.mkdir(parents=True, exist_ok=True)
+                
+                # 1. Textual Dossier
+                s = io.StringIO()
+                ps = pstats.Stats(profile, stream=s).sort_stats('cumulative')
+                ps.print_stats()
+                
+                report_file = dest / f"{name}_pulse.txt"
+                report_file.write_text(s.getvalue())
+                
+                # 2. [ASCENSION 11]: Binary Snapshot for Flamegraphs
+                profile.dump_stats(dest / f"{name}_raw.prof")
+                
+                print(f"📊 [METABOLISM] {name} concluded: {duration*1000:.2f}ms. Finding willed to {{ report_dir }}/")
+            """
+
+# --- III. THE KINETIC LIMBS (Visualization) ---
+scripts/forensics/
+    visualize_metabolism.py :: """
+    #!/usr/bin/env python3
+    import os
+    from pathlib import Path
+
+    def ignite_viz():
+        print("🔭 [PROFILER] Transmuting raw pulses into visual light...")
+        # Future: Use snakeviz or gprof2dot to forge SVGs
+        print("Finding raw profiles in '{{ report_dir }}'...")
+        for p in Path('{{ report_dir }}').glob('*.prof'):
+             print(f"   -> [Gnostic Hint]: Run 'snakeviz {p}' to behold the Flamegraph.")
+
+    if __name__ == "__main__":
+        ignite_viz()
+    """
+
+# --- IV. THE CONTROL PLANE ---
+Makefile:
+	.PHONY: metabolism-viz metabolism-clean
+
+	metabolism-viz: ## Transmute raw metabolic data into interactive visuals
+		@poetry run python scripts/forensics/visualize_metabolism.py
+
+	metabolism-clean: ## Return metabolic shards to the void
+		@rm -rf {{ report_dir }}/*.prof {{ report_dir }}/*.txt
+		@echo "✨ Metabolism purified."
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Metabolic Profiler manifest in 'core/forensics/'."
+    
+    # Dependencies
+    proclaim: "Summoning the visualization artisans... (snakeviz)"
+    >> poetry add snakeviz --group dev
+    ?? succeeds
+
+    proclaim: "[bold green]✅ Profiler Online.[/bold green]"
+    proclaim: "Use the [bold]@profile_rite('Name')[/bold] decorator to measure metabolic tax."
+    proclaim: "To visualize, speak: [bold cyan]make metabolism-viz[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Profiler inception failed.[/bold red]"
+    rm -rf src/{{ package_name }}/core/forensics/metabolism.py

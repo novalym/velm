@@ -1,0 +1,179 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: TITANIUM CI/CD SYMPHONY (V-Ω-TOTALITY)                   ==
+# =================================================================================
+# @description: A legendary, production-grade GitHub Actions pipeline matrix. 
+#               Features Gnostic drift adjudication, multi-version testing, 
+#               Trivy/Bandit security tomography, and OIDC-based PyPI ascension.
+# @category: Automation
+# @tags: ci-cd, github-actions, python, security, testing, pypi, oidc, automation
+# @difficulty: Master
+# @is_integration: true
+# @dna: use_github_actions=true, python_version=3.12, target_env=production
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ main_branch = "main"
+$$ dev_branch = "develop"
+$$ python_versions = ["3.11", "3.12"]
+$$ max_complexity_score = 20
+
+# --- II. THE TITANIUM PIPELINE SCRIPTURES ---
+.github/
+    workflows/
+        # [1] THE TITAN'S GAZE (MAIN CI)
+        titanium_integrity.yml :: """
+        name: Ω | Titanium Integrity Adjudication
+        
+        on:
+          push:
+            branches: ["{{ main_branch }}", "{{ dev_branch }}"]
+          pull_request:
+            branches: ["{{ main_branch }}"]
+          workflow_dispatch:
+
+        # [ASCENSION 1]: CONCURRENCY WARD
+        # Prevents race conditions from simultaneous pushes on the same PR.
+        concurrency:
+          group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+          cancel-in-progress: true
+
+        permissions:
+          contents: read
+          security-events: write
+          id-token: write # For OIDC publishing
+
+        jobs:
+          # --- MOVEMENT I: GNOSTIC LINTING & FORM ---
+          lint:
+            name: Purity Inquest (Ruff & Mypy)
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v4
+              - name: Consecrate Python Environment
+                uses: actions/setup-python@v5
+                with:
+                  python-version: '{{ python_versions[-1] }}'
+                  cache: 'poetry'
+              - name: Summon Dependencies
+                run: poetry install
+              - name: Audit Gnostic Form (Ruff)
+                run: poetry run ruff check .
+              - name: Adjudicate Type Purity (Mypy)
+                run: poetry run mypy src/
+
+          # --- MOVEMENT II: UNIT & INTEGRATION TESTING ---
+          test:
+            name: Reality Adjudication (Pytest)
+            needs: lint
+            runs-on: ubuntu-latest
+            strategy:
+              fail-fast: false
+              matrix:
+                python-version: {{ python_versions | tojson }}
+            
+            steps:
+              - uses: actions/checkout@v4
+              - name: Consecrate Python ${{ matrix.python-version }}
+                uses: actions/setup-python@v5
+                with:
+                  python-version: ${{ matrix.python-version }}
+                  cache: 'poetry'
+              - name: Summon Dependencies
+                run: poetry install
+              - name: Conduct Unit Inquisition
+                run: poetry run pytest --cov --cov-report=xml
+              - name: Upload Coverage to Codecov
+                uses: codecov/codecov-action@v3
+                with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  fail_ci_if_error: true
+
+          # --- MOVEMENT III: SECURITY TOMOGRAPHY ---
+          security:
+            name: Security Aegis (Trivy & Bandit)
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v4
+              - name: Trivy Filesystem Scan
+                uses: aquasecurity/trivy-action@master
+                with:
+                  scan-type: 'fs'
+                  ignore-unfixed: true
+                  format: 'sarif'
+                  output: 'trivy-results.sarif'
+                  severity: 'CRITICAL,HIGH'
+              - name: Upload Trivy scan results to GitHub Security tab
+                uses: github/codeql-action/upload-sarif@v2
+                with:
+                  sarif_file: 'trivy-results.sarif'
+              
+              - name: Summon Python for Bandit
+                uses: actions/setup-python@v5
+                with: { python-version: '3.11' }
+              - run: pip install bandit
+              - name: Bandit Security Analysis
+                run: bandit -r src/ -f sarif -o bandit-results.sarif || true
+              - name: Upload Bandit scan results
+                uses: github/codeql-action/upload-sarif@v2
+                with:
+                  sarif_file: 'bandit-results.sarif'
+
+          # --- MOVEMENT IV: VELM GNOSTIC DRIFT ---
+          velm-verify:
+            name: Gnostic Drift Adjudication
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v4
+              - run: pip install velm-cli
+              - name: Adjudicate Gnostic Drift (velm verify)
+                run: velm verify --strict
+        """
+
+        # [2] THE CELESTIAL ASCENSION (RELEASE)
+        titanium_release.yml :: """
+        name: Ω | Celestial Ascension
+        
+        on:
+          push:
+            tags:
+              - 'v*.*.*'
+        
+        permissions:
+          id-token: write
+        
+        jobs:
+          pypi-publish:
+            name: Proclaim to PyPI
+            runs-on: ubuntu-latest
+            environment:
+              name: pypi
+              url: https://pypi.org/p/{{ project_slug }}
+            
+            steps:
+              - uses: actions/checkout@v4
+              - uses: actions/setup-python@v5
+                with: { python-version: '3.11' }
+              - name: Install Poetry
+                run: pip install poetry
+              - run: poetry install
+              - run: poetry build
+              - name: Proclaim to PyPI via OIDC
+                uses: pypa/gh-action-pypi-publish@release/v1
+        """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Titanium Lifecycle Symphony[/bold cyan] is materializing in '.github/workflows/'..."
+    
+    # Surgical excision of standard weak-matter workflows
+    proclaim: "[dim]Annihilating profane, legacy CI scriptures...[/dim]"
+    >> rm -f .github/workflows/main.yml
+    >> rm -f .github/workflows/python-app.yml
+    >> rm -f .github/workflows/ci.yml
+    >> rm -f .github/workflows/publish.yml
+    
+    proclaim: "[bold green]✅ Pipeline Hardened.[/bold green] The Gnostic Sentinels are now vigilant."
+    proclaim: "To enable PyPI ascension, configure a [yellow]'pypi'[/yellow] environment in your GitHub repository settings."
+
+%% on-heresy
+    proclaim: "[danger]Hardening failed.[/danger] Ensure the '.github/workflows' sanctum is accessible."

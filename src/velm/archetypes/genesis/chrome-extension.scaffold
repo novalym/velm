@@ -1,101 +1,385 @@
-# Path: scaffold/archetypes/genesis/chrome-extension.scaffold
-# -------------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: CHROME EXTENSION CRUCIBLE (V-Ω-TOTALITY)                 ==
+# =================================================================================
+# @description: A hyper-modular, production-grade Chrome Extension architecture. 
+#               Features Vite 5, TypeScript, Tailwind CSS, type-safe messaging, 
+#               Options syncing, and Side Panel support.
+# @category: Utility
+# @tags: browser, extension, manifest-v3, typescript, vite, tailwind, productivity
+# @difficulty: Adept
+# @is_integration: false
+# @dna: project_type=node, use_typescript=true, use_tailwind=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: CHROME EXTENSION CRUCIBLE (V-Ω-MANIFEST-V3)      ==
-# =================================================================================
-# @description: A production-ready Chrome Extension using Manifest V3, TypeScript,
-#               and Vite for a modern, hot-reloading build process.
-# =================================================================================
+# --- I. THE ALTAR OF VARIABLES ---
+$$ project_name = "nebula-lens"
+$$ author = "The Architect"
+$$ description = "A sovereign Gnostic eye for the modern browser."
+$$ default_side_panel = "src/sidepanel/index.html"
 
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
 
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: "node_modules/\ndist/"
-    README.md :: "## Chrome Extension Crucible\n- `npm install`\n- `npm run dev` (for hot-reloading)\n- `npm run build` (for production)\n- Load the `dist/` directory into Chrome."
 
-    package.json:
-        {
-          "name": "{{ project_slug }}",
-          "private": true,
-          "version": "0.0.1",
-          "type": "module",
-          "scripts": {
-            "dev": "vite build --watch",
-            "build": "vite build"
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        node_modules/
+        dist/
+        *.zip
+        .DS_Store
+        .env
+        .env.local
+
+    package.json :: """
+    {
+      "name": "{{ project_slug }}",
+      "displayName": "{{ project_name }}",
+      "version": "1.0.0",
+      "author": "{{ author }}",
+      "description": "{{ description }}",
+      "type": "module",
+      "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "zip": "node scripts/pack.js",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "format": "prettier --write ."
+      },
+      "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "lucide-react": "latest",
+        "clsx": "latest",
+        "tailwind-merge": "latest"
+      },
+      "devDependencies": {
+        "@types/chrome": "^0.0.260",
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "@vitejs/plugin-react": "^4.2.0",
+        "autoprefixer": "^10.4.16",
+        "postcss": "^8.4.31",
+        "tailwindcss": "^3.3.5",
+        "typescript": "^5.2.2",
+        "vite": "^5.0.0",
+        "jszip": "latest"
+      }
+    }
+    """
+
+    tsconfig.json :: """
+    {
+      "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "lib": ["DOM", "DOM.Iterable", "ESNext"],
+        "allowJs": false,
+        "skipLibCheck": true,
+        "esModuleInterop": false,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        "baseUrl": ".",
+        "paths": {
+          "@/*": ["src/*"]
+        }
+      },
+      "include": ["src"],
+      "references": [{ "path": "./tsconfig.node.json" }]
+    }
+    """
+
+    vite.config.ts :: """
+    import { resolve } from 'path'
+    import { defineConfig } from 'vite'
+    import react from '@vitejs/plugin-react'
+
+    /**
+     * =============================================================================
+     * == THE MULTI-ENTRY FORGE                                                   ==
+     * =============================================================================
+     * Extensions require multiple entry points that do not share the same 
+     * environment. Vite is configured here to split the atom correctly.
+     */
+    export default defineConfig({
+      plugins: [react()],
+      resolve: {
+        alias: {
+          '@': resolve(__dirname, './src'),
+        },
+      },
+      build: {
+        rollupOptions: {
+          input: {
+            popup: resolve(__dirname, 'src/popup/index.html'),
+            options: resolve(__dirname, 'src/options/index.html'),
+            sidepanel: resolve(__dirname, 'src/sidepanel/index.html'),
+            background: resolve(__dirname, 'src/background/index.ts'),
+            content: resolve(__dirname, 'src/content/index.ts'),
           },
-          "devDependencies": {
-            "@types/chrome": "^0.0.260",
-            "typescript": "^5.3.0",
-            "vite": "^5.1.0"
+          output: {
+            entryFileNames: (chunkInfo) => {
+                // Background and Content must remain predictable for the manifest
+                return ['background', 'content'].includes(chunkInfo.name) 
+                    ? '[name].js' 
+                    : 'assets/[name]-[hash].js'
+            }
           }
         }
+      }
+    })
+    """
 
-    vite.config.ts:
-        import { resolve } from 'path';
-        import { defineConfig } from 'vite';
-
-        export default defineConfig({
-          build: {
-            rollupOptions: {
-              input: {
-                background: resolve(__dirname, 'src/background.ts'),
-                content: resolve(__dirname, 'src/content.ts'),
-                popup: resolve(__dirname, 'src/popup/index.html')
-              },
-              output: {
-                entryFileNames: '[name].js',
-                chunkFileNames: 'chunks/[name].js',
-                assetFileNames: 'assets/[name].[ext]'
-              }
-            }
-          }
-        });
-
+    # [2] THE GNOSTIC MANIFEST (MV3)
     public/
-        manifest.json:
+        manifest.json :: """
+        {
+          "manifest_version": 3,
+          "name": "{{ project_name }}",
+          "version": "1.0.0",
+          "description": "{{ description }}",
+          "permissions": [
+            "storage",
+            "activeTab",
+            "sidePanel",
+            "scripting"
+          ],
+          "action": {
+            "default_popup": "src/popup/index.html",
+            "default_title": "Open {{ project_name }}"
+          },
+          "background": {
+            "service_worker": "background.js",
+            "type": "module"
+          },
+          "content_scripts": [
             {
-              "manifest_version": 3,
-              "name": "{{ project_name }}",
-              "version": "1.0",
-              "description": "A Gnostic Chrome Extension.",
-              "permissions": ["storage", "activeTab"],
-              "action": {
-                "default_popup": "src/popup/index.html"
-              },
-              "background": {
-                "service_worker": "background.js",
-                "type": "module"
-              },
-              "content_scripts": [
-                {
-                  "matches": ["<all_urls>"],
-                  "js": ["content.js"]
-                }
-              ]
+              "matches": ["<all_urls>"],
+              "js": ["content.js"],
+              "run_at": "document_idle"
             }
+          ],
+          "options_ui": {
+            "page": "src/options/index.html",
+            "open_in_tab": true
+          },
+          "side_panel": {
+            "default_path": "src/sidepanel/index.html"
+          },
+          "web_accessible_resources": [
+            {
+              "resources": ["assets/*"],
+              "matches": ["<all_urls>"]
+            }
+          ]
+        }
+        """
 
+    # [3] THE SOURCE (THE SOUL)
     src/
-        background.ts:
-            console.log("Background service worker is manifest.");
+        # --- THE NERVOUS SYSTEM (SHARED) ---
+        shared/
+            bus.ts :: """
+            /**
+             * [THE MESSAGE BUS]
+             * Type-safe communication between Content, Background, and UI.
+             */
+            export type GnosticIntent = 
+                | { type: 'SCRY_PAGE'; payload: { url: string } }
+                | { type: 'VAL_STORE'; payload: { key: string, val: any } }
+                | { type: 'LOG_HERESY'; payload: { msg: string } };
 
-        content.ts:
-            console.log("Content script has been injected into the page soul.");
-        
+            export const dispatchToBackground = (intent: GnosticIntent) => {
+                return chrome.runtime.sendMessage(intent);
+            }
+            """
+
+        # --- THE SERVICE WORKER (CORE) ---
+        background/
+            index.ts :: """
+            import { GnosticIntent } from '../shared/bus';
+
+            console.log("Ω | Background Sentinel Awakening...");
+
+            chrome.runtime.onInstalled.addListener(() => {
+                console.log("Ω | Genesis sequence confirmed.");
+            });
+
+            // Handle Side Panel opening on click
+            chrome.sidePanel
+              .setPanelBehavior({ openPanelOnActionClick: true })
+              .catch((error) => console.error(error));
+
+            chrome.runtime.onMessage.addListener((message: GnosticIntent, sender, sendResponse) => {
+                console.log("Incoming Intent:", message.type, "from", sender.tab?.id);
+                
+                if (message.type === 'SCRY_PAGE') {
+                    // Logic to analyze page
+                    sendResponse({ status: 'RESONANT' });
+                }
+                return true; // Keep channel open for async
+            });
+            """
+
+        # --- THE OCULAR MEMBRANE (CONTENT) ---
+        content/
+            index.ts :: """
+            import { dispatchToBackground } from '../shared/bus';
+
+            console.log("Ω | Content Script injected into soul of page.");
+
+            // Example: Signal background on load
+            dispatchToBackground({ 
+                type: 'SCRY_PAGE', 
+                payload: { url: window.location.href } 
+            });
+            """
+            style.css:
+                /* Injected styles (use prefix to avoid collisions) */
+                .velm-highlighter {
+                    outline: 2px solid #64ffda !important;
+                    background: rgba(100, 255, 218, 0.1) !important;
+                }
+
+        # --- THE UI SANCTUMS ---
         popup/
-            index.html:
-                <!doctype html>
-                <html>
-                  <head><title>Popup</title></head>
-                  <body>
-                    <h1>Gnostic Popup</h1>
-                    <script type="module" src="./main.ts"></script>
-                  </body>
-                </html>
+            index.html :: """
+            <!DOCTYPE html>
+            <html lang="en">
+              <head>
+                <meta charset="UTF-8" />
+                <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <title>{{ project_name }} Popup</title>
+              </head>
+              <body class="bg-black text-white w-[350px] min-h-[400px]">
+                <div id="root"></div>
+                <script type="module" src="./main.tsx"></script>
+              </body>
+            </html>
+            """
+            main.tsx :: """
+            import React from 'react'
+            import ReactDOM from 'react-dom/client'
+            import App from './App'
+            import '@/styles/global.css'
 
-            main.ts:
-                console.log("Popup script is manifest.");
+            ReactDOM.createRoot(document.getElementById('root')!).render(
+              <React.StrictMode>
+                <App />
+              </React.StrictMode>,
+            )
+            """
+            App.tsx :: """
+            import { Zap, ShieldCheck } from 'lucide-react';
 
+            export default function App() {
+                return (
+                    <div className="p-6 flex flex-col gap-6">
+                        <header className="flex items-center gap-3">
+                            <Zap className="text-teal-400" />
+                            <h1 className="font-black uppercase tracking-tighter text-xl italic">
+                                {{ project_name }}
+                            </h1>
+                        </header>
+                        <main className="bg-white/5 border border-white/10 p-4 rounded-lg">
+                            <p className="text-xs text-slate-400 leading-relaxed font-mono">
+                                LATTICE_STATUS: <span className="text-teal-400">RESONANT</span>
+                            </p>
+                        </main>
+                        <footer className="flex items-center justify-between opacity-30">
+                             <span className="text-[8px] font-bold uppercase tracking-widest">Titan_Link_v1</span>
+                             <ShieldCheck size={12} />
+                        </footer>
+                    </div>
+                )
+            }
+            """
+
+        sidepanel/
+            index.html :: """
+            <!DOCTYPE html>
+            <html>
+              <head><meta charset="UTF-8" /></head>
+              <body class="bg-zinc-950 text-zinc-100 p-4 font-sans">
+                <h1 class="text-2xl font-black italic">SIDE_PANEL</h1>
+                <p class="text-zinc-500 mt-2">Gnostic data feed active.</p>
+              </body>
+            </html>
+            """
+
+        styles/
+            global.css :: """
+            @tailwind base;
+            @tailwind components;
+            @tailwind utilities;
+
+            @layer base {
+                body {
+                    @apply bg-neutral-950 text-neutral-100 antialiased;
+                }
+            }
+            """
+
+    # [4] PACKAGING ARTIFACTS
+    scripts/
+        pack.js :: """
+        import fs from 'fs';
+        import archiver from 'jszip'; // Simple wrapper or use archiver lib
+        
+        console.log("Ω | Packaging Celestial Vessel for distribution...");
+        // Logic to zip the dist/ folder for Chrome Web Store
+        """
+
+    # [5] THE CONTROL PLANE
+    Makefile:
+        .PHONY: help install dev build pack
+
+        $PROJECT_NAME = {{ project_slug }}
+
+        help: ## Proclaim available rites
+          @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+        install: ## Summon dependencies
+          npm install
+
+        dev: ## Ignite the hot-reloading forge
+          npm run dev
+
+        build: ## Transmute source to production manifest
+          npm run build
+
+        pack: build ## Bundle for the Chrome Web Store
+          npm run zip
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the Dependencies
+    proclaim: "Summoning the Node Modules (The toolchain for browser augmentation)..."
     npm install
+
+    # 3. Proclamation
+    proclaim: "The Chrome Extension Crucible is manifest."
+    proclaim: "To begin development:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]npm run build[/bold cyan] (Initial compile)"
+    proclaim: "  3. Open Chrome -> [bold]chrome://extensions[/bold]"
+    proclaim: "  4. Enable 'Developer mode' -> 'Load unpacked'"
+    proclaim: "  5. Select the [bold cyan]dist/[/bold cyan] folder."
+    proclaim: "  6. Run [bold cyan]npm run dev[/bold cyan] for hot-reloading."
+
+%% on-heresy
+    proclaim: "The forging of the Extension faltered. Cleaning the sanctum..."
+    rm -rf src/ public/ vite.config.ts package.json

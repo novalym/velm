@@ -1,0 +1,112 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: GNOSTIC TUI COCKPIT (V-Ω-TOTALITY)                       ==
+# =================================================================================
+# @description: Materializes a high-status Terminal User Interface (TUI) dashboard. Connects to the Reactive Hub to project real-time system metrics, active rites, and distributed logs into a beautiful, ASCII-optimized cockpit.
+# @category: System
+# @tags: tui, dashboard, textual, monitoring, visualization, terminal, async
+# @difficulty: Master
+# @is_integration: true
+# @dna: library=textual, use_ws=true, default_theme=obsidian
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ ws_url = "ws://localhost:8000/ws/gnosis"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE COCKPIT CORE (TUI Stratum) ---
+src/{{ package_name }}/
+    ui/
+        __init__.py :: ""
+        
+        # [1] THE COCKPIT ENGINE (Textual)
+        cockpit.py :: """
+        import asyncio
+        from textual.app import App, ComposeResult
+        from textual.widgets import Header, Footer, Static, DataTable, Log
+        from textual.containers import Container, Horizontal, Vertical
+        import socketio
+
+        # [ASCENSION 1]: The Ocular Link
+        # Connects to the Reactive Hub
+        sio = socketio.AsyncClient()
+
+        class VitalsPanel(Static):
+            \"\"\"Displays hardware tomography.\"\"\"
+            def update_vitals(self, data: dict):
+                content = f"CPU: {data.get('cpu_percent')}% | RAM: {data.get('mem_percent')}%"
+                self.update(content)
+
+        class GnosticCockpit(App):
+            \"\"\"
+            =============================================================================
+            == THE GNOSTIC COCKPIT (V-Ω-TERMINAL-HUD)                                  ==
+            =============================================================================
+            LIF: ∞ | ROLE: SYSTEM_OBSERVATORY | RANK: OMEGA
+            \"\"\"
+            CSS = \"\"\"
+            Screen {
+                background: #020202;
+            }
+            #main-layout {
+                height: 100%;
+            }
+            .panel {
+                border: solid #64ffda;
+                padding: 1;
+                margin: 1;
+            }
+            \"\"\"
+            BINDINGS = [(\"q\", \"quit\", \"Exit Cockpit\"), (\"p\", \"pulse\", \"Send Test Pulse\")]
+
+            def compose(self) -> ComposeResult:
+                yield Header(show_clock=True)
+                with Vertical(id=\"main-layout\"):
+                    with Horizontal():
+                        yield VitalsPanel(\"Awaiting Gnosis...\", classes=\"panel\", id=\"vitals\")
+                        yield Static(\"Lattice Status: RESONANT\", classes=\"panel\")
+                    yield Log(id=\"event-log\", classes=\"panel\")
+                yield Footer()
+
+            async def on_mount(self):
+                \"\"\"Ignites the Neural Link.\"\"\"
+                try:
+                    await sio.connect(\"{{ ws_url }}\")
+                    self.query_one(\"#event-log\").write_line(\"✅ Linked to Reactive Hub.\")
+                except:
+                    self.query_one(\"#event-log\").write_line(\"❌ Link Failed. Is the Hub Online?\")
+
+                @sio.on(\"system/vitals\", namespace=\"/gnosis\")
+                async def handle_vitals(data):
+                    self.query_one(\"#vitals\").update_vitals(data)
+                    self.query_one(\"#event-log\").write_line(f\"💓 Pulse Received: {data['ts']}\")
+
+            async def action_pulse(self):
+                await sio.emit(\"client/pulse\", {\"msg\": \"Architect is watching\"}, namespace=\"/gnosis\")
+
+        if __name__ == \"__main__\":
+            app = GnosticCockpit()
+            app.run()
+        """
+
+# --- III. THE CONTROL PLANE (Makefile) ---
+Makefile:
+	.PHONY: cockpit
+
+	cockpit: ## Awaken the Gnostic TUI Cockpit
+		@echo "🚀 Igniting the Observatory..."
+		@poetry run python src/{{ package_name }}/ui/cockpit.py
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Gnostic TUI Cockpit[/bold cyan] is manifest in 'ui/cockpit.py'."
+    
+    # 1. Install Textual
+    proclaim: "Summoning the Visual artisans... (textual & python-socketio)"
+    >> poetry add textual python-socketio[asyncio_client]
+    ?? succeeds
+
+    proclaim: "[bold green]✅ Cockpit Ready.[/bold green]"
+    proclaim: "To enter the cockpit: [bold cyan]make cockpit[/bold cyan]"
+
+%% on-heresy
+    proclaim: "Cockpit inception failed."

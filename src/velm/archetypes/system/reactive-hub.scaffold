@@ -1,0 +1,198 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: REACTIVE HUB (V-Ω-TOTALITY)                             ==
+# =================================================================================
+# @description: Materializes a high-velocity, bi-directional event bus using Socket.io and Redis Pub/Sub. Enables real-time state synchronization (<10ms) between the Pythonic Mind and Ocular UI Membranes across a microservice mesh.
+# @category: System
+# @tags: websocket, socketio, redis, pubsub, real-time, event-bus, async, fastapi
+# @difficulty: Master
+# @is_integration: true
+# @dna: redis_url=redis://localhost:6379/0, namespace=/gnosis, mount_path=/ws
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ redis_url = "redis://reactive-backbone:6379/0"
+$$ namespace = "/gnosis"
+$$ port = 8000
+
+# Contextual Triage
+$$ is_python = {{ (project_type in ['python', 'poetry', 'fastapi']) | default(true) }}
+$$ is_node = {{ (project_type in ['node', 'nextjs', 'express']) | default(false) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE KINETIC INFRASTRUCTURE (Matter) ---
+infra/reactive/
+    docker-compose.reactive.yml :: """
+    version: '3.8'
+    services:
+      # [THE BACKBONE]: Redis for Event Distribution
+      reactive-backbone:
+        image: redis:7-alpine
+        container_name: {{ project_slug }}_event_bus
+        command: redis-server --loglevel warning --maxmemory 128mb --maxmemory-policy allkeys-lru
+        ports:
+          - "6379:6379"
+        networks:
+          - gnostic_mesh
+        healthcheck:
+          test: ["CMD", "redis-cli", "ping"]
+          interval: 5s
+          timeout: 3s
+          retries: 5
+
+    networks:
+      gnostic_mesh:
+        external: true
+        name: {{ project_slug }}_gnostic_mesh
+    """
+
+# --- III. THE SURGICAL WEAVE: PYTHON / FASTAPI (The Conductor) ---
+@if {{ is_python }}
+src/{{ package_name }}/
+    core/
+        synapse.py :: """
+        import os
+        import logging
+        from fastapi_socketio import SocketManager
+        
+        Logger = logging.getLogger("Synapse:Hub")
+
+        class SynapticBus:
+            \"\"\"
+            =============================================================================
+            == THE SYNAPTIC HUB (V-Ω-SOCKET-IO-CONDUCTOR)                             ==
+            =============================================================================
+            LIF: ∞ | ROLE: REAL-TIME_SYNCHRONIZER | RANK: OMEGA
+            
+            Orchestrates bi-directional data flow between the Logic Layer and the 
+            connected Ocular Membranes.
+            \"\"\"
+            def __init__(self, app):
+                # [ASCENSION 1]: The WebSocket Aperture
+                # We initialize with full CORS amnesty to allow cross-origin UIs.
+                self.sm = SocketManager(
+                    app=app, 
+                    mount_location='/ws', 
+                    jsonrpc=True,
+                    cors_allowed_origins="*"
+                )
+                
+            def broadcast_truth(self, event: str, data: dict):
+                \"\"\"Projects a reality shift to all connected observers.\"\"\"
+                Logger.info(f"📡 [HUB] Broadcasting: {event}")
+                return self.sm.emit(event, data, namespace='{{ namespace }}')
+
+            # [FACULTY 2]: REDIS PUB/SUB ADAPTER (Prophecy)
+            # Note: In multi-node deployments, use the Redis manager for the bus.
+        """
+
+    # THE SURGICAL SUTURE: Inject into main.py
+    main.py ^= """
+    from .core.synapse import SynapticBus
+    """
+
+    main.py += """
+    # [Gnostic Suture]: Engaging the Reactive Hub
+    # The Synaptic Bus is now bound to the application heartbeat.
+    synapse = SynapticBus(app)
+
+    @synapse.sm.on('connect', namespace='{{ namespace }}')
+    async def handle_ocular_link(sid, environ):
+        print(f"👁️  [OCULAR] Membrane Linked: {sid}")
+
+    @synapse.sm.on('disconnect', namespace='{{ namespace }}')
+    async def handle_ocular_sever(sid):
+        print(f"🌑 [OCULAR] Membrane Severed: {sid}")
+
+    # Expose to state for global access in logic strata
+    app.state.synapse = synapse
+    """
+
+    # Dependencies
+    pyproject.toml += """
+    fastapi-socketio = "^0.0.10"
+    python-socketio = {extras = ["asyncio_client"], version = "^5.11.0"}
+    redis = "^5.0.0"
+    """
+@endif
+
+# --- IV. THE SURGICAL WEAVE: NODE / TYPESCRIPT (The Eye) ---
+@if {{ is_node }}
+src/core/
+    synapse.ts :: """
+    import { Server } from 'socket.io';
+    import { createAdapter } from '@socket.io/redis-adapter';
+    import { createClient } from 'redis';
+
+    /**
+     * [THE GNOSTIC CONDUIT]: Node.js/TypeScript Implementation
+     */
+    export const initReactiveHub = async (httpServer: any) => {
+      const io = new Server(httpServer, {
+        cors: { origin: "*" },
+        path: "/ws"
+      });
+
+      // [ASCENSION 3]: Redis Pub/Sub for horizontal swarm scaling
+      const pubClient = createClient({ url: process.env.REDIS_URL || '{{ redis_url }}' });
+      const subClient = pubClient.duplicate();
+      
+      await Promise.all([pubClient.connect(), subClient.connect()]);
+      io.adapter(createAdapter(pubClient, subClient));
+
+      const hubNamespace = io.of('{{ namespace }}');
+      
+      hubNamespace.on('connection', (socket) => {
+        console.log(`👁️  [OCULAR] Membrane Linked: ${socket.id}`);
+        
+        socket.on('disconnect', () => {
+          console.log(`🌑 [OCULAR] Membrane Severed: ${socket.id}`);
+        });
+      });
+
+      return io;
+    };
+    """
+
+    server.ts ^= """
+    import { createServer } from 'http';
+    import { initReactiveHub } from './core/synapse';
+    """
+
+    server.ts += """
+    // [Gnostic Suture]: Reactive Hub Ignition
+    const httpServer = createServer(app);
+    initReactiveHub(httpServer).then(() => {
+        console.log("📡 [SYSTEM] Reactive Hub: SYNAPTIC_LINK_READY");
+    });
+    // ARCHITECTURAL NOTE: Call httpServer.listen() instead of app.listen()
+    """
+
+    package.json:
+        dependencies += {
+            "socket.io": "^4.7.5",
+            "redis": "^4.6.13",
+            "@socket.io/redis-adapter": "^8.3.0",
+            "ioredis": "^5.4.1"
+        }
+@endif
+
+# --- V. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Reactive Hub[/bold cyan] is materializing."
+    
+    # 1. Sanctum Preparation
+    >> mkdir -p infra/reactive
+    >> mkdir -p src/{{ package_name }}/core
+
+    # 2. Network Verification
+    proclaim: "Verifying Gnostic Mesh network..."
+    >> docker network create {{ project_slug }}_gnostic_mesh || true
+    
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Synaptic Bus is Online.[/bold green]"
+    proclaim: "To power the backbone, speak: [bold cyan]docker-compose -f infra/reactive/docker-compose.reactive.yml up -d[/bold cyan]"
+    proclaim: "Interface: [magenta]{{ namespace }}[/magenta] at [magenta]/ws[/magenta]"
+
+%% on-heresy
+    proclaim: "[bold red]Hub Inception Fractured.[/bold red] Purging shards..."
+    rm -rf infra/reactive/ src/{{ package_name }}/core/synapse.py

@@ -1,123 +1,341 @@
-# Path: scaffold/archetypes/genesis/docs-mkdocs.scaffold
-# ------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: THE LUMINOUS CODEX (V-Ω-TOTALITY)                        ==
+# =================================================================================
+# @description: A transcendent, high-fidelity documentation engine. Features 
+#               MkDocs Material, Mermaid diagrams, Social Cards, and localized 
+#               temporal provenance. Ready for GitHub Pages ascension.
+# @category: Utility
+# @tags: mkdocs, material, markdown, mermaid, ssg, codex, documentation
+# @difficulty: Adept
+# @is_integration: false
+# @dna: python_version=3.11, use_ci=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: LUMINOUS SCRIPTURE (V-Ω-STRUCTURAL-PURITY)       ==
-# =================================================================================
-# @description: A modern, beautiful, and searchable documentation site forged with
-#               MkDocs and Material for MkDocs. Ready for automated deployment.
-# =================================================================================
+# --- I. THE ALTAR OF VARIABLES ---
+$$ project_name = "Velm-Codex"
+$$ author = "The Architect"
+$$ site_description = "The Gnostic Scripture of Architecture."
+$$ theme_color = "#64ffda"
+$$ github_username = {{ git_org | default("novalym") }}
 
-# --- I. The Altar of Gnostic Will ---
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
-$$ github_username = {{ git_org | default("your-org") }}
-$$ author = {{ author }}
+$$ repo_url = "https://github.com/{{ github_username }}/{{ project_slug }}"
 
-# --- II. The Scripture of Form ---
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: """
-    __pycache__/
-    .venv/
-    site/
-    .DS_Store
-    """
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        __pycache__/
+        .venv/
+        site/
+        .DS_Store
+        .python-version
+        .ipynb_checkpoints/
 
     requirements.txt:
-        mkdocs>=1.5.0
-        mkdocs-material>=9.5.0
-
-    README.md :: """
-    # {{ project_name }} - A Luminous Scripture
-
-    This sanctum contains a documentation site forged with [MkDocs](https://www.mkdocs.org/) and [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
-
-    ## Rites of the Scribe
-
-    - `make install`: Summons the Scribe's tools.
-    - `make serve`: Awakens a live-reloading server to gaze upon your work.
-    - `make deploy`: Proclaims your Gnosis to the GitHub Pages cosmos.
-    """
+        mkdocs>=1.5.3
+        mkdocs-material>=9.5.3
+        mkdocs-mermaid2-plugin>=0.5.2
+        mkdocs-minify-plugin>=0.7.1
+        mkdocs-git-revision-date-localized-plugin>=1.2.1
+        pymdown-extensions>=10.7
 
     Makefile:
-        .PHONY: help install serve build deploy
+        .PHONY: help install serve build deploy clean
+        
+        $VENV = .venv
+        $BIN = $(VENV)/bin
+        ifeq ($(OS),Windows_NT)
+            $BIN = $(VENV)/Scripts
+        endif
 
-        VENV_DIR = .venv
-        PYTHON_EXEC = $(VENV_DIR)/Scripts/python
+        help: ## Proclaim available Scribe rites
+          @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-        help:
-        	@echo "The Scribe's Makefile for {{ project_name }}"
-        	@echo "Usage: make [install|serve|build|deploy]"
+        install: ## Consecrate the Scribe's environment
+          python -m venv $(VENV)
+          $(BIN)/pip install --upgrade pip
+          $(BIN)/pip install -r requirements.txt
 
-        install:
-        	@python -m venv $(VENV_DIR)
-        	@$(PYTHON_EXEC) -m pip install -r requirements.txt
+        serve: ## Awaken the live-reloading server
+          $(BIN)/mkdocs serve -a localhost:8000
 
-        serve:
-        	@$(PYTHON_EXEC) -m mkdocs serve
+        build: ## Transmute Markdown into static Gnosis
+          $(BIN)/mkdocs build --clean
 
-        deploy:
-        	@$(PYTHON_EXEC) -m mkdocs gh-deploy --clean
+        deploy: ## Proclaim the Codex to GitHub Pages
+          $(BIN)/mkdocs gh-deploy --force
 
-    mkdocs.yml:
-        site_name: {{ project_name }}
-        site_author: {{ author }}
-        repo_url: https://github.com/{{ github_username }}/{{ project_slug }}
-        repo_name: "{{ project_slug }}"
-        edit_uri: edit/main/docs/
+        clean: ## Return ephemeral artifacts to the void
+          rm -rf site/
+          rm -rf $(VENV)
 
-        theme:
-          name: material
-          palette:
-            - scheme: default
-              toggle:
-                icon: material/brightness-7
-                name: Switch to dark mode
-            - scheme: slate
-              toggle:
-                icon: material/brightness-4
-                name: Switch to light mode
-          features:
-            - navigation.tabs
-            - search.suggest
-            - search.highlight
+    # [2] THE GNOSTIC CONFIGURATION (THE MIND)
+    mkdocs.yml :: """
+    site_name: {{ project_name }}
+    site_description: {{ site_description }}
+    site_author: {{ author }}
+    site_url: {{ repo_url }}
+    repo_url: {{ repo_url }}
+    repo_name: {{ github_username }}/{{ project_slug }}
+    edit_uri: edit/main/docs/
 
-        nav:
-          - 'Home': 'index.md'
-          - 'About': 'about.md'
+    theme:
+      name: material
+      custom_dir: overrides
+      language: en
+      palette:
+        # Day Mode
+        - scheme: default
+          primary: custom
+          accent: custom
+          toggle:
+            icon: material/brightness-7
+            name: Switch to dark mode
+        # Void Mode
+        - scheme: slate
+          primary: custom
+          accent: custom
+          toggle:
+            icon: material/brightness-4
+            name: Switch to light mode
+      font:
+        text: Space Grotesk
+        code: JetBrains Mono
+      features:
+        - navigation.tabs
+        - navigation.sections
+        - navigation.top
+        - navigation.tracking
+        - navigation.indexes
+        - content.code.copy
+        - content.code.annotate
+        - search.suggest
+        - search.highlight
+        - search.share
 
+    extra_css:
+      - stylesheets/extra.css
+
+    plugins:
+      - search
+      - minify:
+          minify_html: true
+      - mermaid2
+      - git-revision-date-localized:
+          type: datetime
+          fallback_to_build_date: true
+
+    markdown_extensions:
+      - admonition
+      - pymdownx.details
+      - pymdownx.superfences:
+          custom_fences:
+            - name: mermaid
+              class: mermaid
+              format: !!python/name:mermaid2.fence_mermaid
+      - pymdownx.highlight:
+          anchor_linenums: true
+          pygments_lang_class: true
+      - pymdownx.inlinehilite
+      - pymdownx.snippets
+      - pymdownx.tabbed:
+          alternate_style: true
+      - pymdownx.emoji:
+          emoji_index: !!python/name:material.extensions.emoji.twemoji
+          emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      - toc:
+          permalink: true
+
+    nav:
+      - 'Home': 'index.md'
+      - 'Architecture':
+        - 'Overview': 'architecture/overview.md'
+        - 'Causal Web': 'architecture/graph.md'
+      - 'Gnostic Guide':
+        - 'The First Rite': 'guide/ignition.md'
+        - 'Alchemical Rites': 'guide/alchemy.md'
+      - 'Reference':
+        - 'API': 'reference/api.md'
+        - 'Symbols': 'reference/symbols.md'
+      - 'About': 'about.md'
+    """
+
+    # [3] THE GNOSTIC STYLES
+    docs/stylesheets/extra.css :: """
+    :root > * {
+      --md-primary-fg-color: {{ theme_color }};
+      --md-primary-fg-color--light: {{ theme_color }}cc;
+      --md-primary-fg-color--dark:  {{ theme_color }};
+      --md-accent-fg-color: {{ theme_color }};
+    }
+
+    .md-header {
+      background-color: #000000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Gnostic selection color */
+    ::selection {
+      background-color: {{ theme_color }};
+      color: black;
+    }
+    """
+
+    # [4] THE SACRED TEXTS (THE SOUL)
     docs/
-        index.md:
-            # Welcome to {{ project_name }}
+        index.md :: """
+        # Welcome to the Luminous Codex
+        
+        > {{ site_description }}
 
-            This is the dawn of a new, luminous scripture.
+        This scripture defines the reality of **{{ project_name }}**. It is forged with high-fidelity Gnosis and kept eternally current via the **Velm God-Engine**.
 
-        about.md:
-            # About this Great Work
+        ## Quick Inception
 
-            Forged by the divine will of **{{ author }}**.
+        ```bash
+        # Summon the reality
+        scaffold genesis {{ project_slug }}
+        
+        # Consult the local guides
+        make serve
+        ```
 
+        ## Visual Topology
+
+        ```mermaid
+        graph TD
+          A[Architect] -->|Intent| B(Velm Engine)
+          B -->|Manifest| C{The Reality}
+          C -->|Dossier| D[The Codex]
+          D -->|Perception| A
+        ```
+        """
+
+        about.md :: """
+        # About the Scribe
+
+        This great work was willed by **{{ author }}**.
+
+        It stands as a testament to the pursuit of architectural purity. All documentation within is generated from pure Markdown and transfigured into the Luminous Codex.
+        """
+
+        architecture/
+            overview.md :: """
+            # Architectural Overview
+
+            This project adheres to the principles of **Gnostic Clean Architecture**.
+
+            ## Core Layers
+
+            1.  **The Soul (Domain):** Pure logic, free of infrastructure.
+            2.  **The Mind (Services):** Orchestration of business intent.
+            3.  **The Body (Infrastructure):** Database, Network, and I/O.
+            """
+            graph.md :: """
+            # Causal Web
+
+            The following graph represents the flow of Gnosis through the system.
+
+            ```mermaid
+            sequenceDiagram
+                participant U as User
+                participant O as Oracle
+                participant K as Kernel
+                U->>O: Dispatch Plea
+                O->>K: Execute Rite
+                K-->>O: Return Revelation
+                O-->>U: Proclaim Result
+            ```
+            """
+
+        guide/
+            ignition.md :: """
+            # The Rite of Ignition
+
+            To awaken this project, you must first align your environment with the Gnostic requirements.
+
+            !!! danger "Prerequisite"
+                Ensure the Python artisan (>=3.11) is manifest in your path.
+
+            1.  `make install`
+            2.  `make serve`
+            """
+            alchemy.md :: """
+            # Alchemical Rites
+
+            Documentation of the variables that shape this reality.
+
+            | Variable | Description |
+            | :--- | :--- |
+            | `project_name` | The name of the manifest reality. |
+            | `theme_color` | The visual frequency of the UI. |
+            """
+
+        reference/
+            api.md :: """
+            # API Reference
+
+            Documentation of the available endpoints and their contracts.
+            """
+            symbols.md :: """
+            # Symbol Glossary
+
+            Definition of the high-status symbols used in this architecture.
+            """
+
+    # [5] THE DEPLOYMENT SYMPHONY
     .github/
         workflows/
-            deploy.yml:
-                name: Deploy Docs to GitHub Pages
-                on:
-                  push:
-                    branches:
-                      - main
-                permissions:
-                  contents: write
-                jobs:
-                  deploy:
-                    runs-on: ubuntu-latest
-                    steps:
-                      - uses: actions/checkout@v4
-                      - uses: actions/setup-python@v5
-                        with:
-                          python-version: '3.11'
-                          cache: 'pip'
-                      - run: pip install -r requirements.txt
-                      - run: mkdocs gh-deploy --force
+            deploy.yml :: """
+            name: Ω | Proclaim Codex to Pages
+            
+            on:
+              push:
+                branches:
+                  - main
 
+            permissions:
+              contents: write
+
+            jobs:
+              deploy:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/checkout@v4
+                    with:
+                      fetch-depth: 0 # Required for git-revision-date plugin
+
+                  - uses: actions/setup-python@v5
+                    with:
+                      python-version: '3.11'
+                      cache: 'pip'
+
+                  - name: Install Scribe Tools
+                    run: pip install -r requirements.txt
+
+                  - name: Proclaim to GitHub Pages
+                    run: mkdocs gh-deploy --force
+            """
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the Scribe's Tools
+    proclaim: "Summoning the MkDocs Pantheon... (This requires Python 3.11+)"
     make install
+
+    # 3. Final Proclamation
+    proclaim: "The Luminous Codex is manifest in '{{ project_slug }}/'."
+    proclaim: "To begin your scribe work:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make serve[/bold cyan]"
+    proclaim: "  3. Gaze upon http://localhost:8000"
+
+%% on-heresy
+    proclaim: "The forging of the Codex faltered. Cleaning the sanctum..."
+    rm -rf docs/ mkdocs.yml Makefile requirements.txt

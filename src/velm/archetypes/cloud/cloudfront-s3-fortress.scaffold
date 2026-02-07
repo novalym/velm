@@ -1,0 +1,215 @@
+# Path: src/velm/archetypes/cloud/cloudfront-s3-fortress.scaffold
+# ----------------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: AWS CLOUDFRONT/S3 FORTRESS (V-Ω-TOTALITY)                ==
+# =================================================================================
+# @description: The definitive global distribution platform. Forges an S3 bucket
+#               with CloudFront CDN, enforcing Origin Access Control (OAC) for
+#               zero-trust static hosting of any web application.
+# @category: Infrastructure
+# @tags: aws, cloudfront, s3, cdn, static-site, security, terraform
+# @difficulty: Adept
+# @is_integration: false
+# @dna: use_terraform=true, use_aws=true, use_s3=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "ocular-cdn"
+$$ author = "The Architect"
+$$ aws_region = "us-east-1"
+$$ domain_name = "www.my-ocular-app.com"
+$$ bucket_name_prefix = "{{ project_name | slug }}-assets"
+
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+$$ bucket_name = "{{ bucket_name_prefix }}-{{ secret('hex', 6) }}"
+$$ s3_origin_id = "{{ project_slug }}-s3-origin"
+
+# --- II. THE SCRIPTURE OF FORM ---
+{{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        .terraform/
+        *.tfstate
+        *.tfstate.backup
+
+    # [2] THE GNOSTIC PROVIDER
+    providers.tf :: """
+    terraform {
+      required_providers {
+        aws = {
+          source  = "hashicorp/aws"
+          version = "~> 5.0"
+        }
+      }
+      // Future: Remote state configuration goes here
+    }
+
+    provider "aws" {
+      region = var.aws_region
+    }
+
+    // [ASCENSION 1]: Provider for Certificate Manager (must be us-east-1 for CloudFront)
+    provider "aws" {
+      alias  = "us-east-1"
+      region = "us-east-1"
+    }
+    """
+
+    # [3] THE MASTER SYMPHONY (MAIN)
+    main.tf :: """
+    // [ASCENSION 2]: S3 BUCKET (The Data Anchor)
+    resource "aws_s3_bucket" "asset_bucket" {
+      bucket = var.bucket_name
+      tags   = var.tags
+    }
+
+    resource "aws_s3_bucket_acl" "asset_bucket_acl" {
+      bucket = aws_s3_bucket.asset_bucket.id
+      acl    = "private" // CRITICAL: Access is ONLY via CloudFront
+    }
+
+    // [ASCENSION 3]: CLOUDFRONT DISTRIBUTION (The Global Edge)
+    resource "aws_cloudfront_distribution" "cdn_distribution" {
+      enabled             = true
+      comment             = "Ocular Membrane Distribution for ${var.project_name}"
+      is_ipv6_enabled     = true
+      price_class         = "PriceClass_100" // USA, Europe, Asia
+
+      # --- ORIGIN ACCESS CONTROL (SECURITY) ---
+      origin {
+        domain_name = aws_s3_bucket.asset_bucket.bucket_regional_domain_name
+        origin_id   = "{{ s3_origin_id }}"
+        # [ASCENSION 4]: Zero-Trust OAC
+        origin_access_control_id = aws_cloudfront_origin_access_control.default.id
+      }
+
+      default_cache_behavior {
+        allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+        cached_methods   = ["GET", "HEAD", "OPTIONS"]
+        target_origin_id = "{{ s3_origin_id }}"
+        viewer_protocol_policy = "redirect-to-https"
+        compress         = true
+        
+        forwarded_values {
+          query_string = false
+          cookies { forward = "none" }
+        }
+      }
+
+      restrictions {
+        geo_restriction {
+          restriction_type = "none"
+        }
+      }
+      
+      # [ASCENSION 5]: HTTPS Configuration
+      viewer_certificate {
+        cloudfront_default_certificate = true // Simplified for initial deploy
+      }
+    }
+
+    # [ASCENSION 6]: ORIGIN ACCESS CONTROL
+    resource "aws_cloudfront_origin_access_control" "default" {
+      name                              = "${var.project_name}-oac"
+      description                       = "OAC for S3 Bucket access"
+      origin_access_control_origin_type = "s3"
+      signing_behavior                  = "always"
+      signing_protocol                  = "sigv4"
+    }
+    
+    # [ASCENSION 7]: S3 BUCKET POLICY (The Law of the Forbidden Gate)
+    data "aws_iam_policy_document" "s3_policy" {
+      statement {
+        sid    = "AllowCloudFrontOAC"
+        effect = "Allow"
+        principals {
+          type        = "Service"
+          identifiers = ["cloudfront.amazonaws.com"]
+        }
+        actions   = ["s3:GetObject"]
+        resources = ["${aws_s3_bucket.asset_bucket.arn}/*"]
+        condition {
+          test     = "StringEquals"
+          variable = "AWS:SourceArn"
+          values   = [aws_cloudfront_distribution.cdn_distribution.arn]
+        }
+      }
+    }
+
+    resource "aws_s3_bucket_policy" "asset_bucket_policy" {
+      bucket = aws_s3_bucket.asset_bucket.id
+      policy = data.aws_iam_policy_document.s3_policy.json
+    }
+    """
+
+    # [4] THE GNOSTIC VARIABLES
+    variables.tf :: """
+    variable "aws_region" {
+      description = "The AWS region for resource deployment."
+      type        = string
+      default     = "{{ aws_region }}"
+    }
+    variable "project_name" {
+      description = "The Gnostic name for resource tagging."
+      type        = string
+      default     = "{{ project_name }}"
+    }
+    variable "tags" {
+      description = "Universal resource tags."
+      type        = map(string)
+      default     = { Environment = "staging" }
+    }
+    variable "bucket_name" {
+      description = "The unique name for the S3 asset bucket."
+      type        = string
+      default     = "{{ bucket_name }}"
+    }
+    """
+    
+    # [5] THE ASSET SOURCE (For Deployment)
+    frontend_build/
+        # Placeholder for the Architect to place the 'dist' folder contents
+        .gitkeep :: ""
+
+    # [6] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name }} - CloudFront/S3 Fortress
+
+    > Forged with pure Terraform. Deploys a zero-trust, high-performance static web host.
+
+    ## ⚠️ Pre-Flight Check
+    - You must have the `terraform` artisan manifest in your PATH.
+    - You must have the AWS CLI configured.
+
+    ## 🚀 The Rites of Ascension
+    
+    1.  **Build Frontend**: Run your application's `npm run build` to populate `frontend_build/`.
+    2.  **Initialize**: `terraform init`
+    3.  **Ascend**: `terraform apply -auto-approve`
+    
+    ## 📜 Gnosis Proclaimed
+    
+    After a successful deployment, you can retrieve the public URL:
+    
+    ```bash
+    terraform output domain_name
+    ```
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Final Proclamation
+    proclaim: "The CloudFront/S3 Fortress is manifest in '{{ project_slug }}/'."
+    proclaim: "To ascend to the cloud:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]terraform init[/bold cyan]"
+    proclaim: "  3. [bold cyan]terraform apply -var='project_name={{ project_slug }}'[/bold cyan]"
+
+%% on-heresy
+    proclaim: "The CloudFront forge fractured. Cleaning the shards..."
+    rm -rf frontend_build/ providers.tf main.tf variables.tf

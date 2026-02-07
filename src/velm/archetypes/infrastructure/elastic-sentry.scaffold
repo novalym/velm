@@ -1,0 +1,293 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: ELASTIC SENTRY (V-Ω-TOTALITY)                           ==
+# =================================================================================
+# @description: Materializes an autonomous observability and scaling citadel. Integrates Traefik ingress, Prometheus metrics, and Grafana dashboards with a Python-based Autonomic Governor that scales microservices in real-time based on metabolic load.
+# @category: Infrastructure
+# @tags: monitoring, prometheus, grafana, traefik, autoscaling, docker, devops, health
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: service_name=api, max_replicas=5, min_latency_ms=200, check_interval=10
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ service_name = "api" 
+$$ max_replicas = 5
+$$ min_latency_ms = 200
+$$ sentinel_check_interval = 10
+$$ prometheus_port = 9090
+$$ grafana_port = 3000
+
+# Derived Gnosis
+$$ project_slug = {{ project_slug | default('nebula-stack') }}
+$$ package_name = {{ project_name | snake }}
+
+# --- II. THE SCRIPTURE OF FORM (The Monitoring Sanctum) ---
+infra/monitoring/
+
+    # [1] THE INGRESS GATEKEEPER (Traefik)
+    traefik/
+        traefik.yml :: """
+        # == Traefik Gnostic Configuration ==
+        api:
+          dashboard: true
+          insecure: true
+
+        entryPoints:
+          web:
+            address: ":80"
+          prometheus:
+            address: ":9090"
+
+        providers:
+          docker:
+            endpoint: "unix:///var/run/docker.sock"
+            exposedByDefault: false
+            network: {{ project_slug }}_gnostic_mesh
+
+        accessLog:
+          filePath: "/var/log/traefik/access.log"
+          format: json
+        """
+
+    # [2] THE METRIC ORACLE (Prometheus)
+    prometheus/
+        prometheus.yml :: """
+        global:
+          scrape_interval: 5s
+          evaluation_interval: 5s
+
+        scrape_configs:
+          - job_name: 'prometheus'
+            static_configs:
+              - targets: ['localhost:9090']
+
+          # [ASCENSION 1]: The Recursive Gaze
+          # Scrapes the target service. Assumes the service exposes /metrics
+          - job_name: '{{ service_name }}'
+            metrics_path: '/metrics'
+            static_configs:
+              - targets: ['{{ service_name }}:8000']
+        """
+
+    # [3] THE OCULAR HUD (Grafana)
+    grafana/
+        provisioning/
+            datasources/
+                datasource.yml :: """
+                apiVersion: 1
+                datasources:
+                  - name: Prometheus
+                    type: prometheus
+                    access: proxy
+                    url: http://prometheus:9090
+                    isDefault: true
+                    editable: false
+                """
+            dashboards/
+                dashboard.yml :: """
+                apiVersion: 1
+                providers:
+                  - name: 'Sovereign Dashboards'
+                    orgId: 1
+                    folder: 'Infrastructure'
+                    type: file
+                    disableDeletion: false
+                    editable: true
+                    options:
+                      path: /var/lib/grafana/dashboards
+                """
+        dashboards/
+            # [ASCENSION 2]: The Totality Dashboard
+            # (Truncated JSON structure representing a high-status HUD)
+            vitals.json :: """
+            {
+              "title": "System Vitality: {{ project_name }}",
+              "panels": [
+                { "title": "Metabolic Latency", "type": "timeseries" },
+                { "title": "Replication Count", "type": "stat" }
+              ]
+            }
+            """
+
+    # [4] THE AUTONOMIC GOVERNOR (The Brain)
+    governor/
+        Dockerfile.governor :: """
+        FROM python:3.12-slim-bookworm
+        WORKDIR /app
+        RUN pip install --no-cache-dir docker requests rich
+        COPY governor.py .
+        # [THE VOW]: Unbuffered execution for real-time scaling
+        ENV PYTHONUNBUFFERED=1
+        CMD ["python", "governor.py"]
+        """
+
+        governor.py :: """
+        import docker
+        import time
+        import requests
+        import os
+        import logging
+        from rich.console import Console
+
+        # --- GNOSTIC CONSTANTS ---
+        SERVICE_TARGET = os.getenv("SERVICE_TARGET", "{{ service_name }}")
+        MAX_REPLICAS = int(os.getenv("MAX_REPLICAS", "{{ max_replicas }}"))
+        LATENCY_THRESHOLD = int(os.getenv("LATENCY_THRESHOLD", "{{ min_latency_ms }}"))
+        INTERVAL = int(os.getenv("CHECK_INTERVAL", "{{ sentinel_check_interval }}"))
+
+        console = Console()
+        logging.basicConfig(level=logging.INFO)
+
+        class AutonomicGovernor:
+            def __init__(self):
+                self.client = docker.from_env()
+                console.print(f"[bold cyan]🛡️ Governor Activated.[/] Monitoring [magenta]{SERVICE_TARGET}[/]")
+
+            def scry_vitals(self) -> int:
+                \"\"\"Gathers metabolic latency from the target service.\"\"\"
+                try:
+                    # In a production reality, this would query Prometheus/API
+                    response = requests.get(f"http://{SERVICE_TARGET}:8000/health", timeout=2)
+                    return response.json().get("latency_ms", 0)
+                except Exception as e:
+                    console.print(f"[dim red]Scry Failed:[/] {e}")
+                    return 0
+
+            def conduct_scaling(self):
+                \"\"\"The Perpetual Loop of Balanced Reality.\"\"\"
+                while True:
+                    latency = self.scry_vitals()
+                    service = self.client.services.get(SERVICE_TARGET)
+                    current_scale = service.attrs['Spec']['Mode']['Replicated']['Replicas']
+
+                    if latency > LATENCY_THRESHOLD and current_scale < MAX_REPLICAS:
+                        new_scale = current_scale + 1
+                        console.print(f"[bold red]🔥 FEVER DETECTED.[/] Latency {latency}ms. Scaling to {new_scale}...")
+                        service.scale(new_scale)
+                    
+                    elif latency < (LATENCY_THRESHOLD / 2) and current_scale > 1:
+                        new_scale = current_scale - 1
+                        console.print(f"[bold green]🧊 COOLING DETECTED.[/] Latency {latency}ms. Scaling to {new_scale}...")
+                        service.scale(new_scale)
+                    
+                    time.sleep(INTERVAL)
+
+        if __name__ == "__main__":
+            try:
+                gov = AutonomicGovernor()
+                gov.conduct_scaling()
+            except KeyboardInterrupt:
+                console.print("\\n[yellow]Governor entering dormancy.[/]")
+        """
+
+# --- III. THE ORCHESTRATION CONDUCTOR ---
+docker-compose.sentry.yml :: """
+version: '3.8'
+
+services:
+  # [5] THE INGRESS GATE
+  traefik:
+    image: traefik:v3.0
+    container_name: {{ project_slug }}_traefik
+    command:
+      - "--configfile=/etc/traefik/traefik.yml"
+    ports:
+      - "80:80"
+      - "8080:8080" # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./infra/monitoring/traefik/traefik.yml:/etc/traefik/traefik.yml
+    networks:
+      - gnostic_mesh
+
+  # [6] THE METRIC ORACLE
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: {{ project_slug }}_prometheus
+    volumes:
+      - ./infra/monitoring/prometheus:/etc/prometheus
+    ports:
+      - "{{ prometheus_port }}:9090"
+    networks:
+      - gnostic_mesh
+
+  # [7] THE OCULAR HUD
+  grafana:
+    image: grafana/grafana:latest
+    container_name: {{ project_slug }}_grafana
+    volumes:
+      - ./infra/monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./infra/monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "{{ grafana_port }}:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - gnostic_mesh
+
+  # [8] THE BRAIN
+  governor:
+    build:
+      context: ./infra/monitoring/governor
+      dockerfile: Dockerfile.governor
+    container_name: {{ project_slug }}_governor
+    environment:
+      - SERVICE_TARGET={{ service_name }}
+      - MAX_REPLICAS={{ max_replicas }}
+      - LATENCY_THRESHOLD={{ min_latency_ms }}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - gnostic_mesh
+
+networks:
+  gnostic_mesh:
+    external: true
+    name: {{ project_slug }}_gnostic_mesh
+"""
+
+# --- IV. THE CONTROL PLANE (Makefile) ---
+Makefile:
+  .PHONY: sentry-up sentry-down sentry-logs
+
+  # Gnostic Control Variables
+  $COMPOSE_FILE = docker-compose.sentry.yml
+
+  sentry-up: ## Awaken the Elastic Sentry
+    @echo "🔭 Awakening the Sentinel..."
+    @docker-compose -f $($COMPOSE_FILE) up --build -d
+
+  sentry-down: ## Dissolve the Sentinel
+    @echo "🌑 Returning the Sentinel to the void..."
+    @docker-compose -f $($COMPOSE_FILE) down
+
+  sentry-logs: ## Gaze upon the chronicles of the Governor
+    @docker-compose -f $($COMPOSE_FILE) logs -f governor
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Elastic Sentry Citadel[/bold cyan] is materializing in 'infra/monitoring/'."
+    
+    # 1. Create the Gnostic Mesh Network
+    proclaim: "Forging the Gnostic Mesh network..."
+    >> docker network create {{ project_slug }}_gnostic_mesh || true
+    
+    # 2. Preparation of the Sanctums
+    proclaim: "Preparing configurations..."
+    >> mkdir -p infra/monitoring/traefik
+    >> mkdir -p infra/monitoring/prometheus
+    >> mkdir -p infra/monitoring/grafana/provisioning/datasources
+    >> mkdir -p infra/monitoring/grafana/provisioning/dashboards
+    >> mkdir -p infra/monitoring/grafana/dashboards
+    >> mkdir -p infra/monitoring/governor
+
+    # 3. Final Guidance
+    proclaim: "[bold green]✅ Sentinel manifest.[/bold green]"
+    proclaim: "To ignite the Sentry:"
+    proclaim: "  1. Connect your [bold magenta]{{ service_name }}[/bold magenta] to the [bold cyan]{{ project_slug }}_gnostic_mesh[/bold cyan] network."
+    proclaim: "  2. [bold cyan]make sentry-up[/bold cyan]"
+    proclaim: "  3. Scry the HUD at http://localhost:{{ grafana_port }}"
+
+%% on-heresy
+    proclaim: "[bold red]The Sentry Inception fractured.[/bold red] Cleaning the shards..."
+    rm -rf infra/monitoring/

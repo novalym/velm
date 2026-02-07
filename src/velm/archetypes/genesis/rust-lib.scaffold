@@ -1,145 +1,407 @@
-# Path: scaffold/archetypes/genesis/rust-lib.scaffold
-# ---------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: RUST IRON CORE (V-Ω-TOTALITY)                           ==
+# =================================================================================
+# @description: The definitive high-performance Rust foundation. Materializes a production-grade library and binary ecosystem featuring Cargo orchestration, advanced error handling (Anyhow/Thiserror), Clippy-wards, and multi-platform CI.
+# @category: Backend
+# @tags: rust, cargo, native, ffi, wasm, performance, safety, zero-cost, iron-core
+# @difficulty: Master
+# @is_integration: false
+# @dna: use_clippy=true, use_docker=true, ffi_support=true, wasm_support=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: RUST GUARDIAN (V-Ω-STRUCTURAL-PURITY)            ==
-# =================================================================================
-# @description: A memory-safe, high-performance library with a separate example
-#               binary, forged with Rust, Cargo, and unbreakable Gnostic Laws.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "iron-core"
+$$ author = "{{ author | default('The Architect') }}"
+$$ email = "{{ email | default('architect@novalym.systems') }}"
+$$ description = "A high-performance Gnostic engine manifest by VELM."
 
-# --- I. The Altar of Gnostic Will ---
+# [THE ALCHEMY]: Case Normalization
 $$ project_slug = {{ project_name | slug }}
-$$ author = {{ author }}
+$$ package_name = {{ project_name | snake }}
 
-# --- II. The Scripture of Form ---
+# --- II. THE SCRIPTURE OF FORM (The Fortress structure) ---
 {{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
     .gitignore :: """
+    # == The Abyss (Rust) ==
     /target
     Cargo.lock
+    **/*.rs.bk
+    
+    # OS & IDE Shards
     .DS_Store
+    .vscode/
+    .idea/
+    *.log
     """
 
-    Cargo.toml:
-        [package]
-        name = "{{ project_slug }}"
-        version = "0.1.0"
-        edition = "2021"
-        description = "{{ description }}"
-        authors = ["{{ author }}"]
-        license = "MIT"
-
-        # The sacred scripture defining the example binary that showcases the library's power.
-        [[bin]]
-        name = "{{ project_slug }}-example"
-        path = "src/main.rs"
-
-        [dependencies]
-        anyhow = "1.0"
-
-    README.md :: """
-    # {{ project_name }}
-
-    A Rust library forged by the Scaffold God-Engine.
-
-    ## Development Rites
-
-    - `make build`: Compile the library and example binary.
-    - `make run`: Run the example binary.
-    - `make test`: Adjudicate the library's purity with tests.
-    - `make lint`: Gaze upon the code with `clippy`.
-    - `make format`: Purify the code's form with `rustfmt`.
+    .rustfmt.toml :: """
+    # The Laws of Geometry
+    edition = "2021"
+    newline_style = "Unix"
+    use_small_heuristics = "Max"
+    indent_style = "Block"
     """
 
-    Makefile:
-        .PHONY: help build run test lint format clean
+    # [2] THE FOUNDRY (Cargo.toml)
+    # The Gnostic Law of the Rust Environment.
+    Cargo.toml :: """
+    [package]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    edition = "2021"
+    authors = ["{{ author }} <{{ email }}>"]
+    description = "{{ description }}"
+    readme = "README.md"
+    license = "MIT"
+    repository = "https://github.com/{{ git_org | default('novalym') }}/{{ project_slug }}"
+    keywords = ["velm", "gnostic", "performance", "safety"]
 
-        build:
-        	@cargo build
+    [lib]
+    name = "{{ package_name }}"
+    crate-type = ["rlib", "cdylib"] # [ASCENSION]: Supports both static and dynamic linking (FFI)
 
-        run:
-        	@cargo run
+    [[bin]]
+    name = "{{ project_slug }}-strike"
+    path = "src/main.rs"
 
-        test:
-        	@cargo test
+    [dependencies]
+    # The Neural Links
+    serde = { version = "1.0", features = ["derive"] }
+    serde_json = "1.0"
+    
+    # The Redemptive Logic
+    anyhow = "1.0"
+    thiserror = "1.0"
+    
+    # The Kinetic Limbs
+    tokio = { version = "1.35", features = ["full"], optional = true }
+    log = "0.4"
+    env_logger = "0.10"
 
-        lint:
-        	@cargo clippy -- -D warnings
+    [dev-dependencies]
+    # The Inquisition
+    pytest = { version = "0.1", package = "rstest" } # Gnostic testing patterns
+    pretty_assertions = "1.4"
+    hypothesis = { version = "0.1", package = "proptest" } # Property-based entropy
 
-        format:
-        	@cargo fmt
+    [features]
+    default = ["async"]
+    async = ["dep:tokio"]
+    ffi = [] # Enable for Python/Node bridging
+    wasm = [] # Enable for Ocular Web materialization
 
-        clean:
-        	@cargo clean
+    [profile.release]
+    opt-level = 3
+    lto = true
+    codegen-units = 1
+    panic = "abort"
+    strip = true # Annihilate symbols for minimal mass
+    """
 
+    # [3] THE CONTROL PLANE (Makefile)
+    # Using Single Dollar ($) syntax for absolute Makefile sovereignty.
+    Makefile :: """
+    .PHONY: help build run test lint bench clean
+    
+    # Gnostic Variables
+    $CARGO = cargo
+    $BINARY = target/release/{{ project_slug }}-strike
+
+    help: ## Proclaim available Iron rites
+        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
+
+    build: ## Forge the production-grade library and binary
+        @echo "🏗️  Forging the Iron Core..."
+        $($CARGO) build --release
+
+    run: build ## Execute the kinetic example binary
+        @echo "🚀 Awakening the Titan..."
+        ./$($BINARY)
+
+    test: ## Conduct the unit and property-based inquisition
+        @echo "🧪 Verifying logic via Cargo..."
+        $($CARGO) test
+
+    lint: ## Summon the Clippy Inquisitor to scry for heresies
+        @echo "🔍 Scrying for logic-gaps and stylistic drift..."
+        $($CARGO) clippy -- -D warnings
+        $($CARGO) fmt --all -- --check
+
+    bench: ## Measure the velocity of the Gnostic algorithms
+        $($CARGO) bench
+
+    clean: ## Return artifacts to the void
+        $($CARGO) clean
+    """
+
+    # [4] THE SOURCE CODE (The Living Mind)
     src/
-        # The reusable soul of the library.
-        lib.rs:
-            use anyhow::Result;
+        # --- THE SOUL (Library) ---
+        lib.rs :: """
+        //! =============================================================================
+        //! == {{ project_name | upper }} - CORE SOUL (V-Ω-RESONANT)
+        //! =============================================================================
+        //! Forged by: {{ author }}
+        //! 
+        //! This module contains the pure business logic and traits of the Iron Core.
+        //! =============================================================================
 
-            pub fn proclaim_gnosis(name: &str) -> Result<String> {
-                Ok(format!("Gnostic Greetings, {}! The Rust Guardian is manifest.", name))
-            }
+        use serde::{Serialize, Deserialize};
+        use thiserror::Error;
 
-            #[cfg(test)]
-            mod tests {
-                use super::*;
+        /// [ASCENSION 1]: Gnostic Error Hierarchy
+        /// Maps numeric failures to semantic truths.
+        #[derive(Error, Debug)]
+        pub enum IronHeresy {
+            #[error("A Gnostic paradox occurred: {0}")]
+            Paradox(String),
+            
+            #[error("Physical boundary breach: {0}")]
+            BoundaryViolation(u32),
 
-                #[test]
-                fn test_proclamation_is_pure() {
-                    let greeting = proclaim_gnosis("Architect").unwrap();
-                    assert!(greeting.contains("Architect"));
+            #[error("The void cannot be perceived")]
+            VoidGaze,
+        }
+
+        /// [ASCENSION 2]: The Gnostic Vessel
+        /// An immutable, serializable data structure.
+        #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+        pub struct GnosticVessel {
+            pub id: u64,
+            pub resonance: String,
+            pub entropy_level: f64,
+            pub is_manifest: bool,
+        }
+
+        impl GnosticVessel {
+            /// Creates a new vessel from the void.
+            pub fn forge(id: u64, resonance: &str) -> Self {
+                Self {
+                    id,
+                    resonance: resonance.to_string(),
+                    entropy_level: 0.0,
+                    is_manifest: true,
                 }
             }
 
-        # The example binary that uses the library.
-        main.rs:
-            use anyhow::Result;
-            use {{ project_slug | snake }}::proclaim_gnosis;
-
-            fn main() -> Result<()> {
-                let greeting = proclaim_gnosis("Cosmos")?;
-                println!("{}", greeting);
+            /// Performs a transmutation upon the vessel.
+            pub fn transmute(&mut self, factor: f64) -> Result<(), IronHeresy> {
+                if factor < 0.0 {
+                    return Err(IronHeresy::Paradox("Negative entropy is a heresy".into()));
+                }
+                self.entropy_level += factor;
                 Ok(())
             }
+        }
 
-    tests/
-        integration.rs:
-            use anyhow::Result;
-            use {{ project_slug | snake }}::proclaim_gnosis;
+        /// [ASCENSION 3]: The Universal Oracle Trait
+        pub trait GnosticOracle {
+            fn scry(&self) -> String;
+            fn conduct_rite(&self, intensity: u32) -> bool;
+        }
+
+        // --- UNIT INQUISITION ---
+        #[cfg(test)]
+        mod tests {
+            use super::*;
+            use pretty_assertions::assert_eq;
 
             #[test]
-            fn test_external_gaze() -> Result<()> {
-                let result = proclaim_gnosis("External")?;
-                assert!(result.contains("External"));
-                Ok(())
+            fn it_forges_pure_vessels() {
+                let vessel = GnosticVessel::forge(42, "RESONANT");
+                assert_eq!(vessel.id, 42);
+                assert!(vessel.is_manifest);
             }
 
-    .github/
-        workflows/
-            ci.yml:
-                name: Rust CI
-                on: [push, pull_request]
-                jobs:
-                  adjudicate:
-                    runs-on: ubuntu-latest
-                    steps:
-                      - uses: actions/checkout@v4
-                      - name: Install Rust Toolchain
-                        uses: actions-rs/toolchain@v1
-                        with:
-                          toolchain: stable
-                          components: rustfmt, clippy
-                      - name: Check Formatting
-                        run: make format_check # A prophecy
-                      - name: Lint with Clippy
-                        run: make lint
-                      - name: Run Tests
-                        run: make test
-                      - name: Build Release
-                        run: cargo build --release --verbose
+            #[test]
+            fn it_rejects_negative_entropy() {
+                let mut vessel = GnosticVessel::forge(1, "VOID");
+                let result = vessel.transmute(-1.0);
+                assert!(result.is_err());
+            }
+        }
+        """
 
+        # --- THE VOICE (Binary) ---
+        main.rs :: """
+        use anyhow::{Context, Result};
+        use {{ package_name }}::{GnosticVessel, IronHeresy};
+        use std::env;
+
+        /**
+         * =============================================================================
+         * == THE KINETIC INTERFACE (THE VOICE OF THE TITAN)
+         * =============================================================================
+         */
+        fn main() -> Result<()> {
+            env_logger::init();
+            println!("--- 🚀 Awakening the Rust Iron Core ---");
+
+            let mut vessel = GnosticVessel::forge(1337, "TOTALITY");
+            
+            println!("✅ Vessel Manifest: {{:?}}", vessel);
+
+            // Conduct a transmutation
+            vessel.transmute(0.95)
+                .with_context(|| "Failed to transmute the Gnostic Vessel")?;
+
+            println!("✨ Transmutation Complete: Entropy is now {{}}", vessel.entropy_level);
+            
+            // Serialize the soul
+            let json = serde_json::to_string_pretty(&vessel)?;
+            println!("\\n--- Serialized Soul ---\\n{{}}", json);
+
+            Ok(())
+        }
+        """
+
+    # [5] THE INQUISITION (Integration Tests)
+    tests/
+        __init__.rs :: ""
+        integration_rite.rs :: """
+        use {{ package_name }}::GnosticVessel;
+
+        #[test]
+        fn test_cross_module_resonance() {
+            let mut vessel = GnosticVessel::forge(100, "INTEGRATION");
+            assert!(vessel.transmute(0.5).is_ok());
+            assert_eq!(vessel.entropy_level, 0.5);
+        }
+        """
+
+    # [6] THE CELESTIAL GATE (CI/CD)
+    .github/workflows/iron_integrity.yml :: """
+    name: Ω | Iron Core Integrity
+
+    on:
+      push:
+        branches: [ main ]
+      pull_request:
+        branches: [ main ]
+
+    jobs:
+      adjudicate:
+        name: Adjudicate on ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+          matrix:
+            os: [ubuntu-latest, macos-latest, windows-latest]
+        
+        steps:
+          - uses: actions/checkout@v4
+          - name: Summon Rust Toolchain
+            uses: actions-rs/toolchain@v1
+            with:
+              profile: minimal
+              toolchain: stable
+              override: true
+              components: rustfmt, clippy
+
+          - name: Verify Sacred Geometry (Format)
+            run: cargo fmt --all -- --check
+
+          - name: Conduct Gnostic Inquest (Clippy)
+            run: cargo clippy -- -D warnings
+
+          - name: Adjudicate Purity (Test)
+            run: cargo test --verbose
+    """
+
+    # [7] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name | title }}
+    
+    [![Build Status](https://github.com/{{ git_org | default('novalym') }}/{{ project_slug }}/actions/workflows/iron_integrity.yml/badge.svg)]()
+    [![Rust](https://img.shields.io/badge/Rust-1.75+-orange.svg)]()
+
+    > {{ description }}
+
+    Forged with **Rust 2021 Edition**, **Anyhow**, and **Serde**.
+    Manifested by the **VELM God-Engine**.
+
+    ## 🚀 Initiation Rites
+
+    ```bash
+    # 1. Forge the artifacts
+    make build
+
+    # 2. Awaken the Titan
+    make run
+
+    # 3. Adjudicate the soul
+    make test
+    ```
+
+    ## 🏛️ Topography
+
+    - `src/lib.rs`: The Gnostic Soul (Pure Logic & Traits).
+    - `src/main.rs`: The Kinetic Voice (Example Binary).
+    - `tests/`: The Forensic Chambers (Integration Tests).
+    - `Makefile`: The Sovereign Interface.
+
+    ## 🐳 Containerization
+    @if {{ use_docker }}
+    ```bash
+    # Forge the minimal production vessel
+    docker build -t {{ project_slug }}:latest .
+    ```
+    @endif
+    """
+
+    # [8] THE MINIMAL VESSEL (Dockerfile)
+    {% if use_docker %}
+    Dockerfile :: """
+    # --- STAGE 1: THE FORGE (BUILDER) ---
+    FROM rust:1.75-slim-bookworm as builder
+    WORKDIR /app
+    RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
+    
+    # 1. Dummy Build for Dependency Caching
+    COPY Cargo.toml ./
+    RUN mkdir src && echo "fn main() {}" > src/main.rs && echo "" > src/lib.rs
+    RUN cargo build --release
+    
+    # 2. Real Materialization
+    COPY . .
+    RUN touch src/main.rs src/lib.rs
+    RUN cargo build --release
+
+    # --- STAGE 2: THE CELESTIAL VESSEL (RUNTIME) ---
+    FROM debian:bookworm-slim
+    WORKDIR /app
+    
+    # [SECURITY]: Non-root execution
+    RUN useradd -m -u 1000 scaf_artisan
+    USER scaf_artisan
+
+    COPY --from=builder /app/target/release/{{ project_slug }}-strike /app/titan_strike
+
+    # [THE VOW]: Fast Execution
+    ENV RUST_LOG=info
+    
+    ENTRYPOINT ["./titan_strike"]
+    """
+    {% endif %}
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
 %% post-run
-    git init
-    # The first build forges the Cargo.lock, a sacred act.
-    cargo build
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the dependencies
+    proclaim: "Summoning the Cargo toolchain..."
+    @if {{ shell('which cargo') }} -> >> cargo build
+    @else -> proclaim: "[bold yellow]Cargo not detected. Please install Rust to finalize the forge.[/bold yellow]"
+
+    # 3. Final Proclamation
+    proclaim: "The Rust Iron Core '{{ project_name }}' is manifest in '{{ project_slug }}/'."
+    proclaim: "To begin the Great Work:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make test[/bold cyan] (Conduct unit inquest)"
+    proclaim: "  3. [bold cyan]make run[/bold cyan] (Ignite example)"
+
+%% on-heresy
+    proclaim: "[bold red]The Iron Forge fractured.[/bold red] Purging the ruins..."
+    rm -rf src/ tests/ Cargo.toml Makefile Dockerfile

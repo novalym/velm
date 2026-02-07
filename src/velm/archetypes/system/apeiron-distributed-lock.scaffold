@@ -1,0 +1,107 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: APEIRON DISTRIBUTED LOCK (V-Ω-TOTALITY)                  ==
+# =================================================================================
+# @description: Materializes a high-fidelity distributed mutex system using Redis. Prevents race conditions and double-execution heresies across distributed worker swarms and multi-node API clusters.
+# @category: System
+# @tags: lock, mutex, distributed-systems, redis, concurrency, safety, synchronization
+# @difficulty: Master
+# @is_integration: true
+# @dna: redis_url=redis://localhost:6379/0, lock_timeout=60, retry_delay=0.1
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ redis_url = "redis://reactive-backbone:6379/1"
+$$ lock_timeout = 60
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE LOCKING CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        locking/
+            __init__.py :: "from .mutex import ApeironLock, distributed_lock"
+            
+            # [1] THE MUTEX ENGINE
+            mutex.py :: """
+            import time
+            import uuid
+            import logging
+            import functools
+            import asyncio
+            from typing import Optional, Any, Callable
+            from redis.asyncio import Redis
+
+            Logger = logging.getLogger("Apeiron:Mutex")
+
+            class ApeironLock:
+                \"\"\"
+                =============================================================================
+                == THE APEIRON LOCK (V-Ω-DISTRIBUTED-GUARD)                                ==
+                =============================================================================
+                LIF: ∞ | ROLE: CONCURRENCY_ADJUDICATOR | RANK: OMEGA
+                
+                Enforces the Law of Single Presence. Ensures a rite is only conducted by
+                one node in the multiverse at a time.
+                \"\"\"
+                def __init__(self, redis_client: Redis, name: str, timeout: int = {{ lock_timeout }}):
+                    self.redis = redis_client
+                    self.name = f"lock:{name}"
+                    self.timeout = timeout
+                    self.token = str(uuid.uuid4())
+
+                async def __aenter__(self):
+                    \"\"\"The Rite of Acquisition.\"\"\"
+                    while not await self._acquire():
+                        await asyncio.sleep(0.1) # Wait for the void to open
+                    return self
+
+                async def __aexit__(self, exc_type, exc_val, exc_tb):
+                    \"\"\"The Rite of Release.\"\"\"
+                    await self._release()
+
+                async def _acquire(self) -> bool:
+                    # NX: Only set if key doesn't exist
+                    # EX: Set expiration to prevent deadlocks
+                    return await self.redis.set(self.name, self.token, ex=self.timeout, nx=True)
+
+                async def _release(self):
+                    # Lua script for atomic unlock (Verify token before delete)
+                    script = \"\"\"
+                    if redis.call("get", KEYS[1]) == ARGV[1] then
+                        return redis.call("del", KEYS[1])
+                    else
+                        return 0
+                    end
+                    \"\"\"
+                    await self.redis.eval(script, 1, self.name, self.token)
+                    Logger.debug(f"🔓 Lock Released: {self.name}")
+
+            def distributed_lock(name: str):
+                \"\"\"Luminous decorator for protected functions.\"\"\"
+                def decorator(func: Callable):
+                    @functools.wraps(func)
+                    async def wrapper(*args, **kwargs):
+                        # Attempt to scry redis from app state or global
+                        # This assumes the Reactive Hub or a global Redis client exists
+                        from ..network.redis import redis_vault
+                        async with ApeironLock(redis_vault, name):
+                            return await func(*args, **kwargs)
+                    return wrapper
+                return decorator
+            """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Apeiron Distributed Lock[/bold cyan] is manifest."
+    proclaim: "Redis Mutex logic willed into 'core/locking/'."
+    
+    # Dependencies
+    proclaim: "Ensuring Redis-py is manifest..."
+    >> poetry add redis
+    ?? succeeds
+
+    proclaim: "[bold green]✅ Concurrency Guard Active.[/bold green]"
+    proclaim: "Usage: [cyan]async with ApeironLock(redis, 'my_task'):[/cyan]"
+
+%% on-heresy
+    proclaim: "Locking inception failed. Purging shards..."
+    rm -rf src/{{ package_name }}/core/locking

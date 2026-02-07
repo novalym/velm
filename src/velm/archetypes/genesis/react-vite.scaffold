@@ -1,198 +1,458 @@
-# Path: scaffold/archetypes/genesis/react-vite.scaffold
-# -----------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: REACT-VITE OCULAR REACTOR (V-Ω-TOTALITY)                 ==
+# =================================================================================
+# @description: Materializes a professional, high-performance React 19 Ocular Membrane. Features Vite 6 orchestration, Tailwind v4 styling, Zustand state synchronization, Biome purification, and a multi-stage Nginx production vessel.
+# @category: Frontend
+# @tags: react, vite, typescript, tailwind-v4, zustand, zod, vitest, biome, docker
+# @difficulty: Adept
+# @is_integration: false
+# @dna: react_version=19, vite_version=6, use_tailwind=v4, package_manager=npm
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: REACT/VITE REACTOR (V-Ω-STRUCTURAL-PURITY)       ==
-# =================================================================================
-# @description: A hyper-performant, production-ready frontend reality forged with
-#               React, TypeScript, and Vite. Fully containerized and Gnostically pure.
-# =================================================================================
-
-# --- I. The Altar of Gnostic Will ---
-$$ project_slug = {{ project_name | slug }}
-$$ author = {{ author }}
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "ocular-reactor"
+$$ author = "{{ author | default('The Architect') }}"
 $$ default_port = 5173
+$$ theme_accent = "#64ffda"
 
-# --- II. The Scripture of Form ---
+# [THE ALCHEMY]: Case Normalization
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
+
+# --- II. THE SCRIPTURE OF FORM (The Ocular Structure) ---
 {{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
     .gitignore :: """
-    node_modules
-    dist
+    # == The Abyss (Node) ==
+    node_modules/
+    dist/
+    .env
     .env.local
+    .eslintcache
     .DS_Store
+    coverage/
+    *.log
+    
+    # Metadata Drift
+    *.tsbuildinfo
+    .biome/
     """
 
-    README.md :: """
-    # {{ project_name }} - React/Vite Reactor
-
-    A luminous frontend reality forged with React, TypeScript, and Vite.
-
-    ## Rites of the Forge
-
-    - `make install`: Summons all dependencies.
-    - `make dev`: Awakens the hot-reloading development server.
-    - `make build`: Forges the production-ready static assets.
-    - `make docker-run`: Awakens the final, containerized reality.
+    .editorconfig :: """
+    root = true
+    [*]
+    indent_style = space
+    indent_size = 2
+    charset = utf-8
+    trim_trailing_whitespace = true
+    insert_final_newline = true
+    end_of_line = lf
     """
 
-    Makefile:
-        .PHONY: install dev build lint format docker-build docker-run
+    # [2] THE DEPENDENCY MATRIX (package.json)
+    # Orchestrating the latest Gnostic toolchain.
+    package.json :: """
+    {
+      "name": "{{ project_slug }}",
+      "private": true,
+      "version": "0.1.0",
+      "type": "module",
+      "author": "{{ author }}",
+      "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "lint": "biome check src/",
+        "lint:fix": "biome check --apply src/",
+        "format": "biome format src/ --write"
+      },
+      "dependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "zustand": "^5.0.0",
+        "lucide-react": "latest",
+        "clsx": "^2.1.1",
+        "tailwind-merge": "^2.5.2",
+        "framer-motion": "^11.15.0",
+        "zod": "^3.24.0"
+      },
+      "devDependencies": {
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@vitejs/plugin-react": "^4.3.4",
+        "typescript": "^5.7.2",
+        "vite": "^6.0.0",
+        "tailwindcss": "^4.0.0-alpha.30",
+        "@biomejs/biome": "1.9.4",
+        "vitest": "^2.1.8",
+        "rimraf": "^6.0.1"
+      }
+    }
+    """
 
-        install:
-        	@npm install
-
-        dev:
-        	@npm run dev
-
-        build:
-        	@npm run build
-
-        lint:
-        	@npm run lint
-
-        format:
-        	@npm run format
-
-        docker-build:
-        	@docker build -t {{ project_slug }}:latest .
-
-        docker-run:
-        	@docker run -it --rm -p {{ default_port }}:80 --name {{ project_slug }} {{ project_slug }}:latest
-
-    package.json:
-        {
-          "name": "{{ project_slug }}",
-          "private": true,
-          "version": "0.1.0",
-          "type": "module",
-          "scripts": {
-            "dev": "vite",
-            "build": "tsc && vite build",
-            "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-            "format": "prettier --write .",
-            "preview": "vite preview"
-          },
-          "dependencies": {
-            "react": "^18.2.0",
-            "react-dom": "^18.2.0"
-          },
-          "devDependencies": {
-            "@types/react": "^18.2.0",
-            "@types/react-dom": "^18.2.0",
-            "@typescript-eslint/eslint-plugin": "^7.0.0",
-            "@typescript-eslint/parser": "^7.0.0",
-            "@vitejs/plugin-react": "^4.2.0",
-            "eslint": "^8.56.0",
-            "eslint-plugin-react-hooks": "^4.6.0",
-            "prettier": "^3.2.0",
-            "typescript": "^5.3.0",
-            "vite": "^5.1.0"
-          }
+    # [3] THE GEOMETRIC LAWS (TS & Vite)
+    tsconfig.json :: """
+    {
+      "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "lib": ["DOM", "DOM.Iterable", "ESNext"],
+        "allowJs": false,
+        "skipLibCheck": true,
+        "esModuleInterop": false,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "jsx": "react-jsx",
+        "baseUrl": ".",
+        "paths": {
+          "@/*": ["src/*"]
         }
+      },
+      "include": ["src"],
+      "references": [{ "path": "./tsconfig.node.json" }]
+    }
+    """
 
-    tsconfig.json:
+    tsconfig.node.json:
         {
           "compilerOptions": {
-            "target": "ESNext",
-            "lib": ["DOM", "DOM.Iterable", "ESNext"],
-            "allowJs": false, "skipLibCheck": true, "esModuleInterop": true,
-            "strict": true, "forceConsistentCasingInFileNames": true,
-            "module": "ESNext", "moduleResolution": "bundler",
-            "resolveJsonModule": true, "isolatedModules": true, "noEmit": true,
-            "jsx": "react-jsx"
+            "composite": true,
+            "skipLibCheck": true,
+            "module": "ESNext",
+            "moduleResolution": "bundler",
+            "allowSyntheticDefaultImports": true
           },
-          "include": ["src"]
+          "include": ["vite.config.ts"]
         }
 
-    vite.config.ts:
-        import { defineConfig } from 'vite'
-        import react from '@vitejs/plugin-react'
+    vite.config.ts :: """
+    import { defineConfig } from 'vite';
+    import react from '@vitejs/plugin-react';
+    import path from 'path';
 
-        // https://vitejs.dev/config/
-        export default defineConfig({
-          plugins: [react()],
-          server: {
-            port: {{ default_port }}
-          }
-        })
+    // https://vitejs.dev/config/
+    export default defineConfig({
+      plugins: [react()],
+      server: {
+        port: {{ default_port }},
+        strictPort: true,
+        host: true
+      },
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, './src'),
+        },
+      },
+    });
+    """
 
-    index.html:
-        <!doctype html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>{{ project_name }}</title>
-          </head>
-          <body>
-            <div id="root"></div>
-            <script type="module" src="/src/main.tsx"></script>
-          </body>
-        </html>
+    biome.json :: """
+    {
+      "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+      "organizeImports": { "enabled": true },
+      "linter": {
+        "enabled": true,
+        "rules": {
+          "recommended": true,
+          "correctness": { "noUnusedVariables": "warn" }
+        }
+      },
+      "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 2,
+        "lineWidth": 100
+      }
+    }
+    """
+
+    # [4] THE CONTROL PLANE (Makefile)
+    Makefile :: """
+    .PHONY: help install dev build test lint format docker-build clean
+
+    # Gnostic Variables
+    $PKG_MANAGER = npm
+    $IMAGE_NAME = {{ project_slug }}
+
+    help: ## Proclaim available rites for the Ocular Reactor
+        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+    install: ## Summon dependencies and consecrate the environment
+        @echo "📦 Summoning Ocular Artisans..."
+        $($PKG_MANAGER) install
+
+    dev: ## Ignite the hot-reloading Ocular Membrane
+        @echo "🚀 Awakening {{ project_name }} (Lattice Sync)..."
+        $($PKG_MANAGER) run dev
+
+    test: ## Conduct the unit inquisition via Vitest
+        $($PKG_MANAGER) run test
+
+    lint: ## Audit the soul of the code for stylistic heresies
+        $($PKG_MANAGER) run lint
+
+    format: ## Apply sacred geometry to the code via Biome
+        $($PKG_MANAGER) run format
+
+    build: clean ## Transmute source into production-grade matter
+        @echo "🏗️  Forging production artifacts..."
+        $($PKG_MANAGER) run build
+
+    docker-build: ## Forge the celestial Nginx vessel
+        docker build -t $($IMAGE_NAME):latest .
+
+    clean: ## Return artifacts to the void
+        rm -rf dist/ coverage/
+    """
+
+    # [5] THE ENVIRONMENT DNA
+    .env.example :: """
+    # == {{ project_name | upper }} CONFIGURATION ==
+    VITE_APP_NAME="{{ project_name }}"
+    VITE_ENVIRONMENT="development"
+    VITE_API_URL="http://localhost:8000/api/v1"
+    """
+
+    # [6] THE SOURCE CODE (The Ocular Mind)
+    index.html :: """
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ project_name }}</title>
+      </head>
+      <body>
+        <div id="root"></div>
+        <script type="module" src="/src/main.tsx"></script>
+      </body>
+    </html>
+    """
 
     src/
-        main.tsx:
-            import React from 'react'
-            import ReactDOM from 'react-dom/client'
-            import App from './App.tsx'
-            import './index.css'
+        main.tsx :: """
+        import React from 'react';
+        import ReactDOM from 'react-dom/client';
+        import App from './App.tsx';
+        import './styles/global.css';
 
-            ReactDOM.createRoot(document.getElementById('root')!).render(
-              <React.StrictMode>
-                <App />
-              </React.StrictMode>,
-            )
+        ReactDOM.createRoot(document.getElementById('root')!).render(
+          <React.StrictMode>
+            <App />
+          </React.StrictMode>,
+        );
+        """
 
-        App.tsx:
-            import './App.css'
+        App.tsx :: """
+        import { Zap, ShieldCheck, Activity, ArrowRight } from 'lucide-react';
+        import { motion } from 'framer-motion';
+        import { Button } from '@/components/ui/Button';
+        import { useSynapse } from '@/store/useSynapse';
 
-            function App() {
-              return (
-                <>
-                  <h1>{{ project_name }}</h1>
-                  <p className="read-the-docs">
-                    Gnosis is truth. The React reality is manifest.
-                  </p>
-                </>
-              )
-            }
+        function App() {
+          const { status, pulseCount, triggerPulse } = useSynapse();
 
-            export default App
+          return (
+            <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-8 font-sans overflow-hidden relative">
+                {/* ATMOSPHERIC BLOOM (ST-3) */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-400/5 blur-[150px] rounded-full pointer-events-none animate-pulse" />
 
-        index.css:
-            /* Global styles */
+                <div className="z-10 flex flex-col items-center text-center space-y-12 max-w-2xl">
+                    <motion.div 
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="p-5 bg-teal-400/10 rounded-2xl border border-teal-400/20 shadow-[0_0_40px_rgba(100,255,218,0.1)]"
+                    >
+                      <Zap className="text-teal-400" size={48} />
+                    </motion.div>
 
-        App.css:
-            .read-the-docs {
-              color: #888;
-            }
+                    <div className="space-y-4">
+                      <h1 className="text-7xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-[0.8]">
+                        THE <br /> <span className="text-teal-400">REACTOR.</span>
+                      </h1>
+                      <div className="flex items-center justify-center gap-4 text-[10px] font-mono text-teal-400/60 uppercase tracking-[0.4em]">
+                        <Activity size={12} className="animate-pulse" />
+                        Lattice_Status: {status}
+                      </div>
+                    </div>
 
-    # The Unbreakable Vessel for Production
-    Dockerfile:
-        # Stage 1: The Forge
-        FROM node:20-alpine AS builder
-        WORKDIR /app
-        COPY package*.json ./
-        RUN npm install
-        COPY . .
-        RUN npm run build
+                    <p className="text-zinc-500 font-light italic leading-relaxed text-xl border-l-2 border-white/10 pl-8">
+                      "A high-fidelity Ocular Membrane manifest by the VELM God-Engine. 
+                      Synchronizing with the Multiverse at 144Hz."
+                    </p>
 
-        # Stage 2: The Celestial Vessel
-        FROM nginx:1.25-alpine
-        COPY --from=builder /app/dist /usr/share/nginx/html
-        COPY nginx.conf /etc/nginx/conf.d/default.conf
+                    <div className="flex flex-wrap items-center justify-center gap-6">
+                      <Button onClick={triggerPulse}>
+                        Ignite Pulse ({pulseCount}) <ArrowRight size={14} className="ml-2" />
+                      </Button>
+                      <button className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+                        Read the Codex
+                      </button>
+                    </div>
+                </div>
 
-    nginx.conf:
-        server {
-            listen 80;
-            server_name localhost;
-            root /usr/share/nginx/html;
-            index index.html;
-            location / {
-                try_files $uri $uri/ /index.html;
-            }
+                <footer className="absolute bottom-10 flex items-center justify-between w-full px-16 opacity-20 hover:opacity-100 transition-opacity duration-1000">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-mono tracking-[0.5em] uppercase text-white font-black">Ω_NOVALYM_SYSTEMS</span>
+                        <span className="text-[8px] font-mono text-zinc-500 uppercase tracking-widest">Protocol: Ocular_Membrane_V6</span>
+                    </div>
+                    <ShieldCheck size={20} className="text-teal-400" />
+                </footer>
+            </main>
+          );
         }
 
+        export default App;
+        """
+
+        # --- THE COMPONENTS ---
+        components/
+            ui/
+                Button.tsx :: """
+                import * as React from "react"
+                import { cn } from "@/lib/utils"
+
+                export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+
+                const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+                  ({ className, ...props }, ref) => {
+                    return (
+                      <button
+                        className={cn(
+                          "inline-flex items-center justify-center rounded-sm text-xs font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 px-8 py-4 bg-teal-400 text-black hover:bg-white shadow-[0_0_25px_rgba(100,255,218,0.2)] cursor-pointer",
+                          className
+                        )}
+                        ref={ref}
+                        {...props}
+                      />
+                    )
+                  }
+                )
+                Button.displayName = "Button"
+                export { Button }
+                """
+
+        # --- THE SYNAPTIC STORE ---
+        store/
+            useSynapse.ts :: """
+            import { create } from 'zustand';
+
+            interface SynapseState {
+              status: string;
+              pulseCount: number;
+              triggerPulse: () => void;
+              setStatus: (s: string) => void;
+            }
+
+            /**
+             * [THE SYNAPTIC BUS]
+             * Atomic state management for the Ocular Membrane.
+             */
+            export const useSynapse = create<SynapseState>((set) => ({
+              status: 'RESONANT',
+              pulseCount: 0,
+              triggerPulse: () => set((state) => ({ pulseCount: state.pulseCount + 1 })),
+              setStatus: (s) => set({ status: s }),
+            }));
+            """
+
+        # --- THE GNOSTIC LIB ---
+        lib/
+            utils.ts :: """
+            import { type ClassValue, clsx } from "clsx"
+            import { twMerge } from "tailwind-merge"
+
+            export function cn(...inputs: ClassValue[]) {
+              return twMerge(clsx(inputs))
+            }
+            """
+            
+        styles/
+            global.css :: """
+            @import "tailwindcss";
+
+            @theme {
+              --color-obsidian: #020202;
+              --color-teal: {{ theme_accent }};
+              --font-sans: 'Inter', system-ui, sans-serif;
+              --font-mono: 'JetBrains Mono', monospace;
+            }
+
+            @layer base {
+              body {
+                @apply bg-zinc-950 text-white antialiased selection:bg-teal selection:text-black;
+              }
+            }
+            """
+
+    # [7] THE FORENSIC CHAMBERS (Tests)
+    src/App.test.tsx :: """
+    import { describe, it, expect } from 'vitest';
+    import { render, screen } from '@testing-library/react';
+    import App from './App';
+
+    describe('Ocular Membrane', () => {
+      it('should resonate with the Reactor title', () => {
+        // Simple smoke test for the archetype
+        expect(true).toBe(true);
+      });
+    });
+    """
+
+    # [8] THE CELESTIAL VESSEL (Production Dockerfile)
+    Dockerfile :: """
+    # =============================================================================
+    # == THE SOVEREIGN OCULAR VESSEL (V-Ω-TOTALITY-NGINX)                        ==
+    # =============================================================================
+    
+    # --- STAGE 1: THE FORGE (BUILDER) ---
+    FROM node:20-alpine AS builder
+    WORKDIR /app
+    COPY package*.json ./
+    RUN npm ci
+    COPY . .
+    RUN npm run build
+
+    # --- STAGE 2: THE CELESTIAL VESSEL (RUNNER) ---
+    FROM nginx:stable-alpine
+    COPY --from=builder /app/dist /usr/share/nginx/html
+    # [THE CURE]: SPA Routing logic for Nginx
+    RUN echo 'server { listen 80; location / { root /usr/share/nginx/html; index index.html; try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
+    EXPOSE 80
+    CMD ["nginx", "-g", "daemon off;"]
+    """
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
 %% post-run
-    git init
-    npm install
+    proclaim: "The [bold cyan]React-Vite Ocular Reactor[/bold cyan] is materializing."
+    
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the dependencies
+    proclaim: "Summoning the Node Artisans... (npm install)"
+    @if {{ shell('which npm') }} 
+        -> >> npm install
+    @else 
+        -> proclaim: "[bold red]HERESY:[/bold red] 'npm' not detected. Please install Node.js."
+    
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Reactor manifest in '{{ project_slug }}/'.[/bold green]"
+    proclaim: "To ignite the Membrane:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make dev[/bold cyan]"
+    proclaim: "  3. Scry the visuals: [bold]http://localhost:{{ default_port }}[/bold]"
+
+%% on-heresy
+    proclaim: "[bold red]Ocular Inception Fractured.[/bold red] Cleaning the shards..."
+    rm -rf src/ package.json tsconfig.json Makefile Dockerfile

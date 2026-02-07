@@ -1,77 +1,238 @@
-# Path: scaffold/archetypes/genesis/gnostic-symphony.scaffold
-# -----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: GNOSTIC SYMPHONY PLATFORM (V-Ω-TOTALITY)                 ==
+# =================================================================================
+# @description: A transcendent automation hub for cross-project orchestration. 
+#               Features parallel execution, resilience blocks, reusable macro 
+#               libraries, and a hermetic Docker-based execution environment.
+# @category: Automation
+# @tags: symphony, automation, devops, ci-cd, orchestration, docker, makefile
+# @difficulty: Master
+# @is_integration: false
+# @dna: use_docker=true, use_makefile=true, use_symphony=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: GNOSTIC SYMPHONY (V-Ω-AUTOMATION-ENGINE)         ==
-# =================================================================================
-# @description: An automation engine forged with the Scaffold Symphony language.
-#               It is a project for orchestrating other projects.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "nebula-conductor"
+$$ author = "The Architect"
+$$ orchestrator_image = "nebula-artisan:latest"
+$$ slack_webhook_env = "SLACK_WEBHOOK_URL"
 
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
-$$ docker_image_name = "{{ project_slug }}-worker"
+$$ project_title = {{ project_name | title }}
 
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: "reports/\n.env"
 
-    README.md:
-        # {{ project_name }} - Gnostic Symphony
+    # [1] THE CONDUCTOR'S ABYSS (Ignore list)
+    .gitignore:
+        logs/
+        reports/
+        artifacts/
+        .env
+        .DS_Store
+        *.tmp
 
-        This project uses the Scaffold Symphony language to automate complex workflows.
-
-        ## Rites of the Conductor
-
-        - `make build`: Build the Docker image used by the symphony.
-        - `make deploy`: Conduct the `deploy.symphony` scripture.
-        - `make test`: Conduct the `test.symphony` scripture.
-
+    # [2] THE KINETIC CONTROL PLANE (Makefile)
     Makefile:
-        build:
-        	docker build -t {{ docker_image_name }} .
+        .PHONY: help build conduct-dev conduct-prod test-all clean
+        
+        $SYMPHONY = velm symphony conduct
+        $IMAGE = {{ orchestrator_image }}
 
-        deploy:
-        	scaffold symphony conduct symphonies/deploy.symphony --var environment=production
+        help: ## Proclaim the available orchestration rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
 
-        test:
-        	scaffold symphony conduct symphonies/test.symphony
+        build: ## Forge the Conductor's Artisan image
+            docker build -t $($IMAGE) .
 
-    # The Docker image that provides the tools for the symphony's rites
-    Dockerfile:
-        FROM alpine:latest
-        RUN apk add --no-cache curl git
-        # Add any other required tools here (aws-cli, kubectl, etc.)
+        conduct-dev: ## Conduct the development symphony
+            $($SYMPHONY) symphonies/orchestrate.symphony --var env=dev
 
+        conduct-prod: ## Conduct the production ascension
+            $($SYMPHONY) symphonies/orchestrate.symphony --var env=prod
+
+        test-all: ## Adjudicate the health of all managed projects
+            $($SYMPHONY) symphonies/verify_cosmos.symphony
+
+        clean: ## Purge ephemeral reports and logs
+            rm -rf logs/* reports/*
+
+    # [3] THE ARTISAN'S VESSEL (Dockerfile)
+    # This container holds the tools the Symphony will use to touch the world.
+    Dockerfile :: """
+    FROM alpine:3.19
+
+    # Set system Vows
+    ENV PYTHONUNBUFFERED=1
+
+    # Install the Artisan toolset
+    RUN apk add --no-cache \
+        curl \
+        git \
+        openssh-client \
+        python3 \
+        py3-pip \
+        docker-cli \
+        make
+
+    # Install Velm inside the conductor to allow recursive orchestration
+    RUN pip install --break-system-packages velm-cli
+
+    WORKDIR /work
+    ENTRYPOINT ["velm"]
+    """
+
+    # [4] THE SACRED LIBRARIES (Reusable Gnosis)
+    lib/
+        # A library for communicating with the Ocular UI and external messengers.
+        notifications.symphony :: """
+        # == Notification Library ==
+        
+        @macro notify_slack(msg)
+            %% proclaim: "Broadcasting to the Guild: !{msg}"
+            >> curl -X POST -H 'Content-type: application/json' --data '{"text":"!{msg}"}' {{ env(slack_webhook_env) }}
+        @endmacro
+
+        @macro heart_beat()
+            %% proclaim: "Lattice Pulse: [green]RESONANT[/green]"
+        @endmacro
+        """
+
+        # A library for standard Git operations.
+        vcs.symphony :: """
+        # == VCS Library ==
+        
+        @macro ensure_clean_slate()
+            >> git status --porcelain as git_status
+            @if git_status != "":
+                %% fail: "Sanctum is profane. Commit your changes before conducting this rite."
+            @endif
+        @endmacro
+        """
+
+    # [5] THE MAIN SYMPHONIES (The Movements)
     symphonies/
-        # The main entry point for deployment
-        deploy.symphony:
-            # Import reusable Gnosis
-            @import "lib/common.symphony"
+        orchestrate.symphony :: """
+        # == The Great Orchestration ==
+        # @description: The primary entry point for environment-aware conduction.
+        
+        @import "../lib/notifications.symphony"
+        @import "../lib/vcs.symphony"
 
-            # Define the task
-            @task deploy_production
-            
-            %% proclaim: "Beginning the Rite of Celestial Ascension..."
-            
-            # Use a macro from the library
-            @call build_docker({{ docker_image_name }})
-            
-            >> echo "Pushing vessel to the celestial registry..."
-            >> docker push {{ docker_image_name }}:latest
+        @task main
+            @call heart_beat()
+            @call ensure_clean_slate()
+
+            @if env == "prod":
+                @call conduct_production_ascension()
+            @else:
+                @call conduct_dev_sync()
+            @endif
+        @endtask
+
+        @task conduct_dev_sync
+            %% proclaim: "Syncing local realities..."
+            >> make build
             ?? succeeds
+            @call notify_slack("Dev reality synced by {{ author }}")
+        @endtask
 
-            %% proclaim: "Deployment Symphony is complete and pure."
+        @task conduct_production_ascension
+            %% proclaim: "[bold red]WARNING: CRITICAL ASCENSION INITIATED[/bold red]"
+            @try:
+                >> docker push {{ orchestrator_image }}
+                ?? succeeds
+                @call notify_slack("Production Ascension SUCCESS: Version {{ now('utc') }}")
+            @catch:
+                @call notify_slack("Production Ascension FRACTURED. Initiating Rollback.")
+                %% fail: "Ascension collapsed."
+            @endtry
+        @endtask
+        """
 
-        # A symphony for running tests or health checks
-        test.symphony:
-            %% proclaim: "Adjudicating the health of the cosmos..."
-            >> echo "Running health checks..."
-            ?? succeeds
-    
-        lib/
-            common.symphony:
-                # A library of reusable macros
-                @macro build_docker(image_name)
-                    %% proclaim: "Forging the Unbreakable Vessel: !{image_name}"
-                    >> docker build -t !{image_name}:latest .
-                    ?? succeeds
-                @endmacro
+        verify_cosmos.symphony :: """
+        # == The Panoptic Inquest ==
+        # @description: Verified the health of all projects in parallel.
+        
+        @task main
+            %% proclaim: "Beginning Panoptic Inquest..."
+            
+            # [ASCENSION 5]: Parallel Multiverse Execution
+            # We split the Conductor's mind into 3 concurrent threads.
+            &&:
+                @call check_service(name="api")
+                @call check_service(name="ui")
+                @call check_service(name="db")
+            @end
+
+            %% proclaim: "The Cosmos is [green]PURE[/green]."
+        @endtask
+
+        @macro check_service(name)
+            >> echo "Scrying health of !{name}..."
+            # Simulate check
+            >> sleep 1
+        @endmacro
+        """
+
+    # [6] THE ENVIRONMENT DNA
+    .env.example:
+        # == Secret Vault ==
+        # Provide the webhook URL for the Notification library
+        SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/yyy/zzz
+        
+        # == Conductor Settings ==
+        SCAFFOLD_VERBOSE=1
+        SCAFFOLD_FORCE=1
+
+    # [7] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name }}
+
+    > {{ description }}
+
+    Forged by **{{ author }}** via the **VELM God-Engine**.
+    This platform orchestrates the lifecycle of your entire software cosmos.
+
+    ## 🏛️ Topography
+
+    - `symphonies/`: The primary movements of the orchestrator.
+    - `lib/`: Reusable Gnostic macros for common operations.
+    - `Makefile`: The human interface to the conductor.
+
+    ## 🚀 Conduction Rites
+
+    1.  **Forge the Conductor**: `make build`
+    2.  **Conduct Dev Rites**: `make conduct-dev`
+    3.  **Conduct Production Ascension**: `make conduct-prod`
+
+    ## 📜 Gnostic Language
+    This project uses the **Symphony** language. It is strictly warded:
+    - `>>`: Kinetic Action (Shell)
+    - `??`: Gnostic Vow (Assertion)
+    - `%%`: Metaphysical Shift (State)
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Forensic Pre-flight
+    proclaim: "Testing Conductor's Gaze..."
+    @if {{ shell('docker --version > /dev/null 2>&1 && echo "yes" || echo "no"') == 'yes' }} 
+        -> proclaim: "Docker Artisan [green]MANIFEST[/green]."
+    @else 
+        -> proclaim: "[yellow]WARNING: Docker not found. You must install it to forge the Conductor image.[/yellow]"
+
+    # 3. Final Proclamation
+    proclaim: "The Gnostic Symphony Platform is manifest in '{{ project_slug }}/'."
+    proclaim: "To awaken the Conductor:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make help[/bold cyan] (View the Grimoire of available rites)"
+    proclaim: "  3. [bold cyan]make build[/bold cyan] (Forge the Artisan tools)"
+
+%% on-heresy
+    proclaim: "The Symphony forge fractured. Cleaning the multiverse..."
+    rm -rf symphonies/ lib/ Makefile Dockerfile

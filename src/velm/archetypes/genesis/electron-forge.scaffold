@@ -1,103 +1,449 @@
-# Path: scaffold/archetypes/genesis/electron-forge.scaffold
-# ---------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: ELECTRON FORGE TOTALITY (V-Ω-DESKTOP-ASCENSION)          ==
+# =================================================================================
+# @description: The definitive cross-platform desktop foundation. Features 
+#               Electron 29+, React 18, Vite 5, TypeScript, Tailwind CSS, 
+#               and a secure IPC Context Bridge pattern.
+# @category: Frontend
+# @tags: electron, react, typescript, vite, tailwind, desktop, ipc, forge
+# @difficulty: Master
+# @is_integration: false
+# @dna: project_type=node, use_typescript=true, use_tailwind=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: ELECTRON FORGE (V-Ω-DESKTOP-ASCENSION)           ==
-# =================================================================================
-# @description: A cross-platform desktop application forged with Electron Forge,
-#               React, and TypeScript.
-# =================================================================================
+# --- I. THE ALTAR OF VARIABLES ---
+$$ project_name = "nebula-desktop"
+$$ author = "The Architect"
+$$ description = "A high-performance desktop vessel manifest by VELM."
+$$ use_tailwind = true
+$$ theme_color = "#64ffda"
 
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
 
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: "node_modules/\nout/\n.vite/"
 
-    package.json:
-        {
-          "name": "{{ project_slug }}",
-          "productName": "{{ project_name }}",
-          "version": "1.0.0",
-          "main": ".vite/build/main.js",
-          "scripts": {
-            "start": "electron-forge start",
-            "package": "electron-forge package",
-            "make": "electron-forge make"
-          },
-          "devDependencies": {
-            "@electron-forge/cli": "^7.3.0",
-            "@electron-forge/maker-squirrel": "^7.3.0",
-            "@electron-forge/maker-zip": "^7.3.0",
-            "@electron-forge/plugin-vite": "^7.3.0",
-            "electron": "29.1.5",
-            "typescript": "^5.3.0"
-          },
-          "dependencies": {
-            "react": "^18.2.0",
-            "react-dom": "^18.2.0"
-          }
-        }
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        node_modules/
+        out/
+        .vite/
+        .env
+        .env.local
+        *.log
+        dist/
+        .DS_Store
 
-    forge.config.ts:
-        import type { ForgeConfig } from '@electron-forge/shared-types';
-        import { VitePlugin } from '@electron-forge/plugin-vite';
+    package.json :: """
+    {
+      "name": "{{ project_slug }}",
+      "productName": "{{ project_name }}",
+      "version": "1.0.0",
+      "description": "{{ description }}",
+      "main": ".vite/build/main.js",
+      "author": "{{ author }}",
+      "type": "module",
+      "scripts": {
+        "start": "electron-forge start",
+        "package": "electron-forge package",
+        "make": "electron-forge make",
+        "publish": "electron-forge publish",
+        "lint": "eslint . --ext ts,tsx",
+        "format": "prettier --write ."
+      },
+      "devDependencies": {
+        "@electron-forge/cli": "^7.3.0",
+        "@electron-forge/maker-deb": "^7.3.0",
+        "@electron-forge/maker-rpm": "^7.3.0",
+        "@electron-forge/maker-squirrel": "^7.3.0",
+        "@electron-forge/maker-zip": "^7.3.0",
+        "@electron-forge/plugin-auto-unpack-natives": "^7.3.0",
+        "@electron-forge/plugin-vite": "^7.3.0",
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "autoprefixer": "^10.4.17",
+        "electron": "29.1.5",
+        "postcss": "^8.4.35",
+        "tailwindcss": "^3.4.1",
+        "typescript": "^5.3.3",
+        "vite": "^5.1.4"
+      },
+      "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "lucide-react": "latest",
+        "clsx": "latest",
+        "tailwind-merge": "latest"
+      }
+    }
+    """
 
-        const config: ForgeConfig = {
-          packagerConfig: {},
-          makers: [],
-          plugins: [
-            new VitePlugin({
-              build: [
-                { entry: 'src/main.ts', config: 'vite.main.config.ts' },
-                { entry: 'src/preload.ts', config: 'vite.preload.config.ts' }
-              ],
-              renderer: [{ name: 'main_window', config: 'vite.renderer.config.ts' }]
-            })
-          ]
-        };
-        export default config;
+    # [2] THE FORGE ORCHESTRATOR
+    forge.config.ts :: """
+    import type { ForgeConfig } from '@electron-forge/shared-types';
+    import { MakerSquirrel } from '@electron-forge/maker-squirrel';
+    import { MakerZIP } from '@electron-forge/maker-zip';
+    import { MakerDeb } from '@electron-forge/maker-deb';
+    import { MakerRpm } from '@electron-forge/maker-rpm';
+    import { VitePlugin } from '@electron-forge/plugin-vite';
+    import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 
-    vite.main.config.ts:
-        import { defineConfig } from 'vite';
-        export default defineConfig({});
+    const config: ForgeConfig = {
+      packagerConfig: {
+        asar: true,
+        executableName: "{{ project_slug }}",
+      },
+      rebuildConfig: {},
+      makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
+      plugins: [
+        new AutoUnpackNativesPlugin({}),
+        new VitePlugin({
+          build: [
+            {
+              entry: 'src/main/main.ts',
+              config: 'vite.main.config.ts',
+            },
+            {
+              entry: 'src/preload/preload.ts',
+              config: 'vite.preload.config.ts',
+            },
+          ],
+          renderer: [
+            {
+              name: 'main_window',
+              config: 'vite.renderer.config.ts',
+            },
+          ],
+        }),
+      ],
+    };
 
-    vite.preload.config.ts:
-        import { defineConfig } from 'vite';
-        export default defineConfig({});
+    export default config;
+    """
 
-    vite.renderer.config.ts:
-        import { defineConfig } from 'vite';
-        import react from '@vitejs/plugin-react';
-        export default defineConfig({ plugins: [react()] });
+    # [3] VITE STRATA CONFIGURATIONS
+    vite.main.config.ts :: """
+    import { defineConfig } from 'vite';
 
+    export default defineConfig({
+      build: {
+        lib: {
+          entry: 'src/main/main.ts',
+          formats: ['es'],
+          fileName: 'main',
+        },
+        rollupOptions: {
+          external: ['electron', 'path', 'fs', 'url'],
+        },
+      },
+      resolve: {
+        // Load the internal Electron modules
+        browserField: false,
+        mainFields: ['module', 'jsnext:main', 'jsnext'],
+      },
+    });
+    """
+
+    vite.preload.config.ts :: """
+    import { defineConfig } from 'vite';
+
+    export default defineConfig({
+      build: {
+        lib: {
+          entry: 'src/preload/preload.ts',
+          formats: ['es'],
+          fileName: 'preload',
+        },
+        rollupOptions: {
+          external: ['electron'],
+        },
+      },
+    });
+    """
+
+    vite.renderer.config.ts :: """
+    import { defineConfig } from 'vite';
+    import react from '@vitejs/plugin-react';
+    import { resolve } from 'path';
+
+    export default defineConfig({
+      plugins: [react()],
+      resolve: {
+        alias: {
+          '@': resolve(__dirname, './src/renderer'),
+        },
+      },
+    });
+    """
+
+    # [4] THE SOURCE (THE SOUL)
     src/
-        main.ts:
-            import { app, BrowserWindow } from 'electron';
+        # --- THE MIND: MAIN PROCESS ---
+        main/
+            main.ts :: """
+            import { app, BrowserWindow, ipcMain } from 'electron';
             import path from 'path';
 
-            declare const MAIN_WINDOW_VITE_ENTRY: string;
-            declare const MAIN_WINDOW_PRELOAD_VITE_ENTRY: string;
-
-            function createWindow() {
-              const mainWindow = new BrowserWindow({
-                webPreferences: { preload: MAIN_WINDOW_PRELOAD_VITE_ENTRY }
-              });
-              mainWindow.loadURL(MAIN_WINDOW_VITE_ENTRY);
+            /**
+             * =========================================================================
+             * == THE GNOSTIC MIND (ELECTRON MAIN)                                    ==
+             * =========================================================================
+             */
+            
+            // Handle creating/removing shortcuts on Windows when installing/uninstalling.
+            if (await import('electron-squirrel-startup').then(m => m.default)) {
+              app.quit();
             }
 
-            app.whenReady().then(createWindow);
+            const createWindow = () => {
+              const mainWindow = new BrowserWindow({
+                width: 1200,
+                height: 800,
+                backgroundColor: '#020202',
+                show: false, // Prevents flicker
+                webPreferences: {
+                  preload: path.join(__dirname, 'preload.js'),
+                  sandbox: true, // [SECURITY ASCENSION]
+                  contextIsolation: true,
+                },
+              });
 
-        preload.ts:
-            // Expose Gnostic APIs to the renderer
-            console.log("Preload script is manifest.");
+              if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+                mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+              } else {
+                mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+              }
 
-        renderer.tsx:
+              mainWindow.once('ready-to-show', () => {
+                mainWindow.show();
+              });
+
+              // Open the DevTools.
+              // if (import.meta.env.DEV) {
+              //   mainWindow.webContents.openDevTools();
+              // }
+            };
+
+            app.on('ready', createWindow);
+
+            app.on('window-all-closed', () => {
+              if (process.platform !== 'darwin') {
+                app.quit();
+              }
+            });
+
+            app.on('activate', () => {
+              if (BrowserWindow.getAllWindows().length === 0) {
+                createWindow();
+              }
+            });
+
+            // --- IPC HANDLERS ---
+            ipcMain.handle('ping-titan', () => 'RESONANT');
+            """
+
+        # --- THE NERVOUS SYSTEM: PRELOAD ---
+        preload/
+            preload.ts :: """
+            import { contextBridge, ipcRenderer } from 'electron';
+
+            /**
+             * =========================================================================
+             * == THE GNOSTIC BRIDGE (PRELOAD)                                        ==
+             * =========================================================================
+             * Surgically exposes specific APIs to the renderer without 
+             * compromising the host machine's safety.
+             */
+            contextBridge.exposeInMainWorld('electronAPI', {
+              ping: () => ipcRenderer.invoke('ping-titan'),
+              nodeVersion: () => process.versions.node,
+              chromeVersion: () => process.versions.chrome,
+              electronVersion: () => process.versions.electron,
+            });
+            """
+
+        # --- THE OCULAR UI: RENDERER ---
+        renderer/
+            index.html :: """
+            <!DOCTYPE html>
+            <html lang="en">
+              <head>
+                <meta charset="UTF-8" />
+                <title>{{ project_name }}</title>
+                <!-- [SECURITY]: Content Security Policy -->
+                <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+              </head>
+              <body class="bg-black text-white selection:bg-teal selection:text-black">
+                <div id="root"></div>
+                <script type="module" src="/src/renderer/main.tsx"></script>
+              </body>
+            </html>
+            """
+            
+            main.tsx :: """
             import React from 'react';
             import ReactDOM from 'react-dom/client';
+            import App from './App';
+            import './index.css';
 
-            const App = () => <h1>Gnosis is truth. The Electron reality is manifest.</h1>;
-            ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+            ReactDOM.createRoot(document.getElementById('root')!).render(
+              <React.StrictMode>
+                <App />
+              </React.StrictMode>,
+            );
+            """
 
+            App.tsx :: """
+            import React, { useState, useEffect } from 'react';
+            import { Zap, ShieldCheck, Cpu, HardDrive } from 'lucide-react';
+
+            // Type definition for our Bridge
+            interface IElectronAPI {
+                ping: () => Promise<string>;
+                nodeVersion: () => string;
+                chromeVersion: () => string;
+                electronVersion: () => string;
+            }
+
+            declare global {
+                interface Window {
+                    electronAPI: IElectronAPI;
+                }
+            }
+
+            const App = () => {
+                const [status, setStatus] = useState('Awaiting Handshake...');
+
+                useEffect(() => {
+                    window.electronAPI.ping().then(res => setStatus(res));
+                }, []);
+
+                return (
+                    <div className="min-h-screen flex flex-col p-12 gap-12 font-sans">
+                        <header className="flex items-center gap-6">
+                            <div className="p-4 bg-teal/10 rounded-2xl border border-teal/20 shadow-[0_0_30px_rgba(100,255,218,0.1)]">
+                                <Zap className="text-teal" size={32} />
+                            </div>
+                            <h1 className="text-5xl font-black uppercase tracking-tighter italic">
+                                {{ project_name }}
+                            </h1>
+                        </header>
+
+                        <main className="grid grid-cols-2 gap-8">
+                            <div className="p-8 bg-white/5 border border-white/10 rounded-xl space-y-4">
+                                <h3 className="text-xs font-mono font-black text-teal uppercase tracking-widest">System_Status</h3>
+                                <p className="text-3xl font-bold tracking-tight italic">{status}</p>
+                            </div>
+                            
+                            <div className="p-8 bg-white/5 border border-white/10 rounded-xl space-y-6">
+                                <h3 className="text-xs font-mono font-black text-teal uppercase tracking-widest">Environment_DNA</h3>
+                                <div className="space-y-3">
+                                    <VitalsItem label="Node" value={window.electronAPI.nodeVersion()} />
+                                    <VitalsItem label="Chrome" value={window.electronAPI.chromeVersion()} />
+                                    <VitalsItem label="Electron" value={window.electronAPI.electronVersion()} />
+                                </div>
+                            </div>
+                        </main>
+
+                        <footer className="mt-auto pt-8 border-t border-white/5 flex justify-between items-center opacity-30">
+                             <span className="text-[10px] font-mono tracking-widest uppercase">Ω_TITAN_INTERFACE</span>
+                             <ShieldCheck size={16} />
+                        </footer>
+                    </div>
+                );
+            };
+
+            const VitalsItem = ({ label, value }: { label: string, value: string }) => (
+                <div className="flex justify-between items-center text-xs font-mono">
+                    <span className="text-slate-500 uppercase">{label}:</span>
+                    <span className="text-white font-bold">{value}</span>
+                </div>
+            );
+
+            export default App;
+            """
+
+            index.css :: """
+            @tailwind base;
+            @tailwind components;
+            @tailwind utilities;
+
+            body {
+                margin: 0;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                    sans-serif;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                background-color: #020202;
+            }
+            """
+
+    # [5] TAILWIND PIPELINE
+    tailwind.config.js:
+        /** @type {import('tailwindcss').Config} */
+        module.exports = {
+          content: ["./src/renderer/**/*.{html,js,ts,jsx,tsx}"],
+          theme: {
+            extend: {
+              colors: {
+                teal: "{{ theme_color }}",
+                obsidian: "#020202"
+              }
+            },
+          },
+          plugins: [],
+        }
+
+    postcss.config.js:
+        module.exports = {
+          plugins: {
+            tailwindcss: {},
+            autoprefixer: {},
+          },
+        }
+
+    # [6] THE CONTROL PLANE
+    Makefile:
+        .PHONY: help install dev build make clean
+
+        $APP_NAME = {{ project_slug }}
+
+        help: ## Proclaim available rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+        install: ## Summon dependencies
+            npm install
+
+        dev: ## Ignite the development cockpit
+            npm start
+
+        build: ## Forge the production artifact
+            npm run build
+
+        make: ## Materialize platform-specific installers
+            npm run make
+
+        clean: ## Return artifacts to the void
+            rm -rf out/ .vite/
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the Dependencies
+    proclaim: "Forging the Electron environment... (This is a massive rite)"
     npm install
+
+    # 3. Final Proclamation
+    proclaim: "The Electron Forge Totality is manifest in '{{ project_slug }}/'."
+    proclaim: "To launch the cockpit:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make dev[/bold cyan]"
+
+%% on-heresy
+    proclaim: "The forging of the Electron vessel faltered. Cleaning the sanctum..."
+    rm -rf src/ forge.config.ts package.json

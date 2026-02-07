@@ -1,0 +1,132 @@
+# Path: src/velm/archetypes/frontend/query-hook-forge.scaffold
+# -----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: API QUERY HOOK FORGE (V-Ω-TANSTACK-TOTALITY)             ==
+# =================================================================================
+# @description: The canonical pattern for forging a new, self-caching, type-safe 
+#               asynchronous data hook. Implements the TanStack Query model with 
+#               standard React hooks and Zod runtime validation.
+# @category: Frontend
+# @tags: react, typescript, api, data-fetching, caching, validation, hooks
+# @difficulty: Adept
+# @is_integration: false
+# @dna: use_typescript=true, use_react=true, use_zod=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ entity_name = "User"
+$$ api_endpoint = "/api/v1/users/me"
+
+# Alchemical Case Normalization
+$$ entity_pascal = {{ entity_name | pascal }}
+$$ entity_snake = {{ entity_name | snake }}
+$$ hook_name = "use{{ entity_pascal }}Query"
+$$ target_path = "src/hooks/{{ hook_name }}.ts"
+$$ interface_path = "src/api/contracts.ts"
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+# [1] THE API CONTRACTS (The External Law)
+{{ interface_path }} :: """
+// Path: {{ interface_path }}
+import { z } from 'zod';
+
+// [ASCENSION 1]: The Incorruptible Schema (Data Validation)
+export const {{ entity_pascal }}ResponseSchema = z.object({
+  id: z.number().describe("The sovereign identity."),
+  email: z.string().email().describe("The Gnosis for contact."),
+  status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
+});
+
+export type {{ entity_pascal }} = z.infer<typeof {{ entity_pascal }}ResponseSchema>;
+
+// [ASCENSION 2]: The Error Schema
+export const ApiErrorSchema = z.object({
+    message: z.string(),
+    code: z.string().optional(),
+});
+
+export type ApiError = z.infer<typeof ApiErrorSchema>;
+"""
+
+# [2] THE ASYNCHRONOUS HOOK (The Logic)
+{{ target_path }} :: """
+import { useState, useEffect, useCallback } from 'react';
+import { {{ entity_pascal }}, {{ entity_pascal }}ResponseSchema, ApiError } from '../api/contracts';
+
+// [ASCENSION 3]: The Gnostic Cache (Memory to prevent redundant fetching)
+const {{ entity_snake }}Cache = new Map<string, {{ entity_pascal }}>();
+const API_ENDPOINT = "{{ api_endpoint }}";
+
+/**
+ * =============================================================================
+ * == {{ hook_name }} (V-Ω-TOTALITY)
+ * =============================================================================
+ * A self-caching, type-safe data hook. Implements TanStack Query pattern 
+ * without the external library dependency.
+ */
+export const {{ hook_name }} = (queryKey: string = 'default') => {
+  const [data, setData] = useState<{{ entity_pascal }} | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<ApiError | null>(null);
+
+  // [ASCENSION 4]: The Rite of Fetching (Memoized and Isolated)
+  const fetchData = useCallback(async () => {
+    // 1. Gaze into Cache
+    if ({{ entity_snake }}Cache.has(queryKey)) {
+        setData({{ entity_snake }}Cache.get(queryKey) as {{ entity_pascal }});
+        return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // 2. Commune with API
+      const response = await fetch(API_ENDPOINT);
+      const rawData = await response.json();
+
+      if (!response.ok) {
+        // Handle API heresy
+        const errorData = ApiErrorSchema.parse(rawData);
+        throw new Error(errorData.message);
+      }
+      
+      // 3. Zod Runtime Validation (The Incorruptible Gate)
+      const validatedData = {{ entity_pascal }}ResponseSchema.parse(rawData);
+      
+      // 4. Inscribe to Cache
+      {{ entity_snake }}Cache.set(queryKey, validatedData);
+      setData(validatedData);
+      
+    } catch (e: any) {
+      // 5. Heresy Transmutation
+      console.error("API Gaze Fractured:", e);
+      setError({ message: `API Gaze Fractured: ${e.message}`, code: 'FETCH_HERESY' });
+      
+    } finally {
+      setIsLoading(false);
+    }
+  }, [queryKey]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // [ASCENSION 5]: The Gnostic Refetch Rite
+  const refetch = useCallback(() => {
+    {{ entity_snake }}Cache.delete(queryKey); // Invalidate cache
+    fetchData(); // Re-run the fetch
+  }, [fetchData, queryKey]);
+
+  // [ASCENSION 6]: Return the Data Gnosis
+  return { data, isLoading, error, refetch, isError: error !== null };
+};
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "API Hook [bold cyan]{{ hook_name }}[/bold cyan] forged at '{{ target_path }}'."
+    proclaim: "Contracts manifest at '{{ interface_path }}'."
+    proclaim: "To complete the rite, ensure the following artisans are manifest:"
+    proclaim: "  [bold cyan]npm install zod[/bold cyan]"

@@ -1,0 +1,134 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: AUDIT CHRONICLER (V-Ω-TOTALITY-IMMUTABLE-LEDGER)        ==
+# =================================================================================
+# @description: Forges an immutable forensic ledger for the system. Injects a background-tasked middleware that records every state-changing rite (POST/PUT/DELETE) with user metadata, IP tracing, and a cryptographic HMAC signature per entry.
+# @category: Security
+# @tags: audit, logging, compliance, forensics, integrity, middleware, security
+# @difficulty: Adept
+# @is_integration: true
+# @dna: log_format=jsonl, hashing_algorithm=sha256, use_background_tasks=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE CHRONICLE ENGINE (Logic) ---
+src/{{ package_name }}/
+    core/
+        security/
+            # [1] THE AUDIT SCRIBE
+            audit.py :: """
+            import hmac
+            import hashlib
+            import json
+            import time
+            import logging
+            import os
+            from datetime import datetime, timezone
+            from typing import Any, Dict
+            from fastapi import Request, Response
+            from starlette.middleware.base import BaseHTTPMiddleware
+            from starlette.background import BackgroundTask
+
+            # [ASCENSION 1]: SECURE AUDIT LOGGING
+            # We use a dedicated, low-level logger for the ledger.
+            AuditLogger = logging.getLogger("ForensicLedger")
+            AuditLogger.setLevel(logging.INFO)
+            # This file should ideally be on a separate, write-only volume.
+            handler = logging.FileHandler("artifacts/forensics/audit.jsonl")
+            handler.setFormatter(logging.Formatter('%(message)s'))
+            AuditLogger.addHandler(handler)
+
+            SECRET_KEY = os.getenv("SCAFFOLD_INTERNAL_KEY", "VOID_SECRET")
+
+            class AuditMiddleware(BaseHTTPMiddleware):
+                \"\"\"
+                =============================================================================
+                == THE AUDIT CHRONICLER (V-Ω-TOTALITY)                                     ==
+                =============================================================================
+                LIF: ∞ | ROLE: FORENSIC_SCRIBE
+                
+                Intercepts all state-changing rites and chronicles them in the ledger.
+                \"\"\"
+                async def dispatch(self, request: Request, call_next):
+                    # 1. Filter: Only record the "Will" (State changes)
+                    if request.method not in ["POST", "PUT", "DELETE", "PATCH"]:
+                        return await call_next(request)
+
+                    start_time = time.perf_counter()
+                    
+                    # 2. Extract Identity (Assuming AuthMiddleware has run)
+                    user_id = getattr(request.state, "user_id", "anonymous")
+                    nov_id = getattr(request.state, "nov_id", "unknown")
+
+                    # 3. Capture Payload (Pre-consumption)
+                    body_preview = ""
+                    try:
+                        # We peek at the body; this requires request.receive() manipulation
+                        # or simple assumption for non-streaming bodies.
+                        body_bytes = await request.body()
+                        body_preview = body_bytes.decode('utf-8', errors='ignore')[:1000]
+                        # Restore body for the router
+                        async def receive(): return {"type": "http.request", "body": body_bytes}
+                        request._receive = receive
+                    except Exception:
+                        body_preview = "[UNREADABLE_MATTER]"
+
+                    # 4. Execute the Rite
+                    response = await call_next(request)
+                    
+                    # 5. Background Inscription
+                    duration = (time.perf_counter() - start_time) * 1000
+                    response.background = BackgroundTask(
+                        self._inscribe_ledger_entry,
+                        user_id=user_id,
+                        nov_id=nov_id,
+                        method=request.method,
+                        path=request.url.path,
+                        status=response.status_code,
+                        duration_ms=duration,
+                        ip=request.client.host if request.client else "0.0.0.0",
+                        payload=body_preview
+                    )
+
+                    return response
+
+                def _inscribe_ledger_entry(self, **data):
+                    \"\"\"
+                    [ASCENSION 2]: CRYPTOGRAPHIC SIGNATURE
+                    Every entry is signed with the internal key to detect tampering.
+                    \"\"\"
+                    entry = {
+                        "v": "1.0",
+                        "ts": datetime.now(timezone.utc).isoformat(),
+                        **data
+                    }
+                    
+                    # Forge Signature
+                    canonical = json.dumps(entry, sort_keys=True)
+                    signature = hmac.new(
+                        SECRET_KEY.encode(), 
+                        canonical.encode(), 
+                        hashlib.sha256
+                    ).hexdigest()
+                    
+                    entry["sig"] = signature
+                    
+                    # Inscribe to the physical record
+                    AuditLogger.info(json.dumps(entry))
+            """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Audit Chronicler[/bold cyan] is manifest."
+    
+    # Create the Archive
+    proclaim: "Forging the Forensic Archive..."
+    >> mkdir -p artifacts/forensics
+    
+    proclaim: "Ledger active at: [bold]artifacts/forensics/audit.jsonl[/bold]"
+    proclaim: "[bold yellow]NOTE:[/bold yellow] Ensure 'artifacts/' is a persistent volume in production."
+
+%% on-heresy
+    proclaim: "Chronicler failed. Purging shards..."
+    rm -rf src/{{ package_name }}/core/security/audit.py

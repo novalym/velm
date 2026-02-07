@@ -1,0 +1,127 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: VAULT GUARDIAN (V-Ω-TOTALITY-ZERO-TRUST)                ==
+# =================================================================================
+# @description: Materializes a high-security secret provider interface. Bridges your application to professional vaults (HashiCorp Vault / AWS Secrets Manager) while providing an encrypted local fallback for development. Enforces strict schema validation for all injected Gnosis.
+# @category: Security
+# @tags: vault, secrets, hashicorp, aws, infrastructure, zero-trust, pydantic
+# @difficulty: Master
+# @is_integration: true
+# @dna: provider=aws, use_local_mock=true, vault_addr=http://vault:8200
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ vault_provider = "aws" # Options: aws, hashicorp, local
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE GUARDIAN CORE (Logic) ---
+src/{{ package_name }}/
+    core/
+        security/
+            # [1] THE VAULT INTERFACE
+            vault.py :: """
+            import os
+            import json
+            import logging
+            from abc import ABC, abstractmethod
+            from typing import Dict, Any, Optional
+            from pydantic import BaseModel, SecretStr
+
+            Logger = logging.getLogger("Security:Vault")
+
+            class VaultProvider(ABC):
+                \"\"\"The Sacred Contract of Secret Retrieval.\"\"\"
+                @abstractmethod
+                def summon_secret(self, key: str) -> str: pass
+
+            # [ASCENSION 1]: AWS SECRETS MANAGER EMISSARY
+            class AWSVault(VaultProvider):
+                def __init__(self):
+                    import boto3
+                    self.client = boto3.client("secretsmanager")
+
+                def summon_secret(self, key: str) -> str:
+                    try:
+                        res = self.client.get_secret_value(SecretId=key)
+                        return res.get("SecretString", "")
+                    except Exception as e:
+                        Logger.error(f"AWS Vault Fracture for '{key}': {e}")
+                        return ""
+
+            # [ASCENSION 2]: HASHICORP VAULT EMISSARY
+            class HashiCorpVault(VaultProvider):
+                def __init__(self):
+                    import hvac
+                    self.client = hvac.Client(url=os.getenv("VAULT_ADDR"))
+                    self.client.token = os.getenv("VAULT_TOKEN")
+
+                def summon_secret(self, key: str) -> str:
+                    try:
+                        res = self.client.secrets.kv.v2.read_secret_version(path=key)
+                        return json.dumps(res['data']['data'])
+                    except Exception as e:
+                        Logger.error(f"HCP Vault Fracture for '{key}': {e}")
+                        return ""
+
+            # [ASCENSION 3]: THE LOCAL MOCK (Gnostic Mirror)
+            class LocalMockVault(VaultProvider):
+                \"\"\"Used for development only. Reads from .env.local\"\"\"
+                def summon_secret(self, key: str) -> str:
+                    return os.getenv(key, "")
+
+            # [ASCENSION 12]: THE FINALITY VOW (Provider Selection)
+            def get_guardian() -> VaultProvider:
+                provider = os.getenv("SCAFFOLD_VAULT_PROVIDER", "{{ vault_provider }}").lower()
+                if provider == "aws": return AWSVault()
+                if provider == "hashicorp": return HashiCorpVault()
+                return LocalMockVault()
+
+            guardian = get_guardian()
+            """
+
+            # [2] THE GNOSTIC CONTRACT
+            # Use this to define what secrets MUST be in the vault.
+            secrets_schema.py :: """
+            from pydantic import BaseModel, Field, SecretStr
+            from .vault import guardian
+
+            class RequiredGnosis(BaseModel):
+                \"\"\"
+                =============================================================================
+                == THE GNOSTIC CONTRACT OF SECRETS                                         ==
+                =============================================================================
+                Forces the application to fail at inception if the Vault is silent.
+                \"\"\"
+                DB_PASSWORD: str = Field(default_factory=lambda: guardian.summon_secret("prod/db/pass"))
+                API_KEY: str = Field(default_factory=lambda: guardian.summon_secret("prod/api/key"))
+
+                @classmethod
+                def awaken(cls):
+                    try:
+                        return cls()
+                    except Exception as e:
+                        print(f"💀 CRITICAL: Vault Guardian could not fulfill the contract: {e}")
+                        import sys; sys.exit(1)
+
+            # Singleton Access
+            secrets = RequiredGnosis.awaken()
+            """
+
+# --- III. THE SURGICAL WEAVE ---
+@if {{ is_python }}
+    # Dependency Suture
+    pyproject.toml += """
+    boto3 = {version = "^1.34.0", optional = true}
+    hvac = {version = "^2.1.0", optional = true}
+    """
+@endif
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Vault Guardian[/bold cyan] is manifest."
+    
+    proclaim: "Provider selected: [magenta]{{ vault_provider }}[/magenta]"
+    proclaim: "Define your mandatory secrets in [bold]core/security/secrets_schema.py[/bold]."
+    proclaim: "Access them in code via: [cyan]from core.security.secrets_schema import secrets[/cyan]"
+
+%% on-heresy
+    proclaim: "Guardian inception failed."

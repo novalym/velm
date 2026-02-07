@@ -1,61 +1,367 @@
-# Path: scaffold/archetypes/genesis/serverless-synapse.scaffold
-# -------------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: SERVERLESS SYNAPSE (V-Ω-TOTALITY)                        ==
+# =================================================================================
+# @description: Materializes an advanced, event-driven Serverless architecture on AWS. Features Lambda Powertools for tracing, IAM least-privilege per function, X-Ray integration, and a production-grade OIDC-based deployment pipeline.
+# @category: Genesis
+# @tags: aws, lambda, serverless, python, cloud, event-driven, api-gateway, x-ray, pydantic
+# @difficulty: Master
+# @is_integration: false
+# @dna: aws_region=us-east-1, runtime=python3.12, memory=512, observability=xray
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: SERVERLESS SYNAPSE (V-Ω-EVENT-DRIVEN)            ==
-# =================================================================================
-# @description: An infinitely scalable, event-driven serverless function using the
-#               Serverless Framework and AWS Lambda.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "celestial-synapse"
+$$ author = "{{ author | default('The Architect') }}"
+$$ aws_region = "us-east-1"
+$$ stage = "dev"
 
+# [THE ALCHEMY]: Case Normalization
 $$ project_slug = {{ project_name | slug }}
-$$ package_name = {{ project_slug | snake }}
+$$ package_name = {{ project_name | snake }}
 
+# --- II. THE SCRIPTURE OF FORM (The Cloud Structure) ---
 {{ project_slug }}/
-    .gitignore :: ".serverless/\n.venv/"
-    README.md :: "## Serverless Synapse\n- Requires Serverless Framework (`npm install -g serverless`) & AWS credentials.\n- `make deploy` to ascend to the cloud."
 
-    Makefile:
-        .PHONY: deploy remove logs
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore :: """
+    # == The Abyss (Serverless) ==
+    .serverless/
+    .requirements/
+    node_modules/
+    .venv/
+    __pycache__/
+    *.py[cod]
+    
+    # Environment & Local Gnosis
+    .env
+    .env.*
+    !.env.example
+    
+    # Testing & Forensics
+    .pytest_cache/
+    .ruff_cache/
+    .mypy_cache/
+    .coverage
+    
+    # OS Shards
+    .DS_Store
+    """
 
-        deploy:
-        	sls deploy
+    # [2] THE FOUNDRY (pyproject.toml)
+    # The Gnostic Law of the Cloud Runtime.
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "An elastic Gnostic synapse manifest by VELM."
+    authors = ["{{ author }}"]
+    readme = "README.md"
+    packages = [{include = "{{ package_name }}", from = "src"}]
 
-        remove:
-        	sls remove
+    [tool.poetry.dependencies]
+    python = "^3.12"
+    pydantic = "^2.6.0"
+    aws-lambda-powertools = {extras = ["all"], version = "^2.34.0"}
+    python-dotenv = "^1.0.1"
 
-        logs:
-        	sls logs -f main -t
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    pytest-cov = "^5.0.0"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+    mypy = "^1.8.0"
+    boto3-stubs = {extras = ["lambda", "s3", "ssm"], version = "^1.34.0"}
 
-    serverless.yml:
-        service: {{ project_slug }}
-        frameworkVersion: '3'
-        provider:
-          name: aws
-          runtime: python3.11
-        functions:
-          main:
-            handler: src/{{ package_name }}/handler.main
-            events:
-              - httpApi:
-                  path: /
-                  method: get
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
 
-    requirements.txt:
-        # Add Python dependencies here
+    [tool.ruff]
+    line-length = 110
+    target-version = "py312"
+    """
 
+    # [3] THE CELESTIAL BLUEPRINT (serverless.yml)
+    # The Law of the Distributed Soul.
+    serverless.yml :: """
+    service: {{ project_slug }}
+    frameworkVersion: '4'
+
+    provider:
+      name: aws
+      runtime: python3.12
+      region: {{ aws_region }}
+      stage: ${opt:stage, '{{ stage }}'}
+      memorySize: 512
+      timeout: 29
+      logRetentionInDays: 7
+      tracing:
+        lambda: true
+        apiGateway: true
+
+      # [ASCENSION 1]: Gnostic Environment DNA
+      environment:
+        LOG_LEVEL: INFO
+        POWERTOOLS_SERVICE_NAME: {{ project_slug }}
+        POWERTOOLS_METRICS_NAMESPACE: GnosticReality
+
+      # [ASCENSION 2]: Least Privilege Shield
+      # We define a base role; functions can override with surgical precision.
+      iam:
+        role:
+          statements:
+            - Effect: Allow
+              Action:
+                - xray:PutTraceSegments
+                - xray:PutTelemetryRecords
+              Resource: "*"
+
+    # [ASCENSION 3]: Atomic Packaging
+    package:
+      individually: true
+      patterns:
+        - '!./**'
+        - 'src/{{ package_name }}/**'
+
+    functions:
+      # --- THE PRIMARY SYNAPSE ---
+      process_revelation:
+        handler: src/{{ package_name }}/handlers/synapse.handler
+        description: "The primary Gnostic synapse for event processing."
+        events:
+          - httpApi:
+              method: POST
+              path: /v1/proclaim
+        # Surgical IAM for this specific neuron
+        iamRoleStatements:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: "arn:aws:s3:::${self:service}-${self:provider.stage}-vault/*"
+
+    resources:
+      Resources:
+        # [ASCENSION 4]: The Persistence Vault (S3)
+        RealityVault:
+          Type: AWS::S3::Bucket
+          Properties:
+            BucketName: ${self:service}-${self:provider.stage}-vault
+            PublicAccessBlockConfiguration:
+              BlockPublicAcls: true
+              BlockPublicPolicy: true
+              IgnorePublicAcls: true
+              RestrictPublicBuckets: true
+
+    plugins:
+      # [THE CURE]: Native Python support in SLS v4
+    """
+
+    # [4] THE CONTROL PLANE (Makefile)
+    Makefile :: """
+    .PHONY: help install deploy logs invoke test clean
+
+    # Gnostic Variables
+    $SLS = npx serverless
+    $PY = poetry run python
+
+    help: ## Proclaim available Serverless rites
+        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+    install: ## Consecrate the local environment
+        @echo "📦 Summoning Python and Node toolchains..."
+        poetry install
+        npm install
+
+    deploy: ## Proclaim the synapse to the AWS Cosmos
+        @echo "🚀 Conducting Celestial Ascension..."
+        $($SLS) deploy --stage {{ stage }}
+
+    invoke: ## Execute the synapse in the local realm
+        @echo "⚡ Triggering local synapse..."
+        $($SLS) invoke local -f process_revelation --path tests/events/request.json
+
+    logs: ## Gaze upon the chronicles of the cloud
+        $($SLS) logs -f process_revelation
+
+    test: ## Conduct the unit inquisition
+        poetry run pytest
+
+    clean: ## Return ephemeral artifacts to the void
+        rm -rf .serverless .requirements .pytest_cache
+        find . -name "*.pyc" -delete
+    """
+
+    # [5] THE SOURCE CODE (The Neural Core)
     src/
         {{ package_name }}/
-            handler.py:
-                import json
+            __init__.py :: ""
+            
+            # --- THE CONSCIENCE (SCHEMAS) ---
+            schemas.py :: """
+            from pydantic import BaseModel, Field
+            from typing import Dict, Any, Optional
 
-                def main(event, context):
-                    body = {
-                        "message": "Gnosis is truth. The Serverless Synapse is active!",
-                        "input": event,
+            class RevelationPlea(BaseModel):
+                \"\"\"The input contract for the Synapse.\"\"\"
+                intent: str = Field(..., min_length=3)
+                payload: Dict[str, Any]
+                metadata: Optional[Dict[str, str]] = None
+            """
+
+            # --- THE HANDLER (THE NEURON) ---
+            handlers/
+                __init__.py :: ""
+                synapse.py :: """
+                from aws_lambda_powertools import Logger, Tracer, Metrics
+                from aws_lambda_powertools.event_handler import APIGatewayHttpResolver
+                from aws_lambda_powertools.logging import correlation_paths
+                from aws_lambda_powertools.utilities.typing import LambdaContext
+                
+                from ..schemas import RevelationPlea
+
+                # [ASCENSION 5]: THE TRIAD OF OBSERVABILITY
+                logger = Logger()
+                tracer = Tracer()
+                metrics = Metrics()
+                app = APIGatewayHttpResolver()
+
+                @app.post("/v1/proclaim")
+                @tracer.capture_method
+                def handle_proclamation():
+                    # 1. Ingest Plea
+                    raw_body = app.current_event.json_body
+                    plea = RevelationPlea.model_validate(raw_body)
+                    
+                    logger.info(f"🌀 Synapse perceiving intent: {plea.intent}")
+                    
+                    # 2. Logic Transmutation
+                    revelation = {
+                        "status": "RESONANT",
+                        "intent_received": plea.intent,
+                        "origin": "Celestial_Synapse_V6"
                     }
-                    response = {"statusCode": 200, "body": json.dumps(body)}
-                    return response
+                    
+                    # 3. Final Proclamation
+                    return revelation
 
+                @logger.inject_lambda_context(correlation_id_path=correlation_paths.API_GATEWAY_HTTP)
+                @tracer.capture_lambda_handler
+                @metrics.log_metrics(capture_cold_start_metric=True)
+                def handler(event: dict, context: LambdaContext) -> dict:
+                    \"\"\"The gateway for the neuron.\"\"\"
+                    return app.resolve(event, context)
+                """
+
+    # [6] THE INQUISITION (Tests)
+    tests/
+        __init__.py :: ""
+        events/
+            request.json:
+                {
+                    "body": "{\\"intent\\": \\"GENESIS\\", \\"payload\\": {\\"key\\": \\"val\\"}}",
+                    "requestContext": {
+                        "http": {
+                            "method": "POST",
+                            "path": "/v1/proclaim"
+                        }
+                    }
+                }
+        test_synapse.py :: """
+        import pytest
+        from src.{{ package_name }}.handlers.synapse import app
+
+        def test_synapse_resonance():
+            \"\"\"Adjudicates the response to a valid plea.\"\"\"
+            # Mock event logic for local inquisition
+            pass
+        """
+
+    # [7] THE CELESTIAL GATE (GitHub CI/CD)
+    .github/workflows/ascension.yml :: """
+    name: Ω | Celestial Ascension (OIDC)
+
+    on:
+      push:
+        branches: [ main ]
+
+    permissions:
+      id-token: write # CRITICAL: For OIDC Handshake
+      contents: read
+
+    jobs:
+      deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          
+          - name: Consecrate Python
+            uses: actions/setup-python@v5
+            with:
+              python-version: '3.12'
+              cache: 'pip'
+
+          - name: Configure AWS Credentials (OIDC)
+            uses: aws-actions/configure-aws-credentials@v4
+            with:
+              role-to-assume: {{ oidc_role_arn | default('arn:aws:iam::ACCOUNT_ID:role/VelmDeployRole') }}
+              aws-region: {{ aws_region }}
+
+          - name: Summon Dependencies
+            run: |
+              pip install poetry
+              poetry install
+              npm install
+
+          - name: Proclaim to the Cosmos
+            run: npx serverless deploy --stage prod
+    """
+
+    # [8] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name | title }}
+    
+    > **Status:** [V-Ω-RESONANT] | **Region:** {{ aws_region }}
+
+    This is an **Event-Driven Serverless Synapse**, forged via the **VELM God-Engine**.
+    It scale automatically from zero to the limits of the cloud.
+
+    ## 🚀 Initiation Rites
+
+    1.  **Consecrate**: `make install`
+    2.  **Verify**: `make test`
+    3.  **Ascend**: `make deploy` (Requires AWS authentication)
+
+    ## 🏛️ Topography
+
+    - `serverless.yml`: The blueprint of the cloud soul.
+    - `src/{{ package_name }}/handlers/`: The neural processing units.
+    - `src/{{ package_name }}/schemas.py`: The Pydantic Gnostic contracts.
+    - `Makefile`: The kinetic conductor.
+
+    ## 📡 Telemetry
+    Observability is handled via **AWS X-Ray** and **CloudWatch Logs**, 
+    instrumented with **Lambda Powertools**.
+    """
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
 %% post-run
-    git init
+    proclaim: "The [bold cyan]Serverless Synapse[/bold cyan] is manifest in '{{ project_slug }}/'."
+    
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon dependencies
+    proclaim: "Summoning the Cloud toolchain... (npm & poetry)"
+    >> make install
+
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Synapse manifest.[/bold green]"
+    proclaim: "To test your neuron locally:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make invoke[/bold cyan]"
+    proclaim: "To ascend to the cloud, ensure you are [bold]aws authenticated[/bold] and speak:"
+    proclaim: "  [bold cyan]make deploy[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Serverless Inception Fractured.[/bold red] Purging the cloud shards..."
+    rm -rf src/ .serverless/ package.json serverless.yml

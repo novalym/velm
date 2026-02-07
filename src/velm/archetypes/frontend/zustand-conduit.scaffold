@@ -1,0 +1,171 @@
+# Path: src/velm/archetypes/frontend/zustand-conduit.scaffold
+# ----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: GLOBAL STATE CONDUIT (V-Ω-ZUSTAND-TOTALITY)              ==
+# =================================================================================
+# @description: The canonical pattern for forging a new, persistent Zustand state 
+#               slice. Decouples state logic from React and includes a persistence 
+#               middleware integration (localStorage ready).
+# @category: Frontend
+# @tags: react, typescript, zustand, state-management, store, persistence, modular
+# @difficulty: Adept
+# @is_integration: false
+# @dna: use_typescript=true, use_react=true, use_zustand=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ state_slice_name = "Auth"
+$$ user_data_contract = "User"
+
+# Alchemical Case Normalization
+$$ slice_pascal = {{ state_slice_name | pascal }}
+$$ slice_snake = {{ state_slice_name | snake }}
+$$ contract_pascal = {{ user_data_contract | pascal }}
+$$ target_path = "src/store/slices/{{ slice_snake }}Slice.ts"
+$$ interface_path = "src/store/contracts.ts"
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+# [1] THE CONTRACTS (The Immutable Law)
+# This file centralizes all shared interfaces to prevent circular imports.
+{{ interface_path }} :: """
+// Path: {{ interface_path }}
+import { z } from 'zod';
+import { type UUID } from 'crypto';
+
+// [ASCENSION 1]: The Zod Schema (Runtime Contract)
+export const {{ contract_pascal }}Schema = z.object({
+  id: z.string().uuid().describe("The unique identity of the user."),
+  email: z.string().email().describe("The primary Gnosis for communication."),
+  role: z.enum(['ARCHITECT', 'ACCLOYTE', 'GUEST']).default('GUEST'),
+  lastLogin: z.number().default(() => Date.now()),
+});
+
+export type {{ contract_pascal }} = z.infer<typeof {{ contract_pascal }}Schema>;
+
+// [ASCENSION 2]: The State Interface (Typescript Contract)
+export interface {{ slice_pascal }}State {
+  isLoggedIn: boolean;
+  user: {{ contract_pascal }} | null;
+  authToken: string | null;
+  loginTime: number | null;
+}
+
+// [ASCENSION 3]: The Actions Interface
+export interface {{ slice_pascal }}Actions {
+  login: (user: {{ contract_pascal }}, token: string) => void;
+  logout: () => void;
+  updateUser: (user: Partial<{{ contract_pascal }}>) => void;
+}
+
+export type {{ slice_pascal }}Slice = {{ slice_pascal }}State & {{ slice_pascal }}Actions;
+"""
+
+# [2] THE ZUSTAND SLICE (The Logic)
+{{ target_path }} :: """
+import { create } from 'zustand';
+import { persist, createJSONStorage, StateCreator } from 'zustand/middleware';
+import { 
+    type {{ slice_pascal }}Slice, 
+    type {{ contract_pascal }},
+    type {{ slice_pascal }}State,
+    type {{ slice_pascal }}Actions 
+} from '../contracts';
+import { shallow } from 'zustand/shallow';
+
+// [ASCENSION 4]: Initial, Pure State
+const initial{{ slice_pascal }}State: {{ slice_pascal }}State = {
+  isLoggedIn: false,
+  user: null,
+  authToken: null,
+  loginTime: null,
+};
+
+// [ASCENSION 5]: The State Creator (Logic Decoupled)
+// This pure function contains the Gnostic logic for the slice.
+const {{ slice_snake }}SliceCreator: StateCreator<
+  {{ slice_pascal }}Slice,
+  [['zustand/persist', unknown]], // Middlewares used (Persist)
+  [], 
+  {{ slice_pascal }}Slice
+> = (set, get) => ({
+  ...initial{{ slice_pascal }}State,
+
+  // --- ACTIONS (The Will) ---
+  login: (user: {{ contract_pascal }}, token: string) => 
+    set({
+      isLoggedIn: true,
+      user: user,
+      authToken: token,
+      loginTime: Date.now(),
+      realityAnchor: 'LOGGED_IN' // Example of adding custom logic
+    }),
+
+  logout: () => set(initial{{ slice_pascal }}State),
+
+  updateUser: (user: Partial<{{ contract_pascal }}>) => 
+    set((state) => ({
+      user: state.user ? { ...state.user, ...user } : null,
+    })),
+});
+
+/**
+ * =============================================================================
+ * == THE {{ slice_pascal }} STORE (V-Ω-CONDUIT)
+ * =============================================================================
+ * The main export, wrapped in persistence middleware.
+ */
+export const use{{ slice_pascal }}Store = create<{{ slice_pascal }}Slice>()(
+  // [ASCENSION 6]: Persist Middleware for Local Storage Resurrection
+  persist(
+    {{ slice_snake }}SliceCreator,
+    {
+      name: '{{ slice_snake }}-storage', // Key in localStorage
+      storage: createJSONStorage(() => localStorage),
+      // [ASCENSION 7]: Whitelist for Security
+      // Only persist non-sensitive data
+      partialize: (state) => ({ 
+        user: state.user,
+        isLoggedIn: state.isLoggedIn,
+        loginTime: state.loginTime,
+      }),
+      // Blacklist authToken to force re-auth on refresh
+      // blacklist: ['authToken']
+    }
+  ),
+);
+
+/**
+ * [ASCENSION 8]: The Gnostic Selector Hook (for easy access in components)
+ */
+export const use{{ slice_pascal }}Gnosis = () => {
+    return use{{ slice_pascal }}Store(
+        (state) => ({
+            isLoggedIn: state.isLoggedIn,
+            user: state.user,
+            loginTime: state.loginTime,
+            login: state.login,
+            logout: state.logout
+        }),
+        shallow // [ASCENSION 9]: Performance Opt: Only rerender on deep state change
+    );
+}
+"""
+
+# [3] THE ROOT SUTURE (Instructions for Architect)
+src/store/
+    __init__.ts :: """
+    // This file is a placeholder. Architect must assemble the store by exporting
+    // all slices from this directory, e.g.,
+    // export * from './slices/authSlice';
+    
+    // Remember to install: npm install zustand zustand-middleware
+    """
+
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Global State Conduit [bold cyan]{{ slice_pascal }}Store[/bold cyan] forged at '{{ target_path }}'."
+    proclaim: "Contract Scripture manifest at '{{ interface_path }}'."
+    proclaim: "To complete the rite, ensure the following artisans are manifest:"
+    proclaim: "  [bold cyan]npm install zustand zustand-middleware zod lucide-react[/bold cyan]"

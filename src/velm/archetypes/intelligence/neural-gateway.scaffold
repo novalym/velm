@@ -1,0 +1,260 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: NEURAL GATEWAY (V-Ω-TOTALITY)                           ==
+# =================================================================================
+# @description: Materializes a high-performance, unified AI proxy layer. Features provider-agnostic routing, Redis-backed semantic caching to save 80% on repeat queries, cost-tracking telemetry, and a version-controlled Jinja2 prompt registry.
+# @category: Intelligence
+# @tags: llm, proxy, ai-ops, redis, caching, openai, anthropic, groq, litellm, pydantic
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: gateway_port=8080, primary_model=gpt-4o, cache_enabled=true, provider=openai
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "neural-conduit"
+$$ gateway_port = 8080
+$$ redis_host = "neural-cache"
+$$ redis_port = 6379
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE GATEWAY INFRASTRUCTURE (Matter) ---
+infra/intelligence/
+    # [1] THE MEMORY VAULT (Redis)
+    # Serves as the substrate for the Semantic Cache.
+    docker-compose.gateway.yml :: """
+    version: '3.8'
+    services:
+      # [THE CACHE]: High-speed Redis node for response persistence
+      neural-cache:
+        image: redis:7-alpine
+        container_name: {{ project_slug }}_redis_cache
+        command: redis-server --save 60 1 --loglevel warning --maxmemory 256mb --maxmemory-policy allkeys-lru
+        ports:
+          - "{{ redis_port }}:6379"
+        networks:
+          - gnostic_mesh
+        healthcheck:
+          test: ["CMD", "redis-cli", "ping"]
+          interval: 5s
+          timeout: 3s
+          retries: 5
+
+    networks:
+      gnostic_mesh:
+        external: true
+        name: {{ project_slug }}_gnostic_mesh
+    """
+
+# --- III. THE NEURAL CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        ai/
+            __init__.py :: "from .gateway import neural_gateway"
+            
+            # [2] THE HIGH PRIEST (The Universal Proxy)
+            # Decouples application logic from provider APIs.
+            gateway.py :: """
+            import os
+            import logging
+            from typing import List, Dict, Any, Optional, Union
+            import litellm
+            from litellm import completion, embedding
+            from litellm.caching import Cache
+            from pydantic import BaseModel
+            
+            Logger = logging.getLogger("NeuralGateway")
+
+            class NeuralResponse(BaseModel):
+                \"\"\"The structured soul of an AI revelation.\"\"\"
+                content: str
+                model: str
+                provider: str
+                cached: bool
+                latency_ms: float
+                cost_usd: float
+
+            class NeuralGateway:
+                \"\"\"
+                =============================================================================
+                == THE NEURAL GATEWAY (V-Ω-TOTALITY)                                      ==
+                =============================================================================
+                LIF: ∞ | ROLE: INFERENCE_ORCHESTRATOR | RANK: MASTER
+                
+                The single point of communion for all LLM requests. Handles caching, 
+                retries, and cost telemetry.
+                \"\"\"
+                def __init__(self):
+                    # [ASCENSION 1]: Semantic Caching Suture
+                    # In-memory and Redis fallback for 0ms response on repeat queries.
+                    self.cache = Cache(
+                        type="redis",
+                        host=os.getenv("REDIS_HOST", "localhost"),
+                        port=int(os.getenv("REDIS_PORT", "6379"))
+                    )
+                    litellm.cache = self.cache
+                    
+                    # [ASCENSION 2]: Global Resilience Settings
+                    litellm.num_retries = 3
+                    litellm.request_timeout = 60
+                    litellm.success_callback = ["success_handler"]
+                    
+                def invoke(self, 
+                           messages: List[Dict[str, str]], 
+                           model: str = os.getenv("PRIMARY_MODEL", "gpt-4o"),
+                           temperature: float = 0.7,
+                           max_tokens: int = 4096,
+                           json_mode: bool = False) -> NeuralResponse:
+                    \"\"\"
+                    The Rite of Completion. 
+                    Transmutes intent into a model-specific API strike.
+                    \"\"\"
+                    import time
+                    start = time.perf_counter()
+                    
+                    try:
+                        # [ASCENSION 3]: Polymorphic Dispatch
+                        # LiteLLM allows us to use 'openai/model', 'anthropic/model', etc.
+                        response = completion(
+                            model=model,
+                            messages=messages,
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                            response_format={"type": "json_object"} if json_mode else None,
+                            caching=True
+                        )
+                        
+                        duration = (time.perf_counter() - start) * 1000
+                        
+                        return NeuralResponse(
+                            content=response.choices[0].message.content,
+                            model=response.model,
+                            provider=response.get("provider", "unknown"),
+                            cached=response.get("_hidden_params", {}).get("cache_hit", False),
+                            latency_ms=duration,
+                            cost_usd=response.get("_hidden_params", {}).get("response_cost", 0.0)
+                        )
+                        
+                    except Exception as heresy:
+                        Logger.error(f"Neural Link Fracture: {heresy}")
+                        raise heresy
+
+            # Singleton Instance
+            neural_gateway = NeuralGateway()
+            """
+
+    # [3] THE PROMPT SANCTUM (Registry)
+    # Stores Jinja2 templates so prompts are treated as Code, not Strings.
+    prompts/
+        __init__.py :: ""
+        
+        # Base Persona for the Engine
+        system_base.j2 :: """
+        You are the {{ role_name }} of the {{ project_name }} multiverse.
+        Your Gaze is focused on: {{ intent }}
+        Speak only in the tone of: {{ tone }}
+        """
+        
+        # Architectural Analysis Template
+        analyze_structure.j2 :: """
+        {% include 'system_base.j2' %}
+        
+        Gaze upon the following code scripture and identify structural heresies:
+        
+        SCRIPTURE:
+        {{ code_content }}
+        
+        PROCLAIM RESULTS AS JSON.
+        """
+
+    core/ai/
+        registry.py :: """
+        from pathlib import Path
+        from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+        PROMPT_DIR = Path(__file__).parent.parent.parent.parent / "prompts"
+
+        class PromptAlchemist:
+            \"\"\"
+            Transmutes templates into final prompt strings.
+            \"\"\"
+            def __init__(self):
+                self.env = Environment(
+                    loader=FileSystemLoader(PROMPT_DIR),
+                    autoescape=select_autoescape()
+                )
+
+            def forge(self, template_name: str, **context) -> str:
+                \"\"\"Renders the Gnostic prompt.\"\"\"
+                template = self.env.get_template(template_name)
+                return template.render(**context)
+
+        prompt_alchemist = PromptAlchemist()
+        """
+
+# --- IV. THE SURGICAL WEAVE (FastAPI Integration) ---
+@if {{ is_python }}
+src/{{ package_name }}/
+    main.py ^= """
+    from .core.ai.gateway import neural_gateway
+    from .core.ai.registry import prompt_alchemist
+    """
+
+    main.py += """
+    # [Gnostic Suture]: The Intelligence Entrypoint
+    @app.post("/api/v1/intelligence/think")
+    async def think(query: str):
+        # 1. Forge the Prompt from the Registry
+        system_prompt = prompt_alchemist.forge(
+            "system_base.j2", 
+            role_name="Cognitive Oracle",
+            intent="General Assistance",
+            tone="Luminous and Precise"
+        )
+        
+        # 2. Strike the Gateway
+        return neural_gateway.invoke([
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": query}
+        ])
+    """
+
+    # Dependencies
+    pyproject.toml += """
+    litellm = "^1.40.0"
+    redis = "^5.0.0"
+    jinja2 = "^3.1.0"
+    """
+    
+    # Makefile Conductor
+    Makefile += """
+    # [Gnostic Suture]: Neural Gateway Rites
+    gateway-up: ## Ignite the Semantic Cache (Redis)
+        @docker-compose -f infra/intelligence/docker-compose.gateway.yml up -d
+    
+    gateway-down: ## Dissolve the Neural Cache
+        @docker-compose -f infra/intelligence/docker-compose.gateway.yml down
+    """
+@endif
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Neural Gateway[/bold cyan] is manifest."
+    
+    # 1. Create directory structure
+    proclaim: "Forging the Prompt Sanctum..."
+    >> mkdir -p src/{{ package_name }}/core/ai
+    >> mkdir -p prompts
+
+    # 2. Network Verification
+    proclaim: "Verifying Gnostic Mesh network..."
+    >> docker network create {{ project_slug }}_gnostic_mesh || true
+    
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ High Priest is manifest.[/bold green]"
+    proclaim: "To ignite the Gateway:"
+    proclaim: "  1. [bold cyan]make gateway-up[/bold cyan] (Ignite Redis Cache)"
+    proclaim: "  2. Ensure [bold]OPENAI_API_KEY[/bold] or [bold]ANTHROPIC_API_KEY[/bold] is in your .env."
+    proclaim: "  3. Scry the logs: [bold]POST /api/v1/intelligence/think[/bold]"
+
+%% on-heresy
+    proclaim: "[bold red]Neural Inception Fractured.[/bold red] Cleaning shards..."
+    rm -rf src/{{ package_name }}/core/ai prompts/

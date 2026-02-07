@@ -1,0 +1,262 @@
+# Path: src/velm/archetypes/cloud/auroraless-fortress.scaffold
+# -----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: AWS AURORA-LESS FORTRESS (V-Ω-SERVERLESS-DATA)           ==
+# =================================================================================
+# @description: A highly scalable, cost-optimized persistence layer. Forges an 
+#               AWS Aurora Serverless v2 cluster with RDS Proxy and VPC networking 
+#               using pure, modular Terraform.
+# @category: Infrastructure
+# @tags: aws, aurora, serverless, rds, terraform, persistence, vpc
+# @difficulty: Grand Architect
+# @is_integration: false
+# @dna: use_terraform=true, use_aws=true, use_serverless=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "aurora-citadel"
+$$ author = "The Architect"
+$$ aws_region = "us-east-1"
+$$ environment = "staging"
+
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+{{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        .terraform/
+        *.tfstate
+        *.tfstate.backup
+        .terraform.lock.hcl
+
+    # [2] THE MASTER SYMPHONY (ROOT)
+    main.tf :: """
+    // This is the root conductor. It calls the networking and persistence modules.
+    
+    // [ASCENSION 1]: The Contextual Module
+    module "context" {
+      source = "./modules/context"
+      project_name = var.project_name
+      environment  = var.environment
+    }
+
+    // [ASCENSION 2]: The Networking Module
+    module "network" {
+      source = "./modules/network"
+      tags = module.context.tags
+    }
+
+    // [ASCENSION 3]: The Persistence Module
+    module "persistence" {
+      source = "./modules/persistence"
+      vpc_id = module.network.vpc_id
+      subnet_ids = module.network.private_subnet_ids
+      tags = module.context.tags
+    }
+    """
+
+    # [3] THE GNOSTIC PROVIDER
+    providers.tf :: """
+    terraform {
+      required_providers {
+        aws = {
+          source  = "hashicorp/aws"
+          version = "~> 5.0"
+        }
+      }
+      // Assuming remote state is managed by a higher-level Terragrunt/CI wrapper
+    }
+
+    provider "aws" {
+      region = var.aws_region
+    }
+    """
+
+    # [4] THE GNOSTIC VARIABLES
+    variables.tf :: """
+    variable "aws_region" {
+      description = "The AWS region to forge resources in."
+      type        = string
+      default     = "{{ aws_region }}"
+    }
+    variable "project_name" {
+      description = "The Gnostic name for resource tagging."
+      type        = string
+      default     = "{{ project_name }}"
+    }
+    variable "environment" {
+      description = "The target environment (e.g., staging, production)."
+      type        = string
+      default     = "{{ environment }}"
+    }
+    """
+    
+    # [5] THE MODULAR ORGANS (VPC, CONTEXT, PERSISTENCE)
+    modules/
+        context/
+            main.tf :: """
+            // This module forges the universal tags for all resources.
+            locals {
+              global_tags = {
+                Project     = var.project_name
+                Environment = var.environment
+                ManagedBy   = "Velm-Terraform"
+              }
+            }
+            output "tags" {
+              value = local.global_tags
+            }
+            """
+            variables.tf :: """
+            variable "project_name" { type = string }
+            variable "environment" { type = string }
+            """
+        
+        network/
+            main.tf :: """
+            // Simplistic VPC for a Serverless Data Layer
+            resource "aws_vpc" "main" {
+              cidr_block = "10.0.0.0/16"
+              tags       = merge(var.tags, { Name = "vpc-${var.environment}" })
+            }
+            
+            resource "aws_subnet" "private" {
+              count             = 2
+              vpc_id            = aws_vpc.main.id
+              cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
+              availability_zone = data.aws_availability_zones.available.names[count.index]
+              tags              = merge(var.tags, { Name = "private-${count.index}" })
+            }
+            
+            data "aws_availability_zones" "available" { state = "available" }
+
+            output "vpc_id" { value = aws_vpc.main.id }
+            output "private_subnet_ids" { value = aws_subnet.private[*].id }
+            """
+            variables.tf :: """
+            variable "environment" { type = string }
+            variable "tags" { type = map(string) }
+            """
+
+        persistence/
+            main.tf :: """
+            // [ASCENSION 4]: AURORA SERVERLESS V2 CLUSTER
+            resource "aws_rds_cluster" "aurora_v2" {
+              engine                   = "aurora-postgresql"
+              engine_mode              = "serverless"
+              engine_version           = "15.5"
+              database_name            = "appdb"
+              master_username          = "admin"
+              master_password          = random_password.db_password.result
+              vpc_security_group_ids   = [aws_security_group.db_sg.id]
+              db_subnet_group_name     = aws_rds_subnet_group.main.name
+              tags                     = var.tags
+            }
+            
+            // [ASCENSION 5]: RDS PROXY
+            resource "aws_rds_proxy" "main" {
+              name                   = "${var.project_name}-proxy"
+              engine_family          = "POSTGRESQL"
+              vpc_subnet_ids         = var.subnet_ids
+              auth {
+                auth_scheme = "SECRETS"
+                iam_auth    = "DISABLED"
+                secret_arn  = aws_secretsmanager_secret.db_secret.arn
+                client_password = random_password.db_password.result
+              }
+              role_arn               = aws_iam_role.proxy_role.arn
+              vpc_security_group_ids = [aws_security_group.db_sg.id]
+            }
+
+            // --- Boilerplate Resources ---
+            resource "aws_rds_subnet_group" "main" {
+                name       = "${var.project_name}-subnet-group"
+                subnet_ids = var.subnet_ids
+            }
+            resource "aws_security_group" "db_sg" { 
+                vpc_id = var.vpc_id
+                ingress { protocol = "tcp"; from_port = 5432; to_port = 5432; cidr_blocks = ["10.0.0.0/16"] }
+            }
+            resource "aws_secretsmanager_secret" "db_secret" { name = "${var.project_name}/db-credentials" }
+            resource "aws_secretsmanager_secret_version" "db_secret_version" {
+                secret_id = aws_secretsmanager_secret.db_secret.id
+                secret_string = jsonencode({ username = "admin", password = random_password.db_password.result })
+            }
+            resource "aws_iam_role" "proxy_role" { name = "${var.project_name}-proxy-role" }
+            resource "random_password" "db_password" { length = 16; special = true; override_special = "_%@" }
+
+            output "proxy_endpoint" { value = aws_rds_proxy.main.endpoint }
+            output "secret_arn" { value = aws_secretsmanager_secret.db_secret.arn }
+            """
+            variables.tf :: """
+            variable "vpc_id" { type = string }
+            variable "subnet_ids" { type = list(string) }
+            variable "tags" { type = map(string) }
+            variable "project_name" { type = string }
+            """
+            
+    # [6] THE ARCHITECT'S MANIFESTO
+    scripts/
+        deploy.sh :: """
+        #!/bin/bash
+        # RITE OF CELESTIAL ASCENSION
+        set -euo pipefail
+
+        echo "🚀 Initializing Terraform Fortress..."
+        terraform init -upgrade
+        
+        echo "🧐 Proclaiming Prophecy..."
+        terraform plan -var="environment=$1"
+        
+        echo "🔥 Making Reality Manifest..."
+        terraform apply -auto-approve -var="environment=$1"
+
+        if [ $? -eq 0 ]; then
+            echo "✅ Ascension Complete. Proxy Endpoint:"
+            terraform output proxy_endpoint
+        else
+            echo "❌ Heresy: Terraform Apply Failed."
+            exit 1
+        fi
+        """
+        %% 755
+        
+    README.md :: """
+    # {{ project_name }} - Aurora Serverless Fortress
+
+    > Forged with modular Terraform. This defines your highly scalable persistence layer.
+
+    ## ⚠️ Pre-Flight Check
+    - You must have the `terraform` artisan manifest in your PATH.
+    - You must have your AWS credentials configured (AWS_ACCESS_KEY_ID, etc.).
+
+    ## 🚀 The Rites of Ascension
+    
+    1.  **Enter Sanctum**: `cd {{ project_slug }}`
+    2.  **Conduct Staging Rite**: `./scripts/deploy.sh staging`
+    3.  **Conduct Production Rite**: `./scripts/deploy.sh production`
+    
+    ## 📜 Gnosis Proclaimed
+    
+    After a successful `apply`, you can retrieve the connection Gnosis:
+    
+    ```bash
+    terraform output proxy_endpoint
+    terraform output secret_arn
+    ```
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Final Proclamation
+    proclaim: "The Aurora Serverless Fortress is manifest in '{{ project_slug }}/'."
+    proclaim: "[bold red]CRITICAL:[/bold red] Ensure the [bold magenta]terraform[/bold magenta] artisan and AWS credentials are set."
+    proclaim: "To ascend to the cloud:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]./scripts/deploy.sh staging[/bold cyan]"

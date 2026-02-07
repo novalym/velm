@@ -1,55 +1,120 @@
-# Path: scaffold/archetypes/genesis/nextjs-fortress.scaffold
-# ----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: NEXT.JS OCULAR FORTRESS (V-Ω-TOTALITY)                   ==
+# =================================================================================
+# @description: Materializes a high-fidelity, production-hardened Ocular Membrane using Next.js 15, TypeScript, and Tailwind CSS v4. Features Atomic UI components, Zod-validated data streams, and a multi-stage Standalone Docker vessel.
+# @category: Frontend
+# @tags: nextjs, react, typescript, tailwind, zod, lucide, docker, shadcn-pattern
+# @difficulty: Grand Architect
+# @is_integration: false
+# @dna: next_version=15, react_version=19, output_mode=standalone, runtime=node
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: NEXT.JS FORTRESS (V-Ω-SSR-ASCENSION)             ==
-# =================================================================================
-# @description: A production-grade, server-side rendered React application using
-#               the Next.js App Router, TypeScript, and Tailwind CSS.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "nebula-ocular"
+$$ author = "{{ author | default('The Architect') }}"
+$$ description = "A high-fidelity Ocular Membrane manifest by VELM."
+$$ theme_accent = "#64ffda"
+$$ api_url = "http://localhost:8000/api/v1"
 
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
 
+# --- II. THE SCRIPTURE OF FORM (The Ocular Structure) ---
 {{ project_slug }}/
-    .gitignore :: "node_modules/\n.next/\nout/\n.env.local"
-    README.md :: "## Next.js Fortress\n- `npm install`\n- `npm run dev`"
 
-    package.json:
-        {
-          "name": "{{ project_slug }}",
-          "version": "0.1.0",
-          "private": true,
-          "scripts": {
-            "dev": "next dev",
-            "build": "next build",
-            "start": "next start",
-            "lint": "next lint"
-          },
-          "dependencies": {
-            "react": "^18",
-            "react-dom": "^18",
-            "next": "14.1.4"
-          },
-          "devDependencies": {
-            "typescript": "^5",
-            "@types/node": "^20",
-            "@types/react": "^18",
-            "@types/react-dom": "^18",
-            "autoprefixer": "^10.0.1",
-            "postcss": "^8",
-            "tailwindcss": "^3.3.0",
-            "eslint": "^8",
-            "eslint-config-next": "14.1.4"
-          }
-        }
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore :: """
+    # == The Abyss ==
+    node_modules/
+    .next/
+    dist/
+    build/
+    .env
+    .env.local
+    .env.production
+    
+    # OS/IDE Artifacts
+    .DS_Store
+    *.log
+    npm-debug.log*
+    .eslintcache
+    .vercel
+    
+    # Metadata Drift
+    *.tsbuildinfo
+    """
 
+    .editorconfig :: """
+    root = true
+    [*]
+    indent_style = space
+    indent_size = 2
+    charset = utf-8
+    trim_trailing_whitespace = true
+    insert_final_newline = true
+    end_of_line = lf
+    """
+
+    # [2] THE DEPENDENCY MATRIX (package.json)
+    package.json :: """
+    {
+      "name": "{{ project_slug }}",
+      "version": "1.0.0",
+      "private": true,
+      "type": "module",
+      "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint",
+        "check": "tsc --noEmit",
+        "format": "prettier --write .",
+        "test": "vitest"
+      },
+      "dependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "next": "15.1.0",
+        "lucide-react": "latest",
+        "zod": "^3.23.8",
+        "clsx": "^2.1.1",
+        "tailwind-merge": "^2.5.0",
+        "framer-motion": "^11.13.0"
+      },
+      "devDependencies": {
+        "typescript": "^5.7.0",
+        "@types/node": "^22.10.0",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "postcss": "^8.4.49",
+        "tailwindcss": "^4.0.0-alpha.30",
+        "autoprefixer": "^10.4.20",
+        "eslint": "^9.16.0",
+        "eslint-config-next": "15.1.0",
+        "prettier": "^3.4.1",
+        "prettier-plugin-tailwindcss": "^0.6.9",
+        "vitest": "^2.1.8"
+      }
+    }
+    """
+
+    # [3] THE GEOMETRIC LAWS (TS & Config)
     tsconfig.json:
         {
           "compilerOptions": {
-            "lib": ["dom", "dom.iterable", "esnext"], "allowJs": true, "skipLibCheck": true,
-            "strict": true, "noEmit": true, "esModuleInterop": true,
-            "module": "esnext", "moduleResolution": "bundler", "resolveJsonModule": true,
-            "isolatedModules": true, "jsx": "preserve", "incremental": true,
+            "lib": ["dom", "dom.iterable", "esnext"],
+            "allowJs": true,
+            "skipLibCheck": true,
+            "strict": true,
+            "noEmit": true,
+            "esModuleInterop": true,
+            "module": "esnext",
+            "moduleResolution": "bundler",
+            "resolveJsonModule": true,
+            "isolatedModules": true,
+            "jsx": "preserve",
+            "incremental": true,
             "plugins": [{ "name": "next" }],
             "paths": { "@/*": ["./src/*"] }
           },
@@ -57,64 +122,352 @@ $$ project_slug = {{ project_name | slug }}
           "exclude": ["node_modules"]
         }
 
-    next.config.mjs:
-        /** @type {import('next').NextConfig} */
-        const nextConfig = {};
-        export default nextConfig;
+    next.config.ts :: """
+    import type { NextConfig } from "next";
 
-    postcss.config.js:
-        export default {
-          plugins: {
-            tailwindcss: {},
-            autoprefixer: {},
+    const nextConfig: NextConfig = {
+      output: 'standalone', // [ASCENSION]: Enables hyper-optimized Docker builds
+      reactStrictMode: true,
+      images: {
+        remotePatterns: [],
+      },
+      // [SECURITY]: Consecrated Headers
+      async headers() {
+        return [
+          {
+            source: '/(.*)',
+            headers: [
+              { key: 'X-Content-Type-Options', value: 'nosniff' },
+              { key: 'X-Frame-Options', value: 'DENY' },
+              { key: 'X-XSS-Protection', value: '1; mode=block' },
+              { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+            ],
           },
-        };
+        ];
+      },
+    };
 
-    tailwind.config.ts:
-        import type { Config } from "tailwindcss";
-        const config: Config = {
-          content: [ "./src/**/*.{js,ts,jsx,tsx,mdx}" ],
-          theme: { extend: {} },
-          plugins: [],
-        };
-        export default config;
+    export default nextConfig;
+    """
 
+    # [4] THE CONTROL PLANE (Makefile)
+    Makefile :: """
+    .PHONY: help install dev build lint format clean docker-build
+
+    # Gnostic Variables
+    $PROJECT_NAME = {{ project_slug }}
+    $PKG_MANAGER = npm
+
+    help: ## Proclaim available rites for the Ocular Fortress
+      @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+    install: ## Summon dependencies and consecrate the environment
+      @echo "📦 Summoning Ocular Artisans..."
+      $($PKG_MANAGER) install
+
+    dev: ## Ignite the hot-reloading Ocular Membrane
+      @echo "🚀 Awakening {{ project_name }} (Lattice Sync)..."
+      $($PKG_MANAGER) run dev
+
+    build: clean ## Transmute source into production-grade matter
+      @echo "🏗️  Forging production vessel..."
+      $($PKG_MANAGER) run build
+
+    lint: ## Audit the scripture for stylistic heresies
+      $($PKG_MANAGER) run lint
+
+    format: ## Apply Tailwind-aware geometry to the code
+      $($PKG_MANAGER) run format
+
+    docker-build: ## Forge the celestial standalone container
+      docker build -t $($PROJECT_NAME):latest .
+
+    clean: ## Return artifacts to the void
+      rm -rf .next/ node_modules/ out/
+    """
+
+    # [5] THE SOURCE CODE (The Ocular Mind)
     src/
+        lib/
+            utils.ts :: """
+            import { type ClassValue, clsx } from "clsx"
+            import { twMerge } from "tailwind-merge"
+
+            /**
+             * [THE HARMONIZER]: Merges Tailwind classes with visual sanity.
+             */
+            export function cn(...inputs: ClassValue[]) {
+              return twMerge(clsx(inputs))
+            }
+            """
+
+            validators.ts :: """
+            import { z } from "zod";
+
+            /**
+             * [THE CONSCIENCE]: Strict Gnostic contracts for data ingress.
+             */
+            export const IdentitySchema = z.object({
+                id: z.string().uuid(),
+                handle: z.string().min(3),
+                status: z.enum(["VITAL", "DORMANT", "FRACTURED"]),
+                timestamp: z.number().default(() => Date.now())
+            });
+
+            export type Identity = z.infer<typeof IdentitySchema>;
+            """
+
+        components/
+            ui/
+                Button.tsx :: """
+                import * as React from "react"
+                import { cn } from "@/lib/utils"
+                import { motion } from "framer-motion"
+
+                export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+                  variant?: 'primary' | 'outline' | 'ghost'
+                }
+
+                const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+                  ({ className, variant = 'primary', ...props }, ref) => {
+                    const variants = {
+                      primary: "bg-teal text-black hover:bg-white shadow-[0_0_20px_rgba(100,255,218,0.2)]",
+                      outline: "border border-white/10 bg-transparent hover:bg-white/5 text-white",
+                      ghost: "bg-transparent hover:bg-white/5 text-slate-400 hover:text-white"
+                    }
+                    
+                    return (
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={cn(
+                          "inline-flex items-center justify-center rounded-sm text-xs font-black uppercase tracking-widest transition-all disabled:opacity-50 px-6 py-3 cursor-pointer",
+                          variants[variant],
+                          className
+                        )}
+                        ref={ref}
+                        {...props}
+                      />
+                    )
+                  }
+                )
+                Button.displayName = "Button"
+                export { Button }
+                """
+
         app/
-            layout.tsx:
-                import type { Metadata } from "next";
-                import "./globals.css";
+            layout.tsx :: """
+            import type { Metadata } from "next";
+            import { Inter, JetBrains_Mono } from "next/font/google";
+            import "./globals.css";
+            import { cn } from "@/lib/utils";
 
-                export const metadata: Metadata = {
-                  title: "{{ project_name }}",
-                };
+            const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+            const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono" });
 
-                export default function RootLayout({
-                  children,
-                }: Readonly<{
-                  children: React.ReactNode;
-                }>) {
-                  return (
-                    <html lang="en">
-                      <body>{children}</body>
-                    </html>
-                  );
-                }
+            export const metadata: Metadata = {
+              title: {
+                default: "{{ project_name }} | Ocular Fortress",
+                template: "%s | {{ project_name }}"
+              },
+              description: "{{ description }}",
+            };
 
-            page.tsx:
-                export default function Home() {
-                  return (
-                    <main>
-                      <h1>Gnosis is truth. The Next.js Fortress is manifest.</h1>
-                    </main>
-                  );
-                }
+            export default function RootLayout({
+              children,
+            }: {
+              children: React.ReactNode;
+            }) {
+              return (
+                <html lang="en" className="dark scroll-smooth">
+                  <body className={cn(
+                    "min-h-screen bg-obsidian font-sans antialiased selection:bg-teal selection:text-black",
+                    inter.variable,
+                    mono.variable
+                  )}>
+                    <div className="relative flex min-h-screen flex-col">
+                      {children}
+                    </div>
+                  </body>
+                </html>
+              );
+            }
+            """
+
+            page.tsx :: """
+            import { Zap, ShieldCheck, ArrowRight, Activity } from "lucide-react";
+            import { Button } from "@/components/ui/Button";
+
+            export default function Home() {
+              return (
+                <main className="flex flex-col items-center justify-center min-h-screen p-12 overflow-hidden relative">
+                  {/* ATMOSPHERIC BLOOM (ST-3) */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal/5 blur-[150px] rounded-full pointer-events-none animate-pulse" />
+
+                  <div className="z-10 flex flex-col items-center text-center space-y-12">
+                    <div className="relative group">
+                      <div className="absolute -inset-4 bg-teal/20 rounded-2xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                      <div className="relative p-5 bg-teal/10 rounded-2xl border border-teal/20 shadow-[0_0_40px_rgba(100,255,218,0.1)]">
+                        <Zap className="text-teal" size={48} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h1 className="text-7xl md:text-9xl font-black text-white tracking-tighter uppercase italic leading-[0.75]">
+                        THE <br /> <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-teal/40">FORTRESS.</span>
+                      </h1>
+                      <div className="flex items-center justify-center gap-4 text-[10px] font-mono text-teal uppercase tracking-[0.4em]">
+                        <Activity size={12} className="animate-pulse" />
+                        Lattice_Connection: Resonant
+                      </div>
+                    </div>
+
+                    <p className="max-w-xl text-slate-500 font-light italic leading-relaxed text-xl border-l border-white/10 pl-8">
+                      "A production-grade Ocular Membrane manifest by the VELM God-Engine. 
+                      Architectural sovereignty achieved via Next.js 15 and Server Components."
+                    </p>
+
+                    <div className="flex flex-wrap items-center justify-center gap-6">
+                      <Button>
+                        Ignite System <ArrowRight size={14} className="ml-2" />
+                      </Button>
+                      <Button variant="outline">
+                        Read the Codex
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* FORENSIC FOOTER */}
+                  <footer className="absolute bottom-10 flex items-center justify-between w-full px-16 opacity-30 hover:opacity-100 transition-opacity duration-1000">
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[10px] font-mono tracking-[0.5em] uppercase text-white font-black">Ω_NOVALYM_SYSTEMS</span>
+                        <span className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Protocol: V-Ω-TOTALITY</span>
+                    </div>
+                    <ShieldCheck size={20} className="text-teal" />
+                  </footer>
+                </main>
+              );
+            }
+            """
+
+            globals.css :: """
+            @import "tailwindcss";
+
+            @theme {
+              --color-obsidian: #020202;
+              --color-teal: {{ theme_accent }};
+              --font-sans: var(--font-inter), system-ui, sans-serif;
+              --font-mono: var(--font-jetbrains-mono), monospace;
+            }
+
+            @layer base {
+              html {
+                background-color: var(--color-obsidian);
+              }
+              body {
+                @apply bg-obsidian text-white;
+              }
+            }
+            """
+
+    # [6] THE CELESTIAL VESSEL (Production Dockerfile)
+    Dockerfile :: """
+    # =============================================================================
+    # == THE SOVEREIGN OCULAR VESSEL (V-Ω-TOTALITY-STANDALONE)                   ==
+    # =============================================================================
+    
+    # --- STAGE 1: THE FORGE (BUILDER) ---
+    FROM node:20-alpine AS builder
+    RUN apk add --no-cache libc6-compat
+    WORKDIR /app
+    
+    # 1. Install Dependencies
+    COPY package*.json ./
+    RUN npm ci
+
+    # 2. Forge Matter
+    COPY . .
+    # Disable telemetry for build
+    ENV NEXT_TELEMETRY_DISABLED 1
+    RUN npm run build
+
+    # --- STAGE 2: THE CELESTIAL VESSEL (RUNNER) ---
+    FROM node:20-alpine AS runner
+    WORKDIR /app
+
+    ENV NODE_ENV production
+    ENV NEXT_TELEMETRY_DISABLED 1
+
+    # [SECURITY]: Consecrate non-root execution
+    RUN addgroup --system --gid 1001 nodejs
+    RUN adduser --system --uid 1001 nextjs
+
+    # Copy standalone artifacts from builder
+    COPY --from=builder /app/public ./public
+    COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+    COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+    USER nextjs
+    EXPOSE 3000
+    ENV PORT 3000
+
+    CMD ["node", "server.js"]
+    """
+
+    # [7] THE CELESTIAL GATE (GitHub CI)
+    .github/workflows/integrity.yml :: """
+    name: Ω | Ocular Integrity Adjudication
+
+    on:
+      push:
+        branches: [ main ]
+      pull_request:
+        branches: [ main ]
+
+    jobs:
+      adjudicate:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-node@v4
+            with:
+              node-version: 20
+              cache: 'npm'
+          
+          - name: Summon Dependencies
+            run: npm ci
             
-            globals.css:
-                @tailwind base;
-                @tailwind components;
-                @tailwind utilities;
+          - name: Audit Gnostic Form (Lint)
+            run: npm run lint
+            
+          - name: Verify Logic (Type Check)
+            run: npm run check
+            
+          - name: Forge Production Matter (Build)
+            run: npm run build
+    """
 
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
 %% post-run
-    git init
-    npm install
+    proclaim: "The [bold cyan]Next.js Ocular Fortress[/bold cyan] is materializing."
+    
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the dependencies
+    proclaim: "Summoning the Node Artisans... (npm install)"
+    @if {{ shell('which npm') }} 
+        -> >> npm install
+    @else 
+        -> proclaim: "[bold red]HERESY:[/bold red] 'npm' not detected. Please install Node.js to complete the forge."
+    
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Fortress manifest in '{{ project_slug }}/'.[/bold green]"
+    proclaim: "To enter the cockpit:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make dev[/bold cyan] (Ignite Ocular Membrane)"
+    proclaim: "  3. Scry the vitals: [bold]http://localhost:3000[/bold]"
+
+%% on-heresy
+    proclaim: "[bold red]Ocular Inception Fractured.[/bold red] Cleaning the temporal shards..."
+    rm -rf src/ .next/ package.json tsconfig.json Makefile Dockerfile .github/

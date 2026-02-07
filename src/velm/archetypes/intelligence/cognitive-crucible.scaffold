@@ -1,0 +1,131 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: COGNITIVE CRUCIBLE (V-Ω-LLM-EVALS)                       ==
+# =================================================================================
+# @description: A Pytest-integrated evaluation framework for AI. Uses 'LLM-as-a-Judge' to verify relevance, tone, and factual accuracy.
+# @category: Intelligence
+# @tags: testing, evals, pytest, llm, quality, ci-cd
+# @difficulty: Adept
+# @is_integration: true
+# @dna: judge_model=gpt-4-turbo
+# =================================================================================
+
+# --- I. THE ALTAR OF VARIABLES ---
+$$ judge_model = "gpt-4-turbo"
+
+# Context
+$$ is_python = {{ (project_type in ['python', 'poetry', 'fastapi']) | default(true) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE EVALUATION ENGINE ---
+@if {{ is_python }}
+tests/
+    evals/
+        __init__.py :: ""
+        
+        # [ASCENSION 1]: The Judge's Gavel
+        # A utility to ask GPT-4 to grade an output.
+        judge.py :: """
+        from openai import OpenAI
+        from pydantic import BaseModel, Field
+        
+        client = OpenAI()
+        
+        class Verdict(BaseModel):
+            score: float = Field(..., description="Score between 0.0 and 1.0")
+            reasoning: str = Field(..., description="Why this score was given")
+
+        def evaluate_response(input_text: str, actual_output: str, expected_criteria: str) -> Verdict:
+            \"\"\"
+            Summons the AI Judge to adjudicate the quality of a response.
+            \"\"\"
+            prompt = f\"\"\"
+            You are an impartial judge. Evaluate the AI response based on the criteria.
+            
+            [INPUT]: {input_text}
+            [OUTPUT]: {actual_output}
+            [CRITERIA]: {expected_criteria}
+            
+            Return a JSON object with 'score' (0.0-1.0) and 'reasoning'.
+            \"\"\"
+            
+            completion = client.chat.completions.create(
+                model="{{ judge_model }}",
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+                temperature=0
+            )
+            
+            return Verdict.model_validate_json(completion.choices[0].message.content)
+        """
+        
+        # [ASCENSION 2]: The Golden Dataset
+        # A place to store "Truths" for regression testing.
+        golden_dataset.json :: """
+        [
+            {
+                "input": "How do I reset my password?",
+                "criteria": "Must mention the settings page and the 'forgot password' email link. Tone should be helpful."
+            },
+            {
+                "input": "What is the capital of Mars?",
+                "criteria": "Must refuse to answer or state that Mars has no capital. Must NOT hallucinate a city."
+            }
+        ]
+        """
+        
+        # [ASCENSION 3]: The Pytest Integration
+        # Runs the evals as standard unit tests.
+        test_cognitive_quality.py :: """
+        import pytest
+        import json
+        from pathlib import Path
+        from .judge import evaluate_response
+        
+        # Import your actual AI function here
+        # from src.{{ package_name }}.core.ai import chat_bot 
+        
+        # Mocking the bot for the archetype
+        def chat_bot(text):
+            if "password" in text: return "Go to settings."
+            return "I don't know."
+
+        def load_golden_set():
+            path = Path(__file__).parent / "golden_dataset.json"
+            return json.loads(path.read_text())
+
+        @pytest.mark.parametrize("case", load_golden_set())
+        def test_ai_quality(case):
+            # 1. Run the AI
+            actual = chat_bot(case["input"])
+            
+            # 2. Judge the Result
+            verdict = evaluate_response(case["input"], actual, case["criteria"])
+            
+            # 3. Adjudicate
+            print(f"\\nInput: {case['input']}")
+            print(f"Verdict: {verdict.score} | {verdict.reasoning}")
+            
+            assert verdict.score >= 0.7, f"Quality Heresy: {verdict.reasoning}"
+        """
+
+    # Update Pyproject to allow slow tests
+    pyproject.toml += """
+    [tool.pytest.ini_options]
+    markers = [
+        "eval: marks tests as AI evaluations (slow)"
+    ]
+    """
+@endif
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The Cognitive Crucible is manifest in 'tests/evals'."
+    proclaim: "To conduct the Inquisition of Truth:"
+    proclaim: "  [bold cyan]pytest tests/evals[/bold cyan]"
+    
+    # [ASCENSION 4]: CI/CD Warning
+    proclaim: "[yellow]NOTE:[/yellow] Evals consume API credits. Configure your CI to run these only on PRs or nightly builds."
+
+%% on-heresy
+    proclaim: "Crucible inception failed. Cleaning..."
+    rm -rf tests/evals

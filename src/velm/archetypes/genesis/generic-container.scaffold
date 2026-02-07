@@ -1,188 +1,291 @@
-# Path: scaffold/archetypes/genesis/generic-container.scaffold
-# ------------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: UNIVERSAL CELESTIAL VESSEL (V-Ω-TOTALITY)               ==
+# =================================================================================
+# @description: A transcendent, language-agnostic containerization framework. 
+#               Features tri-phase multi-stage builds, non-root security,
+#               health-monitoring, and a kinetic Makefile control plane.
+# @category: Infrastructure
+# @tags: docker, container, devops, universal, deployment, security, orchestration
+# @difficulty: Adept
+# @is_integration: false
+# @dna: use_docker=true, use_makefile=true, use_ci=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: THE UNIVERSAL VESSEL (V-Ω-STRUCTURAL-PURITY)     ==
-# =================================================================================
-# @description: A language-agnostic, production-ready foundation for any containerized
-#               application, forged with Docker, Docker Compose, and a universal Makefile.
-# =================================================================================
-
-# --- I. The Altar of Gnostic Will ---
-$$ project_slug = {{ project_name | slug }}
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "celestial-container"
+$$ author = "The Architect"
 $$ port = 8080
+$$ base_image = "debian:bookworm-slim" # The physical substrate
+$$ runtime_user = "scaf_artisan"
 
-# --- II. The Scripture of Form ---
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+$$ project_title = {{ project_name | title }}
+
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: """
+
+    # [1] THE ABYSSAL FILTERS (Security & Speed)
+    .gitignore:
+        node_modules/
+        __pycache__/
+        .venv/
+        dist/
+        build/
+        *.log
+        .env
+        .DS_Store
+
+    .dockerignore :: """
+    # --- The Abyss Sieve ---
+    # Exclude all artifacts of the Mortal Realm from the Celestial Image
+    **/.git
+    **/.github
+    **/node_modules
+    **/__pycache__
+    **/.venv
+    **/dist
+    **/build
     .env
-    .env.*
-    !.env.example
-    .vscode/
-    .idea/
-    .DS_Store
+    .dockerignore
+    Dockerfile
+    docker-compose.yml
+    Makefile
+    README.md
+    .vscode
+    .idea
     """
 
+    # [2] THE ENVIRONMENT DNA
     .env.example:
-        # =========================================================
-        # == Gnostic Secrets for the Universal Vessel            ==
-        # =========================================================
-        # These will be bestowed upon the container's soul at the moment of its awakening.
-
-        # The port your application inside the container will listen on.
-        PORT={{ port }}
-
-        # The environment for your application (e.g., development, production)
+        # == System Identity ==
+        APP_NAME="{{ project_title }}"
         ENVIRONMENT=development
+        PORT={{ port }}
+        
+        # == Resource Governance ==
+        MEM_LIMIT=512m
+        CPU_LIMIT=0.5
+        
+        # == Gnostic Secrets ==
+        # Bestow your keys here in your local .env
+        SECRET_KEY="void"
 
-    README.md:
-        # {{ project_name }} - The Universal Vessel
-
-        This is a Gnostic foundation for any containerized application, forged with Docker, Docker Compose, and the unbreakable will of Scaffold. It provides a complete, production-ready environment for development, building, and deployment.
-
-        ## 🚀 The Rites of the Vessel
-
-        All rites are conducted via the sacred `Makefile`.
-
-        - `make up`: Awakens the live-reloading development container.
-        - `make down`: Returns the container to the void.
-        - `make shell`: Enters the container's soul (interactive shell).
-        - `make logs`: Gazes upon the container's real-time chronicles.
-        - `make build`: Forges the final, lean production image.
-
-        ## 🏛️ Adapting to Your Reality
-
-        To adapt this Universal Vessel for your Great Work, you must inscribe your will upon the **`Dockerfile`**:
-
-        1.  **Choose Your Base Image**: In the `builder` and `production` stages, replace `debian:bookworm-slim` with your language's official Docker image (e.g., `node:20-alpine`, `python:3.11-slim`).
-        2.  **Inscribe the Rites of Installation**: In the `builder` stage, add the edicts to copy your dependency manifests (`package.json`, `requirements.txt`, etc.) and run the installation command.
-        3.  **Define the Final Form**: In the `production` stage, copy the necessary build artifacts and dependencies from the `builder` stage.
-        4.  **Proclaim the Final Edict**: Set the `CMD` in the `production` stage to the one true command that awakens your application's soul.
-
+    # [3] THE KINETIC CONTROL PLANE (Makefile)
+    # [ASCENSION 8]: Honoring the Single Dollar ($) syntax for internal vars.
     Makefile:
-        .PHONY: help up down build shell logs
+        .PHONY: help up down build shell logs prune health
 
-        SERVICE_NAME={{ project_slug }}
-        TAG ?= latest
+        $SERVICE_NAME = {{ project_slug }}
+        $TAG = latest
+        $COMPOSE = docker-compose
 
-        help:
-        	@echo "The Universal Makefile for the Gnostic Vessel"
-        	@echo "Usage: make [up|down|build|shell|logs]"
+        help: ## Proclaim available container rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
 
-        up:
-        	@echo "Awakening the containerized cosmos in development mode..."
-        	@docker-compose up --build -d
+        up: ## Awaken the development reality (detached)
+            @echo "Awakening the Celestial Vessel..."
+            $COMPOSE up --build -d
 
-        down:
-        	@echo "Returning the containerized cosmos to the void..."
-        	@docker-compose down
+        down: ## Dissolve the containerized cosmos
+            @echo "Returning the Vessel to the void..."
+            $COMPOSE down
 
-        build:
-        	@echo "Forging the lean, production-ready vessel..."
-        	@docker build --target production -t $(SERVICE_NAME):$(TAG) .
+        build: ## Forge the production-grade image
+            @echo "Forging production image: $($SERVICE_NAME):$($TAG)"
+            docker build --target production -t $($SERVICE_NAME):$($TAG) .
 
-        shell:
-        	@echo "Communing with the soul of the '$(SERVICE_NAME)' service..."
-        	@docker-compose exec $(SERVICE_NAME) /bin/sh
+        shell: ## Enter the soul of the running service
+            docker exec -it $($SERVICE_NAME) /bin/sh
 
-        logs:
-        	@echo "Gazing upon the chronicles of the cosmos..."
-        	@docker-compose logs -f
+        logs: ## Gaze upon the chronicles of the container
+            $COMPOSE logs -f
 
+        health: ## Scry the metabolic status
+            docker inspect --format='{{json .State.Health}}' $($SERVICE_NAME)
+
+        prune: ## Cleanse stagnant container matter
+            docker system prune -f
+
+    # [4] THE CELESTIAL ORCHESTRATION (Docker Compose)
     docker-compose.yml:
         version: '3.8'
 
         services:
           {{ project_slug }}:
+            container_name: {{ project_slug }}
             build:
               context: .
-              # We command Docker to use the 'development' stage from our Dockerfile.
+              # [ASCENSION 2]: Selecting the Development state for active work
               target: development
             ports:
               - "{{ port }}:{{ port }}"
             env_file:
-              - .env.example # Bestow the Gnosis from the .env scripture.
+              - .env.example
             volumes:
-              # Mount the soul of your source code for live-reloading.
+              # [ASCENSION 8]: Mounting the soul of the source for live-reload
               - ./src:/app/src
+            restart: unless-stopped
+            healthcheck:
+              # [ASCENSION 4]: Metabolic Health Monitoring
+              test: ["CMD", "curl", "-f", "http://localhost:{{ port }}/health"]
+              interval: 30s
+              timeout: 10s
+              retries: 3
+              start_period: 40s
+            deploy:
+              # [ASCENSION 11]: Resource Quota Enforcement
+              resources:
+                limits:
+                  cpus: '0.50'
+                  memory: 512M
+            networks:
+              - gnostic_mesh
 
-    # The multi-stage Dockerfile is a masterpiece of containerization Gnosis.
-    Dockerfile:
-        # =================================================================================
-        # == THE UNBREAKABLE VESSEL - A MULTI-STAGE, LANGUAGE-AGNOSTIC GOD-ENGINE        ==
-        # =================================================================================
-        # This is a divine scripture. Read its verses to understand the path to forging
-        # a perfect, lean, and secure container for your Great Work.
+        networks:
+          gnostic_mesh:
+            driver: bridge
 
-        # --- I. The Builder Reality (The Forge) ---
-        # This stage is for installing dependencies and building/compiling your application.
-        # Its soul is large, but its Gnosis is pure.
-        # TODO: Replace `debian:bookworm-slim` with your language's official image (e.g., node:20, python:3.11)
-        FROM debian:bookworm-slim as builder
+    # [5] THE MASTERPIECE SCRIPTURE (Dockerfile)
+    Dockerfile :: """
+    # =================================================================================
+    # == THE UNBREAKABLE VESSEL - A TRI-PHASE GNOSTIC ENGINE                        ==
+    # =================================================================================
+    
+    # --- PHASE I: THE BUILDER (The Forge) ---
+    # This stage is for installation and compilation. 
+    # Its soul is massive, but its Gnosis is pure.
+    FROM {{ base_image }} as builder
 
-        WORKDIR /app
+    # Set system-level Vows
+    ENV DEBIAN_FRONTEND=noninteractive \
+        PYTHONUNBUFFERED=1 \
+        NODE_ENV=development
 
-        # TODO: Copy your dependency manifests (e.g., package.json, requirements.txt, go.mod)
-        # and run your install command to forge the dependencies. This includes dev dependencies.
-        # Example for Node.js:
-        # COPY package*.json ./
-        # RUN npm install
+    WORKDIR /app
 
-        # Copy the pure Gnosis of your source code.
-        COPY . .
+    # Install the basic artisans of the shell
+    RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl ca-certificates git \
+        && rm -rf /var/lib/apt/lists/*
 
-        # TODO: Run your build/compile command if necessary (e.g., `npm run build`, `go build`).
-        # Example for TypeScript:
-        # RUN npm run build
+    # [TODO]: Inscribe the Rites of Installation for your language
+    # Example:
+    # COPY package*.json ./
+    # RUN npm install
 
+    # Copy the collective Gnosis of your source code
+    COPY . .
 
-        # --- II. The Development Reality (The Proving Ground) ---
-        # This stage inherits from the builder. It is used by Docker Compose for a rich
-        # development experience with live-reloading.
-        FROM builder as development
+    # [TODO]: Run build/compile command if needed (e.g. npm run build)
 
-        # TODO: Proclaim the command to awaken your development server (with live-reload).
-        # This is the command `docker-compose` will use.
-        CMD [ "sh", "-c", "echo 'The development reality is manifest. Your source code is mounted. Now, forge greatness.' && tail -f /dev/null" ]
+    # --- PHASE II: THE DEVELOPMENT REALITY (The Proving Ground) ---
+    # Inherits from the builder, optimized for high-velocity iteration.
+    FROM builder as development
+    
+    ENV SCAFFOLD_REALITY=DEVELOPMENT
+    
+    # [TODO]: Proclaim the command to awaken your development server
+    CMD [ "sh", "-c", "echo 'Development reality manifest. Source mounted. Forge greatness.' && tail -f /dev/null" ]
 
+    # --- PHASE III: THE PRODUCTION REALITY (The Celestial Vessel) ---
+    # A lean, pure vessel containing only the minimum matter required to run.
+    # [ASCENSION 3]: The Ward of Least Privilege.
+    FROM {{ base_image }} as production
 
-        # --- III. The Production Reality (The Celestial Vessel) ---
-        # This stage is a lean, pure vessel, containing only what is needed to run.
-        # It starts from a fresh, minimal base to annihilate all profane build-time artifacts.
-        # TODO: Replace `debian:bookworm-slim` with your language's leanest official image (e.g., node:20-alpine).
-        FROM debian:bookworm-slim as production
+    # Consecrate the Artisan User
+    RUN useradd -m -u 1000 {{ runtime_user }}
+    
+    WORKDIR /app
 
-        WORKDIR /app
+    # [ASCENSION 2]: Surgical extraction of only the production artifacts
+    # [TODO]: Copy from builder (e.g. COPY --from=builder /app/dist ./dist)
+    
+    # Ensure the user can touch the necessary sanctums
+    RUN chown -R {{ runtime_user }}:{{ runtime_user }} /app
 
-        # TODO: Annihilate profane dev dependencies for a lean, secure soul and
-        # copy the consecrated dependencies and build artifacts from the builder reality.
-        # Example for Node.js:
-        # COPY package*.json ./
-        # RUN npm ci --omit=dev
-        # COPY --from=builder /app/dist ./dist
+    # Expose the sacred port
+    EXPOSE {{ port }}
 
-        # A humble placeholder to ensure the vessel is valid.
-        COPY src/placeholder.txt ./
+    # Assume the identity of the Artisan
+    USER {{ runtime_user }}
 
-        # Expose the sacred port your application will listen on.
-        EXPOSE {{ port }}
+    # [ASCENSION 11]: Hardening the environment
+    ENV NODE_ENV=production \
+        SCAFFOLD_REALITY=PRODUCTION
 
-        # The one true edict to awaken the application's soul in production.
-        # TODO: Replace this with your production start command.
-        CMD [ "echo", "The production reality is manifest. The Great Work begins." ]
-
-    .dockerignore :: """
-    .git
-    .gitignore
-    .vscode
-    .idea
-    README.md
-    Makefile
+    # [TODO]: Replace with your production start command
+    CMD [ "echo", "Production reality manifest. The Great Work begins." ]
     """
 
-    # A placeholder for the Architect's Great Work.
-    src/
-        placeholder.txt :: "This is the sacred sanctum for your application's soul.\nReplace this scripture with your source code, and inscribe your will upon the Dockerfile.\nGnosis is truth."
+    # [6] THE CELESTIAL GATE (CI/CD)
+    .github/
+        workflows/
+            vessel-integrity.yml :: """
+            name: Ω | Vessel Integrity
+            on: [push, pull_request]
+            jobs:
+              audit:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/checkout@v4
+                  - name: Verify Docker Geometry
+                    run: docker build --target builder -t builder-test .
+            """
 
+    # [7] THE SOURCE (THE SOUL)
+    src/
+        placeholder.txt :: """
+        This is the sacred sanctum for your application's soul.
+        Replace this scripture with your source code, and inscribe 
+        your language-specific build commands upon the Dockerfile.
+
+        Gnosis is truth.
+        """
+
+    README.md :: """
+    # {{ project_name }} - The Universal Vessel
+
+    Forged by **{{ author }}** via the **VELM God-Engine**.
+    A production-hardened container environment for any creative intent.
+
+    ## 🚀 The Rites of the Vessel
+
+    All orchestration is conducted via the sacred `Makefile`.
+
+    - `make up`: Awakens the development reality (with source mounting).
+    - `make down`: Returns the containerized cosmos to the void.
+    - `make build`: Forges the lean, production-ready vessel.
+    - `make shell`: Enters the soul of the container for forensic scrying.
+    - `make health`: Adjudicates the metabolic status of the vessel.
+
+    ## 🏛️ Adapting to Your Reality
+
+    1. **Choose Base Image**: Edit `Dockerfile` and `$$ base_image` in the blueprint.
+    2. **Inscribe Installation**: Add your dependency commands in the `builder` stage.
+    3. **Define Entrypoint**: Set the `CMD` in the `production` stage.
+    """
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Forensic Pre-flight
+    proclaim: "Scanning for Docker Daemon..."
+    @if {{ shell('docker info > /dev/null 2>&1 && echo "yes" || echo "no"') == 'yes' }} 
+        -> proclaim: "Docker Daemon [green]ONLINE[/green]."
+    @else 
+        -> proclaim: "[yellow]WARNING: Docker Daemon not perceived. Container rites will be restricted.[/yellow]"
+
+    # 3. Final Proclamation
+    proclaim: "The Universal Celestial Vessel is manifest in '{{ project_slug }}/'."
+    proclaim: "To begin the Great Work:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]cp .env.example .env[/bold cyan]"
+    proclaim: "  3. [bold cyan]make help[/bold cyan] (View available rites)"
+    proclaim: "  4. [bold cyan]make up[/bold cyan] (Ignite the development vessel)"
+
+%% on-heresy
+    proclaim: "The Vessel forge fractured. Cleaning the ruins..."
+    rm -rf src/ .github/ Makefile Dockerfile docker-compose.yml

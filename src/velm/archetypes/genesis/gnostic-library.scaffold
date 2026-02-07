@@ -1,79 +1,333 @@
-# Path: scaffold/archetypes/genesis/gnostic-library.scaffold
-# ----------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: GNOSTIC LIBRARY (V-Ω-TOTALITY)                          ==
+# =================================================================================
+# @description: The definitive Python library foundation. Forges a production-grade
+#               package with Poetry, MkDocs Material, hyper-strict CI/CD, 
+#               and automated OIDC-based PyPI publishing.
+# @category: Backend
+# @tags: python, poetry, pypi, mkdocs, ruff, mypy, testing, ci-cd, library
+# @difficulty: Adept
+# @is_integration: false
+# @dna: use_poetry=true, python_version=3.11, use_ci=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: GNOSTIC LIBRARY (V-Ω-PYPI-ASCENSION)             ==
-# =================================================================================
-# @description: A production-grade Python library, ready for automated testing,
-#               documentation, and publishing to PyPI.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "gnostic-core"
+$$ author = "The Architect"
+$$ email = "architect@velm.systems"
+$$ description = "A transcendent Python library manifest by VELM."
+$$ license = "MIT"
+$$ git_org = "novalym"
 
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
-$$ package_name = {{ project_slug | snake }}
+$$ package_name = {{ project_name | snake }}
+$$ year = {{ now('local', '%Y') }}
 
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: ".venv/\n/dist\n/site\n.pytest_cache/"
-    README.md :: "# {{ project_name }}\n\n`pip install {{ project_slug }}`"
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        __pycache__/
+        *.py[cod]
+        *$py.class
+        .venv/
+        .env
+        dist/
+        build/
+        site/
+        .pytest_cache/
+        .ruff_cache/
+        .mypy_cache/
+        .coverage
+        htmlcov/
+        .DS_Store
+
+    # [2] THE FOUNDRY (POETRY)
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "{{ description }}"
+    authors = ["{{ author }} <{{ email }}>"]
+    license = "{{ license }}"
+    readme = "README.md"
+    homepage = "https://github.com/{{ git_org }}/{{ project_slug }}"
+    repository = "https://github.com/{{ git_org }}/{{ project_slug }}"
+    documentation = "https://{{ git_org }}.github.io/{{ project_slug }}/"
+    keywords = ["velm", "gnostic", "library"]
+    packages = [{include = "{{ package_name }}", from = "src"}]
+
+    [tool.poetry.dependencies]
+    python = ">=3.10,<4.0"
+    rich = "^13.7.0"
+    pydantic = "^2.6.0"
+
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    pytest-cov = "^5.0.0"
+    pytest-asyncio = "^0.23.0"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+    mypy = "^1.8.0"
+    mkdocs = "^1.5.0"
+    mkdocs-material = "^9.5.0"
+    mkdocs-mermaid2-plugin = "^0.5.2"
+    pre-commit = "^3.6.0"
+    tox = "^4.12.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+
+    [tool.black]
+    line-length = 100
+    target-version = ['py311']
+
+    [tool.ruff]
+    line-length = 100
+    target-version = "py311"
+    lint.select = ["E", "F", "I", "UP", "B", "S"]
+    lint.ignore = ["S101"] # Allow asserts in tests
+
+    [tool.mypy]
+    python_version = "3.11"
+    strict = true
+    warn_return_any = true
+    warn_unused_configs = true
+
+    [tool.pytest.ini_options]
+    testpaths = ["tests"]
+    python_files = "test_*.py"
+    addopts = "--cov=src/{{ package_name }} --cov-report=term-missing"
+    """
+
+    # [3] THE CONTROL PLANE (MAKEFILE)
+    Makefile:
+        .PHONY: help install test lint format docs-serve build clean
+
+        $PY = poetry run python
+        $PKG = src/{{ package_name }}
+
+        help: ## Proclaim available library rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
+
+        install: ## Consecrate the local development forge
+            poetry install
+            poetry run pre-commit install
+
+        test: ## Conduct the unit inquisition
+            poetry run pytest
+
+        lint: ## Audit the soul of the code
+            poetry run ruff check .
+            poetry run mypy $PKG
+
+        format: ## Apply sacred geometry to the code
+            poetry run ruff check --fix .
+            poetry run black .
+
+        docs-serve: ## Awaken the live scripture preview
+            poetry run mkdocs serve
+
+        build: clean ## Forge the celestial wheel for PyPI
+            poetry build
+
+        clean: ## Return artifacts to the void
+            rm -rf dist/ build/ site/ .pytest_cache/ .ruff_cache/ .mypy_cache/ .coverage
+            find . -name "*.pyc" -delete
     
-    pyproject.toml:
-        [tool.poetry]
-        name = "{{ project_slug }}"
-        version = "0.1.0"
-        description = "{{ description }}"
-        authors = ["{{ author }}"]
-        license = "MIT"
-        readme = "README.md"
-        repository = "https://github.com/{{ git_org }}/{{ project_slug }}"
-        packages = [{include = "{{ package_name }}", from = "src"}]
+    # [4] THE LUMINOUS SCRIPTS (DOCS)
+    mkdocs.yml :: """
+    site_name: {{ project_name }}
+    site_description: {{ description }}
+    site_author: {{ author }}
+    repo_url: {{ repo_url }}
+    
+    theme:
+      name: material
+      palette:
+        - scheme: default
+          primary: teal
+          accent: teal
+          toggle:
+            icon: material/brightness-7
+            name: Switch to dark mode
+        - scheme: slate
+          primary: teal
+          accent: teal
+          toggle:
+            icon: material/brightness-4
+            name: Switch to light mode
+      features:
+        - navigation.tabs
+        - navigation.sections
+        - content.code.copy
+        - search.suggest
+        - search.highlight
 
-        [tool.poetry.dependencies]
-        python = "^3.9"
+    plugins:
+      - search
+      - mermaid2
 
-        [tool.poetry.group.dev.dependencies]
-        pytest = "^8.0"
-        pytest-cov = "^5.0"
-        mkdocs-material = "^9.5"
+    nav:
+      - Home: index.md
+      - Reference: reference.md
+    """
 
+    docs/index.md :: """
+    # {{ project_name }}
+
+    > {{ description }}
+
+    ## Installation
+
+    ```bash
+    pip install {{ project_slug }}
+    ```
+
+    ## Basic Usage
+
+    ```python
+    from {{ package_name }} import get_gnosis
+    print(get_gnosis())
+    ```
+    """
+
+    # [5] THE CELESTIAL GATES (CI/CD)
     .github/
         workflows/
-            publish.yml:
-                name: Publish to PyPI and GitHub Pages
-                on:
-                  push:
-                    tags:
-                      - 'v*.*.*'
-                jobs:
-                  publish:
-                    runs-on: ubuntu-latest
-                    steps:
-                      - uses: actions/checkout@v4
-                      - uses: actions/setup-python@v5
-                      - name: Install dependencies
-                        run: pip install poetry && poetry install
-                      - name: Build and publish to PyPI
-                        run: poetry publish --build
-                        env:
-                          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
-                      - name: Deploy docs to GitHub Pages
-                        run: poetry run mkdocs gh-deploy --force
+            integrity.yml :: """
+            name: Ω | Integrity Adjudication
+            on: [push, pull_request]
+            jobs:
+              test:
+                runs-on: ubuntu-latest
+                strategy:
+                  matrix:
+                    python-version: ["3.10", "3.11", "3.12"]
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: actions/setup-python@v5
+                    with:
+                      python-version: ${{ matrix.python-version }}
+                  - name: Install Poetry
+                    run: pip install poetry
+                  - run: poetry install
+                  - run: poetry run ruff check .
+                  - run: poetry run mypy src/
+                  - run: poetry run pytest
+            """
 
+            publish.yml :: """
+            name: Ω | Proclaim to PyPI
+            on:
+              push:
+                tags:
+                  - 'v*.*.*'
+            permissions:
+              id-token: write
+              contents: read
+            jobs:
+              publish:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: actions/setup-python@v5
+                    with:
+                      python-version: '3.11'
+                  - name: Install Poetry
+                    run: pip install poetry
+                  - run: poetry build
+                  - name: Proclaim to PyPI
+                    uses: pypa/gh-action-pypi-publish@release/v1
+            """
+
+    # [6] THE SOURCE (THE SOUL)
     src/
         {{ package_name }}/
-            __init__.py:
-                def get_gnosis():
-                    return "The library is pure."
+            __init__.py :: """
+            \"\"\"
+            {{ project_name }}
+            Forged by: {{ author }}
+            \"\"\"
+            __version__ = "0.1.0"
 
+            def get_gnosis() -> str:
+                \"\"\"Proclaims the purity of the library.\"\"\"
+                return "The Gnostic Library is resonant."
+            """
+
+            core.py :: """
+            from pydantic import BaseModel
+
+            class GnosticVessel(BaseModel):
+                \"\"\"A simple data vessel.\"\"\"
+                name: str
+                value: float
+            """
+
+    # [7] THE INQUISITION (TESTS)
     tests/
-        test_library.py:
-            from {{ package_name }} import get_gnosis
+        __init__.py :: ""
+        conftest.py :: """
+        import pytest
 
-            def test_gnosis():
-                assert get_gnosis() == "The library is pure."
+        @pytest.fixture
+        def sample_gnosis():
+            return "The Gnostic Library is resonant."
+        """
+        test_core.py :: """
+        from {{ package_name }} import get_gnosis
 
-    docs/
-        index.md:
-            # Welcome to {{ project_name }}
+        def test_gnosis_resonance(sample_gnosis):
+            assert get_gnosis() == sample_gnosis
+        """
 
+    # [8] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name }}
+
+    [![PyPI version](https://badge.fury.io/py/{{ project_slug }}.svg)](https://badge.fury.io/py/{{ project_slug }})
+    [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](https://opensource.org/licenses/MIT)
+
+    > {{ description }}
+
+    Forged by the **VELM God-Engine**.
+
+    ## 🚀 Quick Inception
+
+    ```bash
+    pip install {{ project_slug }}
+    ```
+
+    ## 🏛️ Development Rites
+
+    Use the `Makefile` to conduct system operations:
+    - `make install`: Consecrate the forge.
+    - `make test`: Conduct the unit inquisition.
+    - `make lint`: Audit the soul for heresies.
+    - `make docs-serve`: Beheld the Luminous Scripture.
+    """
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
-    poetry install
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the toolchain
+    proclaim: "Summoning the Poetry toolchain..."
+    @if {{ shell('which poetry') }} -> poetry install
+    @else -> proclaim: "[yellow]Poetry not found. Run 'make install' manually once ready.[/yellow]"
+
+    # 3. Final Proclamation
+    proclaim: "The Gnostic Library '{{ project_name }}' is manifest in '{{ project_slug }}/'."
+    proclaim: "To begin your Great Work:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make test[/bold cyan] (Verify the initial resonance)"
+    proclaim: "  3. [bold cyan]make docs-serve[/bold cyan] (Gaze upon the scripture)"
+
+%% on-heresy
+    proclaim: "The forge collapsed. Purging the shards..."
+    rm -rf src/ tests/ docs/ pyproject.toml Makefile mkdocs.yml

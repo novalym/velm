@@ -1,0 +1,388 @@
+# Path: src/velm/archetypes/genesis/astro-advanced.scaffold
+# --------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: ASTRO STELLAR MONOLITH (V-Ω-TOTALITY)                    ==
+# =================================================================================
+# @description: The ultimate full-stack Content Engine. Features Astro 4, MDX,
+#               Tailwind CSS, Drizzle ORM (SQLite/Postgres), Lucia Auth, 
+#               Vitest, Playwright, and a complete Monitoring Stack.
+# @category: Frontend
+# @tags: astro, typescript, tailwind, drizzle, auth, fullstack, docker, testing
+# @difficulty: Master
+# @is_integration: false
+# @dna: project_type=node, use_docker=true, use_typescript=true, use_db=true
+# =================================================================================
+
+# --- I. THE ALTAR OF VARIABLES ---
+$$ project_name = "stellar-monolith"
+$$ author = "The Architect"
+$$ db_type = "sqlite" # Options: sqlite, postgres
+$$ auth_provider = "lucia"
+$$ theme_color = "#64ffda"
+
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+{{ project_slug }}/
+
+    # [1] INFRASTRUCTURE (The Iron Core)
+    .gitignore:
+        node_modules/
+        .astro/
+        dist/
+        .env
+        .env.local
+        *.db
+        *.db-journal
+        .DS_Store
+        coverage/
+        test-results/
+
+    .prettierrc:
+        {
+          "semi": false,
+          "singleQuote": true,
+          "tabWidth": 2,
+          "trailingComma": "all",
+          "plugins": ["prettier-plugin-astro", "prettier-plugin-tailwindcss"]
+        }
+
+    .eslintrc.cjs :: """
+    /** @type {import("eslint").Linter.Config} */
+    module.exports = {
+      extends: ["plugin:astro/recommended", "plugin:@typescript-eslint/recommended"],
+      parser: "@typescript-eslint/parser",
+      plugins: ["@typescript-eslint"],
+      root: true,
+      overrides: [
+        {
+          files: ["*.astro"],
+          parser: "astro-eslint-parser",
+          parserOptions: {
+            parser: "@typescript-eslint/parser",
+            extraFileExtensions: [".astro"],
+          },
+        },
+      ],
+    }
+    """
+
+    package.json :: """
+    {
+      "name": "{{ project_slug }}",
+      "type": "module",
+      "version": "1.0.0",
+      "scripts": {
+        "dev": "astro dev",
+        "start": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "db:generate": "drizzle-kit generate:sqlite",
+        "db:push": "drizzle-kit push:sqlite",
+        "db:studio": "drizzle-kit studio",
+        "test:unit": "vitest",
+        "test:e2e": "playwright test",
+        "lint": "eslint .",
+        "format": "prettier --write ."
+      },
+      "dependencies": {
+        "@astrojs/check": "^0.3.1",
+        "@astrojs/mdx": "^2.0.0",
+        "@astrojs/node": "^8.0.0",
+        "@astrojs/react": "^3.0.0",
+        "@astrojs/tailwind": "^5.0.0",
+        "@lucia-auth/adapter-drizzle": "^1.0.0",
+        "astro": "^4.0.0",
+        "better-sqlite3": "^9.0.0",
+        "clsx": "^2.0.0",
+        "drizzle-orm": "^0.29.0",
+        "lucia": "^3.0.0",
+        "lucide-react": "^0.294.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "tailwind-merge": "^2.0.0",
+        "zod": "^3.22.0"
+      },
+      "devDependencies": {
+        "@playwright/test": "^1.40.0",
+        "@types/better-sqlite3": "^7.6.0",
+        "@types/node": "^20.0.0",
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "drizzle-kit": "^0.20.0",
+        "eslint": "^8.0.0",
+        "eslint-plugin-astro": "^0.31.0",
+        "prettier": "^3.0.0",
+        "prettier-plugin-astro": "^0.13.0",
+        "prettier-plugin-tailwindcss": "^0.5.0",
+        "typescript": "^5.3.0",
+        "vitest": "^1.0.0"
+      }
+    }
+    """
+
+    astro.config.mjs :: """
+    import { defineConfig } from 'astro/config';
+    import tailwind from '@astrojs/tailwind';
+    import react from '@astrojs/react';
+    import mdx from '@astrojs/mdx';
+    import node from '@astrojs/node';
+
+    export default defineConfig({
+      output: 'hybrid', // Enable SSR Endpoints for Auth/DB
+      adapter: node({
+        mode: 'standalone',
+      }),
+      integrations: [
+        tailwind({ applyBaseStyles: false }),
+        react(),
+        mdx()
+      ],
+      prefetch: true,
+      vite: {
+        optimizeDeps: {
+          exclude: ['oslo']
+        }
+      }
+    });
+    """
+
+    # [2] THE ENVIRONMENT DNA
+    .env.example:
+        DATABASE_URL="sqlite:./sqlite.db"
+        NODE_ENV="development"
+        # Secret for Auth - generate with: openssl rand -base64 32
+        AUTH_SECRET="forge-a-proper-secret-here"
+
+    # [3] THE ORCHESTRATION LAYER
+    docker-compose.yml:
+        version: '3.8'
+        services:
+          app:
+            build: .
+            ports: ["4321:4321"]
+            env_file: .env
+            volumes:
+              - .:/app
+              - /app/node_modules
+          
+          # Monitoring Substrata
+          prometheus:
+            image: prom/prometheus:latest
+            volumes:
+              - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
+            ports: ["9090:9090"]
+
+    # [4] THE GNOSTIC SOURCE (THE SOUL)
+    src/
+        env.d.ts :: '/// <reference types="astro/client" />'
+
+        # --- THE DATABASE LATTICE ---
+        db/
+            schema.ts :: """
+            import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+
+            export const users = sqliteTable('user', {
+                id: text('id').primary_key(),
+                username: text('username').notNull().unique(),
+                hashedPassword: text('hashed_password').notNull(),
+            });
+
+            export const sessions = sqliteTable('session', {
+                id: text('id').primary_key(),
+                userId: text('user_id').notNull().references(() => users.id),
+                expiresAt: integer('expires_at').notNull(),
+            });
+            """
+            
+            index.ts :: """
+            import { drizzle } from 'drizzle-orm/better-sqlite3';
+            import Database from 'better-sqlite3';
+            import * as schema from './schema';
+
+            const sqlite = new Database('sqlite.db');
+            export const db = drizzle(sqlite, { schema });
+            """
+
+        # --- THE AUTHENTICATION CORTEX ---
+        lib/
+            auth.ts :: """
+            import { Lucia } from "lucia";
+            import { DrizzleSQLiteAdapter } from "@lucia-auth/adapter-drizzle";
+            import { db } from "../db";
+            import { sessions, users } from "../db/schema";
+
+            const adapter = new DrizzleSQLiteAdapter(db, sessions, users);
+
+            export const lucia = new Lucia(adapter, {
+                sessionCookie: {
+                    attributes: {
+                        secure: import.meta.env.PROD
+                    }
+                },
+                getUserAttributes: (attributes) => {
+                    return {
+                        username: attributes.username
+                    };
+                }
+            });
+
+            declare module "lucia" {
+                interface Register {
+                    Lucia: typeof lucia;
+                    DatabaseUserAttributes: {
+                        username: string;
+                    };
+                }
+            }
+            """
+
+        # --- THE COMPONENTS ---
+        components/
+            ui/
+                Button.tsx :: """
+                import * as React from "react"
+                import { slot } from "lucide-react"
+                import { clsx, type ClassValue } from "clsx"
+                import { twMerge } from "tailwind-merge"
+
+                function cn(...inputs: ClassValue[]) {
+                  return twMerge(clsx(inputs))
+                }
+
+                export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+
+                const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+                  ({ className, ...props }, ref) => {
+                    return (
+                      <button
+                        className={cn(
+                          "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 bg-teal text-obsidian hover:bg-white px-4 py-2",
+                          className
+                        )}
+                        ref={ref}
+                        {...props}
+                      />
+                    )
+                  }
+                )
+                Button.displayName = "Button"
+                export { Button }
+                """
+
+        # --- THE PAGES ---
+        pages/
+            index.astro :: """
+            ---
+            import Layout from '../layouts/Layout.astro';
+            import { Button } from '../components/ui/Button';
+            ---
+
+            <Layout title="Astro Advanced | {{ project_name }}">
+                <main class="flex min-h-screen flex-col items-center justify-center p-24 bg-obsidian">
+                    <div class="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm flex flex-col">
+                        <h1 class="text-6xl font-black text-white mb-8 tracking-tighter uppercase italic">
+                            The <span class="text-teal">Advanced</span> Monolith
+                        </h1>
+                        <p class="text-slate-500 text-center mb-12 max-w-2xl leading-relaxed">
+                            A production-hardened reality for building complex, data-driven applications 
+                            on the edge. Features type-safe database access, session-based auth, and 
+                            comprehensive CI/CD.
+                        </p>
+                        <div class="flex gap-4">
+                            <Button client:load onClick={() => alert('Gnosis Active')}>
+                                Ignite System
+                            </Button>
+                            <a href="/login" class="px-6 py-2 border border-white/10 rounded-md text-white hover:bg-white/5 transition-colors">
+                                Access Vault
+                            </a>
+                        </div>
+                    </div>
+                </main>
+            </Layout>
+            """
+
+            api/
+                health.ts :: """
+                import type { APIRoute } from 'astro';
+
+                export const GET: APIRoute = async () => {
+                    return new Response(JSON.stringify({
+                        status: 'RESONANT',
+                        timestamp: new Date().toISOString(),
+                        engine: 'Astro-Advanced-V2'
+                    }), {
+                        status: 200,
+                        headers: { "Content-Type": "application/json" }
+                    });
+                };
+                """
+
+    # [5] THE CONTROL PLANE
+    Makefile:
+        .PHONY: help install dev build db-sync test
+
+        # [THE CURE]: Single dollar syntax
+        $PROJECT_NAME = {{ project_slug }}
+
+        help: ## Proclaim available rites
+        	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+        install: ## Summon dependencies
+        	npm install
+
+        dev: ## Ignite local development
+        	npm run dev
+
+        db-sync: ## Synchronize DB schema
+        	npm run db:push
+
+        test: ## Conduct unit inquisition
+        	npm run test:unit
+
+        build: ## Forge the production vessel
+        	npm run build
+
+    # [6] CI/CD HARDENING
+    .github/
+        workflows/
+            integrity.yml :: """
+            name: Ω | Integrity Adjudication
+            on: [push, pull_request]
+            jobs:
+              audit:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: actions/setup-node@v4
+                    with: { node-version: 20, cache: 'npm' }
+                  - run: npm ci
+                  - run: npm run lint
+                  - run: npm run test:unit
+            """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the Dependencies
+    proclaim: "Summoning the Node Modules (This is a heavy rite)..."
+    npm install
+
+    # 3. Initialize the Mind (Database)
+    proclaim: "Forging the local SQLite Crystal..."
+    npm run db:push
+
+    # 4. Final Proclamation
+    proclaim: "The Astro Advanced Monolith is manifest."
+    proclaim: "To enter the cockpit:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make dev[/bold cyan]"
+    proclaim: "  3. Scry the Vitals at http://localhost:4321/api/health"
+
+%% on-heresy
+    proclaim: "Genesis faltered. Purging the fractured artifacts..."
+    rm -rf src/ package.json astro.config.mjs

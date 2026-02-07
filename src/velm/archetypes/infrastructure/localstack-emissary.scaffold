@@ -1,0 +1,281 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: LOCALSTACK EMISSARY (V-Ω-TOTALITY)                      ==
+# =================================================================================
+# @description: Materializes a hermetic AWS simulation environment using LocalStack. Features automated resource provisioning (S3, DynamoDB, SQS), a Pydantic V2 Cloud Factory for seamless local/remote switching, and a dedicated health-vigil sentinel.
+# @category: Infrastructure
+# @tags: aws, localstack, cloud, devops, docker, s3, dynamodb, lambda, python, sandbox
+# @difficulty: Master
+# @is_integration: true
+# @dna: localstack_version=latest, use_docker=true, services=s3,dynamodb,lambda,sqs
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "nebula-cloud-sandbox"
+$$ author = "{{ author | default('The Architect') }}"
+$$ localstack_port = 4566
+$$ aws_region = "us-east-1"
+
+# [THE ALCHEMY]: Case Normalization
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
+
+# --- II. THE SCRIPTURE OF FORM (The Cloud Substrate) ---
+{{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION (Infrastructure Shielding)
+    .gitignore :: """
+    # == The Abyss (LocalStack Shards) ==
+    .localstack/
+    node_modules/
+    __pycache__/
+    .venv/
+    .env
+    .env.local
+    
+    # Forensic Shards
+    *.log
+    .pytest_cache/
+    
+    # OS/IDE Artifacts
+    .DS_Store
+    .vscode/
+    """
+
+    # [2] THE CELESTIAL MESH (Docker Compose)
+    # The physical manifestation of the local cloud.
+    docker-compose.cloud.yml :: """
+    version: '3.8'
+
+    services:
+      # [THE EMISSARY]: LocalStack Engine
+      localstack:
+        image: localstack/localstack:latest
+        container_name: {{ project_slug }}_localstack
+        ports:
+          - "127.0.0.1:{{ localstack_port }}:4566"            # Edge Port
+          - "127.0.0.1:4510-4559:4510-4559" # Internal Services
+        environment:
+          - SERVICES=${SCAFFOLD_CLOUD_SERVICES:-s3,dynamodb,lambda,sqs,sns}
+          - DEBUG=${DEBUG:-0}
+          - DATA_DIR=/tmp/localstack/data
+          - DOCKER_HOST=unix:///var/run/docker.sock
+          - AWS_DEFAULT_REGION={{ aws_region }}
+        volumes:
+          - "${LOCALSTACK_VOLUME_DIR:-./.localstack}:/var/lib/localstack"
+          - "/var/run/docker.sock:/var/run/docker.sock"
+        networks:
+          - gnostic_mesh
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+
+    networks:
+      gnostic_mesh:
+        external: true
+        name: {{ project_slug }}_gnostic_mesh
+    """
+
+    # [3] THE RITE OF PROVISIONING (The Will of the Cloud)
+    # This script materializes the specific resources (Buckets, Tables).
+    infra/cloud/
+        provision.sh :: """
+        #!/bin/bash
+        # =============================================================================
+        # == THE RITE OF PROVISIONING (V-Ω-ATOMIC)                                   ==
+        # =============================================================================
+        set -e
+        
+        # Gnostic Alias for LocalStack CLI
+        shopt -s expand_aliases
+        alias aws="aws --endpoint-url=http://localhost:{{ localstack_port }} --region {{ aws_region }}"
+
+        echo "🌀 Awakening Cloud Resources in the Local Realm..."
+
+        # 1. THE DATA ANCHOR (S3)
+        echo "   -> Forging S3 Bucket: '{{ project_slug }}-vault'..."
+        aws s3 mb s3://{{ project_slug }}-vault || echo "      (Already manifest)"
+
+        # 2. THE PERSISTENCE LATTICE (DynamoDB)
+        echo "   -> Forging DynamoDB Table: 'RealityLedger'..."
+        aws dynamodb create-table \\
+            --table-name RealityLedger \\
+            --attribute-definitions AttributeName=pk,AttributeType=S AttributeName=sk,AttributeType=S \\
+            --key-schema AttributeName=pk,KeyType=HASH AttributeName=sk,KeyType=RANGE \\
+            --billing-mode PAY_PER_REQUEST || echo "      (Already manifest)"
+
+        # 3. THE MESSAGE BUS (SQS)
+        echo "   -> Forging SQS Queue: 'intent-stream'..."
+        aws sqs create-queue --queue-name intent-stream || echo "      (Already manifest)"
+
+        echo "✨ [TOTALITY] Local Cloud Resources are manifest and resonant."
+        """
+        %% 755
+
+    # [4] THE CONTROL PLANE (Makefile)
+    Makefile :: """
+    .PHONY: help cloud-up cloud-down cloud-provision cloud-scry clean
+
+    # Gnostic Variables
+    $COMPOSE = docker-compose -f docker-compose.cloud.yml
+    $PROVISION = ./infra/cloud/provision.sh
+
+    help: ## Proclaim available Cloud rites
+      @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+    cloud-up: ## Ignite the LocalStack Emissary
+      @echo "🔭 Awakening the Celestial Mirror..."
+      @docker network create {{ project_slug }}_gnostic_mesh 2>/dev/null || true
+      $($COMPOSE) up -d
+      @echo "⏳ Waiting for Cloud Resonance..."
+      @until curl -s http://localhost:{{ localstack_port }}/_localstack/health | grep -q "\\"s3\\": \\"running\\""; do sleep 1; done
+      @echo "✅ Cloud Emissary is VITAL."
+
+    cloud-provision: ## Materialize local AWS resources
+      @chmod +x $($PROVISION)
+      @$($PROVISION)
+
+    cloud-scry: ## Perform a forensic audit of local resources
+      @echo "🔍 Scrying S3 Vault..."
+      @aws --endpoint-url=http://localhost:{{ localstack_port }} s3 ls
+      @echo "🔍 Scrying DynamoDB Lattice..."
+      @aws --endpoint-url=http://localhost:{{ localstack_port }} dynamodb list-tables
+
+    cloud-down: ## Dissolve the local cloud
+      $($COMPOSE) down
+
+    clean: ## Purge ephemeral cloud shards
+      rm -rf .localstack/
+    """
+
+    # [5] THE SOURCE CODE (The Logic Bridge)
+    src/{{ package_name }}/
+        core/
+            __init__.py :: ""
+            
+            # --- THE CLOUD FACTORY (The Bridge) ---
+            cloud_factory.py :: """
+            import os
+            import boto3
+            from pydantic_settings import BaseSettings, SettingsConfigDict
+            from typing import Any, Optional
+
+            class CloudSettings(BaseSettings):
+                \"\"\"
+                =============================================================================
+                == THE CLOUD CONSCIENCE (V-Ω-TOTALITY)                                     ==
+                =============================================================================
+                \"\"\"
+                AWS_REGION: str = "{{ aws_region }}"
+                USE_LOCALSTACK: bool = True
+                LOCALSTACK_ENDPOINT: str = "http://localhost:{{ localstack_port }}"
+                
+                # Mock Credentials for LocalStack
+                AWS_ACCESS_KEY_ID: str = "test"
+                AWS_SECRET_ACCESS_KEY: str = "test"
+
+                model_config = SettingsConfigDict(env_prefix="SC_", env_file=".env", extra="ignore")
+
+            settings = CloudSettings()
+
+            class EmissaryFactory:
+                \"\"\"
+                Forges AWS clients with environmental awareness.
+                Seamlessly switches between LocalStack and Production AWS.
+                \"\"\"
+                @staticmethod
+                def get_client(service_name: str) -> Any:
+                    kwargs = {
+                        "region_name": settings.AWS_REGION,
+                        "aws_access_key_id": settings.AWS_ACCESS_KEY_ID,
+                        "aws_secret_access_key": settings.AWS_SECRET_ACCESS_KEY,
+                    }
+                    
+                    if settings.USE_LOCALSTACK:
+                        kwargs["endpoint_url"] = settings.LOCALSTACK_ENDPOINT
+                        # [THE CURE]: Disable SSL verification for local dev
+                        kwargs["verify"] = False
+                    
+                    return boto3.client(service_name, **kwargs)
+
+                @staticmethod
+                def get_resource(service_name: str) -> Any:
+                    kwargs = {
+                        "region_name": settings.AWS_REGION,
+                        "aws_access_key_id": settings.AWS_ACCESS_KEY_ID,
+                        "aws_secret_access_key": settings.AWS_SECRET_ACCESS_KEY,
+                    }
+                    
+                    if settings.USE_LOCALSTACK:
+                        kwargs["endpoint_url"] = settings.LOCALSTACK_ENDPOINT
+                    
+                    return boto3.resource(service_name, **kwargs)
+
+            # --- Gnostic Hearts (Singleton Clients) ---
+            s3_vault = EmissaryFactory.get_client("s3")
+            db_lattice = EmissaryFactory.get_client("dynamodb")
+            """
+
+    # [6] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name | title }} - LocalStack Emissary
+    
+    > **Status:** [V-Ω-RESONANT] | **Endpoint:** http://localhost:{{ localstack_port }}
+
+    This is the **Celestial Mirror**, a sovereign local cloud environment manifest 
+    via the **VELM God-Engine**. It allows for full AWS integration testing 
+    without network latency or fiscal metabolic tax.
+
+    ## 🚀 Initiation Rites
+
+    1.  **Awaken the Emissary**:
+        ```bash
+        make cloud-up
+        ```
+    2.  **Materialize Resources**:
+        ```bash
+        make cloud-provision
+        ```
+    3.  **Verify Resonance**:
+        ```bash
+        make cloud-scry
+        ```
+
+    ## 🏛️ Topography
+
+    - `docker-compose.cloud.yml`: The physical substrate of the simulation.
+    - `infra/cloud/provision.sh`: The divine will that forges buckets and tables.
+    - `src/{{ package_name }}/core/cloud_factory.py`: The Pydantic-warded logic bridge.
+    - `Makefile`: The kinetic conductor for all cloud operations.
+
+    ## 🛡️ Security Note
+    The LocalStack Emissary uses hardcoded `test/test` credentials. 
+    Never use these artifacts to strike the Production AWS realm.
+    """
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]LocalStack Emissary[/bold cyan] is manifest."
+    
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Dependency Suture
+    proclaim: "Summoning Cloud Artisans... (boto3 & pydantic-settings)"
+    @if {{ use_poetry }}
+        >> poetry add boto3 pydantic-settings
+    @else
+        >> pip install boto3 pydantic-settings
+    @endif
+
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Emissary Ready.[/bold green]"
+    proclaim: "To ignite the local cloud multiverse:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make cloud-up[/bold cyan] (Ignite Docker)"
+    proclaim: "  3. [bold cyan]make cloud-provision[/bold cyan] (Forge S3/DynamoDB)"
+
+%% on-heresy
+    proclaim: "[bold red]Cloud Inception Fractured.[/bold red] Purging the ephemeral shards..."
+    rm -rf {{ project_slug }}/infra/cloud {{ project_slug }}/docker-compose.cloud.yml

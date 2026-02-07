@@ -1,115 +1,423 @@
-# Path: scaffold/archetypes/genesis/python-basic.scaffold
-# -------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: PYTHON BASIC SANCTUM (V-Ω-TOTALITY)                    ==
+# =================================================================================
+# @description: The definitive production-grade Python foundation. Materializes a sovereign environment with Poetry orchestration, Pydantic V2 settings, high-fidelity linting (Ruff/Mypy), and a multi-stage Docker fortress.
+# @category: Genesis
+# @tags: python, poetry, pydantic, ruff, pytest, docker, foundation, backend
+# @difficulty: Novice
+# @is_integration: false
+# @dna: use_poetry=true, python_version=3.12, use_docker=true, use_ci=true, strict_types=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: PYTHON BASIC SANCTUM (V-Ω-STRUCTURAL-PURITY)     ==
-# =================================================================================
-# @description: A universal, production-ready Python project using pip & venv,
-#               forged with an intelligent Makefile and modern tooling.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "nebula-core"
+$$ author = "{{ author | default('The Architect') }}"
+$$ email = "{{ email | default('architect@novalym.systems') }}"
+$$ python_version = "3.12"
+$$ version = "0.1.0"
 
+# [THE ALCHEMY]: Case Normalization
 $$ project_slug = {{ project_name | slug }}
-$$ package_name = {{ project_slug | snake }}
-$$ author = {{ author }}
-$$ python_version = "3.11"
+$$ package_name = {{ project_name | snake }}
 
+# --- II. THE SCRIPTURE OF FORM (The Fortress Structure) ---
 {{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION (Environment Shielding)
     .gitignore :: """
-    .venv/
+    # == The Abyss (Python) ==
     __pycache__/
-    .pytest_cache/
-    .ruff_cache/
+    *.py[cod]
+    *$py.class
+    .venv/
+    venv/
+    env/
+    .env
+    .env.*
+    !.env.example
+
+    # Distribution / Build Shards
     dist/
     build/
-    *.egg-info
-    .env
+    *.egg-info/
+    *.egg
+    
+    # Testing & Quality Forensics
+    .pytest_cache/
+    .ruff_cache/
+    .mypy_cache/
+    .coverage
+    htmlcov/
+    
+    # OS & IDE Meta-Matter
+    .vscode/
+    .idea/
+    .DS_Store
     """
 
+    .editorconfig :: """
+    root = true
+    [*]
+    indent_style = space
+    indent_size = 4
+    charset = utf-8
+    trim_trailing_whitespace = true
+    insert_final_newline = true
+    end_of_line = lf
+
+    [Makefile]
+    indent_style = tab
+    """
+
+    # [2] THE FOUNDRY (pyproject.toml)
+    # The Gnostic Law of the Environment
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "{{ version }}"
+    description = "A sovereign Python reality manifest by the VELM engine."
+    authors = ["{{ author }} <{{ email }}>"]
+    readme = "README.md"
+    packages = [{include = "{{ package_name }}", from = "src"}]
+
+    [tool.poetry.dependencies]
+    python = "^{{ python_version }}"
+    pydantic = "^2.6.0"
+    pydantic-settings = "^2.2.0"
+    python-dotenv = "^1.0.1"
+    rich = "^13.7.0"
+    structlog = "^24.1.0"
+
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    pytest-cov = "^5.0.0"
+    pytest-asyncio = "^0.23.0"
+    ruff = "^0.3.0"
+    black = "^24.2.0"
+    mypy = "^1.8.0"
+    pre-commit = "^3.6.0"
+
+    [tool.poetry.scripts]
+    {{ project_slug }} = "{{ package_name }}.main:main"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+
+    [tool.black]
+    line-length = 110
+    target-version = ['py312']
+
+    [tool.ruff]
+    line-length = 110
+    target-version = "py312"
+    lint.select = ["E", "F", "I", "UP", "B", "S", "T20"]
+    lint.ignore = ["S101"] # Allow asserts in tests
+
+    [tool.mypy]
+    python_version = "{{ python_version }}"
+    strict = true
+    ignore_missing_imports = true
+    """
+
+    # [3] THE CONTROL PLANE (Makefile)
+    # Using Single Dollar ($) syntax for absolute Makefile sovereignty.
+    Makefile :: """
+    .PHONY: help install run test lint format build docker-build clean
+    
+    # Gnostic Variables
+    $VENV = .venv
+    $PY = poetry run python
+    $PKG = src/{{ package_name }}
+    $EXE = poetry run {{ project_slug }}
+
+    help: ## Proclaim available rites for this reality
+        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
+
+    install: ## Consecrate the local environment and summon dependencies
+        @echo "📦 Summoning dependencies via Poetry..."
+        poetry install
+        poetry run pre-commit install
+
+    run: ## Execute the kinetic entrypoint
+        $($EXE)
+
+    test: ## Conduct the unit inquisition
+        @echo "🧪 Verifying logic via Pytest..."
+        poetry run pytest --cov=$($PKG)
+
+    lint: ## Audit the soul of the code for structural heresies
+        @echo "🔍 Scrying for logic-gaps..."
+        poetry run ruff check .
+        poetry run mypy src/
+
+    format: ## Apply sacred geometry to the scriptures
+        @echo "✨ Purifying code form..."
+        poetry run ruff check --fix .
+        poetry run black .
+
+    build: clean ## Forge the celestial wheel (distribution)
+        poetry build
+
+    docker-build: ## Forge the production-grade container vessel
+        docker build -t {{ project_slug }}:latest .
+
+    clean: ## Return ephemeral artifacts to the void
+        rm -rf dist/ build/ .pytest_cache/ .ruff_cache/ .mypy_cache/ .coverage
+        find . -name "*.pyc" -delete
+    """
+
+    # [4] THE ENVIRONMENT DNA
+    .env.example :: """
+    # == {{ project_name | upper }} CONFIGURATION ==
+    ENVIRONMENT=development
+    LOG_LEVEL=INFO
+    
+    # == Gnostic Secrets ==
+    # Add your project-specific variables here
+    DATABASE_URL="sqlite:///./reality.db"
+    """
+
+    # [5] THE SOURCE CODE (The Living Mind)
+    src/
+        {{ package_name }}/
+            __init__.py :: "__version__ = '{{ version }}'"
+            py.typed :: "" # [FACULTY]: PEP 561 compliance for type-aware distribution
+
+            # --- THE CONSCIENCE (CONFIG) ---
+            config.py :: """
+            from pydantic_settings import BaseSettings, SettingsConfigDict
+            from typing import Optional
+            import logging
+
+            class Settings(BaseSettings):
+                \"\"\"
+                =============================================================================
+                == THE GNOSTIC SETTINGS (V-Ω-SINGLETON)                                    ==
+                =============================================================================
+                Siphons environment DNA into typed logic via Pydantic V2.
+                \"\"\"
+                APP_NAME: str = "{{ project_name }}"
+                ENVIRONMENT: str = "development"
+                LOG_LEVEL: str = "INFO"
+                
+                # Business Gnosis
+                DATABASE_URL: Optional[str] = None
+
+                model_config = SettingsConfigDict(
+                    env_prefix="SC_",
+                    env_file=".env", 
+                    env_file_encoding="utf-8", 
+                    extra="ignore"
+                )
+
+            settings = Settings()
+            """
+
+            # --- THE KINETIC INTERFACE ---
+            main.py :: """
+            \"\"\"
+            The Main Conductor for {{ project_name }}.
+            Forged by: {{ author }}
+            Generated by the VELM God-Engine.
+            \"\"\"
+            import sys
+            from rich.console import Console
+            from .config import settings
+            from .core import GnosticEngine
+
+            console = Console()
+
+            def main():
+                \"\"\"The high-level entry point.\"\"\"
+                console.print(f"[bold cyan]✨ {settings.APP_NAME} Awakening...[/]")
+                
+                try:
+                    engine = GnosticEngine()
+                    engine.ignite()
+                except Exception as e:
+                    console.print(f"[bold red]CATASTROPHIC_FRACTURE:[/] {e}")
+                    sys.exit(1)
+
+            if __name__ == "__main__":
+                main()
+            """
+
+            # --- THE SOUL (CORE LOGIC) ---
+            core/
+                __init__.py :: "from .engine import GnosticEngine"
+                engine.py :: """
+                from rich.console import Console
+                from ..config import settings
+
+                class GnosticEngine:
+                    \"\"\"
+                    The sovereign logic of the project.
+                    Separated from the I/O shell for absolute purity.
+                    \"\"\"
+                    
+                    def __init__(self):
+                        self.console = Console()
+                        self.resonance = "STABLE"
+
+                    def ignite(self):
+                        \"\"\"Performs the primary mission of the reality.\"\"\"
+                        self.console.print(
+                            f"Gnosis is truth. The [green]{self.resonance}[/] reality is manifest."
+                        )
+                        self.console.print(f"Environment: [yellow]{settings.ENVIRONMENT}[/]")
+                """
+
+    # [6] THE INQUISITION (Tests)
+    tests/
+        __init__.py :: ""
+        conftest.py :: """
+        import pytest
+
+        @pytest.fixture
+        def gnostic_truth():
+            return "STABLE"
+        """
+        test_logic.py :: """
+        from {{ package_name }}.core.engine import GnosticEngine
+
+        def test_engine_resonance(gnostic_truth):
+            \"\"\"Verifies the initial state of the engine.\"\"\"
+            engine = GnosticEngine()
+            assert engine.resonance == gnostic_truth
+        """
+
+    # [7] THE CELESTIAL VESSEL (Production Dockerfile)
+    Dockerfile :: """
+    # =============================================================================
+    # == THE SOVEREIGN TITAN VESSEL (V-Ω-TOTALITY-MULTISTAGE)                    ==
+    # =============================================================================
+    
+    # --- STAGE 1: THE FORGE (BUILDER) ---
+    FROM python:{{ python_version }}-slim-bookworm as builder
+    
+    WORKDIR /app
+    ENV POETRY_NO_INTERACTION=1 \
+        POETRY_VIRTUALENVS_IN_PROJECT=1 \
+        POETRY_VIRTUALENVS_CREATE=1
+
+    RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential curl \
+        && rm -rf /var/lib/apt/lists/*
+
+    RUN pip install poetry==1.8.2
+
+    COPY pyproject.toml poetry.lock* ./
+    RUN poetry install --no-root --only main
+
+    # --- STAGE 2: THE CELESTIAL VESSEL (PRODUCTION) ---
+    FROM python:{{ python_version }}-slim-bookworm as production
+    WORKDIR /app
+    
+    # [SECURITY]: Consecrate non-root execution
+    RUN useradd -m -u 1000 scaf_artisan
+    USER scaf_artisan
+
+    COPY --from=builder /app/.venv /app/.venv
+    ENV PATH="/app/.venv/bin:$PATH"
+    
+    COPY src /app/src
+    COPY .env.example /app/.env
+
+    # [THE VOW]: Unbuffered I/O
+    ENV PYTHONUNBUFFERED=1
+
+    # Entrypoint via module interface
+    CMD ["python", "-m", "{{ package_name }}.main"]
+    """
+
+    # [8] THE CELESTIAL GATE (CI/CD)
+    .github/workflows/integrity.yml :: """
+    name: Ω | Integrity Adjudication
+
+    on:
+      push:
+        branches: [ main ]
+      pull_request:
+        branches: [ main ]
+
+    jobs:
+      audit:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-python@v5
+            with: { python-version: '{{ python_version }}' }
+          
+          - name: Install Poetry
+            run: curl -sSL https://install.python-poetry.org | python3 -
+          
+          - name: Summon Dependencies
+            run: poetry install
+          
+          - name: Audit Gnostic Form (Lint)
+            run: |
+              poetry run ruff check .
+              poetry run mypy src/
+          
+          - name: Verify Logic (Test)
+            run: poetry run pytest --cov=src
+    """
+
+    # [9] THE ARCHITECT'S MANIFESTO
     README.md :: """
     # {{ project_name }}
+    
+    [![Status](https://img.shields.io/badge/Status-Resonant-teal.svg)]()
+    [![Python](https://img.shields.io/badge/Python-{{ python_version }}-blue.svg)]()
 
-    A Python project forged by Scaffold.
+    > {{ description | default('A sovereign Python reality manifest by the VELM engine.') }}
 
-    ## Setup
+    ## 🚀 Initiation Rites
 
     ```bash
-    # This single command creates the venv and installs all dependencies.
+    # 1. Consecrate the environment
     make install
 
-    # To activate the venv
-    source .venv/bin/activate
+    # 2. Awaken the logic
+    make run
+
+    # 3. Adjudicate the soul
+    make test
+    ```
+
+    ## 🏛️ Topography
+
+    - `src/{{ package_name }}/main.py`: The Kinetic Shell (Entry Point).
+    - `src/{{ package_name }}/core/`: The Gnostic Soul (Business Logic).
+    - `src/{{ package_name }}/config.py`: The Pydantic V2 Conscience.
+    - `tests/`: The Forensic Chambers.
+    - `Makefile`: The Sovereign Interface.
+
+    ## 🐳 Containerization
+
+    ```bash
+    make docker-build
+    docker run {{ project_slug }}:latest
     ```
     """
 
-    requirements.txt:
-        rich
-
-    requirements-dev.txt:
-        pytest
-        ruff
-        black
-
-    pyproject.toml:
-        [build-system]
-        requires = ["setuptools>=61.0"]
-        build-backend = "setuptools.build_meta"
-
-        [project]
-        name = "{{ project_slug }}"
-        version = "0.1.0"
-        authors = [ { name="{{ author }}" } ]
-
-        [tool.ruff]
-        line-length = 100
-
-    Makefile:
-        .PHONY: help install run test lint format
-
-        VENV_DIR = .venv
-        PYTHON_EXEC = $(VENV_DIR)/bin/python
-
-        help:
-        	@echo "Makefile for {{ project_name }}"
-
-        # This target acts as a guard. It runs only if the venv dir is missing.
-        $(VENV_DIR):
-        	python -m venv $(VENV_DIR)
-
-        install: $(VENV_DIR)
-        	@$(PYTHON_EXEC) -m pip install -r requirements.txt
-        	@$(PYTHON_EXEC) -m pip install -r requirements-dev.txt
-
-        run:
-        	@$(PYTHON_EXEC) src/{{ package_name }}/main.py
-
-        test:
-        	@$(PYTHON_EXEC) -m pytest
-
-        lint:
-        	@$(PYTHON_EXEC) -m ruff check .
-        	@$(PYTHON_EXEC) -m black --check .
-
-        format:
-        	@$(PYTHON_EXEC) -m ruff check --fix .
-        	@$(PYTHON_EXEC) -m black .
-
-    src/
-        {{ package_name }}/
-            __init__.py
-            main.py:
-                from rich.console import Console
-
-                def main():
-                    console = Console()
-                    console.print("Gnosis is truth.", style="bold green")
-
-                if __name__ == "__main__":
-                    main()
-    tests/
-        test_main.py:
-            def test_placeholder():
-                assert True
-
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
 %% post-run
-    git init
-    make install
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the dependencies
+    proclaim: "Summoning the Poetry toolchain... (npm install equivalent for Python)"
+    @if {{ shell('which poetry') }} -> poetry install
+    @else -> proclaim: "[bold yellow]Poetry not detected. Please install it to finalize the forge.[/bold yellow]"
+
+    # 3. Final Proclamation
+    proclaim: "The Python Sanctum '{{ project_name }}' is manifest in '{{ project_slug }}/'."
+    proclaim: "To begin the Great Work:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make run[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]The Inception Rite fractured.[/bold red] Purging the ruins..."
+    rm -rf src/ tests/ .venv/ Makefile pyproject.toml

@@ -1,0 +1,265 @@
+# Path: src/velm/archetypes/cloud/lambda-swarm-cdk.scaffold
+# --------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: AWS LAMBDA SWARM (V-Ω-CDK-TOTALITY)                      ==
+# =================================================================================
+# @description: A scalable Serverless Compute Fortress. Defines a multi-function 
+#               environment, S3 event triggers, and API Gateway using 
+#               TypeScript-native Infrastructure-as-Code (AWS CDK).
+# @category: Infrastructure
+# @tags: aws, lambda, serverless, cdk, typescript, s3, api-gateway, event-driven
+# @difficulty: Grand Architect
+# @is_integration: false
+# @dna: use_typescript=true, use_aws=true, use_cdk=true, node_version=20
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "lambda-swarm"
+$$ author = "The Architect"
+$$ aws_region = "us-east-1"
+$$ runtime_node = "NODEJS_20_X"
+
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+{{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        /node_modules
+        /cdk.out
+        /dist
+        .env
+        .env.local
+        *.log
+
+    package.json :: """
+    {
+      "name": "{{ project_slug }}-cdk-root",
+      "version": "1.0.0",
+      "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "synth": "npm run build && cdk synth",
+        "deploy": "npm run build && cdk deploy",
+        "destroy": "npm run build && cdk destroy"
+      },
+      "dependencies": {
+        "aws-cdk-lib": "2.127.0",
+        "constructs": "10.3.0",
+        "source-map-support": "^0.5.21"
+      },
+      "devDependencies": {
+        "@types/node": "^20.11.24",
+        "typescript": "^5.3.3",
+        "ts-node": "^10.9.2",
+        "aws-cdk": "2.127.0"
+      }
+    }
+    """
+
+    tsconfig.json:
+        {
+          "compilerOptions": {
+            "target": "ES2020",
+            "module": "commonjs",
+            "lib": ["es2020"],
+            "strict": true,
+            "esModuleInterop": true,
+            "skipLibCheck": true,
+            "forceConsistentCasingInFileNames": true,
+            "outDir": "dist",
+            "rootDir": "."
+          },
+          "include": ["lib", "bin", "src"],
+          "exclude": ["node_modules"]
+        }
+        
+    cdk.json:
+        {
+          "app": "npx ts-node --prefer-ts-exts bin/{{ project_slug }}-stack.ts",
+          "watch": {
+            "include": ["**/*.ts"],
+            "exclude": ["node_modules"]
+          },
+          "context": {
+            "@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId": true
+          }
+        }
+
+    # [3] THE INFRASTRUCTURE AS CODE (CDK)
+    # The brain of the infrastructure layer
+    lib/
+        {{ project_slug }}-stack.ts :: """
+        import * as cdk from 'aws-cdk-lib';
+        import * as lambda from 'aws-cdk-lib/aws-lambda';
+        import * as apigw from 'aws-cdk-lib/aws-apigateway';
+        import * as s3 from 'aws-cdk-lib/aws-s3';
+        import * as s3n from 'aws-cdk-lib/aws-s3-notifications';
+        import { Construct } from 'constructs';
+
+        export class {{ project_slug | pascal }}Stack extends cdk.Stack {
+          constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+            super(scope, id, props);
+
+            // 1. Gnostic S3 Archive (Event Source)
+            const archiveBucket = new s3.Bucket(this, 'ArchiveBucket', {
+                bucketName: `{{ project_slug }}-archive-${this.region}-{{ account }}`,
+                removalPolicy: cdk.RemovalPolicy.DESTROY, // For easy development
+                autoDeleteObjects: true,
+            });
+
+            // 2. The Compute Swarm (Two Functions: REST API and S3 Trigger)
+            const sharedLambdaProps = {
+                runtime: lambda.Runtime.{{ runtime_node }},
+                timeout: cdk.Duration.seconds(10),
+                tracing: lambda.Tracing.ACTIVE,
+                environment: {
+                    NODE_ENV: cdk.Stack.of(this).environment.region === 'us-east-1' ? 'production' : 'development',
+                    BUCKET_NAME: archiveBucket.bucketName,
+                }
+            };
+
+            const apiFn = new lambda.Function(this, 'ApiHandler', {
+                code: lambda.Code.fromAsset('src/lambdas/api-handler'),
+                handler: 'index.handler',
+                ...sharedLambdaProps,
+            });
+            
+            const eventFn = new lambda.Function(this, 'EventHandler', {
+                code: lambda.Code.fromAsset('src/lambdas/event-handler'),
+                handler: 'index.handler',
+                ...sharedLambdaProps,
+            });
+
+            // 3. The Event Bridge (S3 -> Lambda)
+            archiveBucket.addEventNotification(
+                s3.EventType.OBJECT_CREATED,
+                new s3n.LambdaDestination(eventFn)
+            );
+
+            // 4. The API Gateway
+            const api = new apigw.LambdaRestApi(this, 'ApiGateway', {
+                handler: apiFn,
+                proxy: false,
+                deployOptions: {
+                    stageName: var.environment,
+                }
+            });
+            
+            // Proclaim the API Gateway URL as Gnosis
+            new cdk.CfnOutput(this, 'ApiUrl', {
+                value: api.url,
+            });
+          }
+        }
+        """
+
+    # [4] THE ENTRYPOINT
+    bin/
+        {{ project_slug }}-stack.ts :: """
+        #!/usr/bin/env node
+        import 'source-map-support/register';
+        import * as cdk from 'aws-cdk-lib';
+        import { {{ project_slug | pascal }}Stack } from '../lib/{{ project_slug }}-stack';
+
+        const app = new cdk.App();
+        
+        // [ASCENSION 6]: Environment Tagging
+        const env = app.node.tryGetContext('env') || 'staging';
+
+        new {{ project_slug | pascal }}Stack(app, `${env}-{{ project_slug | pascal }}Stack`, {
+          env: {
+            account: process.env.CDK_DEFAULT_ACCOUNT,
+            region: process.env.CDK_DEFAULT_REGION || '{{ aws_region }}',
+          },
+          // Gnostic Tags for the whole stack
+          tags: {
+            Project: '{{ project_name }}',
+            Environment: env
+          }
+        });
+        """
+        
+    # [5] THE SOURCE CODE (SWARM FUNCTIONS)
+    src/
+        lambdas/
+            api-handler/
+                index.ts :: """
+                import { APIGatewayProxyHandler } from 'aws-lambda';
+                import { StatusCodes } from 'http-status-codes';
+
+                // Simple Pydantic-like contract validation
+                interface RequestBody {
+                    message: string;
+                }
+
+                export const handler: APIGatewayProxyHandler = async (event) => {
+                    const body: RequestBody = JSON.parse(event.body || '{}');
+
+                    if (!body.message) {
+                        return { statusCode: StatusCodes.BAD_REQUEST, body: JSON.stringify({ error: "Missing Gnosis" }) };
+                    }
+
+                    return {
+                        statusCode: StatusCodes.OK,
+                        body: JSON.stringify({
+                            revelation: `Gnosis is truth. Received: ${body.message.toUpperCase()}`,
+                            source: 'ApiHandler'
+                        }),
+                    };
+                };
+                """
+            event-handler/
+                index.ts :: """
+                import { S3Event } from 'aws-lambda';
+                import * as path from 'path';
+
+                export const handler: (event: S3Event) => Promise<void> = async (event) => {
+                    for (const record of event.Records) {
+                        const bucket = record.s3.bucket.name;
+                        const key = record.s3.object.key;
+                        console.log(`Processing Gnosis from S3: s3://${bucket}/${key}`);
+                        // [PROPHETIC TODO]: Trigger a Step Function or start processing
+                    }
+                };
+                """
+        
+    # [6] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name }} - AWS Lambda Swarm (CDK)
+
+    > Forged with AWS CDK (TypeScript) for declarative, serverless infrastructure.
+
+    ## ⚠️ Pre-Flight Check
+
+    - You must have the [AWS CLI](https://aws.amazon.com/cli/) manifest in your PATH.
+    - You must have the [CDK CLI](https://docs.aws.amazon.com/cdk/v2/guide/cli.html) manifest: `npm install -g aws-cdk`
+    - You must have run `aws configure` and `cdk bootstrap aws://ACCOUNT-ID/REGION`.
+
+    ## 🚀 The Rites of Ascension
+    
+    1.  **Enter Sanctum**: `cd {{ project_slug }}`
+    2.  **Synthesis**: `npm run synth` (Prophesy the CloudFormation)
+    3.  **Ascend**: `npm run deploy -- --context env=staging`
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon dependencies
+    proclaim: "Summoning the CDK toolchain... (npm install)"
+    npm install
+
+    # 3. Final Proclamation
+    proclaim: "The AWS Lambda Swarm is manifest in '{{ project_slug }}/'."
+    proclaim: "To ascend to the cloud:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]npm run deploy -- --context env=staging[/bold cyan]"
+
+%% on-heresy
+    proclaim: "The Serverless forge fractured. Cleaning the shards..."
+    rm -rf lib/ bin/ package.json tsconfig.json cdk.json

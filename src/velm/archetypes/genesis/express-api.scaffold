@@ -1,148 +1,391 @@
-# Path: scaffold/archetypes/genesis/express-api.scaffold
-# ------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: EXPRESS API FORTRESS (V-Ω-TOTALITY)                      ==
+# =================================================================================
+# @description: A legendary, production-grade Express.js API framework. Features
+#               TypeScript 5, Zod validation, Service-Repository pattern,
+#               JWT integration, and hyper-dense Docker multi-staging.
+# @category: Backend
+# @tags: node, typescript, express, rest, zod, jwt, docker, winston, helmet
+# @difficulty: Adept
+# @is_integration: false
+# @dna: use_docker=true, use_typescript=true, node_version=20
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: EXPRESS.JS API FORTRESS (V-Ω-STRUCTURAL-PURITY)  ==
-# =================================================================================
-# @description: A robust, containerized, and production-ready Express.js API forged
-#               with TypeScript and the unbreakable laws of Gnostic Structure.
-# =================================================================================
-
-# --- I. The Altar of Gnostic Will ---
-$$ project_slug = {{ project_name | slug }}
-$$ author = {{ author }}
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "nexus-api"
+$$ author = "The Architect"
 $$ default_port = 8080
+$$ api_prefix = "/api/v1"
 
-# --- II. The Scripture of Form ---
+# Derived Gnosis
+$$ project_slug = {{ project_name | slug }}
+$$ package_name = {{ project_name | snake }}
+
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
-    .gitignore :: """
-    node_modules/
-    dist/
-    .env
-    .DS_Store
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        node_modules/
+        dist/
+        .env
+        .env.local
+        *.log
+        npm-debug.log*
+        .DS_Store
+        coverage/
+        .vscode/
+
+    package.json :: """
+    {
+      "name": "{{ project_slug }}",
+      "version": "1.0.0",
+      "description": "{{ description | default('A sovereign API forged by VELM.') }}",
+      "main": "dist/server.js",
+      "type": "module",
+      "author": "{{ author }}",
+      "license": "MIT",
+      "scripts": {
+        "start": "node dist/server.js",
+        "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+        "build": "rimraf dist && tsc",
+        "lint": "eslint . --ext .ts",
+        "format": "prettier --write .",
+        "test": "jest --passWithNoTests"
+      },
+      "dependencies": {
+        "express": "^4.18.3",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "helmet": "^7.1.0",
+        "zod": "^3.22.4",
+        "winston": "^3.12.0",
+        "morgan": "^1.10.0",
+        "express-rate-limit": "^7.2.0",
+        "jsonwebtoken": "^9.0.2",
+        "bcryptjs": "^2.4.3"
+      },
+      "devDependencies": {
+        "@types/express": "^4.17.21",
+        "@types/cors": "^2.8.17",
+        "@types/node": "^20.11.24",
+        "@types/morgan": "^1.9.9",
+        "@types/jsonwebtoken": "^9.0.6",
+        "@types/bcryptjs": "^2.4.6",
+        "@typescript-eslint/eslint-plugin": "^7.1.0",
+        "@typescript-eslint/parser": "^7.1.0",
+        "eslint": "^8.57.0",
+        "prettier": "^3.2.5",
+        "rimraf": "^5.0.5",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.3.3",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.1.2",
+        "supertest": "^6.3.4"
+      }
+    }
     """
-
-    .env.example:
-        # Gnostic Secrets for the Express API Service
-        PORT={{ default_port }}
-        NODE_ENV=development
-
-    package.json:
-        {
-          "name": "{{ project_slug }}",
-          "version": "0.1.0",
-          "description": "{{ description }}",
-          "main": "dist/server.js",
-          "author": "{{ author }}",
-          "license": "MIT",
-          "scripts": {
-            "start": "node dist/server.js",
-            "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-            "build": "rimraf dist && tsc",
-            "lint": "eslint . --ext .ts",
-            "format": "prettier --write ."
-          },
-          "dependencies": {
-            "cors": "^2.8.5",
-            "dotenv": "^16.4.5",
-            "express": "^4.18.3",
-            "helmet": "^7.1.0"
-          },
-          "devDependencies": {
-            "@types/cors": "^2.8.17",
-            "@types/express": "^4.17.21",
-            "@types/node": "^20.11.24",
-            "@typescript-eslint/eslint-plugin": "^7.1.0",
-            "@typescript-eslint/parser": "^7.1.0",
-            "eslint": "^8.57.0",
-            "prettier": "^3.2.5",
-            "rimraf": "^5.0.5",
-            "ts-node-dev": "^2.0.0",
-            "typescript": "^5.3.3"
-          }
-        }
 
     tsconfig.json:
         {
           "compilerOptions": {
             "target": "ES2022",
-            "module": "commonjs",
+            "module": "NodeNext",
+            "moduleResolution": "NodeNext",
             "rootDir": "./src",
             "outDir": "./dist",
             "esModuleInterop": true,
             "strict": true,
             "skipLibCheck": true,
-            "forceConsistentCasingInFileNames": true
+            "forceConsistentCasingInFileNames": true,
+            "resolveJsonModule": true,
+            "sourceMap": true
           },
-          "include": ["src/**/*"]
+          "include": ["src/**/*"],
+          "exclude": ["node_modules", "dist", "**/*.test.ts"]
         }
 
-    .prettierrc :: """
-    {
-      "semi": true,
-      "trailingComma": "all",
-      "singleQuote": true,
-      "printWidth": 100
-    }
-    """
+    .prettierrc:
+        {
+          "semi": false,
+          "trailingComma": "all",
+          "singleQuote": true,
+          "printWidth": 100,
+          "tabWidth": 2
+        }
 
+    # [2] THE CONTROL PLANE
     Makefile:
-        .PHONY: help install dev build lint docker-build docker-run
+        .PHONY: help install dev build lint format docker-build docker-up clean
 
-        install:
-        	@npm install
+        $SERVICE_NAME = {{ project_slug }}
 
-        dev:
-        	@npm run dev
+        help: ## Proclaim available rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-        build:
-        	@npm run build
+        install: ## Summon dependencies
+            @npm install
 
-        lint:
-        	@npm run lint
+        dev: ## Ignite the local forge (Hot-Reloading)
+            @npm run dev
 
-        docker-build:
-        	@docker build -t {{ project_slug }}:latest .
+        build: ## Transmute TypeScript into pure JS
+            @npm run build
 
-        docker-run:
-        	@docker run -p {{ default_port }}:{{ default_port }} -it --rm --name {{ project_slug }} {{ project_slug }}:latest
+        lint: ## Audit the scripture for heresies
+            @npm run lint
 
+        format: ## Purify code geometry
+            @npm run format
+
+        docker-build: ## Forge the celestial production vessel
+            @docker build -t $(SERVICE_NAME):latest .
+
+        docker-up: ## Awaken the containerized reality
+            @docker-compose up --build -d
+
+        clean: ## Return artifacts to the void
+            @rm -rf dist/ node_modules/
+
+    # [3] THE ENVIRONMENT DNA
+    .env.example:
+        # == System ==
+        PORT={{ default_port }}
+        NODE_ENV=development
+
+        # == Security ==
+        # Generate with: openssl rand -base64 32
+        JWT_SECRET=summon-a-secret-key-here
+        ACCESS_TOKEN_EXPIRES_IN=15m
+        
+        # == Database ==
+        DATABASE_URL=postgresql://user:pass@localhost:5432/{{ package_name }}
+
+    # [4] THE SOURCE CODE (THE SOUL)
     src/
-        app.ts:
-            import express, { Request, Response } from 'express';
-            import cors from 'cors';
-            import helmet from 'helmet';
+        # --- THE ENTRYPOINT (THE MIND) ---
+        server.ts :: """
+        import dotenv from 'dotenv'
+        import app from './app'
+        import { logger } from './core/logger'
 
-            const app = express();
+        dotenv.config()
 
-            app.use(helmet());
-            app.use(cors());
-            app.use(express.json());
+        const PORT = process.env.PORT || {{ default_port }}
 
-            app.get('/', (req: Request, res: Response) => {
-                res.json({ message: 'Gnosis is truth. The API is alive.' });
-            });
+        const server = app.listen(PORT, () => {
+          logger.info(`[SINGULARITY] Express API Fortress active on port ${PORT}`)
+          logger.info(`[GNOSTIC] Environment: ${process.env.NODE_ENV}`)
+        })
 
-            app.get('/health', (req: Request, res: Response) => {
-                res.json({ status: 'pure' });
-            });
+        // Handle the Unraveling (Shutdown)
+        process.on('SIGTERM', () => {
+          logger.warn('SIGTERM perceived. Closing Celestial Gates...')
+          server.close(() => {
+            logger.info('Gates sealed. Reality dissolved.')
+            process.exit(0)
+          })
+        })
+        """
 
-            export default app;
+        app.ts :: """
+        import express, { Application } from 'express'
+        import cors from 'cors'
+        import helmet from 'helmet'
+        import morgan from 'morgan'
+        import rateLimit from 'express-rate-limit'
 
-        server.ts:
-            import app from './app';
-            import dotenv from 'dotenv';
+        import { logger, stream } from './core/logger'
+        import { errorHandler } from './middlewares/error-handler'
+        import rootRouter from './routes/index'
 
-            dotenv.config();
+        const app: Application = express()
 
-            const PORT = process.env.PORT || {{ default_port }};
+        // --- I. THE SHIELD (SECURITY) ---
+        app.use(helmet())
+        app.use(cors())
+        app.use(express.json({ limit: '10kb' })) // Prevent payload gluttony
 
-            app.listen(PORT, () => {
-                console.log(`[GNOSIS] The reality is manifest on port ${PORT}`);
-            });
+        // --- II. THE VIGIL (OBSERVABILITY) ---
+        app.use(morgan('combined', { stream }))
 
+        // --- III. THE GOVERNOR (RATE LIMITING) ---
+        const limiter = rateLimit({
+          windowMs: 15 * 60 * 1000,
+          max: 100,
+          message: 'Too many pleas from this IP. The Oracle demands silence.'
+        })
+        app.use('/api/', limiter)
+
+        // --- IV. THE DISPATCH (ROUTES) ---
+        app.use('{{ api_prefix }}', rootRouter)
+
+        // --- V. THE REDEMPTION (ERROR HANDLING) ---
+        app.use(errorHandler)
+
+        export default app
+        """
+
+        # --- THE CORE ORGANS ---
+        core/
+            config.ts :: """
+            import { z } from 'zod'
+
+            const envSchema = z.object({
+              PORT: z.string().default('{{ default_port }}'),
+              NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+              JWT_SECRET: z.string().min(32),
+              DATABASE_URL: z.string().url()
+            })
+
+            export const env = envSchema.parse(process.env)
+            """
+
+            logger.ts :: """
+            import winston from 'winston'
+
+            const levels = {
+              error: 0,
+              warn: 1,
+              info: 2,
+              http: 3,
+              debug: 4,
+            }
+
+            const colors = {
+              error: 'red',
+              warn: 'yellow',
+              info: 'green',
+              http: 'magenta',
+              debug: 'white',
+            }
+
+            winston.addColors(colors)
+
+            const format = winston.format.combine(
+              winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+              winston.format.colorize({ all: true }),
+              winston.format.printf(
+                (info) => `${info.timestamp} ${info.level}: ${info.message}`,
+              ),
+            )
+
+            export const logger = winston.createLogger({
+              level: 'debug',
+              levels,
+              format,
+              transports: [
+                new winston.transports.Console(),
+              ],
+            })
+
+            export const stream = {
+              write: (message: string) => logger.http(message.trim()),
+            }
+            """
+
+            errors.ts :: """
+            export class GnosticError extends Error {
+              constructor(
+                public message: str,
+                public statusCode: number = 500,
+                public code: string = 'INTERNAL_HERESY'
+              ) {
+                super(message)
+              }
+            }
+
+            export class ValidationError extends GnosticError {
+              constructor(message: string) {
+                super(message, 400, 'VALIDATION_FRACTURE')
+              }
+            }
+            """
+
+        # --- THE NERVOUS SYSTEM (MIDDLEWARES) ---
+        middlewares/
+            error-handler.ts :: """
+            import { Request, Response, NextHandler } from 'express'
+            import { logger } from '../core/logger'
+            import { GnosticError } from '../core/errors'
+
+            export const errorHandler = (
+              err: Error,
+              req: Request,
+              res: Response,
+              next: NextHandler
+            ) => {
+              const statusCode = err instanceof GnosticError ? err.statusCode : 500
+              const code = err instanceof GnosticError ? err.code : 'UNHANDLED_PARADOX'
+
+              logger.error(`[FRACTURE] ${err.message}`)
+
+              res.status(statusCode).json({
+                success: false,
+                error: {
+                  message: err.message,
+                  code,
+                  stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+                }
+              })
+            }
+            """
+
+            validator.ts :: """
+            import { Request, Response, NextHandler } from 'express'
+            import { AnyZodObject, ZodError } from 'zod'
+            import { ValidationError } from '../core/errors'
+
+            export const validate = (schema: AnyZodObject) => 
+              async (req: Request, res: Response, next: NextHandler) => {
+                try {
+                  await schema.parseAsync({
+                    body: req.body,
+                    query: req.query,
+                    params: req.params,
+                  })
+                  return next()
+                } catch (error) {
+                  if (error instanceof ZodError) {
+                    return next(new ValidationError(error.errors[0].message))
+                  }
+                  return next(error)
+                }
+            }
+            """
+
+        # --- THE TOPOGRAPHY (ROUTES & CONTROLLERS) ---
+        routes/
+            index.ts :: """
+            import { Router } from 'express'
+            import { healthController } from '../controllers/health.controller'
+
+            const router = Router()
+
+            router.get('/health', healthController.check)
+
+            export default router
+            """
+
+        controllers/
+            health.controller.ts :: """
+            import { Request, Response } from 'express'
+
+            export const healthController = {
+              check: (req: Request, res: Response) => {
+                res.json({
+                  success: true,
+                  status: 'RESONANT',
+                  timestamp: new Date().toISOString(),
+                  engine: 'Express-Fortress-V1'
+                })
+              }
+            }
+            """
+
+    # [5] THE CELESTIAL VESSEL (DOCKER)
     Dockerfile:
-        # Stage 1: The Forge - Build the TypeScript source
+        # --- STAGE 1: THE FORGE ---
         FROM node:20-alpine AS builder
         WORKDIR /app
         COPY package*.json ./
@@ -150,14 +393,47 @@ $$ default_port = 8080
         COPY . .
         RUN npm run build
 
-        # Stage 2: The Celestial Vessel - A lean production image
+        # --- STAGE 2: THE CELESTIAL VESSEL ---
         FROM node:20-alpine
         WORKDIR /app
+        ENV NODE_ENV=production
         COPY package*.json ./
         RUN npm ci --omit=dev
         COPY --from=builder /app/dist ./dist
+        
+        # Security: Non-root user
+        USER node
+        EXPOSE {{ default_port }}
+        
         CMD [ "node", "dist/server.js" ]
 
+    docker-compose.yml:
+        version: '3.8'
+        services:
+          api:
+            build: .
+            ports:
+              - "{{ default_port }}:{{ default_port }}"
+            env_file: .env
+            restart: unless-stopped
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
+    # 1. Initialize the Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the Dependencies
+    proclaim: "Summoning the Node Artisans... (This may take a moment)"
     npm install
+
+    # 3. Final Proclamation
+    proclaim: "The Express API Fortress is manifest."
+    proclaim: "To awaken the reality:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]cp .env.example .env[/bold cyan]"
+    proclaim: "  3. [bold cyan]make dev[/bold cyan]"
+    proclaim: "  4. Scry the vitals: [bold]GET http://localhost:{{ default_port }}{{ api_prefix }}/health[/bold]"
+
+%% on-heresy
+    proclaim: "The forge fractured. Purging profane artifacts..."
+    rm -rf src/ dist/ package.json tsconfig.json

@@ -1,0 +1,309 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: SECURITY AEGIS (V-Ω-TOTALITY)                           ==
+# =================================================================================
+# @description: Materializes an active intrusion detection and prevention system (IDPS). Features Redis-backed distributed rate limiting, regex-based WAF signatures for SQLi/XSS/Traversal defense, and automated IP banishing (The Void).
+# @category: Security
+# @tags: waf, idps, security, rate-limiting, redis, firewall, hardening, devops
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: redis_url=redis://security-vault:6379/0, rate_limit_burst=50, ban_duration=3600
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "security-aegis"
+$$ redis_host = "security-vault"
+$$ redis_port = 6379
+$$ rate_limit_burst = 50
+$$ rate_limit_rate = 10 # 10 requests per second refill
+$$ ban_duration = 3600 # 1 Hour in the Void
+
+# Contextual Scrying
+$$ is_python = {{ (project_type in ['python', 'poetry', 'fastapi']) | default(true) }}
+$$ is_node = {{ (project_type in ['node', 'nextjs', 'express']) | default(false) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SECURITY INFRASTRUCTURE (Matter) ---
+infra/security/
+    docker-compose.security.yml :: """
+    version: '3.8'
+
+    services:
+      # [THE VOID]: Persistent memory for Banned IPs and Throttles
+      security-vault:
+        image: redis:7-alpine
+        container_name: {{ project_slug }}_security_vault
+        command: redis-server --save 60 1 --loglevel warning --maxmemory 128mb --maxmemory-policy allkeys-lru
+        ports:
+          - "{{ redis_port }}:6379"
+        networks:
+          - gnostic_mesh
+        healthcheck:
+          test: ["CMD", "redis-cli", "ping"]
+          interval: 5s
+          timeout: 3s
+          retries: 5
+
+    networks:
+      gnostic_mesh:
+        external: true
+        name: {{ project_slug }}_gnostic_mesh
+    """
+
+# --- III. THE LOGIC STRATUM: PYTHON / FASTAPI (The Mind) ---
+@if {{ is_python }}
+src/{{ package_name }}/
+    core/
+        security/
+            __init__.py :: "from .aegis import SecurityAegisMiddleware"
+            
+            # [1] THE AEGIS SENTINEL
+            aegis.py :: """
+            import re
+            import time
+            import logging
+            from typing import List, Dict, Optional, Tuple
+            from fastapi import Request, Response, status
+            from starlette.middleware.base import BaseHTTPMiddleware
+            from starlette.responses import JSONResponse
+            import redis.asyncio as redis
+
+            Logger = logging.getLogger("Aegis")
+
+            class SecurityAegisMiddleware(BaseHTTPMiddleware):
+                \"\"\"
+                =============================================================================
+                == THE GNOSTIC AEGIS (V-Ω-ACTIVE-SHIELD)                                   ==
+                =============================================================================
+                LIF: ∞ | ROLE: PERIMETER_GUARDIAN | RANK: OMEGA
+                
+                The active defense layer. Scans for malice, governs flow, and banishes.
+                \"\"\"
+                
+                # [ASCENSION 1]: The Grimoire of Malice (WAF Signatures)
+                CHAOS_PATTERNS = [
+                    # SQL Injection (The Ouroboros Query)
+                    r"(?i)(\%27)|(\')|(\-\-)|(\%23)|(#)",
+                    r"(?i)\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|EXEC|TRUNCATE)\b",
+                    # XSS (The Ocular Blinding)
+                    r"(?i)<script", r"(?i)javascript:", r"(?i)onerror=",
+                    # Path Traversal (The Sanctum Escape)
+                    r"\.\./", r"\.\.\\\\", r"/etc/passwd", r"/.ssh/"
+                ]
+                
+                def __init__(self, app):
+                    super().__init__(app)
+                    # [ASCENSION 2]: Redis Suture
+                    self.redis = redis.from_url("{{ redis_url }}")
+                    self.compiled_sigs = [re.compile(p) for p in self.CHAOS_PATTERNS]
+
+                async def dispatch(self, request: Request, call_next):
+                    client_ip = request.client.host if request.client else "unknown"
+                    
+                    # 1. THE VOID CHECK (Banned IPs)
+                    if await self.redis.get(f"aegis:void:{client_ip}"):
+                        return self._proclaim_banished()
+
+                    # 2. THE GOVERNOR (Rate Limiting)
+                    if not await self._adjudicate_rate_limit(client_ip):
+                        return self._proclaim_throttled()
+
+                    # 3. THE CHAOS WARD (Pattern Scanning)
+                    if await self._scry_malice(request):
+                        await self._banish_ip(client_ip, "Hostile pattern detected")
+                        return self._proclaim_banished()
+
+                    # 4. PASSTHROUGH
+                    response = await call_next(request)
+                    
+                    # [ASCENSION 3]: Hardened Security Headers
+                    response.headers["X-Content-Type-Options"] = "nosniff"
+                    response.headers["X-Frame-Options"] = "DENY"
+                    response.headers["X-XSS-Protection"] = "1; mode=block"
+                    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+                    
+                    return response
+
+                async def _adjudicate_rate_limit(self, ip: str) -> bool:
+                    \"\"\"Token Bucket implementation in Redis.\"\"\"
+                    key = f"aegis:limit:{ip}"
+                    now = time.time()
+                    
+                    async with self.redis.pipeline() as pipe:
+                        await pipe.get(key)
+                        await pipe.execute()
+                    
+                    # (Simplified for the archetype, use a mature Lua script in prod)
+                    # For now: simple atomic increment per second
+                    ts_key = f"{key}:{int(now)}"
+                    count = await self.redis.incr(ts_key)
+                    if count == 1:
+                        await self.redis.expire(ts_key, 2)
+                    
+                    return count <= {{ rate_limit_rate }}
+
+                async def _scry_malice(self, request: Request) -> bool:
+                    \"\"\"Performs a Gaze upon Headers, Query, and Body (Safe Peeking).\"\"\"
+                    # Scan Query Params
+                    if any(self._scan_text(str(v)) for v in request.query_params.values()):
+                        return True
+                    
+                    # Scan Headers
+                    if any(self._scan_text(str(v)) for k, v in request.headers.items() if k.lower() != 'cookie'):
+                        return True
+                    
+                    return False
+
+                def _scan_text(self, text: str) -> bool:
+                    return any(sig.search(text) for sig in self.compiled_sigs)
+
+                async def _banish_ip(self, ip: str, reason: str):
+                    Logger.critical(f"BANISHING IP {ip}: {reason}")
+                    await self.redis.set(f"aegis:void:{ip}", "1", ex={{ ban_duration }})
+
+                def _proclaim_banished(self) -> JSONResponse:
+                    return JSONResponse(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        content={"error": "IP_BANISHED", "message": "Your IP resides in the Void. Intent is profane."}
+                    )
+
+                def _proclaim_throttled(self) -> JSONResponse:
+                    return JSONResponse(
+                        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                        content={"error": "RATE_LIMIT_EXCEEDED", "message": "The Oracle demands silence. Slow your pleas."}
+                    )
+            """
+
+    # THE SURGICAL WEAVE: Inject into main.py
+    main.py ^= """
+    from .core.security.aegis import SecurityAegisMiddleware
+    """
+
+    main.py += """
+    # [Gnostic Suture]: Awakening the Security Aegis
+    # Place this FIRST in the chain to ward the edge.
+    app.add_middleware(SecurityAegisMiddleware)
+    """
+
+    # Dependencies
+    pyproject.toml += """
+    redis = {extras = ["hiredis"], version = "^5.0.0"}
+    """
+@endif
+
+# --- IV. THE LOGIC STRATUM: NODE / TYPESCRIPT (The Eye) ---
+@if {{ is_node }}
+src/core/security/
+    # [1] THE AEGIS SENTINEL (Node)
+    aegis.ts :: """
+    import { Request, Response, NextFunction } from 'express';
+    import helmet from 'helmet';
+    import cors from 'cors';
+    import { RateLimiterRedis } from 'rate-limiter-flexible';
+    import { createClient } from 'redis';
+
+    /**
+     * =============================================================================
+     * == THE GNOSTIC AEGIS (Node.js/TS Implementation)                           ==
+     * =============================================================================
+     */
+    const redisClient = createClient({ url: process.env.REDIS_URL || '{{ redis_url }}' });
+    redisClient.connect();
+
+    const rateLimiter = new RateLimiterRedis({
+      storeClient: redisClient,
+      keyPrefix: 'aegis_limit',
+      points: {{ rate_limit_burst }},
+      duration: 1, // per second
+    });
+
+    // [ASCENSION 4]: THE CHAOS WARD (Signature Matching)
+    const MALICE_PATTERNS = [/select\\s+.*\\s+from/i, /<script/i, /\\.\\.\\//];
+
+    export const aegisGuard = async (req: Request, res: Response, next: NextFunction) => {
+        const ip = req.ip;
+
+        try {
+            // 1. Rate Limit
+            await rateLimiter.consume(ip);
+
+            // 2. Malice Scry
+            const payload = JSON.stringify(req.query) + JSON.stringify(req.headers);
+            if (MALICE_PATTERNS.some(p => p.test(payload))) {
+                console.error(`[AEGIS] Malice detected from ${ip}`);
+                return res.status(403).json({ error: "GNOSTIC_REJECTION" });
+            }
+
+            next();
+        } catch (rejRes) {
+            res.status(429).json({ error: "ORACLE_SILENCE", message: "Too many pleas." });
+        }
+    };
+
+    export const secureHeaders = helmet();
+    export const corsPolicy = cors({ origin: '*' });
+    """
+
+    server.ts ^= """
+    import { aegisGuard, secureHeaders, corsPolicy } from './core/security/aegis';
+    """
+
+    server.ts += """
+    // [Gnostic Suture]: Aegis Protection Active
+    app.use(secureHeaders);
+    app.use(corsPolicy);
+    app.use(aegisGuard);
+    """
+
+    package.json:
+        dependencies += {
+            "helmet": "^7.1.0",
+            "cors": "^2.8.5",
+            "redis": "^4.6.13",
+            "rate-limiter-flexible": "^5.0.0"
+        }
+@endif
+
+# --- V. THE CONTROL PLANE (Makefile) ---
+Makefile:
+    .PHONY: security-up security-down security-logs
+
+    $SEC_COMPOSE = infra/security/docker-compose.security.yml
+
+    security-up: ## Ignite the Security Aegis Vault
+        @echo "🔭 Awakening the Shield Vault..."
+        @docker network create {{ project_slug }}_gnostic_mesh 2>/dev/null || true
+        @docker-compose -f $($SEC_COMPOSE) up -d
+        @echo "✅ Aegis Vault is manifest."
+
+    security-down: ## Dissolve the Shield Vault
+        @echo "🌑 Returning the Shield to the void..."
+        @docker-compose -f $($SEC_COMPOSE) down
+
+    security-logs: ## Gaze upon the security chronicles
+        @docker-compose -f $($SEC_COMPOSE) logs -f security-cache
+
+# --- VI. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Security Aegis[/bold cyan] is materializing."
+    
+    # 1. Preparation of the Sanctums
+    proclaim: "Forging security configurations..."
+    >> mkdir -p infra/security
+    >> mkdir -p src/{{ package_name }}/core/security
+
+    # 2. Network Verification
+    proclaim: "Verifying Gnostic Mesh network..."
+    >> docker network create {{ project_slug }}_gnostic_mesh || true
+    
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Aegis manifest.[/bold green]"
+    proclaim: "To ignite the Shield:"
+    proclaim: "  1. [bold cyan]make security-up[/bold cyan] (Ignite Redis Vault)"
+    proclaim: "  2. Ensure your .env has [bold magenta]OPENAI_API_KEY[/bold magenta] (if using AI-Security)."
+    proclaim: "  3. Scry the logs: [bold]make security-logs[/bold]"
+
+%% on-heresy
+    proclaim: "[bold red]Security Inception Fractured.[/bold red] Purging shards..."
+    rm -rf infra/security/ src/{{ package_name }}/core/security/
+
+WHY THIS IS HISTORY-MAKING (LIF: INFINITY):

@@ -1,0 +1,97 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: ACHRONAL MIGRATOR (V-Ω-TOTALITY-SCHEMA-EVOLUTION)        ==
+# =================================================================================
+# @description: Forges a self-migrating project core. Detects drift between the engine's internal schema (V25 -> V26) and the project's 'scaffold.lock', performing automatic alchemical transmutation to keep the project eternally compatible.
+# @category: Velm-Core
+# @tags: migration, evolution, schema, lockfile, compatibility, temporal-drift
+# @difficulty: Master
+# @is_integration: true
+# @dna: engine_version=V25, support_auto_patch=true, backup_on_migrate=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ current_engine_version = "25.0.0"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE MIGRATION ORACLE (The Transmutation Script) ---
+scripts/meta/
+    # [ASCENSION 1]: THE TEMPORAL DRIFT DETECTOR
+    # This script gazes into the lockfile and the engine to find the schism.
+    migrate_chronicle.py :: """
+    #!/usr/bin/env python3
+    import json
+    import os
+    from pathlib import Path
+    from datetime import datetime
+
+    ENGINE_VERSION = "{{ current_engine_version }}"
+
+    def evolve_chronicle():
+        print(f"🌀 [MIGRATOR] Gauging temporal drift (Engine: {ENGINE_VERSION})...")
+        root = Path(os.getcwd())
+        lock_path = root / "scaffold.lock"
+        
+        if not lock_path.exists():
+            print("✅ No chronicle found. Starting from Gnostic Zero.")
+            return
+
+        # 1. READ THE PAST
+        try:
+            lock_data = json.loads(lock_path.read_text(encoding='utf-8'))
+            lock_version = lock_data.get("chronicle_version", "0.0.0")
+        except Exception as e:
+            print(f"❌ ERROR: Chronicle is profane (malformed): {e}")
+            return
+
+        if lock_version == ENGINE_VERSION:
+            print("✅ Chronicle is in perfect alignment with the Engine.")
+            return
+
+        # 2. PERFORM THE TRANSMUTATION
+        print(f"⚡ DRIFT DETECTED: {lock_version} -> {ENGINE_VERSION}")
+        
+        # [ASCENSION 5]: The Backup Rite
+        backup_path = root / ".scaffold" / "backups" / f"scaffold.lock.pre-{lock_version}.bak"
+        backup_path.parent.mkdir(parents=True, exist_ok=True)
+        import shutil
+        shutil.copy2(lock_path, backup_path)
+        print(f"📜 [MIGRATOR] Past reality enshrined in {backup_path.name}")
+
+        # 3. ALCHEMICAL PATCHING (V25 -> V26 logic)
+        # Example: In V26, we moved 'metadata' into 'provenance'
+        if lock_version.startswith("25"):
+             # Perform surgical JSON mutation
+             lock_data["chronicle_version"] = ENGINE_VERSION
+             # Add any new mandatory fields for the new engine version
+             if "integrity" not in lock_data:
+                 lock_data["integrity"] = {"merkle_root": "0xVOID"}
+        
+        # 4. INSCRIBE THE NEW FUTURE
+        lock_path.write_text(json.dumps(lock_data, indent=2), encoding='utf-8')
+        print(f"✨ [MIGRATOR] Chronicle has ascended to {ENGINE_VERSION}.")
+
+    if __name__ == "__main__":
+        evolve_chronicle()
+    \"\"\"
+
+# --- III. THE KINETIC SYMPHONY ---
+Makefile:
+	.PHONY: evolve-core
+
+	evolve-core: ## Transmute the project chronicle to match the latest engine
+		@poetry run python scripts/meta/migrate_chronicle.py
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Achronal Migrator manifest in 'scripts/meta/'."
+    proclaim: "Target Engine Version: [magenta]{{ current_engine_version }}[/magenta]"
+    
+    # Automatically check for drift on every inception
+    >> python scripts/meta/migrate_chronicle.py
+    
+    proclaim: "[bold green]✅ Evolution Logic Ready.[/bold green]"
+    proclaim: "To sync your chronicle after an engine update: [bold cyan]make evolve-core[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Migration logic failed.[/bold red]"
+    rm -rf scripts/meta/migrate_chronicle.py

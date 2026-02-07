@@ -1,0 +1,136 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: TERRAFORM FORTRESS (V-Ω-TOTALITY)                        ==
+# =================================================================================
+# @description: A legendary Terraform foundation for immutable AWS infrastructure.
+#               Features S3 remote state, DynamoDB locking, and a modular,
+#               environment-aware architecture.
+# @category: Automation
+# @tags: terraform, iac, aws, cloud, devops, s3, dynamodb
+# @difficulty: Master
+# @is_integration: false
+# @dna: use_terraform=true, use_aws=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "celestial-fortress"
+$$ author = "The Architect"
+$$ aws_region = "us-east-1"
+$$ state_bucket_name = "my-app-terraform-state-{{ secret('hex', 8) }}"
+$$ state_lock_table = "my-app-terraform-lock"
+
+# --- II. THE SCRIPTURE OF FORM ---
+{{ project_name }}/
+    
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        .terraform/
+        *.tfstate
+        *.tfstate.backup
+        .terraform.lock.hcl
+        crash.log
+        
+    # [2] THE GNOSTIC PROVIDER
+    providers.tf :: """
+    terraform {
+      required_providers {
+        aws = {
+          source  = "hashicorp/aws"
+          version = "~> 5.0"
+        }
+      }
+
+      // [ASCENSION 1]: REMOTE STATE & LOCKING
+      backend "s3" {
+        bucket         = "{{ state_bucket_name }}"
+        key            = "global/terraform.tfstate"
+        region         = "{{ aws_region }}"
+        dynamodb_table = "{{ state_lock_table }}"
+        encrypt        = true
+      }
+    }
+
+    provider "aws" {
+      region = var.aws_region
+    }
+    """
+
+    # [3] THE GNOSTIC VARIABLES
+    variables.tf :: """
+    variable "aws_region" {
+      description = "The AWS region to forge resources in."
+      type        = string
+      default     = "{{ aws_region }}"
+    }
+
+    variable "environment" {
+      description = "The target environment (e.g., staging, production)."
+      type        = string
+      default     = "staging"
+    }
+    """
+
+    # [4] THE MASTER SYMPHONY (MAIN)
+    main.tf :: """
+    // This is the root conductor. It delegates to modules.
+    module "network" {
+      source = "./modules/network"
+      
+      environment = var.environment
+      vpc_cidr    = "10.0.0.0/16"
+    }
+    """
+
+    # [5] THE MODULAR ORGANS
+    modules/
+        network/
+            main.tf :: """
+            resource "aws_vpc" "main" {
+              cidr_block = var.vpc_cidr
+
+              tags = {
+                Name        = "vpc-${var.environment}"
+                Environment = var.environment
+              }
+            }
+            """
+            variables.tf :: """
+            variable "vpc_cidr" {
+              type = string
+            }
+            variable "environment" {
+              type = string
+            }
+            """
+
+    # [6] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name }} - Terraform Fortress
+
+    This fortress defines the immutable celestial matter of the project on AWS.
+
+    ## 🚀 The Rites of the Forge
+
+    **First Time Setup (Manual Rite):**
+    You must manually create the S3 bucket and DynamoDB table for remote state:
+    ```bash
+    aws s3 mb s3://{{ state_bucket_name }} --region {{ aws_region }}
+    aws dynamodb create-table --table-name {{ state_lock_table }} --attribute-definitions AttributeName=LockID,AttributeType=S --key-schema AttributeName=LockID,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --region {{ aws_region }}
+    ```
+
+    **Standard Rites:**
+    ```bash
+    terraform init
+    terraform plan
+    terraform apply
+    ```
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Final Proclamation
+    proclaim: "The Terraform Fortress is manifest in '{{ project_name }}/'."
+    proclaim: "[bold red]CRITICAL:[/bold red] You must manually forge the S3 state bucket and DynamoDB lock table."
+    proclaim: "  Consult the [bold cyan]README.md[/bold cyan] for the sacred incantations."

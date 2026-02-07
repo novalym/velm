@@ -1,0 +1,141 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: ANSIBLE CITADEL (V-Ω-TOTALITY)                           ==
+# =================================================================================
+# @description: A production-grade Ansible fortress for declarative server
+#               orchestration. Features role-based architecture, dynamic
+#               inventories, and secure secret management via Vault.
+# @category: Automation
+# @tags: ansible, devops, iac, configuration-management, infrastructure, python
+# @difficulty: Adept
+# @is_integration: false
+# @dna: use_ansible=true, use_makefile=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "ansible-citadel"
+$$ author = "The Architect"
+$$ default_user = "ansible"
+
+# --- II. THE SCRIPTURE OF FORM ---
+{{ project_name }}/
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore:
+        *.retry
+        *.log
+        .ansible/
+        vault.password
+
+    ansible.cfg :: """
+    [defaults]
+    inventory = ./inventory/
+    remote_user = {{ default_user }}
+    host_key_checking = False
+    retry_files_enabled = False
+    log_path = ./ansible.log
+    roles_path = ./roles
+    vault_password_file = ./vault.password
+
+    [privilege_escalation]
+    become = True
+    """
+
+    # [2] THE CONTROL PLANE
+    Makefile:
+        .PHONY: help provision check-syntax vault-edit
+
+        PROD_INVENTORY = inventory/production.yml
+        STG_INVENTORY = inventory/staging.yml
+
+        help: ## Proclaim available Ansible rites
+        	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
+        
+        provision-prod: ## Conduct the main playbook against production
+        	ansible-playbook -i $(PROD_INVENTORY) main.yml
+
+        provision-staging: ## Conduct the main playbook against staging
+        	ansible-playbook -i $(STG_INVENTORY) main.yml
+
+        check-syntax: ## Adjudicate the purity of all playbooks
+        	ansible-playbook --syntax-check main.yml
+
+        vault-edit: ## Edit the Gnostic secrets
+        	ansible-vault edit group_vars/all/vault.yml
+
+    # [3] THE REALITY MAP (INVENTORY)
+    inventory/
+        production.yml :: """
+        all:
+          hosts:
+            prod-server-01:
+              ansible_host: 192.168.1.100
+        """
+        staging.yml :: """
+        all:
+          hosts:
+            staging-server-01:
+              ansible_host: 192.168.1.200
+        """
+
+    # [4] THE GNOSTIC VARIABLES
+    group_vars/
+        all/
+            main.yml :: """
+            # Global Gnosis for all hosts
+            app_name: "{{ project_name }}"
+            firewall_allowed_tcp_ports:
+              - 22
+              - 80
+              - 443
+            """
+            vault.yml :: """
+            # This file is encrypted. Use 'make vault-edit' to modify.
+            # db_password: "my_secret_password"
+            """
+
+    # [5] THE ROLES (MODULAR WILL)
+    roles/
+        common/
+            tasks/
+                main.yml :: """
+                ---
+                - name: Update APT package cache
+                  apt:
+                    update_cache: yes
+                  become: yes
+                """
+
+    # [6] THE MASTER SYMPHONY (PLAYBOOK)
+    main.yml :: """
+    ---
+    - hosts: all
+      become: yes
+      roles:
+        - common
+    """
+
+    # [7] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # {{ project_name }} - Ansible Citadel
+
+    This fortress orchestrates server configuration with Ansible.
+
+    ## 🚀 Quick Start
+    1.  **Define Reality**: Update `inventory/production.yml` with your server IPs.
+    2.  **Inscribe Secrets**: Run `make vault-edit` to add sensitive variables.
+    3.  **Conduct the Rite**: `make provision-prod`
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Forge the Vault (with a placeholder secret)
+    proclaim: "Forging the Gnostic Vault..."
+    >> echo "my-temp-vault-pass" > {{ project_name }}/vault.password
+    >> ansible-vault encrypt {{ project_name }}/group_vars/all/vault.yml --vault-password-file {{ project_name }}/vault.password
+    
+    # 3. Final Proclamation
+    proclaim: "The Ansible Citadel is manifest in '{{ project_name }}/'."
+    proclaim: "Secure 'vault.password' and then begin orchestration."

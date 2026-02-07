@@ -1,96 +1,304 @@
-# Path: scaffold/archetypes/genesis/data-science-crucible.scaffold
-# ----------------------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: DATA SCIENCE CRUCIBLE (V-Ω-TOTALITY)                    ==
+# =================================================================================
+# @description: A legendary, production-grade MLOps foundation. Features 
+#               Jupyter Lab, Poetry, DVC hooks, Pydantic-validated pipelines,
+#               and a hierarchical data sanctum.
+# @category: Intelligence
+# @tags: python, data-science, ml, jupyter, poetry, docker, mlopps, research
+# @difficulty: Master
+# @is_integration: false
+# @dna: use_poetry=true, use_docker=true, use_gpu=false
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: DATA SCIENCE CRUCIBLE (V-Ω-REPRODUCIBILITY)      ==
-# =================================================================================
-# @description: A reproducible, containerized Data Science environment using
-#               Jupyter Lab, Poetry, and a canonical project structure.
-# =================================================================================
+# --- I. THE ALTAR OF VARIABLES ---
+$$ project_name = "intelligence-crucible"
+$$ author = "The Architect"
+$$ python_version = "3.11"
+$$ jupyter_port = 8888
 
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
-$$ package_name = {{ project_slug | snake }}
+$$ package_name = {{ project_name | snake }}
 
+# --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
     .gitignore:
-        .venv/
         __pycache__/
+        *.py[cod]
+        *$py.class
+        .venv/
+        .env
+        .DS_Store
+        .ipynb_checkpoints/
+        .pytest_cache/
+        .ruff_cache/
+        # Matter Data is managed by DVC, never by Git
         data/
         models/
-        notebooks/.ipynb_checkpoints/
-        .env
+        outputs/
 
-    README.md:
-        # {{ project_name }} - Data Science Crucible
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_slug }}"
+    version = "0.1.0"
+    description = "A reproducible data science crucible."
+    authors = ["{{ author }}"]
+    readme = "README.md"
+    packages = [{include = "{{ package_name }}", from = "src"}]
 
-        ## Setup & Usage
+    [tool.poetry.dependencies]
+    python = "^{{ python_version }}"
+    pandas = "^2.2.0"
+    numpy = "^1.26.0"
+    scikit-learn = "^1.4.0"
+    matplotlib = "^3.8.0"
+    seaborn = "^0.13.0"
+    jupyterlab = "^4.1.0"
+    pydantic = "^2.6.0"
+    pydantic-settings = "^2.1.0"
+    structlog = "^24.1.0"
+    tqdm = "^4.66.0"
+    scipy = "^1.12.0"
 
-        1.  **Install Dependencies:** `poetry install`
-        2.  **Launch Jupyter Lab:** `docker-compose up`
-        3.  Access Jupyter at the URL provided in the terminal.
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    ruff = "^0.2.0"
+    black = "^24.1.0"
+    ipywidgets = "^8.1.0"
+    dvc = "^3.40.0"
 
-    pyproject.toml:
-        [tool.poetry]
-        name = "{{ project_slug }}"
-        version = "0.1.0"
-        [tool.poetry.dependencies]
-        python = "^3.11"
-        jupyterlab = "^4.1.0"
-        pandas = "^2.2.0"
-        scikit-learn = "^1.4.0"
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
 
+    [tool.ruff]
+    line-length = 100
+    target-version = "py311"
+    """
+
+    # [2] THE CONTROL PLANE
+    Makefile:
+        .PHONY: help install explore train clean test
+
+        $PY = poetry run python
+        $JUPYTER = poetry run jupyter lab
+
+        help: ## Proclaim available DS rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+        install: ## Summon dependencies and forge the environment
+            poetry install
+            @if [ ! -d ".git" ]; then git init; fi
+            @if [ ! -d ".dvc" ]; then poetry run dvc init; fi
+
+        explore: ## Awaken Jupyter Lab for initial scrying
+            $JUPYTER --ip=0.0.0.0 --port={{ jupyter_port }} --no-browser
+
+        train: ## Conduct a headless training rite
+            $PY src/{{ package_name }}/pipelines/train.py
+
+        test: ## Adjudicate pipeline purity
+            poetry run pytest tests/
+
+        clean: ## Return ephemeral artifacts to the void
+            find . -type d -name "__pycache__" -exec rm -rf {} +
+            find . -type d -name ".ipynb_checkpoints" -exec rm -rf {} +
+
+    # [3] THE ENVIRONMENT DNA
+    .env.example:
+        # == System ==
+        ENVIRONMENT=research
+        LOG_LEVEL=INFO
+        SEED=42
+
+        # == Data Paths ==
+        DATA_ROOT=./data
+        MODEL_ROOT=./models
+
+        # == Compute ==
+        USE_GPU={{ use_gpu | lower }}
+
+    # [4] THE ORCHESTRATION LAYER
     docker-compose.yml:
         version: '3.8'
         services:
-          notebook:
-            build: .
-            ports: ["8888:8888"]
-            volumes: ["./:/app"]
-            command: poetry run jupyter lab --ip=0.0.0.0 --port=8888 --allow-root --no-browser --NotebookApp.token=''
+          crucible:
+            build:
+              context: .
+              dockerfile: deploy/Dockerfile.lab
+            ports:
+              - "{{ jupyter_port }}:8888"
+            env_file: .env
+            volumes:
+              - .:/app
+            # [ASCENSION: GPU SUPPORT]
+            {% if use_gpu %}
+            deploy:
+              resources:
+                reservations:
+                  devices:
+                    - driver: nvidia
+                      count: 1
+                      capabilities: [gpu]
+            {% endif %}
 
-    Dockerfile:
-        FROM python:3.11-slim
+    deploy/
+        Dockerfile.lab :: """
+        FROM python:{{ python_version }}-slim-bookworm
+
         WORKDIR /app
-        RUN pip install poetry
-        COPY pyproject.toml poetry.lock ./
-        RUN poetry install --no-root
-        COPY . .
+        ENV PYTHONUNBUFFERED=1 \
+            PYTHONDONTWRITEBYTECODE=1 \
+            JUPYTER_TOKEN=""
 
+        RUN apt-get update && apt-get install -y --no-install-recommends \
+            build-essential git curl && \
+            rm -rf /var/lib/apt/lists/*
+
+        RUN pip install poetry==1.7.1
+        COPY pyproject.toml poetry.lock ./
+        RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
+
+        EXPOSE 8888
+        CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''"]
+        """
+
+    # [5] THE DATA SANCTUM (MATTER)
     data/
         raw/
             .gitkeep
+        interim/
+            .gitkeep
         processed/
             .gitkeep
-    
-    models/
-        .gitkeep
+        external/
+            .gitkeep
 
-    notebooks/
-        01-initial-exploration.ipynb:
-            {
-             "cells": [
-              {
-               "cell_type": "markdown",
-               "metadata": {},
-               "source": [ "# 1. Initial Data Exploration\n", "\n", "This is where the Great Work begins." ]
-              },
-              {
-               "cell_type": "code",
-               "execution_count": null,
-               "metadata": {},
-               "outputs": [],
-               "source": [ "import pandas as pd\n", "from {{ package_name }} import utils\n", "\n", "print(utils.get_gnosis())" ]
-              }
-             ], "metadata": {}, "nbformat": 4, "nbformat_minor": 2
-            }
-
+    # [6] THE SOURCE CODE (THE SOUL)
     src/
         {{ package_name }}/
-            __init__.py
-            utils.py:
-                def get_gnosis():
-                    return "The data is pure."
+            __init__.py :: "__version__ = '0.1.0'"
+            
+            # --- THE CONSCIENCE (CONFIG) ---
+            config.py :: """
+            from pydantic_settings import BaseSettings, SettingsConfigDict
+            from pathlib import Path
 
+            class Settings(BaseSettings):
+                APP_NAME: str = "{{ project_name }}"
+                SEED: int = 42
+                
+                # Spatial Anchors
+                PROJECT_ROOT: Path = Path(__file__).parent.parent.parent.parent
+                DATA_DIR: Path = PROJECT_ROOT / "data"
+                MODEL_DIR: Path = PROJECT_ROOT / "models"
+
+                model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+            settings = Settings()
+            """
+
+            # --- THE KINETIC LIMBS (UTILITIES) ---
+            utils/
+                __init__.py :: ""
+                data_io.py :: """
+                import pandas as pd
+                from ..config import settings
+
+                def load_raw_data(filename: str) -> pd.DataFrame:
+                    path = settings.DATA_DIR / "raw" / filename
+                    return pd.read_csv(path)
+
+                def save_processed_data(df: pd.DataFrame, filename: str):
+                    path = settings.DATA_DIR / "processed" / filename
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    df.to_csv(path, index=False)
+                """
+
+            # --- THE EXPERIMENT PIPELINES ---
+            pipelines/
+                __init__.py :: ""
+                train.py :: """
+                import structlog
+                from ..config import settings
+
+                log = structlog.get_logger()
+
+                def run_training_rite():
+                    log.info("training.start", project=settings.APP_NAME)
+                    # 1. Load Processed Matter
+                    # 2. Forge Model Soul
+                    # 3. Inscribe Model to models/
+                    log.info("training.complete", status="success")
+
+                if __name__ == "__main__":
+                    run_training_rite()
+                """
+
+    # [7] THE OCULAR MEMBRANES (NOTEBOOKS)
+    notebooks/
+        01-genesis-exploration.ipynb :: """
+        {
+          "cells": [
+            {
+              "cell_type": "markdown",
+              "metadata": {},
+              "source": [
+                "# 🧪 Genesis Exploration\n",
+                "**Project:** {{ project_name }}\n",
+                "**Architect:** {{ author }}\n",
+                "\n",
+                "This notebook is the initial Gnostic probe into the dataset soul."
+              ]
+            },
+            {
+              "cell_type": "code",
+              "execution_count": null,
+              "metadata": {},
+              "outputs": [],
+              "source": [
+                "import pandas as pd\n",
+                "import seaborn as sns\n",
+                "import matplotlib.pyplot as plt\n",
+                "from {{ package_name }}.config import settings\n",
+                "\n",
+                "print(f\"Crucible Active: {settings.APP_NAME}\")\n",
+                "sns.set_theme(style='darkgrid')"
+              ]
+            }
+          ],
+          "metadata": {
+            "kernelspec": {
+              "display_name": "Python 3",
+              "language": "python",
+              "name": "python3"
+            }
+          },
+          "nbformat": 4,
+          "nbformat_minor": 5
+        }
+        """
+
+# --- III. THE MAESTRO'S WILL ---
 %% post-run
-    git init
-    poetry install
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the Dependencies
+    proclaim: "Forging the environment... (This will take a moment)"
+    @if {{ shell('which poetry') }} -> poetry install
+    @else -> proclaim: "[yellow]Poetry not found. Run 'make install' manually once ready.[/yellow]"
+
+    # 3. Final Proclamation
+    proclaim: "The Data Science Crucible is manifest."
+    proclaim: "To begin scrying the data:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make explore[/bold cyan]"
+    proclaim: "  3. Open the URL provided in your browser."
+
+%% on-heresy
+    proclaim: "The forge faltered. Cleaning the sanctum..."
+    rm -rf data/ notebooks/ pyproject.toml

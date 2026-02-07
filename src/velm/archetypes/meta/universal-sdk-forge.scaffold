@@ -1,0 +1,234 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: UNIVERSAL SDK FORGE (V-Ω-TOTALITY-META-INCEPTION)        ==
+# =================================================================================
+# @description: A Meta-Artisan that scries your Backend architecture, extracts the OpenAPI soul, and materializes a separate, fully-typed, multi-language SDK project. It features an automated regeneration pipeline, version-drift protection, and CI/CD publishing scripts for NPM and PyPI.
+# @category: Meta
+# @tags: sdk, codegen, openapi, automation, typescript, python, axios, pydantic, cicd
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: sdk_version=0.1.0, api_schema_url=http://localhost:8000/openapi.json, target_languages=typescript,python
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ sdk_name = "{{ project_slug }}-sdk"
+$$ sdk_version = "0.1.0"
+$$ api_schema_url = "http://localhost:8000/openapi.json"
+$$ author = "{{ author | default('The Architect') }}"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SDK CITADEL (Root Structure) ---
+sdk/
+    README.md :: """
+    # {{ sdk_name | upper }}
+    
+    > **Status:** [V-Ω-RESONANT] | **Version:** {{ sdk_version }}
+    
+    This is a sovereign, auto-generated Gnostic SDK for the **{{ project_title }}** API.
+    It is forged and synchronized by the **Velm Universal SDK Forge**.
+    
+    ## 🏛️ Topography
+    - `clients/typescript`: Fully-typed Axios client for modern Ocular UIs.
+    - `clients/python`: High-performance HTTXP/Pydantic V2 client for inter-service logic.
+    - `scripts/`: The kinetic limbs of the forge (Regeneration logic).
+    
+    ## 🚀 Regeneration Rite
+    If the Backend Gnosis (API Schema) has shifted, you must re-forge the artifacts:
+    ```bash
+    make sdk-reforge
+    ```
+    
+    ## 📜 Legal Vow
+    Forged by: {{ author }}
+    License: MIT / Sovereign
+    """
+
+    # [1] THE KERNEL CONFIGURATION
+    .gitignore :: """
+    # == The Abyss ==
+    node_modules/
+    dist/
+    .venv/
+    __pycache__/
+    *.log
+    .DS_Store
+    
+    # Generated Matter (Temporary)
+    schema.json
+    .openapi-generator/
+    """
+
+    # [2] THE TYPESCRIPT REALM (Ocular Client)
+    clients/typescript/
+        package.json :: """
+        {
+          "name": "@novalym/{{ project_slug }}-sdk",
+          "version": "{{ sdk_version }}",
+          "description": "TypeScript SDK for {{ project_name }}",
+          "main": "./dist/index.js",
+          "types": "./dist/index.d.ts",
+          "scripts": {
+            "build": "tsc",
+            "lint": "eslint src/**/*.ts",
+            "prepublishOnly": "npm run build"
+          },
+          "dependencies": {
+            "axios": "^1.6.0"
+          },
+          "devDependencies": {
+            "typescript": "^5.3.3"
+          }
+        }
+        """
+
+        tsconfig.json:
+            {
+              "compilerOptions": {
+                "target": "ESNext",
+                "module": "CommonJS",
+                "declaration": true,
+                "outDir": "./dist",
+                "strict": true,
+                "skipLibCheck": true,
+                "esModuleInterop": true
+              },
+              "include": ["src"]
+            }
+
+    # [3] THE PYTHON REALM (Logic Bridge)
+    clients/python/
+        pyproject.toml :: """
+        [tool.poetry]
+        name = "{{ project_slug }}-sdk"
+        version = "{{ sdk_version }}"
+        description = "Python SDK for {{ project_name }}"
+        authors = ["{{ author }}"]
+        packages = [{include = "{{ package_name }}_sdk", from = "src"}]
+
+        [tool.poetry.dependencies]
+        python = "^3.10"
+        httpx = "^0.27.0"
+        pydantic = "^2.6.0"
+
+        [build-system]
+        requires = ["poetry-core"]
+        build-backend = "poetry.core.masonry.api"
+        """
+
+# --- III. THE KINETIC CORE (Regeneration Logic) ---
+scripts/meta/
+    # [ASCENSION 1]: The Dockerized Forge
+    # We use a containerized generator to ensure the Architect requires no local Java heresies.
+    forge_sdk.sh :: """
+    #!/bin/bash
+    # =============================================================================
+    # == THE SDK FORGE CONDUCTOR (V-Ω-ATOMIC)                                    ==
+    # =============================================================================
+    set -e
+    
+    # 1. Coordinate Resolution
+    SCHEMA_URL="{{ api_schema_url }}"
+    OUTPUT_BASE="./sdk/clients"
+    
+    echo "⚒️  Awakening the Universal SDK Forge..."
+    
+    # 2. Capture the Schema
+    echo "   -> Scrying API Schema from ${SCHEMA_URL}..."
+    if ! curl -s --fail "${SCHEMA_URL}" > ./sdk/schema.json; then
+        echo "❌ ERROR: API Schema is a void. Is the Backend breathing at ${SCHEMA_URL}?"
+        exit 1
+    fi
+
+    # 3. Transmute into TypeScript
+    echo "   -> Transmuting Gnosis into TypeScript (Axios)..."
+    docker run --rm \
+      -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+      -i /local/sdk/schema.json \
+      -g typescript-axios \
+      -o /local/sdk/clients/typescript/src \
+      --additional-properties=npmName=@novalym/{{ project_slug }}-sdk,supportsES6=true,withInterfaces=true
+
+    # 4. Transmute into Python
+    echo "   -> Transmuting Gnosis into Python (Pydantic V2)..."
+    docker run --rm \
+      -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+      -i /local/sdk/schema.json \
+      -g python-pydantic-v2 \
+      -o /local/sdk/clients/python/src \
+      --additional-properties=packageName={{ package_name }}_sdk,projectName={{ sdk_name }}
+
+    echo "✨ SDK Multiverse Materialized in 'sdk/clients/'"
+    """
+    %% 755
+
+    # [ASCENSION 2]: The Drift Sentinel
+    # Compares the schema hash to detect if the SDK is out of sync with reality.
+    sync_check.py :: """
+    import hashlib
+    import requests
+    import sys
+    from pathlib import Path
+
+    def check_drift():
+        schema_url = "{{ api_schema_url }}"
+        current_schema = Path("sdk/schema.json")
+        
+        if not current_schema.exists():
+            print("❓ [SENTINEL] No local schema manifest. Reforge required.")
+            return
+
+        try:
+            live_schema = requests.get(schema_url).text
+            live_hash = hashlib.sha256(live_schema.encode()).hexdigest()
+            local_hash = hashlib.sha256(current_schema.read_bytes()).hexdigest()
+            
+            if live_hash != local_hash:
+                print("⚡ [DRIFT] Schema Schism detected! API has evolved beyond the SDK.")
+                sys.exit(1)
+            else:
+                print("✅ [SYNC] SDK is in perfect alignment with the API.")
+        except Exception as e:
+            print(f"⚠️  [SENTINEL] Could not scry live API: {e}")
+
+    if __name__ == "__main__":
+        check_drift()
+    """
+
+# --- IV. THE UNIVERSAL SUTURE (Makefile Integration) ---
+Makefile:
+    .PHONY: sdk-reforge sdk-check sdk-install
+    
+    $FORGE_SCRIPT = ./scripts/meta/forge_sdk.sh
+    $PYTHON = poetry run python
+
+    sdk-install: ## Summon the generator image
+        @echo "🌀 Summoning the Celestial Forge image..."
+        docker pull openapitools/openapi-generator-cli:latest
+
+    sdk-reforge: sdk-install ## Re-forge all client SDKs from the live schema
+        @chmod +x $($FORGE_SCRIPT)
+        $($FORGE_SCRIPT)
+
+    sdk-check: ## Adjudicate sync status between API and SDK
+        @$($PYTHON) scripts/meta/sync_check.py
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Universal SDK Forge is manifest in [bold cyan]sdk/[/bold cyan]."
+    proclaim: "Regeneration scripts willed into [bold cyan]scripts/meta/[/bold cyan]."
+    
+    # 1. Forensic Pre-flight
+    proclaim: "Verifying Docker Artisan presence..."
+    @if {{ shell('docker --version > /dev/null 2>&1 && echo "yes" || echo "no"') == 'yes' }}
+        -> proclaim: "Docker Artisan: [green]RESONANT[/green]"
+    @else
+        -> proclaim: "[bold red]HERESY:[/bold red] Docker not found. SDK Forge requires Docker."
+
+    # 2. Final Proclamation
+    proclaim: "[bold green]✅ Meta-Forge Ready.[/bold green]"
+    proclaim: "To forge your first multi-language SDK library:"
+    proclaim: "  1. Ensure your API is running at [magenta]{{ api_schema_url }}[/magenta]"
+    proclaim: "  2. Speak the rite: [bold cyan]make sdk-reforge[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[danger]Forge Inception Failed.[/danger] Cleaning the meta-shards..."
+    rm -rf sdk/ scripts/meta/

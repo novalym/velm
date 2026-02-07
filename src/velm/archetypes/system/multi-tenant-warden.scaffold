@@ -1,0 +1,134 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: MULTI-TENANT WARDEN (V-Ω-TOTALITY)                       ==
+# =================================================================================
+# @description: Materializes a sovereign multi-tenant isolation layer. Uses thread-safe context variables to enforce data silos, dynamic database routing, and tenant-aware logging across the entire execution stack.
+# @category: System
+# @tags: multi-tenancy, isolation, saas, contextvars, middleware, security, database
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: tenant_header=X-Tenant-ID, use_schema_isolation=true, fallback_tenant=public
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tenant_header = "X-Tenant-ID"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE WARDEN CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        tenancy/
+            __init__.py :: "from .context import get_tenant_id, set_tenant_id, tenant_context"
+            
+            # [1] THE GNOSTIC CONTEXT (Thread Safety)
+            # Uses ContextVars to ensure isolation across async boundaries.
+            context.py :: """
+            import contextvars
+            import logging
+            from contextlib import contextmanager
+            from typing import Optional
+
+            Logger = logging.getLogger("Tenancy:Context")
+
+            # The Sacred Context Cell
+            _tenant_id_ctx: contextvars.ContextVar[str] = contextvars.ContextVar("tenant_id", default="public")
+
+            def get_tenant_id() -> str:
+                \"\"\"Perceives the active tenant ID in the current async flow.\"\"\"
+                return _tenant_id_ctx.get()
+
+            def set_tenant_id(tenant_id: str):
+                \"\"\"Inscribes the tenant ID into the current reality.\"\"\"
+                Logger.debug(f"🌀 Tenancy Shift: {tenant_id}")
+                _tenant_id_ctx.set(tenant_id)
+
+            @contextmanager
+            def tenant_context(tenant_id: str):
+                \"\"\"The Rite of Temporary Identity.\"\"\"
+                token = _tenant_id_ctx.set(tenant_id)
+                try:
+                    yield
+                finally:
+                    _tenant_id_ctx.reset(token)
+            """
+
+            # [2] THE PERIMETER WARD (Middleware)
+            # Adjudicates every incoming plea for its origin tenant.
+            middleware.py :: """
+            from fastapi import Request, Response
+            from starlette.middleware.base import BaseHTTPMiddleware
+            from .context import set_tenant_id
+
+            class TenancyWardenMiddleware(BaseHTTPMiddleware):
+                \"\"\"
+                =============================================================================
+                == THE TENANCY WARDEN (V-Ω-TOTALITY)                                      ==
+                =============================================================================
+                LIF: ∞ | ROLE: ISOLATION_ENFORCER
+                
+                Intercepts requests and extracts the Tenant ID from the sacred header.
+                \"\"\"
+                async def dispatch(self, request: Request, call_next):
+                    # 1. Extraction from Header
+                    tenant_id = request.headers.get("{{ tenant_header }}", "public")
+                    
+                    # 2. Inscription into Context
+                    set_tenant_id(tenant_id)
+                    
+                    # 3. Augment Request State for downstream access
+                    request.state.tenant_id = tenant_id
+                    
+                    response = await call_next(request)
+                    
+                    # 4. Proclaim Identity in Response
+                    response.headers["X-Gnostic-Tenant"] = tenant_id
+                    return response
+            """
+
+            # [3] THE SPATIAL ROUTER (Database)
+            # Dynamically selects the database schema or connection based on tenant.
+            router.py :: """
+            from sqlalchemy import create_engine
+            from .context import get_tenant_id
+
+            class TenantRouter:
+                \"\"\"
+                Determines which physical substrate to use for the active tenant.
+                \"\"\"
+                @staticmethod
+                def get_schema_name() -> str:
+                    \"\"\"Calculates the database schema name.\"\"\"
+                    tenant = get_tenant_id()
+                    if tenant == "public":
+                        return "public"
+                    return f"tenant_{tenant}"
+
+                @staticmethod
+                def get_tenant_filter(query):
+                    \"\"\"Applies a global filter for shared-table isolation.\"\"\"
+                    return query.filter_by(tenant_id=get_tenant_id())
+            """
+
+# --- III. THE SURGICAL WEAVE ---
+main.py ^= """
+from .core.tenancy.middleware import TenancyWardenMiddleware
+"""
+
+main.py += """
+# [Gnostic Suture]: Engaging the Multi-Tenant Warden
+# This must stand early in the pipeline to isolate all downstream logic.
+app.add_middleware(TenancyWardenMiddleware)
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Multi-Tenant Warden[/bold cyan] is manifest."
+    proclaim: "Header: [magenta]{{ tenant_header }}[/magenta]"
+    proclaim: "Context managed via [bold]src/{{ package_name }}/core/tenancy/context.py[/bold]"
+    
+    # 1. Verify Structure
+    >> python -c "from src.{{ package_name }}.core.tenancy.context import get_tenant_id; print(f'Initial Context: {get_tenant_id()}')"
+    ?? succeeds
+
+%% on-heresy
+    proclaim: "Tenancy inception failed. Purging shards..."
+    rm -rf src/{{ package_name }}/core/tenancy/

@@ -1,48 +1,284 @@
-# Path: scaffold/archetypes/genesis/generic-script.scaffold
-# ---------------------------------------------------------
-
 # =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: GENERIC SCRIPT (V-Ω-ATOMIC-UTILITY)              ==
+# == GNOSTIC ARCHETYPE: THE KINETIC MONAD (V-Ω-ATOMIC-TOTALITY)                  ==
 # =================================================================================
-# @description: A powerful, single-file Python script for rapid automation,
-#               forged with argparse and rich for a superior CLI experience.
+# @description: A transcendent, self-contained Python automation engine. 
+#               Features sub-command architecture, structured logging, 
+#               asynchronous-ready logic, and a hyper-status Rich UI.
+# @category: Utility
+# @tags: python, cli, automation, rich, monad, tool, atomic, forensic
+# @difficulty: Adept
+# @is_integration: false
+# @dna: python_version=3.10, use_rich=true, atomic_unit=true
 # =================================================================================
 
-$$ script_name = "{{ project_name | snake }}.py"
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "kinetic-utility"
+$$ author = "The Architect"
+$$ description = "A high-fidelity kinetic monad for system orchestration."
 
-{{ script_name }}:
-    #!/usr/bin/env python
-    import argparse
+# Derived Gnosis
+$$ script_name = "{{ project_name | slug }}.py"
+$$ class_name = "{{ project_name | pascal }}Engine"
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+# [1] THE KINETIC MONAD (THE SOUL)
+# We use Explicit Block Syntax to preserve the deep logic and docstrings.
+{{ script_name }} :: """
+#!/usr/bin/env python3
+\"\"\"
+=================================================================================
+== {{ project_name | upper }} - KINETIC MONAD                                   ==
+=================================================================================
+LIF: ∞ | ROLE: ATOMIC_UTILITY | RANK: LEGENDARY
+Forged by: {{ author }}
+Generated via the VELM God-Engine.
+=================================================================================
+\"\"\"
+
+import os
+import sys
+import json
+import time
+import signal
+import logging
+import argparse
+import traceback
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Any, Optional, NoReturn
+
+# --- STRATUM-1: THE DEPENDENCY SENTINEL ---
+try:
     from rich.console import Console
+    from rich.panel import Panel
+    from rich.table import Table
+    from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
+    from rich.live import Live
+    from rich.traceback import install as install_rich_tracebacks
+    from rich.logging import RichHandler
+    HAS_RICH = True
+except ImportError:
+    HAS_RICH = False
 
-    def main():
-        """The main entry point for the script."""
-        parser = argparse.ArgumentParser(description="A Gnostic script.")
-        parser.add_argument("name", help="An example argument.")
-        args = parser.parse_args()
+# ===============================================================================
+# == THE GNOSTIC CORE                                                          ==
+# ===============================================================================
 
-        console = Console()
-        console.print(f"Executing with Gnosis: [cyan]{args.name}[/cyan]")
-        console.print("[bold green]Rite complete.[/bold green]")
+class GnosticState:
+    \"\"\"The internal memory of the Monad.\"\"\"
+    def __init__(self):
+        self.start_time = time.perf_counter()
+        self.log_path = Path(".{{ project_name | slug }}.chronicle.log")
+        self.vitals = {"ops": 0, "heresies": 0}
 
-    if __name__ == "__main__":
-        main()
+class {{ class_name }}:
+    \"\"\"
+    The Sovereign Engine of the Monad.
+    Contains the logic of perception and the hand of execution.
+    \"\"\"
 
+    def __init__(self):
+        self.state = GnosticState()
+        self.console = Console() if HAS_RICH else None
+        self._setup_forensics()
+        
+        if HAS_RICH:
+            install_rich_tracebacks(show_locals=True)
+
+    def _setup_forensics(self):
+        \"\"\"Configures the Black-Box Recorder.\"\"\"
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(message)s",
+            datefmt="[%X]",
+            handlers=[
+                RichHandler(rich_tracebacks=True) if HAS_RICH else logging.StreamHandler(),
+                logging.FileHandler(self.state.log_path)
+            ]
+        )
+        self.logger = logging.getLogger("Monad")
+
+    # --- MOVEMENT I: THE RITES OF PERCEPTION ---
+
+    def proclaim(self, message: str, style: str = "cyan"):
+        \"\"\"Proclaims a truth to the Ocular Membrane (Console).\"\"\"
+        if self.console:
+            self.console.print(f"[{style}]»[/] {message}")
+        else:
+            print(f">> {message}")
+
+    def conduct_inquest(self):
+        \"\"\"Performs a Gaze upon the host environment.\"\"\"
+        self.proclaim("Conducting environmental inquest...")
+        
+        table = Table(title="Monad Vitals", border_style="dim")
+        table.add_column("System", style="magenta")
+        table.add_column("Value", style="white")
+        
+        table.add_row("CWD", os.getcwd())
+        table.add_row("Python", sys.version.split()[0])
+        table.add_row("PID", str(os.getpid()))
+        
+        if self.console:
+            self.console.print(table)
+
+    # --- MOVEMENT II: THE RITES OF ACTION ---
+
+    def execute_rite(self, target: str):
+        \"\"\"The primary kinetic action of the monad.\"\"\"
+        self.proclaim(f"Initiating Rite of Transmutation for: [bold white]{target}[/]")
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(bar_width=None, pulse_style="teal"),
+            transient=True,
+            console=self.console
+        ) as progress:
+            task = progress.add_task("[cyan]Processing Gnosis...", total=100)
+            
+            # Simulated Work Cycles
+            for _ in range(10):
+                time.sleep(0.15)
+                progress.update(task, advance=10)
+                self.state.vitals["ops"] += 1
+
+        self.proclaim(f"Rite complete. Gnosis manifest in {time.perf_counter() - self.state.start_time:.2f}s", "green")
+
+    # --- MOVEMENT III: THE REDEMPTION ---
+
+    def handle_heresy(self, error: Exception) -> NoReturn:
+        \"\"\"Transmutes a crash into a structured revelation.\"\"\"
+        self.state.vitals["heresies"] += 1
+        msg = f"CATASTROPHIC_FRACTURE: {str(error)}"
+        
+        if self.console:
+            self.console.print(Panel(
+                f"[bold red]{msg}[/]\n\n[dim]{traceback.format_exc()}[/]",
+                title="Heresy Detected",
+                border_style="red"
+            ))
+        else:
+            print(f"ERROR: {msg}")
+        
+        sys.exit(1)
+
+# ===============================================================================
+# == THE INTERFACE LAYER                                                       ==
+# ===============================================================================
+
+def main():
+    engine = {{ class_name }}()
+    
+    # [THE GNOSTIC TRIAGE]: Argument Resolution
+    parser = argparse.ArgumentParser(
+        description="{{ description }}",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    
+    subparsers = parser.add_subparsers(dest="command", help="The rite to conduct")
+    
+    # Rite: Inquest
+    subparsers.add_parser("inquest", help="Scry the host environment")
+    
+    # Rite: Strike
+    strike_p = subparsers.add_parser("strike", help="Execute a kinetic action")
+    strike_p.add_argument("target", help="The target of the strike")
+    
+    # Rite: Chronicle
+    subparsers.add_parser("chronicle", help="View the history of this monad")
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        return
+
+    # Handle Signal Interruption (The Shield of Grace)
+    def signal_handler(sig, frame):
+        engine.proclaim("\n[yellow]Interrupted by Architect. Dissolving reality...[/]")
+        sys.exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler)
+
+    try:
+        if args.command == "inquest":
+            engine.conduct_inquest()
+        elif args.command == "strike":
+            engine.execute_rite(args.target)
+        elif args.command == "chronicle":
+            if engine.state.log_path.exists():
+                print(engine.state.log_path.read_text())
+            else:
+                engine.proclaim("The Chronicle is a void.", "yellow")
+                
+    except Exception as e:
+        engine.handle_heresy(e)
+
+if __name__ == "__main__":
+    main()
+\"\"\"
 %% 755
 
+# [2] THE ARCHITECT'S MANIFESTO
 README.md :: """
 # {{ project_name }}
 
-A simple, powerful automation script.
+> {{ description }}
 
-## Usage
+This is a **Kinetic Monad**—a sovereign, single-file automation engine manifest by the **VELM God-Engine**. 
 
+## 🏗️ Architecture
+- **Atomic**: Everything required for execution resides in `{{ script_name }}`.
+- **Forensic**: Automatically chronicles every action to `.{{ project_name | slug }}.chronicle.log`.
+- **Intelligent**: Uses the `rich` library for high-status visual feedback.
+
+## 🚀 Execution Rites
+
+### I. The Inquest (Environmental Gaze)
+Scry the host system and verify the Monad's vitals.
 ```bash
-# Ensure dependencies are installed (if any)
-# pip install rich
+./{{ script_name }} inquest
 
-# Make the script executable (if not already)
-chmod +x {{ script_name }}
 
-# Run the script
-./{{ script_name }} "Hello Gnosis"
+II. The Strike (Kinetic Will)
+
+Perform a transmutational rite upon a target.
+
+./{{ script_name }} strike "core-reality"
+
+III. The Chronicle (Memory Recall)
+
+Gaze into the past actions of this Monad.
+
+./{{ script_name }} chronicle
+
+
+🛡️ Requirements
+
+Python 3.10+
+
+pip install rich (Optional but recommended for Luminous mode)
+"""
+#[3] THE DEPENDENCY SEED
+requirements.txt :: """
+rich>=13.0.0
+"""
+--- III. THE MAESTRO'S WILL ---
+
+%% post-run
+    # 1. Consecrate Permission
+    # (The %% 755 above already handles this, but we proclaim it)
+    proclaim: "Permissions consecrated. The Monad is executable."
+    @if {{ shell('which python3') }} -> proclaim: "Python 3 is manifest."
+    @else -> proclaim: "[bold red]CRITICAL:[/bold red] Python 3 not detected in PATH."
+
+    # 3. Final Proclamation
+    proclaim: "The Kinetic Monad '{{ project_name }}' has been born."
+    proclaim: "To begin, speak: [bold cyan]./{{ script_name }} inquest[/bold cyan]"
+
+%% on-heresy
+    proclaim: "The Monad's inception failed. Cleaning the void..."
+    rm -f {{ script_name }} README.md
+

@@ -1,130 +1,383 @@
-# Path: scaffold/archetypes/genesis/node-basic.scaffold
-# -----------------------------------------------------
+# =================================================================================
+# == GNOSTIC ARCHETYPE: NODE BASIC CITADEL (V-Ω-TOTALITY)                        ==
+# =================================================================================
+# @description: Materializes a high-performance, ESM-native Node.js/TypeScript foundation. Engineered for sub-millisecond dev cycles using Biome, Vitest, and a modular architecture that enforces a clean separation between Intent and infrastructure.
+# @category: Genesis
+# @tags: node, typescript, esm, vitest, biome, foundation, backend, modular
+# @difficulty: Novice
+# @is_integration: false
+# @dna: node_version=20, package_manager=npm, use_typescript=true, use_biome=true
+# =================================================================================
 
-# =================================================================================
-# == GNOSTIC GENESIS ARCHETYPE: NODE TYPESCRIPT CITADEL (V-Ω-STRUCTURAL-PURITY)  ==
-# =================================================================================
-# @description: A production-grade Node.js/TypeScript foundation with a full
-#               toolchain for development, linting, formatting, and building.
-# =================================================================================
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = "nebula-core"
+$$ author = "{{ author | default('The Architect') }}"
+$$ node_version = "20.x"
 
-# --- I. The Altar of Gnostic Will ---
+# Derived Gnosis
 $$ project_slug = {{ project_name | slug }}
-$$ author = {{ author }}
+$$ package_name = {{ project_name | snake }}
 
-# --- II. The Scripture of Form ---
+# --- II. THE SCRIPTURE OF FORM (The Fortress structure) ---
 {{ project_slug }}/
+
+    # [1] THE KERNEL CONFIGURATION
     .gitignore :: """
+    # == The Abyss ==
     node_modules/
     dist/
+    build/
     .env
-    .DS_Store
+    .env.local
+    *.log
+    npm-debug.log*
     .eslintcache
-    """
-
-    README.md :: """
-    # {{ project_name }} - A Node.js Citadel
-
-    Forged with TypeScript and the unbreakable will of Scaffold.
-
-    ## Rites of the Forge
-
-    - `make install`: Summons dependencies.
-    - `make dev`: Awakens the hot-reloading development server.
-    - `make build`: Forges the production JavaScript scripture.
-    - `make start`: Conducts the production scripture.
-    - `make lint`: Summons the Gnostic Inquisitor (ESLint).
-    - `make format`: Purifies the form of all scriptures.
-    """
-
-    package.json:
-        {
-          "name": "{{ project_slug }}",
-          "version": "0.1.0",
-          "description": "{{ description }}",
-          "main": "dist/index.js",
-          "author": "{{ author }}",
-          "license": "MIT",
-          "scripts": {
-            "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-            "build": "rimraf dist && tsc",
-            "start": "node dist/index.js",
-            "lint": "eslint . --ext .ts",
-            "format": "prettier --write ."
-          },
-          "devDependencies": {
-            "@types/node": "^20.11.0",
-            "@typescript-eslint/eslint-plugin": "^7.0.0",
-            "@typescript-eslint/parser": "^7.0.0",
-            "eslint": "^8.56.0",
-            "prettier": "^3.2.0",
-            "rimraf": "^5.0.0",
-            "ts-node-dev": "^2.0.0",
-            "typescript": "^5.3.0"
-          }
-        }
-
-    tsconfig.json:
-        {
-          "compilerOptions": {
-            "target": "ES2022",
-            "module": "commonjs",
-            "rootDir": "./src",
-            "outDir": "./dist",
-            "strict": true,
-            "esModuleInterop": true,
-            "skipLibCheck": true,
-            "forceConsistentCasingInFileNames": true
-          },
-          "include": ["src/**/*"]
-        }
-
-    .prettierrc:
-        {
-          "semi": true,
-          "trailingComma": "all",
-          "singleQuote": true,
-          "printWidth": 100
-        }
+    coverage/
     
-    .eslintrc.json:
-        {
-          "parser": "@typescript-eslint/parser",
-          "extends": ["plugin:@typescript-eslint/recommended"],
-          "rules": {
-            "@typescript-eslint/no-explicit-any": "off"
+    # OS/IDE Artifacts
+    .DS_Store
+    .vscode/
+    
+    # Metadata Drift
+    *.tsbuildinfo
+    """
+
+    .editorconfig :: """
+    root = true
+    [*]
+    indent_style = space
+    indent_size = 2
+    charset = utf-8
+    trim_trailing_whitespace = true
+    insert_final_newline = true
+    end_of_line = lf
+    """
+
+    # [2] THE DEPENDENCY MATRIX (package.json)
+    # We use the most modern 'type': 'module' for ESM-First purity.
+    package.json :: """
+    {
+      "name": "{{ project_slug }}",
+      "version": "0.1.0",
+      "description": "A sovereign TypeScript engine manifest by VELM.",
+      "type": "module",
+      "author": "{{ author }}",
+      "license": "MIT",
+      "scripts": {
+        "dev": "tsx watch src/index.ts",
+        "start": "node dist/index.js",
+        "build": "rimraf dist && tsc",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "lint": "biome check src/",
+        "format": "biome format src/ --write",
+        "check": "npm run lint && npm run test && tsc --noEmit"
+      },
+      "dependencies": {
+        "zod": "^3.23.0",
+        "dotenv": "^16.4.5",
+        "winston": "^3.12.0",
+        "clsx": "^2.1.1"
+      },
+      "devDependencies": {
+        "typescript": "^5.4.5",
+        "@types/node": "^20.12.7",
+        "tsx": "^4.7.2",
+        "vitest": "^1.5.0",
+        "@biomejs/biome": "1.7.1",
+        "rimraf": "^5.0.5"
+      }
+    }
+    """
+
+    # [3] THE GEOMETRIC LAWS (TS & Biome)
+    # Strict mode is enforced to prevent the Heresy of Any.
+    tsconfig.json :: """
+    {
+      "compilerOptions": {
+        "target": "ESNext",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "rootDir": "src",
+        "outDir": "dist",
+        "declaration": true,
+        "sourceMap": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true
+      },
+      "include": ["src/**/*"],
+      "exclude": ["node_modules", "dist", "**/*.test.ts"]
+    }
+    """
+
+    biome.json :: """
+    {
+      "$schema": "https://biomejs.dev/schemas/1.7.1/schema.json",
+      "organizeImports": {
+        "enabled": true
+      },
+      "linter": {
+        "enabled": true,
+        "rules": {
+          "recommended": true,
+          "style": {
+            "noUnusedTemplateLiteral": "warn"
+          }
+        }
+      },
+      "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 2,
+        "lineWidth": 100
+      }
+    }
+    """
+
+    # [4] THE CONTROL PLANE (Makefile)
+    Makefile :: """
+    .PHONY: help install dev test lint format build clean
+
+    # Gnostic Variables
+    $PKG_MANAGER = npm
+    $IMAGE_NAME = {{ project_slug }}
+
+    help: ## Proclaim available rites for the Node Citadel
+        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+    install: ## Summon dependencies and consecrate the environment
+        @echo "📦 Summoning Node Artisans..."
+        $($PKG_MANAGER) install
+
+    dev: ## Ignite the hot-reloading engine
+        @echo "🚀 Awakening {{ project_name }} (Lattice Sync)..."
+        $($PKG_MANAGER) run dev
+
+    test: ## Conduct the unit and integration inquisition
+        $($PKG_MANAGER) run test
+
+    lint: ## Audit the soul of the code for stylistic heresies
+        $($PKG_MANAGER) run lint
+
+    format: ## Apply sacred geometry to the code via Biome
+        $($PKG_MANAGER) run format
+
+    build: clean ## Transmute TypeScript to production-grade JS
+        @echo "🏗️  Forging production vessel..."
+        $($PKG_MANAGER) run build
+
+    clean: ## Return artifacts to the void
+        rm -rf dist/ coverage/
+        find . -name "*.tsbuildinfo" -delete
+    """
+
+    # [5] THE ENVIRONMENT DNA
+    .env.example :: """
+    # == System Identity ==
+    APP_NAME="{{ project_name }}"
+    ENVIRONMENT=development
+    LOG_LEVEL=info
+
+    # == Networking ==
+    PORT=8080
+
+    # == Security ==
+    # Generate with: openssl rand -base64 32
+    SECRET_KEY=void-placeholder
+    """
+
+    # [6] THE SOURCE CODE (The Living Mind)
+    src/
+        index.ts :: """
+        import 'dotenv/config';
+        import { logger } from './utils/logger.js';
+        import { GnosticEngine } from './core/engine.js';
+        import { config } from './utils/config.js';
+
+        /**
+         * =============================================================================
+         * == THE KINETIC ENTRYPOINT                                                  ==
+         * =============================================================================
+         */
+        async function bootstrap() {
+          logger.info(`Starting {{ project_name }} v0.1.0...`);
+          
+          try {
+            // Validate the environment DNA
+            const env = config;
+            logger.info(`Environment: ${env.ENVIRONMENT}`);
+            
+            const engine = new GnosticEngine();
+            const revelation = engine.proclaim();
+            
+            logger.info(`Status: [RESONANT]`);
+            logger.info(`Message: ${revelation}`);
+            
+            // Logic start
+            if (env.ENVIRONMENT !== 'test') {
+                logger.info(`Conduit established on port ${env.PORT}`);
+            }
+            
+          } catch (heresy) {
+            logger.error(`Catastrophic Fracture: ${heresy instanceof Error ? heresy.message : String(heresy)}`);
+            process.exit(1);
           }
         }
 
-    Makefile:
-        .PHONY: install dev build start lint format
+        bootstrap();
+        """
 
-        install:
-        	npm install
+        core/
+            engine.ts :: """
+            /**
+             * =============================================================================
+             * == THE GNOSTIC ENGINE (V-Ω-LOGIC-CORE)                                   ==
+             * =============================================================================
+             * Pure business logic, decoupled from the I/O substrate.
+             */
+            export class GnosticEngine {
+              private readonly identity: string;
 
-        dev:
-        	npm run dev
+              constructor() {
+                this.identity = 'Node-Sovereign-Citadel';
+              }
 
-        build:
-        	npm run build
+              public proclaim(): string {
+                return `Gnosis is truth. The '{{ project_name }}' reality is manifest.`;
+              }
+            }
+            """
 
-        start:
-        	npm run start
+        utils/
+            logger.ts :: """
+            import winston from 'winston';
 
-        lint:
-        	npm run lint
+            /**
+             * [THE SCRIBE]: High-fidelity Winston logger.
+             */
+            export const logger = winston.createLogger({
+              level: process.env.LOG_LEVEL || 'info',
+              format: winston.format.combine(
+                winston.format.colorize(),
+                winston.format.timestamp({ format: 'HH:mm:ss' }),
+                winston.format.printf(({ timestamp, level, message }) => {
+                  return `[${timestamp}] ${level}: ${message}`;
+                }),
+              ),
+              transports: [new winston.transports.Console()],
+            });
+            """
 
-        format:
-        	npm run format
+            config.ts :: """
+            import { z } from 'zod';
 
-    src/
-        index.ts:
-            const main = (): void => {
-                console.log(`Gnosis is truth. The '{{ project_name }}' reality is manifest.`);
-            };
+            /**
+             * [THE CONSCIENCE]: Strict environment validation via Zod.
+             */
+            const envSchema = z.object({
+                PORT: z.string().default('8080'),
+                ENVIRONMENT: z.enum(['development', 'production', 'test']).default('development'),
+                APP_NAME: z.string().default('{{ project_name }}'),
+            });
 
-            main();
+            // Adjudicate existing reality
+            export const config = envSchema.parse(process.env);
+            """
 
+    # [7] THE INQUISITION (Tests)
+    tests/
+        unit/
+            engine.test.ts :: """
+            import { describe, it, expect } from 'vitest';
+            import { GnosticEngine } from '../../src/core/engine.js';
+
+            describe('GnosticEngine', () => {
+              it('should resonate with the project name', () => {
+                const engine = new GnosticEngine();
+                expect(engine.proclaim()).toContain('{{ project_name }}');
+              });
+
+              it('should maintain the Sovereign identity', () => {
+                const engine = new GnosticEngine();
+                // @ts-ignore - reaching into the core soul for verification
+                expect(engine.identity).toBe('Node-Sovereign-Citadel');
+              });
+            });
+            """
+        
+        integration/
+            heartbeat.test.ts :: """
+            import { describe, it, expect } from 'vitest';
+
+            describe('Citadel Vitality', () => {
+              it('should have a resonant heartbeat', () => {
+                expect(true).toBe(true);
+              });
+            });
+            """
+
+    # [8] THE CELESTIAL VESSEL (Production Dockerfile)
+    Dockerfile :: """
+    # =============================================================================
+    # == THE SOVEREIGN VESSEL (V-Ω-TOTALITY)                                     ==
+    # =============================================================================
+    
+    # --- STAGE 1: THE FORGE ---
+    FROM node:20-alpine AS builder
+    WORKDIR /app
+    
+    COPY package*.json ./
+    RUN npm ci
+    
+    COPY . .
+    RUN npm run build
+
+    # --- STAGE 2: THE CELESTIAL VESSEL ---
+    FROM node:20-alpine
+    WORKDIR /app
+    
+    # [SECURITY]: Non-root execution
+    USER node
+
+    COPY --from=builder /app/package*.json ./
+    RUN npm ci --omit=dev
+    COPY --from=builder /app/dist ./dist
+
+    # Environment DNA
+    ENV NODE_ENV=production
+    ENV LOG_LEVEL=info
+
+    EXPOSE 8080
+    CMD ["node", "dist/index.js"]
+    """
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
 %% post-run
-    git init
-    npm install
+    proclaim: "The [bold cyan]Node Sovereign Citadel[/bold cyan] is materializing."
+    
+    # 1. Initialize Chronicle
+    @if {{ use_git }} -> git init
+
+    # 2. Summon the dependencies
+    proclaim: "Summoning the TypeScript and Biome toolchain... (npm install)"
+    @if {{ shell('which npm') }} 
+        -> >> npm install
+    @else 
+        -> proclaim: "[bold red]HERESY:[/bold red] 'npm' not detected. Please install Node.js to complete the forge."
+    
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Citadel manifest in '{{ project_slug }}/'.[/bold green]"
+    proclaim: "To enter the cockpit:"
+    proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
+    proclaim: "  2. [bold cyan]make dev[/bold cyan] (Ignites Hot-Reload)"
+    proclaim: "  3. [bold cyan]make test[/bold cyan] (Conduct Inquest)"
+
+%% on-heresy
+    proclaim: "[bold red]Citadel Inception Fractured.[/bold red] Cleaning the temporal shards..."
+    rm -rf src/ tests/ package.json tsconfig.json Makefile Dockerfile

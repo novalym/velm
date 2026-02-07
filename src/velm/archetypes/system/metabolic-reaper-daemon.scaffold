@@ -1,0 +1,109 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: METABOLIC REAPER (V-Ω-TOTALITY)                         ==
+# =================================================================================
+# @description: Materializes an autonomic resource reclamation daemon. Scries the project for "Gnostic Decay"—identifying unused Docker volumes, stagnant cache shards, and orphaned temporary files. Reclaims matter to protect system metabolism.
+# @category: System
+# @tags: maintenance, automation, garbage-collection, docker, forensics, cleanup
+# @difficulty: Master
+# @is_integration: true
+# @dna: entropy_threshold_days=7, auto_reap=false, watch_docker=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ reaper_interval = 3600 # Every hour
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE REAPER CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        system/
+            # [1] THE REAPER ENGINE
+            reaper.py :: """
+            import os
+            import time
+            import shutil
+            import logging
+            from pathlib import Path
+            from typing import List, Set
+
+            Logger = logging.getLogger("Metabolic:Reaper")
+
+            class GnosticReaper:
+                \"\"\"
+                =============================================================================
+                == THE METABOLIC REAPER (V-Ω-ENTROPY-RECLAIMER)                            ==
+                =============================================================================
+                LIF: ∞ | ROLE: PURITY_ENFORCER | RANK: MASTER
+                
+                Scries the project for stagnant matter. Returns unused shards to the void.
+                \"\"\"
+                def __init__(self, root: Path):
+                    self.root = root
+                    self.trash_can = root / ".scaffold" / "trash"
+                    self.cache_dir = root / ".scaffold" / "cache"
+
+                def scry_decay(self, max_age_days: int = 7) -> List[Path]:
+                    \"\"\"Identifies files that have drifted into high entropy (stagnation).\"\"\"
+                    decayed = []
+                    now = time.time()
+                    max_age_sec = max_age_days * 86400
+
+                    # 1. Scry the Cache
+                    if self.cache_dir.exists():
+                        for item in self.cache_dir.rglob("*"):
+                            if item.is_file() and (now - item.stat().st_atime) > max_age_sec:
+                                decayed.append(item)
+                    
+                    # 2. Scry Orphaned Temp Shards
+                    for item in self.root.glob("**/tmp_*"):
+                        if (now - item.stat().st_mtime) > 3600: # 1 hour for temp files
+                            decayed.append(item)
+                            
+                    return decayed
+
+                def conduct_reaping(self, targets: List[Path]):
+                    \"\"\"Returns the matter to the void.\"\"\"
+                    for path in targets:
+                        try:
+                            if path.is_dir():
+                                shutil.rmtree(path)
+                            else:
+                                path.unlink()
+                            Logger.info(f"💀 Reaped stagnant soul: {path.name}")
+                        except Exception as e:
+                            Logger.error(f"Reaping failed for {path.name}: {e}")
+
+                def scry_docker_entropy(self):
+                    \"\"\"[ASCENSION]: Communicates with the Docker Daemon to find unused matter.\"\"\"
+                    try:
+                        import docker
+                        client = docker.from_env()
+                        # Prune unused images and volumes
+                        # result = client.volumes.prune()
+                        # Logger.info(f"Reclaimed {result.get('SpaceReclaimed', 0)} bytes from Docker.")
+                    except ImportError:
+                        Logger.warn("Docker SDK not manifest. Skipping Docker entropy scan.")
+            """
+
+# --- III. THE CONTROL PLANE (Makefile) ---
+Makefile:
+	.PHONY: reap-entropy
+
+	reap-entropy: ## Execute a manual reaping of project entropy
+		@poetry run python -c "from src.{{ package_name }}.core.system.reaper import GnosticReaper; from pathlib import Path; r = GnosticReaper(Path('.')); r.conduct_reaping(r.scry_decay())"
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Metabolic Reaper Daemon[/bold cyan] is manifest."
+    proclaim: "Purity logic established in 'core/system/reaper.py'."
+    
+    # 1. Dependency check
+    proclaim: "Ensuring Docker SDK is manifest for deep reclamation..."
+    >> poetry add docker
+    ?? succeeds
+
+    proclaim: "[bold green]✅ Autonomic Purity Active.[/bold green]"
+    proclaim: "To manually cleanse the project: [bold cyan]make reap-entropy[/bold cyan]"
+
+%% on-heresy
+    proclaim: "Reaper failed to materialize. Entropy wins this round."

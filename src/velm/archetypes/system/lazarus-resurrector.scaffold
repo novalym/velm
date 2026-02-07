@@ -1,0 +1,109 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: LAZARUS RESURRECTOR (V-Ω-TOTALITY)                       ==
+# =================================================================================
+# @description: Materializes an autonomic self-healing sentinel. Monitors the application's heartbeat and metabolic vitals, automatically triggering localized re-inception or process-level restarts to ensure 99.9999% Gnostic Availability.
+# @category: System
+# @tags: self-healing, monitoring, uptime, resilience, lifecycle, liveness, devops
+# @difficulty: Grand Architect
+# @is_integration: true
+# @dna: check_interval=30, max_retries=5, health_url=http://localhost:8000/health
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ health_url = "http://localhost:8000/health"
+$$ check_interval = 30
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE RESURRECTOR CORE (Logic Stratum) ---
+src/{{ package_name }}/
+    core/
+        system/
+            # [1] THE IMMUNE ENGINE
+            resurrector.py :: """
+            import time
+            import os
+            import sys
+            import signal
+            import requests
+            import threading
+            import logging
+            from datetime import datetime
+
+            Logger = logging.getLogger("Lazarus:Resurrector")
+
+            class LazarusSentinel(threading.Thread):
+                \"\"\"
+                =============================================================================
+                == THE LAZARUS SENTINEL (V-Ω-AUTONOMIC-RECOVERY)                           ==
+                =============================================================================
+                LIF: ∞ | ROLE: IMMUNE_SYSTEM_ORCHESTRATOR | RANK: OMEGA
+                
+                Fixes the 'Silent Hang' heresy. Monitors the primary heart rate and 
+                conducts the Rite of Re-Inception upon failure.
+                \"\"\"
+                def __init__(self, target_url: str = "{{ health_url }}", interval: int = {{ check_interval }}):
+                    super().__init__(daemon=True, name="LazarusSentinel")
+                    self.target_url = target_url
+                    self.interval = interval
+                    self.failed_checks = 0
+                    self._stop_signal = threading.Event()
+
+                def run(self):
+                    Logger.info(f"🛰️ Lazarus Sentinel active. Vigilance set to {self.interval}s.")
+                    while not self._stop_signal.is_set():
+                        try:
+                            if not self._check_heartbeat():
+                                self.failed_checks += 1
+                                Logger.warning(f"⚠️ Heartbeat Faltered ({self.failed_checks}/3).")
+                                if self.failed_checks >= 3:
+                                    self._initiate_resurrection()
+                            else:
+                                if self.failed_checks > 0:
+                                    Logger.success("💓 Heartbeat Restored. Crisis averted.")
+                                self.failed_checks = 0
+                        except Exception as e:
+                            Logger.error(f"Sentinel Gaze Clouded: {e}")
+                        
+                        time.sleep(self.interval)
+
+                def _check_heartbeat(self) -> bool:
+                    try:
+                        response = requests.get(self.target_url, timeout=5)
+                        # Expecting Gnostic Resonance (Status 200)
+                        return response.status_code == 200
+                    except:
+                        return False
+
+                def _initiate_resurrection(self) -> None:
+                    \"\"\"
+                    The Rite of Re-Inception.
+                    In a sovereign containerized reality, this sends a restart signal
+                    to the supervisor or simply restarts the primary process.
+                    \"\"\"
+                    Logger.critical("💀 CRITICAL: Metabolic Flatline Detected. Initiating Lazarus Protocol...")
+                    
+                    # [ASCENSION 12]: The Final Vow
+                    # Send SIGUSR1 to the parent process to trigger an internal reload,
+                    # or force a hard exit to allow Docker/Kubernetes to restart the pod.
+                    os.kill(os.getpid(), signal.SIGTERM)
+
+            def ignite_sentinel():
+                sentinel = LazarusSentinel()
+                sentinel.start()
+            """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Lazarus Resurrector[/bold cyan] is manifest."
+    proclaim: "Sentinel logic established in 'core/system/resurrector.py'."
+    
+    # 1. Dependency Check
+    proclaim: "Ensuring 'requests' is manifest for heartbeat scrying..."
+    >> poetry add requests
+    ?? succeeds
+
+    proclaim: "[bold green]✅ Autonomic Vigilance Enabled.[/bold green]"
+    proclaim: "Trigger via: [cyan]from .core.system.resurrector import ignite_sentinel; ignite_sentinel()[/cyan]"
+
+%% on-heresy
+    proclaim: "Resurrector inception failed. The machine remains mortal."
