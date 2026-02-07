@@ -226,7 +226,6 @@ class CommunionMixin:
 
         # --- MOVEMENT II: THE GAZE OF THE FORGE (TEMPLATES) ---
         if not initial_content and not self.cli_args.non_interactive:
-            from ..genesis_profiles import PROFILES
             available_archetypes = list(PROFILES.keys())
 
             choice = Prompt.ask(

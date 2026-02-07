@@ -10,7 +10,6 @@ AUTH_CODE: Ω_REGISTRY_V200_TOTALITY_FINALIS
 The supreme conductor of Gnostic discovery. This artisan unifies four planes
 of reality into a single, prioritized Grimoire, enabling the instantaneous
 streaming and materialization of architectural patterns.
-=================================================================================
 """
 
 import os
@@ -45,7 +44,6 @@ GLOBAL_DIR: Final[Path] = Path.home() / ".scaffold" / "archetypes"
 LOCAL_DIR: Final[Path] = Path.cwd() / ".scaffold" / "archetypes"
 
 # IV. CELESTIAL CACHE (The Local Echo of the Cloud Index)
-# This file is materialised by the ArchetypeArtisan during the 'sync' rite.
 CELESTIAL_CACHE: Final[Path] = Path.home() / ".scaffold" / "celestial_index.json"
 
 DEFAULT_PROFILE_NAME: Final[str] = "python-basic"
@@ -96,7 +94,7 @@ class ArchetypeRegistry:
         cls._last_scan_time = now
 
         duration = (time.perf_counter() - start_time) * 1000
-        if duration > 10.0:  # Only log heavy metabolics
+        if duration > 50.0:  # Only log heavy metabolics
             Logger.debug(f"Registry Refused. {len(new_registry)} shards active. Latency: {duration:.2f}ms")
 
         return new_registry
@@ -119,8 +117,10 @@ class ArchetypeRegistry:
                     name = dna.get("name")
                     if name:
                         dna["source_realm"] = "Celestial"
-                        # We use the Gist URL as the temporary path
+                        # We use the URL as the path for celestial items
                         dna["path"] = dna.get("url", "void://")
+                        # For celestial items, 'archetype_path' is virtual
+                        dna["archetype_path"] = f"celestial:{name}"
                         registry[name] = dna
         except Exception as e:
             Logger.warn(f"Celestial Cache Paradox: {e}. Cloud patterns may be obscured.")
@@ -129,25 +129,30 @@ class ArchetypeRegistry:
     def _scan_physical_stratum(root: Path, realm: str, registry: Dict[str, Any]):
         """[THE ATOMIC SCAN]: Recursive Gaze into local matter."""
         try:
-            for dirpath, _, filenames in os.walk(root):
-                for filename in filenames:
-                    if filename.endswith(".scaffold"):
-                        slug = filename.replace(".scaffold", "")
-                        full_path = Path(dirpath) / filename
+            if not root.exists(): return
 
-                        try:
-                            # [ASCENSION 3]: The DNA Oracle Communion
-                            content = full_path.read_text(encoding="utf-8")
-                            dna = GnosticDNAOracle.divine(slug, content)
+            # Use rglob to find nested archetypes (e.g. genesis/python-basic.scaffold)
+            for full_path in root.rglob("*.scaffold"):
+                slug = full_path.stem
 
-                            dna["source_realm"] = realm
-                            dna["path"] = str(full_path.resolve())
+                try:
+                    # [ASCENSION 3]: The DNA Oracle Communion
+                    # Read only the first 4KB for header parsing to be fast
+                    with open(full_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        header_content = f.read(4096)
 
-                            # [ASCENSION 2]: Priority Overwrite (Precedence Law)
-                            registry[slug] = dna
+                    dna = GnosticDNAOracle.divine(slug, header_content)
 
-                        except Exception as e:
-                            Logger.warn(f"Heresy in {realm} archetype '{slug}': {e}")
+                    dna["source_realm"] = realm
+                    dna["path"] = str(full_path.resolve())
+                    # Important: Add 'archetype_path' for compatibility with legacy consumers
+                    dna["archetype_path"] = str(full_path.resolve())
+
+                    # [ASCENSION 2]: Priority Overwrite (Precedence Law)
+                    registry[slug] = dna
+
+                except Exception as e:
+                    Logger.warn(f"Heresy in {realm} archetype '{slug}': {e}")
         except Exception as e:
             Logger.error(f"Sanctum scan failure at {root}: {e}")
 
@@ -221,23 +226,45 @@ def search_canon(query: str) -> List[Dict[str, Any]]:
     return results
 
 
-def get_default_profile() -> Dict[str, Any]:
-    """Returns the DNA of the Default Archetype."""
-    profile = get_profile(DEFAULT_PROFILE_NAME)
-    if profile:
-        return profile
+# =============================================================================
+# == THE LEGACY BRIDGE (PROFILES PROXY)                                      ==
+# =============================================================================
+# [THE CURE]: This class behaves like a Dictionary but calls ArchetypeRegistry.refresh()
+# on access. This allows legacy code (like communion.py) that imports PROFILES
+# to work seamlessly with the new dynamic engine.
 
-    # [ASCENSION 12]: THE SOVEREIGN DEFAULT
-    return {
-        "name": "void-genesis",
-        "description": "The universe is a void. Forging from primordial atoms.",
-        "category": "System",
-        "tags": ["fallback", "primordial"],
-        "gnosis_overrides": {},
-        "is_integration": False,
-        "difficulty": "Unknown",
-        "source_realm": "Void",
-        "path": "void://"
-    }
+class DynamicProfilesProxy(dict):
+    """
+    A magic dictionary that delegates lookup to the live Registry.
+    Heals the 'NameError: profiles' and 'PROFILES not found' heresies.
+    """
 
-# == SCRIPTURE SEALED: THE REGISTRY IS NOW UNIVERSAL AND OMEGA ==
+    def __getitem__(self, key):
+        registry = ArchetypeRegistry.refresh()
+        return registry[key]
+
+    def get(self, key, default=None):
+        registry = ArchetypeRegistry.refresh()
+        return registry.get(key, default)
+
+    def keys(self):
+        return ArchetypeRegistry.refresh().keys()
+
+    def values(self):
+        return ArchetypeRegistry.refresh().values()
+
+    def items(self):
+        return ArchetypeRegistry.refresh().items()
+
+    def __contains__(self, key):
+        return key in ArchetypeRegistry.refresh()
+
+    def __iter__(self):
+        return iter(ArchetypeRegistry.refresh())
+
+    def __len__(self):
+        return len(ArchetypeRegistry.refresh())
+
+
+# The Global Constant expected by communion.py and others
+PROFILES = DynamicProfilesProxy()
