@@ -168,69 +168,98 @@ class TelemetryMiddleware(Middleware):
     def _forge_synapse(self, request: BaseRequest, result: Any, status: str, duration: float, memory: float) -> Dict[
         str, Any]:
         """
-        =============================================================================
-        == THE FORGE OF GNOSIS (V-Ω-TOTALITY-V20)                                  ==
-        =============================================================================
-        LIF: ∞ | ROLE: DATA_TRANSFIGURATOR
+        =================================================================================
+        == THE FORGE OF GNOSIS (V-Ω-TOTALITY-V20.1-TITANIUM-FINALIS)                   ==
+        =================================================================================
+        LIF: ∞ | ROLE: DATA_TRANSFIGURATOR | RANK: OMEGA_SOVEREIGN
+        AUTH_CODE: @!#()#()@)#(!@)#(
         """
-        # [ASCENSION 7]: ISOMORPHIC IDENTITY
-        machine_raw = f"{platform.node()}:{socket.gethostname()}:{platform.processor()}"
-        gnostic_id = hashlib.sha256(machine_raw.encode()).hexdigest()[:16]
-
+        # [ASCENSION 1]: NONETYPE SARCOPHAGUS
+        # Defensive extraction of intent context to prevent AttributeErrors on ghost requests.
         context = getattr(request, 'context', {}) or {}
         variables = getattr(request, 'variables', {}) or {}
+        trace_id = getattr(request, 'trace_id', str(uuid.uuid4()))
+        request_id = getattr(request, 'request_id', 'tr-void')
 
-        # [ASCENSION 4]: METABOLIC TAX
-        vitals = getattr(result, 'vitals', {}) if hasattr(result, 'vitals') else {}
-        cost_usd = float(vitals.get("metabolic_cost_usd", 0.0))
-
-        # [THE CURE]: RIGHTEOUS VITALS GATHERING
-        # Warded against hardware failures and OS restrictions.
+        # [ASCENSION 3 & 9]: BICAMERAL MEMORY & HARDWARE LATTICE SCRYING
+        # Warded against hardware failures and OS-level permission heresies.
         vitals_tomography = self._scry_vitals_safe()
 
-        # [ASCENSION 3]: SHANNON ENTROPY REDACTION
-        # We redact the message and data preview using the entropy sieve
-        raw_msg = str(getattr(result, 'message', '')) if result else ''
+        # [ASCENSION 4]: METABOLIC TAX & ENGINE FRICTION
+        # Siphons the economic cost from the result, if manifest.
+        result_vitals = getattr(result, 'vitals', {}) if result else {}
+        cost_usd = float(result_vitals.get("metabolic_cost_usd", 0.0))
+
+        # [ASCENSION 2]: QUANTUM ENTROPY SIEVE
+        # Redacts high-information-density matter (Secrets) from the proclamation.
+        raw_msg = str(getattr(result, 'message', '')) if result else 'Rite Concluded in Silence.'
         clean_msg = self._entropy_sieve(raw_msg)
 
-        # [ASCENSION 5]: SEMANTIC CONTEXT DIVINATION
+        # [ASCENSION 11]: PLATFORM PURITY WARD (THE FIX)
+        # Replacing the heretical os.platform with the righteous platform module.
+        try:
+            os_identity = platform.system()  # e.g., 'Linux', 'Windows'
+            os_kernel = platform.release()  # e.g., '5.15.0-generic'
+            os_arch = platform.machine()  # e.g., 'x86_64'
+        except Exception:
+            os_identity = "VOID_OS"
+            os_kernel = "VOID_KERNEL"
+            os_arch = "VOID_ARCH"
+
+        # [ASCENSION 7]: ISOMORPHIC IDENTITY
+        machine_raw = f"{platform.node()}:{socket.gethostname()}:{os_arch}"
+        gnostic_id = hashlib.sha256(machine_raw.encode()).hexdigest()[:16]
+
+        # [ASCENSION 5]: INDUSTRIAL SOUL DIVINATION
+        # Divines the project's purpose from the variables.
         industry_intent = self._divine_industry(variables)
 
-        # [THE RIGHTEOUS PLATFORM FIX]
-        try:
-            os_identity = platform.system()
-        except:
-            os_identity = "UNKNOWN_VOID"
+        # [ASCENSION 6]: MERKLE CONTEXT SEAL
+        # Fingerprints the willed state for integrity verification.
+        context_fingerprint = hashlib.sha256(json.dumps(variables, sort_keys=True, default=str).encode()).hexdigest()[
+                              :12]
 
+        # [ASCENSION 12]: THE FINALITY VOW
+        # Constructing the definitive Gnostic Dossier.
         return {
-            "v": "20.0-Totality",
+            "v": "20.1-Totality-Finalis",
             "ts_utc": datetime.now(timezone.utc).isoformat(),
+            "timestamp": time.time(),
             "instance": self.instance_id,
             "gnostic_id": gnostic_id,
-            "trace_id": getattr(request, 'trace_id', str(uuid.uuid4())),
+            "trace_id": trace_id,
+            "request_id": request_id,
             "novalym_id": variables.get("novalym_id") or context.get("novalym_id", "SYSTEM"),
             "rite": request.__class__.__name__,
             "status": status,
             "performance": {
                 "latency_ms": round(duration, 4),
                 "mem_flux_mb": round(memory, 4),
-                "tax_usd": cost_usd
+                "tax_usd": cost_usd,
+                "backpressure_depth": self._queue.qsize()  # [ASCENSION 8]
             },
             "vitals": vitals_tomography,
             "environment": {
                 "os": os_identity,
-                "arch": platform.machine(),
+                "kernel": os_kernel,
+                "arch": os_arch,
                 "python": platform.python_version(),
-                "kernel": platform.release(),
+                "machine_id": self._machine_id,
                 "is_dev": os.getenv("SCAFFOLD_ENV") == "development"
             },
             "intent": {
                 "industry": industry_intent,
                 "tier": variables.get("tier", "standard"),
                 "is_remote": bool(getattr(request, 'remote', False)),
-                "is_container": bool(getattr(request, 'runtime', '') == 'docker')
+                "is_container": bool(getattr(request, 'runtime', '') == 'docker'),
+                "context_hash": context_fingerprint
             },
-            "proclamation": clean_msg
+            "proclamation": clean_msg,
+            "metadata": {
+                "source_file": os.path.basename(sys.argv[0]),
+                "pid": os.getpid(),
+                "thread": threading.current_thread().name
+            }
         }
 
     # =========================================================================
