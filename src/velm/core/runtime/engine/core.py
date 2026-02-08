@@ -646,9 +646,31 @@ class ScaffoldEngine:
     # == PUBLIC API (The Face of God)                                        ==
     # =========================================================================
 
-    def register_artisan(self, request_type: Type[BaseRequest], artisan_class: Any):
-        """Consecrates a new skill in the Registry."""
-        self.registry.register(request_type, artisan_class)
+    def register_artisan(self,
+                         request_type: Type[BaseRequest],
+                         artisan_class: Any,
+                         aliases: Optional[List[str]] = None,
+                         system_vow: bool = False):
+        """
+        =============================================================================
+        == THE RITE OF CONSECRATION (V-Ω-AUTHORITY-SUTURE)                         ==
+        =============================================================================
+        @gnosis:title Skill Consecration Facade
+        @gnosis:summary The high-level gateway for binding Intent to the Pantheon.
+        @gnosis:LIF INFINITY
+
+        [THE FIX]: This facade now correctly accepts and propagates the 'system_vow'
+        authority to the ArtisanRegistry, enabling the Engine Bootstrap to claim
+        System Rites (Init, Genesis, Run) while maintaining the Subversion Guard.
+        """
+        # [ASCENSION]: The Telepathic Hand-off
+        # We delegate the consecration to the Registry organ, bestowing the Vow.
+        self.registry.register(
+            request_type,
+            artisan_class,
+            aliases=aliases,
+            system_vow=system_vow
+        )
 
     def register_hook(self, callback: Callable[[ScaffoldResult], None]):
         """Binds a listener to the output stream."""

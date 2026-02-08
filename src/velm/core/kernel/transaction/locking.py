@@ -1,5 +1,5 @@
-# Path: core/kernel/transaction/locking.py
-# ----------------------------------------
+# Path: src/velm/core/kernel/transaction/locking.py
+# -------------------------------------------------
 
 import json
 import platform
@@ -7,34 +7,36 @@ import os
 import sys
 import threading
 import time
+import hashlib
+import uuid
 from pathlib import Path
-from typing import Optional, Set, Dict, Any, TYPE_CHECKING
+from typing import Optional, Set, Dict, Any, TYPE_CHECKING, Final
 
-# Ascension I: The Gnostic Scribe
+# --- THE DIVINE UPLINKS ---
 from ....logger import Scribe, get_console
 from ....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
-# Ascension III: The Oracle of Liveness
+# [ASCENSION 3]: THE ORACLE OF LIVENESS
 try:
     import psutil
 
-    PSUTIL_AVAILABLE = True
+    PS_AVAILABLE: Final = True
 except ImportError:
     psutil = None
-    PSUTIL_AVAILABLE = False
+    PS_AVAILABLE: Final = False
 
 if TYPE_CHECKING:
     from .facade import GnosticTransaction
 
 Logger = Scribe("ApeironLock")
 
-# Ascension VII: The Polyglot Ward
+# [ASCENSION 9]: THE POLYGLOT WARD
 if os.name == 'nt':
     import msvcrt
 
 
     def file_lock(f):
-        # Lock bytes 0-1. Non-blocking.
+        # Lock bytes 0-1. Non-blocking exclusive lock.
         msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
 
 
@@ -48,6 +50,7 @@ else:
 
 
     def file_lock(f):
+        # Unix Flocking logic
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
 
@@ -58,19 +61,16 @@ else:
 class GnosticLock:
     """
     =================================================================================
-    == THE APEIRON LOCK (V-Ω-LEGENDARY-APOTHEOSIS. THE SENTIENT GUARDIAN)          ==
+    == THE APEIRON LOCK (V-Ω-TOTALITY-V307-LAZARUS-RESILIENT)                      ==
     =================================================================================
-    LIF: ∞ (ETERNAL & DIVINE)
+    LIF: ∞ | ROLE: CONCURRENCY_GUARDIAN | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_WARDEN_LOCK_V307_FINALIS
 
-    The divine guardian of the Transactional Sanctum. It wields a cross-platform,
-    re-entrant, thread-safe, and self-healing lock mechanism to prevent the heresy
-    of concurrent modification.
-
-    [ASCENSION 13]: THE TERMINATOR PROTOCOL.
-    On Windows, if a lock file cannot be deleted (`WinError 32`), this entity now
-    possesses the faculty to hunt down the process holding the handle and annihilate it.
+    The divine guardian of the Transactional Sanctum. It has evolved to perceive
+    the "Phantom Grip" and righteously evaporate ghost locks.
     """
 
+    # [ASCENSION 5]: RE-ENTRANT THREAD REGISTRY
     _HELD_LOCKS: Set[str] = set()
     _REGISTRY_LOCK = threading.Lock()
 
@@ -88,42 +88,59 @@ class GnosticLock:
         self._extra_metadata: Dict[str, Any] = {}
         self._io_mutex = threading.Lock()
 
+        # [ASCENSION 1]: MACHINE IDENTITY FINGERPRINT
         self.pid = os.getpid()
-        self.tid = threading.get_ident()
-        self.command_line = f"{sys.executable} {' '.join(sys.argv)}"
+        self.machine_id = platform.node()
+        self.start_time = self._scry_start_time()
         self._is_reentrant_claim = False
 
+    def _scry_start_time(self) -> float:
+        """Determines the inception time of the current process for lineage verification."""
+        if PS_AVAILABLE:
+            return psutil.Process(self.pid).create_time()
+        return 0.0
+
     def acquire(self):
-        """The Rite of Pure Acquisition."""
-        # Re-entry Check
+        """
+        =============================================================================
+        == THE RITE OF PURE ACQUISITION (V-Ω-GHOST-EVAPORATION)                    ==
+        =============================================================================
+        """
+        # 1. THE RE-ENTRY CHECK
         with self._REGISTRY_LOCK:
             if self.lock_key in self._HELD_LOCKS:
                 self._is_reentrant_claim = True
-                Logger.verbose(f"Re-entrant lock claim for '{self.rite_name}'.")
+                Logger.verbose(f"Re-entrant Gnostic claim perceived for '{self.rite_name}'.")
                 return self
 
         start_time = time.monotonic()
         self.lock_path.parent.mkdir(parents=True, exist_ok=True)
 
+        # [ASCENSION 7]: ADAPTIVE BACKOFF WITH JITTER
+        attempts = 0
+
         while True:
             try:
-                # Open in append mode first to avoid truncating if locked?
-                # No, we need 'w' to overwrite if we get the lock.
-                # On Windows, 'w' might fail with PermissionError if locked exclusive.
-                self.lock_handle = open(self.lock_path, 'w', encoding='utf-8')
+                # 2. THE PHYSICAL ATTEMPT
+                # Open with 'a+' to avoid truncating a file held by a living Architect
+                self.lock_handle = open(self.lock_path, 'a+', encoding='utf-8')
                 file_lock(self.lock_handle)
 
-                # The lock is ours.
+                # 3. CONSECRATION: THE LOCK IS OURS
                 self._write_dossier()
                 self._start_heartbeat()
 
                 with self._REGISTRY_LOCK:
                     self._HELD_LOCKS.add(self.lock_key)
 
+                # [ASCENSION 7]: BROADCAST SUCCESS
+                self._project_hud("LOCK_ACQUIRED", "#64ffda")
+
                 Logger.verbose(f"Apeiron Lock acquired for '{self.rite_name}'.")
                 return self
 
-            except (IOError, OSError, BlockingIOError, PermissionError):
+            except (IOError, OSError, PermissionError):
+                # 4. CONTENTION: THE GAZE OF LIVENESS
                 if self.lock_handle:
                     try:
                         self.lock_handle.close()
@@ -131,83 +148,165 @@ class GnosticLock:
                         pass
                     self.lock_handle = None
 
-                # Check Timeout
-                if time.monotonic() - start_time > self.timeout:
-                    self._handle_timeout()
-                    # After handling timeout (breaking lock), retry immediately
+                # [ASCENSION 3]: GHOST DETECTION
+                if self._is_lock_stale():
+                    Logger.warn(f"Ghost perceived in sanctum '{self.rite_name}'. Initiating Exorcism...")
+                    self._force_break_lock()
+                    continue  # Re-attempt immediately after evaporation
+
+                # 5. THE TEMPORAL LIMIT
+                elapsed = time.monotonic() - start_time
+                if elapsed > self.timeout:
+                    self._handle_contention_failure(elapsed)
+                    # If handle_contention allows return, it might have broken the lock
                     continue
 
-                time.sleep(0.5)
+                # 6. YIELD AND RE-SEED
+                attempts += 1
+                # Randomized sleep to prevent resonance in thundering herds
+                sleep_time = min(2.0, 0.1 * (1.5 ** attempts)) + (uuid.uuid4().int % 100 / 500)
+                time.sleep(sleep_time)
 
-    def release(self):
-        """Ascension VI: The Unbreakable Ward of Graceful Release."""
-        if self._is_reentrant_claim:
-            self._is_reentrant_claim = False
-            return
-
-        self._stop_heartbeat.set()
-        if self._heartbeat_thread:
-            self._heartbeat_thread.join(timeout=0.5)
+    def _is_lock_stale(self) -> bool:
+        """
+        =============================================================================
+        == THE GAZE OF LIVENESS (V-Ω-ACHRONAL-BIOPSY)                              ==
+        =============================================================================
+        Determines if the lock-holder still possesses the spark of life.
+        """
+        if not self.lock_path.exists():
+            return False
 
         try:
-            if self.lock_handle:
-                try:
-                    with self._REGISTRY_LOCK:
-                        self._HELD_LOCKS.discard(self.lock_key)
-                    file_unlock(self.lock_handle)
-                    self.lock_handle.close()
-                except Exception as e:
-                    Logger.warn(f"Minor paradox during lock handle release: {e}")
-                finally:
-                    self.lock_handle = None
+            # [ASCENSION 8]: READ THE DOSSIER
+            content = self.lock_path.read_text(encoding='utf-8')
+            if not content: return True  # Empty file is a void
 
-            # Annihilate the physical scripture
-            if self.lock_path.exists():
+            dossier = json.loads(content)
+            holder_pid = dossier.get("pid")
+            holder_machine = dossier.get("host")
+            holder_start = dossier.get("start_time", 0.0)
+            last_pulse = dossier.get("last_heartbeat", 0.0)
+
+            # Case 1: Different Realm (Machine)
+            if holder_machine != self.machine_id:
+                # We cannot scry PIDs across machine boundaries.
+                # We rely strictly on the Heartbeat Pulse.
+                return (time.time() - last_pulse) > (self.heartbeat_interval * 4)
+
+            # Case 2: Same Realm (Local Machine)
+            if PS_AVAILABLE:
+                if not psutil.pid_exists(holder_pid):
+                    return True  # Process is dead
+
+                # [ASCENSION 3]: LINEAGE VERIFICATION
+                proc = psutil.Process(holder_pid)
+                if abs(proc.create_time() - holder_start) > 1.0:
+                    return True  # PID was recycled by a new soul
+
+                if proc.status() == psutil.STATUS_ZOMBIE:
+                    return True  # Soul is trapped, but inactive
+            else:
+                # Fallback without psutil
                 try:
-                    self.lock_path.unlink(missing_ok=True)
+                    os.kill(holder_pid, 0)
                 except OSError:
-                    # If we can't delete it, someone else might have grabbed it instantly.
-                    # Or Windows is being slow to release the handle. We ignore.
-                    pass
+                    return True  # Dead
 
-            Logger.verbose(f"Apeiron Lock for '{self.rite_name}' released.")
+            # Case 3: Heartbeat flatline (Stalled logic)
+            if (time.time() - last_pulse) > (self.heartbeat_interval * 6):
+                return True
+
+            return False
+        except Exception:
+            # If the dossier is profane (corrupt JSON), it is stale.
+            return True
+
+    def _handle_contention_failure(self, elapsed: float):
+        """The Socratic Adjudication of Contention."""
+        from rich.prompt import Confirm
+        from rich.panel import Panel
+
+        dossier = self._read_existing_dossier() or {}
+        holder_pid = dossier.get("pid", "Unknown")
+        holder_rite = dossier.get("rite_name", "Unknown Rite")
+
+        self._project_hud("LOCK_CONTENTION", "#fbbf24")
+
+        if self.non_interactive:
+            raise ArtisanHeresy(
+                f"Lattice Contention: Rite '{self.rite_name}' is warded by PID {holder_pid} ({holder_rite}).",
+                severity=HeresySeverity.CRITICAL,
+                details=f"Timeout after {elapsed:.1f}s. Silence willed by --non-interactive."
+            )
+
+        console = get_console()
+        console.print(Panel(
+            f"The Sanctum is currently warded by another Architect.\n\n"
+            f"[bold cyan]Holder PID:[/] {holder_pid}\n"
+            f"[bold cyan]Active Rite:[/] {holder_rite}\n"
+            f"[bold cyan]Duration:[/] {elapsed:.1f}s",
+            title="[bold red]Lattice Contention[/]",
+            border_style="red"
+        ))
+
+        if Confirm.ask("[bold yellow]The Guardian is persistent. Shall we forcefully break the seal?[/]",
+                       default=False):
+            self._force_break_lock()
+            return
+
+        raise ArtisanHeresy(f"Rite '{self.rite_name}' stayed by Architect decision.")
+
+    def _force_break_lock(self):
+        """
+        =============================================================================
+        == THE TERMINATOR PROTOCOL (V-Ω-SURGICAL-EXORCISM)                         ==
+        =============================================================================
+        Annihilates the lock handle grip using the Inquisitor's Scalpel.
+        """
+        try:
+            # On Windows, deleting a file held open requires harvesting the holder
+            if os.name == 'nt' and PS_AVAILABLE:
+                my_pid = os.getpid()
+                for proc in psutil.process_iter(['pid', 'open_files']):
+                    try:
+                        if proc.pid == my_pid: continue
+                        files = proc.info.get('open_files') or []
+                        for f in files:
+                            if f.path == str(self.lock_path):
+                                Logger.warn(f"Exorcising PID {proc.pid} to release lock handle...")
+                                proc.kill()
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        continue
+
+            self.lock_path.unlink(missing_ok=True)
+            Logger.success(f"Sanctum Purified. Lock Shard annihilated.")
         except Exception as e:
-            Logger.error(f"Catastrophic paradox during lock release: {e}")
-
-    def __enter__(self):
-        return self.acquire()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.release()
-
-    def _start_heartbeat(self):
-        self._stop_heartbeat.clear()
-        self._heartbeat_thread = threading.Thread(target=self._heartbeat_rite, daemon=True)
-        self._heartbeat_thread.start()
-
-    def _heartbeat_rite(self):
-        while not self._stop_heartbeat.wait(self.heartbeat_interval):
+            Logger.error(f"Terminator Protocol fractured: {e}")
+            # Desperate fallback: Rename the shard to clear the path
             try:
-                self._write_dossier(update_heartbeat=True)
-            except Exception:
-                break
+                trash_path = self.lock_path.with_suffix(f".void_{uuid.uuid4().hex[:4]}")
+                self.lock_path.rename(trash_path)
+            except:
+                pass
 
     def _write_dossier(self, update_heartbeat: bool = False):
+        """Inscribes the Gnostic Dossier into the physical lock file."""
         with self._io_mutex:
             if not self.lock_handle or self.lock_handle.closed: return
 
-            current_time = time.time()
+            now = time.time()
             dossier = {
                 "pid": self.pid,
-                "tid": self.tid,
-                "host": platform.node(),
+                "start_time": self.start_time,
+                "host": self.machine_id,
                 "rite_name": self.rite_name,
-                "command_line": self.command_line,
-                "acquired_at": getattr(self, 'acquired_at', current_time),
-                "last_heartbeat": current_time
+                "command_line": f"{sys.executable} {' '.join(sys.argv)}",
+                "last_heartbeat": now,
+                "session": getattr(self, 'acquired_at', now)
             }
             if not hasattr(self, 'acquired_at'):
-                self.acquired_at = current_time
+                self.acquired_at = now
 
             dossier.update(self._extra_metadata)
 
@@ -216,117 +315,79 @@ class GnosticLock:
                 self.lock_handle.truncate()
                 json.dump(dossier, self.lock_handle, indent=2)
                 self.lock_handle.flush()
-                if hasattr(os, 'fsync'): os.fsync(self.lock_handle.fileno())
-            except (ValueError, IOError, OSError):
+                # Ensure physical commitment to the substrate
+                if hasattr(os, 'fsync'):
+                    os.fsync(self.lock_handle.fileno())
+            except (IOError, OSError, ValueError):
                 pass
 
-    def _handle_timeout(self):
-        """Ascension V & IX & XI: Adjudication of the Dead."""
-        from rich.prompt import Confirm
-        from rich.panel import Panel
-        from rich.text import Text
+    def _start_heartbeat(self):
+        """[ASCENSION 2]: THE LAZARUS HEARTBEAT."""
+        self._stop_heartbeat.clear()
 
-        dossier = self._read_existing_dossier() or {}
-        holder_pid = dossier.get("pid")
+        def _pulse():
+            while not self._stop_heartbeat.wait(self.heartbeat_interval):
+                try:
+                    self._write_dossier(update_heartbeat=True)
+                except:
+                    break
 
-        # If we can't read the dossier, it's likely a Zombie Process holding the file handle tight.
-        if not holder_pid and self.lock_path.exists():
-            Logger.warn("Lock file exists but is unreadable (Zombie Grip). Initiating Terminator Protocol.")
-            self._force_break_lock()
+        self._heartbeat_thread = threading.Thread(target=_pulse, daemon=True, name=f"Heartbeat-{self.rite_name}")
+        self._heartbeat_thread.start()
+
+    def release(self):
+        """The Rite of Graceful Dissolution."""
+        if self._is_reentrant_claim:
+            self._is_reentrant_claim = False
             return
 
-        holder_name = dossier.get("rite_name", "Unknown Rite")
+        self._stop_heartbeat.set()
+        if self._heartbeat_thread:
+            self._heartbeat_thread.join(timeout=1.0)
 
-        # Check Liveness
-        if holder_pid and self._is_pid_alive(holder_pid):
-            # Zombie Check (Heartbeat Age)
-            last_beat = dossier.get("last_heartbeat", 0)
-            if time.time() - last_beat > (self.heartbeat_interval * 4):
-                Logger.warn(f"Lock held by ZOMBIE process {holder_pid}. Breaking seal.")
-                self._force_break_lock()
-                return
+        with self._REGISTRY_LOCK:
+            self._HELD_LOCKS.discard(self.lock_key)
 
-            # Active Contention
-            if self.non_interactive:
-                raise ArtisanHeresy(f"Lock held by {holder_pid}. Timeout.", severity=HeresySeverity.CRITICAL)
-
-            # Interactive Prompt
-            console = get_console()
-            console.print(Panel(f"Lock held by PID {holder_pid} ({holder_name})", title="Contention", style="red"))
-            if Confirm.ask("Break lock?", console=console, default=False):
-                self._force_break_lock()
-                return
-
-        else:
-            # Dead process
-            Logger.warn("Lock held by ghost. Breaking seal.")
-            self._force_break_lock()
-
-    def _force_break_lock(self):
-        """
-        [ASCENSION 13]: THE TERMINATOR PROTOCOL.
-        Hunts down the process holding the file handle and forces a release.
-        """
         try:
-            self.lock_path.unlink(missing_ok=True)
-            Logger.info("The Seal has been broken.")
-        except PermissionError:
-            Logger.warn("Permission Denied on Unlink. A process still grips the shard.")
-
-            if not PSUTIL_AVAILABLE:
-                Logger.error("Cannot hunt zombie process: 'psutil' is missing.")
-                # We try one last desperate rename
+            if self.lock_handle:
                 try:
-                    trash = self.lock_path.with_suffix(f".trash_{int(time.time())}")
-                    self.lock_path.rename(trash)
-                    return
+                    file_unlock(self.lock_handle)
+                    self.lock_handle.close()
                 except:
-                    raise ArtisanHeresy("Cannot break lock. File is physically held by OS.")
+                    pass
+                finally:
+                    self.lock_handle = None
 
-            # Hunt the handle
-            killed = False
-            my_pid = os.getpid()
-
-            Logger.info("Scanning process table for handle owners...")
-            for proc in psutil.process_iter(['pid', 'name', 'open_files']):
-                try:
-                    if proc.pid == my_pid: continue
-
-                    files = proc.info.get('open_files') or []
-                    for f in files:
-                        if f.path == str(self.lock_path.resolve()):
-                            Logger.warn(f"Found Lock Owner: {proc.info['name']} (PID: {proc.pid}). Terminating...")
-                            proc.kill()
-                            killed = True
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    continue
-
-            if killed:
-                time.sleep(0.2)  # Allow OS cleanup
+            if self.lock_path.exists():
                 try:
                     self.lock_path.unlink(missing_ok=True)
-                    Logger.success("Zombie process terminated. Lock file annihilated.")
-                except Exception as e:
-                    Logger.error(f"Failed to delete lock file even after kill: {e}")
-            else:
-                Logger.error("Could not identify process holding the lock.")
+                except OSError:
+                    pass
+
+            Logger.verbose(f"Apeiron Lock for '{self.rite_name}' dissolved.")
+        except Exception as e:
+            Logger.error(f"Paradox during lock dissolution: {e}")
 
     def _read_existing_dossier(self) -> Optional[Dict[str, Any]]:
-        """A Safe Gaze upon the file."""
+        """Safe scrying of an existing lock file."""
         try:
             if self.lock_path.exists():
-                # Try opening with shared read if possible (standard open is usually fine for read)
                 with open(self.lock_path, 'r', encoding='utf-8') as f:
                     return json.load(f)
-        except Exception:
+        except:
             return None
         return None
 
-    def _is_pid_alive(self, pid: int) -> bool:
-        if not PSUTIL_AVAILABLE:
-            try:
-                os.kill(pid, 0)
-                return True
-            except OSError:
-                return False
-        return psutil.pid_exists(pid)
+    def _project_hud(self, label: str, color: str):
+        """[ASCENSION 7]: BROADCAST TO OCULAR UI."""
+        # This is a prophecy. We assume the active transaction or engine
+        # can reach the Akashic Record if it exists in the current thread.
+        pass
+
+    def __enter__(self):
+        return self.acquire()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.release()
+
+# == SCRIPTURE SEALED: THE CONCURRENCY GUARDIAN REACHES OMEGA TOTALITY ==
