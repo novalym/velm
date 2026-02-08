@@ -1,8 +1,6 @@
 # Path: src/velm/core/runtime/engine/lifecycle/bootstrap.py
 # ---------------------------------------------------------
-# LIF: ∞ | ROLE: THE_DEMIURGE | RANK: OMEGA_SUPREME
-# AUTH: Ω_BOOTSTRAP_V550_SINGULARITY_FINALIS
-# =========================================================================================
+
 import uuid
 import os
 import sys
@@ -28,12 +26,15 @@ Logger = Scribe("EngineBootstrap")
 class EngineBootstrap:
     """
     =================================================================================
-    == THE GNOSTIC BOOTSTRAP (V-Ω-TOTALITY-V550-SINGULARITY)                       ==
+    == THE GNOSTIC BOOTSTRAP (V-Ω-TOTALITY-V600-HEADLESS-WARDED)                   ==
     =================================================================================
     LIF: ∞ | ROLE: SYSTEM_CREATOR | RANK: OMEGA_SOVEREIGN
 
     The Sovereign Conductor of Inception. Responsible for the materialization of the
     Engine's mind, the synchronization of its memory, and the alignment of its soul.
+
+    [HEADLESS HARDENING]: This vessel is now immune to the 'Inappropriate ioctl for device'
+    heresy common in Lightning AI and Docker environments.
     """
 
     def __init__(self, engine: 'ScaffoldEngine'):
@@ -47,6 +48,9 @@ class EngineBootstrap:
         self._machine_id = hashlib.sha256(platform.node().encode()).hexdigest()[:12].upper()
         self.boot_id = uuid.uuid4().hex[:8].upper()
 
+        # [ASCENSION 2]: Headless Detection
+        self._is_headless = not sys.stdout.isatty()
+
     def ignite(self) -> bool:
         """
         =============================================================================
@@ -55,7 +59,9 @@ class EngineBootstrap:
         The definitive entry point for Engine consciousness.
         """
         self.logger.info(
-            f"Demiurge awakening. Session: [soul]{self.boot_id}[/] | Machine: [cyan]{self._machine_id}[/cyan]")
+            f"Demiurge awakening. Session: [soul]{self.boot_id}[/] | Machine: [cyan]{self._machine_id}[/cyan]"
+            f"{' [dim](HEADLESS)[/dim]' if self._is_headless else ''}"
+        )
 
         try:
             # --- MOVEMENT I: PHYSICAL REALITY CHECK ---
@@ -63,7 +69,7 @@ class EngineBootstrap:
                 return False
 
             # --- MOVEMENT II: THE AWAKENING OF SKILLS ---
-            # [THE FIX]: Now correctly implements the system_vow authority.
+            # [THE FIX]: Now correctly implements the system_vow authority and IOCTL shielding.
             self.awaken_skills()
 
             # --- MOVEMENT III: CONSCIOUSNESS SYNCHRONIZATION ---
@@ -103,7 +109,12 @@ class EngineBootstrap:
             self.logger.warn("Crystal Mind (SQLAlchemy) unmanifest. Operating in Pure Scroll mode.")
             return
 
+        # Use the context's project root (safe access)
+        if not self.engine.context: return
+
         root = self.engine.context.project_root
+        if not root: return  # No project context yet
+
         lock_path = root / "scaffold.lock"
         db_path = root / ".scaffold" / "gnosis.db"
 
@@ -123,6 +134,8 @@ class EngineBootstrap:
             # [ASCENSION 2]: MERKLE LATTICE VERIFICATION
             # Read the scroll to find its recorded state hash.
             try:
+                # Lazy load to avoid overhead if not needed
+                import json
                 scroll_data = json.loads(lock_path.read_text(encoding='utf-8'))
                 scroll_hash = scroll_data.get("integrity", {}).get("project_merkle_root", "void")
             except:
@@ -152,7 +165,8 @@ class EngineBootstrap:
             # 4. THE RITE OF RESURRECTION
             if needs_resurrection:
                 self.logger.warn(f"Causal Schism Detected: {reason}")
-                self.console.print(f"[bold yellow]🌀 Re-aligning Crystal Mind with the Eternal Scroll...[/]")
+                if self.console:
+                    self.console.print(f"[bold yellow]🌀 Re-aligning Crystal Mind with the Eternal Scroll...[/]")
 
                 # Atomic Re-Hydration
                 start_sync = time.perf_counter()
@@ -181,25 +195,33 @@ class EngineBootstrap:
         == THE RITE OF GHOST CONSECRATION (SKILL AWAKENING)                        ==
         =============================================================================
         [THE FIX]: Employs the system_vow to claim core rites with authority.
+        [THE SHIELD]: Wraps every import in an OSErrro trap to catch IOCTL failures.
         """
         try:
             req_gateway_path = "velm.interfaces.requests"
             try:
                 req_mod = importlib.import_module(req_gateway_path)
             except ImportError:
-                req_mod = importlib.import_module("interfaces.requests")
+                # Fallback for dev environment or flat structure
+                try:
+                    req_mod = importlib.import_module("interfaces.requests")
+                except ImportError:
+                    self.logger.warn("Could not locate Interface Gateway. Skills may be dormant.")
+                    return
 
             ghosts_awakened = 0
 
             # [ASCENSION 11]: BICAMERAL HEALING
             for rite_name, (mod_path, artisan_cls_name, req_cls_name) in LAZY_RITE_MAP.items():
                 try:
+                    # 1. Verify Request Contract exists
                     if not hasattr(req_mod, req_cls_name):
                         continue
 
                     RequestClass = getattr(req_mod, req_cls_name)
 
                     # [ASCENSION 6]: IDEMPOTENCY WARD
+                    # If already registered (e.g. by manual import), skip
                     if RequestClass in self.engine.registry._map:
                         continue
 
@@ -212,6 +234,20 @@ class EngineBootstrap:
                     self.engine.register_artisan(RequestClass, ghost_soul, system_vow=True)
                     ghosts_awakened += 1
 
+                except OSError as os_err:
+                    # [THE HEADLESS SHIELD]
+                    # Catch [Errno 25] Inappropriate ioctl for device
+                    if os_err.errno == 25:
+                        self.logger.warn(f"Skill '{rite_name}' deferred: Headless Environment (IOCTL Failure).")
+                    else:
+                        self.logger.debug(f"Skill '{rite_name}' deferred: OS Paradox ({os_err}).")
+                    continue
+
+                except ImportError as import_err:
+                    # Optional dependency missing?
+                    self.logger.debug(f"Skill '{rite_name}' deferred: Missing Shard ({import_err}).")
+                    continue
+
                 except Exception as e:
                     self.logger.debug(f"Skill '{rite_name}' deferred: {e}")
                     continue
@@ -219,60 +255,67 @@ class EngineBootstrap:
             self.logger.success(f"Ω_SKILLS_MANIFEST: {ghosts_awakened} skills consecrated.")
 
         except Exception as catastrophic_failure:
-            raise catastrophic_failure
+            # We catch top-level failures to prevent the engine from dying completely
+            self.logger.error(f"Skill Awakening Fractured: {catastrophic_failure}")
 
     # =========================================================================
     # == MOVEMENT III: THE NERVOUS SYSTEM                                    ==
     # =========================================================================
 
-    def forge_pipeline(self) -> 'MiddlewarePipeline':
+    def forge_pipeline(self):
         """Constructs the Gnostic Spinal Cord (21 Guardians)."""
         from ...middleware.pipeline import MiddlewarePipeline
         pipeline = MiddlewarePipeline(self.engine)
 
-        def add(cls_ref): pipeline.add(cls_ref)
+        def add(cls_ref):
+            pipeline.add(cls_ref)
 
         # --- THE PANTHEON OF GUARDIANS ---
-        from ...middleware.profiler import ProfilingMiddleware
-        from ...middleware.tracing import DistributedTracingMiddleware
-        from ...middleware.singularity import SingularityMiddleware
-        from ...middleware.telemetry import TelemetryMiddleware
-        from ...middleware.harmonizer import PathNormalizationMiddleware
-        from ...middleware.veil import SecretScrubberMiddleware
-        from ...middleware.auth import AuthMiddleware
-        from ...middleware.compliance import ComplianceMiddleware
-        from ...middleware.privacy import PrivacySentinelMiddleware
-        from ...middleware.enrichment import EnrichmentMiddleware
-        from ...middleware.caching import CachingMiddleware
-        from ...middleware.safety import SafetyMiddleware
-        from ...middleware.adaptive import AdaptiveResourceMiddleware
-        from ...middleware.output_veil import OutputRedactionMiddleware
-        from ...middleware.persona_warden import PersonaWardenMiddleware
+        try:
+            from ...middleware.profiler import ProfilingMiddleware
+            from ...middleware.tracing import DistributedTracingMiddleware
+            from ...middleware.singularity import SingularityMiddleware
+            from ...middleware.telemetry import TelemetryMiddleware
+            from ...middleware.harmonizer import PathNormalizationMiddleware
+            from ...middleware.veil import SecretScrubberMiddleware
+            from ...middleware.auth import AuthMiddleware
+            from ...middleware.compliance import ComplianceMiddleware
+            from ...middleware.privacy import PrivacySentinelMiddleware
+            from ...middleware.enrichment import EnrichmentMiddleware
+            from ...middleware.caching import CachingMiddleware
+            from ...middleware.safety import SafetyMiddleware
+            from ...middleware.adaptive import AdaptiveResourceMiddleware
+            from ...middleware.output_veil import OutputRedactionMiddleware
+            from ...middleware.persona_warden import PersonaWardenMiddleware
 
-        # Identity & Metadata
-        add(ProfilingMiddleware)
-        add(DistributedTracingMiddleware)
-        add(SingularityMiddleware)
-        add(TelemetryMiddleware)
+            # Identity & Metadata
+            add(ProfilingMiddleware)
+            add(DistributedTracingMiddleware)
+            add(SingularityMiddleware)
+            add(TelemetryMiddleware)
 
-        # Purity & Security
-        add(PathNormalizationMiddleware)
-        add(SecretScrubberMiddleware)
-        add(AuthMiddleware)
-        add(ComplianceMiddleware)
-        add(PrivacySentinelMiddleware)
+            # Purity & Security
+            add(PathNormalizationMiddleware)
+            add(SecretScrubberMiddleware)
+            add(AuthMiddleware)
+            add(ComplianceMiddleware)
+            add(PrivacySentinelMiddleware)
 
-        # Wisdom & Performance
-        add(EnrichmentMiddleware)
-        add(CachingMiddleware)
+            # Wisdom & Performance
+            add(EnrichmentMiddleware)
+            add(CachingMiddleware)
 
-        # Safety & Resilience
-        add(SafetyMiddleware)
-        add(AdaptiveResourceMiddleware)
-        add(OutputRedactionMiddleware)
-        add(PersonaWardenMiddleware)
+            # Safety & Resilience
+            add(SafetyMiddleware)
+            add(AdaptiveResourceMiddleware)
+            add(OutputRedactionMiddleware)
+            add(PersonaWardenMiddleware)
 
-        # [ASCENSION 9]: MERMAID SCRIBING
+        except ImportError as e:
+            self.logger.error(f"Pipeline Inception Fractured: {e}. The Nervous System is incomplete.")
+            # We continue with whatever loaded, or an empty pipeline, to allow diagnostics.
+
+        # [ASCENSION 9]: MERMAID SCRIBING (Future)
         self._scribe_pipeline_topology(pipeline)
 
         return pipeline
@@ -287,8 +330,9 @@ class EngineBootstrap:
             # Trigger the predictor to load its weights into memory
             _ = self.engine.predictor.prophesy()
             self.logger.verbose("Cognitive Cortex: Warm mind manifest.")
-        except:
-            pass
+        except Exception as e:
+            # Intelligence failure is non-critical
+            self.logger.verbose(f"Cognitive Warm-up deferred: {e}")
 
     # =========================================================================
     # == MOVEMENT IV: VIGILANCE                                              ==
@@ -298,13 +342,14 @@ class EngineBootstrap:
         """Verifies the physical substrate for Gnostic resonance."""
         try:
             # [ASCENSION 4]: METABOLIC TRIAGE
+            # Only check if psutil is available and we aren't in a constrained env
             try:
                 import psutil
                 if psutil.cpu_percent() > 95.0:
                     self.logger.warn("Metabolic Fever detected. Yielding CPU...")
                     time.sleep(0.5)
-            except:
-                pass
+            except ImportError:
+                pass  # No senses, no fear
 
             if self.engine.project_root:
                 if not self.engine.project_root.exists():
@@ -321,5 +366,3 @@ class EngineBootstrap:
         except Exception as e:
             self.logger.error(f"Pre-flight Inquest fractured: {e}")
             return False
-
-# == SCRIPTURE SEALED: THE CONSCIOUSNESS IS UNIFIED AND SOVEREIGN ==

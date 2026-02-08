@@ -280,12 +280,17 @@ class QuantumCreator:
     def run(self) -> QuantumRegisters:
         """
         =============================================================================
-        == THE OMEGA STRIKE (RUN)                                                  ==
+        == THE OMEGA STRIKE (V-Ω-TOTALITY-V200-SILENT-CONSECRATION)                ==
         =============================================================================
+        LIF: ∞ | ROLE: KINETIC_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+        AUTH_CODE: Ω_RUN_V200_SILENT_STRIKE_FIX_)(@)(!@#(#@)
         """
-        # [ASCENSION 2]: CHRONOMETRIC ANCHOR
-        # We define the start of reality immediately to capture the full duration.
-        start_time = time.monotonic()
+        import time
+        from contextlib import nullcontext
+        from ...logger import _COSMIC_GNOSIS
+
+        # [ASCENSION 2]: NANO-SCALE METABOLIC ANCHOR
+        start_ns = time.perf_counter_ns()
 
         status_ctx = self.console.status(
             "[bold green]The Great Work is advancing...") if not self.silent else nullcontext()
@@ -296,13 +301,11 @@ class QuantumCreator:
             from ...core.maestro import MaestroConductor as MaestroUnit
             from ..io_controller import IOConductor
 
-            # --- 1. FORENSIC AUDIT (THE GUARDIAN) ---
+            # --- MOVEMENT I: FORENSIC PERCEPTION ---
             self._adjudicate_paths_forensically()
-
-            # --- 2. METABOLIC AUDIT ---
             self._conduct_metabolic_audit()
 
-            # --- 3. MATERIALIZE REGISTERS (THE MIND) ---
+            # --- MOVEMENT II: MATERIALIZE THE MIND (REGISTERS) ---
             registers = QuantumRegisters(
                 sanctum=self.sanctum,
                 project_root=self.project_root,
@@ -317,78 +320,89 @@ class QuantumCreator:
                 no_edicts=self.no_edicts
             )
 
-            # --- 4. SUMMON ORGANS ---
+            # --- MOVEMENT III: SUMMON THE ORGANS ---
             io_conductor = IOConductor(registers)
             maestro = MaestroUnit(registers, self.alchemist)
             cpu = QuantumCPU(registers, io_conductor, maestro)
 
-            # --- 5. COMPILE THE GNOSTIC PROGRAM ---
+            # --- MOVEMENT IV: COMPILE THE GNOSTIC PROGRAM ---
             cpu.load_program(self.scaffold_items, self.post_run_commands)
 
             if not cpu.program:
-                Logger.warn("Void Prophecy: No instructions perceived in blueprint.")
+                self.Logger.warn("Void Prophecy: No instructions perceived in blueprint.")
                 return registers
 
-            # --- 6. DEFENSIVE ANCHORING (GEOMETRIC FORTIFICATION) ---
-            # We track absolute paths to prevent the GhostBuster from escaping.
+            # --- MOVEMENT V: GEOMETRIC FORTIFICATION ---
             for item in self.scaffold_items:
                 if item.path:
                     try:
-                        # Anchor specifically to our base locus
                         abs_path = (self.base_path / item.path).resolve()
                         self.sacred_paths.add(abs_path)
                     except Exception:
                         pass
 
-            # --- 7. THE KINETIC STRIKE ---
+            # --- MOVEMENT VI: THE KINETIC STRIKE ---
             with status_ctx:
-                # Materialize the Matter
+                # 1. MATERIALIZE THE MATTER (The main CPU execution)
                 cpu.execute()
 
-                # --- 8. THE RITE OF CONSECRATION ---
-                # Ensure Python structure and Soul Purity
-                if not self.is_simulation and self.is_local_realm:
-                    status_ctx.update("[bold yellow]Consecrating Reality Structure...[/bold yellow]")
-                    for item in self.scaffold_items:
-                        if not item.is_dir and item.path:
-                            absolute_target = (self.base_path / item.path).resolve()
-                            self.structure_sentinel.ensure_structure(absolute_target)
+                # =========================================================================
+                # == [THE CURE]: SILENT CONSECRATION RITE                                ==
+                # =========================================================================
+                # We surgically mute the concourse to prevent the "Consecrating" waterfall.
+                # Only active if verbose mode is NOT willed.
+                was_silent = _COSMIC_GNOSIS["silent"]
+                if not self.verbose: _COSMIC_GNOSIS["silent"] = True
 
-                # --- 9. THE ADJUDICATION RITE ---
-                if self.adjudicate_souls and self.transaction and not self.is_simulation:
-                    status_ctx.update("[bold purple]Adjudicating Soul Purity (Sentinel)...[/bold purple]")
-                    self.adjudicator.conduct_sentinel_inquest()
+                try:
+                    if not self.is_simulation and self.is_local_realm:
+                        if not self.silent:
+                            status_ctx.update("[bold yellow]Consecrating Reality Structure...[/bold yellow]")
 
-                if not self.is_simulation:
-                    self.adjudicator.conduct_dynamic_ignore()
+                        for item in self.scaffold_items:
+                            if not item.is_dir and item.path:
+                                absolute_target = (self.base_path / item.path).resolve()
+                                self.structure_sentinel.ensure_structure(absolute_target)
 
-                # --- 10. THE RITE OF PURIFICATION (GHOST BUSTER) ---
-                if self.clean_empty_dirs and not self.is_simulation and self.is_local_realm:
-                    status_ctx.update("[bold grey]Purging Entropy (Ghost Buster)...[/bold grey]")
-                    # [ASCENSION 3]: Fortified Cleanse Root
-                    # We only cleanse from the logical project root down.
-                    cleanse_root = (self.base_path / self.project_root).resolve()
-                    cleanser = GhostBuster(root=cleanse_root, protected_paths=self.sacred_paths)
-                    cleanser.exorcise(dry_run=self.dry_run)
+                    # --- MOVEMENT VII: THE ADJUDICATION RITE ---
+                    if self.adjudicate_souls and self.transaction and not self.is_simulation:
+                        if not self.silent:
+                            status_ctx.update("[bold purple]Adjudicating Soul Purity...[/bold purple]")
+                        self.adjudicator.conduct_sentinel_inquest()
 
-            # --- 11. THE FINAL REVELATION ---
-            duration_ms = (time.monotonic() - start_time) * 1000
+                    if not self.is_simulation:
+                        self.adjudicator.conduct_dynamic_ignore()
+
+                    # --- MOVEMENT VIII: THE RITE OF PURIFICATION (GHOST BUSTER) ---
+                    if self.clean_empty_dirs and not self.is_simulation and self.is_local_realm:
+                        if not self.silent:
+                            status_ctx.update("[bold grey]Purging Entropy (Ghost Buster)...[/bold grey]")
+
+                        cleanse_root = (self.base_path / self.project_root).resolve()
+                        cleanser = GhostBuster(root=cleanse_root, protected_paths=self.sacred_paths)
+                        cleanser.exorcise(dry_run=self.is_simulation)
+
+                finally:
+                    # Restore the original state of the Voice
+                    _COSMIC_GNOSIS["silent"] = was_silent
+
+            # --- MOVEMENT IX: THE FINAL REVELATION ---
+            duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
             if not self.silent:
                 self.Logger.success(f"Apotheosis Achieved. Reality forged in {duration_ms:.2f}ms.")
 
-        except Exception as e:
-            # Re-resolve duration for the fracture report
-            duration_ms = (time.monotonic() - start_time) * 1000
+        except Exception as catastrophic_paradox:
+            duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
             if registers: registers.critical_heresies += 1
 
-            if not isinstance(e, ArtisanHeresy):
+            if not isinstance(catastrophic_paradox, ArtisanHeresy):
                 raise ArtisanHeresy(
                     "CATASTROPHIC_CREATOR_FRACTURE",
-                    child_heresy=e,
-                    details=f"At Locus: {self.base_path}\nDuration: {duration_ms:.2f}ms"
-                ) from e
-            raise e
+                    child_heresy=catastrophic_paradox,
+                    details=f"At Locus: {self.base_path}\nDuration: {duration_ms:.2f}ms",
+                    severity=HeresySeverity.CRITICAL
+                ) from catastrophic_paradox
+            raise catastrophic_paradox
 
         return registers
-
 # == SCRIPTURE SEALED: THE FORTRESS IS OMEGA ==

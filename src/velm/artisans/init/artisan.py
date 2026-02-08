@@ -172,138 +172,137 @@ class InitArtisan(BaseArtisan[InitRequest]):
     ) -> ScaffoldResult:
         """
         =================================================================================
-        == THE SYMPHONY OF GENESIS (V-Ω-TOTALITY-V15000-OMEGA-ARCHITECT)               ==
+        == THE SYMPHONY OF GENESIS (V-Ω-TOTALITY-V200-STEALTH-MATERIALIZATION)         ==
         =================================================================================
-        LIF: 15000 | ANNIHILATES: [HOLLOW BLUEPRINT], [SPATIAL DESYNC], [TUPLE PARADOX]
+        LIF: ∞ | ROLE: REALITY_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+        AUTH_CODE: Ω_GENESIS_V200_STEALTH_OCULAR_STABILITY_)(@)(!@#(#@)
         """
-        # [ASCENSION 2]: CHRONOMETRIC ANCHOR
-        start_time = time.monotonic()
-        start_vitals = self.engine.get_system_vitals()
+        import gc
+        import time
+        import sys
+        import os
+        from ...logger import _COSMIC_GNOSIS
 
-        # [ASCENSION 1]: INTENT SNAPSHOT (CAUSAL SPLICING)
+        # [ASCENSION 3]: NANO-SCALE CHRONOMETER
+        start_ns = time.perf_counter_ns()
+        trace_id = getattr(request, 'trace_id', 'tr-genesis-unbound')
+
+        # [ASCENSION 11]: UI HAPTIC HUD PULSE
+        if self.engine.akashic:
+            self.engine.akashic.broadcast({
+                "method": "novalym/hud_pulse",
+                "params": {"type": "GENESIS_START", "label": "INCEPTING_REALITY", "color": "#64ffda", "trace": trace_id}
+            })
+
+        # 1. INTENT SNAPSHOT (CAUSAL SPLICING)
         initial_will: Set[str] = set((request.variables or {}).keys())
-
         if request.variables is None:
             object.__setattr__(request, 'variables', {})
 
-        # [ASCENSION 3]: IDENTITY SIPHON
         self._siphon_git_identity(request.variables)
         initial_will.update(["author", "email"])
 
-        # [ASCENSION 4]: SANITY SLUGIFIER
         project_name = request.variables.get('project_name') or root_path.name
-        if " " in project_name or not re.match(r'^[\w-]+$', project_name):
-            safe_slug = to_snake_case(project_name).replace('_', '-')
-            self.logger.warn(f"Project name '{project_name}' is not a valid slug. Using: '{safe_slug}'")
-            request.variables['project_slug'] = safe_slug
-            initial_will.add('project_slug')
-
         profile_name = request.profile
+
         if profile_name:
             self._check_profile_dependencies(profile_name)
 
-        # [THE FIX]: Causal Scope Guard
-        exc_type, exc_val, exc_tb = (None, None, None)
+        # [ASCENSION 2]: ADRENALINE MODE (Maximize I/O Velocity)
+        gc.disable()
 
         try:
             # --- MOVEMENT I: THE TRANSACTIONAL WOMB ---
-            # [THE CURE]: We conduct the HARVEST while this block is active.
             with GnosticTransaction(root_path, f"Genesis:{profile_name or 'custom'}", use_lock=True) as tx:
 
                 tx.context.update(request.variables)
-                project_name = tx.context.get('project_name') or root_path.name
+                tx.context['trace_id'] = trace_id
                 tx.context['project_name'] = str(project_name)
 
-                # [ASCENSION]: THE HERESY SILENCE VOW
-                # Injects a flag to prevent post-run failures from triggering
-                # 'on-heresy' blocks that might delete the staged matter.
+                # [ASCENSION 18]: THE HERESY SILENCE VOW
                 os.environ["SCAFFOLD_IGNORE_POST_RUN_ERRORS"] = "1"
 
                 # --- MOVEMENT II: THE GENESIS BRIDGE ---
                 namespace_args = self._request_to_namespace(request)
                 engine = GenesisEngine(project_root=root_path, engine=self.engine)
-
-                # Suture the transaction to the engine soul
                 engine.transaction = tx
                 engine.cli_args = namespace_args
                 engine.variables.update(tx.context)
 
-                # [ASCENSION 6]: THE PROGRESS SYMPHONY
-                with Progress(
-                        SpinnerColumn(),
-                        TextColumn("[progress.description]{task.description}"),
-                        BarColumn(bar_width=None, pulse_style="cyan"),
-                        TimeElapsedColumn(),
-                        console=self.engine.console,
-                        transient=True
-                ) as progress:
-                    task_create = progress.add_task("[cyan]Materializing Reality...", total=None)
+                # =========================================================================
+                # == [THE CURE]: STEALTH MATERIALIZATION                                 ==
+                # =========================================================================
+                # We do NOT use 'rich.Progress' for the terminal.
+                # We use high-status static logs to prevent buffer corruption.
 
-                    # --- MOVEMENT III: THE RITE OF CREATION ---
-                    # Stages all files in tx.staging_manager.staging_root
+                self.logger.info(
+                    f"🌀 [bold cyan]Genesis Awakening:[/bold cyan] Materializing Patterns for '{project_name}'...")
+
+                # --- MOVEMENT III: THE RITE OF CREATION (STEALTH) ---
+                # [ASCENSION 1]: THE WARD OF SILENCE
+                # We mute the concourse to prevent sub-artisans from shattering the buffer.
+                was_silent = _COSMIC_GNOSIS["silent"]
+                if not self.logger.is_verbose:
+                    _COSMIC_GNOSIS["silent"] = True
+
+                try:
+                    # [KINETIC STRIKE]
                     engine.conduct()
+                finally:
+                    _COSMIC_GNOSIS["silent"] = was_silent
 
-                    progress.update(task_create, description="[green]Reality Materialized.", completed=100)
-                    task_harvest = progress.add_task("[magenta]Harvesting Gnosis...", total=None)
+                self.logger.info(f"✨ [bold green]Reality Staged.[/bold green] Conducting forensic harvest...")
 
-                    # --- MOVEMENT IV: THE RITE OF HARVEST (PHYSICAL TOMOGRAPHY) ---
-                    # [LIF-15000]: We ignore the engine's internal memory.
-                    # We recursive-scry the physical staging area while the tx is alive.
-                    self.logger.info("Conducting physical tomography of staged matter...")
-                    physical_items = self._harvest_staged_reality(tx, root_path, master_blueprint)
+                # --- MOVEMENT IV: THE RITE OF HARVEST (PHYSICAL TOMOGRAPHY) ---
+                # [ASCENSION 4]: THE FORENSIC AUTOPSY ENGINE
+                physical_items = self._harvest_staged_reality(tx, root_path, master_blueprint)
 
-                    if not physical_items:
-                        # [THE ULTIMATE DIAGNOSTIC]
-                        self.logger.error("!!! CRITICAL: STAGING AREA IS HOLLOW !!!")
-                        self.logger.error(f"Staging Root: {tx.staging_manager.staging_root}")
-                        if tx.staging_manager.staging_root.exists():
-                            self.logger.error(f"Contents: {list(tx.staging_manager.staging_root.rglob('*'))}")
-                        else:
-                            self.logger.error("Staging Root DOES NOT EXIST.")
-                        raise ArtisanHeresy(
-                            "HOLLOW_REALITY: The Genesis Engine reported success, but no matter was forged.",
-                            severity=HeresySeverity.CRITICAL
-                        )
-
-                    # Sync variables back to the transaction context
-                    tx.context.update(engine.variables)
-
-                    # --- MOVEMENT V: THE RITE OF PURIFICATION ---
-                    # [LIF-15000]: Filter noise using the white-list and original intent.
-                    pure_gnosis = self._purify_gnostic_intent(tx.context, initial_will)
-
-                    # --- MOVEMENT VI: THE INSCRIPTION OF THE BLUEPRINT ---
-                    scribe = BlueprintScribe(root_path)
-
-                    # [THE TRINITY ENFORCER]
-                    # We convert 4-tuple commands (internal) to 3-tuple commands (for Scribe).
-                    # This prevents Scribe errors while preserving runtime logic.
-                    raw_commands = getattr(engine, 'post_run_commands', [])
-                    normalized_commands = self._normalize_commands_for_scribe(raw_commands)
-
-                    blueprint_content = scribe.transcribe(
-                        items=physical_items,
-                        commands=normalized_commands,
-                        gnosis=pure_gnosis
+                if not physical_items:
+                    self.logger.critical(
+                        f"Lattice Fracture: Staging Root '{tx.staging_manager.staging_root}' is a void.")
+                    raise ArtisanHeresy(
+                        "HOLLOW_REALITY: Engine reported success, but no matter was manifest.",
+                        severity=HeresySeverity.CRITICAL,
+                        suggestion="Check filesystem permissions or disk space on the host."
                     )
 
-                    # Commit the blueprint to the transaction so it's born WITH the project matter.
-                    atomic_write(
-                        target_path=master_blueprint,
-                        content=blueprint_content,
-                        logger=self.logger,
-                        sanctum=root_path,
-                        transaction=tx
-                    )
+                # Sync variable state back
+                tx.context.update(engine.variables)
 
-                    progress.update(task_harvest, description="[green]Gnosis Harvested.", completed=100)
+                # --- MOVEMENT V: THE RITE OF PURIFICATION ---
+                pure_gnosis = self._purify_gnostic_intent(tx.context, initial_will)
 
-            # --- MOVEMENT VII: FINAL REVELATION (POST-COMMIT) ---
+                # --- MOVEMENT VI: THE INSCRIPTION OF THE BLUEPRINT ---
+                self.logger.verbose("Sealing the Project Chronicle (scaffold.scaffold)...")
+
+                scribe = BlueprintScribe(root_path)
+                raw_commands = getattr(engine, 'post_run_commands', [])
+                normalized_commands = self._normalize_commands_for_scribe(raw_commands)
+
+                blueprint_content = scribe.transcribe(
+                    items=physical_items,
+                    commands=normalized_commands,
+                    gnosis=pure_gnosis
+                )
+
+                # Atomic Inscription within the transactional womb
+                atomic_write(
+                    target_path=master_blueprint,
+                    content=blueprint_content,
+                    logger=self.logger,
+                    sanctum=root_path,
+                    transaction=tx
+                )
+
+                self.logger.success(f"Chronicle Sealed: [dim]{master_blueprint.name}[/dim]")
+
+            # --- MOVEMENT VII: FINAL REVELATION (THE NEXT STEPS) ---
+            # [ASCENSION 6]: SOCRATIC NEXT-STEPS
             from ...creator.next_step_oracle import NextStepsOracle
             oracle = NextStepsOracle(root_path, gnosis=tx.context)
             prophecies = oracle.prophesy()
 
-            duration_ms = (time.monotonic() - start_time) * 1000
+            duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
 
             return self.success(
                 message=f"Inception complete. Reality born in [cyan]{root_path.name}[/cyan].",
@@ -312,20 +311,30 @@ class InitArtisan(BaseArtisan[InitRequest]):
                     "profile": profile_name,
                     "duration_ms": duration_ms,
                     "next_steps": prophecies,
-                    "variables": pure_gnosis
+                    "variables": pure_gnosis,
+                    "merkle_root": getattr(self, 'merkle_root', '0xVOID')
                 },
-                ui_hints={"vfx": "bloom", "sound": "genesis_complete"}
+                ui_hints={"vfx": "bloom", "sound": "genesis_complete", "priority": "SUCCESS"}
             )
 
-        except Exception as e:
+        except Exception as catastrophic_paradox:
             # [ASCENSION 12]: THE FORENSIC CORONER
             exc_type, exc_val, exc_tb = sys.exc_info()
-            self._handle_catastrophic_paradox(e)
+            self._handle_catastrophic_paradox(catastrophic_paradox)
+
+            err_msg = str(exc_val) if exc_val else str(catastrophic_paradox)
+            if "Permission denied" in err_msg:
+                err_msg = f"Sanctum Locked (OS Permission Error): {err_msg}"
+
             raise ArtisanHeresy(
                 "GENESIS_CONDUCT_FRACTURE",
-                details=str(exc_val) if exc_val else str(e),
-                severity=HeresySeverity.CRITICAL
+                details=err_msg,
+                severity=HeresySeverity.CRITICAL,
+                traceback_obj=exc_tb
             )
+        finally:
+            # [ASCENSION 2]: Restore Metabolism
+            gc.enable()
 
     def _harvest_staged_reality(self, tx: GnosticTransaction, root_path: Path, master_bp: Path) -> List[ScaffoldItem]:
         """

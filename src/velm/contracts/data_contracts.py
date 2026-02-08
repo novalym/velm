@@ -20,6 +20,7 @@ It contains:
 No data flows through the God-Engine that is not sanctified by one of these contracts.
 =================================================================================
 """
+import ast
 import uuid
 import time
 import argparse

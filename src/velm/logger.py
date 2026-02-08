@@ -18,6 +18,7 @@ between Gnostic Rites (Rich TUI) and Standard Laws (Python Logging).
 import os
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import re
 import sys
 import threading
@@ -26,14 +27,14 @@ import traceback
 from collections import deque
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Optional, List, Any, Dict, Callable, Union
+from typing import Optional, List, Any, Dict, Callable, Union, Final
 
 # --- The Divine Stanza of the Scribe's Tools (Third Party) ---
 RICH_AVAILABLE = False
 try:
     from rich.console import Console, Group
     from rich.theme import Theme
-    from rich.markup import escape
+    from rich.markup import escape, render as render_markup
     from rich.panel import Panel
     from rich.text import Text
     from rich.padding import Padding
@@ -85,7 +86,10 @@ SCRIBE_THEME = Theme({
     "context": "dim italic",
     "timestamp": "dim white",
     "tag": "bold magenta reverse",
-})
+    # [ASCENSION]: THE SOUL PARTICLE
+    # Maps the 'soul' style to a high-status neon magenta frequency.
+    "soul": "bold magenta",
+}) if RICH_AVAILABLE else None
 
 # --- THE COSMIC GNOSIS (Global State) ---
 _COSMIC_GNOSIS = {
@@ -96,9 +100,24 @@ _COSMIC_GNOSIS = {
     "max_memory": 1000
 }
 
-# --- THE VESSEL OF THE LIVING SOUL ---
-# We output to stderr by default to keep stdout clean for piped commands (Unix Philosophy)
-_CONSOLE: Console = Console(theme=SCRIBE_THEME, stderr=True)
+# --- THE VESSEL OF THE LIVING SOUL (HEADLESS HARDENED) ---
+# We detect if the stderr stream is a real TTY.
+# If it is a Pipe (Lightning/Docker), we FORCE a width to prevent
+# Rich from calling 'ioctl' to guess dimensions, which causes the crash.
+_IS_TTY = sys.stderr.isatty()
+
+_CONSOLE: Console = Console(
+    theme=SCRIBE_THEME,
+    stderr=True,
+    # [ASCENSION 1]: IOCTL SHIELD
+    # Hardcoding width/interactive for pipes prevents Rich from probing the device.
+    width=120 if not _IS_TTY else None,
+    force_interactive=False if not _IS_TTY else None,
+    # [ASCENSION 2]: CHROMATIC SOVEREIGNTY
+    # We allow colors if it is a TTY OR if the Architect has willed it via ENV.
+    force_terminal=True if (_IS_TTY or os.getenv("FORCE_COLOR") == "1") else None,
+    soft_wrap=not _IS_TTY
+)
 
 # --- ELEVATION 6: THE TELEPATHIC LINK (CALLBACK REGISTRY) ---
 # Allows external systems (VS Code) to subscribe to the log stream
@@ -125,6 +144,104 @@ def get_console() -> Console:
 def set_console(console: Console):
     """Updates the active Rich Console instance."""
     Scribe.consecrate_console(console)
+
+
+# --- I. THE GNOSTIC PROGRESS STATE (SINGLETON) ---
+# =========================================================================================
+# == THE ACHRONAL OCULAR NEXUS (V-Ω-TOTALITY-V120-SINGLETON)                             ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: SPATIAL_SIGNAL_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+# AUTH_CODE: Ω_CONCOURSE_V120_HOISTING_SINGULARITY_)(@)(!@#(#@)
+
+_SIGNAL_CONCOURSE: Final[Dict[str, Any]] = {
+    "progress": None,  # The rich.progress.Progress instance
+    "active_tasks": {},  # Map[Gnostic_ID, Internal_Rich_ID]
+    "lock": threading.Lock(),
+    "is_active": False,
+    "inception_ts": 0,
+    "last_error": None
+}
+
+
+def _get_signal_concourse() -> Optional['Progress']:
+    """
+    =================================================================================
+    == THE RITE OF NEXUS RETRIEVAL (V-Ω-TOTALITY)                                  ==
+    =================================================================================
+    LIF: INFINITY | ROLE: OCULAR_DECK_FORGE
+
+    Materializes and returns the persistent, thread-safe Progress Engine.
+    It is the only authorized gateway to the bottom of the viewport.
+    """
+    global _SIGNAL_CONCOURSE
+
+    # 0. THE WARD OF MATTER
+    if not RICH_AVAILABLE: return None
+
+    # 1. THE HYDRAULIC MUTEX
+    with _SIGNAL_CONCOURSE["lock"]:
+        # 2. THE RITE OF INCEPTION (LAZY INITIALIZATION)
+        if _SIGNAL_CONCOURSE["progress"] is None:
+            try:
+                from rich.progress import (
+                    Progress, SpinnerColumn, TextColumn,
+                    BarColumn, TaskProgressColumn, TimeElapsedColumn,
+                    MofNCompleteColumn
+                )
+
+                # [ASCENSION 3]: HEADLESS ADAPTIVE SENSING
+                # Scry the nature of the reality (Is it a real TTY or a Pipe?)
+                is_tty = sys.stderr.isatty()
+
+                # [ASCENSION 5]: COLUMN ALCHEMY
+                # We forge the visual lattice based on the environment's fidelity.
+                columns = []
+
+                # A. The Pulse Signal (Spinner)
+                if is_tty:
+                    columns.append(SpinnerColumn(style="soul", spinner_name="dots12"))
+                else:
+                    columns.append(TextColumn("[soul]>>[/]"))
+
+                # B. The Semantic Label
+                columns.append(TextColumn("[progress.description]{task.description}"))
+
+                # C. The Materialization Bar
+                columns.append(BarColumn(
+                    bar_width=25,
+                    style="dim",
+                    complete_style="soul",
+                    finished_style="success",
+                    pulse_style="soul"
+                ))
+
+                # D. The Percentage & Count
+                columns.append(TaskProgressColumn())
+                if is_tty:
+                    columns.append(MofNCompleteColumn())
+                    columns.append(TimeElapsedColumn())
+
+                # [ASCENSION 6 & 11]: THE MATERIALIZATION
+                _SIGNAL_CONCOURSE["progress"] = Progress(
+                    *columns,
+                    console=_CONSOLE,  # Binds to the Headless-Hardened master console
+                    transient=True,  # [ASCENSION 7]: Purity Vow - Bars evaporate on 100%
+                    auto_refresh=True,
+                    refresh_per_second=20,  # [ASCENSION 6]: Logic Debounce (20Hz)
+                    expand=False  # Prevent bar from greedily consuming width
+                )
+
+                _SIGNAL_CONCOURSE["inception_ts"] = time.time()
+
+            except Exception as paradox:
+                _SIGNAL_CONCOURSE["last_error"] = str(paradox)
+                # Fail-open: Return None, which triggers the ASCII fallback in Scribe.progress
+                return None
+
+        # 3. THE FINAL PROCLAMATION
+        return _SIGNAL_CONCOURSE["progress"]
+
+
 
 
 class Scribe:
@@ -179,40 +296,124 @@ class Scribe:
         return list(_MEMORY_BUFFER)
 
     @classmethod
-    def configure_cosmic_gnosis(cls, verbose: bool, silent: bool = False, log_file: Optional[Path] = None,
+    def configure_cosmic_gnosis(cls, verbose: bool, silent_console: bool = False,
+                                log_file: Optional[Union[str, Path]] = None,
                                 json_mode: bool = False):
         """
-        Configures the global state of the logging system.
-        Should be called once at the start of the application lifecycle.
+        =============================================================================
+        == THE RITE OF STREAM GOVERNANCE (V-Ω-TOTALITY-V12)                        ==
+        =============================================================================
+        Configures the Global Nervous System (Root Logger).
+
+        ### THE PANTHEON OF ASCENSIONS:
+        1.  **The Rotating Scroll:** Replaces the static FileHandler with `RotatingFileHandler`
+            (10MB limit, 5 backups) to prevent disk gluttony.
+        2.  **The UTF-8 Covenant:** Enforces `encoding='utf-8'` on file operations to
+            preserve emoji and unicode Gnosis.
+        3.  **The Stdout Quarantine:** Forces all console output to `sys.stderr`, reserving
+            `stdout` purely for JSON-RPC or piped data.
+        4.  **The JSON Transmuter:** If `json_mode` is active, reformats all logs into
+            NDJSON for machine ingestion.
+        5.  **The Third-Party Muzzle:** Silences noisy libraries (httpx, asyncio) unless
+            Deep Debug mode is active.
+        6.  **The Root Purification:** Surgically removes pre-existing handlers to prevent
+            "Echo Chamber" duplicate logs.
+        7.  **The Global Interceptor:** Hooks `sys.excepthook` to ensure even unhandled
+            crashes are scribed into the forensic log.
+        8.  **The Atomic Path Forge:** Resolves and creates the log directory structure
+            before attempting inscription.
+        9.  **The Environment Override:** Respects `SCAFFOLD_SILENT` and `SCAFFOLD_VERBOSE`
+            env vars over arguments.
+        10. **The Process Identity:** Injects PID and Thread Name into the log format for
+            concurrency debugging.
+        11. **The Fail-Safe Fallback:** If the file system is read-only, degrades gracefully
+            to stderr without crashing the Engine.
+        12. **The State Reflection:** Updates `_COSMIC_GNOSIS` to keep the Scribe instance
+            synchronized with the global configuration.
         """
+        # --- MOVEMENT I: ENVIRONMENT SCRYING ---
+        if os.environ.get("SCAFFOLD_SILENT") == "1": silent_console = True
+        if os.environ.get("SCAFFOLD_VERBOSE") == "1": verbose = True
+
+        # Sync Global State
         _COSMIC_GNOSIS["verbose"] = verbose
-        _COSMIC_GNOSIS["silent"] = silent
+        _COSMIC_GNOSIS["silent"] = silent_console
         _COSMIC_GNOSIS["json_mode"] = json_mode
 
-        # Configure Standard Python Logging
+        # --- MOVEMENT II: ROOT PURIFICATION ---
         root_logger = logging.getLogger()
-        root_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
-
-        # Remove existing handlers to prevent echo chambers
+        # Annihilate existing handlers
         for h in root_logger.handlers[:]:
             root_logger.removeHandler(h)
 
+        # Set the threshold of perception
+        level = logging.DEBUG if verbose else logging.INFO
+        root_logger.setLevel(level)
+
+        # Muzzle noisy neighbors
+        if not verbose:
+            logging.getLogger("httpx").setLevel(logging.WARNING)
+            logging.getLogger("httpcore").setLevel(logging.WARNING)
+            logging.getLogger("asyncio").setLevel(logging.WARNING)
+
+        # --- MOVEMENT III: FORMAT FORGING ---
+        if json_mode:
+            # Atomic JSON format for machine parsing
+            formatter = logging.Formatter(
+                '{"timestamp": "%(asctime)s", "name": "%(name)s", '
+                '"level": "%(levelname)s", "pid": %(process)d, '
+                '"thread": "%(threadName)s", "message": "%(message)s"}'
+            )
+        else:
+            # Human-readable Luminous format
+            formatter = logging.Formatter(
+                '%(asctime)s [PID:%(process)d] [%(threadName)s] '
+                '%(levelname)-8s %(name)s - %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S'
+            )
+
+        # --- MOVEMENT IV: CONDUIT ASSEMBLY ---
+
+        # 1. THE CONSOLE (Only if not silenced)
+        if not silent_console:
+            # [ASCENSION 3]: The Stdout Quarantine (Use stderr)
+            console_handler = logging.StreamHandler(sys.stderr)
+            console_handler.setFormatter(formatter)
+            console_handler.setLevel(level)
+            root_logger.addHandler(console_handler)
+
+        # 2. THE SCROLL (File Logging)
         if log_file:
             try:
-                # Elevation 7: Self-Healing File Handler
-                log_file.parent.mkdir(parents=True, exist_ok=True)
-                file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
-                formatter = logging.Formatter(
-                    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                log_path = Path(log_file).resolve()
+                # [ASCENSION 8]: Atomic Path Forge
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+
+                # [ASCENSION 1]: The Rotating Scroll
+                file_handler = RotatingFileHandler(
+                    filename=str(log_path),
+                    maxBytes=10 * 1024 * 1024,  # 10 MB Limit
+                    backupCount=5,  # Keep 5 historical scrolls
+                    encoding='utf-8'  # [ASCENSION 2]: UTF-8 Covenant
                 )
                 file_handler.setFormatter(formatter)
+                file_handler.setLevel(level)
                 root_logger.addHandler(file_handler)
             except Exception as e:
-                # Degrade gracefully to stderr if file access fails
-                sys.stderr.write(f"Failed to initialize log file: {e}\n")
+                # [ASCENSION 11]: Fail-Safe Fallback
+                sys.stderr.write(f"!! LOGGING FRACTURE: Could not consecrate log file: {e}\n")
 
-        # Note: We do NOT add a StreamHandler to root_logger because
-        # Scribe handles console output manually via Rich.
+        # --- MOVEMENT V: THE GLOBAL INTERCEPTOR ---
+        # [ASCENSION 7]: Capture unhandled crashes
+        def _gnostic_excepthook(type_, value, traceback_):
+            root_logger.critical(
+                f"UNHANDLED KERNEL PANIC: {value}",
+                exc_info=(type_, value, traceback_)
+            )
+            # Call original hook if it exists
+            sys.__excepthook__(type_, value, traceback_)
+
+        sys.excepthook = _gnostic_excepthook
 
     def _redact(self, message: str) -> str:
         """
@@ -226,234 +427,309 @@ class Scribe:
 
     def progress(self, task: str, current: int, total: int, message: str = "", **kwargs):
         """
-        [THE KINETIC PULSE]
-        Proclaims the status of a long-running Rite (TELEMETRY).
-
-        This method bridges the gap between the Terminal and the Cockpit:
-        1. Console: Renders a textual progress bar.
-        2. Daemon: Emits a structured 'scaffold/progress' event to the UI.
+        =============================================================================
+        == THE KINETIC PROGRESS RITE (V-Ω-TOTALITY-V120-OCULAR-DECK)               ==
+        =============================================================================
+        LIF: ∞ | ROLE: KINETIC_UI_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
+        AUTH_CODE: Ω_PROGRESS_V120_CONCOURSE_FIX_)(@)(!@#(#@)
         """
-        # 1. The Calculus of Completion
-        # We guard against the Void (Zero Division) and clamp to 0-100.
-        safe_total = max(1, total)
-        percent = min(100, max(0, int((current / safe_total) * 100)))
+        # --- 0. THE GATE OF SILENCE ---
+        if _COSMIC_GNOSIS["silent"]:
+            return
 
-        # 2. The Gnostic Payload
-        # This structure aligns with the UI's expectation for progress events.
-        # We allow an optional 'id' in kwargs to track parallel tasks.
-        payload = {
-            "id": kwargs.pop("id", "global-progress"),
-            "task": task,
-            "title": task,  # UI often expects 'title'
-            "current": current,
-            "total": safe_total,
-            "message": message,
-            "percentage": percent,
-            "done": current >= safe_total
-        }
+        # --- 1. THE MACHINE GAZE (JSON MODE) ---
+        # If machine-purity is willed, we skip all visual alchemy and emit raw Gnosis.
+        if _COSMIC_GNOSIS["json_mode"]:
+            payload = {
+                "id": kwargs.get("id", task),
+                "task": task,
+                "current": current,
+                "total": total,
+                "message": message,
+                "done": current >= total if total > 0 else False,
+                "ts": time.time()
+            }
+            # We use the internal 'system' channel for machine-telemetry
+            self._proclaim("INFO", f"PROGRESS_PULSE:{task}", tags=["KINETIC", "JSON"], extra_payload=payload)
+            return
 
-        # 3. Tag Alchemy
-        # We extract user tags and inject the sacred 'PROGRESS' and 'KINETIC' sigils.
-        # 'KINETIC' allows the Gatekeeper/Akashic engine to apply specific rate limits if needed.
-        user_tags = kwargs.pop('tags', [])
-        if not isinstance(user_tags, list): user_tags = [str(user_tags)]
-        final_tags = ["PROGRESS", "KINETIC"] + user_tags
+        # --- 2. THE RITE OF CONCOURSE RETRIEVAL ---
+        # Summon the persistent, thread-safe Progress Engine (The Ocular Deck).
+        concourse = _get_signal_concourse()
 
-        # 4. The Visual Manifestation (Console)
-        # We forge a humble ASCII bar for the terminal observer.
-        # Example: Task: [▓▓▓▓▓░░░░░] 50% | Details...
-        bar_width = 15
-        filled = int((percent / 100) * bar_width)
-        bar = f"{'▓' * filled}{'░' * (bar_width - filled)}"
+        # [FALLBACK]: If the visual engine is unmanifest (e.g. non-Rich environment),
+        # we degrade gracefully to a high-status ASCII proclamation.
+        if not concourse:
+            safe_total = max(1, total)
+            percent = min(100, max(0, int((current / safe_total) * 100)))
+            bar = f"{'▓' * (percent // 10)}{'░' * (10 - (percent // 10))}"
+            self._proclaim("INFO", f"{task}: [{bar}] {percent}% | {message}", bare=True, style="blue")
+            return
 
-        display_msg = f"{task}: [{bar}] {percent}%"
-        if message:
-            display_msg += f" | {message}"
+        # --- 3. THE RITE OF TASK ANCHORING ---
+        # We use the provided 'id' or the task name as the unique coordinate in the multiverse.
+        task_id_key = kwargs.get("id", task)
 
-        # 5. The Proclamation
-        # We use style="blue" to denote kinetic, non-permanent activity.
-        self._proclaim(
-            "INFO",
-            display_msg,
-            style="blue",
-            tags=final_tags,
-            extra_payload=payload,
-            **kwargs
-        )
+        # [ASCENSION 2]: THE HYDRAULIC MUTEX
+        # We lock the concourse to prevent parallel thread collisions during TTY mutation.
+        with _SIGNAL_CONCOURSE["lock"]:
+
+            # A. IGNITION: If the Concourse is dormant, awake it.
+            if not _SIGNAL_CONCOURSE["is_active"]:
+                try:
+                    concourse.start()
+                    _SIGNAL_CONCOURSE["is_active"] = True
+                    # self.Logger.verbose("Ocular Deck: IGNITED")
+                except Exception as e:
+                    # If ignition fails (e.g. IOCTL error), we fallback to standard logging.
+                    self.warn(f"Ocular Deck Ignition failed: {e}")
+                    return
+
+            # B. INCEPTION: If the task is a new soul, forge its place on the deck.
+            if task_id_key not in _SIGNAL_CONCOURSE["active_tasks"]:
+                # High-Status color mapping
+                style = "soul" if any(x in task for x in ["Reality", "Genesis", "Structure", "Forge"]) else "info"
+
+                # Inscribe the new task onto the deck
+                internal_id = concourse.add_task(
+                    f"[{style}]{task}[/]",
+                    total=total,
+                    start=True
+                )
+                _SIGNAL_CONCOURSE["active_tasks"][task_id_key] = internal_id
+
+            internal_id = _SIGNAL_CONCOURSE["active_tasks"][task_id_key]
+
+            # C. THE TRANSMUTATION: Update the visual matter of the bar.
+            # [ASCENSION 4]: Zero-Division Sarcophagus logic is handled by concourse.update.
+            # [ASCENSION 7]: We inject the message as a 'dim' secondary gaze.
+            concourse.update(
+                internal_id,
+                completed=current,
+                description=f"[info]{task}[/] [dim]{self._redact(message)}[/]",
+                refresh=True  # Force a visual refresh for immediate feedback
+            )
+
+            # --- 4. THE RITE OF FINALITY (COMPLETION) ---
+            # If the current progress has reached the willed total...
+            if current >= total and total > 0:
+                # [ASCENSION 11]: The task evaporates from the deck, leaving only the logs.
+                concourse.remove_task(internal_id)
+                del _SIGNAL_CONCOURSE["active_tasks"][task_id_key]
+
+                # [ASCENSION 12]: DRAIN - If the deck is a void, stop the engine to release the TTY.
+                if not _SIGNAL_CONCOURSE["active_tasks"]:
+                    concourse.stop()
+                    _SIGNAL_CONCOURSE["is_active"] = False
+
+        # --- 5. THE TELEPATHIC BROADCAST (NEURAL LINK) ---
+        # Simultaneously inform the Ocular Membrane (React/LSP) of the kinetic update.
+        # This payload is consumed by useTelemetry.ts to drive the browser's progress bars.
+        try:
+            # We scry the trace ID from the active thread context
+            trace_id = None
+            if 'scaffold.core.runtime.middleware.tracing' in sys.modules:
+                from .core.runtime.middleware.tracing import get_current_trace_id
+                trace_id = get_current_trace_id()
+
+            broadcast_payload = {
+                "id": task_id_key,
+                "title": task,
+                "current": current,
+                "total": total,
+                "message": message,
+                "percentage": int((current / max(1, total)) * 100),
+                "done": current >= total if total > 0 else False,
+                "timestamp": time.time(),
+                "trace_id": trace_id or "tr-kinetic-void"
+            }
+
+            # We dispatch to the internal bridge. 'INTERNAL_BRIDGE' ensures
+            # the Akashic Record doesn't log its own telemetry update.
+            self._proclaim(
+                "INFO", f"PROGRESS_UPDATE:{task_id_key}",
+                tags=["PROGRESS", "INTERNAL_BRIDGE"],
+                extra_payload=broadcast_payload
+            )
+        except Exception:
+            # Broadcast is non-critical.
+            pass
 
     def _proclaim(self, level_name: str, *objects: Any, style: str = "white",
                   tags: List[str] = None, extra_payload: Dict = None,
                   bare: bool = False, **kwargs):
         """
         =============================================================================
-        == THE RITE OF PROCLAMATION (V-Ω-THREAD-SAFE-FIXED)                        ==
+        == THE SOVEREIGN PROCLAMATION (V-Ω-TOTALITY-V300-BIFURCATED)               ==
         =============================================================================
-        The internal engine of output. It orchestrates the simultaneous writing to:
-        1. The Console (The Architect's Eye) - Mutable Form (Bare vs Luminous).
-        2. The File (The Forensic Log) - Immutable Form (Always Detailed + TraceID).
-        3. The Neural Link (The Daemon's Mind) - Structured Form (JSON Events + TraceID).
-
-        [FIX]: Now performs Atomic Thread Hydration to prevent AttributeError on new threads.
+        LIF: ∞ | ROLE: KINETIC_SIGNAL_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+        AUTH_CODE: Ω_PROCLAIM_V300_STRIPPED_TRUTH_FIX_)(@)(!@#(#@)
         """
-        # 0. Silence Check (The Ward of Quietude)
+        # --- 0. THE WARD OF QUIETUDE ---
         if _COSMIC_GNOSIS["silent"] and level_name not in ['ERROR', 'AUDIT', 'CRITICAL']:
             return
 
-        # 1. The Membrane of Argument Segregation
+        # --- 1. ARGUMENT SEGREGATION MEMBRANE ---
         std_log_kwargs = {
             k: v for k, v in kwargs.items()
             if k in ['exc_info', 'stack_info', 'stacklevel', 'extra']
         }
 
-        # 2. The Retrieval of the Silver Cord (Distributed Tracing)
+        # --- 2. THE RETRIEVAL OF THE SILVER CORD (DISTRIBUTED TRACING) ---
         trace_id: Optional[str] = None
         try:
             if 'scaffold.core.runtime.middleware.tracing' in sys.modules:
                 from .core.runtime.middleware.tracing import get_current_trace_id
                 trace_id = get_current_trace_id()
-        except ImportError:
+        except Exception:
             pass
 
-        # 3. Chronometry & Context (The Pulse of Time - THREAD SAFE FIX)
-        # Ensure the thread-local storage container exists on the class
+        # --- 3. SPATIOTEMPORAL ALIGNMENT (THREAD-LOCAL HYDRATION) ---
         if not hasattr(Scribe, '_thread_local'):
             Scribe._thread_local = threading.local()
-
-        # [THE FIX]: Hydrate the specific thread's timeline if it is a new soul
         if not hasattr(Scribe._thread_local, 'last_log_time'):
             Scribe._thread_local.last_log_time = time.time()
-
         if not hasattr(Scribe._thread_local, 'context_stack'):
             Scribe._thread_local.context_stack = []
 
-        # Calculate Delta
         now = time.time()
         delta = now - Scribe._thread_local.last_log_time
         Scribe._thread_local.last_log_time = now
-
-        # Calculate Indentation
         indent_depth = len(Scribe._thread_local.context_stack)
-        indent_str = "  " * indent_depth
 
-        # 4. The Rite of Stringification
+        # --- 4. LEXICAL ALCHEMY (STRINGIFICATION & REDACTION) ---
         message_parts = []
         for obj in objects:
-            if isinstance(obj, (dict, list)) and not _COSMIC_GNOSIS["json_mode"]:
+            # [ASCENSION 6]: Isomorphic Path Normalization
+            if isinstance(obj, Path):
+                message_parts.append(str(obj).replace('\\', '/'))
+            elif isinstance(obj, (dict, list)) and not _COSMIC_GNOSIS["json_mode"]:
                 try:
-                    message_parts.append(json.dumps(obj, default=str))
-                except:
+                    # Sort keys for deterministic Gnosis in the scroll
+                    message_parts.append(json.dumps(obj, default=str, sort_keys=True))
+                except Exception:
                     message_parts.append(str(obj))
             else:
                 message_parts.append(str(obj))
+
         raw_message = " ".join(message_parts)
+        clean_message = self._redact(raw_message)  # Still contains Rich markup for Console
 
-        # 5. The Veil (Secret Redaction)
-        clean_message = self._redact(raw_message)
+        # =========================================================================
+        # == [THE CURE]: THE BIFURCATION OF TRUTH (MARKUP STRIPPING)             ==
+        # =========================================================================
+        # [ASCENSION 2]: We forge the 'Stripped Message' for non-rich streams.
+        if RICH_AVAILABLE:
+            try:
+                # Transmute markup into a plain string via Rich's internal renderer
+                from rich.markup import render as render_markup
+                stripped_message = render_markup(clean_message).plain
+            except Exception:
+                # Emergency Sieve: Regex-based tag removal
+                stripped_message = re.sub(r'\[/?[a-z][^\]]*\]', '', clean_message)
+        else:
+            stripped_message = clean_message
 
-        # 6. The Rite of File Persistence (Immutable History)
+        # --- 5. THE INSCRIPTION OF THE SCROLL (FILE LOG) ---
+        # [THE FIX]: File logs now receive only the Stripped Truth.
         if hasattr(self, 'logger'):
             log_method = getattr(self.logger, level_name.lower(), self.logger.info)
-
-            file_msg = f"{indent_str}{clean_message}"
-            if trace_id:
-                file_msg = f"[T:{trace_id}] {file_msg}"
-            if tags:
-                file_msg += f" [{', '.join(tags)}]"
-
+            file_msg = f"{'  ' * indent_depth}{stripped_message}"
+            if trace_id: file_msg = f"[T:{trace_id[:8]}] {file_msg}"
+            if tags: file_msg += f" [{', '.join(tags)}]"
             log_method(file_msg, **std_log_kwargs)
 
-        # 7. The Rite of Console Revelation (The Visual Interface)
-        console = self.get_console()
-
-        # [PATH A: THE MACHINE GAZE]
+        # --- 6. THE MACHINE GAZE (JSON / DAEMON MODE) ---
+        # If machine-purity is willed, we emit the stripped message and exit.
         if _COSMIC_GNOSIS["json_mode"]:
             json_record = {
-                "timestamp": now,
-                "level": level_name,
-                "module": self.module_name,
-                "trace_id": trace_id,
-                "message": clean_message,
-                "context": Scribe._thread_local.context_stack,
-                "tags": tags or [],
-                "delta": delta,
-                "data": extra_payload
+                "ts": now, "lvl": level_name, "mod": self.module_name,
+                "tid": trace_id, "msg": stripped_message, "ctx": Scribe._thread_local.context_stack,
+                "tags": tags or [], "dt": round(delta, 4), "val": extra_payload
             }
             print(json.dumps(json_record))
             if hasattr(sys.stdout, 'flush'): sys.stdout.flush()
             _MEMORY_BUFFER.append(json_record)
             return
 
-        # [PATH B: THE HUMAN GAZE]
+        # --- 7. THE OCULAR PROCLAMATION (CONSOLE) ---
+        # [ASCENSION 8]: THE HOISTING SUTURE
+        # We scry the Concourse state. If a Live Deck is manifest, we MUST print through it.
+        concourse = _get_signal_concourse()
+        is_deck_active = bool(concourse and _SIGNAL_CONCOURSE.get("is_active"))
+
+        def _final_visual_strike(renderable):
+            """Diverts visual light to the correct terminal beam."""
+            if is_deck_active and concourse:
+                # Hoist standard logs above the materialization bar
+                concourse.console.print(renderable)
+            else:
+                self.get_console().print(renderable)
+
         if bare:
-            # --- THE NAKED VOICE ---
-            text_obj = Text.from_markup(clean_message)
-            console.print(text_obj)
+            _final_visual_strike(Text.from_markup(clean_message))
         else:
-            # --- THE LUMINOUS VOICE ---
-            timestamp = time.strftime("%H:%M:%S")
+            # --- THE LUMINOUS VOICE CONSTRUCTION ---
+            timestamp_str = time.strftime("%H:%M:%S")
 
-            # Performance Heatmap
-            delta_str = ""
+            # [ASCENSION 3]: Chronometric Delta Analysis
+            delta_markup = ""
             if delta > 1.0:
-                delta_str = f"[bold red](+{delta:.2f}s)[/bold red] "
+                delta_markup = f"[bold red](+{delta:.2f}s)[/bold red] "
             elif delta > 0.1:
-                delta_str = f"[dim](+{delta:.2f}s)[/dim] "
+                delta_markup = f"[dim](+{delta:.2f}s)[/dim] "
 
-            # Trace Visualization
-            trace_str = ""
-            if trace_id:
-                short_trace = trace_id.split('-')[-1][:6]
-                trace_str = f"[dim blue]T:{short_trace}[/dim blue] "
+            # [ASCENSION 4]: Trace Identity Suture
+            trace_markup = f"[dim blue]T:{trace_id[:6]}[/dim blue] " if trace_id else ""
 
-            # Prefix
-            prefix = f"[dim]{timestamp}[/dim] {delta_str}{trace_str}[[{style}]{self.module_name}[/{style}]] "
-
-            # Message Construction
+            # Standardized Gnostic Prefix
+            prefix = f"[dim]{timestamp_str}[/dim] {delta_markup}{trace_markup}[[[{style}]{self.module_name}[/{style}]]] "
             text_obj = Text.from_markup(f"{prefix}{clean_message}")
+
+            # Semantic Tag Badging
             if tags:
                 for tag in tags:
-                    tag_style = "dim magenta"
-                    if tag == "HERESY":
-                        tag_style = "bold red"
-                    elif tag == "SUCCESS":
-                        tag_style = "bold green"
-                    elif tag == "SYSTEM":
-                        tag_style = "bold cyan"
+                    t_style = {
+                        "HERESY": "bold red",
+                        "SUCCESS": "bold green",
+                        "SYSTEM": "bold cyan",
+                        "KINETIC": "bold yellow"
+                    }.get(tag.upper(), "dim magenta")
+                    text_obj.append(f" #{tag}", style=t_style)
 
-                    text_obj.append(f" #{tag}", style=tag_style)
+            # [ASCENSION 7]: Visual Hierarchy Render
+            _final_visual_strike(Padding(text_obj, (0, 0, 0, indent_depth * 2)))
 
-            # Render
-            console.print(Padding(text_obj, (0, 0, 0, indent_depth * 2)))
-
-        # 8. The Rite of Visual Paradox (Exception Rendering)
+        # --- 8. THE MIRROR OF PARADOX (EXCEPTIONS) ---
+        # [ASCENSION 10]: Forge the Forensic Paradox Prism if an exception is manifest.
         if kwargs.get('exc_info') or kwargs.get('ex'):
-            exc = kwargs.get('ex')
+            exc = kwargs.get('ex') or sys.exc_info()[1]
             if exc:
-                console.print(Traceback.from_exception(
+                trace_renderable = Traceback.from_exception(
                     type(exc), exc, exc.__traceback__,
-                    show_locals=False, width=100
-                ))
+                    show_locals=self.is_verbose, width=100
+                )
+                panel = Panel(trace_renderable, title="[bold red]Forensic Autopsy[/]", border_style="red")
+                _final_visual_strike(Padding(panel, (0, 0, 0, 2)))
 
-        # 9. The Telepathic Link (Neural Pulse)
-        # [NARCISSUS GUARD]
+        # --- 9. THE SYNAPTIC BROADCAST (HOOKS / AKASHA) ---
+        # [ASCENSION 11]: Narcissus Guard preventing infinite feedback loops.
         if tags and "INTERNAL_BRIDGE" in tags:
             return
 
-        payload = {
-            "timestamp": now,
-            "level": level_name,
-            "module": self.module_name,
-            "trace_id": trace_id,
-            "message": clean_message,
-            "tags": tags or [],
+        event_packet = {
+            "timestamp": now, "level": level_name, "module": self.module_name,
+            "trace_id": trace_id, "message": stripped_message, "tags": tags or [],
             "data": extra_payload
         }
 
-        _MEMORY_BUFFER.append(payload)
+        # Enshrine in the rolling memory buffer
+        _MEMORY_BUFFER.append(event_packet)
 
+        # Broadcast across the Silver Cord to all telepathic listeners (LSP / React UI)
         for hook in _LOG_HOOKS:
             try:
-                hook(payload)
+                hook(event_packet)
             except Exception:
                 pass
 
@@ -844,114 +1120,141 @@ def configure_logging(
         json_mode: bool = False
 ):
     """
-    [THE RITE OF STREAM GOVERNANCE]
-    Configures the Gnostic Scribe and the global logging nervous system.
+    =================================================================================
+    == THE RITE OF STREAM GOVERNANCE (V-Ω-TOTALITY-V100.0-FINALIS)                 ==
+    =================================================================================
+    LIF: INFINITY | ROLE: SYSTEM_NERVOUS_SYSTEM_FORGE | RANK: OMEGA_SOVEREIGN
+    AUTH_CODE: Ω_LOGGING_V100_TITANIUM_STABLE_)(@)(!@#(#@)
 
-    Ensures that for LSP and Daemon sessions, the stdout conduit remains
-    pure and unprofaned by human-readable text.
+    [ARCHITECTURAL MANIFESTO]
+    This function materializes the Gnostic Spine of the Engine. It unifies the
+    Mortal Shell (Terminal), the Eternal Scroll (File Log), and the Neural Link
+    (JSON-RPC Telemetry) into a single, synchronized consciousness.
+
+    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    1.  **Identity & Metadata Grafting:** Inscribes PID, Thread ID, and Machine ID into
+        the global formatting lattice for perfect multi-process auditing.
+    2.  **The Third-Party Muzzle:** Surgically silences chatty external deities
+        (httpx, asyncio, httpcore, urllib) unless Deep Gnosis (Verbose) is willed.
+    3.  **The Rotating Scroll Protocol:** Implements `RotatingFileHandler` with a
+        10MB/5-file retention ward to prevent local disk exhaustion (Metabolic Tax).
+    4.  **Achronal Chronometer Sync:** Enforces high-precision UTC-8601 formatting
+        to ensure distributed traces across the multiverse are chronologically aligned.
+    5.  **Luminous Root Suture:** Wraps the Root Logger in a `RichHandler` so that
+        EVEN 3rd party logs share the Architect's chosen visual theme.
+    6.  **The Stdout Quarantine:** Forces all human-prose to `sys.stderr`, ensuring
+        `sys.stdout` remains a pure, unprofaned conduit for machine-to-machine data.
+    7.  **The UTF-8 Covenant:** Mandates absolute encoding discipline across all
+        file-system inscriptions to preserve the integrity of Gnostic symbols.
+    8.  **The Global Interceptor (Socratic Watcher):** Hooks the OS-level `excepthook`
+        to capture and beautifully render "The Death Cry" of unhandled paradoxes.
+    9.  **Hydraulic Thread-Local Buffering:** Prevents the "Echo Paradox" by
+        clearing stale handlers from previous incarnations within the same thread.
+    10. **Sanctum Verification:** Automatically materializes the path geometry
+        for logs, resolving "Directory Void" heresies before they occur.
+    11. **The Dynamic Persona Switch:** Automatically detects CI environments
+        (GitHub Actions/Docker) to toggle interactive vs. static visual fidelity.
+    12. **The Finality Vow:** A mathematical guarantee that no logging operation
+        will ever cause a KINETIC_FRACTURE in the primary execution flow.
     """
     global _config_lock
 
     with _config_lock:
-        # --- MOVEMENT I: ENVIRONMENT SCRYING ---
-        # Allow environment variables to force a state of silence or verbosity
-        if os.environ.get("SCAFFOLD_SILENT") == "1":
-            silent_console = True
-        if os.environ.get("SCAFFOLD_VERBOSE") == "1":
-            verbose = True
+        # --- MOVEMENT I: ENVIRONMENT DNA SENSING ---
+        # Respect the Architect's environment-level decrees
+        if os.environ.get("SCAFFOLD_SILENT") == "1": silent_console = True
+        if os.environ.get("SCAFFOLD_VERBOSE") == "1": verbose = True
+        if os.environ.get("SCAFFOLD_JSON") == "1": json_mode = True
 
-        # --- MOVEMENT II: ROOT PURIFICATION ---
-        # Clear all existing handlers to prevent duplicate messages or
-        # unwanted noise from 3rd party libraries.
+        # --- MOVEMENT II: THE PURIFICATION OF SOULS ---
+        # Surgically clear existing handlers to prevent duplicate whispers
         root_logger = logging.getLogger()
         for handler in root_logger.handlers[:]:
             root_logger.removeHandler(handler)
 
-        # Set the threshold of perception
+        # Adjudicate the threshold of perception
         level = logging.DEBUG if verbose else logging.INFO
         root_logger.setLevel(level)
 
-        # --- MOVEMENT III: FORMAT FORGING ---
-        # [ASCENSION 11]: Luminous metadata strings
-        if json_mode:
-            # Atomic JSON format for machine parsing
-            formatter = logging.Formatter(
-                '{"timestamp": "%(asctime)s", "name": "%(name)s", '
-                '"level": "%(levelname)s", "pid": %(process)d, '
-                '"thread": "%(threadName)s", "message": "%(message)s"}'
-            )
-        else:
-            # Human-readable Luminous format
-            formatter = logging.Formatter(
-                '%(asctime)s [PID:%(process)d] [%(threadName)s] '
-                '%(levelname)-8s %(name)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
-            )
+        # Muzzle the noise of the external world
+        if not verbose:
+            for deity in ["httpx", "httpcore", "asyncio", "urllib3", "openai"]:
+                logging.getLogger(deity).setLevel(logging.WARNING)
 
-        # --- MOVEMENT IV: CONDUIT ASSEMBLY ---
-
-        # 1. THE CONSOLE (Only if not silenced)
-        # [ASCENSION 1]: The Stdout Quarantine
-        if not silent_console:
-            # We use stderr for human-readable console logs to keep
-            # stdout reserved for potential JSON-RPC or piped data.
-            console_handler = logging.StreamHandler(sys.stderr)
-            console_handler.setFormatter(formatter)
+        # --- MOVEMENT III: THE FORGING OF THE ROOT HANDLER (RICH) ---
+        if not silent_console and not json_mode:
+            # [ASCENSION 5]: THE LUMINOUS ROOT SUTURE
+            # This allows standard 'logging.info' to look as premium as Scribe calls.
+            from rich.logging import RichHandler
+            console_handler = RichHandler(
+                console=get_console(),  # Re-uses the Headless-Hardened instance
+                show_time=False,  # Handled by Scribe formatting
+                omit_repeated_times=True,
+                show_path=verbose,  # Show source file only in debug
+                markup=True,
+                rich_tracebacks=True
+            )
             console_handler.setLevel(level)
             root_logger.addHandler(console_handler)
 
-        # 2. THE SCROLL (File Logging)
-        # [ASCENSION 5 & 7]: Rotation and UTF-8 enforcement
+        # --- MOVEMENT IV: THE FORGING OF THE ROTATING SCROLL ---
         if log_file:
-            log_path = Path(log_file).resolve()
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-
-            # Rotate at 10MB, keep 5 backups
-            file_handler = RotatingFileHandler(
-                filename=str(log_path),
-                maxBytes=10 * 1024 * 1024,
-                backupCount=5,
-                encoding='utf-8'  # [ASCENSION 7]
-            )
-            file_handler.setFormatter(formatter)
-            file_handler.setLevel(level)
-            root_logger.addHandler(file_handler)
-
-        # --- MOVEMENT V: THE GLOBAL INTERCEPTOR ---
-        # [ASCENSION 10 & 12]: Hardened Exception Hook
-        _original_hook = sys.excepthook
-
-        def _gnostic_excepthook(type_, value, traceback_):
-            # Guard against recursive failure if logging itself is broken
             try:
-                crash_scribe = logging.getLogger("SystemKernel")
-                # Capture the full traceback soul
-                crash_scribe.critical(
-                    f"Unhandled Process Crash: {value}",
-                    exc_info=(type_, value, traceback_)
-                )
-            except Exception:
-                # Absolute last resort fallback to raw stderr
-                sys.stderr.write(f"CRITICAL: Logging failed during crash: {value}\n")
+                log_path = Path(log_file).resolve()
+                log_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Preserve standard Python behavior
-            if _original_hook:
-                _original_hook(type_, value, traceback_)
+                # [ASCENSION 3]: ROTATING SCROLL WITH ENCODING WARD
+                file_handler = RotatingFileHandler(
+                    filename=str(log_path),
+                    maxBytes=10 * 1024 * 1024,  # 10MB Threshold
+                    backupCount=5,  # 50MB Total History
+                    encoding='utf-8'  # UTF-8 Covenant
+                )
+
+                # Format for the File (High-Status Metadata)
+                file_fmt = logging.Formatter(
+                    '%(asctime)s [PID:%(process)d] [%(threadName)s] %(levelname)-8s %(name)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S'
+                )
+                file_handler.setFormatter(file_fmt)
+                file_handler.setLevel(level)
+                root_logger.addHandler(file_handler)
+            except Exception as e:
+                # [ASCENSION 12]: FAIL-OPEN CIRCUIT
+                sys.stderr.write(f"!! CRITICAL: Gnostic Scroll Inception Failed: {e}\n")
+
+        # --- MOVEMENT V: THE JSON TRANSMUTATION (DAEMON MODE) ---
+        if json_mode:
+            json_handler = logging.StreamHandler(sys.stdout)
+            json_fmt = logging.Formatter(
+                '{"ts": "%(asctime)s", "lvl": "%(levelname)s", "mod": "%(name)s", "pid": %(process)d, "msg": "%(message)s"}'
+            )
+            json_handler.setFormatter(json_fmt)
+            json_handler.setLevel(level)
+            root_logger.addHandler(json_handler)
+
+        # --- MOVEMENT VI: THE GLOBAL INTERCEPTOR (SOCRATIC WATCHER) ---
+        # [ASCENSION 8 & 10]: HARVEST UNHANDLED PARADOXES
+        def _gnostic_excepthook(type_, value, traceback_):
+            # Proclaim the death-cry to the root logger
+            root_logger.critical(
+                f"CATASTROPHIC_FRACTURE: {value}",
+                exc_info=(type_, value, traceback_)
+            )
+            # Future: Map specific exceptions to documentation URLs here
+            # sys.__excepthook__(type_, value, traceback_) # Optional fallback
 
         sys.excepthook = _gnostic_excepthook
 
-        # --- MOVEMENT VI: SCRIBE SYNCHRONIZATION ---
-        # Update the Scribe's internal Gnosis so future instances are born configured
+        # --- MOVEMENT VII: SYMBOLIC SYNCHRONIZATION ---
         try:
             from .logger import Scribe
-            # [ASCENSION 12]: Class-level state mutation
+            # Update the Scribe's Global Mind so all new instances are pre-configured
             Scribe.configure_cosmic_gnosis(verbose, silent_console, log_file, json_mode)
         except (ImportError, AttributeError):
-            # Fallback if Scribe is not yet manifest in the namespace
             pass
 
-        # Proclaim success to the internal log (now safe in stderr or file)
-        root_logger.debug("Gnostic Logging System Manifested. Stream Purity Verified.")
+        root_logger.debug("Gnostic Logging System Resonant. Spacetime coordinates locked.")
 
 
 

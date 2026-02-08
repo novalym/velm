@@ -42,7 +42,7 @@ src/velm/archetypes/frontend/mosaic-gateway.scaffold
 src/velm/archetypes/frontend/query-hook-forge.scaffold
 src/velm/archetypes/frontend/zustand-conduit.scaffold
 src/velm/archetypes/genesis/ai-agent-swarm.scaffold
-src/velm/archetypes/genesis/astro-advamced.scaffold
+src/velm/archetypes/genesis/astro-advanced.scaffold
 src/velm/archetypes/genesis/astro-basic.scaffold
 src/velm/archetypes/genesis/chrome-extension.scaffold
 src/velm/archetypes/genesis/cli-tool.scaffold
@@ -1173,6 +1173,7 @@ src/velm/core/assembler/weavers/base_weaver.py
 src/velm/core/assembler/weavers/python_weaver.py
 src/velm/core/assembler/weavers/react_weaver.py
 src/velm/core/blueprint_scribe/__init__.py
+src/velm/core/blueprint_scribe/adjudicator.py
 src/velm/core/blueprint_scribe/canonical_serializer.py
 src/velm/core/blueprint_scribe/content_renderer.py
 src/velm/core/blueprint_scribe/metadata_scribe.py
@@ -1180,6 +1181,7 @@ src/velm/core/blueprint_scribe/scribe.py
 src/velm/core/blueprint_scribe/sorting_hat.py
 src/velm/core/blueprint_scribe/tree_forger.py
 src/velm/core/blueprint_scribe/__pycache__/__init__.cpython-313.pyc
+src/velm/core/blueprint_scribe/__pycache__/adjudicator.cpython-313.pyc
 src/velm/core/blueprint_scribe/__pycache__/canonical_serializer.cpython-313.pyc
 src/velm/core/blueprint_scribe/__pycache__/content_renderer.cpython-313.pyc
 src/velm/core/blueprint_scribe/__pycache__/metadata_scribe.cpython-313.pyc
@@ -1199,6 +1201,7 @@ src/velm/core/cli/__pycache__/grimoire_data.cpython-313.pyc
 src/velm/core/cli/grimoire/__init__.py
 src/velm/core/cli/grimoire/_ai_rites.py
 src/velm/core/cli/grimoire/_automation_rites.py
+src/velm/core/cli/grimoire/_cloud_rites.py
 src/velm/core/cli/grimoire/_core_rites.py
 src/velm/core/cli/grimoire/_evolution_rites.py
 src/velm/core/cli/grimoire/_guild_rites.py
@@ -1428,6 +1431,8 @@ src/velm/core/ignition/sentinel/grimoire.py
 src/velm/core/ignition/sentinel/priest.py
 src/velm/core/ignition/sentinel/scanner.py
 src/velm/core/ignition/sentinel/vitality.py
+src/velm/core/infrastructure/contracts.py
+src/velm/core/infrastructure/providers/oracle.py
 src/velm/core/jurisprudence/adjudicator.py
 src/velm/core/jurisprudence/contracts.py
 src/velm/core/jurisprudence/__pycache__/adjudicator.cpython-313.pyc
@@ -1998,10 +2003,12 @@ src/velm/core/runtime/registry.py
 src/velm/core/runtime/remote.py
 src/velm/core/runtime/resilience.py
 src/velm/core/runtime/telemetry.py
+src/velm/core/runtime/vessels.py
 src/velm/core/runtime/__pycache__/__init__.cpython-313.pyc
 src/velm/core/runtime/__pycache__/context.cpython-313.pyc
 src/velm/core/runtime/__pycache__/registry.cpython-313.pyc
 src/velm/core/runtime/__pycache__/telemetry.cpython-313.pyc
+src/velm/core/runtime/__pycache__/vessels.cpython-313.pyc
 src/velm/core/runtime/engine/__init__.py
 src/velm/core/runtime/engine/constants.py
 src/velm/core/runtime/engine/core.py
@@ -2023,12 +2030,21 @@ src/velm/core/runtime/engine/intelligence/__init__.py
 src/velm/core/runtime/engine/intelligence/cache.py
 src/velm/core/runtime/engine/intelligence/memory.py
 src/velm/core/runtime/engine/intelligence/optimizer.py
-src/velm/core/runtime/engine/intelligence/predictor.py
 src/velm/core/runtime/engine/intelligence/__pycache__/__init__.cpython-313.pyc
 src/velm/core/runtime/engine/intelligence/__pycache__/cache.cpython-313.pyc
 src/velm/core/runtime/engine/intelligence/__pycache__/memory.cpython-313.pyc
 src/velm/core/runtime/engine/intelligence/__pycache__/optimizer.cpython-313.pyc
 src/velm/core/runtime/engine/intelligence/__pycache__/predictor.cpython-313.pyc
+src/velm/core/runtime/engine/intelligence/predictor/__init__.py
+src/velm/core/runtime/engine/intelligence/predictor/contracts.py
+src/velm/core/runtime/engine/intelligence/predictor/markov.py
+src/velm/core/runtime/engine/intelligence/predictor/oracle.py
+src/velm/core/runtime/engine/intelligence/predictor/sage.py
+src/velm/core/runtime/engine/intelligence/predictor/__pycache__/__init__.cpython-313.pyc
+src/velm/core/runtime/engine/intelligence/predictor/__pycache__/contracts.cpython-313.pyc
+src/velm/core/runtime/engine/intelligence/predictor/__pycache__/markov.cpython-313.pyc
+src/velm/core/runtime/engine/intelligence/predictor/__pycache__/oracle.cpython-313.pyc
+src/velm/core/runtime/engine/intelligence/predictor/__pycache__/sage.cpython-313.pyc
 src/velm/core/runtime/engine/lifecycle/__init__.py
 src/velm/core/runtime/engine/lifecycle/bootstrap.py
 src/velm/core/runtime/engine/lifecycle/shutdown.py
@@ -2582,6 +2598,7 @@ src/velm/parser_core/parser/parser_scribes/scaffold_scribes/contract_scribe.py
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/directive_scribe.py
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/jinja_scribe.py
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/makefile_scribe.py
+src/velm/parser_core/parser/parser_scribes/scaffold_scribes/on_heresy_scribe.py
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/on_undo_scribe.py
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/post_run_scribe.py
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/scaffold_base_scribe.py
@@ -2593,6 +2610,7 @@ src/velm/parser_core/parser/parser_scribes/scaffold_scribes/__pycache__/contract
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/__pycache__/directive_scribe.cpython-313.pyc
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/__pycache__/jinja_scribe.cpython-313.pyc
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/__pycache__/makefile_scribe.cpython-313.pyc
+src/velm/parser_core/parser/parser_scribes/scaffold_scribes/__pycache__/on_heresy_scribe.cpython-313.pyc
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/__pycache__/on_undo_scribe.cpython-313.pyc
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/__pycache__/post_run_scribe.cpython-313.pyc
 src/velm/parser_core/parser/parser_scribes/scaffold_scribes/__pycache__/scaffold_base_scribe.cpython-313.pyc
