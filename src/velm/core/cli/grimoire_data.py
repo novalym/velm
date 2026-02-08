@@ -101,6 +101,7 @@ LAZY_RITE_MAP = {
     "templates": ("artisans.templates", "TemplateManagerCLI", "TemplateRequest"),
     "alias": ("artisans.alias.artisan", "AliasArtisan", "AliasRequest"),
     "beautify": ("artisans.beautify", "BeautifyArtisan", "BeautifyRequest"),
+    "lint-blueprint": ("artisans.lint_blueprint.artisan", "BlueprintLinterArtisan", "LintBlueprintRequest"),
     "lint": ("artisans.lint", "LintArtisan", "LintRequest"),
     "tool": ("artisans.tool.tool_cli", "ToolArtisan", "ToolRequest"),
     "self-test": ("artisans.self_test", "SelfTestArtisan", "SelfTestRequest"),

@@ -324,7 +324,7 @@ class GnosticDossier(BaseModel):
     # The Dossier is now bestowed with a vessel to hold the graph of Will.
     logic_graph: List[LogicNode] = Field(default_factory=list)
     # ============================
-
+    metadata: Dict[str, Any] = Field(default_factory=dict)
     execution_plan: Optional[List[ScaffoldItem]] = Field(default=None)
 
 

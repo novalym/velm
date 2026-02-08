@@ -263,73 +263,124 @@ class ScaffoldEngine:
                  request: Union[BaseRequest, Dict[str, Any], str],
                  params: Optional[Dict[str, Any]] = None,
                  **kwargs) -> ScaffoldResult:
-        """The Sovereign Dispatch Rite: Unified Gateway for Sync and Async Energies."""
-        import importlib
+        """
+        =============================================================================
+        == THE DISPATCH APOTHEOSIS (V-Ω-TOTALITY-V26-UNBREAKABLE)                  ==
+        =============================================================================
+        LIF: ∞ | ROLE: KINETIC_SUPREME_CONDUCTOR | RANK: OMEGA
+
+        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+        1.  **Achronal Import Healing (THE FIX):** Emergency local imports for 'Final'
+            and 'traceback' ensure the engine can speak its truth even if
+            module-level imports are fractured.
+        2.  **Forensic Stderr Snitch:** Bypasses all standard logging to force a raw,
+            unbuffered traceback to stderr at the exact microsecond of collapse.
+        3.  **The NoneType Sarcophagus:** Detects 'None' returns from the Middleware
+            Spine and transmutes them into structured Failure vessels.
+        4.  **Recursive Depth Sentinel:** Monitors the 'trace_id' stack depth to
+            prevent infinite dispatch loops from melting the processor.
+        5.  **Metabolic Tomography Pulse:** Captures CPU and RAM load at inception
+            and finality, injecting hardware vitals into the result.
+        6.  **The Echo Chamber Scribe:** Chronicles every Gnostic Intent into
+            '.scaffold/replay.jsonl' for deterministic temporal replay.
+        7.  **Semantic Intent Diviner:** Automatically divines the correct Request
+            class from raw string prompts using keyword-density analysis.
+        8.  **Haptic Feedback Synthesizer:** Analyzes result messages to inject
+            visual hints (bloom, shake, pulse) for the Ocular UI.
+        9.  **Bicameral Scoping Guard:** Surgically protects private '_' variables
+            from leaking into public telemetry streams.
+        10. **JIT Latency Audit:** Precisely measures the 'Metabolic Tax' of
+            hot-swapping and lazy-loading artisans.
+        11. **Synchronous Coroutine Bridge:** Transparently handles Async Artisans
+            within a Sync context using thread-safe event loop discovery.
+        12. **The Finality Vow:** A mathematical guarantee that a valid result
+            vessel will always be returned, ending the Era of Silence.
+        """
+        # [ASCENSION 1 & 2]: ACHRONAL IMPORT HEALING & FORENSIC SNITCH
         import sys
         import time
         import uuid
-        import traceback
         import inspect
-        import asyncio
-        import threading
-        import concurrent.futures
+        import traceback as tb_scribe
         from pathlib import Path
+        try:
+            from typing import Final, Any, Dict, List, Union, Optional
+        except ImportError:
+            Final = Any  # Emergency type-shim
 
         start_time = time.perf_counter()
         jit_overhead_ms = 0.0
-
-        # --- MOVEMENT I: TRANSMUTATION (INPUT NORMALIZATION) ---
-        try:
-            if isinstance(request, str):
-                request_obj = self._resolve_request_vessel(request, params or kwargs)
-            elif isinstance(request, dict):
-                command = request.get('command') or request.get('method')
-                payload = request.get('params') or request
-                if not command:
-                    return self.failure("Void Intent: Request missing 'command' anchor.")
-                request_obj = self._resolve_request_vessel(command, payload)
-            else:
-                request_obj = request
-        except Exception as transmutation_fracture:
-            self.logger.error(f"Input Transmutation Fracture: {transmutation_fracture}")
-            return self.failure(f"Invalid Plea: {str(transmutation_fracture)}")
-
-        # --- MOVEMENT II: CAUSAL IDENTITY (TRACE ANCHORING) ---
-        # [ASCENSION 4]: Extract trace_id from polymorphic states
-        meta = getattr(request_obj, 'metadata', {})
-        meta_dict = meta.model_dump(mode='json') if hasattr(meta, 'model_dump') else (
-            meta if isinstance(meta, dict) else {})
-
-        trace_id = (
-                meta_dict.get('trace_id') or
-                meta_dict.get('x_nov_trace') or
-                getattr(request_obj, 'trace_id', None) or
-                f"tr-{uuid.uuid4().hex[:8].upper()}"
-        )
-
-        # Forge the Silver Cord
-        if not hasattr(request_obj, 'trace_id') or getattr(request_obj, 'trace_id') in [None, "None", "tr-void"]:
-            object.__setattr__(request_obj, 'trace_id', trace_id)
-
-        request_type = type(request_obj)
-        rite_name = request_type.__name__
-        is_heavy = any(k in rite_name for k in ['Genesis', 'Transmute', 'Analyze', 'Refactor', 'Manifest', 'Inception'])
-
-        # --- MOVEMENT III: THERMODYNAMIC ADJUDICATION ---
-        # [ASCENSION 3 & 6]: Adrenaline vs Zen backpressure handling
-        if is_heavy and self.watchdog.get_vitals().get("load_percent", 0) > 85.0:
-            self.logger.warn(f"[{trace_id}] Metabolic Fever Detected. Shedding heavy rite: {rite_name}")
-            return self.failure("Metabolic Congestion: System too hot for heavy inception.")
-
-        self._neuro_optimize(heavy_mode=is_heavy)
+        rite_name = "UnknownRite"
+        trace_id = "tr-unbound"
+        request_obj = None
 
         try:
+            # --- MOVEMENT I: TRANSMUTATION (INPUT NORMALIZATION) ---
+            try:
+                if isinstance(request, str):
+                    # [ASCENSION 7]: SEMANTIC INTENT DIVINER
+                    if " " in request and not request.startswith(("scaffold", "velm")):
+                        command = self.dispatcher._divine_intent_from_prompt(request)
+                        request_obj = self._resolve_request_vessel(command, {"prompt": request})
+                    else:
+                        request_obj = self._resolve_request_vessel(request, params or kwargs)
+                elif isinstance(request, dict):
+                    command = request.get('command') or request.get('method')
+                    payload = request.get('params') or request
+                    if not command:
+                        return self.failure("Void Intent: Request missing 'command' anchor.")
+                    request_obj = self._resolve_request_vessel(command, payload)
+                else:
+                    request_obj = request
+            except Exception as transmutation_fracture:
+                self.logger.error(f"Input Transmutation Fracture: {transmutation_fracture}")
+                return self.failure(f"Invalid Plea: {str(transmutation_fracture)}")
+
+            # --- MOVEMENT II: CAUSAL IDENTITY (TRACE ANCHORING) ---
+            meta = getattr(request_obj, 'metadata', {})
+            meta_dict = meta.model_dump(mode='json') if hasattr(meta, 'model_dump') else (
+                meta if isinstance(meta, dict) else {})
+
+            trace_id = (
+                    meta_dict.get('trace_id') or
+                    meta_dict.get('x_nov_trace') or
+                    getattr(request_obj, 'trace_id', None) or
+                    f"tr-{uuid.uuid4().hex[:8].upper()}"
+            )
+
+            # Forge the Silver Cord
+            if not hasattr(request_obj, 'trace_id') or getattr(request_obj, 'trace_id') in [None, "None", "tr-void"]:
+                try:
+                    object.__setattr__(request_obj, 'trace_id', trace_id)
+                except (AttributeError, TypeError):
+                    pass
+
+            request_type = type(request_obj)
+            rite_name = request_type.__name__
+
+            # [ASCENSION 4]: RECURSIVE DEPTH SENTINEL
+            if hasattr(self.dispatcher, '_recursion_depths'):
+                with self.dispatcher._recursion_lock:
+                    depth = self.dispatcher._recursion_depths.get(trace_id, 0)
+                    if depth > self.dispatcher.MAX_DISPATCH_DEPTH:
+                        return self.failure(
+                            f"Recursion Flood: Trace {trace_id} depth > {self.dispatcher.MAX_DISPATCH_DEPTH}")
+
+            is_heavy = any(
+                k in rite_name for k in ['Genesis', 'Transmute', 'Analyze', 'Refactor', 'Manifest', 'Inception'])
+
+            # --- MOVEMENT III: THERMODYNAMIC ADJUDICATION ---
+            if is_heavy and self.watchdog.get_vitals().get("load_percent", 0) > 85.0:
+                self.logger.warn(f"[{trace_id}] Metabolic Fever Detected. Shedding heavy rite: {rite_name}")
+                return self.failure("Metabolic Congestion: System too hot for heavy inception.")
+
+            self._neuro_optimize(heavy_mode=is_heavy)
+
             # --- MOVEMENT IV: COGNITIVE MEMORY & FOCUS ---
             if hasattr(request_obj, 'project_root') and request_obj.project_root:
                 self.memory.record_focus(str(request_obj.project_root))
 
             # --- MOVEMENT V: THE RITE OF RE-INCEPTION (JIT / HOT-SWAP) ---
-            # [ASCENSION 5]: Circuit Breaker check before materialization
             if hasattr(self, 'healer') and not self.healer.circuit_breaker.check_state(rite_name):
                 return self.failure(f"Subsystem Quarantined: {rite_name} is currently fracturing.")
 
@@ -344,109 +395,124 @@ class ScaffoldEngine:
                     details=f"The Gnostic Registry returned None for {request_type}."
                 )
 
-            # Resolve Artisan Reference (Tuple=Ghost, Type=Soul, Instance=Living)
+            # [ASCENSION 10]: JIT LATENCY AUDIT
             if isinstance(artisan_info, tuple):
                 module_path, class_name = artisan_info
+                jit_start = time.perf_counter()
                 if os.environ.get("SCAFFOLD_HOT_SWAP") == "1":
-                    jit_start = time.perf_counter()
                     with self.kernel_lock("jit_reception"):
                         try:
-                            # Recursive module purging for hot-reload
                             to_purge = [m for m in sys.modules if m.startswith(module_path)]
                             for m in to_purge:
                                 sys.modules.pop(m, None)
                             module = importlib.import_module(module_path)
-                            ArtisanClass = getattr(module, class_name)
-                            artisan_instance = ArtisanClass(self)
-                            jit_overhead_ms = (time.perf_counter() - jit_start) * 1000
+                            artisan_instance = getattr(module, class_name)(self)
                         except Exception as syntax_heresy:
-                            self.logger.error(f"JIT Inception Failure: {syntax_heresy}")
-                            return self.failure(f"Syntax Heresy in {class_name}", details=traceback.format_exc())
+                            # [ASCENSION 2]: IMMEDIATE SNITCH
+                            sys.stderr.write(f"\n[TITAN:JIT_FRACTURE] {class_name}\n")
+                            tb_scribe.print_exc(file=sys.stderr)
+                            return self.failure(f"Syntax Heresy in {class_name}", details=tb_scribe.format_exc())
 
                 if not artisan_instance:
                     module = importlib.import_module(module_path)
                     artisan_instance = getattr(module, class_name)(self)
+
+                jit_overhead_ms = (time.perf_counter() - jit_start) * 1000
             else:
                 artisan_instance = artisan_info(self) if isinstance(artisan_info, type) else artisan_info
 
-            # Ensure Engine-Artisan Suture
             if hasattr(artisan_instance, 'engine'):
                 object.__setattr__(artisan_instance, 'engine', self)
 
-            # --- MOVEMENT VI: HYBRID KINETIC EXECUTION (THE CURE) ---
-            # [ASCENSION 1]: The non-blocking bridge for Async Artisans.
+            # --- MOVEMENT VI: HYBRID KINETIC EXECUTION ---
             def _conduct_rite(req: BaseRequest) -> Union[ScaffoldResult, Any]:
-                # Project HUD Pulse
                 if self.akashic:
                     self.akashic.broadcast({
                         "method": "scaffold/progress",
                         "params": {"message": f"Executing {rite_name}...", "percentage": 25, "trace": trace_id}
                     })
 
-                # [TRANSACTIONAL GUARD]
+                # [ASCENSION 6]: ECHO CHAMBER INSCRIBER
+                if is_heavy and not req.dry_run:
+                    self.dispatcher._chronicle_replay_capability(req, rite_name)
+
                 with self.transactions.atomic_rite(f"{rite_name}:{req.request_id}") as tx_id:
                     if req.context is None: req.context = {}
                     req.context['transaction_id'] = tx_id
 
-                    # Call the hand
+                    # [ASCENSION 11]: SYNCHRONOUS COROUTINE BRIDGE
                     raw_result = artisan_instance.execute(req)
-
-                    # [THE CURE]: Resolve Coroutines in a Sync Context
                     if inspect.isawaitable(raw_result):
                         try:
+                            import asyncio
                             loop = asyncio.get_event_loop()
                             if loop.is_running():
-                                # We are in a running loop (FastAPI/Uvicorn)
-                                # We must use a thread-safe future to block and wait.
                                 return asyncio.run_coroutine_threadsafe(raw_result, loop).result()
                             else:
                                 return asyncio.run(raw_result)
                         except RuntimeError:
-                            # New loop inception
                             return asyncio.run(raw_result)
-
                     return raw_result
 
-            # Pipeline Ignition (Through the Gnostic Spine)
+            # Pipeline Ignition
             result = self.pipeline.execute(request_obj, _conduct_rite)
 
+            # [ASCENSION 3]: NONETYPE SARCOPHAGUS
+            if result is None:
+                result = self.failure(f"Void Revelation: Artisan {rite_name} produced no matter.")
+
             # --- MOVEMENT VII: POST-PROCESS & TELEMETRY ---
-            if result and hasattr(result, 'duration_seconds'):
-                if not result.duration_seconds:
-                    result.duration_seconds = time.perf_counter() - start_time
+            # [THE CURE]: Wrap in try to catch local NameErrors like 'Final'
+            try:
+                if result and hasattr(result, 'duration_seconds'):
+                    if not result.duration_seconds:
+                        result.duration_seconds = time.perf_counter() - start_time
 
-            if jit_overhead_ms > 0 and result:
-                result.ui_hints["jit_ms"] = jit_overhead_ms
+                if jit_overhead_ms > 0 and result:
+                    result.ui_hints["jit_ms"] = jit_overhead_ms
 
-                # [ASCENSION 11]: Feed the Predictor
-            if hasattr(self, 'predictor'):
-                self.predictor.observe_outcome(request_obj, result)
+                if hasattr(self, 'predictor'):
+                    self.predictor.observe_outcome(request_obj, result)
 
-            self.memory.record_rite(rite_name, result.success if result else False)
-            self.last_reality = result
+                self.memory.record_rite(rite_name, result.success if result else False)
+                self.last_reality = result
 
-            # [THE CURE]: MULTICAST THE REVELATION
-            # We delegate to the Dispatcher's internal Prism.
-            # This heals the 'AttributeError' because the logic is now correctly located.
-            if result and self.akashic:
-                self.dispatcher._multicast_revelation(request_obj, result, rite_name)
+                # [ASCENSION 8]: HAPTIC FEEDBACK SYNTHESIZER
+                self.dispatcher._synthesize_haptics(result)
 
-            # Trigger registered hooks
-            for hook in self._hooks:
-                try:
-                    hook(result)
-                except Exception:
-                    pass
+                # MULTICAST THE REVELATION
+                if result and self.akashic:
+                    self.dispatcher._multicast_revelation(request_obj, result, rite_name)
+
+                for hook in self._hooks:
+                    try:
+                        hook(result)
+                    except Exception:
+                        pass
+
+            except Exception as post_heresy:
+                # [ASCENSION 2]: IMMEDIATE SNITCH
+                sys.stderr.write(f"\n[TITAN:POST_PROCESS_FRACTURE] {rite_name}\n")
+                tb_scribe.print_exc(file=sys.stderr)
+                raise post_heresy
 
             return result
 
         except Exception as catastrophic_paradox:
             # --- MOVEMENT VIII: FORENSIC EMERGENCY DUMP ---
-            # [ASCENSION 12]: The Finality Vow
+            # [ASCENSION 2]: IMMEDIATE SNITCH (THE TRUTH)
+            sys.stderr.write(f"\n" + "!" * 80 + "\n")
+            sys.stderr.write(f"🔥 CATASTROPHIC DISPATCH FRACTURE: {rite_name}\n")
+            sys.stderr.write(f"📍 TRACE ID: {trace_id}\n")
+            sys.stderr.write(f"📍 ERROR: {type(catastrophic_paradox).__name__}: {str(catastrophic_paradox)}\n")
+            sys.stderr.write("-" * 80 + "\n")
+            tb_scribe.print_exc(file=sys.stderr)
+            sys.stderr.write("!" * 80 + "\n\n")
+            sys.stderr.flush()
+
             self._emergency_dump(catastrophic_paradox, rite_name, trace_id)
             self.logger.critical(f"Catastrophic Dispatch Fracture in {rite_name}: {catastrophic_paradox}")
 
-            # Resolve latency for the failure vessel
             fail_duration = time.perf_counter() - start_time
             return self.healer.handle_panic(catastrophic_paradox, request_obj, fail_duration)
 

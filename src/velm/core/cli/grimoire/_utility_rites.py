@@ -42,6 +42,17 @@ RITES = {
         "help": "The Grand Purifier. Reinscribes blueprints in canonical form.",
         "flags": [add_common_flags],
     },
+    "lint-blueprint": {
+        "module_path": "artisans.lint_blueprint.artisan",
+        "artisan_class_name": "BlueprintLinterArtisan",
+        "request_class_name": "LintBlueprintRequest",
+        "help": "The Architect's Level. Adjudicates .scaffold validity.",
+        "flags": [
+            add_common_flags,
+            lambda p: p.add_argument('--strict', action='store_true', help='Enforce strict Archetype metadata rules.')
+        ],
+        "args": [("target", {"help": "Path to the .scaffold file to judge."})]
+    },
     "lint": {
         "module_path": "artisans.lint",
         "artisan_class_name": "LintArtisan",

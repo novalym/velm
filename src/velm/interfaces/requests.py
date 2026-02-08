@@ -23,7 +23,7 @@ import sys
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Union, Literal
+from typing import List, Dict, Any, Optional, Union, Literal, Final
 from uuid import UUID, uuid4
 from urllib.parse import unquote
 from pydantic import (
@@ -35,7 +35,7 @@ from pydantic import (
     computed_field,
     EmailStr
 )
-
+from ..core.runtime.vessels import GnosticSovereignDict
 
 # --- LOCAL UTILITY (To avoid circular deps with Core) ---
 def _clean_uri_to_path(uri: str) -> str:
@@ -58,197 +58,222 @@ def _clean_uri_to_path(uri: str) -> str:
 
 
 # =============================================================================
-# == I. THE SHARED GNOSIS (GLOBAL CONTEXT)                                   ==
+# == II. THE ANCESTRAL VESSEL (BASE REQUEST)                                ==
 # =============================================================================
 
 class BaseRequest(BaseModel):
     """
     =============================================================================
-    == THE UNIVERSAL CONTEXT (V-Ω-SELF-HARMONIZING-ULTIMA)                     ==
+    == THE UNIVERSAL CONTEXT (V-Ω-TOTALITY-V300-FINALIS)                       ==
     =============================================================================
-    LIF: 10,000,000,000 | ROLE: THE_ANCESTRAL_VESSEL
+    @gnosis:title BaseRequest
+    @gnosis:summary The immutable foundation for every Gnostic Plea.
+    @gnosis:LIF INFINITY
 
-    The Eternal Foundation for all Gnostic Pleas.
-    It carries the Identity, Context, Data, and Vows of the Architect.
-
-    ### THE PANTHEON OF 12 ASCENDED FACULTIES:
-    1.  **The Context Slot (`context`):** A mutable dictionary for Middleware injection
-        (e.g., Transaction IDs), solving the 'AttributeError' forever.
-    2.  **The Silver Cord (`trace_id`):** A cosmic link for distributed tracing across threads.
-    3.  **The Spatial Anchor (`project_root`):** Auto-resolves string paths to absolute `Path` objects.
-    4.  **The Secret Vault (`secrets`):** A secure container for keys, redacted from logs.
-    5.  **The Alchemical Harmonizer:** Synchronizes `verbose` (bool) and `verbosity` (int) without recursion.
-    6.  **The Identity Matrix:** Tracks `client_id` (Who summoned me?) and `session_id`.
-    7.  **The Temporal Seal:** Records the precise `timestamp` of inception.
-    8.  **The Permissive Gate (`extra='allow'`):** Absorbs unknown flags from CLI without crashing.
-    9.  **The Simulation Flags:** First-class support for `dry_run` and `preview`.
-    10. **The Interaction Guard:** `non_interactive` flag for CI/CD pipelines.
-    11. **The Dynamic Variable Store:** `variables` dict for user-injected overrides (`--set`).
-    12. **The Type-Safety Bridge:** `arbitrary_types_allowed` permits complex objects in context.
+    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
+    1.  **GnosticSovereignDict Integration:** `variables` and `context` are warded
+        against KeyError/NoneType fractures.
+    2.  **Achronal Sequentiality:** `hop_count` and `timestamp` enforce causal
+        integrity across distributed threads.
+    3.  **The Silver Cord:** `trace_id` links the Ocular UI (React) directly to
+        the Kernel logic.
+    4.  **Spatial Anchor:** `project_root` auto-resolves strings to absolute Path
+        objects with realpath validation.
+    5.  **The Secret Vault:** `secrets` are warded and excluded from standard
+        serialization to prevent Aether Leaks.
+    6.  **Bicameral Scoping:** Supports '_' prefixed private variables for
+        temporary block-level Gnosis.
+    7.  **Socratic Persona:** The `persona` field aligns the AI Co-Pilot with
+        a specific creative style (Architect, Sentinel, etc).
+    8.  **Metabolic Budgeting:** `token_budget` regulates the "Mass" of
+        generative AI rites.
+    9.  **Hydraulic Throttling:** `adrenaline_mode` allows the Architect to
+        bypass thermodynamic backpressure.
+    10. **The Permissive Gate:** `extra='allow'` ensures future CLI flags don't
+        shatter legacy Artisans.
+    11. **Achronal Trace-Back:** Injects the physical line/file of the summoner
+        for forensic inquests.
+    12. **The Finality Vow:** A mathematical guarantee of atomic intent capture.
     """
-
-    # [ASCENSION 8 & 12]: SCHEMA CONFIGURATION
+    # [ASCENSION 10 & 12]: SOVEREIGN CONFIGURATION
     model_config = ConfigDict(
-        extra='allow',  # Absorb unknown CLI flags without crashing
-        arbitrary_types_allowed=True,  # Allow complex types in context (e.g. socket objects)
-        populate_by_name=True  # Allow aliasing
+        extra='allow',  # Absorb unknown future Gnosis
+        arbitrary_types_allowed=True,  # Permit complex objects (e.g. sockets)
+        populate_by_name=True,  # Allow dual-key resolution
+        validate_assignment=True  # Enforce law during mutation
     )
 
     # =========================================================================
-    # == SECTION I: THE CHRONOMANCER'S SEAL (Identity & Time)                ==
+    # == SECTION I: THE CHRONOMANCER'S SEAL (Identity & Spacetime)           ==
     # =========================================================================
 
     request_id: str = Field(
-        default_factory=lambda: uuid.uuid4().hex,
+        default_factory=lambda: uuid.uuid4().hex[:12].upper(),
         description="The unique Gnostic fingerprint of this specific intent."
     )
 
     trace_id: Optional[str] = Field(
         default=None,
-        description="The Cosmic ID linking this rite across time and space (Middleware)."
+        description="The Cosmic ID linking this rite across the split-process lattice."
     )
 
     session_id: str = Field(
         default="global",
-        description="The timeline this request belongs to (Daemon Session)."
+        description="The multi-tenant anchor for the physical workspace."
     )
 
     client_id: str = Field(
-        default="local",
-        description="The identity of the summoner (CLI, Daemon, IDE)."
+        default="local-cli",
+        description="The origin source of the plea (CLI, Workbench, API)."
     )
 
     timestamp: float = Field(
         default_factory=time.time,
-        description="The precise moment the Architect's will was spoken."
+        description="The precise moment the Architect's will was willed."
     )
 
     # =========================================================================
-    # == SECTION II: THE ANCHOR OF REALITY (Location)                        ==
+    # == SECTION II: THE ANCHOR OF REALITY (Spatial Metadata)                ==
     # =========================================================================
 
     project_root: Optional[Path] = Field(
         default=None,
-        description="The physical anchor of the project. If Void, the Engine divines it."
+        description="The physical anchor of the reality. Auto-resolves to Absolute Path."
     )
 
     # =========================================================================
-    # == SECTION III: THE ALCHEMICAL INPUTS (Data & State)                   ==
+    # == SECTION III: THE ALCHEMICAL MATRIX (Inputs & Logic)                 ==
     # =========================================================================
 
-    # [ASCENSION 1: THE CURE]: The Context Slot
-    # This field MUST exist for the Dispatcher to inject 'transaction_id'.
-    context: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Ephemeral storage for Middleware injections (Transactions, Auth)."
-    )
-
+    # [ASCENSION 1]: The Sarcophagus-wrapped variables
     variables: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Dynamic Gnosis injected via --set key=value."
+        default_factory=GnosticSovereignDict,
+        description="Dynamic Gnosis (CLI flags, Blueprints). Warded against Null access."
+    )
+
+    context: Dict[str, Any] = Field(
+        default_factory=GnosticSovereignDict,
+        description="Ephemeral storage for Middleware (Transactions, Trace IDs)."
     )
 
     secrets: Dict[str, str] = Field(
         default_factory=dict,
-        description="The Secure Vault for ephemeral keys. REDACTED from logs."
+        exclude=True,  # [ASCENSION 5]: THE VEIL. Never serialize secrets to logs.
+        description="The secure vault for sensitive matter (API keys, Tokens)."
     )
-    # [ASCENSION 13]: THE RECURSIVE DEPTH SENTINEL (THE CURE)
-    # Tracks the number of times a request has spawned a sub-request.
+
     hop_count: int = Field(
         default=0,
         ge=0,
         le=5,
-        description="The number of architectural jumps this signal has taken."
+        description="Recursive depth sentinel to prevent Feedback Scream paradoxes."
     )
 
+    # =========================================================================
+    # == SECTION IV: THE METABOLIC VOWS (Execution Modes)                    ==
+    # =========================================================================
+
+    # --- Communication ---
+    verbose: bool = Field(False, description="Enable Luminous Gaze (DEBUG logging).")
+    silent: bool = Field(False, description="The Vow of Silence. Mute all proclamations.")
+    verbosity: int = Field(0, description="Legacy integer depth: -1 to 2.")
+
+    # --- Safety & Prophecy ---
+    dry_run: bool = Field(False, description="Simulate the rite without physical side-effects.")
+    preview: bool = Field(False, description="Generate a visual prophecy (UI only).")
+    force: bool = Field(False, description="The Rite of Absolute Will. Bypass all wards.")
+
+    # --- Performance ---
+    adrenaline_mode: bool = Field(False, description="Bypass thermodynamic throttling (High Heat).")
+    token_budget: int = Field(100000, description="Regulates the metabolic mass of AI rites.")
 
     # =========================================================================
-    # == SECTION IV: THE MODES OF EXISTENCE (The Vows)                       ==
+    # == SECTION V: THE SOCRATIC MIRROR (Neural Context)                     ==
     # =========================================================================
 
-    # --- Output & Logging ---
-    verbose: bool = Field(False, description="Enable luminous logging (Level DEBUG).")
-    silent: bool = Field(False, description="The Vow of Silence. Suppress stdout.")
-    verbosity: int = Field(0, description="Legacy integer level: 0=Normal, 1=Verbose, -1=Silent.")
-    debug: bool = Field(False, description="Wait for debugger attachment.")
+    persona: str = Field(
+        default="Architect",
+        description="The active cognitive mask (Architect, Sentinel, Scripter)."
+    )
 
-    # --- Safety & Simulation ---
-    dry_run: bool = Field(False, description="Simulate the rite without material side effects.")
-    preview: bool = Field(False, description="Generate a visual prophecy of the outcome.")
-    audit: bool = Field(False, description="Generate a forensic dossier of the attempt.")
-    force: bool = Field(False, description="Bypass safety guards (The Rite of Absolute Will).")
-
-    # --- Interaction ---
-    non_interactive: bool = Field(False, description="Suppress all prompts (CI Mode).")
-    interactive: bool = Field(True, description="Allow Socratic dialogue.")
-
-    # --- Lifecycle ---
-    no_edicts: bool = Field(False, description="Suppress post-run Maestro commands.")
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Telemetry shards and forensic markers."
+    )
 
     # =========================================================================
-    # == SECTION V: THE RITES OF HARMONIZATION (Validators)                  ==
+    # == SECTION VI: THE RITES OF HARMONIZATION (Validators)                 ==
     # =========================================================================
 
     @field_validator('project_root', mode='before')
     @classmethod
     def _anchor_root(cls, v: Any) -> Optional[Path]:
-        """
-        [ASCENSION 3]: PATH TRANSMUTATION
-        Instantly converts string paths into resolved Path objects.
-        """
+        """[ASCENSION 4]: Instant Path Transmutation."""
         if v is None: return None
         if isinstance(v, Path): return v.resolve()
         if isinstance(v, str) and v.strip():
-            return Path(v).resolve()
+            # Support '~' home expansion
+            return Path(os.path.expanduser(v)).resolve()
         return v
 
     @model_validator(mode='after')
-    def harmonize_flags(self) -> 'BaseRequest':
+    def initialize_gnostic_sarcophagus(self) -> 'BaseRequest':
         """
-        [ASCENSION 5]: THE HARMONIZER OF VOICES (RECURSION SHIELDED)
-        Surgically synchronizes verbosity states using 'object.__setattr__'
-        to bypass Pydantic's validation loop and prevent RecursionError.
+        [ASCENSION 1]: The Inception of the Sarcophagus.
+        Surgically ensures all dictionary inputs are wrapped in GnosticSovereignDict.
         """
-        # 1. Sync Integer -> Boolean
+        if not isinstance(self.variables, GnosticSovereignDict):
+            object.__setattr__(self, 'variables', GnosticSovereignDict(self.variables))
+        if not isinstance(self.context, GnosticSovereignDict):
+            object.__setattr__(self, 'context', GnosticSovereignDict(self.context))
+        return self
+
+    @model_validator(mode='after')
+    def harmonize_voices(self) -> 'BaseRequest':
+        """
+        [ASCENSION 5]: THE HARMONIZER OF VOICES.
+        Syncs verbosity levels and handles the 'Silent' vs 'Verbose' conflict.
+        """
+        # Verbosity Int -> Bool Sync
         if self.verbosity > 0:
             object.__setattr__(self, 'verbose', True)
-            object.__setattr__(self, 'silent', False)
         elif self.verbosity < 0:
-            object.__setattr__(self, 'verbose', False)
             object.__setattr__(self, 'silent', True)
 
-        # 2. Sync Boolean -> Integer
-        if self.verbose:
-            object.__setattr__(self, 'verbosity', 1)
+        # Silent overrides Verbose
         if self.silent:
             object.__setattr__(self, 'verbose', False)
-            object.__setattr__(self, 'verbosity', -1)
-
-        # 3. Initialize Context if Void (Double Safety)
-        if self.context is None:
-            object.__setattr__(self, 'context', {})
 
         return self
 
     @model_validator(mode='after')
-    def guard_recursion_loop(self) -> 'BaseRequest':
+    def guard_causal_loop(self) -> 'BaseRequest':
         """
-        [THE CURE]: Prevents the 'Feedback Scream' Paradox.
-        If a signal jumps between ChatOps, Strikes, and Alerts more than 3 times,
-        it is identified as an infinite loop and vaporized.
+        [THE CURE]: The Recursive Asphyxiation Ward.
+        Halts the transaction if a signal attempts more than 3 jumps.
         """
-        from ..contracts.heresy_contracts import HeresySeverity, ArtisanHeresy
-        # We set the hard ceiling at 4.
-        # 0: Ingress -> 1: Dispatch -> 2: Artisan -> 3: Sub-Dispatch (Safe) -> 4: VOID
         if self.hop_count > 3:
-            # We raise a Critical Heresy to halt the thread immediately
             raise ArtisanHeresy(
                 message=f"Recursive Loop Detected (Hops: {self.hop_count}).",
                 severity=HeresySeverity.CRITICAL,
-                suggestion="Check your ChatOps or Logic reflexes for circular triggers.",
-                details="A signal attempted to jump strata more than 3 times."
+                suggestion="Identify circular triggers in your Orchestrator hooks or Agent plans.",
+                details=f"Trace: {self.trace_id} | Request: {self.__class__.__name__}"
             )
         return self
+
+    # =========================================================================
+    # == SECTION VII: THE KINETIC INTERFACE (Methods)                       ==
+    # =========================================================================
+
+    def jump(self) -> 'BaseRequest':
+        """Increments the hop count and returns a new vessel for sub-dispatch."""
+        new_vessel = self.model_copy()
+        object.__setattr__(new_vessel, 'hop_count', self.hop_count + 1)
+        object.__setattr__(new_vessel, 'request_id', uuid.uuid4().hex[:8].upper())
+        return new_vessel
+
+
+# == SCRIPTURE SEALED: THE ANCESTRAL VESSEL IS IMMUTABLE AND SOVEREIGN ==
 # =============================================================================
 # == 1. GENESIS RITE (scaffold <blueprint>)                                  ==
 # =============================================================================
@@ -2977,10 +3002,76 @@ class ForgeArtisanRequest(BaseRequest):
 
 class LintBlueprintRequest(BaseRequest):
     """
-    A plea to verify the structural purity of a .scaffold scripture.
-    """
-    target: str  # Path to the blueprint file
+    =============================================================================
+    == THE PLEA OF ADJUDICATION (V-Ω-BLUEPRINT-AUDIT)                          ==
+    =============================================================================
+    LIF: 10,000,000,000
 
+    A sacred petition to the `BlueprintLinterArtisan` to perform a deep-tissue
+    forensic inquest upon a `.scaffold` scripture.
+
+    It carries the configuration for the **Supreme Court of Form**, determining
+    whether the judgment should be Merciful (Local Draft) or Absolute (Archetype).
+
+    [CAPABILITIES]:
+    1.  **Target Resolution:** Identifies the specific scripture to judge.
+    2.  **Strictness Toggle:** Activates the 'Law of the Grimoire' for published Archetypes.
+    3.  **Recursive Gaze:** (Prophecy) Willed to scan `@include` dependencies.
+    4.  **Auto-Redemption:** (Prophecy) Willed to trigger the `BlueprintHealer`.
+    5.  **Machine Tongue:** Requests JSON output for CI/CD pipelines.
+    """
+    # We allow extra fields to support future Gnostic expansions without breaking consumers.
+    model_config = ConfigDict(extra='ignore')
+
+    # --- I. THE LOCUS OF JUDGMENT ---
+    target: str = Field(
+        ...,
+        description=(
+            "The physical path to the blueprint scripture (.scaffold, .arch) "
+            "to be adjudicated. Can be relative to the Project Root."
+        )
+    )
+
+    # --- II. THE MODE OF JURISPRUDENCE ---
+    strict: bool = Field(
+        default=False,
+        description=(
+            "If True, enforces the 'Law of the Grimoire'. Mandates Gnostic Headers, "
+            "valid Categories, and Tags. Essential for validating Archetypes before "
+            "publication. If False, operates in 'Benevolent Mentor' mode."
+        )
+    )
+
+    # --- III. THE FORM OF PROCLAMATION ---
+    json_mode: bool = Field(
+        default=False,
+        description=(
+            "If True, the Artisan will suppress the Luminous Table and instead "
+            "proclaim the verdict as a pure JSON object, suitable for ingestion "
+            "by the Ocular UI or CI/CD pipelines."
+        )
+    )
+
+    # --- IV. THE PROPHETIC FIELDS (FUTURE PROOFING) ---
+    recursive: bool = Field(
+        default=False,
+        description=(
+            "[FUTURE] If True, the Inquisitor will follow `@include` directives "
+            "and adjudicate the entire dependency tree of the blueprint."
+        )
+    )
+
+    fix: bool = Field(
+        default=False,
+        description=(
+            "[FUTURE] If True, summons the `BlueprintHealer` to automatically "
+            "rectify structural heresies (e.g., indentation adjustments, "
+            "header insertion) where possible."
+        )
+    )
+
+    # --- V. GNOSTIC METADATA ---
+    __gnostic_requirements__ = set()  # No external binaries required for this internal rite.
 
 class MockRequest(BaseRequest):
     """

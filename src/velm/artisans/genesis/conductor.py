@@ -1,9 +1,11 @@
-# Path: scaffold/artisans/genesis/conductor.py
+# Path: src/velm/artisans/genesis/conductor.py
 # --------------------------------------------
 
 import re
 import tempfile
 import time
+import subprocess
+import shutil
 from pathlib import Path
 from typing import Tuple, List, Optional, Dict, Any
 
@@ -13,11 +15,11 @@ from ..distill import DistillArtisan
 from ..init import InitArtisan
 from ..workspace.artisan import WorkspaceArtisan
 from ...contracts.data_contracts import GnosticArgs, ScaffoldItem, GnosticDossier
-from ...contracts.heresy_contracts import ArtisanHeresy
+from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ...core.alchemist import get_alchemist
 from ...core.artisan import BaseArtisan
-from ...interfaces.base import ScaffoldResult
-from ...interfaces.requests import GenesisRequest, WorkspaceRequest, InitRequest, DistillRequest
+from ...interfaces.base import ScaffoldResult, Artifact
+from ...interfaces.requests import GenesisRequest, WorkspaceRequest, InitRequest, DistillRequest, LintBlueprintRequest
 from ...logger import Scribe
 from ...parser_core.parser import parse_structure, ApotheosisParser
 from ...prophecy import prophesy_initial_gnosis
@@ -31,7 +33,7 @@ Logger = Scribe("GenesisConductor")
 class GenesisArtisan(BaseArtisan[GenesisRequest]):
     """
     =================================================================================
-    == THE GOD-ENGINE OF UNIVERSAL GENESIS (V-Ω-LEGENDARY-APOTHEOSIS)              ==
+    == THE GOD-ENGINE OF UNIVERSAL GENESIS (V-Ω-LEGENDARY-APOTHEOSIS-ADJUDICATED)  ==
     =================================================================================
     LIF: ∞ (ETERNAL & DIVINE)
 
@@ -41,7 +43,7 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
     its Gaze capable of distinguishing a file from a remote repository, an archetype
     from a directory, a clean slate from a living reality.
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    ### THE PANTHEON OF 13 LEGENDARY ASCENSIONS:
 
     1.  **The Oracle's Gaze (Archetype Resolution):** It no longer just sees file paths.
         It can be commanded with the name of a known Archetype (`scaffold genesis fastapi-service`),
@@ -77,9 +79,9 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         but a divine, multi-movement symphony, orchestrating the rites of Perception,
         Adjudication, Materialization, and Proclamation with Gnostic clarity.
 
-    9.  **The Pre-Flight Linter (Inherited):** It relies on the `ApotheosisParser` to
-        perform a pre-flight syntax and architectural inquest, ensuring no profane
-        scripture is ever materialized.
+    9.  **The Pre-Flight Adjudicator (ASCENDED):** It summons the `BlueprintAdjudicator` via the
+        `lint-blueprint` artisan to perform a deep-tissue scan of the blueprint's soul BEFORE
+        parsing begins. If the blueprint is profane, Genesis halts.
 
     10. **The Unbreakable Gnostic Contract:** It forges its own pure `GnosticArgs`
         vessel, ensuring all downstream artisans receive the one true, validated
@@ -92,6 +94,9 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
     12. **The Guardian's Prophecy:** Its collision survey and `guarded_execution` rite
         are now enshrined as a core movement in its symphony, guaranteeing an
         unbreakable vow of safety.
+
+    13. **The Gnostic Seal:** It checks for cryptographic signatures (.sig files) to ensure
+        the provenance of the blueprint is trusted.
     =================================================================================
     """
     ALLOWED_EXTENSIONS = {".scaffold", ".blueprint", ".splane", ".workspace"}
@@ -120,10 +125,19 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         if intent_type == "DISTILL_REALITY":
             return self.engine.dispatch(
                 DistillRequest(source_path=str(target_path), output="scaffold.scaffold", **request.model_dump()))
+
         # --- [THE NEW ASCENSION: THE GNOSTIC SEAL] ---
         # The Gaze of Prudence: We verify the seal *before* parsing the scripture.
         self._verify_gnostic_seal(target_path)
         # ============================================
+
+        # --- [THE NEW ASCENSION: THE PRE-FLIGHT ADJUDICATION] ---
+        # Before we read it to build it, we read it to judge it.
+        # We skip this for ephemeral (remote) blueprints as they are usually trusted or temp.
+        # But for local files, we check.
+        if not is_ephemeral and not request.force:
+            self._conduct_preflight_adjudication(target_path)
+        # ========================================================
 
         try:
             # --- MOVEMENT IV: THE GNOSTIC INQUEST (PARSING THE PROPHECY) ---
@@ -156,6 +170,36 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
             if is_ephemeral: self._return_to_void(target_path)
 
     # --- THE SYMPHONY'S MOVEMENTS (SPECIALIST ARTISANS) ---
+
+    def _conduct_preflight_adjudication(self, target_path: Path):
+        """
+        [ASCENSION 9] The Gnostic Adjudicator.
+        Summons the `LintBlueprintArtisan` to judge the soul of the blueprint.
+        """
+        self.logger.verbose("Summoning the Adjudicator for pre-flight inquest...")
+
+        # We can use the Artisan dispatch system to reuse the Linter's rich output logic!
+        lint_req = LintBlueprintRequest(
+            target=str(target_path),
+            project_root=self.project_root,
+            # Genesis usually implies a user is using a finished archetype, so we can be lenient on headers
+            # unless they are actively developing it.
+            strict=False
+        )
+
+        # Dispatch to the Linter Artisan
+        lint_result = self.engine.dispatch(lint_req)
+
+        # If Linting failed (Critical Heresies), we HALT Genesis.
+        if not lint_result.success:
+            raise ArtisanHeresy(
+                "Genesis Aborted: The Blueprint is profane.",
+                details=lint_result.message,
+                suggestion="Fix the structural heresies in the blueprint before materialization."
+            )
+
+        self.logger.success("Blueprint Adjudication: PASSED.")
+
     def _verify_gnostic_seal(self, blueprint_path: Path):
         """
         =============================================================================
@@ -304,20 +348,114 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         # If multiple are found, we could ask, but for now we take the first one.
         return found[0]
 
-    def _conduct_parsing(self, target_blueprint: Path, gnostic_passport: GnosticArgs, cli_vars: Dict) -> Tuple[
-        ApotheosisParser, List[ScaffoldItem], List[str], List, Dict, GnosticDossier]:
-        """[FACULTY 6 & 9] The Forensic Inquisitor & Pre-flight Linter."""
-        self.logger.info(f"Performing pre-flight Gnostic Inquest on '{target_blueprint.name}'...")
+    def _conduct_parsing(self, target_blueprint: Path, gnostic_passport: GnosticArgs, cli_vars: Dict) -> GnosticDowry:
+        """
+        =================================================================================
+        == THE GNOSTIC INQUEST (V-Ω-TOTALITY-V100-ALCHEMICAL-DRY-RUN)                 ==
+        =================================================================================
+        LIF: ∞ | ROLE: ARCHITECTURAL_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
+
+        Surgically parses and validates the blueprint's soul. Implements the "Cure"
+        for the Staleness and Incompleteness Paradoxes.
+        """
+        self.logger.info(f"Conducting pre-flight Gnostic Inquest on '[cyan]{target_blueprint.name}[/cyan]'...")
+        start_ns = time.perf_counter_ns()
+
+        # --- MOVEMENT I: THE SYNTACTIC MATERIALIZATION ---
+        # [FACULTY 2 & 9]: Summons the Apotheosis Parser to deconstruct the atoms of Form.
         try:
             parser, items, commands, edicts, variables, dossier = parse_structure(
                 target_blueprint, args=gnostic_passport, pre_resolved_vars=cli_vars
             )
-            if not parser:
-                raise ArtisanHeresy("The blueprint's soul is profane. The Gnostic Scribe's Gaze was shattered.")
-            return parser, items, commands, edicts, variables, dossier
-        except ArtisanHeresy as e:
-            e.message = f"Heresy in '{target_blueprint.name}': {e.message}"
-            raise e
+        except Exception as e:
+            # [ASCENSION 6]: Forensic Inquest into Parser Collapse
+            self.logger.critical(f"Parser Fracture: The Scribe's gaze was shattered by '{target_blueprint.name}'.")
+            raise ArtisanHeresy(
+                f"Catastrophic Parsing Failure in '{target_blueprint.name}'",
+                details=str(e),
+                severity=HeresySeverity.CRITICAL,
+                suggestion="Check for unclosed braces or invalid indentation at the locus of failure."
+            )
+
+        if not parser:
+            raise ArtisanHeresy("The blueprint's soul is profane. Gnosis could not be distilled.")
+
+        # --- MOVEMENT II: THE BENEVOLENT ADJUDICATION ---
+        # [ASCENSION 2]: We summon the Court of Form to validate Metadata and Geometry.
+        from ...core.blueprint_scribe.adjudicator import BlueprintAdjudicator
+        adjudicator = BlueprintAdjudicator(self.project_root)
+
+        # We perform the adjudication. In Genesis mode, we are benevolent (strict=False).
+        heresies = adjudicator.adjudicate(target_blueprint.read_text(encoding='utf-8'), target_blueprint,
+                                          enforce_metadata=False)
+
+        # If the Adjudicator finds CRITICAL fractures (Path Traversal, etc), we halt.
+        critical_heresies = [h for h in heresies if h.severity == HeresySeverity.CRITICAL]
+        if critical_heresies:
+            raise ArtisanHeresy(
+                f"Adjudication Failed: '{target_blueprint.name}' contains {len(critical_heresies)} critical fractures.",
+                details="\n".join([f"- {h.message} (Ln {h.line_num})" for h in critical_heresies]),
+                severity=HeresySeverity.CRITICAL
+            )
+
+        # --- MOVEMENT III: THE ALCHEMICAL SHADOW TRANSMUTATION ---
+        # [ASCENSION 1 & 7]: THE DRY-RUN VALIDATION
+        # We attempt to transmute the entire reality in-memory to find missing Gnosis.
+        self.logger.verbose("Initiating Alchemical Shadow Transmutation (Memory Simulation)...")
+        alchemist = get_alchemist()
+        combined_vars = {**variables, **cli_vars}
+
+        # [ASCENSION 7]: Socratic Variable Triage
+        # We ensure every 'Required' variable from the parser has a 'Final' truth.
+        missing_gnosis = dossier.required - set(combined_vars.keys())
+        if missing_gnosis and not self.request.force:
+            raise ArtisanHeresy(
+                f"Gnosis Gap: The blueprint requires variables that are not manifest.",
+                details=f"Missing: {', '.join(missing_gnosis)}",
+                suggestion="Define these variables in the blueprint's '$$' block or pass them via '--set'."
+            )
+
+        # [ASCENSION 1 & 5]: Path and Content Simulation
+        # We walk every item and 'try' to transmute it.
+        for item in items:
+            try:
+                # 1. Simulate Path Transmutation
+                transmuted_path = alchemist.transmute(str(item.path), combined_vars)
+
+                # [ASCENSION 5]: Path Geometry Sanity
+                from ...creator.security import PathSentinel
+                PathSentinel.adjudicate(transmuted_path)
+
+                # 2. Simulate Content Transmutation (For Inline '::' soul)
+                if item.content and len(item.content) < 100000:  # 100kb limit for pre-flight safety
+                    alchemist.transmute(item.content, combined_vars)
+
+                # 3. [ASCENSION 4]: Seed Availability Check (<<)
+                if item.seed_path:
+                    # We verify the seed exists in the current multiversal strata.
+                    from ..template_engine import TemplateEngine
+                    te = TemplateEngine(self.project_root, silent=True)
+                    if not te.locate_seed(item.seed_path):
+                        raise FileNotFoundError(f"Celestial Seed '{item.seed_path}' is a void.")
+
+            except Exception as alchemy_heresy:
+                raise ArtisanHeresy(
+                    f"Alchemical Collapse on Line {item.line_num}: {alchemy_heresy}",
+                    details=f"Path in progress: '{item.path}'",
+                    severity=HeresySeverity.CRITICAL,
+                    suggestion="Ensure all variables are defined and paths are relative to the project root."
+                )
+
+        # --- MOVEMENT IV: THE RITE OF FINALITY ---
+        # [ASCENSION 11]: Binding the Trace ID for downstream forensics
+        trace_id = self.request.metadata.get('trace_id', 'tr-void')
+        self.logger.verbose(f"Trace ID [{trace_id}] bound to Gnostic Dowry.")
+
+        duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+        self.logger.success(f"Gnostic Inquest: [green]PASSED[/green] ({duration_ms:.2f}ms). Reality is stable.")
+
+        # Bestow the Dowry upon the Materializer
+        return parser, items, commands, edicts, combined_vars, dossier
 
     def _survey_for_collisions(self, items: List[ScaffoldItem], final_vars: Dict, project_root: Path) -> List[Path]:
         """[FACULTY 12] The Guardian's Prophecy."""
@@ -344,8 +482,6 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         scribe.proclaim()
 
         return ScaffoldResult(success=True, message="Quantum Simulation Complete.")
-
-
 
     def is_silent(self, registers) -> bool:
         return getattr(registers, 'silent', False)

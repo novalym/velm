@@ -1,6 +1,7 @@
 # Path: src/velm/parser_core/lexer_core/inquisitor.py
 # ---------------------------------------------------
 
+
 import re
 import traceback
 from pathlib import Path
@@ -52,6 +53,9 @@ class GnosticLineInquisitor:
     11. **The Symlink Sentinel:** Detects `->` patterns to preemptively categorize links.
     12. **The Gaze of Redemption:** Explicitly recognizes `%% on-heresy` as a distinct
         metaphysical state, separating failure handling from standard execution.
+    13. **The Lexical Suture (THE FIX):** Explicitly detects Kinetic Sigils (`>>`, `??`, `!!`)
+        at the highest priority level, preventing them from ever being misclassified as
+        File Paths (`FORM`), thus annihilating the 'Parser Leak' heresy.
     """
 
     def __init__(
@@ -76,15 +80,16 @@ class GnosticLineInquisitor:
         # =========================================================================
         # == THE GRIMOIRE OF PERCEPTION (THE DECLARATIVE MIND)                   ==
         # =========================================================================
-        # Order matters: Specific directives must be caught before generic variable assignments.
+        # Order is the Law. Higher precedence checks must appear first.
+        # This Grimoire defines the Lexical Hierarchy.
         self.PERCEPTION_GRIMOIRE = [
-            # 1. The Void
+            # 1. The Void (Empty Lines)
             (lambda s: not s, GnosticLineType.VOID, "Void"),
 
             # 2. The Whispers (Comments)
             (lambda s: s.startswith(('#', '//')), GnosticLineType.COMMENT, "Comment"),
 
-            # 3. The Logic of the Alchemist
+            # 3. The Logic of the Alchemist (Jinja2)
             (lambda s: s.startswith(('{%', '{#')), GnosticLineType.JINJA_CONSTRUCT, "Jinja Construct"),
 
             # 4. The Contracts of Law
@@ -94,24 +99,29 @@ class GnosticLineInquisitor:
             (lambda s: s.startswith('%% trait'), GnosticLineType.TRAIT_DEF, "Trait Definition"),
             (lambda s: s.startswith('%% use'), GnosticLineType.TRAIT_USE, "Trait Usage"),
 
-            # 6. [ASCENSION]: THE RITE OF REDEMPTION
-            # Must precede generic POST_RUN to prevent the "False Equivalence" heresy.
+            # 6. The Rite of Redemption (On-Heresy)
+            # Must precede generic POST_RUN to prevent "False Equivalence"
             (lambda s: s.startswith('%% on-heresy'), GnosticLineType.ON_HERESY, "On-Heresy Block"),
 
-            # 7. The Rite of Reversal
-            # Must precede generic POST_RUN.
+            # 7. The Rite of Reversal (On-Undo)
             (lambda s: s.startswith('%% on-undo'), GnosticLineType.ON_UNDO, "On-Undo Block"),
 
             # 8. The Generic State Change (post-run, pre-run, weave)
             (lambda s: s.startswith('%%'), GnosticLineType.POST_RUN, "Post-Run Block"),
 
-            # 9. The Variables of State
+            # 9. [THE LEXICAL SUTURE] The Kinetic Sigils (Actions/Vows)
+            # This is the KILL SWITCH for the Parser Leak. Any line starting with these
+            # is definitively a VOW/ACTION, never a FORM (File Path).
+            # This catches '>> poetry install' before it falls through.
+            (lambda s: s.startswith(('>>', '??', '!!')), GnosticLineType.VOW, "Atomic Edict"),
+
+            # 10. The Variables of State
             (lambda s: s.startswith(('$$', 'let ', 'def ', 'const ')), GnosticLineType.VARIABLE, "Variable Definition"),
 
-            # 10. The Directives of Logic
+            # 11. The Directives of Logic
             (lambda s: s.startswith('@'), GnosticLineType.LOGIC, "Logic Directive"),
 
-            # 11. The Bare Assignments (Legacy Support)
+            # 12. The Bare Assignments (Legacy Support)
             (lambda s: re.match(r"^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*(?::[^=]+)?\s*=", s), GnosticLineType.VARIABLE,
              "Bare Assignment"),
         ]
@@ -182,7 +192,7 @@ class GnosticLineInquisitor:
         """The mind of the Gnostic Parser, utilizing the declarative Grimoire."""
         l_stripped_line = self.raw_line.lstrip()
 
-        # 1. The Gnostic Triage
+        # 1. The Gnostic Triage (The Filter of Intent)
         for detector, line_type, name in self.PERCEPTION_GRIMOIRE:
             if detector(l_stripped_line):
                 self.vessel.line_type = line_type
@@ -197,18 +207,26 @@ class GnosticLineInquisitor:
                         GnosticLineType.CONTRACT_DEF,
                         GnosticLineType.TRAIT_DEF,
                         GnosticLineType.TRAIT_USE,
-                        # [ASCENSION]: Redemption & Reversal
                         GnosticLineType.ON_HERESY,
-                        GnosticLineType.ON_UNDO
+                        GnosticLineType.ON_UNDO,
+                        GnosticLineType.VOW  # <--- The Suture: Catches >> commands here
                 ):
                     self.vessel.name = self.raw_line.strip()
 
                     if line_type == GnosticLineType.JINJA_CONSTRUCT:
                         self.vessel.is_jinja_construct = True
                         self.vessel.jinja_expression = self.raw_line.strip()
+
+                    # [THE FIX]: If it's a VOW/ACTION/STATE, we ensure it is handled correctly.
+                    # In 'scaffold' grammar, these are technically orphans if not in blocks,
+                    # but identifying them as VOW prevents them from becoming FORM (Files).
+
                 return
 
         # 2. Default to FORM (Structure)
+        # This is the dangerous fall-through. If the line wasn't caught above,
+        # it is assumed to be a file path. The Lexical Suture in the Grimoire (Step 9)
+        # ensures that '>>' lines never reach this point.
         self.vessel.line_type = GnosticLineType.FORM
 
         # 3. Summon the Lexer for Deep Analysis
