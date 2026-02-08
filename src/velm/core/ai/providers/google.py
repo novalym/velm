@@ -5,8 +5,8 @@ import os
 from typing import Generator, List, Dict, Any
 
 try:
-    import google.generativeai as genai
-    from google.generativeai.types import HarmCategory, HarmBlockThreshold
+    import google.genai as genai
+    from google.genai.types import HarmCategory, HarmBlockThreshold
 
     GOOGLE_AVAILABLE = True
 except ImportError:

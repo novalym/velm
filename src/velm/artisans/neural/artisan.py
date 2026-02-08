@@ -33,7 +33,7 @@ class GnosticDependencyInquisitor:
         "textual",
         "openai",
         "anthropic",
-        "google.generativeai"
+        "google.genai"
     ]
 
     @staticmethod

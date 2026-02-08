@@ -14,5 +14,5 @@ directory/file creator, all artisans, core logic, etc, the entire essence of Vel
 # It serves as the single source of truth for the package's version number,
 # which can be imported elsewhere (e.g., in setup.py) to ensure consistency.
 
-__version__ = "0.2.8"
+__version__ = "0.2.9"
 
