@@ -7,7 +7,7 @@ import time
 import shutil
 from pathlib import Path
 from queue import Queue
-from typing import Tuple, Optional, List, Dict, Type, Union, Any
+from typing import Tuple, Optional, List, Dict, Type, Union, Any, Final
 from dataclasses import dataclass
 # --- DIVINE SUMMONS ---
 from .contracts import MaestroContext, KineticVessel

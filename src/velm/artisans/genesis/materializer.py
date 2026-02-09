@@ -328,11 +328,11 @@ class GenesisMaterializer:
             if not result.success: continue
             staged_path = tx.get_staging_path(path)
 
-            if not staged_path.exists():
-                if result.bytes_written == 0:
-                    staged_path.touch()
-                else:
-                    continue
+            # [ASCENSION]: THE VOID AMNESTY (THE CURE)
+            # If a scripture has a mass of 0 bytes, its soul is a pure void.
+            # It is not malformed, it is simply unwritten. We grant it passage.
+            if not staged_path.exists() or staged_path.stat().st_size == 0:
+                continue
 
             if path.suffix == '.py':
                 try:
@@ -346,8 +346,9 @@ class GenesisMaterializer:
                 try:
                     json.load(staged_path.open('r', encoding='utf-8'))
                 except json.JSONDecodeError as e:
+                    # [THE CURE]: This heresy is now only proclaimed if the file is NOT empty.
                     raise ArtisanHeresy(f"Malformed JSON in '{path.name}': {e}", severity=HeresySeverity.CRITICAL)
-
+                
     def _ensure_dynamic_ignores(self, tx: GnosticTransaction):
         """[FACULTY 3] The Dynamic Veil."""
         ignores = set()

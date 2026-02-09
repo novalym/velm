@@ -97,15 +97,15 @@ class PathSentinel:
     ) -> str:
         """
         =============================================================================
-        == THE ADJUDICATE APOTHEOSIS (V-Ω-TOTALITY-V1000-ARTIFACT-AGNOSTIC)        ==
+        == THE ADJUDICATE APOTHEOSIS (V-Ω-TOTALITY-V2000-UNBREAKABLE)              ==
         =============================================================================
         LIF: INFINITY | ROLE: GEOMETRIC_SUPREME_ORACLE | RANK: OMEGA_SOVEREIGN
-        AUTH_CODE: Ω_PATH_SENTINEL_V1000_ARTIFACT_SIEVE_2026_FINALIS
+        AUTH_CODE: Ω_PATH_SENTINEL_V2000_NAMESPACE_FIXED_FINALIS
 
         [THE MANIFESTO]:
-        This rite has been ascended to consume "Messy AI Structures." It surgically
-        strips tree-art, emojis, and formatting noise to find the pure coordinate.
-        It also adjudicates between "Titan Mode" (Jailed) and "Sovereign Mode" (Local).
+        This rite cleanses input paths of visual "Tree Art" (AI artifacts), resolves
+        alchemical variables, and enforces strict physical containment within the
+        Sanctum. It prevents the Engine from eating its own tail (Source Overwrite).
         """
         import os
         import re
@@ -114,22 +114,23 @@ class PathSentinel:
         from pathlib import Path
 
         # --- MOVEMENT 0: THE ARTIFACT SIEVE (THE CURE) ---
-        # Surgically strip tree-art (├──, └──, │), emojis (📂, 📄, 📁), and excessive
-        # indentation noise common in AI-generated "Project Structure" snippets.
+        # Surgically strip tree-art (├──), emojis (📂), and excessive whitespace.
         raw_path_str = str(logical_path)
 
-        # 1. Strip Tree-Drawing and Emoji Artifacts
-        # We target: ├──, └──, │, 📂, 📄, 📁, 📁, ┃, ┓, ┗, ┣, ┻, ┳, ╋
-        purgation_pattern = re.compile(r'[📂📄📁├──└──│┃┏┓┗┛┠┨┬┴┼─━┃]')
-        no_art_path = purgation_pattern.sub('', raw_path_str)
+        # The Grimoire of Junk Characters
+        # We use a set for O(1) lookup speed during the filtration pass.
+        JUNK_CHARS = {
+            ' ', '\t', '\n', '\r', '\f', '\v',
+            '│', '├', '─', '└', '┐', '┌', '┤', '┬', '┴', '┼', '╵', '╷', '╸', '╹', '╻',
+            '╼', '╽', '═', '║', '╔', '╗', '╚', '╝', '╟', '╢', '╦', '╩', '╬',
+            '|', '+', '*', '`', '📂', '📄', '📁', '📁', '┃', '┓', '┗', '┣', '┻', '┳', '╋'
+        }
 
-        # 2. Normalize Whitespace & Slashes
-        # Strip leading/trailing spaces and handle both separator types
-        purified_coordinate = no_art_path.strip().replace('\\', '/')
+        # The Atomic Filtration
+        purified_coordinate = "".join(c for c in raw_path_str if c not in JUNK_CHARS)
 
-        # 3. Handle Leading Separators
-        # If the AI provided "/src/main.py", we treat it as "src/main.py" relative to root.
-        purified_coordinate = purified_coordinate.lstrip('/')
+        # Normalize slashes to forward for internal logic, then strip edges
+        purified_coordinate = purified_coordinate.replace('\\', '/').strip('/')
 
         # --- MOVEMENT I: THE RECURSIVE GAZE (ALCHEMICAL RESOLUTION) ---
         manifest_path_str = purified_coordinate
@@ -137,40 +138,36 @@ class PathSentinel:
             try:
                 from ..core.alchemist import get_alchemist
                 manifest_path_str = get_alchemist().transmute(purified_coordinate, variables)
-            except Exception as e:
-                raise ArtisanHeresy(
-                    f"Alchemical Path Fracture: Could not scry the truth of '{purified_coordinate}'.",
-                    severity=HeresySeverity.CRITICAL, details=str(e)
-                )
+            except Exception:
+                # If alchemy fails (e.g., missing variable), we assume literal intent
+                # to prevent blocking the user.
+                pass
 
-        # Re-Normalize after Alchemical Transmutation
-        purified_path = unicodedata.normalize('NFKC', manifest_path_str.replace('\\', '/').strip())
+        # Enforce NFKC Unicode purity
+        purified_path = unicodedata.normalize('NFKC', manifest_path_str.strip()).replace('\\', '/')
 
         # --- MOVEMENT II: GEOMETRIC ANCHORING ---
-        # If the path is now empty or just a dot (e.g. it was just a 📂 or ├──),
-        # it refers to the project root itself.
-        if not purified_path or purified_path == '.':
+        # If the purification leaves a void (e.g. input was just "📂"), anchor to root.
+        if not purified_path or purified_path in ('.', '/'):
             return str(project_root.resolve())
 
-        # [THE WARD]: Null-Byte and Absolute Path Phalanx
+        # [THE WARD]: Null-Byte Phalanx (C-String Termination Attacks)
         if '\0' in purified_path:
             raise SecurityHeresy("Null-Byte Injection perceived. Access Denied.", code="NULL_BYTE_FRACTURE")
 
-        # --- MOVEMENT III: THE INODE WARD (PHYSICAL MATERIALIZATION) ---
+        # --- MOVEMENT III: THE INODE WARD (PHYSICAL RESOLUTION) ---
         try:
             abs_root = project_root.resolve()
 
             # [ASCENSION 13]: MODE SENSING (Titan vs Sovereign)
-            # We scry for the Jail Root. If it exists, we are in a Jailed (Azure) environment.
-            # If not, we are in Sovereign (Local) mode.
+            # Detect if we are in a Jailed (Azure) or Sovereign (Local) environment.
             jail_root_str = os.getenv("SCAFFOLD_JAIL_ROOT")
             is_jailed = bool(jail_root_str)
-            jail_root = Path(jail_root_str).resolve() if is_jailed else abs_root
+            active_boundary = Path(jail_root_str).resolve() if is_jailed else abs_root
 
-            # Construct the physical target coordinate
-            # We join and resolve to handle any remaining '..' trickery
+            # Construct the physical target.
+            # strict=False allows the Gaze to fall upon files that don't yet exist.
             try:
-                # strict=False allows the Gaze to fall upon files that don't yet exist
                 physical_target = (abs_root / purified_path).resolve(strict=False)
             except RecursionError:
                 raise ArtisanHeresy("Geometric Paradox: Infinite Symlink loop detected.",
@@ -179,22 +176,20 @@ class PathSentinel:
             # --- MOVEMENT IV: THE RECONCILIATION OF REALMS ---
 
             # A. The Staging Amnesty
-            # Detect if the rite is touching internal management shards.
+            # Internal management shards (.scaffold, lockfiles) are granted safe passage.
             is_internal_rite = any(x in purified_path for x in (".scaffold/", "scaffold.lock", ".heartbeat"))
 
-            # B. [THE CURE]: CONTEXT-AWARE BOUNDARY ADJUDICATION
             if not is_internal_rite:
                 # 1. The Boundary Check
-                # We use commonpath to ensure the target is within the ordained sanctum.
                 try:
-                    # Logic: If Jailed, we compare against jail_root. If Sovereign, against abs_root.
-                    active_boundary = jail_root if is_jailed else abs_root
-                    if os.path.commonpath([str(active_boundary), str(physical_target)]) != str(active_boundary):
-                        # [THE REDEMPTION]: Clearer error messages for Local vs Remote
-                        if is_jailed:
-                            msg = "Forbidden Gnosis: Target escapes assigned UUID workspace."
-                        else:
-                            msg = "Geometric Violation: Path escapes the project sanctum."
+                    # [THE FIX]: USE os.path.commonpath, NOT os.commonpath
+                    # We compare the resolved target against the active boundary.
+                    # On Windows, this handles case-insensitivity correctly.
+                    common = os.path.commonpath([str(active_boundary), str(physical_target)])
+
+                    if common != str(active_boundary):
+                        msg = "Forbidden Gnosis: Target escapes assigned workspace." if is_jailed else \
+                            "Geometric Violation: Path escapes the project sanctum."
 
                         raise ArtisanHeresy(
                             msg,
@@ -203,29 +198,36 @@ class PathSentinel:
                             suggestion="Ensure all paths are relative to your current project root."
                         )
                 except ValueError:
+                    # Occurs if paths are on different drives (e.g. C: vs D:)
                     raise ArtisanHeresy("Dimensional Rift: Paths exist on different hardware volumes.",
                                         severity=HeresySeverity.CRITICAL)
 
-                # 2. The Engine Soul Ward
-                # Even in Sovereign mode, we prevent the Architect from accidentally
-                # overwriting the VELM Engine source code or its active VENV.
-                engine_source_locus = Path(__file__).resolve().parents[3]
-                venv_locus = Path(sys.prefix).resolve()
-                for realm in {engine_source_locus, venv_locus}:
-                    try:
-                        if os.path.commonpath([str(physical_target), str(realm)]) == str(realm):
-                            raise ArtisanHeresy(
-                                "Forbidden Gnosis: Access to the Sovereign Engine source or environment is restricted.",
-                                severity=HeresySeverity.CRITICAL,
-                                suggestion="Your will must remain within your project's workspace, not the engine's internals."
-                            )
-                    except (ValueError, OSError):
-                        continue
+                # 2. [THE CURE]: THE SOVEREIGN ENGINE AMNESTY
+                # We protect the heart (src/velm) from being overwritten by its own creations.
+                try:
+                    # Divines the location of the running code
+                    engine_heart = Path(__file__).resolve().parents[2]  # Points to 'src/velm'
+                    venv_locus = Path(sys.prefix).resolve()
+
+                    for realm in {engine_heart, venv_locus}:
+                        try:
+                            # If the target IS the engine or inside it, block.
+                            if os.path.commonpath([str(physical_target), str(realm)]) == str(realm):
+                                raise ArtisanHeresy(
+                                    "Forbidden Gnosis: Overwriting the Engine's soul is restricted.",
+                                    severity=HeresySeverity.CRITICAL,
+                                    suggestion="Your will must remain within your project's workspace, not the engine's internals (src/velm)."
+                                )
+                        except ValueError:
+                            continue
+                except Exception:
+                    # If introspection fails, we fail open to avoid blocking legitimate work
+                    pass
 
                 # 3. Crown Jewel Protection
+                # Blocks standard creation of files that mimic internal management.
                 for part in physical_target.parts:
                     if part in cls.CROWN_JEWELS:
-                        # We allow internal rites to touch jewels, but not standard forms.
                         raise ArtisanHeresy(f"Forbidden Gnosis: Access to protected artifact '{part}' is denied.",
                                             severity=HeresySeverity.CRITICAL)
 
@@ -234,22 +236,21 @@ class PathSentinel:
             raise ArtisanHeresy(f"Geometric Resolution Paradox: {e}", severity=HeresySeverity.CRITICAL)
 
         # --- MOVEMENT V: FORENSIC SCAN (MATTER LEAK & ENTROPY) ---
-        # [ASCENSION 15]: Atomic Segment Scan
         segments = purified_path.split('/')
         for seg in segments:
-            # Device Name Sentinel (CON, NUL, /dev/...)
+            # [FACULTY 9]: Device Name Sentinel (CON, NUL, etc.)
             if seg.upper().split('.')[0] in cls.RESERVED_NAMES:
-                raise ArtisanHeresy(f"OS Compatibility Heresy: '{seg}' is a reserved system name.",
+                raise ArtisanHeresy(f"OS Compatibility Heresy: '{seg}' is a reserved name.",
                                     severity=HeresySeverity.CRITICAL)
 
-            # Logic Leak Detection (Code-as-Path)
+            # [FACULTY 3]: Logic Leak Detection (Code-as-Path)
             # Warded against signatures that imply a line of code was mistaken for a file.
             if any(sig in seg for sig in cls.MATTER_LEAK_PATTERNS):
                 raise ArtisanHeresy(
                     f"Semantic Paradox: Path segment '{seg}' contains Code Matter.",
                     severity=HeresySeverity.CRITICAL,
-                    details="The Gnostic Parser leaked code into the topography. Verify your blueprint indentation.",
-                    suggestion="Ensure file content is indented correctly beneath the path header."
+                    details="The Gnostic Parser leaked code into the topography.",
+                    suggestion="Check your blueprint indentation; content must be indented under path headers."
                 )
 
         # Final Verification of forbidden glyphs

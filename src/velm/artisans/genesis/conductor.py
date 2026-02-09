@@ -142,9 +142,9 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         try:
             # --- MOVEMENT IV: THE GNOSTIC INQUEST (PARSING THE PROPHECY) ---
             gnostic_passport = GnosticArgs.from_namespace(request)
-            parser, items, commands, edicts, variables, dossier = self._conduct_parsing(target_path, gnostic_passport,
-                                                                                        request.variables)
-
+            parser, items, commands, edicts, variables, dossier = self._conduct_parsing(
+                target_path, gnostic_passport, request.variables, request
+            )
             final_vars = {**variables, **request.variables, 'blueprint_path': target_path.name}
             self._consecrate_items_with_origin(items, target_path)
             gnostic_dowry = (parser, items, commands, final_vars, dossier)
@@ -348,27 +348,33 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         # If multiple are found, we could ask, but for now we take the first one.
         return found[0]
 
-    def _conduct_parsing(self, target_blueprint: Path, gnostic_passport: GnosticArgs, cli_vars: Dict) -> GnosticDowry:
+    def _conduct_parsing(self, target_blueprint: Path, gnostic_passport: GnosticArgs, cli_vars: Dict,
+                         request: GenesisRequest) -> GnosticDowry:
         """
         =================================================================================
-        == THE GNOSTIC INQUEST (V-Ω-TOTALITY-V100-ALCHEMICAL-DRY-RUN)                 ==
+        == THE GNOSTIC INQUEST (V-Ω-TOTALITY-V1100-PURE-ARTISAN)                       ==
         =================================================================================
         LIF: ∞ | ROLE: ARCHITECTURAL_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_PARSING_V1100_STATELESS_FINALIS_2026
 
-        Surgically parses and validates the blueprint's soul. Implements the "Cure"
-        for the Staleness and Incompleteness Paradoxes.
+        [THE MANIFESTO]:
+        This rite has been ascended to a PURE ARTISAN. It is now completely stateless,
+        receiving all necessary Gnosis (the 'request' object) as a direct dowry. This
+        annihilates the 'Gnostic Schism' (accessing self.request) and makes the rite
+        perfectly deterministic and forensically auditable.
+        =================================================================================
         """
         self.logger.info(f"Conducting pre-flight Gnostic Inquest on '[cyan]{target_blueprint.name}[/cyan]'...")
         start_ns = time.perf_counter_ns()
 
         # --- MOVEMENT I: THE SYNTACTIC MATERIALIZATION ---
-        # [FACULTY 2 & 9]: Summons the Apotheosis Parser to deconstruct the atoms of Form.
         try:
+            # The Parser is summoned to deconstruct the atoms of Form.
             parser, items, commands, edicts, variables, dossier = parse_structure(
                 target_blueprint, args=gnostic_passport, pre_resolved_vars=cli_vars
             )
         except Exception as e:
-            # [ASCENSION 6]: Forensic Inquest into Parser Collapse
+            # Forensic Inquest into Parser Collapse
             self.logger.critical(f"Parser Fracture: The Scribe's gaze was shattered by '{target_blueprint.name}'.")
             raise ArtisanHeresy(
                 f"Catastrophic Parsing Failure in '{target_blueprint.name}'",
@@ -381,15 +387,13 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
             raise ArtisanHeresy("The blueprint's soul is profane. Gnosis could not be distilled.")
 
         # --- MOVEMENT II: THE BENEVOLENT ADJUDICATION ---
-        # [ASCENSION 2]: We summon the Court of Form to validate Metadata and Geometry.
+        # The Court of Form is summoned to validate Metadata and Geometry.
         from ...core.blueprint_scribe.adjudicator import BlueprintAdjudicator
         adjudicator = BlueprintAdjudicator(self.project_root)
 
-        # We perform the adjudication. In Genesis mode, we are benevolent (strict=False).
         heresies = adjudicator.adjudicate(target_blueprint.read_text(encoding='utf-8'), target_blueprint,
                                           enforce_metadata=False)
 
-        # If the Adjudicator finds CRITICAL fractures (Path Traversal, etc), we halt.
         critical_heresies = [h for h in heresies if h.severity == HeresySeverity.CRITICAL]
         if critical_heresies:
             raise ArtisanHeresy(
@@ -399,40 +403,37 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
             )
 
         # --- MOVEMENT III: THE ALCHEMICAL SHADOW TRANSMUTATION ---
-        # [ASCENSION 1 & 7]: THE DRY-RUN VALIDATION
-        # We attempt to transmute the entire reality in-memory to find missing Gnosis.
+        # A full in-memory simulation to find missing variables and broken paths.
         self.logger.verbose("Initiating Alchemical Shadow Transmutation (Memory Simulation)...")
         alchemist = get_alchemist()
         combined_vars = {**variables, **cli_vars}
 
-        # [ASCENSION 7]: Socratic Variable Triage
-        # We ensure every 'Required' variable from the parser has a 'Final' truth.
+        # Socratic Variable Triage: Ensure every required variable is manifest.
+        # [THE CURE]: We now gaze upon 'request.force', received as a pure parameter.
         missing_gnosis = dossier.required - set(combined_vars.keys())
-        if missing_gnosis and not self.request.force:
+        if missing_gnosis and not request.force:
             raise ArtisanHeresy(
                 f"Gnosis Gap: The blueprint requires variables that are not manifest.",
                 details=f"Missing: {', '.join(missing_gnosis)}",
                 suggestion="Define these variables in the blueprint's '$$' block or pass them via '--set'."
             )
 
-        # [ASCENSION 1 & 5]: Path and Content Simulation
-        # We walk every item and 'try' to transmute it.
+        # Path and Content Simulation
         for item in items:
             try:
                 # 1. Simulate Path Transmutation
                 transmuted_path = alchemist.transmute(str(item.path), combined_vars)
 
-                # [ASCENSION 5]: Path Geometry Sanity
+                # 2. Path Geometry Sanity
                 from ...creator.security import PathSentinel
-                PathSentinel.adjudicate(transmuted_path)
+                PathSentinel.adjudicate(transmuted_path, self.project_root)
 
-                # 2. Simulate Content Transmutation (For Inline '::' soul)
-                if item.content and len(item.content) < 100000:  # 100kb limit for pre-flight safety
+                # 3. Simulate Content Transmutation (For inline '::' soul)
+                if item.content and len(item.content) < 100000:  # 100kb limit
                     alchemist.transmute(item.content, combined_vars)
 
-                # 3. [ASCENSION 4]: Seed Availability Check (<<)
+                # 4. Seed Availability Check (<<)
                 if item.seed_path:
-                    # We verify the seed exists in the current multiversal strata.
                     from ..template_engine import TemplateEngine
                     te = TemplateEngine(self.project_root, silent=True)
                     if not te.locate_seed(item.seed_path):
@@ -447,8 +448,9 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
                 )
 
         # --- MOVEMENT IV: THE RITE OF FINALITY ---
-        # [ASCENSION 11]: Binding the Trace ID for downstream forensics
-        trace_id = self.request.metadata.get('trace_id', 'tr-void')
+        # Binding the Trace ID for downstream forensics.
+        # [THE CURE]: We gaze upon 'request.metadata', received as a pure parameter.
+        trace_id = request.metadata.get('trace_id', 'tr-void')
         self.logger.verbose(f"Trace ID [{trace_id}] bound to Gnostic Dowry.")
 
         duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
