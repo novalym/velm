@@ -708,45 +708,52 @@ class InitArtisan(BaseArtisan[InitRequest]):
 
     def _request_to_namespace(self, request: InitRequest) -> argparse.Namespace:
         """
-        [THE GNOSTIC BRIDGE]
-        Transmutes modern Pydantic requests into legacy argparse Namespaces
-        required by the Genesis Engine.
+        =============================================================================
+        == THE GNOSTIC BRIDGE (V-Ω-TOTALITY-V200-ISOMORPHIC-PROJECTOR)             ==
+        =============================================================================
+        LIF: ∞ | ROLE: SCHEMA_TRANSMUTER | RANK: OMEGA
+
+        [THE CURE]: This rite annihilates the 'AttributeError' by performing a total
+        isomorphic projection of the Pydantic Request soul into the Namespace vessel.
+        It no longer requires manual field mapping, making it future-proof.
         """
+        import argparse
+        import os
+
+        # 1. THE TOTALITY DUMP
+        # We extract every field from the Pydantic model into a dictionary.
+        # This includes defaults like 'distill', 'manual', and 'quick'.
+        request_data = request.model_dump(exclude_none=False)
+
+        # 2. THE NAMESPACE MATERIALIZATION
+        # We forge the Namespace directly from the dictionary, ensuring 1:1 attribute parity.
+        ns = argparse.Namespace(**request_data)
+
+        # 3. LEGACY ADAPTATION (THE 'SET' VOW)
+        # The internal Engine expects a list of 'key=val' strings for variable overrides.
         variables = request.variables or {}
-        set_vars = [f"{k}={v}" for k, v in variables.items()]
+        ns.set = [f"{k}={v}" for k, v in variables.items()]
 
-        is_silent = getattr(request, 'silent', False) or (request.verbosity < 0)
-        is_verbose = getattr(request, 'verbose', False) or (request.verbosity > 0)
-        is_debug = getattr(request, 'debug', False) or (request.verbosity > 1)
-
-        is_quick = getattr(request, 'quick', False)
-        is_force = getattr(request, 'force', False)
-
-        # [THE CURE]: The Autonomic Reflex Logic is unified here too
-        is_non_interactive = (
-                getattr(request, 'non_interactive', False) or
-                is_quick or
-                is_force or
+        # 4. THE AUTONOMIC REFLEX (SILENCE ENFORCEMENT)
+        # We re-calculate the non_interactive flag to ensure it remains the supreme law.
+        ns.non_interactive = (
+                request_data.get('non_interactive', False) or
+                request_data.get('quick', False) or
+                request_data.get('force', False) or
                 os.getenv("SCAFFOLD_NON_INTERACTIVE") == "1"
         )
 
+        # 5. VERBOSITY TRIAGE
+        # Syncing the numeric verbosity to the legacy boolean flags
+        if hasattr(request, 'verbosity'):
+            ns.verbose = ns.verbose or request.verbosity > 0
+            ns.debug = ns.debug or request.verbosity > 1
+
+        # 6. PLUGIN DATA GRAFTING
+        # Absorb any extra unmapped data from the Ocular Membrane
         extra_data = request.model_extra or {}
-        sanitized_extra = {k: v for k, v in extra_data.items() if k not in ('set', 'lint')}
-
-        ns = argparse.Namespace()
-        ns.profile = request.profile
-        ns.force = is_force
-        ns.quick = is_quick
-        ns.silent = is_silent
-        ns.verbose = is_verbose
-        ns.debug = is_debug
-        ns.dry_run = getattr(request, 'dry_run', False)
-        ns.preview = getattr(request, 'preview', False)
-        ns.audit = getattr(request, 'audit', False)
-        ns.non_interactive = is_non_interactive
-        ns.set = set_vars
-
-        for k, v in sanitized_extra.items():
-            setattr(ns, k, v)
+        for k, v in extra_data.items():
+            if not hasattr(ns, k):
+                setattr(ns, k, v)
 
         return ns
