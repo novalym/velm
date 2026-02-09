@@ -93,11 +93,12 @@ class QuantumCreator:
     # [FACULTY 1]: THE INQUISITOR'S GRIMOIRE
     # Patterns that indicate a path is actually a "Leaked" line of code.
     # We include HTML tags, Python signatures, and Astro/Markdown Frontmatter.
-    PROFANE_PATH_CHARS = re.compile(r'[<>:"|?*]')
+    PROFANE_PATH_CHARS = re.compile(r'[<>:"|?*\$\n\r]')
     CODE_LEAK_SIGNATURES = [
         "def ", "class ", "import ", "return ", "if ", "else", "for ", "while ",
         "{{", "}}", "{%", "%}", "==", "<body>", "</html>", "<slot", "---",
-        "const ", "let ", "export ", "public ", "private ", "fn "
+        "const ", "let ", "export ", "public ", "private ", "fn ",
+        "__pycache__", "*.py", ".bak"  # [NEW]: Catch common patterns that are likely not files
     ]
 
     def __init__(

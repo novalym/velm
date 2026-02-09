@@ -1,43 +1,15 @@
 # Path: src/velm/core/blueprint_scribe/scribe.py
 # ----------------------------------------------
 # LIF: ∞ | ROLE: ARCHITECTURAL_TRANSCRIBER | RANK: OMEGA_SUPREME
-# AUTH: Ω_BLUEPRINT_SCRIBE_V500_LITERALIST_FINALIS
+# AUTH: Ω_BLUEPRINT_SCRIBE_V1000_TOTALITY_FINALIS
 # =========================================================================================
-#
-# [ARCHITECTURAL MANIFESTO]
-# The High Priest of Transcription.
-#
-# [THE CURE]: This version annihilates the "Nested Root" heresy by strictly adherence
-# to the Law of Relative Truth. It does not invent directories. It transcribes the
-# exact paths provided by the Engine.
-#
-# [THE PANTHEON OF 12 ASCENSIONS]:
-# 1.  **Literal Geometry:** Removes all "Project Slug" wrapper logic. The paths
-#     in the blueprint are now 1:1 with the ScaffoldItems provided.
-# 2.  **The Metadata Suture:** Correctly injects the `%% contract` and `%% trait`
-#     definitions before the form, ensuring logical precedence.
-# 3.  **The Atomic Stringifier:** Intelligently quotes strings in `$$` variables
-#     while leaving booleans, integers, and template expressions naked.
-# 4.  **The Sigil Stripper:** Surgically removes `>>` from commands in `%% post-run`
-#     to ensure the blueprint is clean and idempotent.
-# 5.  **The Void Guard:** Checks if `body` is empty and inserts a comment to
-#     prevent creating a 0-byte file that looks like a heresy.
-# 6.  **The Path Normalizer:** Forcefully transmutes all paths to POSIX (`/`)
-#     standards, annihilating Windows backslashes in the scripture.
-# 7.  **The Variable Segregator:** Isolates Gnostic State (`$$`) from Physical
-#     Form (Files) for perfect readability.
-# 8.  **The Deterministic Sorter:** Sorts variables alphabetically to ensure
-#     Git diff stability.
-# 9.  **The Stream of Consciousness:** Uses generators to build the string,
-#     minimizing memory pressure.
-# 10. **The Provenance Footer:** Inscribes the forensic timestamp and version
-#     metadata at the bottom of the scroll.
-# 11. **The In-Place Check:** (Redundant logic removed) - Simplicity is reliability.
-# 12. **The Finality Vow:** Guaranteed valid return.
 
+import json
+import time
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional, Iterable
 
+# --- INTERNAL STRATA ---
 from .metadata_scribe import MetadataScribe
 from .tree_forger import TreeForger
 from .canonical_serializer import CanonicalSerializer
@@ -45,19 +17,39 @@ from ..alchemist import DivineAlchemist, get_alchemist
 from ...contracts.data_contracts import ScaffoldItem, GnosticLineType
 from ...logger import Scribe
 
+# [ASCENSION 1 & 11]: THE GNOSTIC SYSTEM ABYSS
+# These keys represent the "Metabolism of the Machine" and must never be inscribed.
+GNOSTIC_SYSTEM_ABYSS = {
+    "scaffold_env", "generated_manifest", "timestamp", "file_count",
+    "project_root_name", "ansi_colors", "term_width", "os_sep",
+    "transaction_id", "trace_id", "python_version_tuple", "is_simulated",
+    "dry_run", "force", "verbose", "silent", "no_edicts", "non_interactive",
+    "request_id", "session_id", "client_id", "blueprint_path",
+    "clean_type_name", "env_vars_setup", "name_camel", "name_const",
+    "name_pascal", "name_path", "name_slug", "name_snake", "name_title",
+    "ai_code_generation_consent", "project_structure_pattern", "dna",
+    "blueprint_origin", "is_binary", "current_year", "creation_date",
+    "is_git_repo", "has_docker", "has_make", "project_type", "scaffold_version"
+}
+
 Logger = Scribe("BlueprintScribe")
 
 
 class BlueprintScribe:
     """
-    The Sovereign Scribe. Writes the laws of the universe into text.
+    =================================================================================
+    == THE SOVEREIGN SCRIBE (V-Ω-TOTALITY-V1000)                                   ==
+    =================================================================================
+    The High Priest of Transcription. Transmutes live Gnostic state into the
+    Eternal Scripture of Form.
     """
 
     def __init__(self, project_root: Path, *, alchemist: Optional[DivineAlchemist] = None):
+        """[THE RITE OF INCEPTION]"""
         self.project_root = project_root.resolve()
         self.alchemist = alchemist or get_alchemist()
 
-        # Summon Sub-Artisans
+        # Summon the Sub-Artisans
         self.metadata_scribe = MetadataScribe(self.project_root, self.alchemist)
         self.tree_forger = TreeForger()
         self.serializer = CanonicalSerializer()
@@ -65,16 +57,20 @@ class BlueprintScribe:
     def transcribe(
             self,
             items: List[ScaffoldItem],
-            commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],  # <--- UPDATED
+            commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],
             gnosis: Dict[str, Any],
             rite_type: str = 'genesis'
     ) -> str:
         """
-        The Grand Rite of Transcription.
+        =============================================================================
+        == THE GRAND RITE OF TRANSCRIPTION                                         ==
+        =============================================================================
+        Conducts the five-movement symphony to materialize the Blueprint scroll.
         """
         Logger.verbose("The Blueprint Scribe awakens. Commencing Rite of Transcription...")
 
         # --- MOVEMENT I: THE SEGREGATION OF SOULS ---
+        # Separates variables, contracts, and physical items for tiered assembly.
         (
             variable_items,
             contract_items,
@@ -83,17 +79,21 @@ class BlueprintScribe:
         ) = self._segregate_items(items)
 
         # --- MOVEMENT II: THE FORGING OF THE HIERARCHY ---
+        # [ASCENSION 2]: Literalist Tree Forge.
         root_node = self.tree_forger.forge(form_items)
 
         # --- MOVEMENT III: THE STREAM OF CONSCIOUSNESS ---
+        # Converts the tree into aligned, indented strings.
         body_lines = list(self.serializer.serialize(root_node))
 
         # --- MOVEMENT IV: THE PROVENANCE SUTURE ---
-        clean_commands = [cmd for cmd, _, _, _ in commands]  # Ignore undo/heresy for footer hash
+        # Extracts command strings and forges the metadata seals.
+        clean_commands = [cmd[0] if isinstance(cmd, (tuple, list)) else cmd for cmd in commands]
         header_lines = self.metadata_scribe.forge_header(gnosis)
         footer_lines = self.metadata_scribe.forge_footer(gnosis, clean_commands)
 
         # --- MOVEMENT V: THE FINAL ASSEMBLY ---
+        # Joins the strata into a single, cohesive scripture.
         final_scripture = self._assemble_scripture(
             header_lines,
             variable_items,
@@ -108,47 +108,56 @@ class BlueprintScribe:
         return "\n".join(final_scripture)
 
     def _assemble_scripture(self, *args) -> Iterable[str]:
-        """The Gnostic Generator."""
-        header, variables, contracts, traits, body, commands, footer, gnosis = args
+        """[ASCENSION 9]: The Gnostic Generator."""
+        header, variable_items, contracts, traits, body, commands, footer, gnosis = args
 
-        # 1. HEADER
+        # 1. HEADER (Identity)
         yield from header
 
         # 2. VARIABLES (The Altar of Gnostic Will)
-        combined_vars = gnosis.copy()
+        # [ASCENSION 1 & 8]: Gnostic Sieve & Deterministic Sort
+        yield "\n# --- I. The Altar of Gnostic Will (Variables) ---"
+        manifest_vars = []
+        for key in sorted(gnosis.keys()):
+            # [THE SIEVE]: Filter out internal noise and private keys
+            if self._is_system_variable(key):
+                continue
 
-        if combined_vars:
-            yield "\n# --- I. The Altar of Gnostic Will (Variables) ---"
-            for key in sorted(combined_vars.keys()):
-                if key.startswith("_") or key in ["project_root"]: continue
-                val = combined_vars[key]
-                formatted_val = self._format_variable_value(val)
-                yield f"$$ {key} = {formatted_val}"
-            yield ""
+            val = gnosis[key]
+            # [ASCENSION 12]: Type-Strict Inscription
+            if not isinstance(val, (str, bool, int, float, list, dict)):
+                continue
+
+            formatted_val = self._format_variable_value(val)
+            manifest_vars.append(f"$$ {key} = {formatted_val}")
+
+        if manifest_vars:
+            yield from manifest_vars
+        else:
+            yield "# [VOID_STATE]: No custom variables willed."
+        yield ""
 
         # 3. LAWS (Contracts & Traits)
+        # [ASCENSION 14]: Logic Precedence
         if contracts or traits:
             yield "# --- II. The Scripture of Law (Contracts & Traits) ---"
-            for contract_item in contracts:
-                yield from contract_item.raw_scripture.splitlines()
-                yield ""
-            for trait_item in traits:
-                yield trait_item.raw_scripture
+            for contract in contracts:
+                if hasattr(contract, 'raw_scripture') and contract.raw_scripture:
+                    yield from contract.raw_scripture.splitlines()
+                    yield ""
+            for trait in traits:
+                if hasattr(trait, 'raw_scripture') and trait.raw_scripture:
+                    yield trait.raw_scripture
             yield ""
 
         # 4. FORM (The Body)
+        # [ASCENSION 5]: The Void Guard
         if body:
             yield "# --- III. The Scripture of Form (The Body) ---"
-
-            # [ASCENSION 1]: LITERAL GEOMETRY (THE CURE)
-            # We do NOT wrap the body in {{ project_slug }}.
-            # The TreeForger has already constructed the correct relative hierarchy.
-            # We trust the items as they are.
             yield from body
-
             yield ""
         else:
-            yield "# [VOID MANIFEST]: No physical form defined."
+            yield "# [VOID_MANIFEST]: Physical reality is a void."
             yield ""
 
         # 5. WILL (Automation)
@@ -156,40 +165,57 @@ class BlueprintScribe:
             yield "\n# --- IV. The Maestro's Will (Automation) ---"
             yield "%% post-run"
             for cmd in commands:
-                # [ASCENSION 4]: Sigil Stripper
-                clean = cmd.lstrip('>').strip()
+                # [ASCENSION 5]: Sigil Stripper
+                clean = str(cmd).lstrip('>').lstrip(' ').strip()
                 yield f"    >> {clean}"
             yield ""
 
-        # 6. FOOTER
+        # 6. FOOTER (Provenance)
         yield from footer
 
+    def _is_system_variable(self, key: str) -> bool:
+        """[ASCENSION 1, 13]: The Gnostic Sieve Logic."""
+        if key.startswith("_"): return True
+        if key.lower() in GNOSTIC_SYSTEM_ABYSS: return True
+        return False
+
     def _format_variable_value(self, value: Any) -> str:
-        """Smart formatting for variable values."""
+        """
+        [ASCENSION 3, 18]: THE ATOMIC STRINGIFIER.
+        Transmutes Python types into Gnostic scripture literals.
+        """
         if isinstance(value, bool):
             return str(value).lower()
         if isinstance(value, (int, float)):
             return str(value)
+        if isinstance(value, (list, dict)):
+            # [ASCENSION 18]: JSON-Safe Complex Types
+            return json.dumps(value)
 
         val_str = str(value)
+
+        # [ASCENSION 4]: Smart Quoting
+        # If it's already quoted, or contains template tags, we don't wrap it.
         if val_str.startswith('"') and val_str.endswith('"'):
             return val_str
         if val_str.startswith("'") and val_str.endswith("'"):
             return val_str
-
-        # Heuristic: Check for template syntax or function calls
         if "{{" in val_str or "(" in val_str:
             return val_str
 
-        return f'"{val_str}"'
+        # Escape existing quotes and wrap
+        escaped = val_str.replace('"', '\\"')
+        return f'"{escaped}"'
 
     def _segregate_items(self, items: List[ScaffoldItem]) -> Tuple[
         List[ScaffoldItem], List[ScaffoldItem], List[ScaffoldItem], List[ScaffoldItem]]:
-        """Segregates Gnostic types."""
+        """Segregates Gnostic types for hierarchical assembly."""
         vars_list, contracts_list, traits_list, form_list = [], [], [], []
 
         for item in items:
-            if not item.path and not item.raw_scripture: continue
+            # Prevent transcription of void items
+            if not item.path and not item.raw_scripture:
+                continue
 
             if item.line_type == GnosticLineType.VARIABLE:
                 vars_list.append(item)
@@ -199,6 +225,5 @@ class BlueprintScribe:
                 traits_list.append(item)
             elif item.line_type == GnosticLineType.FORM:
                 form_list.append(item)
-            # Logic nodes (@if) are implicitly handled by the TreeForger as containers
 
         return vars_list, contracts_list, traits_list, form_list

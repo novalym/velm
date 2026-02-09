@@ -25,7 +25,7 @@ $$ package_name = {{ project_name | snake }}
 {{ project_slug }}/
 
     # [1] THE KERNEL CONFIGURATION
-    .gitignore:
+    .gitignore :: """
         __pycache__/
         *.py[cod]
         *$py.class
@@ -44,101 +44,103 @@ $$ package_name = {{ project_name | snake }}
         .DS_Store
         *.db
         *.sqlite
+    """
 
     pyproject.toml :: """
-    [tool.poetry]
-    name = "{{ project_slug }}"
-    version = "0.1.0"
-    description = "A Celestial API forged by the Velm God-Engine."
-    authors = ["{{ author }}"]
-    readme = "README.md"
-    packages = [{include = "{{ package_name }}", from = "src"}]
+        [tool.poetry]
+        name = "{{ project_slug }}"
+        version = "0.1.0"
+        description = "A Celestial API forged by the Velm God-Engine."
+        authors = ["{{ author }}"]
+        readme = "README.md"
+        packages = [{include = "{{ package_name }}", from = "src"}]
 
-    [tool.poetry.dependencies]
-    python = "^3.11"
-    fastapi = "^0.110.0"
-    uvicorn = {extras = ["standard"], version = "^0.27.0"}
-    pydantic = {extras = ["email"], version = "^2.6.0"}
-    pydantic-settings = "^2.2.0"
-    python-dotenv = "^1.0.1"
-    rich = "^13.7.0"
-    python-jose = {extras = ["cryptography"], version = "^3.3.0"}
-    passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-    python-multipart = "^0.0.9"
+        [tool.poetry.dependencies]
+        python = "^3.11"
+        fastapi = "^0.110.0"
+        uvicorn = {extras = ["standard"], version = "^0.27.0"}
+        pydantic = {extras = ["email"], version = "^2.6.0"}
+        pydantic-settings = "^2.2.0"
+        python-dotenv = "^1.0.1"
+        rich = "^13.7.0"
+        python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+        passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+        python-multipart = "^0.0.9"
 
-    {% if database_type == 'postgres' %}
-    sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
-    asyncpg = ">=0.30.0"
-    alembic = "^1.13.1"
-    psycopg2-binary = "^2.9.9" 
-    {% else %}
-    sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
-    aiosqlite = "^0.20.0"
-    alembic = "^1.13.1"
-    {% endif %}
+        {% if database_type == 'postgres' %}
+        sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
+        asyncpg = ">=0.30.0"
+        alembic = "^1.13.1"
+        psycopg2-binary = "^2.9.9" 
+        {% else %}
+        sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
+        aiosqlite = "^0.20.0"
+        alembic = "^1.13.1"
+        {% endif %}
 
-    [tool.poetry.group.dev.dependencies]
-    pytest = "^8.0.0"
-    pytest-asyncio = "^0.23.5"
-    ruff = "^0.3.0"
-    black = "^24.2.0"
-    httpx = "^0.27.0"
-    mypy = "^1.8.0"
+        [tool.poetry.group.dev.dependencies]
+        pytest = "^8.0.0"
+        pytest-asyncio = "^0.23.5"
+        ruff = "^0.3.0"
+        black = "^24.2.0"
+        httpx = "^0.27.0"
+        mypy = "^1.8.0"
 
-    [build-system]
-    requires = ["poetry-core"]
-    build-backend = "poetry.core.masonry.api"
+        [build-system]
+        requires = ["poetry-core"]
+        build-backend = "poetry.core.masonry.api"
 
-    [tool.ruff]
-    line-length = 110
-    target-version = "py311"
+        [tool.ruff]
+        line-length = 110
+        target-version = "py311"
 
-    [tool.black]
-    line-length = 110
+        [tool.black]
+        line-length = 110
     """
 
     # [2] THE CONTROL PLANE
+    # Note: Indentation here uses literal tabs for the Makefile recipes.
     Makefile :: """
-    .PHONY: help install dev test lint format clean docker-up
+        .PHONY: help install dev test lint format clean docker-up
 
-    # Variables
-    $APP_NAME = {{ project_slug }}
-    $PKG_NAME = {{ package_name }}
-    
-    help:  ## Proclaim available rites
-        @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $1, $2}'
+        # Variables
+        $APP_NAME = {{ project_slug }}
+        $PKG_NAME = {{ package_name }}
+        
+        help:  ## Proclaim available rites
+            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\\033[36m%-20s\\033[0m %s\\n", $1, $2}'
 
-    install: ## Consecrate the local environment
-        @echo "📦 Summoning dependencies..."
-        @poetry install
+        install: ## Consecrate the local environment
+            @echo "📦 Summoning dependencies..."
+            @poetry install
 
-    dev: ## Ignite the development server
-        @echo "🚀 Awakening {{ project_name }}..."
-        @poetry run uvicorn src.$(PKG_NAME).main:app --host 0.0.0.0 --port 8000 --reload
+        dev: ## Ignite the development server
+            @echo "🚀 Awakening {{ project_name }}..."
+            @poetry run uvicorn src.$(PKG_NAME).main:app --host 0.0.0.0 --port 8000 --reload
 
-    test: ## Conduct the unit inquisition
-        @echo "🧪 Verifying logic..."
-        @poetry run pytest
+        test: ## Conduct the unit inquisition
+            @echo "🧪 Verifying logic..."
+            @poetry run pytest
 
-    lint: ## Audit for architectural heresies
-        @echo "🔍 Gazing upon the code..."
-        @poetry run ruff check .
-        @poetry run mypy src/
+        lint: ## Audit for architectural heresies
+            @echo "🔍 Gazing upon the code..."
+            @poetry run ruff check .
+            @poetry run mypy src/
 
-    format: ## Apply sacred geometry to the code
-        @echo "✨ Purifying form..."
-        @poetry run ruff check --fix .
-        @poetry run black .
+        format: ## Apply sacred geometry to the code
+            @echo "✨ Purifying form..."
+            @poetry run ruff check --fix .
+            @poetry run black .
 
-    clean: ## Return ephemeral artifacts to the void
-        @rm -rf .venv __pycache__ .pytest_cache .ruff_cache dist build
+        clean: ## Return ephemeral artifacts to the void
+            @rm -rf .venv __pycache__ .pytest_cache .ruff_cache dist build
 
-    docker-up: ## Awaken the containerized reality
-        @docker-compose up --build -d
+        docker-up: ## Awaken the containerized reality
+            @docker-compose up --build -d
     """
 
     # [3] THE ENVIRONMENT DNA
-    .env.example:
+    .env.example :: """
         APP_NAME="{{ project_name }}"
         ENVIRONMENT="development"
         LOG_LEVEL="INFO"
@@ -156,6 +158,7 @@ $$ package_name = {{ project_name | snake }}
         SECRET_KEY={{ secret('hex', 32) }}
         ALGORITHM="HS256"
         ACCESS_TOKEN_EXPIRE_MINUTES=30
+    """
 
     # [4] THE SOURCE CODE (THE SOUL)
     src/
@@ -163,241 +166,241 @@ $$ package_name = {{ project_name | snake }}
             __init__.py :: "__version__ = '0.1.0'"
 
             config.py :: """
-            from pydantic_settings import BaseSettings, SettingsConfigDict
-            from typing import Optional
+                from pydantic_settings import BaseSettings, SettingsConfigDict
+                from typing import Optional
 
-            class Settings(BaseSettings):
-                \"\"\"
-                =============================================================================
-                == THE GNOSTIC SETTINGS (V-Ω-SINGLETON)                                    ==
-                =============================================================================
-                \"\"\"
-                APP_NAME: str = "{{ project_name }}"
-                ENVIRONMENT: str = "development"
-                LOG_LEVEL: str = "INFO"
-                
-                DATABASE_URL: str
-                SECRET_KEY: str
-                ALGORITHM: str = "HS256"
-                ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+                class Settings(BaseSettings):
+                    \"\"\"
+                    =============================================================================
+                    == THE GNOSTIC SETTINGS (V-Ω-SINGLETON)                                    ==
+                    =============================================================================
+                    \"\"\"
+                    APP_NAME: str = "{{ project_name }}"
+                    ENVIRONMENT: str = "development"
+                    LOG_LEVEL: str = "INFO"
+                    
+                    DATABASE_URL: str
+                    SECRET_KEY: str
+                    ALGORITHM: str = "HS256"
+                    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
-                model_config = SettingsConfigDict(
-                    env_file=".env", 
-                    env_file_encoding="utf-8", 
-                    extra="ignore"
-                )
+                    model_config = SettingsConfigDict(
+                        env_file=".env", 
+                        env_file_encoding="utf-8", 
+                        extra="ignore"
+                    )
 
-            settings = Settings()
+                settings = Settings()
             """
 
             # --- THE KINETIC INTERFACE ---
             main.py :: """
-            import time
-            from contextlib import asynccontextmanager
-            from fastapi import FastAPI, Request
-            from fastapi.middleware.cors import CORSMiddleware
-            from rich.console import Console
+                import time
+                from contextlib import asynccontextmanager
+                from fastapi import FastAPI, Request
+                from fastapi.middleware.cors import CORSMiddleware
+                from rich.console import Console
 
-            from .config import settings
-            from .database import init_db
-            from .routers import auth, users
+                from .config import settings
+                from .database import init_db
+                from .routers import auth, users
 
-            console = Console()
+                console = Console()
 
-            @asynccontextmanager
-            async def lifespan(app: FastAPI):
-                \"\"\"The Inception and Dissolution rites.\"\"\"
-                console.print(f"[bold green]✨ {settings.APP_NAME} awakening in {settings.ENVIRONMENT} mode...[/]")
-                await init_db()
-                yield
-                console.print(f"[bold red]💀 {settings.APP_NAME} returning to the void...[/]")
+                @asynccontextmanager
+                async def lifespan(app: FastAPI):
+                    \"\"\"The Inception and Dissolution rites.\"\"\"
+                    console.print(f"[bold green]✨ {settings.APP_NAME} awakening in {settings.ENVIRONMENT} mode...[/]")
+                    await init_db()
+                    yield
+                    console.print(f"[bold red]💀 {settings.APP_NAME} returning to the void...[/]")
 
-            app = FastAPI(
-                title=settings.APP_NAME,
-                version="0.1.0",
-                lifespan=lifespan
-            )
+                app = FastAPI(
+                    title=settings.APP_NAME,
+                    version="0.1.0",
+                    lifespan=lifespan
+                )
 
-            # --- MIDDLEWARE ---
-            app.add_middleware(
-                CORSMiddleware,
-                allow_origins=["*"],
-                allow_methods=["*"],
-                allow_headers=["*"],
-            )
+                # --- MIDDLEWARE ---
+                app.add_middleware(
+                    CORSMiddleware,
+                    allow_origins=["*"],
+                    allow_methods=["*"],
+                    allow_headers=["*"],
+                )
 
-            @app.middleware("http")
-            async def add_process_time_header(request: Request, call_next):
-                start_time = time.time()
-                response = await call_next(request)
-                process_time = time.time() - start_time
-                response.headers["X-Process-Time"] = str(process_time)
-                return response
+                @app.middleware("http")
+                async def add_process_time_header(request: Request, call_next):
+                    start_time = time.time()
+                    response = await call_next(request)
+                    process_time = time.time() - start_time
+                    response.headers["X-Process-Time"] = str(process_time)
+                    return response
 
-            # --- RITES (ROUTERS) ---
-            app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
-            app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
+                # --- RITES (ROUTERS) ---
+                app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
+                app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
 
-            @app.get("/")
-            async def root():
-                return {
-                    "message": "Celestial API Online.",
-                    "status": "RESONANT",
-                    "timestamp": time.time()
-                }
+                @app.get("/")
+                async def root():
+                    return {
+                        "message": "Celestial API Online.",
+                        "status": "RESONANT",
+                        "timestamp": time.time()
+                    }
 
-            @app.get("/health")
-            async def health():
-                return {"status": "vital"}
+                @app.get("/health")
+                async def health():
+                    return {"status": "vital"}
             """
 
             # --- THE CRYSTAL MIND (DATABASE) ---
             database.py :: """
-            import logging
-            from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-            from sqlalchemy.orm import DeclarativeBase
-            from .config import settings
+                import logging
+                from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+                from sqlalchemy.orm import DeclarativeBase
+                from .config import settings
 
-            Logger = logging.getLogger("uvicorn")
+                Logger = logging.getLogger("uvicorn")
 
-            # [THE CURE]: Async Engine with High-Fidelity logging
-            engine = create_async_engine(
-                settings.DATABASE_URL, 
-                echo=(settings.ENVIRONMENT == "development")
-            )
-            
-            AsyncSessionLocal = async_sessionmaker(
-                engine, 
-                class_=AsyncSession, 
-                expire_on_commit=False
-            )
+                # [THE CURE]: Async Engine with High-Fidelity logging
+                engine = create_async_engine(
+                    settings.DATABASE_URL, 
+                    echo=(settings.ENVIRONMENT == "development")
+                )
+                
+                AsyncSessionLocal = async_sessionmaker(
+                    engine, 
+                    class_=AsyncSession, 
+                    expire_on_commit=False
+                )
 
-            class Base(DeclarativeBase):
-                \"\"\"The Ancestral Schema.\"\"\"
-                pass
+                class Base(DeclarativeBase):
+                    \"\"\"The Ancestral Schema.\"\"\"
+                    pass
 
-            async def init_db():
-                \"\"\"Materializes the schema in the physical world.\"\"\"
-                try:
-                    async with engine.begin() as conn:
-                        await conn.run_sync(Base.metadata.create_all)
-                except Exception as e:
-                    Logger.error(f"Database Inception Failed: {e}")
+                async def init_db():
+                    \"\"\"Materializes the schema in the physical world.\"\"\"
+                    try:
+                        async with engine.begin() as conn:
+                            await conn.run_sync(Base.metadata.create_all)
+                    except Exception as e:
+                        Logger.error(f"Database Inception Failed: {e}")
 
-            async def get_db():
-                \"\"\"Gnosis context for database interaction.\"\"\"
-                async with AsyncSessionLocal() as session:
-                    yield session
+                async def get_db():
+                    \"\"\"Gnosis context for database interaction.\"\"\"
+                    async with AsyncSessionLocal() as session:
+                        yield session
             """
 
             # --- THE ARCHITECTURAL SOULS (MODELS) ---
             models.py :: """
-            from sqlalchemy import Column, Integer, String, Boolean, DateTime
-            from sqlalchemy.sql import func
-            from .database import Base
+                from sqlalchemy import Column, Integer, String, Boolean, DateTime
+                from sqlalchemy.sql import func
+                from .database import Base
 
-            class User(Base):
-                __tablename__ = "users"
+                class User(Base):
+                    __tablename__ = "users"
 
-                id = Column(Integer, primary_key=True, index=True)
-                email = Column(String, unique=True, index=True, nullable=False)
-                hashed_password = Column(String, nullable=False)
-                is_active = Column(Boolean, default=True)
-                created_at = Column(DateTime(timezone=True), server_default=func.now())
+                    id = Column(Integer, primary_key=True, index=True)
+                    email = Column(String, unique=True, index=True, nullable=False)
+                    hashed_password = Column(String, nullable=False)
+                    is_active = Column(Boolean, default=True)
+                    created_at = Column(DateTime(timezone=True), server_default=func.now())
             """
 
             # --- THE DATA CONTRACTS (SCHEMAS) ---
             schemas.py :: """
-            from pydantic import BaseModel, EmailStr, ConfigDict
-            from typing import Optional
-            from datetime import datetime
+                from pydantic import BaseModel, EmailStr, ConfigDict
+                from typing import Optional
+                from datetime import datetime
 
-            class UserBase(BaseModel):
-                email: EmailStr
+                class UserBase(BaseModel):
+                    email: EmailStr
 
-            class UserCreate(UserBase):
-                password: str
+                class UserCreate(UserBase):
+                    password: str
 
-            class UserRead(UserBase):
-                id: int
-                is_active: bool
-                created_at: datetime
-                model_config = ConfigDict(from_attributes=True)
+                class UserRead(UserBase):
+                    id: int
+                    is_active: bool
+                    created_at: datetime
+                    model_config = ConfigDict(from_attributes=True)
 
-            class Token(BaseModel):
-                access_token: str
-                token_type: str
+                class Token(BaseModel):
+                    access_token: str
+                    token_type: str
 
-            class TokenData(BaseModel):
-                email: Optional[str] = None
+                class TokenData(BaseModel):
+                    email: Optional[str] = None
             """
 
             # --- THE SACRED TONGUES (ROUTERS) ---
             routers/
-                __init__.py
+                __init__.py :: ""
                 auth.py :: """
-                from fastapi import APIRouter, Depends, HTTPException, status
-                from fastapi.security import OAuth2PasswordRequestForm
-                from ..schemas import Token
-                
-                router = APIRouter()
+                    from fastapi import APIRouter, Depends, HTTPException, status
+                    from fastapi.security import OAuth2PasswordRequestForm
+                    from ..schemas import Token
+                    
+                    router = APIRouter()
 
-                @router.post("/login", response_model=Token)
-                async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-                    # [PROPHETIC TODO]: Implement hash verification
-                    return {"access_token": "gnostic_placeholder", "token_type": "bearer"}
+                    @router.post("/login", response_model=Token)
+                    async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+                        # [PROPHETIC TODO]: Implement hash verification
+                        return {"access_token": "gnostic_placeholder", "token_type": "bearer"}
                 """
 
                 users.py :: """
-                from fastapi import APIRouter, Depends
-                from sqlalchemy.ext.asyncio import AsyncSession
-                from ..database import get_db
-                
-                router = APIRouter()
+                    from fastapi import APIRouter, Depends
+                    from sqlalchemy.ext.asyncio import AsyncSession
+                    from ..database import get_db
+                    
+                    router = APIRouter()
 
-                @router.get("/me")
-                async def read_users_me():
-                    return {"email": "architect@velm.dev"}
+                    @router.get("/me")
+                    async def read_users_me():
+                        return {"email": "architect@velm.dev"}
                 """
 
     # [5] THE INQUISITION (TESTS)
     tests/
-        __init__.py
+        __init__.py :: ""
         conftest.py :: """
-        import pytest
-        import asyncio
-        from httpx import AsyncClient
-        from src.{{ package_name }}.main import app
+            import pytest
+            import asyncio
+            from httpx import AsyncClient
+            from src.{{ package_name }}.main import app
 
-        @pytest.fixture(scope="session")
-        def event_loop():
-            loop = asyncio.get_event_loop_policy().new_event_loop()
-            yield loop
-            loop.close()
+            @pytest.fixture(scope="session")
+            def event_loop():
+                loop = asyncio.get_event_loop_policy().new_event_loop()
+                yield loop
+                loop.close()
 
-        @pytest.fixture
-        async def client():
-            async with AsyncClient(app=app, base_url="http://test") as ac:
-                yield ac
+            @pytest.fixture
+            async def client():
+                async with AsyncClient(app=app, base_url="http://test") as ac:
+                    yield ac
         """
 
         test_main.py :: """
-        import pytest
+            import pytest
 
-        @pytest.mark.asyncio
-        async def test_root_resonance(client):
-            response = await client.get("/")
-            assert response.status_code == 200
-            assert response.json()["status"] == "RESONANT"
+            @pytest.mark.asyncio
+            async def test_root_resonance(client):
+                response = await client.get("/")
+                assert response.status_code == 200
+                assert response.json()["status"] == "RESONANT"
 
-        @pytest.mark.asyncio
-        async def test_health_vow(client):
-            response = await client.get("/health")
-            assert response.status_code == 200
+            @pytest.mark.asyncio
+            async def test_health_vow(client):
+                response = await client.get("/health")
+                assert response.status_code == 200
         """
 
     # [6] THE CELESTIAL VESSEL (DOCKER)
-    Dockerfile:
+    Dockerfile :: """
         # --- STAGE 1: THE FORGE ---
         FROM python:3.13-slim-bookworm as builder
         
@@ -424,8 +427,9 @@ $$ package_name = {{ project_name | snake }}
 
         EXPOSE 8000
         CMD ["uvicorn", "src.{{ package_name }}.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    """
 
-    docker-compose.yml:
+    docker-compose.yml :: """
         version: '3.8'
         services:
           api:
@@ -448,26 +452,27 @@ $$ package_name = {{ project_name | snake }}
               interval: 5s
               timeout: 5s
               retries: 5
+    """
 
     README.md :: """
-    # {{ project_name }}
+        # {{ project_name }}
 
-    > {{ description }}
+        > {{ description }}
 
-    Forged with **FastAPI**, **SQLAlchemy 2.0**, and **Titanium** resilience.
+        Forged with **FastAPI**, **SQLAlchemy 2.0**, and **Titanium** resilience.
 
-    ## 🚀 Quick Start
+        ## 🚀 Quick Start
 
-    1. **Summon dependencies:** `make install`
-    2. **Prepare the Veil:** `cp .env.example .env`
-    3. **Awaken the core:** `make dev`
+        1. **Summon dependencies:** `make install`
+        2. **Prepare the Veil:** `cp .env.example .env`
+        3. **Awaken the core:** `make dev`
 
-    ## 🏛️ Architecture
+        ## 🏛️ Architecture
 
-    - `src/{{ package_name }}/main.py`: Entrypoint & Lifespan.
-    - `src/{{ package_name }}/database.py`: Async Engine & Session.
-    - `src/{{ package_name }}/config.py`: Pydantic V2 Settings.
-    - `src/{{ package_name }}/routers/`: Modular Logic.
+        - `src/{{ package_name }}/main.py`: Entrypoint & Lifespan.
+        - `src/{{ package_name }}/database.py`: Async Engine & Session.
+        - `src/{{ package_name }}/config.py`: Pydantic V2 Settings.
+        - `src/{{ package_name }}/routers/`: Modular Logic.
     """
 
 # --- III. THE MAESTRO'S WILL ---
