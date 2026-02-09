@@ -255,7 +255,7 @@ class BlueprintAdjudicator:
             # 2. Security: Path Traversal (CRITICAL - Breaks Physics)
             # We use the PathSentinel, wrapping it to catch the specific exception
             try:
-                PathSentinel.adjudicate(path_str)
+                PathSentinel.adjudicate(path_str, self.project_root)
             except Exception as e:
                 issues.append(Heresy(
                     message=f"Security Violation in path '{path_str}'",
