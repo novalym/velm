@@ -308,7 +308,7 @@ class BaseArtisan(ABC, Generic[Req]):
             })
 
         # --- MOVEMENT III: THE RITE OF ARCHIVAL ---
-        from ..kernel.archivist import GnosticArchivist
+        from .kernel.archivist import GnosticArchivist
         archivist = GnosticArchivist(self.project_root)
 
         # [ASCENSION 1 & 12]: THE SILENT PATH (The Terminal Shield)
