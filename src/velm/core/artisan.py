@@ -266,25 +266,100 @@ class BaseArtisan(ABC, Generic[Req]):
         return Prompt.ask(question, default=default, console=self.console)
 
     def guarded_execution(self, targets: List[Path], request: BaseRequest, context: str = "rite") -> bool:
-        """[THE GUARDIAN'S OFFER] Standardized logic for pre-flight backups."""
-        valid_targets = [t for t in targets if t.exists()]
+        """
+        =================================================================================
+        == THE GUARDIAN'S OFFER (V-Ω-TOTALITY-V500-NON-INTERACTIVE-SUTURE)             ==
+        =================================================================================
+        LIF: ∞ | ROLE: PHYSICAL_INTEGRITY_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
+        AUTH_CODE: Ω_GUARD_V500_STABILITY_FINALIS
+        """
+        import os
+        import time
+        from rich.panel import Panel
+        from rich.prompt import Confirm
+
+        # --- MOVEMENT I: PERCEPTION & TRIAGE ---
+        # Identify the material souls that actually exist in the mortal realm.
+        valid_targets = [t.resolve() for t in targets if t.exists()]
+
+        # [ASCENSION 1]: THE CURE - Total Environmental Scrying
+        # We check the request flag, the env var, and the CI signal.
+        is_non_interactive = (
+                getattr(request, 'non_interactive', False) or
+                os.getenv("SCAFFOLD_NON_INTERACTIVE") == "1" or
+                os.getenv("CI") == "true"
+        )
+
+        # If no matter exists to guard, or if Absolute Will (force) is willed, we pass.
         if not valid_targets or request.force or request.dry_run or request.preview:
             return True
 
+        # --- MOVEMENT II: THE OCULAR HUD PULSE ---
+        # [ASCENSION 2]: Let the web-interface know the Guardian is considering the past.
+        if self.engine.akashic:
+            self.engine.akashic.broadcast({
+                "method": "novalym/hud_pulse",
+                "params": {
+                    "type": "GUARDIAN_OFFER",
+                    "label": f"GUARDING_{context.upper()}",
+                    "color": "#10b981",
+                    "targets": [str(t.relative_to(self.project_root)) for t in valid_targets]
+                }
+            })
+
+        # --- MOVEMENT III: THE RITE OF ARCHIVAL ---
+        from ..kernel.archivist import GnosticArchivist
         archivist = GnosticArchivist(self.project_root)
-        if request.non_interactive:
-            self.logger.info(f"Non-interactive mode. Auto-archiving {len(valid_targets)} item(s).")
-            archivist.create_snapshot(valid_targets, reason=f"auto_{context}")
-            return True
+
+        # [ASCENSION 1 & 12]: THE SILENT PATH (The Terminal Shield)
+        if is_non_interactive:
+            # In the void, we do not ask. We protect by default.
+            self.logger.info(f"Non-interactive mode active. Autonomic Archival of {len(valid_targets)} artifacts.")
+
+            # [ASCENSION 10]: Entropy-Aware Naming
+            auto_reason = f"auto_{context}_{os.urandom(2).hex()}"
+
+            try:
+                # [ASCENSION 7]: Transactional Suture
+                snapshot_path = archivist.create_snapshot(valid_targets, reason=auto_reason)
+                if snapshot_path and request.context is not None:
+                    request.context["last_safety_snapshot"] = str(snapshot_path)
+                return True
+            except Exception as e:
+                self.logger.error(f"Autonomic Archival FAILED: {e}")
+                # In non-interactive mode, if archival fails, we proceed with caution
+                return True
+
+        # --- MOVEMENT IV: THE ARCHITECT'S COMMUNION (INTERACTIVE) ---
+        # This section is only reached if a TTY is present and non_interactive is False.
 
         self.console.print(Panel(
-            f"This rite will modify {len(valid_targets)} existing scripture(s).\nA safety snapshot can be forged in [cyan].scaffold/backups/[/cyan].",
-            title=f"[bold green]🛡️ The Guardian's Offer ({context})[/bold green]", border_style="green"
+            f"The rite [bold cyan]{context}[/bold cyan] will transfigure {len(valid_targets)} existing scripture(s).\n"
+            f"A safety snapshot can be manifest in [green].scaffold/backups/[/green].",
+            title="[bold green]🛡️ The Guardian's Offer[/bold green]",
+            subtitle="[dim]LIF: INFINITY | OMEGA_VOW[/dim]",
+            border_style="green",
+            padding=(1, 2)
         ))
-        if Confirm.ask("[bold question]Forge safety snapshot?[/bold question]", default=True):
-            archivist.create_snapshot(valid_targets, reason=f"manual_{context}")
-        else:
-            self.logger.warn("Proceeding without a net.")
+
+        # [ASCENSION 7 & 12]: The Socratic Vow
+        # We ensure that input() is ONLY called if we are absolutely certain we are interactive.
+        try:
+            prompt_msg = f"[bold question]Forge safety snapshot for {context}?[/bold question]"
+            if Confirm.ask(prompt_msg, default=True):
+                manual_reason = f"manual_{context}_{int(time.time())}"
+                snapshot_path = archivist.create_snapshot(valid_targets, reason=manual_reason)
+
+                if snapshot_path:
+                    self.logger.success(f"Temporal Echo preserved: [dim]{snapshot_path.name}[/dim]")
+            else:
+                self.logger.warn("Architect has willed to proceed without a safety net.")
+        except EOFError:
+            # [ASCENSION 1]: The Final Emergency Fallback
+            # If somehow we hit an EOF here despite checks, we fail silent and safe.
+            self.logger.error("Interactivity Paradox: EOF detected. Emergency Auto-Archiving...")
+            archivist.create_snapshot(valid_targets, reason=f"emergency_{context}")
+
         return True
 
     def _validate_identity_moat(self, request: BaseRequest):

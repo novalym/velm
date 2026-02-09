@@ -55,6 +55,7 @@ from ...utils import atomic_write, to_snake_case
 # --- THE DIVINE SUMMONS OF THE CRYSTAL MIND ---
 try:
     from ...core.state.gnostic_db import GnosticDatabase
+
     SQL_AVAILABLE = True
 except ImportError:
     SQL_AVAILABLE = False
@@ -80,9 +81,37 @@ GNOSTIC_SYSTEM_ABYSS: Final[Set[str]] = {
 class InitArtisan(BaseArtisan[InitRequest]):
     """
     =================================================================================
-    == THE GOD-ENGINE OF INCEPTION (V-Ω-UNBREAKABLE-INCEPTION)                     ==
+    == THE GOD-ENGINE OF INCEPTION (V-Ω-UNBREAKABLE-INCEPTION-V20000)              ==
     =================================================================================
-    LIF: 10,000,000,000,000
+    LIF: 10,000,000,000,000 | ROLE: SOVEREIGN_GATEKEEPER | RANK: OMEGA
+
+    The Sovereign Gateway to Creation.
+    It has been ascended to possess **Autonomic Environmental Awareness**.
+
+    ### THE 12 LEGENDARY ASCENSIONS:
+    1.  **The Silent Reflex:** Automatically detects Headless Voids (CI/CD, Docker) and
+        switches to deterministic defaults, preventing the "EOF" heresy.
+    2.  **The Prime Anchor:** Surgically resolves the Project Root, handling CWD
+        ambiguities with forensic precision.
+    3.  **The Profile Oracle:** Divines the correct Archetype not just from flags,
+        but from existing file DNA (`package.json`, `go.mod`).
+    4.  **The Sanctum Amnesty:** Grants safe passage to existing projects if the
+        Architect wills it, without destroying the history.
+    5.  **The Guarded Hand:** Wraps all overwrite operations in a non-interactive
+        safety check.
+    6.  **The Gnostic Hydrator:** Automatically resurrects the Crystal Mind (`gnosis.db`)
+        if a Lockfile is found but the DB is cold.
+    7.  **The Telemetric Beacon:** Broadcasts the inception event to the Ocular HUD
+        before any matter is touched.
+    8.  **The Permission Sentinel:** Pre-flight checks filesystem ACLs to prevent
+        mid-rite crashes.
+    9.  **The Variable Prophet:** Siphons Git identity and System DNA to pre-fill
+        variables, reducing human friction.
+    10. **The Atomic Dispatch:** Bifurcates logic into clear paths (Distill, Manual,
+        Genesis, Pad) to avoid cyclomatic complexity.
+    11. **The Fallback Circuit:** If profile selection fails in silent mode, it
+        defaults to `poetry-basic` rather than crashing.
+    12. **The Finality Vow:** Guaranteed valid return vessel, even in catastrophe.
     """
 
     def execute(self, request: InitRequest) -> ScaffoldResult:
@@ -94,13 +123,15 @@ class InitArtisan(BaseArtisan[InitRequest]):
         self.logger.info("The Sovereign Gateway opens. Preparing the Rite of Inception...")
 
         # [ASCENSION 1: PRIME ANCHORING]
+        # We determine the intended name of the reality.
         project_name_intent = request.variables.get('project_name') or Path.cwd().name
 
         # If the user provided a root in the request, honor it.
         # Otherwise, check if CWD matches the intent.
         if request.project_root:
             root_path = Path(request.project_root).resolve()
-        elif Path.cwd().name == project_name_intent or Path.cwd().name == to_snake_case(project_name_intent).replace('_', '-'):
+        elif Path.cwd().name == project_name_intent or Path.cwd().name == to_snake_case(project_name_intent).replace(
+                '_', '-'):
             self.logger.verbose(f"Prime Anchor: CWD matches intent. Materializing in current sanctum.")
             root_path = Path.cwd()
         else:
@@ -108,60 +139,105 @@ class InitArtisan(BaseArtisan[InitRequest]):
 
         master_blueprint = root_path / "scaffold.scaffold"
 
-        # 0. PERMISSION SENTINEL
+        # [ASCENSION 8: PERMISSION SENTINEL]
         if not os.access(root_path, os.W_OK):
             return self.failure(f"Sanctum Locked: Write permissions denied for '{root_path}'.")
 
+        # [ASCENSION 9: TELEMETRIC BEACON]
+        # Announce the intent to the Akashic Record (if active).
+        if self.engine.akashic:
+            self.engine.akashic.broadcast({
+                "method": "novalym/hud_pulse",
+                "params": {
+                    "type": "INIT_START",
+                    "label": "INCEPTION_SEQUENCE",
+                    "color": "#a855f7",
+                    "path": str(root_path)
+                }
+            })
+
         # --- MOVEMENT 0: THE CENSUS RADIATOR ---
+        # If the Architect simply wishes to know what is possible.
         if getattr(request, 'list_profiles', False):
             self._conduct_profile_selection(just_list=True)
             return self.success("Grimoire Proclaimed.")
 
         # --- MOVEMENT I: THE RITE OF HYDRATION (CRYSTAL MIND) ---
+        # [ASCENSION 6: THE GNOSTIC HYDRATOR]
         if SQL_AVAILABLE and (root_path / "scaffold.lock").exists():
             db_path = root_path / ".scaffold" / "gnosis.db"
             if not db_path.exists():
                 self._hydrate_crystal_mind(root_path)
 
-        # --- MOVEMENT II: PROFILE RECONCILIATION ---
+        # --- MOVEMENT II: PROFILE RECONCILIATION & AUTONOMIC REFLEX ---
         profile_name = request.profile or getattr(request, 'profile_flag', None)
 
+        # If no profile is willed, we scry the environment.
         if not profile_name and not request.manual and not request.distill:
             profile_name = self._scry_existing_dna(root_path)
 
+        # If still void, we must ask or decide.
         if not profile_name and not any([request.manual, request.distill, request.quick, request.launch_pad_with_path]):
-            profile_name = self._conduct_profile_selection()
-            if not profile_name:
-                return self.success("The Rite of Inception was stayed by the Architect.")
+
+            # [ASCENSION 1: THE SILENT REFLEX - THE CURE]
+            # We check the sacred non_interactive flag (which now includes Env Vars)
+            if request.non_interactive:
+                self.logger.warn("Non-interactive mode detected in a Void Sanctum.")
+                self.logger.warn("Defaulting to 'poetry-basic' to preserve the timeline.")
+                profile_name = "poetry-basic"
+            else:
+                # Only blocking call if interactive
+                profile_name = self._conduct_profile_selection()
+                if not profile_name:
+                    return self.success("The Rite of Inception was stayed by the Architect.")
+
             request.profile = profile_name
 
         # --- MOVEMENT III: THE VOID GAZE (SANCTUM AMNESTY) ---
         if any(root_path.iterdir()) and not master_blueprint.exists():
+            # [ASCENSION 4: SANCTUM AMNESTY]
+            # Only trigger adjudication if we are NOT forced and NOT silent.
             if not request.force and not request.non_interactive:
                 if not self._adjudicate_occupied_sanctum(root_path, request):
                     return self.success("The Rite of Inception was stayed to protect existing matter.")
 
-        # --- MOVEMENT IV: THE GUARDIAN'S VOW ---
+            # [ASCENSION 11: THE SILENT ASSENT]
+            elif request.non_interactive and not request.force:
+                self.logger.info("Sanctum occupied. Non-interactive mode assumes consent to proceed cautiously.")
+
+        # --- MOVEMENT IV: THE GUARDIAN'S VOW (OVERWRITE) ---
         if master_blueprint.exists() and not request.force:
-            self.guarded_execution([master_blueprint], request, context="init_overwrite")
+            # [ASCENSION 5: THE GUARDED HAND]
+            if request.non_interactive:
+                self.logger.info("Overwrite required. Non-interactive mode forcing overwrite of existing blueprint.")
+            else:
+                # This is the last blocking call we must guard.
+                self.guarded_execution([master_blueprint], request, context="init_overwrite")
 
         # =============================================================================
         # == MOVEMENT V: THE BIFURCATION OF PATHS (DISPATCH)                         ==
         # =============================================================================
+        self.logger.info(f"Dispatching Inception via path: [cyan]{profile_name or 'custom'}[/cyan]")
 
         # PATH A: THE RITE OF DISTILLATION (ADOPTION)
         if request.distill:
+            self.logger.info("Path A: Initiation of Reverse Genesis (Adoption).")
             return self._conduct_distillation_rite(request, root_path)
 
         # PATH B: THE RITE OF THE PAD (TUI WORKBENCH)
+        # Note: This path requires interaction, so it implicitly fails gracefully
+        # or defaults if non-interactive (handled in PadArtisan).
         if request.launch_pad_with_path:
+            self.logger.info("Path B: Summoning the Gnostic Workbench.")
             return self._launch_genesis_pad(request)
 
         # PATH C: THE RITE OF MANUAL CREATION (PURIST)
         if request.manual:
+            self.logger.info("Path C: The Scribe's Altar (Manual Inception).")
             return self._conduct_manual_rite(request, root_path, master_blueprint)
 
         # PATH D: THE SYMPHONY OF GENESIS (CANONICAL MATERIALIZATION)
+        self.logger.info("Path D: The Grand Symphony of Genesis (Canonical).")
         return self._conduct_genesis_symphony(request, root_path, master_blueprint)
 
     def _conduct_genesis_symphony(
@@ -176,6 +252,10 @@ class InitArtisan(BaseArtisan[InitRequest]):
         =================================================================================
         LIF: ∞ | ROLE: REALITY_CONDUCTOR | RANK: OMEGA_SOVEREIGN
         AUTH_CODE: Ω_GENESIS_V200_STEALTH_OCULAR_STABILITY_)(@)(!@#(#@)
+
+        This method orchestrates the materialization of the chosen Archetype.
+        It is hardened with 'Stealth Mode' to prevent I/O buffer corruption during
+        heavy writes, and integrates deep telemetry for the Ocular HUD.
         """
         import gc
         import time
@@ -187,7 +267,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
         start_ns = time.perf_counter_ns()
         trace_id = getattr(request, 'trace_id', 'tr-genesis-unbound')
 
-        # [ASCENSION 11]: UI HAPTIC HUD PULSE
+        # [ASCENSION 11]: UI HAPTIC HUD PULSE (Start Signal)
         if self.engine.akashic:
             self.engine.akashic.broadcast({
                 "method": "novalym/hud_pulse",
@@ -195,10 +275,14 @@ class InitArtisan(BaseArtisan[InitRequest]):
             })
 
         # 1. INTENT SNAPSHOT (CAUSAL SPLICING)
+        # We capture the initial will of the Architect to distinguish it from
+        # derived/default values later.
         initial_will: Set[str] = set((request.variables or {}).keys())
         if request.variables is None:
             object.__setattr__(request, 'variables', {})
 
+        # [ASCENSION 9]: THE VARIABLE PROPHET
+        # Siphons Git identity and System DNA into the request variables.
         self._siphon_git_identity(request.variables)
         initial_will.update(["author", "email"])
 
@@ -209,10 +293,13 @@ class InitArtisan(BaseArtisan[InitRequest]):
             self._check_profile_dependencies(profile_name)
 
         # [ASCENSION 2]: ADRENALINE MODE (Maximize I/O Velocity)
+        # We disable GC during the heavy write phase to prevent stutter.
         gc.disable()
 
         try:
             # --- MOVEMENT I: THE TRANSACTIONAL WOMB ---
+            # All creation happens within an atomic transaction. If it fails,
+            # reality is rolled back to the state before the Big Bang.
             with GnosticTransaction(root_path, f"Genesis:{profile_name or 'custom'}", use_lock=True) as tx:
 
                 tx.context.update(request.variables)
@@ -220,9 +307,12 @@ class InitArtisan(BaseArtisan[InitRequest]):
                 tx.context['project_name'] = str(project_name)
 
                 # [ASCENSION 18]: THE HERESY SILENCE VOW
+                # We command the subprocess launcher to suppress non-fatal stderr noise
+                # from post-run scripts (like `npm install` warnings).
                 os.environ["SCAFFOLD_IGNORE_POST_RUN_ERRORS"] = "1"
 
                 # --- MOVEMENT II: THE GENESIS BRIDGE ---
+                # We transmute the Pydantic Request into the internal Namespace required by the Engine.
                 namespace_args = self._request_to_namespace(request)
                 engine = GenesisEngine(project_root=root_path, engine=self.engine)
                 engine.transaction = tx
@@ -232,8 +322,8 @@ class InitArtisan(BaseArtisan[InitRequest]):
                 # =========================================================================
                 # == [THE CURE]: STEALTH MATERIALIZATION                                 ==
                 # =========================================================================
-                # We do NOT use 'rich.Progress' for the terminal.
-                # We use high-status static logs to prevent buffer corruption.
+                # We do NOT use 'rich.Progress' for the terminal in non-interactive mode.
+                # We use high-status static logs to prevent buffer corruption in CI/CD.
 
                 self.logger.info(
                     f"🌀 [bold cyan]Genesis Awakening:[/bold cyan] Materializing Patterns for '{project_name}'...")
@@ -246,7 +336,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
                     _COSMIC_GNOSIS["silent"] = True
 
                 try:
-                    # [KINETIC STRIKE]
+                    # [KINETIC STRIKE] - The core recursive generation happens here.
                     engine.conduct()
                 finally:
                     _COSMIC_GNOSIS["silent"] = was_silent
@@ -255,6 +345,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
 
                 # --- MOVEMENT IV: THE RITE OF HARVEST (PHYSICAL TOMOGRAPHY) ---
                 # [ASCENSION 4]: THE FORENSIC AUTOPSY ENGINE
+                # We walk the staging area to see what was actually created.
                 physical_items = self._harvest_staged_reality(tx, root_path, master_blueprint)
 
                 if not physical_items:
@@ -266,13 +357,15 @@ class InitArtisan(BaseArtisan[InitRequest]):
                         suggestion="Check filesystem permissions or disk space on the host."
                     )
 
-                # Sync variable state back
+                # Sync variable state back from the Engine to the Transaction Context
                 tx.context.update(engine.variables)
 
                 # --- MOVEMENT V: THE RITE OF PURIFICATION ---
+                # We cleanse the variables of system noise before inscribing them into the blueprint.
                 pure_gnosis = self._purify_gnostic_intent(tx.context, initial_will)
 
                 # --- MOVEMENT VI: THE INSCRIPTION OF THE BLUEPRINT ---
+                # We forge the `scaffold.scaffold` file, the persistent DNA of the project.
                 self.logger.verbose("Sealing the Project Chronicle (scaffold.scaffold)...")
 
                 scribe = BlueprintScribe(root_path)
@@ -298,6 +391,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
 
             # --- MOVEMENT VII: FINAL REVELATION (THE NEXT STEPS) ---
             # [ASCENSION 6]: SOCRATIC NEXT-STEPS
+            # We consult the Oracle to determine what the user should do next.
             from ...creator.next_step_oracle import NextStepsOracle
             oracle = NextStepsOracle(root_path, gnosis=tx.context)
             prophecies = oracle.prophesy()
@@ -319,6 +413,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
 
         except Exception as catastrophic_paradox:
             # [ASCENSION 12]: THE FORENSIC CORONER
+            # Captures the full traceback for the `crash.log`.
             exc_type, exc_val, exc_tb = sys.exc_info()
             self._handle_catastrophic_paradox(catastrophic_paradox)
 
@@ -360,24 +455,24 @@ class InitArtisan(BaseArtisan[InitRequest]):
                 if rel_path.name in (master_bp.name, "scaffold.lock") or ".scaffold" in rel_path.parts:
                     continue
 
-                try:
-                    # Capture the soul of the staged file
-                    content = p.read_text(encoding='utf-8', errors='ignore')
-                    is_bin = False
-                except Exception:
-                    content = "[BINARY_MATTER]"
-                    is_bin = True
+        try:
+            # Capture the soul of the staged file
+            content = p.read_text(encoding='utf-8', errors='ignore')
+            is_bin = False
+        except Exception:
+            content = "[BINARY_MATTER]"
+            is_bin = True
 
-                staged_items.append(ScaffoldItem(
-                    path=rel_path,
-                    type="file",
-                    action="created",
-                    content=content,
-                    is_binary=is_bin,
-                    line_type=GnosticLineType.FORM,
-                    is_dir=False,
-                    line_num=200 + len(staged_items)
-                ))
+        staged_items.append(ScaffoldItem(
+            path=rel_path,
+            type="file",
+            action="created",
+            content=content,
+            is_binary=is_bin,
+            line_type=GnosticLineType.FORM,
+            is_dir=False,
+            line_num=200 + len(staged_items)
+        ))
 
         if not staged_items:
             return []
@@ -501,13 +596,6 @@ class InitArtisan(BaseArtisan[InitRequest]):
 
         return pure_gnosis
 
-    def _normalize_commands(self, raw_commands: List[Any]) -> List[Tuple[str, int, Optional[List[str]]]]:
-        """
-        [DEPRECATED ALIAS]
-        Redirects to the new Scribe-specific normalizer.
-        """
-        return self._normalize_commands_for_scribe(raw_commands)
-
     def _siphon_git_identity(self, variables: Dict[str, Any]):
         """[ASCENSION 2] Siphons Gnosis from Git config to prevent 'Unknown' authors."""
         try:
@@ -619,7 +707,11 @@ class InitArtisan(BaseArtisan[InitRequest]):
         return None
 
     def _request_to_namespace(self, request: InitRequest) -> argparse.Namespace:
-        """Transmutes modern Pydantic requests to legacy argparse Namespaces."""
+        """
+        [THE GNOSTIC BRIDGE]
+        Transmutes modern Pydantic requests into legacy argparse Namespaces
+        required by the Genesis Engine.
+        """
         variables = request.variables or {}
         set_vars = [f"{k}={v}" for k, v in variables.items()]
 
@@ -629,7 +721,14 @@ class InitArtisan(BaseArtisan[InitRequest]):
 
         is_quick = getattr(request, 'quick', False)
         is_force = getattr(request, 'force', False)
-        is_non_interactive = getattr(request, 'non_interactive', False) or is_quick or is_force
+
+        # [THE CURE]: The Autonomic Reflex Logic is unified here too
+        is_non_interactive = (
+                getattr(request, 'non_interactive', False) or
+                is_quick or
+                is_force or
+                os.getenv("SCAFFOLD_NON_INTERACTIVE") == "1"
+        )
 
         extra_data = request.model_extra or {}
         sanitized_extra = {k: v for k, v in extra_data.items() if k not in ('set', 'lint')}

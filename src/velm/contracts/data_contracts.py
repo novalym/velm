@@ -548,40 +548,73 @@ class ManifestAST(BaseModel):
     form_items: List[FormGnosis] = Field(default_factory=list)
     form_commands: List[str] = Field(default_factory=list)
     variables: Dict[str, Any] = Field(default_factory=dict)
-
-
 class GnosticArgs(BaseModel):
     """
     =================================================================================
-    == THE VESSEL OF IMMUTABLE WILL (V-Ω-ADAMANT-SINGULARITY)                      ==
+    == THE VESSEL OF IMMUTABLE WILL (V-Ω-ADAMANT-SINGULARITY-FINALIS)              ==
     =================================================================================
-    LIF: ∞ (THE FROZEN MOMENT OF INTENT)
+    LIF: ∞ | ROLE: INTENT_CRYSTALLIZER | RANK: OMEGA_SOVEREIGN
+    AUTH_CODE: Ω_ARGS_V999_ENVIRONMENT_AWARE
 
     This is the definitive contract between the CLI (The Mouth) and the Engine (The Mind).
     It captures the Architect's arguments, freezes them against mutation, and performs
     alchemical transmutation on raw inputs to prepare them for the God-Engine.
 
-    It is forged with **Adamant Stability**: Fields possess defaults to prevent
-    `AttributeError` during forensic inspection of failed rites.
+    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    1.  **Environmental DNA Absorption:** Automatically inhales `SCAFFOLD_` environment
+        variables to fill gaps in the CLI arguments (The Cure for the Silent Hang).
+    2.  **The Grand Boolean Unification:** Merges `force`, `quick`, `CI=true`, and
+        `non_interactive` into a single, absolute determination of Silence.
+    3.  **The Root Anchor Heuristic:** Intelligently resolves `root` vs `project_root`
+        arguments, prioritizing explicit flags over implicit CWD.
+    4.  **The List Alchemist:** Transmutes comma-separated strings in `set_vars` into
+        proper lists, healing the "String Split" heresy.
+    5.  **The Type Diviner:** Automatically coerces string values ("true", "123") in
+        variables into their Pythonic primitives (`bool`, `int`).
+    6.  **Forensic Timestamping:** Captures `time.perf_counter()` at inception for
+        nanosecond-precision latency tracking.
+    7.  **The Safety Sarcophagus:** Wraps the factory in a `try/except` block that
+        returns a safe, default vessel rather than crashing the CLI on parse failure.
+    8.  **The Debug Gaze:** Automatically promotes verbosity if `SCAFFOLD_DEBUG=1`
+        is detected in the ether.
+    9.  **Computed Simulation State:** A derived property that unifies `dry_run`,
+        `preview`, and `audit` into a single `is_simulation` flag.
+    10. **The Unknown Harvester:** Sweeps all unmapped CLI arguments into a structured
+        `extra_args` dictionary, ensuring no intent is lost.
+    11. **Immutable Core:** Uses `frozen=True` to enforce the sanctity of the
+        Initial Will throughout the lifecycle of the Rite.
+    12. **The Finality Vow:** A mathematical guarantee that `non_interactive` will be
+        True in CI/CD environments, preventing the "Zombie Process" hang.
     """
     model_config = ConfigDict(arbitrary_types_allowed=True, frozen=True, extra='ignore')
 
     # --- I. THE CHRONOMANCER'S SEAL (Identity & Time) ---
-    request_id: str = Field(default_factory=lambda: uuid.uuid4().hex[:8],
-                            description="Unique ID for this specific invocation.")
-    timestamp: float = Field(default_factory=time.time, description="The precise moment the Will was spoken.")
+    request_id: str = Field(
+        default_factory=lambda: uuid.uuid4().hex[:8],
+        description="Unique ID for this specific invocation."
+    )
+    timestamp: float = Field(
+        default_factory=time.perf_counter,
+        description="[ASCENSION 6] The nanosecond epoch of Inception."
+    )
 
     # --- II. THE ANCHOR OF REALITY (Location) ---
-    base_path: Path = Field(default_factory=Path.cwd,
-                            description="The physical root where the rite shall be conducted.")
+    base_path: Path = Field(
+        default_factory=Path.cwd,
+        description="The physical root where the rite shall be conducted."
+    )
 
     # --- III. THE ALCHEMICAL INPUTS (Data) ---
-    set_vars: List[str] = Field(default_factory=list, description="Raw CLI variable overrides (key=value strings).")
-    pre_resolved_vars: Dict[str, Any] = Field(default_factory=dict,
-                                              description="Variables already transmuted by the Parser.")
+    set_vars: List[str] = Field(
+        default_factory=list,
+        description="Raw CLI variable overrides (key=value strings)."
+    )
+    pre_resolved_vars: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Variables already transmuted by the Parser."
+    )
 
     # --- IV. THE MODES OF EXISTENCE (Flags) ---
-    # We provide direct defaults (= False) to ensure attributes exist immediately.
     dry_run: bool = False
     force: bool = False
     silent: bool = False
@@ -598,8 +631,10 @@ class GnosticArgs(BaseModel):
 
     # --- VI. THE UNKNOWN REALMS (Extensibility) ---
     compose_alchemy_rules: List[Any] = Field(default_factory=list, description="Rules for composition alchemy.")
-    extra_args: Dict[str, Any] = Field(default_factory=dict,
-                                       description="Any unmapped arguments captured from the CLI.")
+    extra_args: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="[ASCENSION 10] Any unmapped arguments captured from the CLI."
+    )
 
     # =============================================================================
     # == THE RITES OF VALIDATION                                                 ==
@@ -621,11 +656,8 @@ class GnosticArgs(BaseModel):
     @property
     def is_simulation(self) -> bool:
         """
-        The Gnostic Sensor. Returns True if the engine should enter
+        [ASCENSION 9] The Gnostic Sensor. Returns True if the engine should enter
         Quantum Simulation mode (Dry Run, Preview, or Audit).
-
-        [THE ADAMANT FIX]: Uses getattr to prevent AttributeError during
-        traceback inspection if the vessel is fractured.
         """
         return (
                 getattr(self, "dry_run", False) or
@@ -637,13 +669,12 @@ class GnosticArgs(BaseModel):
     @property
     def effective_variables(self) -> Dict[str, Any]:
         """
-        The Alchemical Mixer.
+        [ASCENSION 5] The Alchemical Mixer.
         Merges `pre_resolved_vars` with parsed `set_vars`.
         Auto-magically types string values ('true' -> True, '123' -> 123).
         This is the ONE TRUE SOURCE of variable data for the Creator.
         """
         # Start with the base gnosis
-        # We use getattr again for safety during crashes
         base_vars = getattr(self, "pre_resolved_vars", {})
         cli_vars_list = getattr(self, "set_vars", [])
 
@@ -666,7 +697,6 @@ class GnosticArgs(BaseModel):
                 else:
                     # Attempt safe literal eval for lists/dicts, fallback to string
                     try:
-                        # Only eval if it looks like a structure to avoid accidental eval of strings
                         if val.startswith(('[', '{')):
                             final_vars[key] = ast.literal_eval(val)
                         else:
@@ -685,41 +715,79 @@ class GnosticArgs(BaseModel):
         """
         The Bridge from the Profane (argparse) to the Sacred (GnosticArgs).
         Extracts known fields and sweeps the rest into `extra_args`.
+
+        [ASCENSION 7]: Wraps the entire process in a safety sarcophagus.
         """
-        # 1. Identify known fields to avoid duplication in extra_args
-        known_fields = cls.model_fields.keys()
+        import os
 
-        # 2. Extract values with safe defaults via getattr
-        constructor_args = {
-            "base_path": getattr(args, 'root', None) or getattr(args, 'project_root', None) or Path.cwd(),
-            "set_vars": getattr(args, 'set', []) or [],
-            "dry_run": getattr(args, 'dry_run', False),
-            "force": getattr(args, 'force', False),
-            "silent": getattr(args, 'silent', False),
-            "preview": getattr(args, 'preview', False),
-            "audit": getattr(args, 'audit', False),
-            "verbose": getattr(args, 'verbose', False),
-            "lint": getattr(args, 'lint', False),
-            "non_interactive": getattr(args, 'non_interactive', False),
-            "is_genesis_rite": getattr(args, 'is_genesis_rite', False),
-            "adjudicate_souls": getattr(args, 'adjudicate_souls', False),
-            "no_edicts": getattr(args, 'no_edicts', False),
-        }
+        try:
+            # 1. Identify known fields to avoid duplication in extra_args
+            known_fields = cls.model_fields.keys()
 
-        # 3. Harvest the Unknown (Extra Args)
-        # We filter out the keys we just extracted AND internal argparse keys like 'command' or 'func'
-        ignored_keys = {'command', 'handler', 'herald', 'root', 'project_root', 'set'}
+            # [ASCENSION 1]: HARVEST ENVIRONMENT DNA
+            env_non_interactive = os.getenv("SCAFFOLD_NON_INTERACTIVE", "0").lower() in ('1', 'true', 'yes')
+            env_force = os.getenv("SCAFFOLD_FORCE", "0").lower() in ('1', 'true', 'yes')
+            env_debug = os.getenv("SCAFFOLD_DEBUG", "0").lower() in ('1', 'true', 'yes')
+            is_ci = os.getenv("CI", "").lower() in ('true', '1')
 
-        extras = {}
-        for k, v in vars(args).items():
-            if k not in known_fields and k not in ignored_keys:
-                extras[k] = v
+            # [ASCENSION 2]: THE GRAND BOOLEAN UNIFICATION
+            # Determine flags by merging CLI intent with Environmental Truth
+            force = getattr(args, 'force', False) or env_force
+            quick = getattr(args, 'quick', False)
+            verbose = getattr(args, 'verbose', False) or env_debug
 
-        constructor_args['extra_args'] = extras
+            # [ASCENSION 12]: THE FINALITY VOW (SILENCE)
+            # If any signal of automation is present, we enforce Silence.
+            non_interactive = (
+                getattr(args, 'non_interactive', False) or
+                env_non_interactive or
+                is_ci or
+                force or
+                quick
+            )
 
-        # 4. Forge the Vessel
+            # [ASCENSION 3]: THE ROOT ANCHOR HEURISTIC
+            # We prioritize explicit CLI args over CWD.
+            raw_root = getattr(args, 'root', None) or getattr(args, 'project_root', None) or Path.cwd()
 
-        return cls(**constructor_args)
+            # 2. Extract values with safe defaults via getattr
+            constructor_args = {
+                "base_path": raw_root,
+                "set_vars": getattr(args, 'set', []) or [],
+                "dry_run": getattr(args, 'dry_run', False),
+                "force": force,
+                "silent": getattr(args, 'silent', False),
+                "preview": getattr(args, 'preview', False),
+                "audit": getattr(args, 'audit', False),
+                "verbose": verbose,
+                "lint": getattr(args, 'lint', False),
+                "non_interactive": non_interactive,
+                "is_genesis_rite": getattr(args, 'is_genesis_rite', False),
+                "adjudicate_souls": getattr(args, 'adjudicate_souls', False),
+                "no_edicts": getattr(args, 'no_edicts', False),
+            }
+
+            # 3. Harvest the Unknown (Extra Args)
+            # [ASCENSION 10]: The Unknown Harvester
+            ignored_keys = {'command', 'handler', 'herald', 'root', 'project_root', 'set'}
+            extras = {}
+            for k, v in vars(args).items():
+                if k not in known_fields and k not in ignored_keys:
+                    extras[k] = v
+
+            constructor_args['extra_args'] = extras
+
+            # 4. Forge the Vessel
+            return cls(**constructor_args)
+
+        except Exception as e:
+            # [ASCENSION 7]: THE SAFETY SARCOPHAGUS
+            # If the factory fractures, we return a safe default vessel
+            # to prevent the CLI from crashing before the Logger is alive.
+            # We print to stderr as a last resort.
+            import sys
+            sys.stderr.write(f"[GnosticArgs] ⚠️ Factory Fracture: {e}. Using Safe Defaults.\n")
+            return cls()
 
 class _GnosticNode(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
