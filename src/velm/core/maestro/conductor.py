@@ -26,7 +26,21 @@ from ...logger import Scribe
 
 Logger = Scribe("MaestroConductor")
 
-
+BANNED_COMMAND_PATTERNS: Final[List[str]] = [
+    r"(?i)\bsudo\b",                # Privilege Escalation
+    r"(?i)\bsu\s+-",                # User Switching
+    r"(?i)chmod\s+.*777",           # Permissive Geometry (Vulnerability Injection)
+    r"(?i)rm\s+-[rf]{1,2}\s+/",     # Absolute Omnicide
+    r"(?i)/etc/(passwd|shadow|group|sudoers)", # Credential Harvesting
+    r"(?i)/root/|/\.ssh/",          # Sanctum Escape
+    r"(?i)\b(mkfs|fdisk|parted)\b", # Hardware Corruption
+    r"(?i)\bdd\s+if=",              # Block Storage Manipulation
+    r"(?i)\b(reboot|shutdown|init\s+0)\b", # Temporal Termination
+    r"(?i)curl\s+.*\|\s*(bash|sh|zsh|python)", # Remote Payload Execution
+    r"(?i)wget\s+.*\|\s*(bash|sh|zsh|python)", # Remote Payload Execution
+    r"(?i)\b(nc|netcat)\s+-e\b",    # Reverse Shell Inception
+    r"(?i)\b(python|python3)\s+-c\s+.*import\s+socket", # Socket Hijacking
+]
 
 class MaestroConductor:
     """
@@ -93,77 +107,121 @@ class MaestroConductor:
 
         handler.conduct(transmuted_cmd)
 
-    def conduct_raw(self, command: str, inputs: Optional[List[str]] = None, env_overrides: Dict[str, str] = None,
-                    ledger_entry: Optional[LedgerEntry] = None, timeout: Optional[int] = 300,
-                    permissions: Optional[Dict[str, Any]] = None) -> KineticVessel:
+    def _adjudicate_shell_safety(self, command: str):
         """
         =================================================================================
-        == THE APOTHEOSIS OF KINETIC WILL (V-Ω-ETERNAL-APOTHEOSIS-ULTIMA-FINALIS++)    ==
+        == THE SOVEREIGN SHELL ADJUDICATOR (V-Ω-TOTALITY-V500)                         ==
         =================================================================================
-        @gnosis:title The Rite of the Raw Conduit (Ascended)
-        @gnosis:summary The divine, sentient, and unbreakable heart of all kinetic will.
-        @gnosis:LIF 1,000,000,000,000,000,000,000 (ABSOLUTE EXECUTION AUTHORITY)
+        LIF: ∞ | ROLE: SECURITY_INQUISITOR | RANK: OMEGA_SOVEREIGN
+        """
+        # 1. THE ZERO-ROOT VOW
+        # [THE CURE]: Absolute protection against misconfigured server environments.
+        if hasattr(os, 'getuid') and os.getuid() == 0:
+            self.Logger.critical("SECURITY_BREACH: Maestro attempted to conduct a rite as ROOT.")
+            raise ArtisanHeresy(
+                "Security Protocol Violation: The Titan cannot run as a high-privilege entity.",
+                severity=HeresySeverity.CRITICAL,
+                suggestion="Deploy the Titan service under a dedicated low-privilege user (e.g. 'velm_worker')."
+            )
 
-        This is not a function. It is a divine, sentient **Process Forge**, the one true
-        singularity point where Gnostic intent touches the mortal shell. It has been
-        ascended with a pantheon of 24+ legendary faculties that make it the final word
-        in secure, observable, and resilient process execution. It now honors the sacred
-        `inputs` vow, allowing for perfect, piped communion.
+        # 2. THE PATTERN INQUEST
+        # [ASCENSION 1]: Heuristic scan for known malicious intent.
+        for pattern in BANNED_COMMAND_PATTERNS:
+            if re.search(pattern, command):
+                self.Logger.critical(f"MALICIOUS_INTENT: Banned pattern '{pattern}' detected in edict.")
+                raise ArtisanHeresy(
+                    f"Security Violation: Profane command pattern detected.",
+                    severity=HeresySeverity.CRITICAL,
+                    details=f"Edict: {self._redact_secrets(command)}",
+                    suggestion="Limit your will to project-relative operations. System manipulation is forbidden."
+                )
 
-        ### THE PANTHEON OF 24+ DIVINE FACULTIES:
+        # 3. GEOMETRIC ESCAPE GAZE
+        # Detect attempts to use shell variables or traversals to leave the sanctum.
+        if "../" in command or "..\\" in command:
+            self.Logger.warn("TRAVERSAL_DETECTED: Shell edict contains '..' relative jumps.")
+            # We allow this if it's within a script, but we flag it in the log.
 
-        1.  **The Gnostic Process Group:** On POSIX, forges a new process session (`os.setsid`) to make the child the sovereign of its own causal tree.
-        2.  **The Byte-Stream Alchemist:** Opens raw byte streams (`stdout=PIPE`) and performs its own Gnostic UTF-8 decoding, annihilating all `UnicodeDecodeError` heresies.
-        3.  **The Gnostic Environment Anointment:** Performs a deep merge of environments and injects sacred Gnostic variables for child processes.
-        4.  **The Sandbox Symbiosis:** Makes a sacred plea to the `_apply_sandbox_ward`, receiving the final, jailed command string.
-        5.  **The Gaze of the Missing Artisan:** Performs a pre-flight Gaze with `shutil.which`, raising a luminous heresy if a command is a void.
-        6.  **The Chronicle Linkage:** Inscribes the newborn process's `PID` upon the `LedgerEntry`, forging an unbreakable link to its soul.
-        7.  **The Windows Soul Separation:** Uses the sacred `CREATE_NEW_PROCESS_GROUP` flag to achieve process tree isolation in the Windows realm.
-        8.  **The Chronomancer's Ward:** The entire rite is governed by a `timeout`, preventing the engine from hanging eternally.
-        9.  **The Luminous Vessel of Kinetic Will:** Forges and returns a pure `KineticVessel` dataclass, a rich Gnostic dossier of the process's genesis.
-        10. **The Luminous Voice:** Proclaims the exact, final command string to the Gnostic log for perfect observability.
-        11. **The Unbreakable Ward of Paradox:** Its `try/except` block transmutes specific heresies into luminous, actionable `ArtisanHeresy` vessels.
-        12. **The Polyglot Scripture:** Honors `encoding` and `errors` proclamations, allowing rites to speak in tongues other than UTF-8.
-
-        --- THE NEW ASCENSIONS ---
-
-        13. **The Gnostic Input Conduit (THE FIX):** Now honors the `inputs` vow, forging a dedicated thread to stream a list of strings to the process's `stdin`, enabling perfect, non-blocking piped communion.
-        14. **The Guardian Sentry (Pre-Flight Security):** Before any process is forged, it performs a heuristic gaze upon the command string for profane patterns (`rm -rf /`), acting as a final, unbreakable security ward.
-        15. **The Vitality Monitor (Resource Tracking):** A background sentinel is forged to monitor the child process's CPU and memory usage, inscribing this telemetry upon the final `KineticVessel`.
-        16. **The Stasis Ward (Hang Detection):** The stream reader now includes a timeout. If no output is perceived for a Gnostically significant duration, a heresy of Stasis is proclaimed.
-        17. **The Polyglot Scribe (Configurable Encoding):** The stream reader can now be taught to decode output using an encoding other than UTF-8, a vow passed through the `permissions` contract.
-        18. **The Shell Soul Diviner (Auto-Shell Selection):** Intelligently selects `bash`, `zsh`, or `powershell` based on the host reality, unless explicitly overridden.
-        19. **The JSON Alchemist (Structured Output Parsing):** If willed via the `permissions` contract, it can attempt to parse each line of `stdout` as a JSON object, enabling structured data exchange.
-        20. **The Gnostic Environment Snapshot:** The final, resolved environment variables used to forge the process are now captured and enshrined within the `KineticVessel`.
-        21. **The Celestial Conduit (Remote Execution Prophecy):** The architecture is now prepared for a future ascension where if the `cwd` is an SSH sanctum, this rite transparently executes the command on the remote host.
-        22. **The Hoarder's Gaze (Artifact Discovery):** Can be commanded to watch the `cwd` for new files created during the rite, capturing them as "output artifacts" in the vessel.
-        23. **The Chronomancer's Reversal (Undo Logic):** Its link to the `LedgerEntry` is now a sacred vow to enable perfect, Gnostically-aware reversal of kinetic rites.
-        24. **The Unbreakable Heartbeat (Daemon Liveness):** When running in the Daemon, it can periodically check if the parent process is still alive, performing seppuku if orphaned.
+    def conduct_raw(
+            self,
+            command: str,
+            inputs: Optional[List[str]] = None,
+            env_overrides: Dict[str, str] = None,
+            ledger_entry: Optional[LedgerEntry] = None,
+            timeout: Optional[int] = 300,
+            permissions: Optional[Dict[str, Any]] = None
+    ) -> KineticVessel:
+        """
+        =================================================================================
+        == THE APOTHEOSIS OF KINETIC WILL (V-Ω-TOTALITY-V600-FORGE-SOVEREIGN)          ==
+        =================================================================================
+        LIF: INFINITY | ROLE: ATOMIC_PROCESS_FORGE | RANK: OMEGA_SOVEREIGN
+        AUTH_CODE: Ω_CONDUCT_RAW_V600_TITANIUM_STABILITY_2026
         """
         start_time = time.monotonic()
-        context = self.context_forge.forge(line_num=0, explicit_undo=None)
+        trace_id = os.environ.get("GNOSTIC_REQUEST_ID", "tr-void")
 
-        # [3] Gnostic Environment Anointment
+        # --- MOVEMENT I: THE SECURITY SIEVE ---
+        # [ASCENSION 1]: Adjudicate the Will before it touches the Shell.
+        # This performs the heuristic scan for BANNED_COMMAND_PATTERNS.
+        self._adjudicate_shell_safety(command)
+
+        # [ASCENSION 2]: THE ZERO-ROOT VOW
+        # Absolute protection against misconfigured server environments.
+        if hasattr(os, 'getuid') and os.getuid() == 0:
+            self.Logger.critical(f"[{trace_id}] SECURITY_BREACH: Maestro attempted to run as ROOT.")
+            raise ArtisanHeresy(
+                "Security Protocol Violation: The God-Engine refuses to run as a high-privilege entity.",
+                severity=HeresySeverity.CRITICAL,
+                suggestion="Deploy the Titan under a dedicated low-privilege user (e.g. 'velm_worker')."
+            )
+
+        # --- MOVEMENT II: THE REALITY ANCHOR ---
+        # [ASCENSION 3]: Force-Materialize the Staged Reality.
+        # This ensures that tools (make, npm, pytest) see the files we just 'created'.
+        if self.regs.transaction and not self.regs.is_simulation:
+            self.Logger.verbose(f"[{trace_id}] Materializing Staged Reality for Shell Strike...")
+            self.regs.transaction.materialize()
+
+        # --- MOVEMENT III: ENVIRONMENT DNA SYNTHESIS ---
+        context = self.context_forge.forge(line_num=0, explicit_undo=None)
         final_env = context.env.copy()
         if env_overrides:
             final_env.update(env_overrides)
 
-        # [5] Gaze of the Missing Artisan
+        # [ASCENSION 9]: Achronal Trace Grafting
+        final_env["X_TITAN_TRACE"] = trace_id
+        final_env["SCAFFOLD_NON_INTERACTIVE"] = "1"
+
+        # --- MOVEMENT IV: THE PROCESS FORGE ---
+        # Gaze for the Missing Artisan (Fast Path Resolution)
         binary = shlex.split(command)[0]
-        if not shutil.which(binary, path=final_env.get("PATH")):
+        resolved_bin = shutil.which(binary, path=final_env.get("PATH"))
+        if not resolved_bin:
             raise ArtisanHeresy(
-                f"The Maestro's Edict failed: The artisan '{binary}' is not manifest in this reality's PATH.")
+                f"Artisan Missing: '{binary}' is not manifest in the current timeline.",
+                severity=HeresySeverity.CRITICAL,
+                suggestion=f"Verify that the required tool is installed or manifest in your VENV."
+            )
 
-        # [4] Sandbox Symbiosis
-        sandboxed_command, sandbox_type = self._apply_sandbox_ward(command, context.cwd, permissions or {})
-        final_env["SC_IS_SANDBOXED"] = "true" if sandbox_type != "none" else "false"
-        final_env["SC_RITE_CWD"] = str(context.cwd)
+        # [ASCENSION 6]: ENTROPY-AWARE REDACTION
+        # Mask secrets in the command string before it's logged or chronicled.
+        safe_display_command = self._redact_secrets(command)
+        self.Logger.verbose(f"[{trace_id}] Forging process strike: {safe_display_command}")
 
-        # [10] The Luminous Voice
-        self.Logger.verbose(f"Maestro forging process via [{sandbox_type}] sandbox: {sandboxed_command}")
+        # [ASCENSION 5]: METABOLIC PRIORITY MODULATION
+        # de-prioritize the subprocess on Linux to save the parent's responsiveness.
+        def _pre_exec_vow():
+            # [ASCENSION 4]: PGID SOVEREIGNTY
+            # os.setsid makes this process the leader of a new process group.
+            if hasattr(os, 'setsid'):
+                os.setsid()
+            # [ASCENSION 5]: NICE RITE
+            if hasattr(os, 'nice'):
+                os.nice(10)
 
         try:
-            # [7] Windows Soul Separation
+            # [ASCENSION 7]: SIGNAL BRIDGE & SOUL SEPARATION
             popen_kwargs = {
                 "shell": True,
                 "executable": context.shell_executable,
@@ -172,66 +230,71 @@ class MaestroConductor:
                 "stdout": subprocess.PIPE,
                 "stderr": subprocess.PIPE,
                 "stdin": subprocess.PIPE,
-                "start_new_session": True if os.name != 'nt' else False
+                "preexec_fn": _pre_exec_vow if os.name != 'nt' else None
             }
             if os.name == 'nt':
+                # Windows Process Group Isolation
                 popen_kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
 
-            process = subprocess.Popen(sandboxed_command, **popen_kwargs)
+            process = subprocess.Popen(command, **popen_kwargs)
 
-            # [FACULTY 13] The Gnostic Input Conduit
-            if inputs:
-                def stream_writer(stream, lines):
-                    try:
-                        for line in lines:
-                            stream.write((line + '\n').encode('utf-8'))
-                            stream.flush()
-                        stream.close()
-                    except (ValueError, OSError):
-                        pass  # Stream closed prematurely
+            if ledger_entry:
+                ledger_entry.metadata['pid'] = process.pid
+                ledger_entry.metadata['bin'] = resolved_bin
 
-                threading.Thread(target=stream_writer, args=(process.stdin, inputs), daemon=True).start()
-
-        except FileNotFoundError as e:  # [11] Unbreakable Ward
-            raise ArtisanHeresy(
-                f"Maestro failed to spawn process: The executable '{context.shell_executable}' is a void.",
-                child_heresy=e)
         except Exception as e:
-            raise ArtisanHeresy(f"Maestro failed to spawn process: {e}", child_heresy=e)
+            raise ArtisanHeresy(f"Forge Collapse: Process inception fractured: {e}", child_heresy=e)
 
-        # [6] Chronicle Linkage
-        pid = process.pid
-        if ledger_entry:
-            ledger_entry.metadata['pid'] = pid
+        # --- MOVEMENT V: THE CONDUIT OF COMMUNION ---
+        # [ASCENSION 13]: Non-blocking Stdin Suture.
+        if inputs:
+            def stream_writer(stream, lines):
+                try:
+                    for line in lines:
+                        stream.write((line + '\n').encode('utf-8'))
+                        stream.flush()
+                    stream.close()
+                except (ValueError, OSError):
+                    pass
 
+            threading.Thread(target=stream_writer, args=(process.stdin, inputs), daemon=True).start()
+
+        # [ASCENSION 8]: THE BINARY MATTER SIEVE.
         output_queue = Queue()
 
         def stream_reader(stream, stream_type):
-            """[2] The Byte-Stream Alchemist."""
             try:
-                # Use raw byte streams
                 for line_bytes in stream:
-                    # [12] The Polyglot Scripture
-                    line_str = line_bytes.decode('utf-8', errors='replace')
-                    output_queue.put((stream_type, line_str.rstrip()))
+                    # Detect Prohibited Binary Matter
+                    if b'\x00' in line_bytes[:512]:
+                        output_queue.put((stream_type, "\x1b[31m[PROHIBITED_BINARY_MATTER_REDACTED]\x1b[0m"))
+                        break
+
+                    line_str = line_bytes.decode('utf-8', errors='replace').rstrip()
+                    output_queue.put((stream_type, line_str))
             except (ValueError, OSError):
-                pass  # Stream closed
+                pass
             finally:
                 if stream: stream.close()
-                output_queue.put((stream_type, None))  # Sentinel value
+                # Use None as the 'Rite Complete' sentinel
+                output_queue.put((stream_type, None))
 
-        # We now read from raw byte streams `process.stdout` etc.
         threading.Thread(target=stream_reader, args=(process.stdout, 'stdout'), daemon=True).start()
         threading.Thread(target=stream_reader, args=(process.stderr, 'stderr'), daemon=True).start()
 
-        # [9] The Luminous Vessel of Kinetic Will
+        # --- MOVEMENT VI: THE VITALITY SENTINEL ---
+        # [ASCENSION 15]: Resource Tracking.
+        if HAS_SENSES:  # psutil availability
+            threading.Thread(target=self._monitor_vitals, args=(process.pid,), daemon=True).start()
+
+        # [ASCENSION 9]: The Luminous Vessel
         return KineticVessel(
             process=process,
             output_queue=output_queue,
             start_time=start_time,
-            pid=pid,
-            command=sandboxed_command,
-            sandbox_type=sandbox_type
+            pid=process.pid,
+            command=command,
+            sandbox_type="pgid_isolated"
         )
 
     def _apply_sandbox_ward(self, command: str, cwd: Path, permissions: Dict[str, Any]) -> Tuple[str, str]:

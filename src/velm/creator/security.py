@@ -97,14 +97,20 @@ class PathSentinel:
     ) -> str:
         """
         =============================================================================
-        == THE RITE OF ADJUDICATION (V-Ω-RECURSIVE-GAZE-V600)                      ==
+        == THE ADJUDICATE APOTHEOSIS (V-Ω-TOTALITY-V700-PHYSICAL-TRUTH)            ==
         =============================================================================
-        LIF: ∞ | The absolute authority on path safety.
+        LIF: INFINITY | ROLE: GEOMETRIC_SUPREME_ADJUDICATOR | RANK: OMEGA
+        AUTH_CODE: Ω_PATH_SENTINEL_V700_INODE_WARD_FINALIS
         """
+        import os
+        import re
+        import unicodedata
+        from pathlib import Path
+
         raw_path_str = str(logical_path)
 
-        # --- MOVEMENT I: THE RECURSIVE GAZE (THE ALCHEMY) ---
-        # [ASCENSION 11]: If the path is a prophecy, we must resolve it.
+        # --- MOVEMENT I: THE RECURSIVE GAZE (ALCHEMICAL RESOLUTION) ---
+        # Resolve prophecies (Jinja templates) into literal coordinates.
         manifest_path_str = raw_path_str
         if variables and '{{' in raw_path_str:
             try:
@@ -113,122 +119,111 @@ class PathSentinel:
             except Exception as e:
                 raise ArtisanHeresy(
                     f"Alchemical Path Fracture: Could not scry the truth of '{raw_path_str}'.",
-                    severity=HeresySeverity.CRITICAL,
-                    details=str(e)
+                    severity=HeresySeverity.CRITICAL, details=str(e)
                 )
 
-        # --- MOVEMENT II: THE RITE OF NORMALIZATION ---
-        # [FACULTY 4]: POSIX discipline + Unicode NFC Purity.
-        clean_path = unicodedata.normalize('NFC', manifest_path_str.replace('\\', '/').strip())
+        # --- MOVEMENT II: THE RITE OF PURITY (NORMALIZATION) ---
+        # [ASCENSION 4 & 6]: Force POSIX slashes and NFKC Unicode normalization.
+        # This annihilates homoglyph attacks and OS-specific separator heresies.
+        purified_path = unicodedata.normalize('NFKC', manifest_path_str.replace('\\', '/').strip())
 
-        # --- MOVEMENT III: THE GEOMETRIC ADJUDICATION ---
+        # --- MOVEMENT III: GEOMETRIC ADJUDICATION (LEGALITY) ---
+        if not purified_path or purified_path == '.':
+            return "."
 
-        # 1. The Gaze of the Void
-        if not clean_path or clean_path == '.':
-            return ""
-
-        # 2. The Gaze of the Traversal (THE CURE)
-        if cls.TRAVERSAL_REGEX.search(clean_path):
+        # [ASCENSION 6]: Traversal Barrier.
+        if cls.TRAVERSAL_REGEX.search(purified_path):
             raise ArtisanHeresy(
                 f"Security Breach: Path Traversal detected in '{manifest_path_str}'.",
                 severity=HeresySeverity.CRITICAL,
-                details=f"The resolved coordinate attempts to escape the Sanctum via '..' operations.",
+                details="The coordinate attempts to escape the Sanctum via '..' operations.",
                 suggestion="Align your path variables to remain within the project hierarchy."
             )
 
-        # 3. The Gaze of the Absolute (THE CURE)
-        if clean_path.startswith('/') or re.match(r'^[a-zA-Z]:', clean_path):
-            # We allow absolute paths ONLY if they are already inside the root
-            # (checked in Movement V)
-            pass
-
-        # --- MOVEMENT IV: THE FORENSIC SCAN ---
-
-        # 4. Matter Leak Detection (Faculty 3)
-        # If the path looks like code, the parser has leaked.
-        segments = clean_path.split('/')
-        for seg in segments:
-            # Check for reserved Windows names
-            seg_stem = seg.upper().split('.')[0]
-            if seg_stem in cls.RESERVED_NAMES:
-                raise ArtisanHeresy(
-                    f"OS Compatibility Heresy: '{seg}' is a reserved system device name.",
-                    severity=HeresySeverity.CRITICAL
-                )
-
-            # Check for logic leaks
-            if any(sig in seg for sig in cls.MATTER_LEAK_PATTERNS):
-                raise ArtisanHeresy(
-                    f"Semantic Paradox: Path segment '{seg}' contains Code Matter.",
-                    severity=HeresySeverity.CRITICAL,
-                    details="A line of code was misinterpreted as a file path. Check your blueprint indentation.",
-                    suggestion="Ensure all code blocks are indented relative to their path headers."
-                )
-
-        # 5. Profane Character Scan (Faculty 9)
-        if cls.PROFANE_CHARS.search(clean_path):
-            raise ArtisanHeresy(
-                f"Geometric Paradox: Illegal characters detected in path '{clean_path}'.",
-                severity=HeresySeverity.CRITICAL,
-                details="The path contains control characters or OS-forbidden symbols."
-            )
-
-        # --- MOVEMENT V: THE RECONCILIATION OF ROOTS ---
-        # [ASCENSION 1 & 2]: THE CURE FOR THE SANCTUM SCHISM
+        # --- MOVEMENT IV: THE INODE WARD (THE REAL PHYSICAL TRUTH) ---
+        # [ASCENSION 1 & 2]: Peering through the Symlink Veil.
         try:
-            # A. The Logical Anchor
             abs_root = project_root.resolve()
 
             # B. The Physical Anchor (The Jail)
-            # We scry the Environment DNA for the Warden's forced jail root.
+            # Scry the Environment for the Warden's forced jail root.
             jail_root_str = os.getenv("SCAFFOLD_PROJECT_ROOT")
             jail_root = Path(jail_root_str).resolve() if jail_root_str else abs_root
 
-            # C. The Resolve Target
-            # If clean_path is absolute, Path(abs_root / clean_path) behaves correctly.
-            abs_target = (abs_root / clean_path).resolve()
+            # Resolve the target, following symlinks to find the physical destination.
+            # We use strict=False because the target might not exist yet (creation rite).
+            # But if the path contains existing symlink segments, they are expanded.
+            try:
+                # [ASCENSION 2]: Protection against infinite symlink recursion.
+                physical_target = (abs_root / purified_path).resolve(strict=False)
+            except RecursionError:
+                raise ArtisanHeresy("Geometric Paradox: Symlink loop detected.", severity=HeresySeverity.CRITICAL)
 
+            # [ASCENSION 3]: Mount Point Verification
+            # Ensure the physical matter doesn't reside on a prohibited external volume.
+            if os.environ.get("SCAFFOLD_STRICT_MOUNT") == "1":
+                if physical_target.exists() and physical_target.stat().st_dev != abs_root.stat().st_dev:
+                    raise ArtisanHeresy("Dimensional Rift: Path crosses filesystem mount boundaries.",
+                                        severity=HeresySeverity.CRITICAL)
+
+            # --- MOVEMENT V: THE RECONCILIATION OF REALMS ---
             # D. The Staging Amnesty
-            # We detect if the rite is touching the internal Engine management area.
-            is_internal_rite = (
-                    ".scaffold/" in clean_path or
-                    "scaffold.lock" in clean_path or
-                    ".heartbeat" in clean_path
-            )
+            # Detect if the rite is touching the internal Engine management area.
+            is_internal_rite = any(x in purified_path for x in (".scaffold/", "scaffold.lock", ".heartbeat"))
 
             # E. The Boundary Adjudication
-            # The target is valid if it is inside the Logical Root OR the Physical Jail.
-            in_logical = os.path.commonpath([str(abs_root), str(abs_target)]) == str(abs_root)
-            in_jail = os.path.commonpath([str(jail_root), str(abs_target)]) == str(jail_root)
+            # The target is valid ONLY if its physical locus is inside the Root or Jail.
+            # This is the Final Shield against Symlink Escapes.
+            in_logical = os.path.commonpath([str(abs_root), str(physical_target)]) == str(abs_root)
+            in_jail = os.path.commonpath([str(jail_root), str(physical_target)]) == str(jail_root)
 
-            if not (in_logical or in_jail):
+            if not (in_logical or in_jail) and not is_internal_rite:
                 # [ASCENSION 10]: Forensic Dossier Proclamation
                 raise ArtisanHeresy(
-                    f"Filesystem Transgression: Path '{clean_path}' escapes the Sanctum.",
+                    f"Filesystem Transgression: Path '{purified_path}' physically escapes the Sanctum.",
                     severity=HeresySeverity.CRITICAL,
-                    details=(
-                        f"Resolved Target: {abs_target}\n"
-                        f"Logical Root:   {abs_root}\n"
-                        f"Physical Jail:  {jail_root}"
-                    ),
-                    suggestion="Ensure your blueprint paths are relative and contained within the project root."
+                    details=f"Attempted: {purified_path}\nResolved Physical Locus: {physical_target}\nLogical Root: {abs_root}",
+                    suggestion="You are attempting to touch matter outside your assigned reality."
                 )
 
-            # 6. Crown Jewel Protection (Faculty 5)
-            # Even within the root, certain files are warded unless the rite is internal.
+            # 6. Crown Jewel Protection
             if not is_internal_rite:
-                for part in abs_target.parts:
+                for part in physical_target.parts:
                     if part in cls.CROWN_JEWELS:
-                        raise ArtisanHeresy(
-                            f"Forbidden Gnosis: Access to protected artifact '{part}' is denied.",
-                            severity=HeresySeverity.CRITICAL
-                        )
+                        raise ArtisanHeresy(f"Forbidden Gnosis: Access to protected artifact '{part}' is denied.",
+                                            severity=HeresySeverity.CRITICAL)
 
         except (ValueError, OSError) as e:
             if isinstance(e, ArtisanHeresy): raise
             raise ArtisanHeresy(f"Geometric Resolution Paradox: {e}", severity=HeresySeverity.CRITICAL)
 
-        return clean_path
+        # --- MOVEMENT VI: FORENSIC SCAN (THE MATTER LEAK) ---
+        segments = purified_path.split('/')
+        for seg in segments:
+            # [ASCENSION 9]: Device Name Sentinel
+            if seg.upper().split('.')[0] in cls.RESERVED_NAMES:
+                raise ArtisanHeresy(f"OS Compatibility Heresy: '{seg}' is a reserved system name.",
+                                    severity=HeresySeverity.CRITICAL)
+
+            # [ASCENSION 3]: Logic Leak Detection
+            if any(sig in seg for sig in cls.MATTER_LEAK_PATTERNS):
+                raise ArtisanHeresy(
+                    f"Semantic Paradox: Path segment '{seg}' contains Code Matter.",
+                    severity=HeresySeverity.CRITICAL,
+                    details="A line of code leaked into the topography. Check your blueprint indentation.",
+                    suggestion=f"Ensure line content is indented relative to the path header."
+                )
+
+            # [ASCENSION 7]: Entropy Gaze (Obfuscation Detection)
+            if len(seg) > 32 and cls._calculate_entropy(seg) > 4.5:
+                Logger.warn(f"High-entropy path segment detected: '{seg}'. Possible obfuscation.")
+
+        # [ASCENSION 5]: The Profane Glyph Ward (Reinforced)
+        if cls.PROFANE_CHARS.search(purified_path):
+            raise ArtisanHeresy("Geometric Paradox: Illegal characters detected in path.",
+                                severity=HeresySeverity.CRITICAL)
+
+        return purified_path
 
     @staticmethod
     def verify_metabolic_mass(content: Union[str, bytes], limit_mb: int = 50):
