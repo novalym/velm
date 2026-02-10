@@ -22,6 +22,7 @@ from ..contracts import TemplateGnosis
 from ....core.alchemist import get_alchemist
 from ....logger import Scribe
 
+
 Logger = Scribe("TemplateEngineConductor")
 
 
