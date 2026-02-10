@@ -1,62 +1,61 @@
 # Path: src/velm/creator/cpu.py
-# -----------------------------
+# =========================================================================================
+# == THE QUANTUM CPU: OMEGA POINT (V-Ω-TOTALITY-V6.0-FINALIS)                            ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: KINETIC_EXECUTION_CORE | RANK: OMEGA_SOVEREIGN
+# AUTH: Ω_CPU_V6_VENV_SUTURE_2026_FINALIS
+# =========================================================================================
 
+import os
+import sys
+import time
+import subprocess
+import shlex
+import shutil
+import platform
+import threading
+import traceback
 from contextlib import nullcontext
 from pathlib import Path
-from typing import List, Tuple, Optional, Set, Union, TYPE_CHECKING, Any
+from typing import List, Tuple, Optional, Set, Union, TYPE_CHECKING, Any, Dict
 
+# --- THE DIVINE UPLINKS ---
 from .alu import AlchemicalLogicUnit
 from .io_controller import IOConductor
 from .opcodes import OpCode, Instruction
 from .registers import QuantumRegisters
 from ..contracts.data_contracts import ScaffoldItem, InscriptionAction
-from ..contracts.heresy_contracts import ArtisanHeresy
+from ..contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ..logger import Scribe
 
-# FACULTY 1: The Law of Gnostic Delegation (Forward Gaze)
 if TYPE_CHECKING:
     from ..core.maestro import MaestroConductor as MaestroUnit
+    from ..runtime.engine import ScaffoldEngine
 
 Logger = Scribe("QuantumCPU")
 
 
 class QuantumCPU:
     """
-    =================================================================================
-    == THE SINGULARITY CPU (V-Ω-ETERNAL-APOTHEOSIS-ULTIMA++)                       ==
-    =================================================================================
-    LIF: 10,000,000,000,000 | ROLE: KINETIC_EXECUTION_CORE | RANK: OMEGA
-
-    The divine, sentient, and hyper-performant heart of the Quantum Creator. Its
-    soul is forged with the 12 Legendary Ascensions, making it the final word in
-    Gnostic execution.
-
-    [ASCENSION LOG]:
-    1.  **The Quaternity Processor:** It now natively understands the 4-tuple command
-        structure `(Command, Line, Undo, Heresy)`, enabling conditional resilience.
-    2.  **The Rite of Redemption:** Upon detecting a kinetic fracture (Exception), it
-        checks for a `Heresy` payload and executes it before re-raising the error.
-    3.  **JIT Materialization:** It forces the Staging Area to flush to disk before
-        executing shell commands, ensuring the shell sees the new reality.
+    The High Executioner of the God-Engine. It transmutes logical instructions
+    into physical reality by commanding the host's kinetic limbs.
     """
 
-    def __init__(self, registers: QuantumRegisters, io_conductor: IOConductor, maestro: "MaestroUnit"):
+    def __init__(self, registers: QuantumRegisters, io_conductor: IOConductor, maestro: "MaestroUnit",
+                 engine: "ScaffoldEngine"):
         """
-        =============================================================================
-        == THE RITE OF GNOSTIC BESTOWAL (DEPENDENCY INJECTION)                     ==
-        =============================================================================
-        The CPU is born. It receives its divine instruments—the IOConductor and the
-        Maestro—as gifts from its Creator, annihilating the Ouroboros heresy.
-        =============================================================================
+        [THE RITE OF INCEPTION]
+        Binds the CPU to the Engine's mind and the Maestro's will.
         """
         self.Logger = Logger
         self.regs = registers
         self.io = io_conductor
         self.maestro = maestro
+        self.engine = engine
         self.program: List[Instruction] = []
         self.program_counter: int = 0
 
-        # FACULTY 2: The Handler Pantheon (The Dispatch Table)
+        # [ASCENSION]: The Handler Pantheon
         self._handler_map = {
             OpCode.MKDIR: self._handle_mkdir,
             OpCode.WRITE: self._handle_write,
@@ -70,14 +69,9 @@ class QuantumCPU:
             commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]]
     ):
         """
-        The Gnostic Compiler, its soul now healed to honor the Law of Provenance.
-        It strictly enforces that every Instruction carries its sacred line_num.
-
-        Arguments:
-            items: The Scripture of Form (Files/Directories).
-            commands: The Scripture of Will (The Quaternity of Execution).
+        The Gnostic Compiler. Transmutes Scripture into Executable Instructions.
         """
-        # Sort items to ensure directories are forged before files
+        # Ensure directories are forged before the files they contain
         sorted_items = sorted(items, key=lambda x: (not x.is_dir, str(x.path)))
 
         for item in sorted_items:
@@ -101,9 +95,8 @@ class QuantumCPU:
                     ))
 
         if not self.regs.no_edicts:
-            # [ASCENSION]: Unpack Quaternity
+            # [ASCENSION]: Quaternity Ingestion
             for cmd_tuple in commands:
-                # We pack the whole tuple (cmd, line, undo, heresy) into target for the Handler
                 self.program.append(Instruction(
                     op=OpCode.EXEC,
                     target=cmd_tuple,
@@ -113,13 +106,11 @@ class QuantumCPU:
     def execute(self):
         """
         =============================================================================
-        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-STAGING-AWARE-FINALIS)             ==
+        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-TOTALITY)                          ==
         =============================================================================
-        Runs the compiled program.
         """
         total_ops = len(self.program)
-        if total_ops == 0:
-            return
+        if total_ops == 0: return
 
         status_ctx = self.regs.console.status(
             "[bold green]Quantum VM Running...[/bold green]") if not self.regs.silent else nullcontext()
@@ -130,19 +121,17 @@ class QuantumCPU:
                     self.program_counter = i
                     self.regs.ops_executed += 1
 
-                    # [ASCENSION 13]: JUST-IN-TIME MATERIALIZATION
-                    # If we are about to execute a shell command, we MUST flush
-                    # the staging area to the physical disk so the tools (make/npm)
-                    # can see the files we just 'created'.
+                    # [ASCENSION 3]: JIT MATERIALIZATION
+                    # Ensure physical disk matches memory before any shell command runs.
                     if instr.op == OpCode.EXEC:
                         if self.regs.transaction and not self.regs.is_simulation:
                             self.Logger.verbose("Materializing staged reality before Kinetic Strike...")
-                            # This moves files from .scaffold/staging to the real project root
                             self.regs.transaction.materialize()
 
                     if not self.regs.silent:
                         status_ctx.update(
-                            f"[bold green]Quantum VM: Op {i + 1}/{total_ops} ({instr.op.name})...[/bold green]")
+                            f"[bold green]Quantum VM: Op {i + 1}/{total_ops} ({instr.op.name})[/bold green]"
+                        )
 
                     handler = self._handler_map.get(instr.op)
                     if handler:
@@ -151,11 +140,17 @@ class QuantumCPU:
                         self.Logger.warn(f"Opcode '{instr.op.name}' has no handler.")
 
         except Exception as e:
+            # [ASCENSION 7]: FORENSIC TRIAGE
             raise ArtisanHeresy(
                 f"Quantum VM Halt at Op {self.program_counter + 1} ({self.program[self.program_counter].op.name})",
                 child_heresy=e,
-                details=f"Instruction: {self.program[self.program_counter]}"
+                details=f"Instruction: {self.program[self.program_counter]}",
+                severity=HeresySeverity.CRITICAL
             ) from e
+
+    # =========================================================================
+    # == INTERNAL HANDLERS (THE KINETIC LIMBS)                               ==
+    # =========================================================================
 
     def _handle_mkdir(self, instr: Instruction):
         if self.io.mkdir(Path(instr.target)):
@@ -178,44 +173,120 @@ class QuantumCPU:
 
     def _handle_exec(self, instr: Instruction):
         """
-        [ASCENSION]: THE RITE OF RESILIENT EXECUTION.
-        Handles the 4-Tuple Quaternity: (Command, Line, Undo, Heresy).
+        =============================================================================
+        == THE RITE OF RESILIENT EXECUTION (V-Ω-VENV-SUTURED)                      ==
+        =============================================================================
+        [THE CURE]: This method terraforms the environment before execution.
         """
-        # The target holds the tuple we packed in load_program
         cmd_tuple = instr.target
+        cmd, line, undo, heresy_cmds = (cmd_tuple if len(cmd_tuple) == 4 else (*cmd_tuple, None))
 
-        # 1. Unpack the Quaternity (with legacy safety)
-        if len(cmd_tuple) == 4:
-            cmd, line, undo, heresy_cmds = cmd_tuple
-        else:
-            # Fallback for old blueprints
-            cmd, line, undo = cmd_tuple
-            heresy_cmds = None
+        # --- 1. THE VENV SUTURE & TRANSMUTATION ---
+        # [ASCENSION 1 & 2]
+        execution_env = self._terraform_environment()
+        transmuted_cmd = self._transmute_artisan_plea(cmd)
+
+        # --- 2. METABOLIC ADJUDICATION ---
+        self._check_metabolic_fever()
+
+        # --- 3. HUD BROADCAST ---
+        self._multicast_kinetic_start(transmuted_cmd, line)
 
         try:
-            # 2. Attempt the Primary Will
-            # Maestro expects the 3-tuple (cmd, line, undo) for its context forging
-            self.maestro.execute((cmd, line, undo))
+            # --- 4. THE KINETIC STRIKE ---
+            # We inject the sutured environment into the Maestro's execution block
+            self.maestro.execute((transmuted_cmd, line, undo), env=execution_env)
 
-        except Exception as e:
-            # 3. The Fracture Occurred. Do we have a path to redemption?
+        except Exception as fracture:
+            # --- 5. THE RITE OF REDEMPTION ---
             if heresy_cmds:
-                self.Logger.warn(f"Edict failed on L{line}. Invoking Rite of Redemption (On-Heresy)...")
-
+                self.Logger.warn(f"L{line}: Edict fractured. Invoking Redemption Rites...")
                 try:
                     for h_cmd in heresy_cmds:
-                        # We create a temporary tuple for the heresy command.
-                        # Heresy commands do not have their own undo/heresy stack (recursion guard).
-                        self.Logger.verbose(f"   -> Conducting redemption rite: {h_cmd[:40]}...")
-                        self.maestro.execute((h_cmd, line, None))
-                except Exception as redemption_error:
-                    # If redemption fails, we log it but still raise the ORIGINAL error
-                    self.Logger.error(f"Redemption Rite fractured: {redemption_error}")
+                        self.Logger.verbose(f"   -> [REDEEM] {h_cmd[:40]}...")
+                        self.maestro.execute((h_cmd, line, None), env=execution_env)
+                except Exception as r_err:
+                    self.Logger.error(f"Redemption failed: {r_err}")
 
-                # [THE FINALITY]: We re-raise the original exception.
-                # The on-heresy block is for cleanup/notification, not for suppressing the failure state
-                # of the transaction (unless we add a suppression flag later).
-                raise e
-            else:
-                # No redemption path. Propagate the crash.
-                raise e
+            # [ASCENSION 7]: Check for 127 Error in exception details
+            if "127" in str(fracture) or "not found" in str(fracture).lower():
+                self._diagnose_missing_artisan(cmd, line)
+
+            raise fracture
+
+    # =========================================================================
+    # == PRIVATE ALCHEMY (THE INNER WORKINGS)                                ==
+    # =========================================================================
+
+    def _terraform_environment(self) -> Dict[str, str]:
+        """
+        [ASCENSION 1 & 11]: PATH SUTURE & TRACE INJECTION.
+        Forges a child environment with perfect Venv resonance.
+        """
+        env = os.environ.copy()
+
+        # 1. THE PATH SUTURE (Ensures bin/ is visible)
+        python_bin_dir = os.path.dirname(sys.executable)
+        path_sep = ";" if platform.system() == "Windows" else ":"
+        env["PATH"] = f"{python_bin_dir}{path_sep}{env.get('PATH', '')}"
+
+        # 2. THE SILVER CORD (Distributed Tracing)
+        trace_id = os.environ.get("GNOSTIC_REQUEST_ID", "tr-local-cpu")
+        env["SCAFFOLD_TRACE_ID"] = trace_id
+        env["PYTHONUNBUFFERED"] = "1"
+
+        return env
+
+    def _transmute_artisan_plea(self, command: str) -> str:
+        """
+        [ASCENSION 2]: THE SACRED PROXY.
+        Surgically replaces 'pip' with absolute Python module calls.
+        """
+        parts = command.strip().split()
+        if not parts: return command
+
+        if parts[0].lower() == "pip":
+            # Transmute: pip install -> /path/to/python -m pip install
+            self.Logger.debug(f"Transmuting Artisan: pip -> {sys.executable}")
+            parts[0] = f'"{sys.executable}" -m pip'
+            return " ".join(parts)
+
+        return command
+
+    def _diagnose_missing_artisan(self, cmd: str, line: int):
+        """[ASCENSION 10]: THE LAZARUS PROBE."""
+        artisan = cmd.split()[0]
+        self.Logger.error(f"L{line}: Artisan '{artisan}' is unmanifest in the host's strata.")
+
+        # Suggest redemption
+        if artisan == "git":
+            self.Logger.info("💡 Path to Redemption: `apt-get install git` or `brew install git`")
+        elif artisan in ("npm", "node"):
+            self.Logger.info("💡 Path to Redemption: Install NodeJS at https://nodejs.org")
+
+    def _check_metabolic_fever(self):
+        """[ASCENSION 6]: Adaptive Pacing."""
+        if hasattr(self.engine, 'watchdog'):
+            vitals = self.engine.watchdog.get_vitals()
+            if vitals.get("load_percent", 0) > 90.0:
+                self.Logger.verbose("Host Fever detected. Injecting Metabolic Yield (500ms).")
+                time.sleep(0.5)
+
+    def _multicast_kinetic_start(self, cmd: str, line: int):
+        """[ASCENSION 4]: AKASHIC BROADCAST."""
+        if self.engine.akashic:
+            self.engine.akashic.broadcast({
+                "method": "novalym/hud_pulse",
+                "params": {
+                    "type": "KINETIC_STRIKE",
+                    "label": f"RUN: {cmd[:25]}...",
+                    "color": "#fbbf24",
+                    "line": line
+                }
+            })
+
+    def _purify_output(self, text: str) -> str:
+        """[ASCENSION 8]: ANSI EXORCISM."""
+        return re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
+
+# == SCRIPTURE SEALED: THE QUANTUM CPU IS OMEGA TOTALITY ==
