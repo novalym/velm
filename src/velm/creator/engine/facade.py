@@ -284,56 +284,72 @@ class QuantumCreator:
         == THE OMEGA STRIKE (V-Ω-TOTALITY-V200-SILENT-CONSECRATION)                ==
         =============================================================================
         LIF: ∞ | ROLE: KINETIC_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH_CODE: Ω_RUN_V200_SILENT_STRIKE_FIX_)(@)(!@#(#@)
+        AUTH: Ω_RUN_V200_SILENT_STRIKE_FIX_2026_FINALIS
         """
         import time
+        import os
         from contextlib import nullcontext
         from ...logger import _COSMIC_GNOSIS
+        from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+        from ..registers import QuantumRegisters
+        from ..ghost_buster import GhostBuster
 
-        # [ASCENSION 2]: NANO-SCALE METABOLIC ANCHOR
+        # [ASCENSION 4]: NANO-SCALE METABOLIC ANCHOR
         start_ns = time.perf_counter_ns()
+
+        # [ASCENSION 10]: HUD MULTICAST (Haptic Signal)
+        if self.engine.akashic:
+            self.engine.akashic.broadcast({
+                "method": "novalym/hud_pulse",
+                "params": {"type": "GENESIS_START", "label": "MATERIALIZING_MATTER", "color": "#64ffda"}
+            })
 
         status_ctx = self.console.status(
             "[bold green]The Great Work is advancing...") if not self.silent else nullcontext()
 
-        registers: Optional[QuantumRegisters] = None
+        # Initialize registers in the root scope to ensure the Finality Vow
+        registers = QuantumRegisters(
+            sanctum=self.sanctum,
+            project_root=self.project_root,
+            transaction=self.transaction,
+            dry_run=self.is_simulation,
+            force=self.force,
+            verbose=self.verbose,
+            silent=self.silent,
+            gnosis=self.variables,
+            console=self.console,
+            non_interactive=self.non_interactive,
+            no_edicts=self.no_edicts
+        )
 
         try:
             from ...core.maestro import MaestroConductor as MaestroUnit
             from ..io_controller import IOConductor
+            from ..cpu import QuantumCPU
 
             # --- MOVEMENT I: FORENSIC PERCEPTION ---
+            # [ASCENSION 3]: Verify the host isn't in thermal panic
             self._adjudicate_paths_forensically()
             self._conduct_metabolic_audit()
 
-            # --- MOVEMENT II: MATERIALIZE THE MIND (REGISTERS) ---
-            registers = QuantumRegisters(
-                sanctum=self.sanctum,
-                project_root=self.project_root,
-                transaction=self.transaction,
-                dry_run=self.is_simulation,
-                force=self.force,
-                verbose=self.verbose,
-                silent=self.silent,
-                gnosis=self.variables,
-                console=self.console,
-                non_interactive=self.non_interactive,
-                no_edicts=self.no_edicts
-            )
-
-            # --- MOVEMENT III: SUMMON THE ORGANS ---
+            # --- MOVEMENT II: SUMMON THE ORGANS ---
             io_conductor = IOConductor(registers)
             maestro = MaestroUnit(registers, self.alchemist)
-            cpu = QuantumCPU(registers, io_conductor, maestro)
 
-            # --- MOVEMENT IV: COMPILE THE GNOSTIC PROGRAM ---
+            # [THE CORE FIX]: THE ENGINE SUTURE
+            # Bestowing the engine instance upon the CPU to heal the TypeError.
+            cpu = QuantumCPU(registers, io_conductor, maestro, self.engine)
+
+            # --- MOVEMENT III: COMPILE THE GNOSTIC PROGRAM ---
+            # Transmutes the ScaffoldItems and Edicts into kinetic opcodes.
             cpu.load_program(self.scaffold_items, self.post_run_commands)
 
             if not cpu.program:
-                self.Logger.warn("Void Prophecy: No instructions perceived in blueprint.")
+                self.Logger.warn("Void Prophecy: No instructions perceived in blueprint. Returning to stasis.")
                 return registers
 
-            # --- MOVEMENT V: GEOMETRIC FORTIFICATION ---
+            # --- MOVEMENT IV: GEOMETRIC FORTIFICATION ---
+            # Shielding the physical foundations from the coming lustration.
             for item in self.scaffold_items:
                 if item.path:
                     try:
@@ -342,20 +358,21 @@ class QuantumCreator:
                     except Exception:
                         pass
 
-            # --- MOVEMENT VI: THE KINETIC STRIKE ---
+            # --- MOVEMENT V: THE KINETIC STRIKE ---
             with status_ctx:
-                # 1. MATERIALIZE THE MATTER (The main CPU execution)
+                # 1. MATERIALIZE THE MATTER
+                # The Quantum CPU executes the opcode stream (MKDIR, WRITE, EXEC).
                 cpu.execute()
 
                 # =========================================================================
-                # == [THE CURE]: SILENT CONSECRATION RITE                                ==
+                # == [ASCENSION 2]: THE WARD OF SILENCE (THE CURE)                       ==
                 # =========================================================================
-                # We surgically mute the concourse to prevent the "Consecrating" waterfall.
-                # Only active if verbose mode is NOT willed.
+                # We surgically mute the global log concourse to prevent "Consecrating" spam.
                 was_silent = _COSMIC_GNOSIS["silent"]
                 if not self.verbose: _COSMIC_GNOSIS["silent"] = True
 
                 try:
+                    # 2. CONSECRATE THE STRUCTURE
                     if not self.is_simulation and self.is_local_realm:
                         if not self.silent:
                             status_ctx.update("[bold yellow]Consecrating Reality Structure...[/bold yellow]")
@@ -363,9 +380,11 @@ class QuantumCreator:
                         for item in self.scaffold_items:
                             if not item.is_dir and item.path:
                                 absolute_target = (self.base_path / item.path).resolve()
+                                # Enforce directory existence and framework-specific permissions
                                 self.structure_sentinel.ensure_structure(absolute_target)
 
-                    # --- MOVEMENT VII: THE ADJUDICATION RITE ---
+                    # 3. [ASCENSION 5]: ADJUDICATE SOUL PURITY
+                    # Comparing physical disk matter against the Gnostic Chronicle.
                     if self.adjudicate_souls and self.transaction and not self.is_simulation:
                         if not self.silent:
                             status_ctx.update("[bold purple]Adjudicating Soul Purity...[/bold purple]")
@@ -374,7 +393,7 @@ class QuantumCreator:
                     if not self.is_simulation:
                         self.adjudicator.conduct_dynamic_ignore()
 
-                    # --- MOVEMENT VIII: THE RITE OF PURIFICATION (GHOST BUSTER) ---
+                    # 4. [ASCENSION 11]: THE RITE OF PURIFICATION (GHOST BUSTER)
                     if self.clean_empty_dirs and not self.is_simulation and self.is_local_realm:
                         if not self.silent:
                             status_ctx.update("[bold grey]Purging Entropy (Ghost Buster)...[/bold grey]")
@@ -387,23 +406,28 @@ class QuantumCreator:
                     # Restore the original state of the Voice
                     _COSMIC_GNOSIS["silent"] = was_silent
 
-            # --- MOVEMENT IX: THE FINAL REVELATION ---
+            # --- MOVEMENT VI: THE FINAL REVELATION ---
             duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
             if not self.silent:
                 self.Logger.success(f"Apotheosis Achieved. Reality forged in {duration_ms:.2f}ms.")
 
         except Exception as catastrophic_paradox:
+            # [ASCENSION 9]: LAZARUS TELEMETRY
             duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
-            if registers: registers.critical_heresies += 1
+            registers.critical_heresies += 1
 
+            # Transmute into a structured ArtisanHeresy for the Healer
             if not isinstance(catastrophic_paradox, ArtisanHeresy):
                 raise ArtisanHeresy(
                     "CATASTROPHIC_CREATOR_FRACTURE",
                     child_heresy=catastrophic_paradox,
                     details=f"At Locus: {self.base_path}\nDuration: {duration_ms:.2f}ms",
-                    severity=HeresySeverity.CRITICAL
+                    severity=HeresySeverity.CRITICAL,
+                    traceback_obj=catastrophic_paradox.__traceback__
                 ) from catastrophic_paradox
+
             raise catastrophic_paradox
 
+        # [ASCENSION 12]: THE FINALITY VOW
         return registers
 # == SCRIPTURE SEALED: THE FORTRESS IS OMEGA ==
