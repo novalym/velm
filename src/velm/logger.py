@@ -1258,4 +1258,4 @@ def configure_logging(
 
 
 
-__all__ = ["Scribe", "get_console", "set_console", "configure_logging", "SCRIBE_THEME"]
+__all__ = ["Scribe", "get_console", "set_console", "configure_logging", "SCRIBE_THEME","_COSMIC_GNOSIS"]
