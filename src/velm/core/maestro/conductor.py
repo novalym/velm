@@ -13,8 +13,10 @@ from dataclasses import dataclass
 from .contracts import MaestroContext, KineticVessel
 from .context import ContextForge
 from .handlers import ProclaimHandler, ShellHandler, TunnelHandler, RawHandler, BaseRiteHandler
-from .handlers.browser import BrowserHandler # <--- ASCENSION
-from .handlers.hosts import HostsHandler     # <--- ASCENSION
+from .handlers.browser import BrowserHandler
+from .handlers.hosts import HostsHandler
+from .handlers.vault import VaultHandler
+
 from ..alchemist import DivineAlchemist, get_alchemist
 from ...contracts.heresy_contracts import ArtisanHeresy
 from ...creator.registers import QuantumRegisters
