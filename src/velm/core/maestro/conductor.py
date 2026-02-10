@@ -50,25 +50,52 @@ class MaestroConductor:
     LIF: 10,000,000,000,000 (ABSOLUTE EXECUTION AUTHORITY)
     """
 
-    def __init__(self, registers: Union[QuantumRegisters, Any], alchemist: Optional[DivineAlchemist] = None):
+    def __init__(
+            self,
+            engine: Any,
+            registers: Union[QuantumRegisters, Any],
+            alchemist: Optional[DivineAlchemist] = None
+    ):
+        """
+        =============================================================================
+        == THE SOVEREIGN INCEPTION (V-Ω-TOTALITY-V4.0-FINALIS)                    ==
+        =============================================================================
+        LIF: ∞ | ROLE: KINETIC_ORCHESTRATOR | RANK: OMEGA_SUPREME
+        """
         self.Logger = Logger
+
+        # [ASCENSION 1]: THE ENGINE SUTURE
+        # Anchoring the Maestro to the master Engine to enable Telemetry and Vitals.
+        self.engine = engine
+
+        # [ASCENSION 3]: JIT ALCHEMIST BINDING
         self.alchemist = alchemist or get_alchemist()
 
+        # [ASCENSION 2]: POLYMORPHIC REGISTER INCEPTION
+        # We ensure the Maestro possesses a valid 'registers' soul, even in ephemeral voids.
         if not isinstance(registers, QuantumRegisters):
             self.regs = self._forge_ephemeral_registers(registers)
         else:
             self.regs = registers
 
+        # [ASCENSION 5]: CONTEXT FORGE ALIGNMENT
         self.context_forge = ContextForge(self.regs, self.alchemist)
 
+        # [ASCENSION 4]: THE HANDLER PANTHEON
+        # The complete registry of high-status execution artisans.
         self.RITE_HANDLERS: Dict[str, Type[BaseRiteHandler]] = {
             "proclaim": ProclaimHandler,
             "shell": ShellHandler,
             "tunnel": TunnelHandler,
             "raw": RawHandler,
-            "browser": BrowserHandler,  # <--- ASCENSION
-            "hosts": HostsHandler,  # <--- ASCENSION
+            "browser": BrowserHandler,  # <--- OCULAR ASCENSION
+            "hosts": HostsHandler,  # <--- GEOMETRIC ASCENSION
+            "vault": VaultHandler,  # <--- SECURITY ASCENSION
         }
+
+        # [ASCENSION 11]: METABOLIC TRACING
+        self.trace_id = getattr(self.regs, 'trace_id', 'tr-maestro-init')
+        self.Logger.verbose(f"Maestro Conductor materialised. Trace: {self.trace_id}")
 
     def _forge_ephemeral_registers(self, context_manager: Any) -> QuantumRegisters:
         sanctum_path = getattr(context_manager, 'cwd', Path.cwd())
