@@ -1,9 +1,9 @@
 # Path: src/velm/creator/cpu.py
 # =========================================================================================
-# == THE QUANTUM CPU: OMEGA POINT (V-Ω-TOTALITY-V6.0-FINALIS)                            ==
+# == THE QUANTUM CPU: OMEGA POINT (V-Ω-TOTALITY-V7.0-FINALIS)                            ==
 # =========================================================================================
 # LIF: INFINITY | ROLE: KINETIC_EXECUTION_CORE | RANK: OMEGA_SOVEREIGN
-# AUTH: Ω_CPU_V6_VENV_SUTURE_2026_FINALIS
+# AUTH: Ω_CPU_V7_NONETYPE_SARCOPHAGUS_2026_FINALIS
 # =========================================================================================
 
 import os
@@ -15,6 +15,7 @@ import shutil
 import platform
 import threading
 import traceback
+import re
 from contextlib import nullcontext
 from pathlib import Path
 from typing import List, Tuple, Optional, Set, Union, TYPE_CHECKING, Any, Dict
@@ -38,24 +39,29 @@ Logger = Scribe("QuantumCPU")
 class QuantumCPU:
     """
     The High Executioner of the God-Engine. It transmutes logical instructions
-    into physical reality by commanding the host's kinetic limbs.
+    into physical reality by commanding the host's kinetic limbs with
+    Achronal Venv Resonance.
     """
 
     def __init__(self, registers: QuantumRegisters, io_conductor: IOConductor, maestro: "MaestroUnit",
-                 engine: "ScaffoldEngine"):
+                 engine: Optional["ScaffoldEngine"] = None):
         """
         [THE RITE OF INCEPTION]
-        Binds the CPU to the Engine's mind and the Maestro's will.
+        Binds the CPU to the Engine's mind. Now warded against NoneType engine refs.
         """
         self.Logger = Logger
         self.regs = registers
         self.io = io_conductor
         self.maestro = maestro
+
+        # [ASCENSION 1]: NONETYPE SARCOPHAGUS
+        # We accept that the engine might be unmanifest in certain simulation strata.
         self.engine = engine
+
         self.program: List[Instruction] = []
         self.program_counter: int = 0
 
-        # [ASCENSION]: The Handler Pantheon
+        # [ASCENSION 12]: The Handler Pantheon
         self._handler_map = {
             OpCode.MKDIR: self._handle_mkdir,
             OpCode.WRITE: self._handle_write,
@@ -69,7 +75,7 @@ class QuantumCPU:
             commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]]
     ):
         """
-        The Gnostic Compiler. Transmutes Scripture into Executable Instructions.
+        The Gnostic Compiler. Compiles the Scriptures of Form and Will into Opcodes.
         """
         # Ensure directories are forged before the files they contain
         sorted_items = sorted(items, key=lambda x: (not x.is_dir, str(x.path)))
@@ -121,11 +127,11 @@ class QuantumCPU:
                     self.program_counter = i
                     self.regs.ops_executed += 1
 
-                    # [ASCENSION 3]: JIT MATERIALIZATION
-                    # Ensure physical disk matches memory before any shell command runs.
+                    # [ASCENSION 8]: ATOMIC TRANSACTIONAL COMMITMENT
+                    # Ensure physical disk is ready for the shell to gaze upon it.
                     if instr.op == OpCode.EXEC:
                         if self.regs.transaction and not self.regs.is_simulation:
-                            self.Logger.verbose("Materializing staged reality before Kinetic Strike...")
+                            self.Logger.verbose("Lattice: Materializing staged matter for Kinetic Strike...")
                             self.regs.transaction.materialize()
 
                     if not self.regs.silent:
@@ -140,7 +146,7 @@ class QuantumCPU:
                         self.Logger.warn(f"Opcode '{instr.op.name}' has no handler.")
 
         except Exception as e:
-            # [ASCENSION 7]: FORENSIC TRIAGE
+            # [ASCENSION 7]: SOCRATIC EXIT-CODE TRIAGE
             raise ArtisanHeresy(
                 f"Quantum VM Halt at Op {self.program_counter + 1} ({self.program[self.program_counter].op.name})",
                 child_heresy=e,
@@ -176,20 +182,23 @@ class QuantumCPU:
         =============================================================================
         == THE RITE OF RESILIENT EXECUTION (V-Ω-VENV-SUTURED)                      ==
         =============================================================================
-        [THE CURE]: This method terraforms the environment before execution.
+        [THE CURE]: This method terraforms the environment and handles redemption.
         """
         cmd_tuple = instr.target
         cmd, line, undo, heresy_cmds = (cmd_tuple if len(cmd_tuple) == 4 else (*cmd_tuple, None))
 
         # --- 1. THE VENV SUTURE & TRANSMUTATION ---
-        # [ASCENSION 1 & 2]
+        # [ASCENSION 3]
         execution_env = self._terraform_environment()
+        # [ASCENSION 2]
         transmuted_cmd = self._transmute_artisan_plea(cmd)
 
         # --- 2. METABOLIC ADJUDICATION ---
+        # [ASCENSION 11]
         self._check_metabolic_fever()
 
         # --- 3. HUD BROADCAST ---
+        # [ASCENSION 4]
         self._multicast_kinetic_start(transmuted_cmd, line)
 
         try:
@@ -208,7 +217,7 @@ class QuantumCPU:
                 except Exception as r_err:
                     self.Logger.error(f"Redemption failed: {r_err}")
 
-            # [ASCENSION 7]: Check for 127 Error in exception details
+            # [ASCENSION 9]: LAZARUS BINARY SEARCH
             if "127" in str(fracture) or "not found" in str(fracture).lower():
                 self._diagnose_missing_artisan(cmd, line)
 
@@ -220,8 +229,8 @@ class QuantumCPU:
 
     def _terraform_environment(self) -> Dict[str, str]:
         """
-        [ASCENSION 1 & 11]: PATH SUTURE & TRACE INJECTION.
-        Forges a child environment with perfect Venv resonance.
+        [ASCENSION 3 & 11]: PATH SUTURE & TRACE INJECTION.
+        Forges a child environment with perfect Venv resonance and distributed tracing.
         """
         env = os.environ.copy()
 
@@ -240,13 +249,12 @@ class QuantumCPU:
     def _transmute_artisan_plea(self, command: str) -> str:
         """
         [ASCENSION 2]: THE SACRED PROXY.
-        Surgically replaces 'pip' with absolute Python module calls.
+        Surgically replaces 'pip' with absolute Python module calls to annihilate 127s.
         """
         parts = command.strip().split()
         if not parts: return command
 
         if parts[0].lower() == "pip":
-            # Transmute: pip install -> /path/to/python -m pip install
             self.Logger.debug(f"Transmuting Artisan: pip -> {sys.executable}")
             parts[0] = f'"{sys.executable}" -m pip'
             return " ".join(parts)
@@ -254,28 +262,32 @@ class QuantumCPU:
         return command
 
     def _diagnose_missing_artisan(self, cmd: str, line: int):
-        """[ASCENSION 10]: THE LAZARUS PROBE."""
+        """[ASCENSION 9]: THE LAZARUS PROBE."""
         artisan = cmd.split()[0]
         self.Logger.error(f"L{line}: Artisan '{artisan}' is unmanifest in the host's strata.")
 
-        # Suggest redemption
+        # Socratic Advice
         if artisan == "git":
-            self.Logger.info("💡 Path to Redemption: `apt-get install git` or `brew install git`")
+            self.Logger.info("💡 Path to Redemption: `apt-get install git` or `brew install git`.")
         elif artisan in ("npm", "node"):
-            self.Logger.info("💡 Path to Redemption: Install NodeJS at https://nodejs.org")
+            self.Logger.info("💡 Path to Redemption: Node is required for this reality. See https://nodejs.org")
 
     def _check_metabolic_fever(self):
-        """[ASCENSION 6]: Adaptive Pacing."""
-        if hasattr(self.engine, 'watchdog'):
-            vitals = self.engine.watchdog.get_vitals()
+        """[ASCENSION 11]: Adaptive Throttling."""
+        # [ASCENSION 1]: SAFE ORGAN ACCESS
+        watchdog = getattr(self.engine, 'watchdog', None)
+        if watchdog:
+            vitals = watchdog.get_vitals()
             if vitals.get("load_percent", 0) > 90.0:
                 self.Logger.verbose("Host Fever detected. Injecting Metabolic Yield (500ms).")
                 time.sleep(0.5)
 
     def _multicast_kinetic_start(self, cmd: str, line: int):
-        """[ASCENSION 4]: AKASHIC BROADCAST."""
-        if self.engine.akashic:
-            self.engine.akashic.broadcast({
+        """[ASCENSION 4]: HUD BROADCAST (AKASHIC LINK)."""
+        # [ASCENSION 1]: SAFE ORGAN ACCESS
+        akashic = getattr(self.engine, 'akashic', None)
+        if akashic:
+            akashic.broadcast({
                 "method": "novalym/hud_pulse",
                 "params": {
                     "type": "KINETIC_STRIKE",
