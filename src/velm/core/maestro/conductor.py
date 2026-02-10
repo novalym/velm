@@ -110,31 +110,101 @@ class MaestroConductor:
             verbose=getattr(context_manager, 'verbose', False) if hasattr(context_manager, 'verbose') else False
         )
 
-    def execute(self, command_tuple: Tuple[str, int, Optional[List[str]]]):
-        """The Grand Symphony of Execution (Blocking)."""
-        raw_command, line_num, explicit_undo = command_tuple
+    def execute(self, instruction: Tuple, env: Optional[Dict] = None):
+        """
+        =============================================================================
+        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-TOTALITY-V5.0-FINALIS)             ==
+        =============================================================================
+        LIF: ∞ | ROLE: KINETIC_DISPATCHER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_EXECUTE_V5_TOTAL_SUTURE_2026
+        """
+        # --- MOVEMENT I: ATOMIC UNPACKING & TRIAGE ---
+        # [ASCENSION 1]: We handle both 3-tuples (Legacy) and 4-tuples (Quaternity).
+        if len(instruction) == 4:
+            raw_command, line_num, explicit_undo, heresy_block = instruction
+        else:
+            raw_command, line_num, explicit_undo = instruction
+            heresy_block = None
+
+        if not raw_command:
+            return
+
+        # --- MOVEMENT II: THE ALCHEMICAL RESOLUTION ---
+        # [ASCENSION 3]: Transmute variables ({{ var }}) into physical matter.
         transmuted_cmd = self.alchemist.transmute(raw_command, self.regs.gnosis)
         stripped_cmd = transmuted_cmd.strip()
 
+        # --- MOVEMENT III: ENVIRONMENT DNA FUSION ---
+        # [ASCENSION 2]: We merge the CPU's environment with our internal variables.
+        # This ensures the child process possesses the full Gnosis of the project.
+        active_env = (env or os.environ).copy()
+        if self.regs.gnosis:
+            for k, v in self.regs.gnosis.items():
+                if isinstance(v, (str, int, bool)):
+                    active_env[f"SC_VAR_{k.upper()}"] = str(v)
+
+        # --- MOVEMENT IV: SEMANTIC RITE TRIAGE ---
+        # [ASCENSION 4]: Divining the correct High Priest for the Edict.
         rite_key = "shell"
         if stripped_cmd.startswith(("proclaim:", "%% proclaim:", "echo ")):
             rite_key = "proclaim"
+        elif "@vault" in stripped_cmd or "vault:" in stripped_cmd:
+            rite_key = "vault"
         elif stripped_cmd.startswith("tunnel:"):
             rite_key = "tunnel"
         elif stripped_cmd.startswith("raw:"):
             rite_key = "raw"
-        # --- ASCENSION: NEW DIRECTIVES ---
         elif stripped_cmd.startswith("@open_browser"):
             rite_key = "browser"
         elif stripped_cmd.startswith("%% hosts:"):
             rite_key = "hosts"
-        # ---------------------------------
 
-        HandlerClass = self.RITE_HANDLERS.get(rite_key, ShellHandler)
+        # --- MOVEMENT V: HANDLER MATERIALIZATION ---
+        # [ASCENSION 5]: Forge the context for the specific line.
+        HandlerClass = self.RITE_HANDLERS.get(rite_key, self.RITE_HANDLERS["shell"])
         context = self.context_forge.forge(line_num, explicit_undo)
+
+        # [ASCENSION 7]: Materialize the specific Artisan.
         handler = HandlerClass(self.regs, self.alchemist, context)
 
-        handler.conduct(transmuted_cmd)
+        # Inject the conductor reference for organ access
+        if hasattr(handler, 'conductor'):
+            object.__setattr__(handler, 'conductor', self)
+
+        # --- MOVEMENT VI: THE KINETIC STRIKE & REDEMPTION ---
+        try:
+            # [ASCENSION 8]: HUD NOTIFICATION
+            if self.engine and self.engine.akashic:
+                self.engine.akashic.broadcast({
+                    "method": "novalym/hud_pulse",
+                    "params": {
+                        "type": "RITE_START",
+                        "label": f"CONDUCTING_{rite_key.upper()}",
+                        "color": "#64ffda",
+                        "line": line_num
+                    }
+                })
+
+            # [ASCENSION 1]: THE FINAL DISPATCH
+            # We call the handler's conduct rite, passing the fused environment.
+            # We use try/except on the call to ensure we handle the 'env' keyword support.
+            try:
+                handler.conduct(transmuted_cmd, env=active_env)
+            except TypeError:
+                # Fallback for legacy handlers that do not yet accept 'env'
+                handler.conduct(transmuted_cmd)
+
+        except Exception as fracture:
+            # [ASCENSION 11]: THE RITE OF REDEMPTION
+            # If the strike failed and we have a heresy block, execute the cure.
+            if heresy_block:
+                self.Logger.warn(f"L{line_num}: Rite fractured. Initiating Redemption Sequence.")
+                for h_cmd in heresy_block:
+                    # Recursive call for heresy commands (No further nesting allowed)
+                    self.execute((h_cmd, line_num, None), env=active_env)
+
+            # Re-raise to let the Healer handle the final dossier
+            raise fracture
 
     def _adjudicate_shell_safety(self, command: str):
         """
