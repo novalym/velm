@@ -284,22 +284,14 @@ class QuantumCreator:
         == THE OMEGA STRIKE (V-Ω-TOTALITY-V200-SILENT-CONSECRATION)                ==
         =============================================================================
         LIF: ∞ | ROLE: KINETIC_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_RUN_V200_SILENT_STRIKE_FIX_2026_FINALIS
+        AUTH_CODE: Ω_RUN_V200_SILENT_STRIKE_FIX_)(@)(!@#(#@)
         """
-        from ..io_controller import IOConductor
-        from ...core.maestro import MaestroConductor as MaestroUnit
-
+        import time
+        from contextlib import nullcontext
+        from ...logger import _COSMIC_GNOSIS
 
         # [ASCENSION 2]: NANO-SCALE METABOLIC ANCHOR
         start_ns = time.perf_counter_ns()
-
-        # [ASCENSION 3]: HAPTIC TELEMETRY MULTICAST
-        # We reach through the alchemist to notify the Ocular HUD of inception.
-        if hasattr(self.alchemist, 'engine') and self.alchemist.engine.akashic:
-            self.alchemist.engine.akashic.broadcast({
-                "method": "novalym/hud_pulse",
-                "params": {"type": "GENESIS_START", "label": "MATERIALIZING_MATTER", "color": "#64ffda"}
-            })
 
         status_ctx = self.console.status(
             "[bold green]The Great Work is advancing...") if not self.silent else nullcontext()
@@ -307,6 +299,9 @@ class QuantumCreator:
         registers: Optional[QuantumRegisters] = None
 
         try:
+            from ...core.maestro import MaestroConductor as MaestroUnit
+            from ..io_controller import IOConductor
+
             # --- MOVEMENT I: FORENSIC PERCEPTION ---
             self._adjudicate_paths_forensically()
             self._conduct_metabolic_audit()
@@ -326,14 +321,15 @@ class QuantumCreator:
                 no_edicts=self.no_edicts
             )
 
-            # --- MOVEMENT III: SUMMON THE ORGANS (THE SUTURE) ---
+            # --- MOVEMENT III: SUMMON THE ORGANS ---
             io_conductor = IOConductor(registers)
             maestro = MaestroUnit(registers, self.alchemist)
 
-            # [THE CORE FIX]: THE ACHRONAL ENGINE SUTURE
-            # We access the engine via the alchemist bridge to fulfill the QuantumCPU contract.
-            # This annihilates the TypeError while maintaining circular-dependency warding.
-            cpu = QuantumCPU(registers, io_conductor, maestro, self.alchemist.engine)
+            # [THE CORE FIX]: Passing 'self' as the Engine soul.
+            # This fulfill's the QuantumCPU.__init__ contract (registers, io, maestro, engine)
+            # without accessing non-existent attributes or circular properties.
+            #
+            cpu = QuantumCPU(registers, io_conductor, maestro, self)
 
             # --- MOVEMENT IV: COMPILE THE GNOSTIC PROGRAM ---
             cpu.load_program(self.scaffold_items, self.post_run_commands)
@@ -360,6 +356,7 @@ class QuantumCreator:
                 # == [THE CURE]: SILENT CONSECRATION RITE                                ==
                 # =========================================================================
                 # We surgically mute the concourse to prevent the "Consecrating" waterfall.
+                # Only active if verbose mode is NOT willed.
                 was_silent = _COSMIC_GNOSIS["silent"]
                 if not self.verbose: _COSMIC_GNOSIS["silent"] = True
 
@@ -409,11 +406,9 @@ class QuantumCreator:
                     "CATASTROPHIC_CREATOR_FRACTURE",
                     child_heresy=catastrophic_paradox,
                     details=f"At Locus: {self.base_path}\nDuration: {duration_ms:.2f}ms",
-                    severity=HeresySeverity.CRITICAL,
-                    traceback_obj=catastrophic_paradox.__traceback__
+                    severity=HeresySeverity.CRITICAL
                 ) from catastrophic_paradox
             raise catastrophic_paradox
 
-        # [ASCENSION 12]: THE FINALITY VOW
         return registers
 # == SCRIPTURE SEALED: THE FORTRESS IS OMEGA ==
