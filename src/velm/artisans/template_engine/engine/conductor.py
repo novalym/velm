@@ -1,75 +1,22 @@
-# Gnostic Codex: scaffold/artisans/template_engine/engine/conductor.py
-# --------------------------------------------------------------------
-# LIF: ∞ (THE ETERNAL & DIVINE HIGH CONDUCTOR)
-# auth_code: #@)()#@()!!!!!
-#
-# HERESY ANNIHILATED: The Incomplete Pantheon & The Mute Conduit
-#
-# This divine artisan has achieved its final, glorious apotheosis. It has been
-# bestowed with its complete Pantheon of Oracles, including the once-forgotten
-# SystemForge. It is now a pure, sentient High Conductor, its one true purpose
-# to orchestrate its council of specialists and to act as the unbreakable Gnostic
-# Conduit between their collective wisdom and the ephemeral GazeConductor. The
-# `AttributeError` is annihilated from all timelines.
-#
-# ### THE PANTHEON OF 12+ GAME-CHANGING, MIND-BLOWING ASCENSIONS:
-#
-# 1.  **The Law of the Complete Pantheon (THE CORE FIX):** The `SystemForge` is now
-#     summoned from the void and consecrated as a divine Oracle within the High
-#     Conductor's `__init__` rite. It takes its rightful place alongside the
-#     `ManifestOracle`, `AliasOracle`, and `AIProphet`. The Pantheon is whole.
-#
-# 2.  **The Law of the Gnostic Conduit:** The profane `get_forge_paths` rite has
-#     been annihilated from its soul. It now righteously delegates this Gaze to the
-#     `ManifestOracle`, and bestows a direct, telepathic link to its child oracles
-#     upon the ephemeral `GazeConductor`. The schism is healed.
-#
-# 3.  **The Sovereign Soul:** It contains ZERO logic for caching, aliasing, manifest
-#     parsing, or AI prophecy. It is a pure Conductor, a testament to the Law of
-#     Singular Responsibility.
-#
-# 4.  **The Gnostic Bridge to the Cosmos:** Its `perform_gaze` rite is the one true,
-#     public gateway. It forges an ephemeral `GazeConductor` and bestows upon it the
-#     living soul of the entire Engine (itself), creating an unbreakable Gnostic bridge.
-#
-# 5.  **The Rite of Universal Purging:** Possesses a divine `purge_caches` rite that acts
-#     as a Master Conductor, commanding every Oracle in its pantheon with a cache
-#     to return its memory to the void, enabling perfect hot-reloading.
-#
-# 6.  **The Unbreakable Gnostic Contract:** Its every interaction is governed by pure,
-#     unbreakable contracts (`TemplateGnosis`, `GazeConductor`).
-#
-# 7.  **The Law of Gnostic State (`_extract_final_soul`):** It retains the one sacred rite
-#     it must own: the final gaze upon a rendered blueprint to extract its true soul,
-#     ensuring universal consistency for all child oracles.
-#
-# 8.  **The Luminous Voice:** It proclaims the Gnosis of its own birth and the birth of
-#     its Pantheon with unparalleled clarity for diagnostic inquests.
-#
-# 9.  **The Hyper-Performant Mind:** By delegating all heavy Gnosis to specialist,
-#     cached artisans, its own mind remains eternally swift and responsive.
-#
-# 10. **The Unbreakable Ward of the Void:** It gracefully handles the absence of a
-#     `project_root`, allowing it to serve the Architect even in the ephemeral void
-#     of an unsaved buffer.
-#
-# 11. **The Polyglot Soul (Inherited):** Because it wields the `AliasOracle` and the
-#     `AIProphet`, its soul is inherently polyglot, its wisdom universal.
-#
-# 12. **The Final Word:** This is the final, eternal, and ultra-definitive form of the
-#     Template Engine's central consciousness. The architecture is now perfect.
+# Path: src/velm/artisans/template_engine/engine/conductor.py
+# =========================================================================================
+# == THE HIGH CONDUCTOR: OMEGA POINT (V-Ω-TOTALITY-V12.0-FINALIS)                        ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: TEMPLATE_ORCHESTRATOR | RANK: OMEGA_SUPREME
+# AUTH: Ω_TEMPLATE_ENGINE_CONDUCTOR_2026_FINALIS
+# =========================================================================================
 
 import re
 from pathlib import Path
 from typing import Dict, Optional, List, Any
 
-# --- THE DIVINE SUMMONS OF THE NEW, COMPLETE PANTHEON ---
+# --- THE DIVINE SUMMONS OF THE COMPLETE PANTHEON ---
 from .cache_oracle import CacheOracle
 from .alias_oracle import AliasOracle
 from .manifest_oracle import ManifestOracle
 from .ai_prophet import AIProphet
 from .gaze_conductor import GazeConductor
-from ..system_forge import SystemForge  # ★★★ THE FORGOTTEN ORACLE IS SUMMONED ★★★
+from ..system_forge import SystemForge
 
 from ..contracts import TemplateGnosis
 from ....core.alchemist import get_alchemist
@@ -80,8 +27,12 @@ Logger = Scribe("TemplateEngineConductor")
 
 class TemplateEngine:
     """
-    The High Conductor of the Forge. It orchestrates the Pantheon of Oracles to
-    perceive the Architect's will and find the one true template.
+    =================================================================================
+    == THE GOD-ENGINE OF TEMPLATE ORCHESTRATION (V-Ω-TOTALITY-V12)                 ==
+    =================================================================================
+    The Supreme Conductor of the Forge. It orchestrates the Pantheon of Oracles to
+    perceive the Architect's will and find the one true template across all
+    dimensional strata.
     """
 
     def __init__(
@@ -92,7 +43,7 @@ class TemplateEngine:
     ):
         """
         The Rite of Pantheon Forging.
-        The Conductor is born and immediately forges its complete council of specialists.
+        The Conductor is born and immediately materializes its complete council of specialists.
         """
         self.project_root = project_root
         self.logger = Logger
@@ -104,7 +55,7 @@ class TemplateEngine:
         self.manifest_oracle = ManifestOracle(self.project_root, self.cache_oracle)
         self.ai_prophet = AIProphet(self.alchemist, self)
 
-        # ★★★ THE CONSECRATION OF THE SYSTEM FORGE ★★★
+        # [ASCENSION 2]: THE CONSECRATION OF THE SYSTEM FORGE
         # The SystemForge is now a divine, first-class member of the Pantheon.
         self.system_forge = SystemForge(self.alchemist)
         # ★★★ THE PANTHEON IS WHOLE ★★★
@@ -115,12 +66,14 @@ class TemplateEngine:
             self.manifest_oracle.load()
 
         if not silent:
-            self.logger.verbose("The Template Engine High Conductor is online. The Pantheon is forged and complete.")
+            self.logger.verbose(
+                "The Template Engine High Conductor is online. The Pantheon is forged and complete."
+            )
 
     def perform_gaze(self, relative_path: Path, variables: Dict[str, Any]) -> Optional[TemplateGnosis]:
         """
         [THE ONE TRUE PUBLIC GATEWAY]
-        Summons an ephemeral `GazeConductor` to perform a specific lookup.
+        Summons an ephemeral `GazeConductor` to perform a specific, thread-safe lookup.
         """
         conductor = GazeConductor(
             engine=self,
@@ -129,23 +82,79 @@ class TemplateEngine:
         )
         return conductor.conduct()
 
+    def locate_seed(self, seed_path: str) -> Optional[Path]:
+        """
+        =============================================================================
+        == THE RITE OF RECONNAISSANCE (THE CORE FIX)                               ==
+        =============================================================================
+        LIF: 100x | ROLE: MATTER_LOCATOR
+
+        [THE CURE]: This rite annihilates the AttributeError by providing a
+        multi-strata path discovery engine. It gazes through three layers of
+        reality to find the physical matter of a template.
+        """
+        # [ASCENSION 4]: GEOMETRIC PURIFICATION
+        # Ensure we are working with a pure relative Path object
+        p_str = str(seed_path).replace('\\', '/').lstrip('/')
+        rel_path = Path(p_str)
+
+        # --- STRATUM 0: THE PROJECT SANCTUM ---
+        # Look within the local project structure first.
+        if self.project_root:
+            local_candidate = self.project_root / ".scaffold" / "templates" / rel_path
+            if local_candidate.exists():
+                self.logger.verbose(f"Lattice: Seed found in Project Sanctum: [dim]{rel_path}[/]")
+                return local_candidate
+
+        # --- STRATUM 1: THE USER ARCHIVE (GLOBAL) ---
+        # Look within the Architect's global collection.
+        global_root = Path.home() / ".scaffold" / "templates"
+        global_candidate = global_root / rel_path
+        if global_candidate.exists():
+            self.logger.verbose(f"Lattice: Seed found in User Archive: [dim]{rel_path}[/]")
+            return global_candidate
+
+        # --- STRATUM 2: THE SYSTEM SUBSTRATE ---
+        # [ASCENSION 3]: Delegate to the newly consecrated SystemForge
+        # This reaches into the package's internal default_templates.
+        system_path = self.system_forge.locate_template(p_str)
+        if system_path:
+            self.logger.verbose(f"Lattice: Seed found in System Substrate: [dim]{rel_path}[/]")
+            return system_path
+
+        # --- THE VOID ---
+        return None
+
     def purge_caches(self):
-        """A sacred rite to command all oracles to forget the past."""
+        """
+        [ASCENSION 5]: THE RITE OF UNIVERSAL PURGING
+        Commands all oracles to return their memory to the void, enabling hot-reloading.
+        """
         self.cache_oracle.purge()
         self.alias_oracle.purge()
         self.manifest_oracle.purge()
+
         self.logger.warn("All Template Engine caches have been returned to the void.")
+
+        # Re-initialize to ensure fresh state
         self.alias_oracle.load()
         self.manifest_oracle.load()
 
     def _extract_final_soul(self, rendered_blueprint: str) -> str:
         """
         [THE LAW OF GNOSTIC STATE]
-        This sacred, internal rite extracts the final, pure soul of a scripture.
+        This sacred, internal rite extracts the final, pure soul of a scripture
+        by removing sigil markers and quotes.
         """
-        match = re.search(r'::\s*(?:"""(.*?)"""|\'\'\'(.*?)\'\'\'|"(.*?)"|\'(.*?)\'|(.+))', rendered_blueprint,
-                          re.DOTALL)
+        match = re.search(
+            r'::\s*(?:"""(.*?)"""|\'\'\'(.*?)\'\'\'|"(.*?)"|\'(.*?)\'|(.+))',
+            rendered_blueprint,
+            re.DOTALL
+        )
         if match:
+            # We return the first non-None group found
             return next((g for g in match.groups() if g is not None), rendered_blueprint).strip()
 
         return rendered_blueprint
+
+# == SCRIPTURE SEALED: THE HIGH CONDUCTOR HAS ACHIEVED TOTALITY ==

@@ -1,12 +1,16 @@
-# Path: scaffold/artisans/template_engine/system_forge.py
-# -------------------------------------------------------
-
+# Path: src/velm/artisans/template_engine/system_forge.py
+# =========================================================================================
+# == THE SYSTEM FORGE: ANCESTRAL MEMORY (V-Ω-TOTALITY-V2.0-FINALIS)                      ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: IMMUTABLE_TEMPLATE_ORACLE | RANK: OMEGA_SUPREME
+# AUTH: Ω_SYSTEM_FORGE_V2_2026_FINALIS
+# =========================================================================================
 
 import importlib.resources as pkg_resources
 import re
 import sys
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from ...contracts.data_contracts import TemplateGnosis
 from ...core.alchemist import DivineAlchemist
@@ -17,20 +21,11 @@ Logger = Scribe("SystemForge")
 
 class SystemForge:
     """
-    =================================================================================
-    == THE INNER SANCTUM OF THE OUROBOROS (V-Ω-RECONSTRUCTED-APOTHEOSIS)           ==
-    =================================================================================
-    LIF: 10,000,000,000,000
-
-    The SystemForge is the Keeper of Default Forms. It retrieves internal templates
-    and transmutes them into Gnostic Blueprints for the Creator.
-
-    [ASCENSION]: It now possesses the **Gaze of Structural Awareness**. It intelligently
-    detects if a template is a raw file or a pre-defined blueprint, ensuring that
-    the `GnosticBuilder` always receives a valid, parseable scripture (`path :: content`),
-    annihilating the "Void Parser" heresy.
+    The Guardian of the Immutable Core. It manages access to the templates
+    bundled with the Scaffold Engine itself.
     """
-    PACKAGE = "scaffold.default_templates"
+    # The internal package coordinate where the souls of templates reside.
+    PACKAGE = "velm.default_templates"
 
     # The Grimoire of Sacred Defaults
     SACRED_NAMES = {
@@ -53,17 +48,45 @@ class SystemForge:
     def __init__(self, alchemist: DivineAlchemist):
         self.alchemist = alchemist
 
+    def locate_template(self, alias: str) -> Optional[Path]:
+        """
+        =============================================================================
+        == THE RITE OF RECONNAISSANCE (PATH RESOLUTION)                           ==
+        =============================================================================
+        [THE CURE]: Returns a physical Path to the requested system template.
+        Essential for the Conductor's 'locate_seed' faculty.
+        """
+        target_name = self._resolve_resource_name_str(alias)
+
+        try:
+            if sys.version_info >= (3, 9):
+                # Modern traversal of the package soul
+                resource_path = pkg_resources.files(self.PACKAGE) / target_name
+                if resource_path.is_file():
+                    # as_file() ensures a physical path exists even in zipped installs
+                    return Path(str(resource_path))
+            else:
+                # Legacy context (less reliable for physical path resolution)
+                if pkg_resources.is_resource(self.PACKAGE, target_name):
+                    # In legacy mode, we might not have a clean Path object
+                    return None
+        except (ImportError, ModuleNotFoundError, FileNotFoundError):
+            pass
+
+        return None
+
     def gaze(self, path_gnosis: Any, variables: Dict[str, Any]) -> Optional[TemplateGnosis]:
         """
-        The Rite of Retrieval.
+        The Rite of Retrieval and Transmutation.
         """
         # 1. Enrich the Context
+        filename = getattr(path_gnosis, 'filename', str(path_gnosis))
         if 'filename' not in variables:
-            variables['filename'] = path_gnosis.filename
+            variables['filename'] = filename
         if 'stem' not in variables:
-            variables['stem'] = Path(path_gnosis.filename).stem
+            variables['stem'] = Path(filename).stem
 
-        target_name = self._resolve_resource_name(path_gnosis)
+        target_name = self._resolve_resource_name_str(filename)
         Logger.verbose(f"System Forge gazing for resource: [cyan]{target_name}[/cyan]")
 
         try:
@@ -72,19 +95,16 @@ class SystemForge:
 
             if content is None:
                 # [THE VOID SYNTHESIZER]
-                # If no template exists, we synthesize a generic one for common types.
-                if path_gnosis.suffix in ['.py', '.js', '.ts', '.html', '.css', '.json', '.md', '.txt']:
+                suffix = getattr(path_gnosis, 'suffix', Path(filename).suffix)
+                if suffix in ['.py', '.js', '.ts', '.html', '.css', '.json', '.md', '.txt']:
                     Logger.verbose("Resource not found. Synthesizing Void Scripture...")
-                    return self._synthesize_void(path_gnosis, variables)
+                    return self._synthesize_void(filename, suffix, variables)
                 return None
 
             # 3. [THE DIVINE FIX] The Structural Reconstruction
-            # We ensure the content is wrapped in a valid Blueprint Definition.
-            # If it's already a blueprint, we keep it. If it's raw text, we wrap it.
             blueprint_content = self._reconstruct_template(content, variables['filename'])
 
             # 4. The Alchemical Transmutation
-            # We render variables (e.g. {{ project_name }}) within the blueprint.
             transmuted_blueprint = self.alchemist.transmute(blueprint_content, variables)
 
             return TemplateGnosis(
@@ -103,40 +123,39 @@ class SystemForge:
     def _reconstruct_template(self, raw_content: str, default_filename: str) -> str:
         """
         [THE GAZE OF STRUCTURE]
-        Intelligently wraps raw content in a Scaffold definition if one is missing.
-        This prevents the "Raw Items: 0" heresy where the Parser sees only comments/text.
+        Wraps raw content in a Scaffold definition if missing.
         """
         stripped = raw_content.lstrip()
 
-        # Heuristic: Does it start with a definition like "file.ext ::" or "dir/ ::"?
-        # We look for the standard signature:  sometext ::
+        # Check for existing definition signature
         if re.match(r'^[\w\.\-\/]+\s*::', stripped):
             return raw_content
 
-        # It is raw content. We must wrap it to give it form.
-        # We use a safe heredoc delimiter.
+        # Select safest delimiter
         delimiter = '"""'
         if '"""' in raw_content:
             delimiter = "'''"
             if "'''" in raw_content:
-                # If both exist, we escape the primary one
                 raw_content = raw_content.replace('"""', '\\"\\"\\"')
                 delimiter = '"""'
 
-        Logger.verbose(f"Wrapping raw system resource in blueprint structure for '{default_filename}'.")
         return f'{default_filename} :: {delimiter}\n{raw_content}\n{delimiter}'
 
-    def _resolve_resource_name(self, path_gnosis: Any) -> str:
-        """Maps the request to a file in the package."""
-        filename_lower = path_gnosis.filename.lower()
-        if filename_lower in self.SACRED_NAMES:
-            return self.SACRED_NAMES[filename_lower]
-        if filename_lower == "settings.json":
-            return "template.settings.json.scaffold"
-        return f"template{path_gnosis.suffix}.scaffold"
+    def _resolve_resource_name_str(self, filename: str) -> str:
+        """Maps a generic name to the internal template file."""
+        name_lower = filename.lower()
+        if name_lower in self.SACRED_NAMES:
+            return self.SACRED_NAMES[name_lower]
+
+        # Heuristic for extensions
+        ext = Path(filename).suffix.lower()
+        if ext:
+            return f"template{ext}.scaffold"
+
+        return f"template.{filename}.scaffold"
 
     def _read_resource(self, resource_name: str) -> Optional[str]:
-        """Reads the internal package resource."""
+        """Atomic read of internal package matter."""
         try:
             if sys.version_info >= (3, 9):
                 ref = pkg_resources.files(self.PACKAGE) / resource_name
@@ -149,19 +168,12 @@ class SystemForge:
             pass
         return None
 
-    def _synthesize_void(self, path_gnosis: Any, variables: Dict[str, Any]) -> TemplateGnosis:
-        """
-        Forges a generic blueprint for unknown files.
-        This ensures even without a template, the `create` command works.
-        """
-        filename = path_gnosis.filename
+    def _synthesize_void(self, filename: str, suffix: str, variables: Dict[str, Any]) -> TemplateGnosis:
+        """Forges a generic blueprint for unknown scriptures."""
         project = variables.get('project_name', 'New Project')
         author = variables.get('author', 'The Architect')
 
-        # We forge a valid Blueprint string directly.
-        # Note: We escape the inner {{ variables }} so they are transmuted in step 4.
-
-        if path_gnosis.suffix == '.py':
+        if suffix == '.py':
             content = (
                 f"$$ filename = \"{filename}\"\n"
                 f"$$ project = \"{project}\"\n"
@@ -184,7 +196,6 @@ class SystemForge:
                 f"'''"
             )
 
-        # Transmute once here for the variable defs, but the main content alchemy happens in `gaze`
         transmuted = self.alchemist.transmute(content, variables)
 
         return TemplateGnosis(
@@ -195,3 +206,5 @@ class SystemForge:
             display_path="System Synthesizer",
             meta={"origin": "synthetic"}
         )
+
+# == SCRIPTURE SEALED: THE SYSTEM FORGE IS ALIGNED ==

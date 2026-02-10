@@ -348,7 +348,7 @@ class GenesisMaterializer:
                 except json.JSONDecodeError as e:
                     # [THE CURE]: This heresy is now only proclaimed if the file is NOT empty.
                     raise ArtisanHeresy(f"Malformed JSON in '{path.name}': {e}", severity=HeresySeverity.CRITICAL)
-                
+
     def _ensure_dynamic_ignores(self, tx: GnosticTransaction):
         """[FACULTY 3] The Dynamic Veil."""
         ignores = set()
