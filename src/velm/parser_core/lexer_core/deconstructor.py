@@ -411,12 +411,43 @@ class DeconstructionScribe:
         return clean.strip() if clean not in ('.', './', '.\\', '') else ""
 
     def _purify_content_string(self, content: str) -> str:
-        if content in ('"""', "'''"): return content
+        """
+        =============================================================================
+        == THE TEXTUAL ALCHEMIST (V-Ω-ESCAPE-HYDRATION-ENABLED)                    ==
+        =============================================================================
+        Sanitizes inline content and hydrates escape sequences (\\n -> Newline).
+        This allows single-line definitions to spawn multi-line realities.
+        """
+        # 1. TRIPLE QUOTE PASS-THROUGH (Raw Blocks)
+        if content in ('"""', "'''"):
+            return content
+
+        # 2. ALCHEMICAL EXPRESSION PASS-THROUGH
+        # If it looks like `path | filter`, we wrap it in braces for Jinja
         is_alchemical = bool(re.match(r'''^\s*(?:(['"]).*?\1|[^'"\s|]+)\s*\|\s*[a-zA-Z_]''', content))
-        if is_alchemical: return f"{{{{ {content} }}}}"
-        if len(content) >= 2 and ((content.startswith('"') and content.endswith('"')) or (
-                content.startswith("'") and content.endswith("'"))):
-            return content[1:-1]
+        if is_alchemical:
+            return f"{{{{ {content} }}}}"
+
+        # 3. QUOTE STRIPPING & ESCAPE HYDRATION (THE ASCENSION)
+        if len(content) >= 2:
+            first = content[0]
+            last = content[-1]
+
+            if (first == '"' and last == '"') or (first == "'" and last == "'"):
+                inner = content[1:-1]
+
+                # [THE HYDRATION RITE]
+                # We decode 'unicode_escape' to turn literal \n into actual newlines.
+                # This enables single-line multi-file definitions like:
+                # requirements.txt :: "fastapi\nuvicorn\npydantic"
+                try:
+                    import codecs
+                    # Encode to bytes, then decode as unicode_escape to interpret control chars
+                    return codecs.decode(inner.encode('utf-8'), 'unicode_escape')
+                except Exception:
+                    # If hydration fails (rare encoding heresy), return the raw inner string
+                    return inner
+
         return content
 
     def _perform_semantic_injection(self, content: str, token: Token) -> str:
