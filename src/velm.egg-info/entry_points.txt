@@ -1,2 +1,4 @@
 [console_scripts]
+gnosis = velm.tools.gnosis:main
+scaffold = velm.main:main
 velm = velm.main:main

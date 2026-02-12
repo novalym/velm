@@ -2,6 +2,8 @@ LICENSE
 MANIFEST.in
 README.md
 pyproject.toml
+src/velm/__build__.py
+src/velm/__build_info__.py
 src/velm/__init__.py
 src/velm/__main__.py
 src/velm/constants.py
@@ -611,6 +613,8 @@ src/velm/artisans/lint/rules/layers.py
 src/velm/artisans/lint/rules/structural.py
 src/velm/artisans/lint_blueprint/__init__.py
 src/velm/artisans/lint_blueprint/artisan.py
+src/velm/artisans/lint_blueprint/__pycache__/__init__.cpython-313.pyc
+src/velm/artisans/lint_blueprint/__pycache__/artisan.cpython-313.pyc
 src/velm/artisans/matrix/__init__.py
 src/velm/artisans/matrix/artisan.py
 src/velm/artisans/mimic/__init__.py
@@ -1941,6 +1945,7 @@ src/velm/core/maestro/handlers/proclaim.py
 src/velm/core/maestro/handlers/raw.py
 src/velm/core/maestro/handlers/shell.py
 src/velm/core/maestro/handlers/tunnel.py
+src/velm/core/maestro/handlers/vault.py
 src/velm/core/maestro/handlers/__pycache__/__init__.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/base.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/browser.cpython-313.pyc
@@ -2634,7 +2639,6 @@ src/velm/parser_core/parser/parser_scribes/symphony_scribes/__pycache__/symphony
 src/velm/parser_core/parser/parser_scribes/symphony_scribes/__pycache__/symphony_logic_scribe.cpython-313.pyc
 src/velm/parser_core/parser/parser_scribes/symphony_scribes/__pycache__/symphony_parallel_scribe.cpython-313.pyc
 src/velm/parser_core/parser/parser_scribes/symphony_scribes/__pycache__/symphony_polyglot_scribe.cpython-313.pyc
-src/velm/prophecy/__Init__.py
 src/velm/prophecy/__init__.py
 src/velm/prophecy/grimoires.py
 src/velm/prophecy/oracle.py

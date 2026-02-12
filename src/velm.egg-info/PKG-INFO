@@ -7,67 +7,111 @@ License: Apache-2.0
 Project-URL: Doctrine, https://novalym.dev/velm
 Project-URL: The Forge, https://novalym.dev
 Project-URL: Repository, https://github.com/novalym/velm
-Keywords: velm,scaffold,architecture-as-code,aac,god-engine,automation,devops,gnostic,ai-codegen,llm-context
+Project-URL: Tracker, https://github.com/novalym/velm/issues
+Keywords: velm,scaffold,architecture-as-code,aac,god-engine,automation,devops,gnostic,ai-codegen,llm-context,tree-sitter,ast,synthesis
 Classifier: Development Status :: 4 - Beta
 Classifier: Environment :: Console
+Classifier: Framework :: Pydantic
+Classifier: Framework :: Pydantic :: 2
 Classifier: Intended Audience :: Developers
 Classifier: Intended Audience :: System Administrators
+Classifier: Intended Audience :: Information Technology
 Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
 Classifier: Topic :: Software Development :: Build Tools
 Classifier: Topic :: Software Development :: Code Generators
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Text Processing :: Markup
 Classifier: Typing :: Typed
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: pydantic>=2.5.0
+Requires-Dist: pydantic>=2.12.0
+Requires-Dist: pydantic-settings>=2.0.0
 Requires-Dist: rich>=13.7.0
 Requires-Dist: click>=8.1.0
+Requires-Dist: typer>=0.9.0
 Requires-Dist: jinja2>=3.1.2
 Requires-Dist: requests>=2.31.0
+Requires-Dist: httpx>=0.27.0
 Requires-Dist: pathspec>=0.12.0
 Requires-Dist: typing-extensions>=4.9.0
 Requires-Dist: pyyaml>=6.0.1
+Requires-Dist: tomli>=2.0.0; python_version < "3.11"
+Requires-Dist: colorama>=0.4.6
+Requires-Dist: platformdirs>=4.0.0
 Provides-Extra: studio
 Requires-Dist: textual>=0.52.0; extra == "studio"
+Requires-Dist: textual-dev>=1.5.0; extra == "studio"
 Requires-Dist: watchdog>=4.0.0; extra == "studio"
 Requires-Dist: pyperclip>=1.8.2; extra == "studio"
+Requires-Dist: rich-toolkit>=0.1.0; extra == "studio"
 Provides-Extra: ai
 Requires-Dist: openai>=1.12.0; extra == "ai"
 Requires-Dist: anthropic>=0.18.0; extra == "ai"
 Requires-Dist: google-generativeai>=0.4.0; extra == "ai"
 Requires-Dist: tiktoken>=0.6.0; extra == "ai"
+Requires-Dist: chromadb>=0.4.22; extra == "ai"
+Requires-Dist: sentence-transformers>=2.3.0; extra == "ai"
 Provides-Extra: cloud
 Requires-Dist: boto3>=1.34.0; extra == "cloud"
 Requires-Dist: paramiko>=3.4.0; extra == "cloud"
+Requires-Dist: azure-storage-blob>=12.0.0; extra == "cloud"
+Requires-Dist: google-cloud-storage>=2.0.0; extra == "cloud"
 Provides-Extra: parser
-Requires-Dist: tree-sitter>=0.20.0; extra == "parser"
-Requires-Dist: tree-sitter-python>=0.20.0; extra == "parser"
-Requires-Dist: tree-sitter-javascript>=0.20.0; extra == "parser"
-Requires-Dist: tree-sitter-typescript>=0.20.0; extra == "parser"
-Requires-Dist: tree-sitter-go>=0.20.0; extra == "parser"
-Requires-Dist: tree-sitter-rust>=0.20.0; extra == "parser"
-Requires-Dist: toml>=0.10.2; extra == "parser"
+Requires-Dist: tree-sitter>=0.22.0; extra == "parser"
+Requires-Dist: tree-sitter-python>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-javascript>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-typescript>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-go>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-rust>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-cpp>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-c>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-c-sharp>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-java>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-kotlin>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-ruby>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-php>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-bash>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-json>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-yaml>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-toml>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-xml>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-html>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-css>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-sql>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-regex>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-markdown>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-dockerfile>=0.21.0; extra == "parser"
+Requires-Dist: tree-sitter-lua>=0.21.0; extra == "parser"
 Provides-Extra: security
 Requires-Dist: cryptography>=42.0.0; extra == "security"
 Requires-Dist: python-jose[cryptography]>=3.3.0; extra == "security"
+Requires-Dist: bcrypt>=4.1.0; extra == "security"
 Provides-Extra: build
 Requires-Dist: pyinstaller>=6.4.0; extra == "build"
+Requires-Dist: build>=1.0.0; extra == "build"
+Requires-Dist: twine>=4.0.0; extra == "build"
 Provides-Extra: dev
 Requires-Dist: pytest>=8.0.0; extra == "dev"
 Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
 Requires-Dist: pytest-cov>=4.1.0; extra == "dev"
+Requires-Dist: pytest-mock>=3.12.0; extra == "dev"
+Requires-Dist: pytest-watch>=4.2.0; extra == "dev"
 Requires-Dist: ruff>=0.3.0; extra == "dev"
 Requires-Dist: mypy>=1.8.0; extra == "dev"
+Requires-Dist: pre-commit>=3.6.0; extra == "dev"
 Requires-Dist: types-requests; extra == "dev"
 Requires-Dist: types-PyYAML; extra == "dev"
 Requires-Dist: types-paramiko; extra == "dev"
 Requires-Dist: types-setuptools; extra == "dev"
+Requires-Dist: types-pygments; extra == "dev"
 Provides-Extra: full
-Requires-Dist: velm-cli[ai,build,cloud,parser,security,studio]; extra == "full"
+Requires-Dist: velm[ai,build,cloud,parser,security,studio]; extra == "full"
 Dynamic: license-file
 
 <p align="center">
