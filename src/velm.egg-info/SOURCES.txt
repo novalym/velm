@@ -1954,6 +1954,7 @@ src/velm/core/maestro/handlers/__pycache__/proclaim.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/raw.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/shell.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/tunnel.cpython-313.pyc
+src/velm/core/maestro/handlers/__pycache__/vault.cpython-313.pyc
 src/velm/core/net/__init__.py
 src/velm/core/net/tunnel.py
 src/velm/core/net/__pycache__/__init__.cpython-313.pyc
@@ -2140,6 +2141,9 @@ src/velm/core/runtime/middleware/__pycache__/singularity.cpython-313.pyc
 src/velm/core/runtime/middleware/__pycache__/telemetry.cpython-313.pyc
 src/velm/core/runtime/middleware/__pycache__/tracing.cpython-313.pyc
 src/velm/core/runtime/middleware/__pycache__/veil.cpython-313.pyc
+src/velm/core/runtime/vfs/__init__.py
+src/velm/core/runtime/vfs/alchemist.py
+src/velm/core/runtime/vfs/scryer.py
 src/velm/core/sanctum/base.py
 src/velm/core/sanctum/local.py
 src/velm/core/sanctum/memory.py

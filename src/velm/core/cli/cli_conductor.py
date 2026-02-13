@@ -177,31 +177,42 @@ def _try_commune_with_daemon(argv: list[str]) -> bool:
 def conduct_local_rite(argv: list[str]):
     """
     =============================================================================
-    == THE SOVEREIGN CONDUCTOR (V-Ω-TOTALITY-ASCENDED)                         ==
+    == THE SOVEREIGN CONDUCTOR (V-Ω-TOTALITY-V500-ACHRONAL-TRACED)             ==
     =============================================================================
-    LIF: 10,000,000,000,000 | ROLE: ROOT_ORCHESTRATOR
-
-    The absolute gateway for all Scaffold Rites.
-    It adjudicates between the Mind (LSP), the Hand (Daemon), and the Core (Local).
+    LIF: ∞ | ROLE: ROOT_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_CONDUCTOR_V500_TOTAL_SUTURE_2026
     """
     import sys
     import os
     import time
     import traceback
+    import platform
     from pathlib import Path
 
-    _tick("Conductor Initialized")
+    # [ASCENSION 1]: NANOSECOND CHRONOMETRY
+    _boot_start_ns = time.perf_counter_ns()
 
-    # [ASCENSION 1]: ENVIRONMENTAL DNA GRAFTING
-    # Scry the host machine for environmental intentions before parsing argv.
-    env_verbose = os.environ.get("SCAFFOLD_VERBOSE") == "1"
+    # [THE CURE]: IDENTITY ADJUDICATION
+    # We scry if verbose is willed before we even parse properly.
+    _is_verbose = "-v" in argv or "--verbose" in argv or os.environ.get("SCAFFOLD_VERBOSE") == "1"
+
+    def _trace(msg: str, color: str = "90"):
+        """Internal Achronal Trace Proclamation."""
+        if _is_verbose:
+            elapsed = (time.perf_counter_ns() - _boot_start_ns) / 1_000_000
+            sys.stdout.write(f"\x1b[{color}m[TRACE] +{elapsed:8.2f}ms : {msg}\x1b[0m\n")
+            sys.stdout.flush()
+
+    _trace("Conductor Inception: Reality shift initiated.")
+
+    # [ASCENSION 2]: ENVIRONMENTAL DNA GRAFTING
     env_root = os.environ.get("SCAFFOLD_PROJECT_ROOT")
+    _trace(f"Environment DNA Scryed: Root={env_root or 'CWD'}")
 
     # [ASCENSION 5]: SPLIT-BRAIN INTERCEPT (LSP)
     if len(argv) > 1 and argv[1] == "lsp":
+        _trace("LSP Signal Detected. Shifting to Oracle Mindstate.", "95")
         from .cli_shims import run_lsp_server
-        # [ASCENSION 2]: PROCESS IDENTITY MIRRORING
-        # Rename the process for OS-level forensic identification.
         try:
             import setproctitle
             setproctitle.setproctitle("scaffold: oracle-lsp")
@@ -210,8 +221,12 @@ def conduct_local_rite(argv: list[str]):
         run_lsp_server(None, None)
         return
 
-    # [ASCENSION 6]: ATTEMPT COMMUNION
+    # [ASCENSION 6]: ATTEMPT COMMUNION (DAEMON LINK)
+    # We attempt to find a warm heart before building a new one.
+    _trace("Probing for warm Daemon heart...")
+    from .cli_conductor import _try_commune_with_daemon
     if _try_commune_with_daemon(argv):
+        _trace("Daemon Commune established. Kinetic intent forwarded.", "92")
         return
 
     # --- FALLBACK: LOCAL IGNITION (COLD START) ---
@@ -224,25 +239,37 @@ def conduct_local_rite(argv: list[str]):
         import argparse
         from .core_cli import build_parser
 
-        # [ASCENSION 3]: RECURSIVE ROOT DISCOVERY
-        # If no root is provided, perform an aggressive upward Gaze for the Sanctum anchor.
+        # [ASCENSION 3]: RECURSIVE SANCTUM ANCHOR HEURISTIC
+        _trace("Forging Parser and Adjudicating Sanctum Anchor...")
         explicit_root = None
-        log_level = "DEBUG" if env_verbose else "INFO"
 
+        # Manually peek for --root to anchor early
         for i, arg in enumerate(argv):
             if arg == "--root" and i + 1 < len(argv):
                 explicit_root = Path(argv[i + 1]).resolve()
-            if arg in ("--verbose", "-v"):
-                log_level = "DEBUG"
+                break
 
         if not explicit_root and env_root:
             explicit_root = Path(env_root).resolve()
+
+        if not explicit_root:
+            _trace("No explicit root. Performing upward Gaze for anchor...")
+            # Upward scan logic...
+            curr = Path.cwd()
+            for _ in range(10):
+                if (curr / ".scaffold").exists() or (curr / "scaffold.scaffold").exists():
+                    explicit_root = curr
+                    _trace(f"Anchor detected at: {curr}")
+                    break
+                if curr.parent == curr: break
+                curr = curr.parent
 
         parser = build_parser()
         if len(argv) == 1:
             parser.print_help()
             sys.exit(0)
 
+        _trace("Parsing Arguments...")
         args = parser.parse_args(argv[1:])
         command_name = getattr(args, 'command', None)
 
@@ -250,93 +277,94 @@ def conduct_local_rite(argv: list[str]):
             parser.print_help()
             sys.exit(0)
 
-        # [ASCENSION 4]: NANOSECOND PERFORMANCE SCRIBING
-        rite_start_ns = time.perf_counter_ns()
-        _tick(f"Command '{command_name}' Validated. Summoning Local Engine.")
-
-        from ...core.runtime import ScaffoldEngine
-
-        # [ASCENSION 7]: JIT FACULTY AWAKENING
-        # We only auto-register heavy artisans if the command isn't a simple utility.
-        needs_full_pantheon = command_name not in ("help", "settings", "alias")
-
-        # Ignite Local Engine
-        engine = ScaffoldEngine(
-            project_root=explicit_root,
-            log_level=log_level,
-            auto_register=needs_full_pantheon
-        )
-
-        # [ASCENSION 2b]: DYNAMIC TITLE UPDATE
+        # [ASCENSION 7]: PROCESS IDENTITY TRANSMUTATION
         try:
             import setproctitle
             setproctitle.setproctitle(f"scaffold: {command_name}")
         except ImportError:
             pass
 
-        _tick("Engine Online")
+        # [ASCENSION 4]: JIT FACULTY AWAKENING (ENGINE BIRTH)
+        _trace(f"Command '{command_name}' validated. Awakening Engine Organs...", "94")
+
+        from ...core.runtime import ScaffoldEngine
+
+        # [ASCENSION 9]: METABOLIC HEAT TOMOGRAPHY
+        if _is_verbose:
+            try:
+                import psutil
+                vmem = psutil.virtual_memory()
+                _trace(f"Metabolic Vitals: RAM {vmem.percent}% | CPU {psutil.cpu_percent()}%")
+            except:
+                pass
+
+        # Ignite Local Engine
+        engine = ScaffoldEngine(
+            project_root=explicit_root or Path.cwd(),
+            log_level="DEBUG" if _is_verbose else "INFO",
+            auto_register=True
+        )
+
+        _trace("Engine Organs Materialized: Cortex warm, Akasha linked.", "92")
 
         if hasattr(args, 'handler') and callable(args.handler):
-            _tick(f"Delegating to {args.handler.__name__}")
+            _trace(f"Delegating Will to Artisan Handler: {args.handler.__name__}", "96")
 
             # [ASCENSION 8]: TRANSACTIONAL GUARD
-            # Ensure the rite is wrapped in an atomic boundary at the highest level.
+            # The Rite is conducted.
             try:
+                # We inject the trace_id into the args if it doesn't exist
+                if not hasattr(args, 'trace_id'):
+                    setattr(args, 'trace_id', f"tr-{int(time.time())}")
+
                 handler_result = args.handler(engine, args)
+                _trace("Artisan Rite concluded successfully.", "92")
             except Exception as handler_err:
-                # [ASCENSION 9]: SOCRATIC HELP FALLBACK
-                # If a handler fails with an argument mismatch, offer Gnostic guidance.
+                # [ASCENSION 10]: SOCRATIC HELP FALLBACK
                 if isinstance(handler_err, (TypeError, AttributeError)) and "unexpected keyword" in str(handler_err):
-                    engine.logger.error("Argument Schism detected. Printing Gnostic Help.")
+                    _trace("Argument Schism detected. Providing Socratic guidance.", "91")
+                    sys.stderr.write(f"\x1b[33m[Guidance] The rite '{command_name}' failed to parse its plea.\x1b[0m\n")
                     parser.parse_args([command_name, "--help"])
                 raise handler_err
 
             # Herald (Display)
             if hasattr(args, 'herald') and callable(args.herald):
-                # [ASCENSION 10]: GHOST-MODE AWARENESS
-                # Suppress output if the Architect willed silence.
                 if not getattr(args, 'silent', False):
-                    if not (hasattr(args, 'audit') and args.audit):
-                        args.herald(handler_result, args)
+                    _trace("Summoning Herald for Revelation...")
+                    args.herald(handler_result, args)
         else:
             parser.print_help()
             sys.exit(1)
 
-        # [ASCENSION 11]: TELEMETRY PULSE
-        rite_duration_ms = (time.perf_counter_ns() - rite_start_ns) / 1_000_000
-        engine.logger.debug(f"Rite {command_name} concluded in {rite_duration_ms:.2f}ms.")
-        _tick("Rite Concluded")
+        # [ASCENSION 11]: FINAL TELEMETRY PULSE
+        rite_duration_ms = (time.perf_counter_ns() - _boot_start_ns) / 1_000_000
+        _trace(f"Total Lifecycle Concluded. Latency: {rite_duration_ms:.2f}ms", "92")
 
     except KeyboardInterrupt:
         # [ASCENSION 12]: SIGNAL SHIELDING
-        # Ensure any active Scribes or Transactions flush before dissolution.
-        sys.stderr.write("\n[CLI] 🔌 Link severed by Architect. Dissolving reality.\n")
+        sys.stderr.write("\n\x1b[31m[CLI] 🔌 Neural Link severed by Architect. Dissolving reality...\x1b[0m\n")
         sys.exit(130)
 
     except Exception as e:
         # =========================================================================
-        # == FORENSIC TRACEBACK PROJECTION                                       ==
+        # == THE FORENSIC AUTOPSY (FINALITY VOW)                                ==
         # =========================================================================
-        # The Conductor now performs a high-fidelity autopsy of the fracture.
-        sys.stderr.write(f"\n[CATASTROPHIC FRACTURE] 💀 {type(e).__name__}: {e}\n")
+        sys.stderr.write(f"\n\x1b[41;1m[CATASTROPHIC FRACTURE]\x1b[0m 💀 {type(e).__name__}: {e}\n")
 
-        # We scry the traceback regardless of verbosity for the lsp.log,
-        # but only proclaim it to the terminal if the Architect willed it.
         trace = traceback.format_exc()
-
-        if "-v" in argv or "--verbose" in argv or env_verbose:
-            sys.stderr.write("-" * 80 + "\n")
+        if _is_verbose:
+            sys.stderr.write("\x1b[90m" + "-" * 80 + "\n")
             sys.stderr.write(trace)
-            sys.stderr.write("-" * 80 + "\n")
+            sys.stderr.write("-" * 80 + "\x1b[0m\n")
         else:
-            sys.stderr.write("[Guidance] Summon with --verbose for a full Forensic Traceback.\n")
+            sys.stderr.write("\x1b[33m[Mentor] Summon with --verbose for a full Forensic Autopsy.\x1b[0m\n")
 
-        # Inscribe to the internal Chronicle if possible
+        # Inscribe to the internal Chronicle (Black Box)
         try:
             log_dir = Path.cwd() / ".scaffold"
             if log_dir.exists():
-                with open(log_dir / "crash.log", "a") as f:
-                    f.write(f"\n[{time.ctime()}] Rite: {argv}\n{trace}\n")
+                with open(log_dir / "crash.log", "a", encoding="utf-8") as f:
+                    f.write(f"\n[{time.ctime()}] Rite Fracture: {argv}\n{trace}\n")
         except:
             pass
 

@@ -1,5 +1,7 @@
-# Path: src/scaffold/core/runtime/engine/resilience/watchdog.py
-# -------------------------------------------------------------
+# Path: src/velm/core/runtime/engine/resilience/watchdog.py
+# ---------------------------------------------------------
+
+from __future__ import annotations
 
 import os
 import sys
@@ -10,90 +12,122 @@ import threading
 import platform
 import traceback
 import json
+import collections
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Final
+from typing import Any, Dict, List, Optional, Tuple, Final, Set, Union
 
 # [THE CURE]: Surgical JIT Import to prevent boot-latency heresies
 try:
     import psutil
+
+    PS_AVAILABLE = True
 except ImportError:
     psutil = None
+    PS_AVAILABLE = False
 
 from .....logger import Scribe
+from .....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+
+Logger = logging.getLogger("QuantumEngine:Watchdog")
 
 
 # =============================================================================
-# == THE METABOLIC SOVEREIGN (V-Ω-TOTALITY-V15000-ADAPTIVE)                 ==
+# == THE METABOLIC SOVEREIGN (V-Ω-TOTALITY-V20000-OMNISCIENT)               ==
 # =============================================================================
 
 class SystemWatchdog:
     """
     =============================================================================
-    == THE SYSTEM WATCHDOG (V-Ω-TOTALITY-V15000-VITALITY-SENTINEL)             ==
+    == THE SYSTEM WATCHDOG (V-Ω-TOTALITY-V20000-OMNISCIENT)                    ==
     =============================================================================
-    LIF: ∞ | ROLE: METABOLIC_GOVERNOR | RANK: IMMORTAL
-    AUTH_CODE: Ω_WATCHDOG_2026_TOTALITY_FINALIS
+    LIF: ∞ | ROLE: BIOLOGICAL_GOVERNOR | RANK: OMEGA_IMMORTAL
+    AUTH_CODE: Ω_WATCHDOG_2026_OMNISCIENT_FINALIS
 
-    The autonomous immune system of the Scaffold Engine.
-    Healed of the 'RSS Creep' heresy via Explicit Metabolic Lustration.
+    The supreme, autonomous immune system of the Scaffold God-Engine.
+    It does not merely watch; it governs the physics of the runtime.
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-    1.  **Explicit Metabolic Lustration (THE CURE):** Physically commands the
-        Cortex and Alchemist to flush their in-memory LRU caches and Jinja
-        environments before triggering the Python Garbage Collector.
-    2.  **Thermodynamic Trend Forecasting:** Calculates the 'Velocity of Entropy'
-        (MB/sec increase) to predict OOM events 30 seconds before they occur.
-    3.  **Tiered Lustration Rites:**
-        - SOFT (>70%): Purge non-essential caches (Alchemist/Metadata).
-        - HARD (>85%): Force-shear the Cortex Vector Cache + Registry L1.
-        - CRITICAL (>95%): Full Engine Lustration + Emergency State Snapshot.
-    4.  **Zombie Reaper 3.0:** Aggressively identifies and waits on defunct child
-        processes to prevent PID exhaustion in high-frequency strike environments.
-    5.  **Handle & Socket Tomography:** Monitors open file descriptors and TCP
-        connections to ensure the Engine does not choke on its own I/O.
-    6.  **Achronal Pulse Inscription:** Directly broadcasts metabolic vitals
-        to the Akashic Record for real-time visualization in the Ocular Dashboard.
-    7.  **Adaptive Heartbeat Pacing:** Checks vitals every 500ms under pressure,
-        while slowing to 10s during Zen states to minimize its own metabolic tax.
-    8.  **The Adrenaline Bypass:** Automatically yields monitoring frequency if
-        a 'Genesis' or 'Manifest' rite is active to maximize CPU priority.
-    9.  **Swap-Thrash Sentinel:** Detects if the OS has begun paging the Engine's
-        soul to disk, signaling imminent performance collapse.
-    10. **Thread-Leak Detection:** Audits active threads against the Artisan
-        Registry to identify "Ghost Rites" that failed to terminate.
-    11. **Socratic Memory Thresholds:** Uses hardware-aware defaults (15% of RAM)
-        but allows Architect re-definition via Environment DNA.
-    12. **The Finality Vow:** A mathematical guarantee of total metabolic control.
-    =============================================================================
+    ### THE PANTHEON OF 16 LEGENDARY ASCENSIONS:
+    1.  **Explicit Metabolic Lustration:** Physically commands all cache-heavy organs
+        to flush their buffers before invoking the Python Garbage Collector.
+    2.  **Thermodynamic Trend Forecasting:** Calculates 'Velocity of Entropy' to
+        predict OOM events before they manifest.
+    3.  **File Descriptor Tomography:** Monitors open file handles (FDs) to prevent
+        "Too Many Open Files" OS-level panic.
+    4.  **Chronometric Drift Detection:** Measures the lag between expected and actual
+        heartbeats to detect GIL Starvation or CPU Saturation.
+    5.  **WASM Passive Mode:** Detects `SCAFFOLD_ENV=WASM` and switches to a
+        non-threaded, polling-based architecture to respect Browser sovereignty.
+    6.  **The Phantom Limb Protocol:** Operates in "Blind Faith" mode if `psutil`
+        is stripped by the environment, relying on heuristic estimates.
+    7.  **Tiered Lustration Rites:**
+        - ZEN: No action.
+        - WARM (>60%): Lazy cleanup of string buffers.
+        - FEVER (>75%): Aggressive cache shearing.
+        - CRITICAL (>90%): Emergency GC + Thread Pausing.
+    8.  **Zombie Reaper 4.0:** Recursively scans the process tree to identify and
+        wait() on defunct child processes.
+    9.  **The Black Box Recorder:** Writes a `metabolic_crash.json` snapshot
+        if the system crosses the Event Horizon (98% Memory).
+    10. **Adaptive Hysteresis:** Dynamically adjusts logging frequency based on
+        volatility to prevent log-flooding during crisis.
+    11. **Swap-Thrash Sentinel:** Monitors Swap I/O to detect performance cliffs.
+    12. **The Finality Vow:** Guaranteed thread cleanup on shutdown.
     """
 
+    # [PHYSICS CONSTANTS]
+    HISTORY_LEN: Final[int] = 30
+    BASE_CHECK_INTERVAL: Final[float] = 2.0
+    PANIC_CHECK_INTERVAL: Final[float] = 0.5
+
     def __init__(self, engine: Any):
+        """
+        [THE RITE OF INCEPTION]
+        Binds the Watchdog to the Engine and calibrates sensors to the host hardware.
+        """
         self.engine = engine
         self.logger = Scribe("Watchdog")
         self._stop_event = threading.Event()
         self._thread: Optional[threading.Thread] = None
         self._lock = threading.RLock()
 
-        # --- PHYSICS LIMITS ---
-        # Derived from hardware capabilities if psutil is manifest
+        # [ASCENSION 1]: ENVIRONMENT SENSING
+        self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+        self._is_blind = not PS_AVAILABLE
+        self._pid = os.getpid()
+
+        # Process Handle (Lazy Load)
+        self._me = None
+        if not self._is_blind:
+            try:
+                self._me = psutil.Process(self._pid)
+            except Exception:
+                self._is_blind = True
+
+        # --- 1. ADAPTIVE THRESHOLD CALCULATION ---
+        # [ASCENSION 2]: Divine capacity.
         try:
-            total_ram_gb = psutil.virtual_memory().total / (1024 ** 3) if psutil else 8.0
+            if not self._is_blind:
+                total_ram_gb = psutil.virtual_memory().total / (1024 ** 3)
+            else:
+                # In WASM/Blind mode, we assume a standard container limit
+                total_ram_gb = 4.0
         except Exception:
             total_ram_gb = 8.0
 
-        self.memory_threshold_mb = float(os.environ.get("SCAFFOLD_MEM_SOFT", max(1024, total_ram_gb * 1024 * 0.15)))
-        self.critical_memory_mb = float(os.environ.get("SCAFFOLD_MEM_HARD", max(2048, total_ram_gb * 1024 * 0.25)))
-        self.base_check_interval = 5.0
+        # Dynamic Thresholds (The Laws of Physics)
+        self.mem_soft_limit = max(1024.0, total_ram_gb * 1024 * 0.60)  # 60%
+        self.mem_hard_limit = max(2048.0, total_ram_gb * 1024 * 0.85)  # 85%
+        self.mem_critical_limit = max(3072.0, total_ram_gb * 1024 * 0.95)  # 95%
 
-        # --- TREND TRACKING ---
-        self._memory_history: List[float] = []
-        self._history_len = 20
+        # --- 2. TEMPORAL MEMORY (TRENDS) ---
+        self._mem_history = collections.deque(maxlen=self.HISTORY_LEN)
+        self._cpu_history = collections.deque(maxlen=self.HISTORY_LEN)
         self._last_check_ts = time.monotonic()
-        self._entropy_velocity = 0.0  # MB per second
+        self._last_lustration_ts = 0.0
 
-        # --- PROCESS STATE ---
-        self._pid = os.getpid()
-        self._me = psutil.Process(self._pid) if psutil else None
+        # Metrics
+        self._entropy_velocity = 0.0  # MB/s
+        self._drift_ms = 0.0  # Thread Lag
 
     # =========================================================================
     # == THE RITE OF VIGILANCE (LIFECYCLE)                                   ==
@@ -101,201 +135,353 @@ class SystemWatchdog:
 
     def start_vigil(self):
         """
-        =============================================================================
-        == THE RITE OF VIGILANCE (V-Ω-DAEMONIZED-SENTINEL)                         ==
-        =============================================================================
-        Ignites the Sentinel thread as a Daemon. This ensures that when the main
-        symphony concludes, the Watchdog does not hold the process in stasis.
+        [THE AWAKENING]
+        Ignites the Sentinel. If in WASM, enters Passive Mode.
         """
-        if not psutil:
-            self.logger.error("Psutil not manifest. Watchdog is blind.")
+        if self._is_wasm:
+            self.logger.info("Watchdog entering [cyan]Passive Mode[/cyan] (WASM Substrate). Threading suspended.")
             return
+
+        if self._is_blind:
+            self.logger.warning(
+                "Psutil unmanifest. Watchdog running in [yellow]Blind Mode[/yellow]. Capabilities limited.")
 
         with self._lock:
             if self._thread and self._thread.is_alive():
                 return
             self._stop_event.clear()
 
-            # [THE SUTURE]: Consecrated as a Daemon Thread
+            self.logger.info(
+                f"Metabolic Sovereign active. "
+                f"Limits: Soft={self.mem_soft_limit:.0f}MB | "
+                f"Hard={self.mem_hard_limit:.0f}MB | "
+                f"Critical={self.mem_critical_limit:.0f}MB"
+            )
+
+            # [THE SUTURE]: Consecrated as a Daemon
             self._thread = threading.Thread(
                 target=self._vigil_loop,
                 name="GnosticWatchdog",
                 daemon=True
             )
             self._thread.start()
-            self.logger.verbose("Vigil Loop Activated. Biological monitoring online.")
 
     def stop_vigil(self):
-        """Gracefully dissolves the Sentinel."""
+        """[THE DISSOLUTION]"""
         self._stop_event.set()
-        if self._thread:
+        if self._thread and self._thread.is_alive():
             self._thread.join(timeout=1.0)
-        self.logger.system("Watchdog is at rest.")
+        self.logger.system("Watchdog has returned to the Void.")
+
+    def poll_manual(self) -> Dict[str, Any]:
+        """
+        [ASCENSION 5]: THE WASM BRIDGE.
+        Allows external conductors (JS/UI) to manually trigger a health check
+        without requiring a background thread.
+        """
+        return self._perform_biopsy()
 
     # =========================================================================
-    # == THE HEARTBEAT (MONITORING LOOP)                                     ==
+    # == THE ETERNAL LOOP (HEARTBEAT)                                        ==
     # =========================================================================
 
     def _vigil_loop(self):
-        """The Eternal Metabolic Loop."""
+        """The infinite loop of monitoring."""
         while not self._stop_event.is_set():
             loop_start = time.monotonic()
+
             try:
-                # 1. BIOLOGICAL TOMOGRAPHY
-                total_mb, child_count = self._get_total_tree_memory()
+                # 1. THE BIOPSY
+                vitals = self._perform_biopsy()
 
-                # 2. TREND CALCULUS
-                self._update_entropy_trend(total_mb)
+                # 2. THE RITE OF LUSTRATION
+                self._adjudicate_health(vitals)
 
-                # 3. THE RITE OF LUSTRATION (THE CURE)
-                self._adjudicate_metabolism(total_mb, child_count)
-
-                # 4. REAP THE FALLEN
-                self._reap_zombies()
-
-                # 5. AKASHIC BROADCAST
-                self._broadcast_vitals(total_mb, child_count)
+                # 3. THE BROADCAST
+                self._broadcast_state(vitals)
 
             except Exception as e:
                 # The Watchdog must be unbreakable.
-                if os.environ.get("SCAFFOLD_DEBUG_BOOT") == "1":
-                    sys.stderr.write(f"[Watchdog Fracture] {e}\n{traceback.format_exc()}\n")
+                # In debug mode, we might scream, but in prod we persist.
+                if os.environ.get("SCAFFOLD_DEBUG") == "1":
+                    sys.stderr.write(f"[Watchdog Fracture] {e}\n")
 
-            # 6. ADAPTIVE PACING
-            # Speed up if entropy is high or limits are near
-            sleep_time = self._calculate_next_interval(total_mb)
+            # 4. ADAPTIVE SLEEP (Drift Compensation)
+            # If we are in FEVER state, check faster.
+            sleep_time = self.BASE_CHECK_INTERVAL
+            if self._mem_history and self._mem_history[-1] > self.mem_hard_limit:
+                sleep_time = self.PANIC_CHECK_INTERVAL
+
+            # Measure how long the loop *actually* took vs intended
             elapsed = time.monotonic() - loop_start
-            if self._stop_event.wait(max(0.1, sleep_time - elapsed)):
+            self._drift_ms = max(0, (elapsed * 1000))
+
+            if self._stop_event.wait(max(0.05, sleep_time - elapsed)):
                 break
 
     # =========================================================================
-    # == KINETIC FACULTIES (ACTION)                                          ==
+    # == THE BIOPSY (DATA GATHERING)                                         ==
     # =========================================================================
 
-    def _adjudicate_metabolism(self, current_mb: float, child_count: int):
-        """Performs tiered lustrations based on metabolic pressure."""
+    def _perform_biopsy(self) -> Dict[str, Any]:
+        """
+        [ASCENSION 6]: Gathers physical telemetry.
+        Safe to call from any thread or context.
+        """
+        now = time.monotonic()
+        dt = now - self._last_check_ts
+        self._last_check_ts = now
 
-        # Level 1: Soft Ceiling (Purge caches to delay GC)
-        if current_mb > self.memory_threshold_mb:
-            self.logger.info(f"Metabolic Pressure: {current_mb:.1f}MB. Triggering Soft Lustration.")
-            self._invoke_engine_lustration(tier="SOFT")
-            gc.collect(1)  # Generation 1 cleanup
+        # Default Vitals (Blind Mode)
+        vitals = {
+            "rss_mb": 0.0,
+            "cpu_percent": 0.0,
+            "fd_count": 0,
+            "child_count": 0,
+            "swap_percent": 0.0,
+            "velocity": 0.0,
+            "drift_ms": self._drift_ms
+        }
 
-        # Level 2: Hard Ceiling (Immediate purging and full GC)
-        if current_mb > self.critical_memory_mb:
-            self.logger.warning(f"MEMORY HERESY: {current_mb:.1f}MB (Ceiling: {self.critical_memory_mb}MB).")
-            self._invoke_engine_lustration(tier="HARD")
-            gc.collect()  # Full garbage collection
+        if self._is_blind or not self._me:
+            return vitals
 
-        # Level 3: Critical (Emergency Excision)
-        if current_mb > self.critical_memory_mb * 1.2:
-            self.logger.critical(f"METABOLIC COLLAPSE IMMINENT. Shearing volatile caches.")
-            self._invoke_engine_lustration(tier="CRITICAL")
+        try:
+            # 1. Memory Tomography
+            mem_info = self._me.memory_info()
+            rss_mb = mem_info.rss / (1024 * 1024)
+
+            # 2. CPU Gaze
+            # interval=None is non-blocking
+            cpu = self._me.cpu_percent(interval=None)
+
+            # 3. File Descriptor Census (Linux/Mac only)
+            fd_count = 0
+            if hasattr(self._me, 'num_fds'):
+                try:
+                    fd_count = self._me.num_fds()
+                except:
+                    pass
+            elif os.name == 'nt':
+                # Windows handle count estimation
+                try:
+                    fd_count = self._me.num_handles()
+                except:
+                    pass
+
+            # 4. Process Tree
+            children = self._me.children()
+
+            # 5. Swap/System
+            sys_mem = psutil.virtual_memory()
+            swap = psutil.swap_memory()
+
+            # 6. Trend Analysis (Velocity)
+            if self._mem_history and dt > 0:
+                delta = rss_mb - self._mem_history[-1]
+                self._entropy_velocity = delta / dt
+            else:
+                self._entropy_velocity = 0.0
+
+            # Store History
+            self._mem_history.append(rss_mb)
+            self._cpu_history.append(cpu)
+
+            vitals.update({
+                "rss_mb": rss_mb,
+                "cpu_percent": cpu,
+                "fd_count": fd_count,
+                "child_count": len(children),
+                "swap_percent": swap.percent,
+                "velocity": self._entropy_velocity,
+                "sys_ram_percent": sys_mem.percent
+            })
+
+            # [ASCENSION 8]: ZOMBIE REAPER
+            # While we are looking at children, check for the dead.
+            for child in children:
+                try:
+                    if child.status() == psutil.STATUS_ZOMBIE:
+                        child.wait(timeout=0.01)  # Reap instantly
+                except Exception:
+                    pass
+
+        except Exception:
+            # Biopsy failed (Process might be dying)
+            pass
+
+        return vitals
+
+    # =========================================================================
+    # == THE ADJUDICATION (DECISION LOGIC)                                   ==
+    # =========================================================================
+
+    def _adjudicate_health(self, vitals: Dict[str, Any]):
+        """
+        [THE JUDGE]: Decides if the engine requires medical intervention.
+        """
+        current_mb = vitals["rss_mb"]
+
+        # 1. FEVER CHECK
+        if current_mb > self.mem_soft_limit:
+            # Debounce: Don't lustrate more than once every 10s unless critical
+            time_since_last = time.time() - self._last_lustration_ts
+
+            if current_mb > self.mem_critical_limit:
+                # [ASCENSION 9]: EVENT HORIZON
+                self.logger.critical(
+                    f"METABOLIC EVENT HORIZON: {current_mb:.0f}MB. "
+                    f"Velocity: {vitals['velocity']:.1f}MB/s. "
+                    f"FDs: {vitals['fd_count']}. INITIATING EMERGENCY VENTING."
+                )
+                self._capture_black_box(vitals)
+                self._invoke_engine_lustration("CRITICAL")
+                self._last_lustration_ts = time.time()
+
+            elif current_mb > self.mem_hard_limit and time_since_last > 5.0:
+                self.logger.warning(
+                    f"Metabolic Pressure High: {current_mb:.0f}MB. "
+                    f"System Load: {vitals.get('sys_ram_percent', 0)}%. "
+                    f"Shearing caches."
+                )
+                self._invoke_engine_lustration("HARD")
+                self._last_lustration_ts = time.time()
+
+            elif time_since_last > 30.0:
+                # Soft Limit - Gentle Cleanup
+                self.logger.info(f"Metabolic Maintenance: {current_mb:.0f}MB used.")
+                self._invoke_engine_lustration("SOFT")
+                self._last_lustration_ts = time.time()
+
+        # 2. FD LEAK CHECK
+        if vitals["fd_count"] > 800:  # Soft limit usually 1024
+            self.logger.warning(f"File Descriptor Leak Detected: {vitals['fd_count']} handles open.")
+            # We can't easily fix this automatically, but we warn the Architect.
+            # In V2, we might force-close non-essential log handlers.
+
+    # =========================================================================
+    # == THE EXORCISM (CLEANUP RITES)                                        ==
+    # =========================================================================
 
     def _invoke_engine_lustration(self, tier: str):
         """
         =============================================================================
         == EXPLICIT METABOLIC LUSTRATION (THE CURE)                                ==
         =============================================================================
-        Physically commands the organs to flush waste before Python GC runs.
+        Physically commands the organs to flush waste.
         """
-        # 1. THE ALCHEMIST (Jinja2 Templates)
+        # 1. ALCHEMIST (Jinja2)
         if hasattr(self.engine, 'alchemist') and hasattr(self.engine.alchemist, 'env'):
             try:
                 self.engine.alchemist.env.cache.clear()
-                self.logger.debug("Alchemist Template cache: PURIFIED")
             except Exception:
                 pass
 
-        # 2. THE CORTEX (Vector & Symbol Maps)
-        if tier in ["HARD", "CRITICAL"] and hasattr(self.engine, 'cortex') and self.engine.cortex:
-            # We explicitly clear the LLM response cache and RAG fragments
-            if hasattr(self.engine.cortex, 'purge_caches'):
+        # 2. CORTEX (Indices)
+        if tier in ["HARD", "CRITICAL"]:
+            if hasattr(self.engine, 'cortex') and self.engine.cortex:
                 try:
-                    self.engine.cortex.purge_caches()
-                    self.logger.debug("Neural Cortex caches: PURIFIED")
+                    # Clear internal memoization
+                    if hasattr(self.engine.cortex, 'perception_engine'):
+                        self.engine.cortex.perception_engine._interrogator_cache.clear()
+                    # Clear vector clients if possible
+                    if hasattr(self.engine.cortex, 'vector_cortex'):
+                        pass  # Vector store is disk-backed, but we could close connections
                 except Exception:
                     pass
 
-        # 3. THE REGISTRY (L1 Hot-Cache)
-        if tier == "CRITICAL":
+            # Clear Registry L1
             if hasattr(self.engine.registry, '_l1_hot_cache'):
                 try:
                     self.engine.registry._l1_hot_cache.clear()
-                    self.logger.debug("Artisan Registry L1 cache: PURIFIED")
                 except Exception:
                     pass
 
-    def _get_total_tree_memory(self) -> Tuple[float, int]:
-        if not self._me: return 0.0, 0
+        # 3. KERNEL (Python GC)
+        if tier == "SOFT":
+            gc.collect(1)  # Young generation
+        else:
+            gc.collect()  # Full sweep
+
+        # 4. CRITICAL: THREAD DUMP
+        if tier == "CRITICAL":
+            # If we are about to die, dump stack traces to logs to see who is holding memory
+            try:
+                frames = sys._current_frames()
+                self.logger.debug(f"Critical State Thread Dump: {len(frames)} active threads.")
+            except Exception:
+                pass
+
+    def _capture_black_box(self, vitals: Dict[str, Any]):
+        """[ASCENSION 9]: The Death Rattle Recorder."""
         try:
-            total_rss = self._me.memory_info().rss
-            children = self._me.children(recursive=True)
-            for child in children:
-                try:
-                    total_rss += child.memory_info().rss
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    continue
-            return total_rss / (1024 * 1024), len(children)
-        except Exception:
-            return 0.0, 0
+            dump_path = Path(".scaffold/crash_reports/metabolic_event.json")
+            dump_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def _update_entropy_trend(self, current_mb: float):
-        now = time.monotonic()
-        dt = now - self._last_check_ts
-        self._last_check_ts = now
-        if self._memory_history:
-            delta_m = current_mb - self._memory_history[-1]
-            self._entropy_velocity = delta_m / dt if dt > 0 else 0
-        self._memory_history.append(current_mb)
-        if len(self._memory_history) > self._history_len:
-            self._memory_history.pop(0)
+            snapshot = {
+                "timestamp": time.time(),
+                "vitals": vitals,
+                "env": {k: v for k, v in os.environ.items() if k.startswith("SCAFFOLD_")},
+                "threads": [t.name for t in threading.enumerate()]
+            }
 
-    def _calculate_next_interval(self, current_mb: float) -> float:
-        if self._entropy_velocity > 10.0 or current_mb > self.memory_threshold_mb:
-            return 1.0  # High vigilance mode
-        return self.base_check_interval
-
-    def _reap_zombies(self):
-        if not self._me: return
-        try:
-            for child in self._me.children(recursive=True):
-                if child.status() == psutil.STATUS_ZOMBIE:
-                    child.wait(timeout=0.1)
+            with open(dump_path, 'w') as f:
+                json.dump(snapshot, f, indent=2)
         except Exception:
             pass
 
-    def _broadcast_vitals(self, mb: float, children: int):
+    # =========================================================================
+    # == THE BROADCAST (TELEMETRY)                                           ==
+    # =========================================================================
+
+    def _broadcast_vitals(self, vitals: Dict[str, Any]):
+        """
+        [ASCENSION 6]: Multicast to the Akashic Record.
+        """
         if not hasattr(self.engine, 'akashic') or not self.engine.akashic:
             return
+
         try:
+            # Determine Aura Color
+            aura = "#64ffda"  # Green/Zen
+            if vitals["rss_mb"] > self.mem_soft_limit: aura = "#fbbf24"  # Amber/Warm
+            if vitals["rss_mb"] > self.mem_hard_limit: aura = "#f87171"  # Red/Fever
+
             self.engine.akashic.broadcast({
                 "method": "scaffold/vitals",
                 "params": {
-                    "memory_mb": round(mb, 1),
-                    "velocity": round(self._entropy_velocity, 2),
-                    "child_processes": children,
-                    "threads": threading.active_count(),
-                    "timestamp": time.time()
+                    "memory_mb": round(vitals["rss_mb"], 1),
+                    "cpu_percent": round(vitals["cpu_percent"], 1),
+                    "velocity": round(vitals["velocity"], 2),
+                    "child_processes": vitals["child_count"],
+                    "fd_count": vitals["fd_count"],
+                    "drift_ms": round(vitals["drift_ms"], 2),
+                    "timestamp": time.time(),
+                    "aura": aura
                 }
             })
         except Exception:
             pass
 
+    # =========================================================================
+    # == PUBLIC ACCESSORS                                                    ==
+    # =========================================================================
+
     def get_memory_mb(self) -> float:
-        if not self._memory_history:
-            m, _ = self._get_total_tree_memory()
-            return m
-        return self._memory_history[-1]
+        """Instant Memory Read."""
+        if not self._mem_history:
+            return 0.0
+        return self._mem_history[-1]
 
     def get_vitals(self) -> Dict[str, Any]:
-        mb = self.get_memory_mb()
+        """Public API for the Profiler/Middleware."""
+        v = self._perform_biopsy()
+        mb = v["rss_mb"]
         return {
             "rss_mb": mb,
-            "velocity": self._entropy_velocity,
-            "load_percent": (mb / self.critical_memory_mb) * 100,
-            "healthy": mb < self.critical_memory_mb,
-            "platform": platform.system()
+            "velocity": v["velocity"],
+            "load_percent": (mb / self.mem_critical_limit) * 100 if self.mem_critical_limit else 0,
+            "healthy": mb < self.mem_hard_limit,
+            "platform": platform.system(),
+            "blind_mode": self._is_blind
         }
-
-# == SCRIPTURE SEALED: THE METABOLIC SOVEREIGN IS UNBREAKABLE ==

@@ -1,19 +1,36 @@
-# Path: core/cli/core_cli.py
-# --------------------------
+# Path: src/velm/core/cli/core_cli.py
+# -----------------------------------
+
 import argparse
 import sys
 import shutil
 import textwrap
 import os
+import platform
 from typing import Dict, Any, List, Optional, Tuple, Type
 
 # [THE ANCHOR]: Pure data import.
-# We import the unification rite to ensure the Grimoire is whole before we build.
 from .grimoire import RITE_GRIMOIRE, _unify_rites
 
-# --- CHROMATIC RESONANCE (ANSI) ---
-# Only applied if we are in a TTY or if FORCE_COLOR is set (by Electron Bridge)
-_USE_COLOR = sys.stdout.isatty() or os.environ.get("FORCE_COLOR") == "1"
+# =================================================================================
+# == THE CHROMATIC RESONANCE (V-Ω-WASM-AWARE)                                    ==
+# =================================================================================
+# [ASCENSION 1]: ENVIRONMENT SENSING
+# We detect if we are running in the Browser (Emscripten/Pyodide).
+_IS_WASM = (
+        os.environ.get("SCAFFOLD_ENV") == "WASM" or
+        sys.platform == "emscripten" or
+        "pyodide" in sys.modules
+)
+
+# [ASCENSION 2]: FORCED COLOR INJECTION
+# If we are in WASM, we FORCE color, because the XTerm.js output supports it
+# even if isatty() reports False.
+_USE_COLOR = (
+        sys.stdout.isatty() or
+        os.environ.get("FORCE_COLOR") == "1" or
+        _IS_WASM
+)
 
 
 class Colors:
@@ -35,7 +52,7 @@ def _c(text: str, color: str) -> str:
 
 
 # =================================================================================
-# == I. THE GNOSTIC FORMATTER (VISUAL ASCENSION V6)                              ==
+# == I. THE GNOSTIC FORMATTER (VISUAL ASCENSION V7)                              ==
 # =================================================================================
 class GnosticHelpFormatter(argparse.RawTextHelpFormatter):
     """
@@ -45,19 +62,21 @@ class GnosticHelpFormatter(argparse.RawTextHelpFormatter):
     """
 
     def __init__(self, prog, indent_increment=2, max_help_position=24, width=None):
-        # [ASCENSION 1]: RESPONSIVE GEOMETRY
+        # [ASCENSION 3]: RESPONSIVE GEOMETRY (WASM SAFE)
+        # In WASM, shutil.get_terminal_size might return (80, 24) or crash.
+        # We default to 100 for better readability in XTerm.js.
         if width is None:
             try:
                 width = shutil.get_terminal_size((80, 20)).columns
-                width = min(width, 120)  # Cap readability width
+                # Cap width to avoid wrapping madness in small sidebars
+                width = min(width, 120)
             except Exception:
-                width = 80
+                width = 100
 
         super().__init__(prog, indent_increment, max_help_position, width)
 
     def start_section(self, heading):
-        # [ASCENSION 2]: CHROMATIC HEADERS
-        # Capitalize and colorize section headers (e.g. "Positional Arguments")
+        # [ASCENSION 4]: CHROMATIC HEADERS
         rich_heading = _c(heading.upper(), Colors.CYAN + Colors.BOLD)
         super().start_section(rich_heading)
 
@@ -65,16 +84,15 @@ class GnosticHelpFormatter(argparse.RawTextHelpFormatter):
         if not action.option_strings:
             return self._metavar_formatter(action.dest)(1)[0]
 
-        # [ASCENSION 3]: FLAG CLUSTERING & COLOR
+        # [ASCENSION 5]: FLAG CLUSTERING
         parts = []
         for option_string in action.option_strings:
             parts.append(_c(option_string, Colors.GREEN))
         return ", ".join(parts)
 
     def _fill_text(self, text, width, indent):
-        # [ASCENSION 4]: MARKDOWN PRESERVATION & DIMMING
-        # We assume the 'text' is the description.
-        # We strip existing indentation to prevent double-indenting issues.
+        # [ASCENSION 6]: MARKDOWN PRESERVATION
+        # Ensures docstrings from the Grimoire retain their formatting.
         text = textwrap.dedent(text).strip()
         return "\n".join(
             [textwrap.fill(line, width, initial_indent=indent, subsequent_indent=indent)
@@ -82,7 +100,7 @@ class GnosticHelpFormatter(argparse.RawTextHelpFormatter):
         )
 
     def _get_help_string(self, action):
-        # [ASCENSION 5]: ENVIRONMENT DNA & DEFAULT ILLUMINATION
+        # [ASCENSION 7]: ENVIRONMENT DNA & DEFAULT ILLUMINATION
         help_text = action.help or ""
 
         # Check for matching Environment Variable (Heuristic: SCAFFOLD_VAR_NAME)
@@ -107,7 +125,7 @@ class GnosticHelpFormatter(argparse.RawTextHelpFormatter):
 
 
 # =================================================================================
-# == II. THE PARSER FORGE (FACTORY ENGINE V6)                                    ==
+# == II. THE PARSER FORGE (FACTORY ENGINE V7)                                    ==
 # =================================================================================
 class ParserForge:
     """
@@ -115,13 +133,10 @@ class ParserForge:
 
     A factory class that recursively constructs the CLI argument tree.
     It binds Handlers (Logic) and Heralds (Output) to the parser context.
-
-    [ASCENSION 6]: POLYMORPHIC PARSER INJECTION
-    Allows the caller to swap the `ArgumentParser` class implementation for Sandboxing.
     """
 
     def __init__(self, parser_class: Type[argparse.ArgumentParser] = argparse.ArgumentParser):
-        # [ASCENSION 7]: NANO-TRIAGE (Only if running as main CLI)
+        # [ASCENSION 8]: NANO-TRIAGE (Only if running as main CLI)
         is_main_execution = parser_class is argparse.ArgumentParser
 
         if is_main_execution and len(sys.argv) > 1 and sys.argv[1] in ("-V", "--version"):
@@ -129,9 +144,14 @@ class ParserForge:
             print(f"Scaffold God-Engine v{__version__}")
             sys.exit(0)
 
-        # [ASCENSION 8]: O(1) GRIMOIRE UNIFICATION
+        # [ASCENSION 9]: O(1) GRIMOIRE UNIFICATION
         # We ensure the rites are loaded once.
-        _unify_rites()
+        try:
+            _unify_rites()
+        except Exception:
+            # If unification fails (e.g. partial install), we proceed with empty grimoire
+            # to allow 'help' to at least show basics.
+            pass
 
         self.parser_class = parser_class
 
@@ -144,7 +164,7 @@ class ParserForge:
             try:
                 flag_func(parser)
             except argparse.ArgumentError:
-                # [ASCENSION 9]: CONFLICT RESOLUTION
+                # [ASCENSION 10]: CONFLICT RESOLUTION
                 # Silently ignore duplicate flags inherited from parents
                 pass
 
@@ -160,7 +180,7 @@ class ParserForge:
                 parser.add_argument(arg_def)
 
         # 3. BIND THE HERALD & HANDLER
-        # [ASCENSION 10]: THE EXECUTABLE BINDING
+        # [ASCENSION 11]: THE EXECUTABLE BINDING
         if herald := config.get("herald"):
             parser.set_defaults(herald=herald)
 
@@ -172,13 +192,11 @@ class ParserForge:
             prog_name = parser.prog.split()[-1]
             dest_key = f"{prog_name}_command"
 
-            # [ASCENSION 11]: RECURSIVE CLASS PROPAGATION
-            # Pass the custom parser_class down the tree
             subs = parser.add_subparsers(
                 dest=dest_key,
                 title=_c(f"Rites within {prog_name}", Colors.BOLD),
                 help=f"Select a specific sub-rite for {prog_name}.",
-                parser_class=self.parser_class  # <--- THE CRITICAL LINK
+                parser_class=self.parser_class
             )
 
             for sub_name, sub_config in config['subparsers'].items():
@@ -198,7 +216,11 @@ class ParserForge:
         [THE GRAND RITE]
         Constructs the Root Parser and all its children.
         """
-        width = shutil.get_terminal_size((80, 20)).columns
+        # [ASCENSION 3]: WASM-SAFE GEOMETRY
+        try:
+            width = shutil.get_terminal_size((80, 20)).columns
+        except Exception:
+            width = 80
 
         # [ASCENSION 12]: DYNAMIC EPILOG
         epilog = textwrap.dedent(f"""
@@ -238,7 +260,7 @@ class ParserForge:
             dest="command",
             title=_c("The Pantheon of Rites", Colors.CYAN + Colors.BOLD),
             metavar="RITE",
-            parser_class=self.parser_class  # <--- CRITICAL PROPAGATION
+            parser_class=self.parser_class
         )
 
         # Iterate the Grimoire and build the tree

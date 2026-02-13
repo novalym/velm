@@ -1,3 +1,29 @@
+# Path: src/velm/core/maestro/conductor.py
+# ----------------------------------------
+# =========================================================================================
+# == THE OMNISCIENT CONDUCTOR (V-Ω-TOTALITY-V600.0-UNBREAKABLE)                          ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: KINETIC_ORCHESTRATOR | RANK: OMEGA_SUPREME
+# AUTH: Ω_MAESTRO_V600_TOTALITY_FLUSH_HARDENED_2026
+#
+# [ARCHITECTURAL MANIFESTO]
+# This is the High Priest of Kinetic Will. It stands between the Gnostic Logic (The Plan)
+# and the Physical Substrate (The Shell). It is responsible for the safe, atomic, and
+# observable execution of all commands.
+#
+# [ASCENSION FEATURES]:
+# 1.  **The Kinetic Flush Protocol:** Forces `sys.stdout` and `sys.stderr` flushing before
+#     and after every atomic strike to ensure the WASM bridge never hangs.
+# 2.  **The Venv Suture:** Dynamically reconstructs the `PATH` to prioritize the active
+#     virtual environment, preventing "Command Not Found" heresies.
+# 3.  **The Sandbox Ward:** A fully implemented, OS-aware jailer that wraps commands in
+#     `bwrap` or `unshare` containers when high-security is demanded.
+# 4.  **The Vitality Sentinel:** A background daemon that monitors the metabolic cost
+#     (RAM/CPU) of every child process in real-time.
+# 5.  **The Recursive Redemption:** Automatically executes `on-heresy` blocks if a
+#     primary command fractures, maintaining the chain of causality.
+# =========================================================================================
+
 import os
 import sys
 import subprocess
@@ -5,10 +31,12 @@ import threading
 import shlex
 import time
 import shutil
+import re
+import signal
 from pathlib import Path
 from queue import Queue
 from typing import Tuple, Optional, List, Dict, Type, Union, Any, Final
-from dataclasses import dataclass
+
 # --- DIVINE SUMMONS ---
 from .contracts import MaestroContext, KineticVessel
 from .context import ContextForge
@@ -18,38 +46,46 @@ from .handlers.hosts import HostsHandler
 from .handlers.vault import VaultHandler
 
 from ..alchemist import DivineAlchemist, get_alchemist
-from ...contracts.heresy_contracts import ArtisanHeresy
+from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ...creator.registers import QuantumRegisters
 from ...core.sanctum.local import LocalSanctum
 from ...core.state.contracts import LedgerEntry
 from ...logger import Scribe
 
+# [ASCENSION 1]: SURGICAL PSUTIL IMPORT
+# We verify metabolic sensors are available without crashing the kernel.
+try:
+    import psutil
 
+    METABOLIC_SENSING = True
+except ImportError:
+    METABOLIC_SENSING = False
 
 Logger = Scribe("MaestroConductor")
 
+# [FACULTY 9]: THE SECURITY ADJUDICATOR
+# Patterns that are forbidden from the Kinetic Strike.
 BANNED_COMMAND_PATTERNS: Final[List[str]] = [
-    r"(?i)\bsudo\b",                # Privilege Escalation
-    r"(?i)\bsu\s+-",                # User Switching
-    r"(?i)chmod\s+.*777",           # Permissive Geometry (Vulnerability Injection)
-    r"(?i)rm\s+-[rf]{1,2}\s+/",     # Absolute Omnicide
-    r"(?i)/etc/(passwd|shadow|group|sudoers)", # Credential Harvesting
-    r"(?i)/root/|/\.ssh/",          # Sanctum Escape
-    r"(?i)\b(mkfs|fdisk|parted)\b", # Hardware Corruption
-    r"(?i)\bdd\s+if=",              # Block Storage Manipulation
-    r"(?i)\b(reboot|shutdown|init\s+0)\b", # Temporal Termination
-    r"(?i)curl\s+.*\|\s*(bash|sh|zsh|python)", # Remote Payload Execution
-    r"(?i)wget\s+.*\|\s*(bash|sh|zsh|python)", # Remote Payload Execution
-    r"(?i)\b(nc|netcat)\s+-e\b",    # Reverse Shell Inception
-    r"(?i)\b(python|python3)\s+-c\s+.*import\s+socket", # Socket Hijacking
+    r"(?i)\bsudo\b",  # Privilege Escalation
+    r"(?i)\bsu\s+-",  # User Switching
+    r"(?i)chmod\s+.*777",  # Permissive Geometry
+    r"(?i)rm\s+-[rf]{1,2}\s+/",  # Absolute Omnicide
+    r"(?i)/etc/(passwd|shadow|group|sudoers)",  # Credential Harvesting
+    r"(?i)/root/|/\.ssh/",  # Sanctum Escape
+    r"(?i)\b(mkfs|fdisk|parted)\b",  # Hardware Corruption
+    r"(?i)\bdd\s+if=",  # Block Storage Manipulation
+    r"(?i)\b(reboot|shutdown|init\s+0)\b",  # Temporal Termination
+    r"(?i)curl\s+.*\|\s*(bash|sh|zsh|python)",  # Remote Payload Execution
+    r"(?i)wget\s+.*\|\s*(bash|sh|zsh|python)",  # Remote Payload Execution
+    r"(?i)\b(nc|netcat)\s+-e\b",  # Reverse Shell Inception
+    r"(?i)\b(python|python3)\s+-c\s+.*import\s+socket",  # Socket Hijacking
 ]
+
 
 class MaestroConductor:
     """
-    =================================================================================
-    == THE OMNISCIENT CONDUCTOR (V-Ω-SENTINEL-STREAMS)                             ==
-    =================================================================================
-    LIF: 10,000,000,000,000 (ABSOLUTE EXECUTION AUTHORITY)
+    The Sovereign Conductor of Kinetic Will.
+    Orchestrates the execution of commands, ensuring safety, observability, and reversibility.
     """
 
     def __init__(
@@ -59,22 +95,20 @@ class MaestroConductor:
             alchemist: Optional[DivineAlchemist] = None
     ):
         """
-        =============================================================================
-        == THE SOVEREIGN INCEPTION (V-Ω-TOTALITY-V4.0-FINALIS)                    ==
-        =============================================================================
-        LIF: ∞ | ROLE: KINETIC_ORCHESTRATOR | RANK: OMEGA_SUPREME
+        [THE RITE OF INCEPTION]
+        Binds the Conductor to the Engine and the Gnostic Registers.
         """
         self.Logger = Logger
 
-        # [ASCENSION 1]: THE ENGINE SUTURE
-        # Anchoring the Maestro to the master Engine to enable Telemetry and Vitals.
+        # [ASCENSION 1]: ENGINE SUTURE
+        # Anchoring to the master Engine for Telemetry and Vitals.
         self.engine = engine
 
         # [ASCENSION 3]: JIT ALCHEMIST BINDING
         self.alchemist = alchemist or get_alchemist()
 
         # [ASCENSION 2]: POLYMORPHIC REGISTER INCEPTION
-        # We ensure the Maestro possesses a valid 'registers' soul, even in ephemeral voids.
+        # Ensure we have valid registers even if passed a raw context dict.
         if not isinstance(registers, QuantumRegisters):
             self.regs = self._forge_ephemeral_registers(registers)
         else:
@@ -84,27 +118,30 @@ class MaestroConductor:
         self.context_forge = ContextForge(self.regs, self.alchemist)
 
         # [ASCENSION 4]: THE HANDLER PANTHEON
-        # The complete registry of high-status execution artisans.
+        # The registry of specialist artisans.
         self.RITE_HANDLERS: Dict[str, Type[BaseRiteHandler]] = {
             "proclaim": ProclaimHandler,
             "shell": ShellHandler,
             "tunnel": TunnelHandler,
             "raw": RawHandler,
-            "browser": BrowserHandler,  # <--- OCULAR ASCENSION
-            "hosts": HostsHandler,  # <--- GEOMETRIC ASCENSION
-            "vault": VaultHandler,  # <--- SECURITY ASCENSION
+            "browser": BrowserHandler,
+            "hosts": HostsHandler,
+            "vault": VaultHandler,
         }
 
-        # [ASCENSION 11]: METABOLIC TRACING
+        # [ASCENSION 10]: TRACE ID INHERITANCE
         self.trace_id = getattr(self.regs, 'trace_id', 'tr-maestro-init')
         self.Logger.verbose(f"Maestro Conductor materialised. Trace: {self.trace_id}")
 
-    def _forge_ephemeral_registers(self, context_manager: Any) -> QuantumRegisters:
-        sanctum_path = getattr(context_manager, 'cwd', Path.cwd())
+        # [ASCENSION 13]: SANDBOX CACHE
+        self._bwrap_path = shutil.which("bwrap")
+        self._unshare_path = shutil.which("unshare")
 
+    def _forge_ephemeral_registers(self, context_manager: Any) -> QuantumRegisters:
+        """Forges a temporary set of registers for ad-hoc execution."""
+        sanctum_path = getattr(context_manager, 'cwd', Path.cwd())
         return QuantumRegisters(
             sanctum=LocalSanctum(sanctum_path),
-            # [CRITICAL FIX] Force relative root to respect sanctum CWD
             project_root=Path("."),
             gnosis=getattr(context_manager, 'variables', {}),
             verbose=getattr(context_manager, 'verbose', False) if hasattr(context_manager, 'verbose') else False
@@ -113,13 +150,11 @@ class MaestroConductor:
     def execute(self, instruction: Tuple, env: Optional[Dict] = None):
         """
         =============================================================================
-        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-TOTALITY-V5.0-FINALIS)             ==
+        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-FLUSH-PROTOCOL-ENABLED)            ==
         =============================================================================
-        LIF: ∞ | ROLE: KINETIC_DISPATCHER | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_EXECUTE_V5_TOTAL_SUTURE_2026
+        LIF: ∞ | The central dispatch for all kinetic instructions.
         """
         # --- MOVEMENT I: ATOMIC UNPACKING & TRIAGE ---
-        # [ASCENSION 1]: We handle both 3-tuples (Legacy) and 4-tuples (Quaternity).
         if len(instruction) == 4:
             raw_command, line_num, explicit_undo, heresy_block = instruction
         else:
@@ -130,21 +165,18 @@ class MaestroConductor:
             return
 
         # --- MOVEMENT II: THE ALCHEMICAL RESOLUTION ---
-        # [ASCENSION 3]: Transmute variables ({{ var }}) into physical matter.
         transmuted_cmd = self.alchemist.transmute(raw_command, self.regs.gnosis)
         stripped_cmd = transmuted_cmd.strip()
 
         # --- MOVEMENT III: ENVIRONMENT DNA FUSION ---
-        # [ASCENSION 2]: We merge the CPU's environment with our internal variables.
-        # This ensures the child process possesses the full Gnosis of the project.
         active_env = (env or os.environ).copy()
         if self.regs.gnosis:
             for k, v in self.regs.gnosis.items():
                 if isinstance(v, (str, int, bool)):
                     active_env[f"SC_VAR_{k.upper()}"] = str(v)
 
-        # --- MOVEMENT IV: SEMANTIC RITE TRIAGE ---
-        # [ASCENSION 4]: Divining the correct High Priest for the Edict.
+        # --- MOVEMENT IV: SEMANTIC RITE ROUTING ---
+        # [ASCENSION 8] The Semantic Router
         rite_key = "shell"
         if stripped_cmd.startswith(("proclaim:", "%% proclaim:", "echo ")):
             rite_key = "proclaim"
@@ -160,20 +192,22 @@ class MaestroConductor:
             rite_key = "hosts"
 
         # --- MOVEMENT V: HANDLER MATERIALIZATION ---
-        # [ASCENSION 5]: Forge the context for the specific line.
         HandlerClass = self.RITE_HANDLERS.get(rite_key, self.RITE_HANDLERS["shell"])
         context = self.context_forge.forge(line_num, explicit_undo)
-
-        # [ASCENSION 7]: Materialize the specific Artisan.
         handler = HandlerClass(self.regs, self.alchemist, context)
 
-        # Inject the conductor reference for organ access
+        # Inject conductor reference for recursive callback access (Critical for recursion)
         if hasattr(handler, 'conductor'):
             object.__setattr__(handler, 'conductor', self)
 
-        # --- MOVEMENT VI: THE KINETIC STRIKE & REDEMPTION ---
+        # --- MOVEMENT VI: THE KINETIC STRIKE (WITH FLUSH PROTOCOL) ---
         try:
-            # [ASCENSION 8]: HUD NOTIFICATION
+            # [ASCENSION 1]: KINETIC FLUSH (PRE-STRIKE)
+            # We force the Python buffers to clear so the JS side sees the "Starting..." log immediately.
+            sys.stdout.flush()
+            sys.stderr.flush()
+
+            # [ASCENSION 11]: HAPTIC PULSE
             if self.engine and self.engine.akashic:
                 self.engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
@@ -185,61 +219,60 @@ class MaestroConductor:
                     }
                 })
 
-            # [ASCENSION 1]: THE FINAL DISPATCH
-            # We call the handler's conduct rite, passing the fused environment.
-            # We use try/except on the call to ensure we handle the 'env' keyword support.
+            # THE STRIKE
             try:
                 handler.conduct(transmuted_cmd, env=active_env)
             except TypeError:
                 # Fallback for legacy handlers that do not yet accept 'env'
                 handler.conduct(transmuted_cmd)
 
+            # [ASCENSION 1]: KINETIC FLUSH (POST-STRIKE)
+            # Ensure completion logs are pushed out.
+            sys.stdout.flush()
+            sys.stderr.flush()
+
         except Exception as fracture:
-            # [ASCENSION 11]: THE RITE OF REDEMPTION
-            # If the strike failed and we have a heresy block, execute the cure.
+            # [ASCENSION 1]: KINETIC FLUSH (EMERGENCY)
+            # If we crash, we must flush so the error is visible.
+            sys.stdout.flush()
+            sys.stderr.flush()
+
+            # [ASCENSION 7]: THE RITE OF REDEMPTION (RECURSION)
             if heresy_block:
                 self.Logger.warn(f"L{line_num}: Rite fractured. Initiating Redemption Sequence.")
+                sys.stdout.flush()  # Ensure warning is seen
+
                 for h_cmd in heresy_block:
-                    # Recursive call for heresy commands (No further nesting allowed)
+                    # Recursive call to execute with the same environment
                     self.execute((h_cmd, line_num, None), env=active_env)
 
-            # Re-raise to let the Healer handle the final dossier
+            # Re-raise to let the Healer handle the final forensic dossier
             raise fracture
 
     def _adjudicate_shell_safety(self, command: str):
-        """
-        =================================================================================
-        == THE SOVEREIGN SHELL ADJUDICATOR (V-Ω-TOTALITY-V500)                         ==
-        =================================================================================
-        LIF: ∞ | ROLE: SECURITY_INQUISITOR | RANK: OMEGA_SOVEREIGN
-        """
-        # 1. THE ZERO-ROOT VOW
-        # [THE CURE]: Absolute protection against misconfigured server environments.
+        """[ASCENSION 9]: Checks for prohibited patterns."""
         if hasattr(os, 'getuid') and os.getuid() == 0:
-            self.Logger.critical("SECURITY_BREACH: Maestro attempted to conduct a rite as ROOT.")
             raise ArtisanHeresy(
-                "Security Protocol Violation: The Titan cannot run as a high-privilege entity.",
-                severity=HeresySeverity.CRITICAL,
-                suggestion="Deploy the Titan service under a dedicated low-privilege user (e.g. 'velm_worker')."
+                "Security Protocol Violation: The Titan cannot run as a high-privilege entity (ROOT).",
+                severity=HeresySeverity.CRITICAL
             )
 
-        # 2. THE PATTERN INQUEST
-        # [ASCENSION 1]: Heuristic scan for known malicious intent.
         for pattern in BANNED_COMMAND_PATTERNS:
             if re.search(pattern, command):
-                self.Logger.critical(f"MALICIOUS_INTENT: Banned pattern '{pattern}' detected in edict.")
                 raise ArtisanHeresy(
                     f"Security Violation: Profane command pattern detected.",
                     severity=HeresySeverity.CRITICAL,
-                    details=f"Edict: {self._redact_secrets(command)}",
-                    suggestion="Limit your will to project-relative operations. System manipulation is forbidden."
+                    details=f"Edict: {self._redact_secrets(command)}"
                 )
 
-        # 3. GEOMETRIC ESCAPE GAZE
-        # Detect attempts to use shell variables or traversals to leave the sanctum.
         if "../" in command or "..\\" in command:
             self.Logger.warn("TRAVERSAL_DETECTED: Shell edict contains '..' relative jumps.")
-            # We allow this if it's within a script, but we flag it in the log.
+
+    def _redact_secrets(self, text: str) -> str:
+        """[ASCENSION 10]: Secret Redaction."""
+        for key in ['api_key', 'secret', 'token', 'password']:
+            text = re.sub(f'({key}[= ]+)([\'"]?)([^\s\'"]+)', r'\1\2******', text, flags=re.IGNORECASE)
+        return text
 
     def conduct_raw(
             self,
@@ -255,46 +288,32 @@ class MaestroConductor:
         == THE APOTHEOSIS OF KINETIC WILL (V-Ω-TOTALITY-V600-FORGE-SOVEREIGN)          ==
         =================================================================================
         LIF: INFINITY | ROLE: ATOMIC_PROCESS_FORGE | RANK: OMEGA_SOVEREIGN
-        AUTH_CODE: Ω_CONDUCT_RAW_V600_TITANIUM_STABILITY_2026
+        AUTH_CODE: Ω_CONDUCT_RAW_V600_TITANIUM_FLUSH_2026
         """
         start_time = time.monotonic()
         trace_id = os.environ.get("GNOSTIC_REQUEST_ID", "tr-void")
 
-        # --- MOVEMENT I: THE SECURITY SIEVE ---
-        # [ASCENSION 1]: Adjudicate the Will before it touches the Shell.
-        # This performs the heuristic scan for BANNED_COMMAND_PATTERNS.
+        # 1. Security Check
         self._adjudicate_shell_safety(command)
 
-        # [ASCENSION 2]: THE ZERO-ROOT VOW
-        # Absolute protection against misconfigured server environments.
-        if hasattr(os, 'getuid') and os.getuid() == 0:
-            self.Logger.critical(f"[{trace_id}] SECURITY_BREACH: Maestro attempted to run as ROOT.")
-            raise ArtisanHeresy(
-                "Security Protocol Violation: The God-Engine refuses to run as a high-privilege entity.",
-                severity=HeresySeverity.CRITICAL,
-                suggestion="Deploy the Titan under a dedicated low-privilege user (e.g. 'velm_worker')."
-            )
-
-        # --- MOVEMENT II: THE REALITY ANCHOR ---
-        # [ASCENSION 3]: Force-Materialize the Staged Reality.
-        # This ensures that tools (make, npm, pytest) see the files we just 'created'.
+        # 2. Reality Materialization (Ensure files exist before command runs)
         if self.regs.transaction and not self.regs.is_simulation:
-            self.Logger.verbose(f"[{trace_id}] Materializing Staged Reality for Shell Strike...")
             self.regs.transaction.materialize()
 
-        # --- MOVEMENT III: ENVIRONMENT DNA SYNTHESIS ---
+        # 3. Environment Forging (Venv Suture)
         context = self.context_forge.forge(line_num=0, explicit_undo=None)
         final_env = context.env.copy()
         if env_overrides:
             final_env.update(env_overrides)
 
-        # [ASCENSION 9]: Achronal Trace Grafting
+        # [ASCENSION 3]: Unbuffered Output Vow & Trace Injection
         final_env["X_TITAN_TRACE"] = trace_id
         final_env["SCAFFOLD_NON_INTERACTIVE"] = "1"
+        final_env["PYTHONUNBUFFERED"] = "1"
 
-        # --- MOVEMENT IV: THE PROCESS FORGE ---
-        # Gaze for the Missing Artisan (Fast Path Resolution)
+        # 4. Artisan Presence Check (Pre-flight Scry)
         binary = shlex.split(command)[0]
+        # [ASCENSION 6]: Pre-flight Artisan Scry
         resolved_bin = shutil.which(binary, path=final_env.get("PATH"))
         if not resolved_bin:
             raise ArtisanHeresy(
@@ -303,24 +322,26 @@ class MaestroConductor:
                 suggestion=f"Verify that the required tool is installed or manifest in your VENV."
             )
 
-        # [ASCENSION 6]: ENTROPY-AWARE REDACTION
-        # Mask secrets in the command string before it's logged or chronicled.
         safe_display_command = self._redact_secrets(command)
         self.Logger.verbose(f"[{trace_id}] Forging process strike: {safe_display_command}")
 
-        # [ASCENSION 5]: METABOLIC PRIORITY MODULATION
-        # de-prioritize the subprocess on Linux to save the parent's responsiveness.
-        def _pre_exec_vow():
-            # [ASCENSION 4]: PGID SOVEREIGNTY
-            # os.setsid makes this process the leader of a new process group.
-            if hasattr(os, 'setsid'):
-                os.setsid()
-            # [ASCENSION 5]: NICE RITE
-            if hasattr(os, 'nice'):
-                os.nice(10)
+        # [ASCENSION 1]: KINETIC FLUSH (PRE-SPAWN)
+        # Critical for WASM: Ensure previous logs are sent before the process loop begins
+        sys.stdout.flush()
+        sys.stderr.flush()
 
+        # [ASCENSION 13]: THE SANDBOX WARD CHECK
+        # If permissions imply a need for containment, we wrap the command.
+        if permissions and (not permissions.get("network") or permissions.get("ro_paths")):
+            final_command, method = self._apply_sandbox_ward(command, context.cwd, permissions)
+            if method != "none":
+                self.Logger.info(f"Command warded by {method} jail.")
+        else:
+            final_command = command
+            method = "none"
+
+        # 5. Process Inception
         try:
-            # [ASCENSION 7]: SIGNAL BRIDGE & SOUL SEPARATION
             popen_kwargs = {
                 "shell": True,
                 "executable": context.shell_executable,
@@ -328,14 +349,16 @@ class MaestroConductor:
                 "env": final_env,
                 "stdout": subprocess.PIPE,
                 "stderr": subprocess.PIPE,
-                "stdin": subprocess.PIPE,
-                "preexec_fn": _pre_exec_vow if os.name != 'nt' else None
+                "stdin": subprocess.PIPE
             }
-            if os.name == 'nt':
-                # Windows Process Group Isolation
-                popen_kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
 
-            process = subprocess.Popen(command, **popen_kwargs)
+            # [ASCENSION 5]: Process Group Isolation (For clean kills)
+            if os.name == 'nt':
+                popen_kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+            else:
+                popen_kwargs['preexec_fn'] = os.setsid
+
+            process = subprocess.Popen(final_command, **popen_kwargs)
 
             if ledger_entry:
                 ledger_entry.metadata['pid'] = process.pid
@@ -344,8 +367,7 @@ class MaestroConductor:
         except Exception as e:
             raise ArtisanHeresy(f"Forge Collapse: Process inception fractured: {e}", child_heresy=e)
 
-        # --- MOVEMENT V: THE CONDUIT OF COMMUNION ---
-        # [ASCENSION 13]: Non-blocking Stdin Suture.
+        # 6. Input Streaming (The Conduit)
         if inputs:
             def stream_writer(stream, lines):
                 try:
@@ -358,43 +380,80 @@ class MaestroConductor:
 
             threading.Thread(target=stream_writer, args=(process.stdin, inputs), daemon=True).start()
 
-        # [ASCENSION 8]: THE BINARY MATTER SIEVE.
+        # 7. Output Streaming with Binary Sieve (The Reader)
         output_queue = Queue()
 
         def stream_reader(stream, stream_type):
+            """
+            [ASCENSION 4]: THE BINARY MATTER SIEVE.
+            Reads lines and filters out binary garbage that would crash the UI.
+            """
             try:
+                # Iterate line by line using iterator protocol to handle buffering correctly
                 for line_bytes in stream:
-                    # Detect Prohibited Binary Matter
+                    # [ASCENSION 4]: Null Byte Detection
                     if b'\x00' in line_bytes[:512]:
-                        output_queue.put((stream_type, "\x1b[31m[PROHIBITED_BINARY_MATTER_REDACTED]\x1b[0m"))
+                        output_queue.put((stream_type, "[BINARY_DATA_SUPPRESSED]"))
                         break
 
+                    # Graceful decoding with replacement
                     line_str = line_bytes.decode('utf-8', errors='replace').rstrip()
                     output_queue.put((stream_type, line_str))
             except (ValueError, OSError):
                 pass
             finally:
                 if stream: stream.close()
-                # Use None as the 'Rite Complete' sentinel
-                output_queue.put((stream_type, None))
+                output_queue.put((stream_type, None))  # Signal EOF
 
         threading.Thread(target=stream_reader, args=(process.stdout, 'stdout'), daemon=True).start()
         threading.Thread(target=stream_reader, args=(process.stderr, 'stderr'), daemon=True).start()
 
-        # --- MOVEMENT VI: THE VITALITY SENTINEL ---
-        # [ASCENSION 15]: Resource Tracking.
-        if HAS_SENSES:  # psutil availability
+        # 8. Vitality Sentinel Ignition (The Watchdog)
+        if METABOLIC_SENSING:
             threading.Thread(target=self._monitor_vitals, args=(process.pid,), daemon=True).start()
 
-        # [ASCENSION 9]: The Luminous Vessel
         return KineticVessel(
             process=process,
             output_queue=output_queue,
             start_time=start_time,
             pid=process.pid,
             command=command,
-            sandbox_type="pgid_isolated"
+            sandbox_type=method if 'method' in locals() else "pgid_isolated"
         )
+
+    def _monitor_vitals(self, pid: int):
+        """
+        [ASCENSION 4]: THE VITALITY SENTINEL.
+        Monitors the child process for metabolic fever (High RAM/CPU).
+        Logs warnings if thresholds are breached, but does not kill (that is for the Circuit Breaker).
+        """
+        try:
+            proc = psutil.Process(pid)
+            max_mem_mb = 0
+
+            while proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE:
+                try:
+                    mem_info = proc.memory_info()
+                    rss_mb = mem_info.rss / (1024 * 1024)
+
+                    if rss_mb > max_mem_mb:
+                        max_mem_mb = rss_mb
+
+                    # Hard Threshold: 1.5GB for a single subprocess implies a leak or bomb
+                    if rss_mb > 1500:
+                        self.Logger.warn(f"Metabolic Fever: Subprocess {pid} is consuming {rss_mb:.0f}MB RAM.")
+
+                    time.sleep(0.5)
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    break
+
+            # Record peak memory if significant
+            if max_mem_mb > 100:
+                self.Logger.verbose(f"Subprocess {pid} Peak Memory: {max_mem_mb:.0f}MB")
+
+        except Exception:
+            # The Sentinel must not crash the Engine
+            pass
 
     def _apply_sandbox_ward(self, command: str, cwd: Path, permissions: Dict[str, Any]) -> Tuple[str, str]:
         """
@@ -406,53 +465,7 @@ class MaestroConductor:
                          jail around a Maestro's Edict.
         @gnosis:LIF 1,000,000,000,000,000
 
-        This is not a function. It is a divine **Jailer**, a master of Gnostic confinement.
-        It perceives the Architect's will and the command's needs, and forges the one
-        true, safest reality for its execution.
-
-        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-
-        1.  **The Gnostic Triage:** It performs a Gaze for the most powerful sandboxing
-            artisan available (`bwrap` > `unshare`), ensuring the strongest possible jail.
-
-        2.  **The Gaze of Intent:** It honors a `permissions` contract, allowing rites
-            to declare their need for network access or specific filesystem realms,
-            forging a jail with the perfect balance of power and restraint.
-
-        3.  **The Sanctum of Controlled Matter:** It can bind additional read-only
-            (`ro_paths`) and read-write (`rw_paths`) paths into the jail, allowing a
-            command to touch specific, consecrated parts of the mortal realm.
-
-        4.  **The Etheric Ward:** It can completely sever a process from the network
-            (`allow_network=False`), annihilating the possibility of profane communion.
-
-        5.  **The Ouroboros Ward:** It detects if it is already inside a sandbox by
-            perceiving the `BWRAP_PID` environment variable, preventing the paradox of
-            a jail within a jail.
-
-        6.  **The Luminous Scribe:** It proclaims the exact nature of the jail being
-            forged, providing a perfect audit trail of the confinement strategy.
-
-        7.  **The Polyglot Graceful Degradation:** If no sandboxing artisan is manifest,
-            or if the OS is not Linux, it gracefully degrades, proclaims a luminous
-            warning, and allows the rite to proceed unjailed.
-
-        8.  **The Path Canonicalizer:** It resolves all paths to their absolute, canonical
-            truth before binding them, preventing heresies of relativity and symlink ambiguity.
-
-        9.  **The Chronocache of Artisans:** It performs its Gaze for `bwrap` and `unshare`
-            only once, remembering their existence for the duration of the Engine's life.
-
-        10. **The Luminous Proclamation:** It returns not just the command string, but the
-            *type* of sandbox forged (`bwrap`, `unshare`, `none`), providing telemetry to the cosmos.
-
-        11. **The Guardian of the Root:** It contains an unbreakable vow that prevents it
-            from ever binding the host root filesystem (`/`) as read-write, annihilating
-            the ultimate `rm -rf /` catastrophe.
-
-        12. **The Unbreakable Ward of Paradox:** Its entire symphony is shielded. A failure
-            to forge the sandbox command will not shatter the rite; it will fall back to
-            the un-sandboxed command with a luminous warning.
+        Constructs a `bwrap` or `unshare` command to isolate the execution.
         """
         # [7] Polyglot Graceful Degradation
         if sys.platform != "linux":
@@ -475,11 +488,8 @@ class MaestroConductor:
                     "CRITICAL HERESY: A rite attempted to make the root filesystem writable. The Guardian has stayed its hand.")
                 return f"echo 'SECURITY VIOLATION: Root FS cannot be writable'; exit 126;", "blocked"
 
-            # [1] Gnostic Triage & [9] Chronocache
-            bwrap = getattr(self, '_bwrap_path', None)
-            if bwrap is None:
-                self._bwrap_path = shutil.which("bwrap")
-                bwrap = self._bwrap_path
+            # [1] Gnostic Triage
+            bwrap = self._bwrap_path
 
             # --- Bubblewrap Strategy (The Strongest Ward) ---
             if bwrap:
@@ -508,17 +518,18 @@ class MaestroConductor:
                     bwrap_cmd.extend(["--bind", str(p_abs), str(p_abs)])
 
                 bwrap_cmd.append("--")
-                bwrap_cmd.append(command)  # The command is passed as a single arg to `sh -c` implicitly by Popen
+                # The command is passed as a single arg to `sh -c` implicitly by Popen shell=True
+                # But bwrap expects [cmd, arg1, arg2].
+                # Since we use shell=True in Popen, we need to wrap the whole bwrap invocation in a string.
+                # However, complex commands are safer passed as `bwrap ... -- sh -c 'command'`
+                bwrap_cmd.extend(["sh", "-c", command])
 
-                # [6] The Luminous Scribe & [10] Luminous Proclamation
+                # [6] The Luminous Scribe
                 self.Logger.verbose(f"   -> Forged bwrap jail with network={allow_network}, rw_paths={len(rw_paths)}")
                 return " ".join(shlex.quote(str(p)) for p in bwrap_cmd), "bwrap"
 
             # --- Unshare Strategy (The Weaker Ward) ---
-            unshare = getattr(self, '_unshare_path', None)
-            if unshare is None:
-                self._unshare_path = shutil.which("unshare")
-                unshare = self._unshare_path
+            unshare = self._unshare_path
 
             if unshare:
                 unshare_cmd = [unshare, "--mount-proc", "--pid", "--fork"]

@@ -19,7 +19,7 @@ import gc
 from contextlib import nullcontext
 from pathlib import Path
 from typing import List, Tuple, Optional, Set, Union, TYPE_CHECKING, Any, Dict, Final
-
+from collections import defaultdict
 # --- THE DIVINE UPLINKS ---
 from .alu import AlchemicalLogicUnit
 from .io_controller import IOConductor
@@ -56,30 +56,70 @@ class QuantumCPU:
                  maestro: "MaestroUnit",
                  engine: Optional["ScaffoldEngine"] = None):
         """
-        [THE RITE OF INCEPTION]
-        Binds the CPU to the Engine organs.
+        =================================================================================
+        == THE RITE OF CPU INCEPTION (V-Ω-TOTALITY-V500.1-TITANIUM-FIX)                ==
+        =================================================================================
+        LIF: ∞ | ROLE: KINETIC_EXECUTOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_CPU_INIT_V501_POINTER_SUTURE_2026
         """
+        # --- STRATUM-0: SOVEREIGN ORGAN BINDING ---
         self.regs = registers
         self.io = io_conductor
         self.maestro = maestro
         self.engine = engine
         self.logger = Logger
 
-        # --- THE INTERNAL STRATA ---
+        # --- STRATUM-1: THE CURE (ACHRONAL POINTERS) ---
+        # [ASCENSION 1]: We materialize the pointers to avoid the AttributeError.
+        self.program_counter: int = 0
+        self.instruction_pointer: int = 0
+        self.is_halted: bool = False
+
+        # [ASCENSION 2]: Logic Flags (Bitmask for high-speed state scrying)
+        # 0x01: ADRENALINE, 0x02: PANIC, 0x04: TRACE_ACTIVE
+        self._state_flags: int = 0x00
+
+        # --- STRATUM-2: THE PROGRAM BUFFER ---
+        # [ASCENSION 8]: Pre-allocated vessel for the Compiled Gnostic Program.
         self.program: List[Instruction] = []
+
+        # --- STRATUM-3: METABOLIC TOMOGRAPHY & TELEMETRY ---
+        # [ASCENSION 3 & 9]: Nanosecond Chronometry and forensic history.
+        self._birth_ns: int = time.perf_counter_ns()
+        self._instruction_telemetry: Dict[int, Dict[str, Any]] = {}
+
+        # [ASCENSION 5]: Merkle Accumulator (Running hash of physical transmutations)
+        self._state_merkle: str = "0xVOID"
+
+        # --- STRATUM-4: HYDRAULIC CONCURRENCY GRID ---
+        # [ASCENSION 6]: Atomic guards for thread-safe materialization.
         self._io_lock = threading.Lock()
         self._telemetry_lock = threading.Lock()
 
-        # [ASCENSION 1]: The Suture Pool for Parallel Materialization
+        # [ASCENSION 4]: THE SUTURE POOL
+        # Dynamically calculates worker density based on hardware substrate.
+        cpu_count = os.cpu_count() or 4
+        final_workers = min(MAX_IO_CONCURRENCY, cpu_count * 2)
+
         self._suture_pool = concurrent.futures.ThreadPoolExecutor(
-            max_workers=MAX_IO_CONCURRENCY,
-            thread_name_prefix="SutureNode"
+            max_workers=final_workers,
+            thread_name_prefix=f"TitanCPU-{self.regs.trace_id[:4]}"
         )
 
-        # [ASCENSION 9]: Metabolic Tomography Registry
-        self._instruction_telemetry: Dict[int, Dict[str, Any]] = {}
+        # --- STRATUM-5: OCULAR & TRACE SUTURE ---
+        # [ASCENSION 11]: Projecting context DNA from the Registers.
+        self.trace_id = self.regs.trace_id
+        self.session_id = self.regs.session_id
 
-        self.logger.verbose("Quantum CPU materialised. Concurrency Lattice: ACTIVE.")
+        # [ASCENSION 12]: THE FINALITY VOW
+        # The CPU is now manifest. We proclaim its resonance to the log.
+        self.logger.verbose(
+            f"Quantum CPU [Ω] materialised. "
+            f"Lattice: {final_workers} nodes | "
+            f"Trace: {self.trace_id} | "
+            f"Status: RESONANT"
+        )
+
 
     def load_program(
             self,
@@ -196,7 +236,7 @@ class QuantumCPU:
         if not io_instructions: return
 
         # Group by tree depth to ensure parent directories exist before children.
-        strata: Dict[int, List[Instruction]] = collections.defaultdict(list)
+        strata: Dict[int, List[Instruction]] = defaultdict(list)
         for instr in io_instructions:
             depth = len(Path(instr.target).parts) if isinstance(instr.target, Path) else 0
             strata[depth].append(instr)

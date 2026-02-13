@@ -83,7 +83,18 @@ class ScaffoldEngine:
         if not silent:
             configure_logging(verbose=(log_level == "DEBUG"), json_mode=json_logs)
 
-        self.console = get_console()
+            # [THE CURE]: GNOSTIC CONSOLE CONFIGURATION (WASM-AWARE)
+            # We force terminal rendering if we are in WASM to prevent the "Object at 0x" heresy.
+        if os.environ.get("SCAFFOLD_ENV") == "WASM":
+            from rich.console import Console
+            # Force width=80 to ensure panels don't collapse or expand infinitely in non-TTY
+            self.console = Console(force_terminal=True, color_system="truecolor", width=80)
+            # Critical: Patch the global logger console so all Scribes use this forced instance
+            import velm.logger
+            velm.logger._console = self.console
+        else:
+            self.console = get_console()
+
         self.logger = Scribe("QuantumEngine")
 
         # 2. THE MIND (Context & Registry)

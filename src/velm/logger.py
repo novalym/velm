@@ -74,6 +74,7 @@ except ImportError:
     def Pretty(data):
         return str(data)
 
+
 # --- THE DIVINE GRIMOIRE OF THE SCRIBE'S VOICE ---
 SCRIBE_THEME = Theme({
     "info": "cyan",
@@ -105,18 +106,26 @@ _COSMIC_GNOSIS = {
 # If it is a Pipe (Lightning/Docker), we FORCE a width to prevent
 # Rich from calling 'ioctl' to guess dimensions, which causes the crash.
 _IS_TTY = sys.stderr.isatty()
+_IS_WASM = os.environ.get("SCAFFOLD_ENV") == "WASM"
 
 _CONSOLE: Console = Console(
     theme=SCRIBE_THEME,
     stderr=True,
-    # [ASCENSION 1]: IOCTL SHIELD
-    # Hardcoding width/interactive for pipes prevents Rich from probing the device.
-    width=120 if not _IS_TTY else None,
-    force_interactive=False if not _IS_TTY else None,
-    # [ASCENSION 2]: CHROMATIC SOVEREIGNTY
-    # We allow colors if it is a TTY OR if the Architect has willed it via ENV.
-    force_terminal=True if (_IS_TTY or os.getenv("FORCE_COLOR") == "1") else None,
-    soft_wrap=not _IS_TTY
+    # [ASCENSION 1]: IOCTL SHIELD & WASM GEOMETRY
+    # In WASM, we cannot query window size via IOCTL. We force a standard width.
+    width=120 if (not _IS_TTY or _IS_WASM) else None,
+
+    # [ASCENSION 2]: INTERACTIVITY FORCE
+    # WASM is interactive via XTerm.js, even if Python sees a pipe. We force it.
+    force_interactive=True if _IS_WASM else (False if not _IS_TTY else None),
+
+    # [ASCENSION 3]: CHROMATIC SOVEREIGNTY
+    # We mandate ANSI output in WASM to prevent the "<rich.panel...>" heresy.
+    force_terminal=True if (_IS_TTY or _IS_WASM or os.getenv("FORCE_COLOR") == "1") else None,
+
+    # [ASCENSION 4]: WRAPPING BEHAVIOR
+    # We want hard wrapping in WASM to respect the 120 char limit visually.
+    soft_wrap=not _IS_TTY and not _IS_WASM
 )
 
 # --- ELEVATION 6: THE TELEPATHIC LINK (CALLBACK REGISTRY) ---

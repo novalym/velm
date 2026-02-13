@@ -230,15 +230,27 @@ class QuantumCreator:
 
     def _adjudicate_paths_forensically(self):
         """
-        [FACULTY 1]: THE SOCRATIC PATH INQUISITOR.
-        The absolute guard against Parser Leaks. We audit the plan before the strike.
+        =============================================================================
+        == THE SOCRATIC PATH INQUISITOR (V-Ω-IDENTITY-LOCK-ASCENDED)               ==
+        =============================================================================
+        LIF: ∞ | ROLE: TOPOGRAPHICAL_GUARDIAN | RANK: OMEGA_SOVEREIGN
+
+        [THE CURE]: This rite now includes the Case-Identity Collision Guard. It
+        ensures that every coordinate in the willed reality has a single, immutable
+        nature. A path cannot exist as both a Scripture (File) and a Sanctum (Dir).
         """
-        self.Logger.verbose("Conducting forensic path inquisition...")
+        self.Logger.verbose("Conducting forensic path inquisition and identity check...")
+
+        # [ASCENSION: THE IDENTITY REGISTRY]
+        # Maps normalized path strings to their willed 'is_dir' status.
+        willed_identities: Dict[str, bool] = {}
 
         for item in self.scaffold_items:
             if not item.path: continue
 
+            # Normalization to POSIX standard for cross-platform identity parity
             path_str = str(item.path)
+            normalized_coord = path_str.replace('\\', '/').rstrip('/').lower()
 
             # --- CHECK 1: PHYSICAL PROFANITY (WinError 123) ---
             if self.PROFANE_PATH_CHARS.search(path_str):
@@ -262,6 +274,38 @@ class QuantumCreator:
                     suggestion=f"Check the block boundaries around line {item.line_num}.",
                     severity=HeresySeverity.CRITICAL
                 )
+
+            # --- CHECK 3: IDENTITY COLLISION (THE CURE) ---
+            # [ASCENSION: ONTOLOGICAL CONSISTENCY]
+            # Verifies that a coordinate designated as a File isn't later willed as a Directory.
+            if normalized_coord in willed_identities:
+                original_is_dir = willed_identities[normalized_coord]
+
+                if original_is_dir != item.is_dir:
+                    original_nature = "Sanctum (Directory)" if original_is_dir else "Scripture (File)"
+                    attempted_nature = "Sanctum (Directory)" if item.is_dir else "Scripture (File)"
+
+                    raise ArtisanHeresy(
+                        f"Topographical Heresy: Identity Collision for '{path_str}'.",
+                        line_num=item.line_num,
+                        details=(
+                            f"The coordinate '{path_str}' is suffering from an Ontological Schism. "
+                            f"It was previously willed as a {original_nature}, but line {item.line_num} "
+                            f"attempts to manifest it as a {attempted_nature}."
+                        ),
+                        suggestion=(
+                            "Ensure that file definitions with content (:: \"\") are not followed by "
+                            "indented children, which would promote them to directories. "
+                            "Check your blueprint indentation logic."
+                        ),
+                        severity=HeresySeverity.CRITICAL
+                    )
+
+            # Record the identity for future collision detection
+            willed_identities[normalized_coord] = item.is_dir
+
+        self.Logger.success(
+            f"Forensic Inquest: [green]PASSED[/green]. {len(willed_identities)} unique identities verified.")
 
     def _conduct_metabolic_audit(self):
         """[FACULTY 4]: METABOLIC TRIAGE."""

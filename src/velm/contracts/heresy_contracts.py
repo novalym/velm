@@ -5,8 +5,7 @@ import time
 import uuid
 import re
 from enum import Enum, auto
-from typing import Optional, Any, List, TYPE_CHECKING, Dict
-
+from typing import Optional, Any, List, Dict, Union, TYPE_CHECKING
 from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator, PrivateAttr, computed_field
 
 if TYPE_CHECKING:
@@ -334,125 +333,187 @@ class Heresy(BaseModel):
 # Rebuild model to register self-referential 'children'
 Heresy.model_rebuild()
 
+
 class ArtisanHeresy(Exception):
     """
     =============================================================================
-    == THE EXCEPTION OF THE ARTISAN (CONTROL FLOW VESSEL - ASCENDED)           ==
+    == THE EXCEPTION OF THE ARTISAN: OMEGA TOTALITY (V-Ω-TRANS-LUMINOUS)       ==
     =============================================================================
-    The divine, sentient Python Exception used to halt execution flow within the
-    Engine. It has been ascended to carry the full, Gnostic soul of any paradox
-    that it captures, including the raw traceback object for forensic inquests.
+    LIF: ∞ | ROLE: PARADOX_CAPSULE | RANK: OMEGA_SUPREME
+    AUTH_CODE: Ω_HERESY_V9000_FINALIS_2026
+
+    The supreme, sentient Python Exception. It has achieved total semantic
+    absorption, allowing it to carry the full, Gnostic soul of any paradox
+    across the Gnostic Spine. It is hardened against "Unexpected Keyword"
+    heresies via the Law of the Infinite Sieve (**kwargs).
     =============================================================================
     """
 
     def __init__(self,
                  message: str,
                  *,
+                 code: str = "GENERAL_HERESY",  # [THE FIX]: THE PRIMARY ANCHOR
                  exit_code: int = 1,
                  suggestion: Optional[str] = None,
                  details: Optional[str] = None,
                  child_heresy: Optional[BaseException] = None,
-                 details_panel: Optional[Any] = None,
                  line_num: Optional[int] = None,
-                 severity: HeresySeverity = HeresySeverity.CRITICAL,
-                 heresies: Optional[List['Heresy']] = None,
+                 column_num: Optional[int] = None,
+                 severity: Any = None,  # Will be mapped to HeresySeverity
                  fix_command: Optional[str] = None,
+                 documentation_url: Optional[str] = None,
                  # [[[ THE DIVINE ASCENSION: THE SOUL OF THE PARADOX ]]]
-                 # We now consecrate a vessel to hold the traceback's very essence.
-                 traceback_obj: Optional[Any] = None
-                 # [[[ THE APOTHEOSIS IS COMPLETE ]]]
+                 traceback_obj: Optional[Any] = None,
+                 details_panel: Optional[Any] = None,
+                 # [[[ THE INFINITE SIEVE ]]]
+                 # Absorbs any future alchemical metadata without shattering.
+                 **kwargs: Any
                  ):
         """
-        The Rite of Inception for a Paradox.
+        The Rite of Inception for a Transcended Paradox.
         """
+        self.id: str = str(uuid.uuid4())
+        self.timestamp: float = time.time()
+
         self.message = message
+        self.code = code.upper()  # Standardize the law code
         self.exit_code = exit_code
         self.suggestion = suggestion
         self.details = details
         self.child_heresy = child_heresy
         self.line_num = line_num
-        self.details_panel = details_panel
-        self.severity = severity
-        self.heresies = heresies or []
+        self.column_num = column_num
         self.fix_command = fix_command
-        # [[[ THE DIVINE HEALING: THE SOUL IS ENSHRINED ]]]
-        self.traceback_obj = traceback_obj
-        # [[[ THE GNOSIS IS NOW WHOLE ]]]
+        self.doc_url = documentation_url
 
-        # We forge the string representation immediately for standard logging
-        super().__init__(self.get_proclamation())
+        # [ASCENSION]: METABOLIC ABSORPTION
+        # Store all extra keywords in the Gnostic Sarcophagus
+        self.metadata = kwargs
+        self.traceback_obj = traceback_obj
+        self.details_panel = details_panel
+
+        # [ASCENSION]: SEVERITY ADJUDICATION
+        from .heresy_contracts import HeresySeverity
+        if severity is None:
+            self.severity = HeresySeverity.CRITICAL
+        elif isinstance(severity, str):
+            self.severity = HeresySeverity[severity.upper()]
+        else:
+            self.severity = severity
+
+        # Forge the initial proclamation for standard loggers
+        super().__init__(self.message)
+
+    # =========================================================================
+    # == THE RITES OF REVELATION (DISPLAY)                                   ==
+    # =========================================================================
 
     def get_proclamation(self, indent_level: int = 0) -> str:
         """
         Forges the luminous, hierarchical scripture of the heresy for textual display.
-        NOW ASCENDED to proclaim the full traceback soul if it is manifest.
+        Includes high-fidelity traceback reconstruction and metadata scrying.
         """
-        # Lazy import to avoid hard dependency on Rich at module level
         try:
             from rich.markup import escape
             from rich.traceback import Traceback
-            import io
+            from rich.console import Console
         except ImportError:
-            escape = lambda s: s
-            Traceback = None
+            # Fallback to humble plain-text if the Rich Artisan is unmanifest
+            return f"[{self.code}] {self.message} (Line: {self.line_num})"
 
         indent = "  " * indent_level
-        severity_label = self.severity.name
 
-        proclamation = [f"{indent}[{severity_label}] {escape(self.message)}"]
+        # 1. CORE PROCLAMATION
+        proclamation = [
+            f"{indent}[bold red]💀 HERESY DETECTED:[/bold red] [white]{escape(self.message)}[/white]",
+            f"{indent}   [dim]Code: {self.code} | ID: {self.id[:8]}[/dim]"
+        ]
 
-        if self.details:
-            proclamation.append(f"{indent}  Details: {escape(self.details)}")
+        # 2. THE GEOMETRIC LOCUS
+        if self.line_num:
+            loc = f"Ln {self.line_num}" + (f", Col {self.column_num}" if self.column_num else "")
+            proclamation.append(f"{indent}   [bold cyan]Locus:[/] {loc}")
 
+        # 3. THE MENTOR'S COUNSEL
         if self.suggestion:
-            proclamation.append(f"{indent}  Suggestion: {escape(self.suggestion)}")
+            proclamation.append(f"{indent}   [bold green]Cure:[/] {escape(self.suggestion)}")
 
         if self.fix_command:
-            proclamation.append(f"{indent}  Redemption: `{escape(self.fix_command)}`")
+            proclamation.append(f"{indent}   [bold magenta]Strike:[/] `[italic]{escape(self.fix_command)}[/italic]`")
 
-        if self.heresies:
-            proclamation.append(f"{indent}  Nested Heresies:")
-            for h in self.heresies:
-                proclamation.append(f"{indent}    - {escape(h.message)}")
+        # 4. THE DEEP SCRIPTURE (DETAILS)
+        if self.details:
+            proclamation.append(f"\n{indent}[bold]Forensic Context:[/bold]")
+            proclamation.append(f"{indent}  {escape(self.details)}")
 
-        # [[[ THE DIVINE HEALING: THE LAW OF THE UNBROKEN CHAIN ]]]
-        # The Heresy now speaks its complete, Gnostic truth.
+        # 5. THE CAUSAL CHAIN (RECURSION)
         if self.child_heresy:
-            proclamation.append(f"{indent}  Caused by:")
+            proclamation.append(f"\n{indent}[bold yellow]Causal Origin:[/bold yellow]")
             if isinstance(self.child_heresy, ArtisanHeresy):
                 proclamation.append(self.child_heresy.get_proclamation(indent_level + 1))
             else:
-                # If we have the full traceback object, we use it for a rich display.
-                if self.traceback_obj and Traceback:
+                # [THE CURE]: HIGH-FIDELITY TRACEBACK MATERIALIZATION
+                if self.traceback_obj:
                     string_io = io.StringIO()
-                    # We create a temporary console to capture the rich output as a string
-                    from rich.console import Console
-                    temp_console = Console(file=string_io, force_terminal=True, color_system="truecolor")
+                    temp_console = Console(file=string_io, force_terminal=True, color_system="truecolor", width=100)
 
                     tb = Traceback.from_exception(
                         type(self.child_heresy),
                         self.child_heresy,
                         self.traceback_obj,
-                        show_locals=False,  # Set to True for hyper-diagnostics if needed
-                        word_wrap=True
+                        show_locals=True,
+                        word_wrap=True,
+                        theme="monokai"
                     )
                     temp_console.print(tb)
-                    traceback_str = string_io.getvalue()
-
-                    # Indent the captured traceback for correct hierarchical display
-                    indented_tb = "\n".join([f"{indent}    {line}" for line in traceback_str.splitlines()])
+                    indented_tb = "\n".join([f"{indent}    {line}" for line in string_io.getvalue().splitlines()])
                     proclamation.append(indented_tb)
                 else:
-                    # Fallback to the humble, non-luminous proclamation.
                     proclamation.append(
-                        f"{indent}    {self.child_heresy.__class__.__name__}: {escape(str(self.child_heresy))}")
-        # [[[ THE APOTHEOSIS IS COMPLETE. THE TRUTH IS NOW LUMINOUS. ]]]
+                        f"{indent}    {type(self.child_heresy).__name__}: {escape(str(self.child_heresy))}")
+
+        # 6. THE GNOSTIC SARCOPHAGUS (METADATA)
+        if self.metadata and indent_level == 0:
+            proclamation.append(f"\n[dim]Metadata Shards: {list(self.metadata.keys())}[/dim]")
 
         return "\n".join(proclamation)
 
+    def to_heresy_vessel(self) -> 'Heresy':
+        """
+        =============================================================================
+        == THE RITE OF SERIALIZATION (TO PYDANTIC)                                 ==
+        =============================================================================
+        Transmutes the living exception into a static Gnostic Vessel for
+        telemetry to the Ocular HUD.
+        """
+        from .data_contracts import Heresy
+
+        return Heresy(
+            code=self.code,
+            message=self.message,
+            severity=self.severity,
+            line_num=self.line_num or 0,
+            column_num=self.column_num or 0,
+            details=self.details or self.get_proclamation(),
+            suggestion=self.suggestion,
+            fix_command=self.fix_command,
+            documentation_url=self.doc_url,
+            metadata={
+                **self.metadata,
+                "exit_code": self.exit_code,
+                "timestamp": self.timestamp,
+                "trace_id": self.metadata.get("trace_id", "local")
+            }
+        )
+
     def __str__(self) -> str:
-        # We return the safe proclamation string
         return self.get_proclamation()
+
+    def __repr__(self) -> str:
+        return f"<Ω_ArtisanHeresy code={self.code} id={self.id[:8]}>"
+
+
+# == SCRIPTURE SEALED: THE ARTISAN'S LAMENT IS NOW OMNISCIENT ==
 
 
 class SyntaxHeresy(Heresy):
