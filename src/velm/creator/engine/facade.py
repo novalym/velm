@@ -13,7 +13,7 @@ import time
 import re
 import traceback
 import sys
-from contextlib import nullcontext
+from contextlib import nullcontext, AbstractContextManager
 from pathlib import Path
 from typing import List, Optional, Dict, Any, TYPE_CHECKING, Tuple, Union, Set
 
@@ -38,6 +38,59 @@ from ...core.sanitization.ghost_buster import GhostBuster
 
 if TYPE_CHECKING:
     from ...parser_core.parser import ApotheosisParser
+
+
+class GnosticStatusShim(AbstractContextManager):
+    """
+    =============================================================================
+    == THE GNOSTIC STATUS SHIM (V-Ω-SUBSTRATE-AWARE)                           ==
+    =============================================================================
+    A polymorphic context manager that adapts its behavior to the physical laws
+    of the substrate.
+
+    1. IRON (Native): Delegates to `rich.status` for threaded animations.
+    2. ETHER (WASM): Emits synchronous log pulses, bypassing `threading` which
+       causes `RuntimeError` in Pyodide.
+    """
+
+    def __init__(self, console, message: str, silent: bool = False):
+        self.console = console
+        self.message = message
+        self.silent = silent
+        self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+        self._native_status = None
+
+        if not self.is_wasm and not self.silent and hasattr(self.console, "status"):
+            try:
+                self._native_status = self.console.status(message)
+            except Exception:
+                self._native_status = None
+
+    def __enter__(self):
+        if self.silent: return self
+
+        if self.is_wasm:
+            # Synchronous Proclamation for Single-Threaded Reality
+            # We use a distinct color to signify Kinetic Activity without animation
+            self.console.print(f"[bold cyan]>> {self.message}[/bold cyan]")
+        elif self._native_status:
+            self._native_status.start()
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self._native_status:
+            self._native_status.stop()
+
+    def update(self, message: str):
+        if self.silent: return
+
+        if self.is_wasm:
+            # In WASM, 'update' becomes a discrete log event
+            self.console.print(f"[bold cyan]>> {message}[/bold cyan]")
+        elif self._native_status:
+            self._native_status.update(message)
+
 
 Logger = Scribe("QuantumCreator")
 
@@ -782,44 +835,15 @@ class QuantumCreator:
     def run(self) -> QuantumRegisters:
         """
         =================================================================================
-        == THE OMEGA STRIKE: TOTALITY (V-Ω-TOTALITY-V1000.5-FINAL-LUSTRATION)          ==
+        == THE OMEGA STRIKE: TOTALITY (V-Ω-TOTALITY-V1000.5-SUBSTRATE-HEALED)          ==
         =================================================================================
         LIF: ∞ | ROLE: KINETIC_SUPREME_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_RUN_V1000_FINAL_LUSTRATION_2026_TOTALITY
 
-        [THE MANIFESTO]
-        This implementation resolves the 'Structural Ghosting' paradox. It enforces
-        the Rite of Final Lustration, ensuring that structural bonds (like py.typed
-        and __init__.py) forged by the Sentinel are transactionally committed to
-        reality before the staging realm collapses.
-
-        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-        1.  **The Rite of Final Lustration (THE CURE)**: Explicitly re-invokes
-            `transaction.materialize()` after the Consecration phase. This is the
-            final suture that moves structural matter from staging to disk.
-        2.  **Geometric Axis Alignment**: Precisely anchors the `consecration_anchor`
-            to ensure the Sentinel gazes exactly where the files physically reside,
-            annihilating the 'Double-Nesting' heresy.
-        3.  **Sovereign Geometric Triage**: Invokes the Adjudicator at nanosecond zero
-            to calculate the one true Axis Mundi (project_root).
-        4.  **Bicameral Identity Lock**: Synchronizes the engine's internal focus
-            with the physical directory structure before any matter is willed.
-        5.  **Isomorphic Register Inception**: Births the QuantumRegisters with
-            absolute spatial parity, carrying the silver-cord `akashic` link.
-        6.  **Thermodynamic Metabolic Triage**: Performs a hardware load biopsy and
-            injects Yield Protocols if the substrate is feverish (>90% CPU).
-        7.  **Atomic Program Compilation**: Topologically orders the instruction set
-            so that directories always precede their scriptures.
-        8.  **Hydraulic I/O Unbuffering**: Directs the CPU to radiate edict logs
-            with zero latency to ensure real-time Architect visibility.
-        9.  **The Sentinel's Final Vow**: Integrates the StructureSentinel to
-            consecrate the physical inodes of the newly forged reality.
-        10. **Achronal Telemetry Pulse**: Multicasts the 'Singularity Achieved' signal
-            to the Ocular HUD via the Akashic record.
-        11. **Fault-Isolated Finalization**: Ensures that post-run purification (Ghost
-            Buster) executes even if non-critical adjudication warnings appear.
-        12. **The Finality Vow**: A mathematical guarantee that the Engine returns
-            a resonant, telemetry-rich result, ending the era of silent fractures.
+        [THE CURE]:
+        We employ the `GnosticStatusShim` to wrap the kinetic strike. This shim
+        intelligently detects if we are in the WASM substrate and bypasses the
+        threading calls of `rich.status`, replacing them with synchronous
+        Gnostic Log Pulses.
         =================================================================================
         """
         import time
@@ -829,19 +853,17 @@ class QuantumCreator:
         from pathlib import Path
         from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
-        # [ASCENSION 4]: NANO-SCALE METABOLIC ANCHOR
         start_ns = time.perf_counter_ns()
 
-        # --- MOVEMENT 0: THE ACHRONAL STATUS SUTURE ---
-        status_ctx = contextlib.nullcontext()
-        if not self.silent and hasattr(self.console, "status"):
-            try:
-                status_ctx = self.console.status("[bold green]The Great Work is advancing...")
-            except Exception:
-                status_ctx = contextlib.nullcontext()
+        # [ASCENSION 13]: THE SUBSTRATE-AWARE STATUS SUTURE
+        # We forge a context manager that honors the laws of the current reality.
+        # This replaces the native console.status call which fractures in WASM.
+        status_ctx = GnosticStatusShim(
+            self.console,
+            "[bold green]The Great Work is advancing...",
+            silent=self.silent
+        )
 
-        # [ASCENSION 12]: THE NONE-TYPE SARCOPHAGUS
-        # Pre-initialize return vessel to prevent 'UnboundLocalError' during failures.
         registers: Optional[QuantumRegisters] = None
 
         try:
@@ -849,11 +871,9 @@ class QuantumCreator:
             # == MOVEMENT I: THE RITE OF GEOMETRIC SOVEREIGNTY                       ==
             # =========================================================================
             # We adjudicate the topography ONCE. This is the One True Decision.
-            # This call updates item paths in-place if FOLD is active.
             geometric_decision = self._reconcile_geometric_schism()
 
             # Resolve the absolute project_root based on the Fold/Preserve decision.
-            # This is where the Maestro will conduct kinetic edicts.
             if str(geometric_decision) == ".":
                 self.project_root = self.base_path
             else:
@@ -907,6 +927,7 @@ class QuantumCreator:
             # =========================================================================
             # == MOVEMENT VII: THE KINETIC STRIKE (MATERIALIZATION)                 ==
             # =========================================================================
+            # [THE FIX]: We enter the GnosticStatusShim, safe in any reality.
             with status_ctx:
                 # strike the primary matter willed by the blueprint
                 cpu.execute()
@@ -915,13 +936,10 @@ class QuantumCreator:
                 if not self.is_simulation:
                     # [ASCENSION 2]: GEOMETRIC FINALITY (THE CURE)
                     # We must determine the correct physical anchor for the StructureSentinel.
-                    # By anchoring to base_path, we match the prefix logic in the item paths.
                     consecration_anchor = self.base_path.resolve()
 
                     if self.is_local_realm:
-                        if not self.silent and hasattr(status_ctx, 'update'):
-                            status_ctx.update("[bold yellow]Consecrating Reality Structure...[/]")
-
+                        status_ctx.update("[bold yellow]Consecrating Reality Structure...[/]")
                         for item in self.scaffold_items:
                             if not item.is_dir and item.path:
                                 # We construct the absolute physical path of the item
@@ -935,8 +953,7 @@ class QuantumCreator:
 
                     # --- MOVEMENT IX: ADJUDICATION OF SOUL PURITY ---
                     if self.adjudicate_souls and self.transaction:
-                        if not self.silent and hasattr(status_ctx, 'update'):
-                            status_ctx.update("[bold purple]Adjudicating Soul Purity...[/]")
+                        status_ctx.update("[bold purple]Adjudicating Soul Purity...[/]")
                         self.adjudicator.conduct_sentinel_inquest()
 
                     # Finalize the .gitignore ward
@@ -947,16 +964,14 @@ class QuantumCreator:
                     # =========================================================================
                     # [ASCENSION 1]: This is the most critical movement.
                     # We command the transaction to materialize AGAIN.
-                    # This moves the __init__.py and py.typed files from Staging to Reality.
                     if self.transaction and not self.transaction.simulate:
-                        self.Logger.verbose("Conducting Rite of Final Lustration (Committing structural bonds)...")
+                        self.Logger.verbose("Conducting Rite of Final Lustration...")
                         self.transaction.materialize()
                     # =========================================================================
 
                     # [ASCENSION 11]: PURIFICATION (GHOST BUSTER)
                     if self.clean_empty_dirs and self.is_local_realm:
-                        if not self.silent and hasattr(status_ctx, 'update'):
-                            status_ctx.update("[bold grey]Purging Entropy...[/]")
+                        status_ctx.update("[bold grey]Purging Entropy...[/]")
                         from ...core.sanitization.ghost_buster import GhostBuster
                         GhostBuster(root=self.project_root, protected_paths=self.sacred_paths).exorcise()
 

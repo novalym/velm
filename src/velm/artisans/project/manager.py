@@ -1,7 +1,5 @@
-# src/velm/artisans/project/manager.py
-# ------------------------------------
-# LIF: INFINITY | ROLE: MULTIVERSE_OVERSEER | RANK: OMEGA_SOVEREIGN
-# AUTH: Ω_MANAGER_V9000_SEED_HYDRATED_FINALIS
+# Path: src/velm/artisans/project/manager.py
+# ------------------------------------------
 
 import time
 import shutil
@@ -14,7 +12,6 @@ from typing import List, Optional, Dict, Any, Union
 from .contracts import RegistrySchema, ProjectMeta, ProjectStats
 from .persistence import RegistryPersistence
 from .constants import DEFAULT_WORKSPACE_DIR_NAME, SYSTEM_OWNER_ID, GUEST_OWNER_ID
-from .seeds import SEED_VAULT  # [ASCENSION 1]: The DNA Vault
 
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ...logger import Scribe
@@ -50,7 +47,10 @@ class ProjectManager:
         self.workspaces_root = self.persistence.root / DEFAULT_WORKSPACE_DIR_NAME
 
         # [ASCENSION 9]: Idempotent Directory Forging
-        self.workspaces_root.mkdir(parents=True, exist_ok=True)
+        try:
+            self.workspaces_root.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass  # In WASM, permissions might be strict, but we proceed in memory.
 
         # [ASCENSION 2]: Achronal State Repair
         # We perform a lazy audit on boot to ensure active_project_id points to reality.
@@ -81,8 +81,6 @@ class ProjectManager:
                 continue
 
             # [ASCENSION 6]: Owner-ID Normalization Logic
-            # Guests see Guest projects + System Demos.
-            # Users see Their projects + Guest projects (if unclaimed) + System Demos.
             if owner_id:
                 is_owner = p.owner_id == owner_id
                 is_guest = p.owner_id == GUEST_OWNER_ID
@@ -112,6 +110,12 @@ class ProjectManager:
         """
         The Rite of Genesis. Allocates space, seeds matter, and registers the soul.
         """
+        # [THE CURE]: Safe Import of Seeds to prevent Circularity
+        try:
+            from .seeds import SEED_VAULT
+        except ImportError:
+            SEED_VAULT = {"blank": {"README.md": "# Void"}}
+
         # [ASCENSION 7]: Template Validation Oracle
         if template not in SEED_VAULT:
             Logger.warn(f"Template '{template}' unknown. Falling back to 'blank'.")
@@ -128,11 +132,9 @@ class ProjectManager:
             project_path.mkdir(parents=True, exist_ok=True)
 
             # 2. [ASCENSION 1]: ATOMIC SEED HYDRATION
-            # We breathe life into the void using the Seed Bank.
-            self._hydrate_sanctum(project_path, template)
+            self._hydrate_sanctum(project_path, template, SEED_VAULT)
 
             # 3. [ASCENSION 3]: METABOLIC MASS CALCULATION
-            # We measure the weight of the reality we just forged.
             stats = self._measure_reality(project_path)
 
             # 4. Forge Metadata
@@ -177,12 +179,12 @@ class ProjectManager:
                 shutil.rmtree(project_path)
             raise ArtisanHeresy(f"Genesis Fracture: {e}", severity=HeresySeverity.CRITICAL)
 
-    def _hydrate_sanctum(self, root: Path, template_id: str):
+    def _hydrate_sanctum(self, root: Path, template_id: str, vault: Dict):
         """
         [ASCENSION 1]: The Seeding Rite.
         Writes the predefined files from the Vault into the physical directory.
         """
-        seed_data = SEED_VAULT.get(template_id, SEED_VAULT["blank"])
+        seed_data = vault.get(template_id, vault.get("blank", {}))
 
         for rel_path, content in seed_data.items():
             target = root / rel_path
@@ -356,7 +358,6 @@ class ProjectManager:
                     link.unlink()
                 elif link.is_dir():
                     # This is the "Boot Ghost" created by the JS layer.
-                    import shutil
                     shutil.rmtree(link)
                     Logger.verbose("Boot Ghost directory purged at /vault/project.")
 
@@ -372,10 +373,12 @@ class ProjectManager:
             Logger.error(f"Reality Anchor Fracture: {e}")
             # [ASCENSION 14]: Emergency Fallback
             # If symlinking is forbidden by the browser, we resort to a Physical Mirror.
-            import shutil
             if not link.exists():
-                shutil.copytree(target_path, link)
-                Logger.warn("Symlink Rite failed. Switched to Physical Mirroring.")
+                try:
+                    shutil.copytree(target_path, link)
+                    Logger.warn("Symlink Rite failed. Switched to Physical Mirroring.")
+                except Exception as ex:
+                    Logger.critical(f"Physical Mirroring Failed: {ex}")
 
     def bootstrap_multiverse(self):
         """
@@ -387,7 +390,9 @@ class ProjectManager:
         # [ASCENSION 1]: Only seed if the registry is a total void.
         if len(self.registry.projects) > 0:
             if self.registry.active_project_id:
-                self.switch_project(self.registry.active_project_id)
+                # If we have an active ID but the link is broken, fix it.
+                if os.environ.get("SCAFFOLD_ENV") == "WASM":
+                    self.switch_project(self.registry.active_project_id)
             return
 
         Logger.info("🌌 Primordial Void perceived. Materializing Reference Realities...")
@@ -404,7 +409,6 @@ class ProjectManager:
         )
 
         # 2. THE CANONICAL EXHIBITS
-        # These are forged but remain in the dashboard "Library"
         exhibits = [
             ("V-Omega API", "High-throughput FastAPI microservice template.", "fastapi-service", ["backend"]),
             ("Ocular Membrane", "React/Vite frontend structure.", "react-vite", ["frontend"]),
@@ -422,7 +426,18 @@ class ProjectManager:
             )
 
         # 3. THE FINAL ANCHOR
-        # Ensure the Engine is standing on the Progenitor Law.
         self.switch_project(progenitor.id)
         Logger.success("💠 Multiverse Inception Complete. Lattice is Resonant.")
 
+    def get_project_stats(self) -> Dict[str, Any]:
+        """Proclaims the metabolic mass of the active project."""
+        if not self.registry.active_project_id:
+            return {"file_count": 0, "size_kb": 0}
+
+        project = self.registry.projects[self.registry.active_project_id]
+        return {
+            "file_count": project.stats.file_count,
+            "size_kb": project.stats.size_kb,
+            "id": project.id,
+            "name": project.name
+        }
