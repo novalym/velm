@@ -6,7 +6,7 @@
 =================================================================================
 LIF: 10,000,000,000,000,000,000,000,000,000,000,000
 
-This is not a file of code. It is the living, eternal soul of the Scaffold God-Engine's
+This is not a file of code. It is the living, eternal soul of the Velm God-Engine's
 intelligence. It is the sacred, declarative "Standard Library" of the Scaffold
 language, a Gnostic Grimoire that teaches every artisan in our cosmos the one true
 vocabulary of architectural intent.
@@ -266,7 +266,7 @@ ARCHITECTURAL_CANON: List[GnosticPrimitive] = [
         category="Core Identity",
         description="The luminous, one-sentence Gnostic essence of the project's purpose.",
         prophecy_rite=_prophesy_description_from_readme,
-        default_value="A new reality forged by the Scaffold God-Engine."
+        default_value="A new reality forged by the Velm God-Engine."
     ),
     GnosticPrimitive(
         key="version",

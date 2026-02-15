@@ -75,6 +75,7 @@ class ContextForge:
     }
 
     def __init__(self, registers: QuantumRegisters, alchemist: DivineAlchemist):
+        self.Logger = Logger
         self.regs = registers
         self.alchemist = alchemist
         self._scry_cache: Dict[str, Tuple[float, List[str]]] = {}
@@ -277,18 +278,108 @@ class ContextForge:
             return paths
 
     def _resolve_sanctum(self) -> Path:
-        """[ASCENSION 3]: THE GNOSTIC ANCHOR (HEALED)."""
-        sanctum_root = Path(self.regs.sanctum.root)
-        logical_root = self.regs.project_root
+        """
+        =================================================================================
+        == THE GNOSTIC ANCHOR: OMEGA POINT (V-Ω-TOTALITY-V350.0-UNBREAKABLE)           ==
+        =================================================================================
+        LIF: ∞ | ROLE: GEOMETRIC_COORDINATE_ORACLE | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_RESOLVE_SANCTUM_V350_FINAL_SUTURE_2026
 
-        if not logical_root or str(logical_root) == ".":
-            return sanctum_root.resolve()
+        [THE MANIFESTO]
+        This rite calculates the one true Axis Mundi (CWD) for a kinetic strike. It has
+        been ascended to its final, eternal form, hardened against all known spatial,
+        substrate, and temporal paradoxes. It is the unbreakable geometric conscience
+        of the God-Engine.
+        =================================================================================
+        """
+        import os
+        import platform
+        import time
+        import unicodedata
+        from pathlib import Path
 
-        # Use realpath to resolve symlinks and '..' segments before anchoring
-        cwd = (sanctum_root / logical_root).resolve()
-        if not cwd.exists():
-            return sanctum_root.resolve()
-        return cwd
+        # [ASCENSION 8]: NANOSECOND TOMOGRAPHY
+        start_ns = time.perf_counter_ns()
+
+        # [ASCENSION 9]: LUMINOUS TRACE SUTURE
+        trace_id = getattr(self.regs, 'trace_id', 'tr-void')
+
+        try:
+            # --- MOVEMENT I: SENSORY ADJUDICATION (THE ROOTS) ---
+            # 1. Scry the physical substrate root (The Earthly Anchor)
+            # [ASCENSION 5]: SUBSTRATE-AWARE SCRYING
+            try:
+                sanctum_base = Path(self.regs.sanctum.root).resolve()
+            except (AttributeError, TypeError, OSError):
+                sanctum_base = Path.cwd().resolve()
+
+            # 2. Scry the logical project intent (The Soul's Locus)
+            logical_anchor = getattr(self.regs, 'project_root', Path("."))
+
+            # --- MOVEMENT II: GEOMETRIC CONVERGENCE (THE SUTURE) ---
+            # [ASCENSION 10 & 11]: THE VOID SENTINEL & PURE GNOSIS
+            if not logical_anchor or str(logical_anchor) == ".":
+                return sanctum_base
+
+            # [ASCENSION 1]: ACHRONAL PATH NORMALIZATION
+            # We transmute the anchor into a pure, canonical string form.
+            target_path_str = unicodedata.normalize('NFC', str(logical_anchor).replace('\\', '/'))
+            target_path = Path(target_path_str)
+
+            # [ASCENSION 6]: THE ABSOLUTE PATH SUTURE
+            if target_path.is_absolute():
+                resolved_cwd = target_path.resolve()
+            else:
+                # [THE CURE]: This is the critical join. It takes the execution
+                # directory (e.g., .../new_test) and joins it with the project
+                # slug (e.g., sentinel_api) to find the true CWD.
+                resolved_cwd = (sanctum_base / target_path).resolve()
+
+            # --- MOVEMENT III: GEOMETRIC ADJUDICATION (SECURITY) ---
+            # [ASCENSION 4]: THE UNBREAKABLE CONTAINMENT WARD
+            try:
+                sanctum_base_str = str(sanctum_base)
+                resolved_cwd_str = str(resolved_cwd)
+
+                common = os.path.commonpath([sanctum_base_str, resolved_cwd_str])
+
+                # Case-Insensitive Parity for Windows/MacOS.
+                if platform.system() in ("Windows", "Darwin"):
+                    is_contained = common.lower() == sanctum_base_str.lower()
+                else:
+                    is_contained = common == sanctum_base_str
+
+                if not is_contained:
+                    self.Logger.warn(
+                        f"[{trace_id}] Spatial Paradox: Resolved CWD '{resolved_cwd}' escaped sanctum. "
+                        f"Re-anchoring Will to root: '{sanctum_base}'"
+                    )
+                    return sanctum_base
+            except (ValueError, TypeError):
+                # [ASCENSION 7]: DIMENSIONAL RIFT DETECTION (e.g., C: vs D:)
+                return sanctum_base
+
+            # --- MOVEMENT IV: REALITY BIOPSY (VITALITY CHECK) ---
+            # [ASCENSION 5]: We perform a physical biopsy of the coordinate.
+            if not resolved_cwd.exists() or not resolved_cwd.is_dir():
+                self.Logger.debug(f"Locus Void: '{resolved_cwd.name}' is unmanifest. Defaulting to base.")
+                return sanctum_base
+
+            # --- MOVEMENT V: FORENSIC PROCLAMATION ---
+            duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+            if getattr(self.regs, 'verbose', False):
+                self.Logger.verbose(
+                    f"Axis Mundi Locked: [green]{resolved_cwd}[/green] ({duration_ms:.2f}ms)"
+                )
+
+            # [ASCENSION 12]: THE FINALITY VOW
+            # The coordinate is verified, contained, resonant, and returned as a pure Path object.
+            return resolved_cwd
+
+        except Exception as paradox:
+            # The geometric resolution must never shatter the Engine.
+            self.Logger.debug(f"Geometric Resolution Fracture: {paradox}. Defaulting to substrate root.")
+            return Path.cwd().resolve()
 
     def _get_gnostic_dict(self) -> Dict[str, Any]:
         """[FACULTY 6]: THE GNOSTIC WARD (HARDENED)."""

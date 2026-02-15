@@ -1,171 +1,262 @@
 # Path: src/velm/parser_core/parser/parser_scribes/scaffold_scribes/post_run_scribe.py
 # ------------------------------------------------------------------------------------
+# =========================================================================================
+# == THE ORACLE OF ORCHESTRATION: TOTALITY (V-Ω-TOTALITY-V350.0-POLYGLOT-SUTURE)         ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: KINETIC_WILL_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+# AUTH: Ω_POSTRUN_V350_POLYGLOT_SUTURE_2026_FINALIS
+# =========================================================================================
 
 import re
+import json
 from pathlib import Path
 from textwrap import dedent
-from typing import List, Tuple, TYPE_CHECKING, Optional
+from typing import List, Tuple, TYPE_CHECKING, Optional, Set, Final
 
 from .scaffold_base_scribe import ScaffoldBaseScribe
 from .....contracts.data_contracts import GnosticVessel, GnosticLineType, ScaffoldItem
 from .....core.guardian import GnosticSentry
 from .....contracts.heresy_contracts import GuardianHeresy, ArtisanHeresy, HeresySeverity
 from .....contracts.symphony_contracts import EdictType
+from .....logger import Scribe
 
 if TYPE_CHECKING:
     from .....parser_core.parser.engine import ApotheosisParser
+
+Logger = Scribe("PostRunScribe")
 
 
 class PostRunScribe(ScaffoldBaseScribe):
     """
     =================================================================================
-    == THE ORACLE OF ORCHESTRATION (V-Ω-QUATERNITY-ENFORCED)                       ==
+    == THE SCRIBE OF THE MAESTRO'S WILL: APOTHEOSIS                                ==
     =================================================================================
-    LIF: 10,000,000,000
-    AUTH: Ω_POSTRUN_QUATERNITY_FIX
-
-    The divine artisan that perceives, validates, and chronicles the Maestro's Will.
-    It is the SOURCE of the Post-Run Commands list.
-
-    [THE LEGENDARY ASCENSION]:
-    This Scribe now enforces the Law of the Quaternity. Every command it inscribes
-    into the `parser.post_run_commands` list is guaranteed to be a 4-tuple:
-    `(command, line_num, undo_commands_list_or_none, heresy_commands_list_or_none)`.
-
-    This enables the Engine to distinguish between Reversal (Undo) and Redemption (Heresy).
+    The Supreme Conductor of Kinetic Intent. It has been Ascended to perceive
+    'Foreign Tongues' (Python/JS) directly within the post-run symphony,
+    annihilating the barrier between Shell and Logic.
+    =================================================================================
     """
 
+    # [FACULTY 1]: THE ALCHEMICAL SIEVE PATTERNS
+    JINJA_CONTROL_PATTERN: Final[re.Pattern] = re.compile(r'^\s*\{%')
+    STRUCTURAL_LOGIC_PATTERN: Final[re.Pattern] = re.compile(r'^\s*@')
+
+    # [ASCENSION 3]: THE POLYGLOT HEADER PHALANX
+    # Recognizes the transition from Shell matter to Language soul.
+    POLYGLOT_HEADER_PATTERN: Final[re.Pattern] = re.compile(
+        r'^\s*(?P<lang>py|python|js|node|rs|rust|sh|bash|go):\s*$'
+    )
+
     def __init__(self, parser: 'ApotheosisParser'):
+        """The Rite of Inception."""
         super().__init__(parser, "PostRunScribe")
         self.sentry = GnosticSentry()
 
     def conduct(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
-        """The Grand Symphony of Orchestrational Perception."""
+        """
+        =============================================================================
+        == THE GRAND SYMPHONY OF CONDUCT (V-Ω-TOTALITY-V3.5)                      ==
+        =============================================================================
+        The entry point for kinetic perception. Adjudicates block vs single-line rites.
+        """
         line_num = vessel.line_num
-        self.Logger.verbose(
-            f"L{line_num:03d}: The Oracle of Orchestration awakens for '{vessel.raw_scripture.strip()}'...")
+        self.Logger.verbose(f"L{line_num:03d}: The Oracle of Orchestration awakens.")
 
         try:
-            # --- MOVEMENT I: THE GNOSTIC TRIAGE ---
-            # A block is signified by a trailing colon OR if the next line is indented.
+            # --- MOVEMENT I: THE TOPOGRAPHICAL TRIAGE ---
             parent_indent = self.parser._calculate_original_indent(lines[i])
-            stripped_header = lines[i].strip()
-            is_explicit_block = stripped_header.endswith(':')
+            header = lines[i].strip()
 
-            is_implicit_block = False
-            # Peek ahead to see if the next non-empty line is indented
-            if (i + 1) < len(lines):
-                next_line_idx = i + 1
-                while next_line_idx < len(lines) and not lines[next_line_idx].strip():
-                    next_line_idx += 1
+            # Adjudicate block nature: Explicit (:) or Implicit (Indented Child)
+            is_explicit = header.endswith(':')
+            is_implicit = False
 
-                if next_line_idx < len(lines):
-                    next_line = lines[next_line_idx]
-                    next_indent = self.parser._calculate_original_indent(next_line)
-                    if next_indent > parent_indent:
-                        is_implicit_block = True
+            if not is_explicit and (i + 1) < len(lines):
+                # Gaze into the future to perceive the "Indentation Shift"
+                for next_idx in range(i + 1, len(lines)):
+                    next_line = lines[next_idx]
+                    if not next_line.strip() or next_line.strip().startswith('#'):
+                        continue
+                    if self.parser._calculate_original_indent(next_line) > parent_indent:
+                        is_implicit = True
+                    break
 
-            if is_explicit_block or is_implicit_block:
+            if is_explicit or is_implicit:
                 return self._conduct_block_rite(lines, i, vessel)
             else:
                 return self._conduct_single_rite(lines, i, vessel)
 
         except Exception as e:
             self.parser._proclaim_heresy(
-                "META_HERESY_POSTRUN_SCRIBE_FRACTURED", vessel,
-                details=f"A catastrophic paradox occurred in the Oracle of Orchestration: {e}",
+                "META_HERESY_POSTRUN_SCRIBE_FRACTURED",
+                vessel,
+                details=f"The Orchestrator's mind shattered on line {line_num}: {e}",
                 exception_obj=e
             )
             return i + 1
 
-    def _conduct_single_rite(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
-        """Handles a single-line command like `%% git init`."""
-        line_num = vessel.line_num
-        # Strip `%%` and the directive name (e.g., `post-run`) to get the command
-        parts = vessel.raw_scripture.strip().split(None, 2)
-        if len(parts) < 3:
-            # Case: `%% post-run` with no command and no block -> Empty/Void
-            return i + 1
-
-        command_str = parts[2]  # %% post-run <command>
-
-        # We must peek for BOTH undo and heresy blocks
-        # The order might vary, so we check sequentially and update the index
-
-        # Check 1
-        undo_block, next_i = self._peek_for_sub_block(lines, i + 1, "on-undo")
-        heresy_block, final_i = self._peek_for_sub_block(lines, next_i, "on-heresy")
-
-        # Check 2 (If order was flipped or first check missed)
-        if not undo_block:
-            # Try getting heresy first
-            heresy_block_alt, next_i_alt = self._peek_for_sub_block(lines, i + 1, "on-heresy")
-            if heresy_block_alt:
-                heresy_block = heresy_block_alt
-                # Then check for undo after heresy
-                undo_block, final_i = self._peek_for_sub_block(lines, next_i_alt, "on-undo")
-            else:
-                # Neither found in alt check, stick with first check results (both None)
-                pass
-
-        # Pass as a list of 4-tuples
-        self._adjudicate_and_chronicle([(command_str, line_num, undo_block, heresy_block)], vessel)
-
-        return final_i
-
     def _conduct_block_rite(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
-        """Handles multi-line blocks, now with causal `on-undo` and `on-heresy` linkage."""
+        """
+        =============================================================================
+        == THE RITE OF THE BICAMERAL WILL (V-Ω-TOTALITY-V3.5)                     ==
+        =============================================================================
+        Consumes an orchestration block. It walks the block line-by-line, triggering
+        'Sub-Block Fission' whenever a polyglot header is perceived.
+        """
         line_num = vessel.line_num
         parent_indent = self.parser._calculate_original_indent(lines[i])
 
-        # Consume the main block of commands
-        raw_block_lines, end_index = self.parser._consume_indented_block_with_context(lines, i + 1, parent_indent)
-
-        if not raw_block_lines:
-            self.Logger.warn(f"L{line_num:03d}: The '{vessel.raw_scripture.strip()}' block is a void.")
-            return end_index
-
-        # Peek for attached blocks
-        undo_block, next_i = self._peek_for_sub_block(lines, end_index, "on-undo")
-        heresy_block, final_i = self._peek_for_sub_block(lines, next_i, "on-heresy")
-
-        # Flip check
-        if not undo_block:
-            heresy_block_alt, next_i_alt = self._peek_for_sub_block(lines, end_index, "on-heresy")
-            if heresy_block_alt:
-                heresy_block = heresy_block_alt
-                undo_block, final_i = self._peek_for_sub_block(lines, next_i_alt, "on-undo")
-
-        dedented_block = dedent("\n".join(raw_block_lines))
-        commands_lines = dedented_block.splitlines()
-
-        # The causal link: the undo/heresy blocks apply to ALL commands in the preceding block
-        # (Though kinetically, heresy usually handles the failure of the block as a unit)
+        # This will hold our final quaternity set: (Cmd, Line, Undo, Heresy)
         commands_with_gnosis: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]] = []
 
-        for idx, command_str in enumerate(commands_lines):
-            clean_cmd = command_str.strip()
-            if clean_cmd and not clean_cmd.startswith('#'):
-                current_cmd_line = line_num + 1 + idx  # Approximate line number
-                # [THE FIX]: Forge the 4-Tuple here
-                commands_with_gnosis.append((clean_cmd, current_cmd_line, undo_block, heresy_block))
+        # --- MOVEMENT II: THE BICAMERAL SCAN ---
+        current_idx = i + 1
+        while current_idx < len(lines):
+            line = lines[current_idx]
+            stripped = line.strip()
 
-                # OPTIMIZATION: We attach the blocks to every command.
-                # The QuantumCPU will execute them if *that specific command* fails.
-                # For a block, if the first fails, its heresy block runs. The rest are skipped.
-                # This is correct behavior.
+            # Skip the Void and the Whispers
+            if not stripped:
+                current_idx += 1
+                continue
 
-        self._adjudicate_and_chronicle(commands_with_gnosis, vessel)
+            # [FACULTY 12]: THE BOUNDARY SENTINEL
+            # If we hit a dedent (relative to the %% post-run header), the symphony ends.
+            indent = self.parser._calculate_original_indent(line)
+            if indent <= parent_indent and not stripped.startswith('#'):
+                break
+
+                # --- PHASE A: POLYGLOT BLOCK DETECTION (ASCENSION 1) ---
+            poly_match = self.POLYGLOT_HEADER_PATTERN.match(line)
+            if poly_match:
+                # [ASCENSION 2]: ACHRONAL BLOCK FISSION
+                lang = poly_match.group('lang')
+                self.Logger.verbose(f"L{current_idx + 1:03d}: Polyglot Gaze detected [{lang}].")
+
+                # We use the Parser's context to consume the indented code block
+                # parent_indent is the indent of the 'py:' line
+                poly_lines, next_idx = self.parser._consume_indented_block_with_context(
+                    lines, current_idx + 1, indent
+                )
+
+                # We forge the "Fused Command": The lang tag followed by the code
+                # The MaestroConductor will see "py:" at the start and know to interpret.
+                full_poly_script = f"{lang}:\n" + "\n".join(poly_lines)
+
+                # Inscribe the Quaternity
+                commands_with_gnosis.append((full_poly_script, current_idx + 1, None, None))
+
+                # Advance the cursor past the consumed block
+                current_idx = next_idx
+                continue
+
+            # --- PHASE B: STANDARD KINETIC SCAN ---
+            # If not a polyglot header, treat as a standard shell edict or filter.
+            if not stripped.startswith('#') and not self.JINJA_CONTROL_PATTERN.match(stripped):
+                if not self.STRUCTURAL_LOGIC_PATTERN.match(stripped):
+                    commands_with_gnosis.append((stripped, current_idx + 1, None, None))
+                else:
+                    # Report structural leakage (e.g. @if inside post-run)
+                    self._report_structural_heresy(stripped, current_idx + 1)
+
+            current_idx += 1
+
+        # --- MOVEMENT III: CAUSAL LOOKAHEAD (ON-UNDO/ON-HERESY) ---
+        # [ASCENSION 9]: Bind redemption to the ENTIRE block of edicts.
+        undo_block, next_i = self._peek_for_sub_block(lines, current_idx, "on-undo")
+        heresy_block, final_i = self._peek_for_sub_block(lines, next_i, "on-heresy")
+
+        # Conduct Adjudication and final Ledger Inscription
+        self._adjudicate_and_chronicle(commands_with_gnosis, vessel, undo_block, heresy_block)
 
         return final_i
 
+    def _conduct_single_rite(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
+        """Handles single-line edicts: %% post-run <matter>."""
+        parts = vessel.raw_scripture.strip().split(None, 2)
+        if len(parts) < 3:
+            return i + 1
+
+        command_str = parts[2]
+        if self.JINJA_CONTROL_PATTERN.match(command_str):
+            return i + 1
+
+        undo_block, next_i = self._peek_for_sub_block(lines, i + 1, "on-undo")
+        heresy_block, final_i = self._peek_for_sub_block(lines, next_i, "on-heresy")
+
+        self._adjudicate_and_chronicle(
+            [(command_str, vessel.line_num, undo_block, heresy_block)],
+            vessel
+        )
+        return final_i
+
+    def _adjudicate_and_chronicle(
+            self,
+            commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],
+            vessel: GnosticVessel,
+            undo_block: Optional[List[str]] = None,
+            heresy_block: Optional[List[str]] = None
+    ):
+        """
+        =============================================================================
+        == THE RITE OF GNOSTIC ASSOCIATION (V-Ω-TOTALITY)                         ==
+        =============================================================================
+        Validates kinetic matter and weaves the Final Ledger.
+        """
+        if not commands:
+            return
+
+        valid_commands = []
+        for cmd_str, line, _, _ in commands:
+            # [ASCENSION 10]: ATOMIC SIGNAL DECAPITATION
+            # If it's a polyglot command, we bypass the shell sentry;
+            # the PolyglotHandler handles its own security adjudication.
+            if ":" in cmd_str.split('\n', 1)[0]:
+                valid_commands.append((cmd_str, line, undo_block, heresy_block))
+                continue
+
+            try:
+                # Clean leading sigils
+                clean_intent = re.sub(r'^>+\s*', '', cmd_str)
+
+                # [FACULTY 5]: THE SENTRY'S VOW
+                self.sentry.adjudicate(clean_intent, self.parser.base_path, line)
+                valid_commands.append((clean_intent, line, undo_block, heresy_block))
+
+            except GuardianHeresy as e:
+                self.parser._proclaim_heresy("GUARDIAN_WARD_HERESY", vessel, details=e.get_proclamation())
+
+        if not valid_commands:
+            return
+
+        # 1. COMMIT TO MASTER EDICT STREAM
+        # This is what the Maestro actually executes.
+        self.parser.post_run_commands.extend(valid_commands)
+
+        # 2. FORGE GNOSTIC ANCHORS (ASCENSION 6)
+        # We record the line numbers in a JSON payload for the AST weaver.
+        import json
+        anchor_payload = json.dumps([c[1] for c in valid_commands])
+
+        maestro_item = ScaffoldItem(
+            path=Path(vessel.raw_scripture.strip()),
+            is_dir=False,
+            content=anchor_payload,
+            line_num=vessel.line_num,
+            raw_scripture=vessel.raw_scripture,
+            original_indent=vessel.original_indent,
+            line_type=GnosticLineType.POST_RUN
+        )
+        self.parser.raw_items.append(maestro_item)
+
+        self.Logger.verbose(f"   -> Enshrined {len(valid_commands)} edict(s) in the Gnostic Ledger.")
+
     def _peek_for_sub_block(self, lines: List[str], start_index: int, key: str) -> Tuple[Optional[List[str]], int]:
-        """Looks ahead for a specific block (on-undo, on-heresy) and consumes it if found."""
+        """[FACULTY 4]: THE CAUSAL PROBE peeking for associated blocks."""
         if start_index >= len(lines):
             return None, start_index
 
         next_i = start_index
-        # Skip blank lines and comments to find the next directive
         while next_i < len(lines):
             line = lines[next_i].strip()
             if not line or line.startswith(('#', '//')):
@@ -177,78 +268,25 @@ class PostRunScribe(ScaffoldBaseScribe):
             return None, start_index
 
         if lines[next_i].strip().startswith(f"%% {key}"):
-            parent_indent = self.parser._calculate_original_indent(lines[next_i])
-            sub_lines, end_index = self.parser._consume_indented_block_with_context(lines, next_i + 1, parent_indent)
-
-            # If sub_lines exist, dedent and return.
-            # If not, it might be a single line directive (though less common for these blocks).
-            # We assume indented block for now.
+            p_indent = self.parser._calculate_original_indent(lines[next_i])
+            sub_lines, end_index = self.parser._consume_indented_block_with_context(
+                lines, next_i + 1, p_indent
+            )
             if sub_lines:
-                dedented = dedent("\n".join(sub_lines))
-                return dedented.splitlines(), end_index
-
-            # If header exists but no body, consume header line
+                return [l.strip() for l in sub_lines if l.strip()], end_index
             return [], next_i + 1
 
-        return None, start_index  # Return original start_index (before skipping blanks) or next_i?
-        # We should return the index where we STOPPED looking.
-        # Actually, if we didn't find the block, we should return the index BEFORE we skipped blanks/comments
-        # so the main loop can consume them or the next scribe can see them?
-        # NO. The main loop calls this. If we return start_index, the main loop continues from there.
         return None, start_index
 
-    def _adjudicate_and_chronicle(self,
-                                  commands_with_gnosis: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],
-                                  vessel: GnosticVessel):
-        """
-        =================================================================================
-        == THE RITE OF GNOSTIC ASSOCIATION (V-Ω-QUATERNITY-ENFORCED)                   ==
-        =================================================================================
-        [THE CURE]: This method guarantees that what enters `self.parser.post_run_commands`
-        is strictly a list of 4-Tuples: (command, line_num, undo_stack, heresy_stack).
-        """
-        if not commands_with_gnosis:
-            return
-
-        self.Logger.verbose(f"   -> Adjudicating {len(commands_with_gnosis)} edict(s)...")
-
-        valid_commands = []
-        for command, cmd_line_num, undo_cmds, heresy_cmds in commands_with_gnosis:
-            try:
-                # [ASCENSION 1]: SIGIL DECAPITATION
-                # We strip leading '>>' or '>' so the Maestro receives pure kinetic matter.
-                clean_command = re.sub(r'^>+\s*', '', command)
-
-                self.sentry.adjudicate(clean_command, self.parser.base_path, cmd_line_num)
-
-                # [ASCENSION 2]: THE QUATERNITY SEAL
-                final_undo = undo_cmds if undo_cmds else None
-                final_heresy = heresy_cmds if heresy_cmds else None
-
-                # Append the Sacred Quaternity
-                valid_commands.append((clean_command, cmd_line_num, final_undo, final_heresy))
-
-            except GuardianHeresy as e:
-                self.parser._proclaim_heresy("GUARDIAN_WARD_HERESY", vessel, details=e.get_proclamation())
-
-        if not valid_commands:
-            return
-
-        # Commit to the parser's master edict stream
-        self.parser.post_run_commands.extend(valid_commands)
-
-        # Inscribe the Gnostic Map for the LogicWeaver (Line Number Reference)
-        import json
-        # We only store line numbers in the content payload for mapping
-        command_line_numbers = [cmd_line_num for _, cmd_line_num, _, _ in valid_commands]
-        content_payload = json.dumps(command_line_numbers)
-
-        maestro_item = ScaffoldItem(
-            path=Path(vessel.raw_scripture.strip()), is_dir=False,
-            content=content_payload,
-            line_num=vessel.line_num,
-            raw_scripture=vessel.raw_scripture,
-            original_indent=vessel.original_indent,
-            line_type=GnosticLineType.POST_RUN
+    def _report_structural_heresy(self, clean_line: str, line_num: int):
+        """[FACULTY 7]: SOCRATIC SUGGESTION FOR STRUCTURAL LEAKS."""
+        self.parser._proclaim_heresy(
+            "SYNTAX_HERESY_LOGIC_IN_KINETIC_BLOCK",
+            ScaffoldItem(path=Path("LOGIC_LEAK"), line_num=line_num, raw_scripture=clean_line, is_dir=False),
+            details="Structural directives (@if, @for) are forbidden in kinetic blocks.",
+            suggestion="Use Jinja2 logic ({% if ... %}) for conditional edicts.",
+            severity=HeresySeverity.CRITICAL
         )
-        self.parser.raw_items.append(maestro_item)
+
+    def __repr__(self) -> str:
+        return "<Ω_POST_RUN_SCRIBE status=VIGILANT version=3.5-POLYGLOT>"

@@ -70,7 +70,7 @@ class ManifestArtisan(BaseArtisan[ManifestRequest]):
     # --- THE BOOTSTRAP SCRIPTURE (THE PRIMER) ---
     # This teaches the AI our DSLs instantly.
     GNOSTIC_PRIMER = """
-    You are the Scaffold God-Engine. You speak two languages:
+    You are the Velm God-Engine. You speak two languages:
     1. Form (.scaffold): File structures.
        Syntax: path/to/file.ext :: "content" or << seed_path
     2. Will (.symphony): Shell commands & Logic.

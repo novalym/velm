@@ -678,6 +678,13 @@ src/velm/artisans/preview/parsers/__init__.py
 src/velm/artisans/preview/parsers/base.py
 src/velm/artisans/preview/parsers/html.py
 src/velm/artisans/preview/parsers/react.py
+src/velm/artisans/project/__init__.py
+src/velm/artisans/project/artisan.py
+src/velm/artisans/project/constants.py
+src/velm/artisans/project/contracts.py
+src/velm/artisans/project/manager.py
+src/velm/artisans/project/persistence.py
+src/velm/artisans/project/seeds.py
 src/velm/artisans/prophesy/__init__.py
 src/velm/artisans/prophesy/artisan.py
 src/velm/artisans/qr/__init__.py
@@ -1208,6 +1215,7 @@ src/velm/core/cli/grimoire/_automation_rites.py
 src/velm/core/cli/grimoire/_cloud_rites.py
 src/velm/core/cli/grimoire/_core_rites.py
 src/velm/core/cli/grimoire/_evolution_rites.py
+src/velm/core/cli/grimoire/_governance_rites.py
 src/velm/core/cli/grimoire/_guild_rites.py
 src/velm/core/cli/grimoire/_history_rites.py
 src/velm/core/cli/grimoire/_mimic_rites.py
@@ -1222,6 +1230,7 @@ src/velm/core/cli/grimoire/__pycache__/_ai_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_automation_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_core_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_evolution_rites.cpython-313.pyc
+src/velm/core/cli/grimoire/__pycache__/_governance_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_guild_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_history_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_mimic_rites.cpython-313.pyc
@@ -1941,6 +1950,7 @@ src/velm/core/maestro/handlers/__init__.py
 src/velm/core/maestro/handlers/base.py
 src/velm/core/maestro/handlers/browser.py
 src/velm/core/maestro/handlers/hosts.py
+src/velm/core/maestro/handlers/polyglot.py
 src/velm/core/maestro/handlers/proclaim.py
 src/velm/core/maestro/handlers/raw.py
 src/velm/core/maestro/handlers/shell.py
@@ -1950,6 +1960,7 @@ src/velm/core/maestro/handlers/__pycache__/__init__.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/base.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/browser.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/hosts.cpython-313.pyc
+src/velm/core/maestro/handlers/__pycache__/polyglot.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/proclaim.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/raw.cpython-313.pyc
 src/velm/core/maestro/handlers/__pycache__/shell.cpython-313.pyc

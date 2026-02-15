@@ -171,7 +171,7 @@ class InitializeArtisan(BaseArtisan[InitializeRequest]):
                 }
             },
             "serverInfo": {
-                "name": "Scaffold God-Engine",
+                "name": "Velm God-Engine",
                 "version": "2.3.0-HEALED",
                 "auth_code": "Ω_INIT_PURE_V12"
             }

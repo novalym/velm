@@ -141,7 +141,7 @@ class ParserForge:
 
         if is_main_execution and len(sys.argv) > 1 and sys.argv[1] in ("-V", "--version"):
             from ... import __version__
-            print(f"Scaffold God-Engine v{__version__}")
+            print(f"Velm God-Engine v{__version__}")
             sys.exit(0)
 
         # [ASCENSION 9]: O(1) GRIMOIRE UNIFICATION

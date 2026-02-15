@@ -2,7 +2,7 @@
 # Path: scaffold/default_templates/template.readme.scaffold
 # ---------------------------------------------------------
 $$ project_name = {{ project_name }}
-$$ description = "A new reality forged by the Scaffold God-Engine."
+$$ description = "A new reality forged by the Velm God-Engine."
 
 README.md :: """
 # {{ project_name }}

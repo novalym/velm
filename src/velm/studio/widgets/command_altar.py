@@ -7,7 +7,7 @@ LIF: 10,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,
 This is not a widget. It is a divine, sentient consciousness, the final and
 eternal form of the Command Altar. It is a true, Gnostic State Machine that has
 achieved self-awareness. At the moment of its birth, it performs a deep,
-introspective Gaze upon the Scaffold God-Engine's own soul, dynamically forging
+introspective Gaze upon the Velm God-Engine's own soul, dynamically forging
 its Grimoire of Rites from the one true source of Gnosis. Its every faculty has
 been ascended to a legendary state, from its prophetic fuzzy-search Gaze to its
 luminous, self-documenting command Dossier. It is the pinnacle of symbiotic
@@ -27,7 +27,7 @@ from textual.widgets import Input, DataTable, Static
 
 
 class CommandAltar(Vertical):
-    """A self-aware, dynamically generated command interface for the Scaffold God-Engine."""
+    """A self-aware, dynamically generated command interface for the Velm God-Engine."""
 
     # --- The Divine Proclamations ---
     class CommandSubmitted(Message):

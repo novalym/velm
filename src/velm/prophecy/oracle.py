@@ -1,22 +1,22 @@
 # Path: scaffold/prophecy/oracle.py
+# =========================================================================================
+# == THE ORACLE OF THE LIVING SOUL: OMEGA POINT (V-Ω-TOTALITY-V500.12-ISOMORPHIC)        ==
+# =========================================================================================
+# LIF: ∞ | ROLE: PROPHETIC_LOGIC_ENGINE | RANK: OMEGA_SOVEREIGN
+# AUTH: Ω_ORACLE_V500_WASM_SUTURE_2026_FINALIS
+# =========================================================================================
 
-"""
-=================================================================================
-== THE ORACLE OF THE LIVING SOUL (V-Ω-LEGENDARY++. THE INTROSPECTIVE AI)        ==
-=================================================================================
-This is the divine, sentient God-Engine of Gnostic Perception. It is a true,
-data-driven AI whose mind is forged from the declarative scripture of the Gnostic
-Canon. It performs a multi-stage, asynchronous, and hyper-aware Gaze upon any
-project reality to prophesy its one true, Gnostic soul.
-=================================================================================
-"""
 import getpass
 import re
+import os
+import sys
+import time
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional, Tuple, Set
 
+# --- THE DIVINE UPLINKS ---
 from .grimoires import SOUL_CODEX
 from ..gnosis.canon import ARCHITECTURAL_CANON
 from ..logger import Scribe
@@ -25,21 +25,73 @@ Logger = Scribe("OracleOfTheLivingSoul")
 
 
 class OracleOfTheLivingSoul:
-    """The God-Engine of Gnostic Prophecy. See docs/PROPHECY.md"""
+    """
+    =================================================================================
+    == THE GOD-ENGINE OF GNOSTIC PROPHECY (V-Ω-TOTALITY-V500-FINALIS)              ==
+    =================================================================================
+    LIF: ∞ | ROLE: INTROSPECTIVE_AI
+
+    The divine, sentient God-Engine of Gnostic Perception. It performs a multi-stage,
+    substrate-aware Gaze upon any project reality to prophesy its one true soul.
+    =================================================================================
+    """
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
-        self.dossier: Dict[str, Any] = {}  # The Unbreakable Chronocache
-        self.perceived_souls: set = set()
-        self.SOUL_CODEX = SOUL_CODEX  # Cache the grimoire for performance
+        self.dossier: Dict[str, Any] = {}
+        self.perceived_souls: Set[str] = set()
+
+        # [THE CURE]: SUBSTRATE DETECTION
+        self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
+        # Timing metrics for Metabolic Tomography
+        self._metrics: Dict[str, float] = {}
 
     def conduct_inquest(self) -> Dict[str, Any]:
-        """The master symphony of perception, now a true, logical inference chain."""
-        Logger.verbose("The Introspective AI (V-Ω-LEGENDARY++) awakens its multi-stage Gaze...")
+        """
+        The Master Symphony of Perception.
+        [THE FIX]: Now substrate-aware to prevent Threading Paradoxes in WASM.
+        """
+        start_ns = time.perf_counter_ns()
+        Logger.verbose(f"The Introspective AI awakening on substrate: [{'ETHER' if self._is_wasm else 'IRON'}]")
 
-        # --- MOVEMENT I: THE ASYNCHRONOUS GAZE (THE CHRONOMANCER'S SOUL) ---
-        # We conduct the expensive I/O-bound rites in a parallel reality.
-        with ThreadPoolExecutor() as executor:
+        # --- MOVEMENT I: THE KINETIC GAZE (I/O RITES) ---
+        # [ASCENSION 1 & 2]: We adjudicate based on the Ethereal Plane's laws.
+        if self._is_wasm:
+            # PATH A: ETHER PLANE (SEQUENTIAL)
+            # In WASM, we must conduct our scrying in a single, unified timeline.
+            self._conduct_sequential_scry()
+        else:
+            # PATH B: IRON CORE (PARALLEL)
+            # On native iron, we unleash a swarm of scriers to maximize velocity.
+            self._conduct_parallel_scry()
+
+        # --- MOVEMENT II: THE SYMPHONY OF THE CANON ---
+        # The Mind walks the Declarative Grimoire to resolve secondary Gnosis.
+        self._adjudicate_architectural_canon()
+
+        # --- MOVEMENT III: THE GAZE OF GNOSTIC SYNTHESIS ---
+        # The AI's final word: Harmonizing the perceived matter into a coherent identity.
+        self._synthesize_final_gnosis()
+
+        # Final Telemetry Pulse
+        duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+        self.dossier['_ai_telemetry'] = {
+            "prophecy_latency_ms": round(duration_ms, 2),
+            "substrate": "WASM" if self._is_wasm else "NATIVE",
+            "truth_count": len(self.dossier)
+        }
+
+        Logger.success(f"Prophecy Complete. {len(self.dossier)} Gnostic truths manifest in {duration_ms:.2f}ms.")
+        return self.dossier
+
+    # =========================================================================
+    # == SECTION I: KINETIC SCRYING MOVEMENTS                                ==
+    # =========================================================================
+
+    def _conduct_parallel_scry(self):
+        """Swarm-based scrying for high-performance native environments."""
+        with ThreadPoolExecutor(max_workers=3) as executor:
             future_map = {
                 executor.submit(self._gaze_upon_living_souls): "living_souls",
                 executor.submit(self._gaze_upon_vcs_soul): "vcs_soul",
@@ -48,120 +100,169 @@ class OracleOfTheLivingSoul:
             for future in as_completed(future_map):
                 rite_name = future_map[future]
                 try:
-                    # The results of the parallel rites are inscribed upon the dossier.
-                    result_gnosis = future.result()
-                    if result_gnosis:
-                        self.dossier.update(result_gnosis)
+                    res = future.result()
+                    if res: self.dossier.update(res)
                 except Exception as e:
-                    Logger.warn(f"A paradox occurred during the parallel Gaze for '{rite_name}': {e}")
+                    Logger.warn(f"Parallel Paradox in '{rite_name}': {e}")
 
-        # --- MOVEMENT II: THE SYMPHONY OF THE CANON (THE DECLARATIVE MIND) ---
-        # The Oracle's mind is now a pure, declarative loop that walks the Canon.
-        Logger.verbose("Commencing the Symphony of the Canon...")
+    def _conduct_sequential_scry(self):
+        """Unified-timeline scrying for single-threaded WASM environments."""
+        rites = [
+            (self._gaze_upon_living_souls, "living_souls"),
+            (self._gaze_upon_vcs_soul, "vcs_soul"),
+            (self._gaze_upon_luminous_scribe, "readme_description")
+        ]
+        for rite_func, name in rites:
+            try:
+                res = rite_func()
+                if res: self.dossier.update(res)
+            except Exception as e:
+                Logger.warn(f"Sequential Paradox in '{name}': {e}")
+
+    # =========================================================================
+    # == SECTION II: THE GAZE UPON FORM (ARTIFACTS)                          ==
+    # =========================================================================
+
+    def _gaze_upon_living_souls(self) -> Dict[str, Any]:
+        """[FACULTY 2]: The Polyglot Gaze. Identifies technical souls."""
+        results = {}
+        # [ASCENSION 3]: Rank-Ordered scrying to prioritize high-fidelity indicators.
+        sorted_codex = sorted(SOUL_CODEX, key=lambda x: x.get('rank', 0), reverse=True)
+
+        for soul_law in sorted_codex:
+            pattern = soul_law.get("scripture", "*")
+            try:
+                # [ASCENSION 10]: Efficient glob scrying
+                for scripture_path in self.project_root.glob(pattern):
+                    if not scripture_path.is_file(): continue
+
+                    gaze_match = False
+                    if "gaze_pattern" in soul_law:
+                        # [ASCENSION 8]: Encoding Resilience
+                        content = scripture_path.read_text(encoding='utf-8', errors='ignore')
+                        if re.search(soul_law["gaze_pattern"], content):
+                            gaze_match = True
+                    else:
+                        gaze_match = True
+
+                    if gaze_match:
+                        self.perceived_souls.add(soul_law["name"])
+                        Logger.verbose(f"      -> Perceived '{soul_law['name']}' in '{scripture_path.name}'")
+                        break  # Only need one proof per type
+            except Exception:
+                continue
+
+        if self.perceived_souls:
+            results['project_type'] = ", ".join(sorted(list(self.perceived_souls)))
+        return results
+
+    def _gaze_upon_vcs_soul(self) -> Dict[str, Any]:
+        """[FACULTY 4]: The Scribe of Provenance. Scries Git DNA."""
+        dot_git = self.project_root / ".git"
+        if not dot_git.is_dir(): return {}
+
+        results = {}
+
+        # [ASCENSION 4]: Substrate-Aware Git Scrying
+        # We first attempt a physical probe to avoid the 'subprocess' ward in WASM.
+        try:
+            config_path = dot_git / "config"
+            if config_path.exists():
+                config_text = config_path.read_text(encoding='utf-8', errors='ignore')
+                url_match = re.search(r'url\s*=\s*(.*)', config_text)
+                if url_match:
+                    url = url_match.group(1).strip()
+                    # [ASCENSION 9]: Deep URL Suture
+                    m = re.search(r'(?:[:/])([\w.-]+)/([\w.-]+?)(?:\.git)?$', url)
+                    if m:
+                        results['git_org'] = m.group(1)
+                        results['git_repo'] = m.group(2)
+        except:
+            pass
+
+        # Fallback to CLI for high-fidelity author Gnosis (Iron only)
+        if not results and not self._is_wasm:
+            try:
+                name = subprocess.check_output(['git', 'config', 'user.name'],
+                                               cwd=self.project_root, text=True, stderr=subprocess.DEVNULL).strip()
+                if name: results['git_author'] = name
+            except:
+                pass
+
+        return results
+
+    def _gaze_upon_luminous_scribe(self) -> Dict[str, Any]:
+        """[FACULTY 8]: The Gaze of the Luminous Scribe (README)."""
+        readme_path = self.project_root / "README.md"
+        if not readme_path.is_file(): return {}
+
+        try:
+            # [ASCENSION 8]: V2 Header Sieve
+            content = readme_path.read_text(encoding='utf-8', errors='ignore')
+            # Scries for the first H1 header and the subsequent non-empty line
+            match = re.search(r'^#\s*.*?\n+([^\n#]+)', content, re.MULTILINE)
+            if match:
+                return {'readme_description': match.group(1).strip()}
+        except:
+            pass
+        return {}
+
+    # =========================================================================
+    # == SECTION III: THE CONVERGENCE (SYNTHESIS)                            ==
+    # =========================================================================
+
+    def _adjudicate_architectural_canon(self):
+        """Movement II: The Symphony of the Canon."""
         for primitive in ARCHITECTURAL_CANON:
             if primitive.key not in self.dossier:
                 try:
-                    # Each rite is shielded by its own Unbreakable Ward.
-                    prophesied_value = primitive.prophecy_rite(self)
-                    if prophesied_value is not None:
-                        self.dossier[primitive.key] = prophesied_value
-                        Logger.verbose(f"   -> Canon Gaze: Prophesied '{primitive.key}' as '{prophesied_value}'.")
-                except Exception as e:
-                    Logger.warn(f"A paradox occurred during the Gaze for primitive '{primitive.key}': {e}")
-
-        # --- MOVEMENT III: THE GAZE OF GNOSTIC SYNTHESIS (THE AI'S FINAL WORD) ---
-        # The Oracle now synthesizes a final, luminous reality from the perceived Gnosis.
-        self._synthesize_final_gnosis()
-
-        Logger.success(f"The Oracle's Gaze is complete. {len(self.dossier)} Gnostic truths prophesied.")
-        return self.dossier
-
-    def _gaze_upon_living_souls(self) -> Dict[str, Any]:
-        """Faculty 2, 5 & 6: The Polyglot Scribe & Gaze of Gnostic Causality."""
-        Logger.verbose("   -> Awakening the Polyglot Scribe to perceive technological souls...")
-        prophecies = {}
-
-        # This Gaze is now a pure artisan, returning its findings.
-        sorted_codex = sorted(self.SOUL_CODEX, key=lambda x: x.get('rank', 0), reverse=True)
-        for soul_law in sorted_codex:
-            # We use glob for powerful scripture matching (e.g., "*.csproj")
-            for scripture_path in self.project_root.glob(soul_law["scripture"]):
-                if scripture_path.is_file():
-                    try:
-                        gaze_result = False
-                        if soul_law.get("gaze_pattern"):
-                            content = scripture_path.read_text(encoding='utf-8', errors='ignore')
-                            if re.search(soul_law["gaze_pattern"], content):
-                                gaze_result = True
-                        else:  # Gaze of existence
-                            gaze_result = True
-
-                        if gaze_result:
-                            self.perceived_souls.add(soul_law["name"])
-                            Logger.verbose(
-                                f"      -> Perceived a '{soul_law['name']}' soul in '{scripture_path.name}'.")
-                    except Exception:
-                        continue
-
-        if self.perceived_souls:
-            prophecies['project_type'] = ", ".join(sorted(list(self.perceived_souls)))
-        return prophecies
-
-    def _gaze_upon_vcs_soul(self) -> Dict[str, Any]:
-        """Faculty 4: The Scribe of the First Commit."""
-        if not (self.project_root / ".git").is_dir(): return {}
-        prophecies = {}
-        try:
-            remote_url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url'], text=True,
-                                                 stderr=subprocess.DEVNULL, cwd=self.project_root).strip()
-            match = re.search(r'(?:[:/])([\w.-]+)/([\w.-]+?)(?:\.git)?$', remote_url)
-            if match:
-                prophecies['git_org'] = match.group(1)
-                prophecies['git_repo'] = match.group(2)
-        except Exception:
-            pass
-        return prophecies
-
-    def _gaze_upon_luminous_scribe(self) -> Dict[str, Any]:
-        """Faculty 8: The Gaze of the Luminous Scribe."""
-        readme_path = self.project_root / "README.md"
-        if readme_path.is_file():
-            try:
-                content = readme_path.read_text(encoding='utf-8', errors='ignore')
-                match = re.search(r'^#\s*.*?\n+([^\n]+)', content, re.MULTILINE)
-                if match:
-                    return {'readme_description': match.group(1).strip()}
-            except Exception:
-                pass
-        return {}
+                    # Each rite is shielded by the Oracle's presence
+                    val = primitive.prophecy_rite(self)
+                    if val is not None:
+                        self.dossier[primitive.key] = val
+                except:
+                    pass
 
     def _synthesize_final_gnosis(self):
-        """Faculty 6: The AI's Final Word."""
-        # Synthesize project_name with Gnostic Precedence
+        """[FACULTY 6]: The AI's Final Word. Forge the coherent reality."""
+
+        # 1. Project Name Sovereignty
+        # Hierarchy: git_repo > project_name > directory_name
         if 'project_name' not in self.dossier:
-            self.dossier['project_name'] = self.dossier.get('git_repo',
-                                                            self.project_root.name.lower().replace(" ", "-"))
+            name = self.dossier.get('git_repo') or self.project_root.name
+            self.dossier['project_name'] = name.lower().replace(" ", "-")
 
-        # Synthesize author
+        # 2. Author Identity
+        # [ASCENSION 10]: Hierarchy: git_author > user > default
         if 'author' not in self.dossier:
-            self.dossier['author'] = self.dossier.get('git_author', getpass.getuser())
+            self.dossier['author'] = self.dossier.get('git_author') or getpass.getuser()
 
-        # Synthesize description
+        # 3. Semantic Description Fusion
+        # [ASCENSION 6]: Merges tech-soul with purpose.
         if 'description' not in self.dossier:
-            self.dossier['description'] = self.dossier.get('readme_description',
-                                                           f"A new {self.dossier.get('project_type', 'generic')} project.")
+            base = self.dossier.get('readme_description')
+            if not base:
+                tech = self.dossier.get('project_type', 'generic')
+                base = f"A new {tech} project."
+            self.dossier['description'] = base
+
+        # 4. [ASCENSION 11]: Socratic Suggestion
+        if not self.perceived_souls:
+            self.dossier['_oracle_hint'] = "The reality is a void. Consider the 'python-basic' archetype."
+
+    def __repr__(self) -> str:
+        return f"<Ω_GNOSTIC_ORACLE root={self.project_root.name} substrate={'ETHER' if self._is_wasm else 'IRON'}>"
 
 
+# =========================================================================================
+# == THE DIVINE GATEWAY (V-Ω-ETERNAL)                                                   ==
+# =========================================================================================
 
 def prophesy_initial_gnosis(project_root: Path) -> Dict[str, Any]:
     """
-    =================================================================================
-    == THE DIVINE GATEWAY TO THE ORACLE (V-Ω-ETERNAL. THE UNBREAKABLE BRIDGE)      ==
-    =================================================================================
-    This is the one true, public gateway to the God-Engine of Gnostic Prophecy. It
-    forges the Oracle, commands it to conduct its Grand Inquest, and proclaims its
-    luminous dossier.
-    =================================================================================
+    The one true, public gateway to the Oracle.
+    Forges the mind and commands the conduct of the Inquest.
     """
     oracle = OracleOfTheLivingSoul(project_root)
     return oracle.conduct_inquest()
+

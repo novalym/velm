@@ -183,13 +183,66 @@ class RateLimitMiddleware(Middleware):
             Logger.critical(f"BANISHING IP {ip} to the Void for 600s. Threshold exceeded.")
 
     def _is_system_feverish(self) -> bool:
-        """[ASCENSION 4]: Consults hardware vitals for backpressure."""
-        try:
-            # We perform a lightweight scry (interval=None is non-blocking)
-            import psutil
-            return psutil.cpu_percent(interval=None) > 90.0 or psutil.virtual_memory().percent > 90.0
-        except:
+        """
+        =============================================================================
+        == THE THERMODYNAMIC ADJUDICATOR (V-Ω-TOTALITY-V20000.4-ISOMORPHIC)        ==
+        =============================================================================
+        LIF: ∞ | ROLE: METABOLIC_BACKPRESSURE_SENTINEL | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_FEVER_V20000_TIME_DRIFT_SUTURE_2026_FINALIS
+        """
+        import time
+        import gc
+        import os
+
+        # [ASCENSION 11]: ADRENALINE BYPASS
+        # If the Architect willed maximum velocity, we ignore the heat.
+        if getattr(self.request, "adrenaline_mode", False):
             return False
+
+        try:
+            # --- MOVEMENT I: THE HIGH PATH (IRON CORE) ---
+            try:
+                import psutil
+                # interval=None is non-blocking; returns delta since last call.
+                cpu_load = psutil.cpu_percent(interval=None) or 0.0
+                mem_load = psutil.virtual_memory().percent or 0.0
+
+                if cpu_load > 90.0 or mem_load > 90.0:
+                    return True
+            except (ImportError, AttributeError, Exception):
+                # --- MOVEMENT II: THE WASM PATH (ETHER DRIFT) ---
+                # [ASCENSION 2]: Achronal Drift Tomography.
+                # If psutil is void, we measure execution lag.
+                # We time a 1ms sleep. If it takes > 10ms, the substrate is feverish.
+                t0 = time.perf_counter()
+                time.sleep(0.001)
+                t1 = time.perf_counter()
+
+                drift_ms = (t1 - t0) * 1000
+
+                # Heuristic: 5ms drift in a browser event loop signals
+                # high saturation or background throttling.
+                if drift_ms > 5.0:
+                    return True
+
+                # [ASCENSION 3]: Metabolic Mass Inference.
+                # If the Python heap exceeds 500,000 objects, we treat it as
+                # a memory fever to prevent OOM in the browser tab.
+                if len(gc.get_objects()) > 500000:
+                    return True
+
+            # --- MOVEMENT III: THE GNOSTIC VIGIL ---
+            # Check for OS-level pressure flags if manifest.
+            if hasattr(os, 'getloadavg'):
+                load_1, _, _ = os.getloadavg()
+                if load_1 > (os.cpu_count() or 1) * 2:
+                    return True
+
+        except Exception:
+            # [ASCENSION 9]: Perception must never be the cause of a fracture.
+            return False
+
+        return False
 
     def _project_hud(self, request: BaseRequest, type: str, color: str):
         """[ASCENSION 9]: HUD Telemetry Broadcast."""

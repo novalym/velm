@@ -130,10 +130,20 @@ class EngineBootstrap:
     def ignite(self) -> bool:
         """
         =============================================================================
-        == THE GRAND SYMPHONY OF IGNITION                                          ==
+        == THE GRAND SYMPHONY OF IGNITION (V-Ω-TOTALITY-V900.24-ANCHORED)          ==
         =============================================================================
-        The definitive entry point for Engine consciousness.
+        LIF: ∞ | ROLE: COSMIC_CONSTRUCTOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_IGNITE_V900_REALITY_SUTURE_2026_FINALIS
+
+        The definitive entry point for Engine consciousness. It performs the
+        eight movements of inception, culminating in the anchoring of a
+        Sovereign Reality.
         """
+        import time
+        import os
+        import sys
+        from pathlib import Path
+
         if not self.engine._silent:
             self.logger.info(
                 f"Demiurge awakening. Session: [soul]{self.boot_id}[/] | Machine: [cyan]{self._machine_id}[/cyan]"
@@ -142,33 +152,67 @@ class EngineBootstrap:
 
         try:
             # --- MOVEMENT I: PHYSICAL REALITY TRIAGE ---
-            # We first verify that the Plane of Matter is stable.
+            # Verify the substrate (IRON vs ETHER) is stable and writable.
             if not self.pre_flight_check():
                 self.logger.critical("Pre-flight Inquest Fractured: Substrate is not Gnostic-Ready.")
                 return False
 
-            # --- MOVEMENT II: THE AWAKENING OF SKILLS (THE CURE) ---
-            # [ASCENSION 2]: We conduct the rite of Unyielding Consecration.
-            # This is Part 1 of the fix: ensuring we don't 'continue' (skip) on IOCTL errors.
+            # --- MOVEMENT II: THE AWAKENING OF SKILLS (CONSECRATION) ---
+            # [ASCENSION 2]: Unyielding Consecration. Registers all kinetic limbs.
             self.awaken_skills()
 
             # --- MOVEMENT III: CONSCIOUSNESS SYNCHRONIZATION ---
-            # Bridge the Schism between the Crystal (DB) and the Scroll (Lockfile).
+            # Bridge the Schism between the Crystal Mind (DB) and the Scroll (Lock).
             self.synchronize_consciousness()
 
-            # --- MOVEMENT IV: THE FORGING OF THE SPINE ---
-            # Construct the Middleware Nervous System.
+            # =========================================================================
+            # == MOVEMENT IV: [THE CURE] - THE RITE OF REALITY ANCHORING             ==
+            # =========================================================================
+            # [ASCENSION 14]: Autonomic Multiversal Inception.
+            # We ensure that the Engine is NEVER born into a void. If no projects
+            # exist, we forge the Progenitor Law immediately.
+            try:
+                # Late-bound import to prevent circularity in the kernel
+                from ....artisans.project.manager import ProjectManager
+
+                self.logger.verbose("Anchoring Reality: Scrying Multiverse Registry...")
+                governor = ProjectManager()
+
+                # If /vault is empty, forge the Progenitor Law and switch to it.
+                # If /vault is populated, ensure the /vault/project symlink is resonant.
+                governor.bootstrap_multiverse()
+
+                # Mirror the Governor's anchor in the Engine's primary context.
+                if governor.registry.active_project_id:
+                    active_pid = governor.registry.active_project_id
+                    active_meta = governor.registry.projects[active_pid]
+
+                    # Force the Engine to stand on the willed ground.
+                    # We use Path() conversion to ensure substrate normalization.
+                    self.engine.project_root = Path(active_meta.path)
+
+                    if not self.engine._silent:
+                        self.logger.success(f"Reality Anchored: [cyan]{active_meta.name}[/cyan]")
+
+            except Exception as anchoring_paradox:
+                # Anchoring is critical for UX, but we fail-open to allow manual recovery.
+                self.logger.warn(f"Reality Anchoring deferred due to paradox: {anchoring_paradox}")
+            # =========================================================================
+
+            # --- MOVEMENT V: THE FORGING OF THE SPINE ---
+            # Construct the 21-layer Middleware Nervous System.
             self.engine._pipeline = self.forge_pipeline()
 
-            # --- MOVEMENT V: COGNITIVE WARM-UP ---
-            # [ASCENSION 7]: Gently wake the AI and Predictor strata.
+            # --- MOVEMENT VI: COGNITIVE WARM-UP ---
+            # [ASCENSION 7]: Wake the AI Predictor and load stochastic weights.
             if hasattr(self.engine, 'predictor') and self.engine.predictor:
                 self._warm_up_intelligence()
 
-            # --- MOVEMENT VI: BICAMERAL POOL IGNITION ---
-            # [ASCENSION 4]: Preheat the Foundry and Suture pools.
+            # --- MOVEMENT VII: BICAMERAL POOL IGNITION ---
+            # Preheat Thread/Process pools to eliminate first-strike latency.
             self._ignite_metabolic_pools()
 
+            # --- MOVEMENT VIII: FINAL PROCLAMATION ---
             duration = (time.perf_counter_ns() - self._boot_start_ns) / 1_000_000
             if not self.engine._silent:
                 self.logger.success(f"Quantum Engine Resonant in {duration:.2f}ms. Totality achieved.")
@@ -177,6 +221,7 @@ class EngineBootstrap:
 
         except Exception as catastrophic_paradox:
             # [ASCENSION 12]: THE FINALITY VOW
+            # If the world ends during ignition, we dump the soul to stderr.
             self.logger.critical(f"BOOT_FRACTURE: Reality collapsed during ignition: {catastrophic_paradox}")
             if not self.engine._silent:
                 self.console.print_exception(show_locals=True)
@@ -189,55 +234,101 @@ class EngineBootstrap:
     def pre_flight_check(self) -> bool:
         """
         =============================================================================
-        == THE PRE-FLIGHT INQUEST (V-Ω-METABOLIC-TRIAGE)                           ==
+        == THE PRE-FLIGHT INQUEST (V-Ω-TOTALITY-V20000.8-ISOMORPHIC)               ==
         =============================================================================
-        [ASCENSION 5 & 9]: Scries the hardware substrate for Gnostic resonance.
-        Checks permissions, disk capacity, and metabolic fever.
+        LIF: ∞ | ROLE: SYSTEM_VITALITY_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_BOOT_V20000_SENSORY_SUTURE_2026_FINALIS
         """
+        import time
+        import gc
+        import os
+        import sys
+        from pathlib import Path
+
+        # [ASCENSION 10]: Forensic Trace ID Suture
+        trace_id = getattr(self.engine, 'trace_id', 'tr-boot-void')
+        self.logger.verbose(f"[{trace_id}] Commencing Multiversal Pre-flight Biopsy...")
+
         try:
-            # 1. METABOLIC FEVER SENSING
-            # [ASCENSION 9]: If the host is screaming, we yield.
+            # --- MOVEMENT I: METABOLIC TRIAGE (SENSORY ADJUDICATION) ---
+            load_factor = 0.0
+            ram_starved = False
+            substrate = "IRON"
+
+            # A. THE HIGH PATH (IRON CORE)
             try:
                 import psutil
-                cpu_load = psutil.cpu_percent(interval=None)
+                load_factor = psutil.cpu_percent(interval=None) or 0.0
                 mem_avail_gb = psutil.virtual_memory().available / (1024 ** 3)
+                if mem_avail_gb < 0.2:  # 200MB floor
+                    ram_starved = True
+            except (ImportError, AttributeError, Exception):
+                # B. THE WASM PATH (ETHER DRIFT)
+                substrate = "ETHER"
+                # Measure loop jitter: 1ms "Rite of Silence" should take ~1ms.
+                t0 = time.perf_counter()
+                time.sleep(0.001)
+                t1 = time.perf_counter()
+                drift_ms = (t1 - t0) * 1000
+                # Heuristic: 10ms drift indicates extreme browser-tab fever.
+                load_factor = min(100.0, (drift_ms / 10.0) * 95.0)
 
-                if cpu_load > 95.0:
-                    self.logger.warn(f"Metabolic Fever detected (CPU: {cpu_load}%). Yielding for cooldown...")
-                    time.sleep(1.0)
+                # Heuristic Memory Check: Count Gnostic Objects
+                if len(gc.get_objects()) > 1000000:  # 1M object ceiling for WASM
+                    ram_starved = True
 
-                if mem_avail_gb < 0.2:  # 200MB absolute floor
-                    self.logger.critical(f"Metabolic Starvation: Only {mem_avail_gb:.2f}GB RAM remaining.")
+            # --- MOVEMENT II: THERMODYNAMIC ADJUDICATION ---
+            if load_factor > 95.0:
+                self.logger.warn(f"Metabolic Fever Detected ({load_factor:.1f}% on {substrate}). Cooling engine...")
+                time.sleep(1.0)  # The Yield Protocol
+
+            if ram_starved:
+                self.logger.critical(f"Metabolic Starvation: Insufficient RAM to materialize Mind on {substrate}.")
+                return False
+
+            # --- MOVEMENT III: GEOMETRIC ANCHOR VERIFICATION ---
+            if not self.engine.project_root:
+                # [ASCENSION 4]: The NoneType Sarcophagus
+                self.logger.warn("Spatial Anchor is a void. Defaulting to Ethereal Sanctum (Memory).")
+                return True
+
+            root = self.engine.project_root.resolve()
+
+            # --- MOVEMENT IV: THE ATOMIC PERMISSION PROBE ---
+            # [ASCENSION 3]: We do not trust bitflags (os.access). We conduct a physical test.
+            if root.exists() and root.is_dir():
+                test_shard = root / ".scaffold" / f".probe_{trace_id[:8]}"
+                try:
+                    test_shard.parent.mkdir(parents=True, exist_ok=True)
+                    # Attempt a physical inscription
+                    test_shard.write_text("RESONANT", encoding='utf-8')
+                    # Immediate annihilation
+                    test_shard.unlink()
+                except (OSError, PermissionError) as e:
+                    self.logger.critical(f"Sanctum Locked: Matter Inscription failed for '{root.name}'.")
+                    self.logger.error(f"Cure: Check permissions or run as Sovereign: {str(e)}")
                     return False
-            except ImportError:
-                # If psutil is missing, we are blind but we proceed (Blind Faith)
-                pass
 
-            # 2. THE ANCHOR VERIFICATION
-            if self.engine.project_root:
-                root = self.engine.project_root.resolve()
-                if not root.exists():
-                    # We do not fail here, as we might be about to CREATE the root
-                    self.logger.verbose(f"Anchor Point '{root.name}' is currently a void. It shall be manifest.")
-                else:
-                    # 3. PERMISSION CONSECRATION
-                    # [ASCENSION 5]: Verify the .scaffold sanctum is writable.
-                    scaf_dir = root / ".scaffold"
-                    if scaf_dir.exists():
-                        if not os.access(str(scaf_dir), os.W_OK):
-                            self.logger.critical(f"Sanctum Locked: [bold red]Write access denied[/] for '{scaf_dir}'.")
-                            return False
+            # --- MOVEMENT V: PATH SUTURE VALIDATION ---
+            # [ASCENSION 6]: Recursive Normalization. Ensure root is absolute POSIX.
+            if not self.engine.project_root.is_absolute():
+                norm_path = self.engine.project_root.resolve()
+                # Use object.__setattr__ to bypass Pydantic frozen model protections if present
+                try:
+                    object.__setattr__(self.engine, 'project_root', norm_path)
+                except (TypeError, AttributeError):
+                    self.engine.project_root = norm_path
 
-            # 4. PATH SUTURE VALIDATION
-            # Ensure the provided PROJECT_ROOT is absolute.
-            if self.engine.project_root and not self.engine.project_root.is_absolute():
-                object.__setattr__(self.engine, 'project_root', self.engine.project_root.resolve())
-
+            # [ASCENSION 12]: THE FINALITY VOW
+            self.logger.success(f"Pre-flight Inquest [bold green]PASSED[/] on substrate [{substrate}].")
             return True
 
-        except Exception as e:
-            self.logger.error(f"Pre-flight Inquest failed due to a system paradox: {e}")
-            return False
+        except Exception as paradox:
+            # [ASCENSION 11]: Fault-Isolated Tomography
+            # If the scryer fails, we assume resonance unless the error is fatal.
+            self.logger.error(f"Gaze Clouded: Perception paradox during biopsy: {str(paradox)}")
+            # We fail open if we are in development, but closed if in production
+            return os.environ.get("SCAFFOLD_ENV") != "production"
 
     def _ignite_metabolic_pools(self):
         """[ASCENSION 4]: Preheat the executors to prevent first-call stutter."""

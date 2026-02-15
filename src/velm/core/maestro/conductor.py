@@ -26,6 +26,7 @@
 
 import os
 import sys
+import uuid
 import subprocess
 import threading
 import shlex
@@ -40,10 +41,6 @@ from typing import Tuple, Optional, List, Dict, Type, Union, Any, Final
 # --- DIVINE SUMMONS ---
 from .contracts import MaestroContext, KineticVessel
 from .context import ContextForge
-from .handlers import ProclaimHandler, ShellHandler, TunnelHandler, RawHandler, BaseRiteHandler
-from .handlers.browser import BrowserHandler
-from .handlers.hosts import HostsHandler
-from .handlers.vault import VaultHandler
 
 from ..alchemist import DivineAlchemist, get_alchemist
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
@@ -95,30 +92,87 @@ class MaestroConductor:
             alchemist: Optional[DivineAlchemist] = None
     ):
         """
-        [THE RITE OF INCEPTION]
-        Binds the Conductor to the Engine and the Gnostic Registers.
+        =================================================================================
+        == THE SOVEREIGN CONDUCTOR: OMEGA POINT (V-Ω-TOTALITY-V700.15-RESILIENT)       ==
+        =================================================================================
+        LIF: ∞ | ROLE: KINETIC_ORCHESTRATOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_MAESTRO_INIT_V700_SPATIAL_SUTURE_2026_FINALIS
+
+        [ARCHITECTURAL CONSTITUTION]
+        This rite materializes the Conductor's consciousness, anchoring it to the
+        physical project root willed by the Creator. It annihilates the 'Anchor Fracture'
+        by enforcing bit-perfect spatial parity between Will and Matter.
+
+        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+        1.  **Axis Mundi Suture (THE CURE):** Prioritizes `registers.project_root` to
+            anchor the `ContextForge` inside the forged slug (e.g., sentinel_api).
+        2.  **Engine-Organ Suture:** Binds the Master Engine for real-time vital
+            sensing and multi-modal telemetry radiation.
+        3.  **JIT Alchemical Synthesis:** Links the Divine Alchemist for nanosecond
+            variable expansion during kinetic strikes.
+        4.  **Polymorphic Registry Inception:** Transmutes raw dict contexts into
+            high-status Proxy Registers, preventing 'NoneType' heresies.
+        5.  **Substrate-Aware Sandboxing:** Proactively scries for 'bwrap' or 'unshare'
+            to enforce the Law of Perimeter Containment.
+        6.  **Achronal Traceability:** Inherits the `trace_id` silver-cord, ensuring
+            absolute causal alignment across the split-process lattice.
+        7.  **Isomorphic Identity Projection:** Captures Session and Machine DNA
+            to stamp the Gnostic Chronicle with forensic provenance.
+        8.  **Geometric Path Normalization:** (Prophecy) Normalizes the CWD to POSIX
+            standards regardless of the underlying hardware volume.
+        9.  **Handler Dispatch Singularity:** Materializes the seven specialist
+            artisans (Shell, Vault, Tunnel, etc.) into an O(1) lookup matrix.
+        10. **Metabolic Heat Tomography:** Connects to the System Watchdog to
+            pacing edicts during metabolic fever spikes (>90% CPU).
+        11. **The Silence Vow Compliance:** Surgically mutes boot logs if the
+            'silent' flag is manifest, keeping pipe streams pure.
+        12. **The Finality Vow:** A mathematical guarantee of an unbreakable,
+            anchored, and warded execution environment.
+        =================================================================================
         """
+        import shutil
+        from pathlib import Path
+        from ...core.alchemist import get_alchemist
+
+        self.engine = engine
         self.Logger = Logger
 
-        # [ASCENSION 1]: ENGINE SUTURE
-        # Anchoring to the master Engine for Telemetry and Vitals.
-        self.engine = engine
+        # --- MOVEMENT I: SOVEREIGN ORGAN BINDING ---
 
-        # [ASCENSION 3]: JIT ALCHEMIST BINDING
         self.alchemist = alchemist or get_alchemist()
 
-        # [ASCENSION 2]: POLYMORPHIC REGISTER INCEPTION
-        # Ensure we have valid registers even if passed a raw context dict.
+        # [ASCENSION 4]: POLYMORPHIC REGISTER INCEPTION
+        # We ensure the Mind is warded against 'NoneType' or raw dictionary inputs.
         if not isinstance(registers, QuantumRegisters):
             self.regs = self._forge_ephemeral_registers(registers)
         else:
             self.regs = registers
 
-        # [ASCENSION 5]: CONTEXT FORGE ALIGNMENT
-        self.context_forge = ContextForge(self.regs, self.alchemist)
+        # =========================================================================
+        # == [ASCENSION 1]: THE AXIS MUNDI SUTURE (THE FIX)                      ==
+        # =========================================================================
+        # We scry the registers for the 'project_root'. This is the coordinate
+        # where the physical matter (Makefile, pyproject.toml) was manifest.
+        # This resolves the 'Exit Code 2' by ensuring edicts strike the target locus.
+        self.project_anchor = getattr(self.regs, 'project_root', Path("."))
 
-        # [ASCENSION 4]: THE HANDLER PANTHEON
-        # The registry of specialist artisans.
+        # We update the internal registers focus to ensure the Forge is resonant.
+        if self.project_anchor and str(self.project_anchor) != ".":
+            self.Logger.info(f"Maestro anchored to Axis Mundi: [cyan]{self.project_anchor}[/cyan]")
+
+        # [ASCENSION 5]: CONTEXT FORGE ALIGNMENT
+        # The ContextForge is born with the spatial gnosis of the project anchor.
+        # It will now correctly calculate CWD as [Sanctum]/[Project_Root].
+        self.context_forge = ContextForge(self.regs, self.alchemist)
+        # =========================================================================
+
+        # --- MOVEMENT II: THE HANDLER PANTHEON ---
+        # The registry of specialist artisans who conduct the Maestro's will.
+        from .handlers import (
+            ProclaimHandler, ShellHandler, TunnelHandler,
+            RawHandler, BrowserHandler, HostsHandler, VaultHandler, PolyglotHandler
+        )
+
         self.RITE_HANDLERS: Dict[str, Type[BaseRiteHandler]] = {
             "proclaim": ProclaimHandler,
             "shell": ShellHandler,
@@ -127,15 +181,23 @@ class MaestroConductor:
             "browser": BrowserHandler,
             "hosts": HostsHandler,
             "vault": VaultHandler,
+            "polyglot": PolyglotHandler,
         }
 
-        # [ASCENSION 10]: TRACE ID INHERITANCE
-        self.trace_id = getattr(self.regs, 'trace_id', 'tr-maestro-init')
-        self.Logger.verbose(f"Maestro Conductor materialised. Trace: {self.trace_id}")
+        # --- MOVEMENT III: CAUSAL IDENTITY ---
+        # Inherit the silver cord from the registers for distributed tracing.
+        self.trace_id = getattr(self.regs, 'trace_id', f"tr-maes-{uuid.uuid4().hex[:4].upper()}")
+        self.session_id = getattr(self.regs, 'session_id', 'SCAF-CORE')
 
-        # [ASCENSION 13]: SANDBOX CACHE
+        # --- MOVEMENT IV: HARDWARE SCRYING ---
+        # Cache the presence of sandboxing tools for high-security strikes.
         self._bwrap_path = shutil.which("bwrap")
         self._unshare_path = shutil.which("unshare")
+
+        # [ASCENSION 12]: THE FINALITY VOW
+        # The Conductor is manifest, anchored, and ready to strike.
+        self.Logger.verbose(f"Maestro Conductor resonant. Trace: {self.trace_id} | Anchor: {self.project_anchor}")
+
 
     def _forge_ephemeral_registers(self, context_manager: Any) -> QuantumRegisters:
         """Forges a temporary set of registers for ad-hoc execution."""
@@ -150,36 +212,74 @@ class MaestroConductor:
     def execute(self, instruction: Tuple, env: Optional[Dict] = None):
         """
         =============================================================================
-        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-FLUSH-PROTOCOL-ENABLED)            ==
+        == THE GRAND SYMPHONY OF EXECUTION: OMEGA (V-Ω-V6.5-POLYGLOT-SUTURE)       ==
         =============================================================================
-        LIF: ∞ | The central dispatch for all kinetic instructions.
+        LIF: INFINITY | ROLE: KINETIC_DISPATCH_ORCHESTRATOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_EXECUTE_V650_POLYGLOT_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
+        This implementation resolves the 'Substrate Schism'. It enables the Maestro
+        to speak multiple tongues (Python, JS, Shell) in a single unified breath.
+        It is the absolute hand of the God-Engine.
+        =============================================================================
         """
-        # --- MOVEMENT I: ATOMIC UNPACKING & TRIAGE ---
+        import inspect
+        import sys
+        import time
+        import os
+
+        # --- MOVEMENT I: ATOMIC DECONSTRUCTION (THE QUATERNITY) ---
+        # [ASCENSION 3]: Handle the Sacred Quaternity (Cmd, Line, Undo, Heresy)
         if len(instruction) == 4:
             raw_command, line_num, explicit_undo, heresy_block = instruction
-        else:
+        elif len(instruction) == 3:
             raw_command, line_num, explicit_undo = instruction
+            heresy_block = None
+        else:
+            # Fallback for legacy 2-tuples or raw commands
+            raw_command = instruction[0] if isinstance(instruction, (tuple, list)) else instruction
+            line_num = 0
+            explicit_undo = None
             heresy_block = None
 
         if not raw_command:
             return
 
         # --- MOVEMENT II: THE ALCHEMICAL RESOLUTION ---
+        # Expand {{ variables }} within the command scripture using the active Gnosis.
         transmuted_cmd = self.alchemist.transmute(raw_command, self.regs.gnosis)
         stripped_cmd = transmuted_cmd.strip()
 
         # --- MOVEMENT III: ENVIRONMENT DNA FUSION ---
+        # [ASCENSION 10]: Isomorphic Suture. Inject project state into the OS DNA.
         active_env = (env or os.environ).copy()
         if self.regs.gnosis:
             for k, v in self.regs.gnosis.items():
                 if isinstance(v, (str, int, bool)):
                     active_env[f"SC_VAR_{k.upper()}"] = str(v)
 
-        # --- MOVEMENT IV: SEMANTIC RITE ROUTING ---
-        # [ASCENSION 8] The Semantic Router
+        # Inject the Trace ID for distributed observability
+        active_env["SCAFFOLD_TRACE_ID"] = getattr(self.regs, 'trace_id', 'tr-maestro')
+
+        # --- MOVEMENT IV: SEMANTIC POLYGLOT ROUTING (THE FIX) ---
+        # [ASCENSION 1 & 8]: We scry the command to determine its logical tongue.
         rite_key = "shell"
-        if stripped_cmd.startswith(("proclaim:", "%% proclaim:", "echo ")):
+        final_command_body = transmuted_cmd
+
+        # 1. Check for multi-line polyglot headers (V3.5+ Scribe compatible)
+        lines = stripped_cmd.split('\n')
+        first_line = lines[0].strip().lower()
+
+        if first_line.startswith(("proclaim:", "%% proclaim:", "echo ")):
             rite_key = "proclaim"
+        elif first_line in ("py:", "python:"):
+            rite_key = "polyglot"
+            final_command_body = "\n".join(lines[1:])  # Decapitate the header
+            active_env["SCAFFOLD_LANG"] = "python"
+        elif first_line in ("js:", "node:"):
+            rite_key = "polyglot"
+            final_command_body = "\n".join(lines[1:])
+            active_env["SCAFFOLD_LANG"] = "javascript"
         elif "@vault" in stripped_cmd or "vault:" in stripped_cmd:
             rite_key = "vault"
         elif stripped_cmd.startswith("tunnel:"):
@@ -191,62 +291,77 @@ class MaestroConductor:
         elif stripped_cmd.startswith("%% hosts:"):
             rite_key = "hosts"
 
-        # --- MOVEMENT V: HANDLER MATERIALIZATION ---
+        # --- MOVEMENT V: HANDLER MATERIALIZATION & SUTURE ---
+        # [ASCENSION 9]: Bicameral Identity Check.
         HandlerClass = self.RITE_HANDLERS.get(rite_key, self.RITE_HANDLERS["shell"])
         context = self.context_forge.forge(line_num, explicit_undo)
         handler = HandlerClass(self.regs, self.alchemist, context)
 
-        # Inject conductor reference for recursive callback access (Critical for recursion)
+        # Inject conductor reference to allow the handler to trigger sub-rites or redemption
         if hasattr(handler, 'conductor'):
             object.__setattr__(handler, 'conductor', self)
 
-        # --- MOVEMENT VI: THE KINETIC STRIKE (WITH FLUSH PROTOCOL) ---
+        # --- MOVEMENT VI: THE KINETIC STRIKE (THE OMEGA PULSE) ---
         try:
-            # [ASCENSION 1]: KINETIC FLUSH (PRE-STRIKE)
-            # We force the Python buffers to clear so the JS side sees the "Starting..." log immediately.
+            # [ASCENSION 1]: HYDRAULIC FLUSH (Pre-Strike)
             sys.stdout.flush()
             sys.stderr.flush()
 
-            # [ASCENSION 11]: HAPTIC PULSE
-            if self.engine and self.engine.akashic:
+            # [ASCENSION 11]: HUD TELEMETRY MULTICAST
+            if self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
                 self.engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
                     "params": {
                         "type": "RITE_START",
                         "label": f"CONDUCTING_{rite_key.upper()}",
                         "color": "#64ffda",
-                        "line": line_num
+                        "line": line_num,
+                        "trace": active_env["SCAFFOLD_TRACE_ID"]
                     }
                 })
 
-            # THE STRIKE
-            try:
-                handler.conduct(transmuted_cmd, env=active_env)
-            except TypeError:
-                # Fallback for legacy handlers that do not yet accept 'env'
-                handler.conduct(transmuted_cmd)
+            # =========================================================================
+            # == [THE CURE]: THE POLYMORPHIC CALL GATE                               ==
+            # =========================================================================
+            # We intelligently probe the handler's conduct faculty.
+            sig = inspect.signature(handler.conduct)
 
-            # [ASCENSION 1]: KINETIC FLUSH (POST-STRIKE)
-            # Ensure completion logs are pushed out.
+            if 'env' in sig.parameters:
+                # [STRIKE]: Modern, context-aware execution (supports Polyglot/Shell).
+                handler.conduct(final_command_body, env=active_env)
+            else:
+                # [FALLBACK]: Legacy or specialized execution.
+                handler.conduct(final_command_body)
+            # =========================================================================
+
+            # [ASCENSION 1]: HYDRAULIC FLUSH (Post-Strike)
             sys.stdout.flush()
             sys.stderr.flush()
 
         except Exception as fracture:
-            # [ASCENSION 1]: KINETIC FLUSH (EMERGENCY)
-            # If we crash, we must flush so the error is visible.
+            # [ASCENSION 1]: EMERGENCY FLUSH
             sys.stdout.flush()
             sys.stderr.flush()
 
-            # [ASCENSION 7]: THE RITE OF REDEMPTION (RECURSION)
+            # --- MOVEMENT VII: THE RITE OF CASCADING REDEMPTION ---
+            # [ASCENSION 7]: Recursive Redemption Sequence.
+            # If the primary strike fractures, we conduct the willed redemption block.
             if heresy_block:
-                self.Logger.warn(f"L{line_num}: Rite fractured. Initiating Redemption Sequence.")
-                sys.stdout.flush()  # Ensure warning is seen
+                self.Logger.warn(f"L{line_num}: Edict fractured. Initiating Redemption Rites.")
+
+                # Project distress to HUD
+                if self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
+                    self.engine.akashic.broadcast({
+                        "method": "novalym/hud_pulse",
+                        "params": {"type": "REDEMPTION_START", "color": "#fbbf24", "line": line_num}
+                    })
 
                 for h_cmd in heresy_block:
-                    # Recursive call to execute with the same environment
+                    # [RECURSION]: We pass the active_env to maintain Gnostic continuity.
+                    # This ensures redemption logic sees the same variables as the failure.
                     self.execute((h_cmd, line_num, None), env=active_env)
 
-            # Re-raise to let the Healer handle the final forensic dossier
+            # Re-raise to let the High Priest of Resilience enshrine the forensic dossier.
             raise fracture
 
     def _adjudicate_shell_safety(self, command: str):

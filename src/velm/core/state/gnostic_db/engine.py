@@ -65,12 +65,14 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple, Set
-
+SQL_AVAILABLE = False
 try:
     from sqlalchemy import create_engine, func, event
     from sqlalchemy.orm import sessionmaker, Session, aliased
     from sqlalchemy.engine import Engine
+    SQL_AVAILABLE = True
 except ImportError:
+    SQL_AVAILABLE = False # Reaffirm
     pass
 
 from .models import Base, RiteModel, ScriptureModel, BondModel
@@ -95,15 +97,22 @@ class GnosticDatabase:
         self._session_factory = None
         self._engine = None
 
-        # [ASCENSION 11]: Lazy Initializer
-        self._connect()
+        # [ASCENSION 11]: Lazy Initializer with WASM Guard
+        # We only attempt connection if the Alchemy is physically present in the library.
+        if SQL_AVAILABLE:
+            self._connect()
 
-        # [ASCENSION 1]: The Achronal Sync-Hook
-        # We perform the temporal check at the moment of inception.
-        self._ensure_achronal_sync()
+            # [ASCENSION 1]: The Achronal Sync-Hook
+            # We only sync if the connection was actually successful (factory exists).
+            if self._session_factory:
+                self._ensure_achronal_sync()
+        else:
+            Logger.verbose("SQLAlchemy unmanifest. Gnostic Database is dormant.")
 
     def _connect(self):
         """The Rite of Connection with WAL and Foreign Key Hardening."""
+        # [THE CURE]: Runtime Check for Engine Capabilities
+        # Prevents "NoneType is not callable" if import succeeded but symbols failed.
         if 'create_engine' not in globals():
             return
 
@@ -119,26 +128,38 @@ class GnosticDatabase:
             )
 
             # [ASCENSION 3 & 4]: Enforce WAL Mode and Foreign Keys at the OS Level
-            @event.listens_for(self._engine, "connect")
-            def set_sqlite_pragma(dbapi_connection, connection_record):
-                cursor = dbapi_connection.cursor()
-                cursor.execute("PRAGMA journal_mode=WAL")
-                cursor.execute("PRAGMA foreign_keys=ON")
-                cursor.execute("PRAGMA synchronous=NORMAL")  # Balanced speed/safety
-                cursor.close()
+            # We check if 'event' is in globals to avoid ReferenceError in partial envs
+            if 'event' in globals():
+                @event.listens_for(self._engine, "connect")
+                def set_sqlite_pragma(dbapi_connection, connection_record):
+                    cursor = dbapi_connection.cursor()
+                    try:
+                        cursor.execute("PRAGMA journal_mode=WAL")
+                        cursor.execute("PRAGMA foreign_keys=ON")
+                        cursor.execute("PRAGMA synchronous=NORMAL")  # Balanced speed/safety
+                    except Exception:
+                        pass  # Squelch pragmas on some restricted drivers
+                    finally:
+                        cursor.close()
 
             Base.metadata.create_all(self._engine)
             self._session_factory = sessionmaker(bind=self._engine)
 
             Logger.verbose(f"Crystal Mind manifest at {self.db_path.name} [WAL: ON, FK: ON]")
+
         except Exception as e:
-            raise ArtisanHeresy(f"Failed to connect to Gnostic Database: {e}")
+            # [ASCENSION 12]: Graceful Degradation (The Fallback)
+            # If the Crystal Mind cannot form (e.g. WASM file locking), we warn and continue.
+            # The Engine will operate in "Scroll-Only" mode (scaffold.lock).
+            Logger.warn(f"Failed to connect to Gnostic Database: {e}. Falling back to Scroll-Only mode.")
+            self._session_factory = None
+            self._engine = None
 
     @property
     def session(self) -> "Session":
         """Summons a new transactional session from the factory."""
         if not self._session_factory:
-            raise ArtisanHeresy("Database session factory is a void.")
+            raise ArtisanHeresy("Database session factory is a void (Connection failed or SQLAlchemy missing).")
         return self._session_factory()
 
     # =========================================================================

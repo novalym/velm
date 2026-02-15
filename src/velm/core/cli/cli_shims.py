@@ -1,46 +1,49 @@
 # Path: core/cli/cli_shims.py
-# ---------------------------------------------------------------------------------
-# LIF: 10,000,000,000 (THE ANNIHILATION OF LATENCY & TYPE SCHISMS)
-# ROLE: The Universal Adapter between Argparse (Chaos) and Pydantic (Order).
-# =================================================================================
-# [ASCENSION LOG]:
-# 13. ATOMIC IMPORTS: Top-level namespace is strictly stdlib.
-# 14. QUANTUM PATH CACHE: @lru_cache on path sanitization for batch operations.
-# 15. RICH PROXY: Delays loading 'rich' library until the first pixel needs rendering.
-# 16. FIRE-AND-FORGET UPDATES: Network I/O for updates is completely detached.
-# 17. JSON FAST-PATH: Tries JSON parsing for variables before AST eval (10x faster).
-# 18. SECRETS TOKEN_HEX: Replaces UUID4 for trace IDs (2x faster generation).
-# 19. BOOLEAN UNIFIER: Extended truthy/falsy detection for CLI flags.
-# 20. DAEMON JSON FIX: Robust handling of JSON pulse files.
-# 21. ENVIRONMENT INHERITANCE: Auto-injects SCAFFOLD_* vars into request context.
-# 22. TYPED DICT SAFEGUARDS: Defensive checks against NoneType in lists.
-# 23. ZOMBIE SOCKET WARD: Timeouts on daemon discovery to prevent hangs.
-# 24. CATASTROPHIC FALLBACK: Raw stderr writing if the Logger fails to manifest.
-# =================================================================================
-import traceback
+# =========================================================================================
+# == THE GNOSTIC BRIDGE: OMEGA POINT (V-Ω-TOTALITY-V700.12-WASM-TITANIUM)               ==
+# =========================================================================================
+# LIF: 100x | ROLE: KINETIC_INVOCATION_SHIM | RANK: OMEGA_SUPREME
+# AUTH: Ω_SHIMS_V700_SUBSTRATE_TOTALITY_2026_FINALIS
+# =========================================================================================
+
+import ast
+import argparse
+import hashlib
+import json
+import os
+import secrets  # [ASCENSION 18] High-Entropy Trace IDs
+import sys
 import threading
 import time
-import secrets  # [ASCENSION 18] Faster than UUID
-import argparse
-import sys
-import os
-import json
-import ast
+import traceback
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Any, List, TYPE_CHECKING, Optional, Union
+from typing import Dict, Any, List, TYPE_CHECKING, Optional, Union, Tuple, Callable
 
 # [ASCENSION 13]: ZERO-LATENCY IMPORT GUARD
+# Heavy organs are warded behind the TYPE_CHECKING veil.
 if TYPE_CHECKING:
     from ...core.runtime import ScaffoldEngine
     from ...interfaces.base import ScaffoldResult
     from rich.console import Console
 
 
-# [ASCENSION 24]: LAZY LOGGER PROXY
-# We define a minimal logger interface here to avoid importing the heavy Scribe
-# until absolutely necessary.
+# =========================================================================================
+# == STRATUM-0: THE METABOLIC PROXIES                                                    ==
+# =========================================================================================
+
 class LazyScribe:
+    """
+    [ASCENSION 24]: THE TITAN-GRIP LAZY SCRIBE.
+    The ultimate guardian of boot velocity. It intercepts all logging intents
+    and materializes the heavy Scribe artisan only at the exact microsecond
+    of radiation.
+
+    Hardened for WASM: If the Scribe cannot manifest, it writes to the
+    VisualCortexStream directly.
+    """
+    __slots__ = ('channel', '_scribe')
+
     def __init__(self, channel: str):
         self.channel = channel
         self._scribe = None
@@ -48,46 +51,85 @@ class LazyScribe:
     @property
     def _impl(self):
         if self._scribe is None:
-            from ...logger import Scribe
-            self._scribe = Scribe(self.channel)
+            try:
+                # Late-bound summons to prevent import avalanche
+                from ...logger import Scribe
+                self._scribe = Scribe(self.channel)
+            except Exception:
+                # Fallback to a humble proxy if the Mind is booting in a void
+                return self
+
         return self._scribe
 
-    def info(self, msg, **kwargs): self._impl.info(msg, **kwargs)
+    def info(self, msg, **kwargs):
+        if hasattr(self._impl, 'info'):
+            self._impl.info(msg, **kwargs)
+        else:
+            self._raw_emit("INFO", msg)
 
-    def error(self, msg, **kwargs): self._impl.error(msg, **kwargs)
+    def error(self, msg, **kwargs):
+        if hasattr(self._impl, 'error'):
+            self._impl.error(msg, **kwargs)
+        else:
+            self._raw_emit("ERROR", msg)
 
-    def warn(self, msg, **kwargs): self._impl.warn(msg, **kwargs)
+    def warn(self, msg, **kwargs):
+        if hasattr(self._impl, 'warn'):
+            self._impl.warn(msg, **kwargs)
+        else:
+            self._raw_emit("WARN", msg)
 
-    def debug(self, msg, **kwargs): self._impl.debug(msg, **kwargs)
+    def debug(self, msg, **kwargs):
+        if hasattr(self._impl, 'debug'):
+            self._impl.debug(msg, **kwargs)
+        else:
+            self._raw_emit("DEBUG", msg)
+
+    def verbose(self, msg, **kwargs):
+        if hasattr(self._impl, 'verbose'):
+            self._impl.verbose(msg, **kwargs)
+        else:
+            self._raw_emit("VERBOSE", msg)
+
+    def _raw_emit(self, level, msg):
+        """Emergency Radiation Bypass."""
+        timestamp = time.strftime("%H:%M:%S")
+        sys.stderr.write(f"\r\n[{timestamp}] [[{self.channel}]] {level}: {msg}\r\n")
+        sys.stderr.flush()
 
 
+# Consecrate the Bridge Messenger
 Logger = LazyScribe("GnosticBridge")
 
 
-# =================================================================================
-# == I. THE QUANTUM PATH SANITIZER (GEOMETRIC PURIFIER)                          ==
-# =================================================================================
+# =========================================================================================
+# == STRATUM-1: GEOMETRIC PURIFICATION                                                   ==
+# =========================================================================================
 
-@lru_cache(maxsize=1024)
+@lru_cache(maxsize=2048)
 def _relativize_string_cached(path_str: str, root_abs_lower: str) -> str:
     """
-    [ASCENSION 14]: The Quantum Path Cache.
-    Memoized version of path relativization. Speeds up 'tree' and 'analyze'
-    rites by 50x on large repositories.
+    [ASCENSION 14]: THE QUANTUM PATH CACHE.
+    Performs a high-velocity, case-insensitive check to anchor a path string
+    within the Project Sanctum.
+
+    LIF-50: Speeds up 'tree' and 'analyze' rites by 50x in large monorepos.
     """
     try:
-        # Normalize input path (Fast String Ops)
+        # Normalize input topography (Fast String Operations)
         p_clean = path_str.replace('\\', '/')
 
-        # [ASCENSION 22]: Fast-Fail for obvious non-paths
-        if len(p_clean) < 2: return path_str
+        # [ASCENSION 22]: Fast-Fail for atomic fragments
+        if len(p_clean) < 2:
+            return path_str
 
+        # Windows Drive Inception Fix (c: -> C:)
         if len(p_clean) > 1 and p_clean[1] == ':':
             p_clean = p_clean[0].lower() + p_clean[1:]
 
-        # Check containment (Case Insensitive comparison handled by normalization)
+        # Adjudicate Containment
         if p_clean.lower().startswith(root_abs_lower):
-            # Slice off the root part
+            # Surgical slice to reveal the relative coordinate
             rel_part = p_clean[len(root_abs_lower):].lstrip('/')
             return rel_part or "."
 
@@ -98,63 +140,71 @@ def _relativize_string_cached(path_str: str, root_abs_lower: str) -> str:
 
 def _sanitize_paths(data: Dict[str, Any], root: Path) -> Dict[str, Any]:
     """
-    Recursively hunts for absolute paths in the request data and transmutes
-    them into relative paths anchored to the Project Root.
+    [THE GEOMETRIC PURIFIER]
+    Recursively hunts for absolute machine coordinates in the request packet
+    and transmutes them into relative paths anchored to the Project Root.
     """
+    if not data:
+        return {}
+
     clean_data = data.copy()
 
-    # Normalize root to lower case with forward slashes for comparison
+    # Normalize root for bitwise-style string comparison
     try:
         root_abs = str(root.resolve()).replace('\\', '/')
         if len(root_abs) > 1 and root_abs[1] == ':':
             root_abs = root_abs[0].lower() + root_abs[1:]
         root_abs_lower = root_abs.lower()
-    except OSError:
-        # If root doesn't exist, we can't relativize safely.
+    except (OSError, ValueError):
+        # If the root is a void, we cannot relativize safely
         return data
 
     for key, value in clean_data.items():
-        # Handle Lists of Paths (e.g. 'paths', 'files')
+        # Path Cluster Handling (Lists)
         if isinstance(value, list):
-            new_list = []
-            for item in value:
-                if isinstance(item, str):
-                    new_list.append(_relativize_string_cached(item, root_abs_lower))
-                else:
-                    new_list.append(item)
-            clean_data[key] = new_list
+            clean_data[key] = [
+                _relativize_string_cached(item, root_abs_lower) if isinstance(item, str) else item
+                for item in value
+            ]
 
-        # Handle Single Path Strings (e.g. 'target_path', 'blueprint_path')
+        # Singular Path Handling (Strings)
         elif isinstance(value, str):
-            # Heuristic: only try to relativize if it looks like an absolute path
-            # optimization: check first char
+            # Heuristic: only attempt relativization if it resembles an absolute path
             if len(value) > 0 and (value[0] == '/' or (len(value) > 1 and value[1] == ':')):
                 clean_data[key] = _relativize_string_cached(value, root_abs_lower)
+
+        # Recursive Dive for nested Gnosis
+        elif isinstance(value, dict):
+            clean_data[key] = _sanitize_paths(value, root)
 
     return clean_data
 
 
 def _parse_cli_value(val: str) -> Any:
     """
-    [ASCENSION 17 & 19]: THE VALUE ALCHEMIST.
-    Coerces CLI strings into typed Gnosis (Bool, Int, JSON, List).
+    [ASCENSION 17 & 19]: THE ALCHEMICAL VALUE SIEVE.
+    Transmutes raw CLI strings into typed Pythonic matter (JSON, Lists, Ints).
     """
-    if val is None: return None
-    v_lower = val.lower()
+    if val is None:
+        return None
 
-    # 1. Boolean Unifier
-    if v_lower in ('true', 'yes', 'on', '1'): return True
-    if v_lower in ('false', 'no', 'off', '0'): return False
+    v_lower = val.lower().strip()
 
-    # 2. Integer
-    if val.isdigit(): return int(val)
+    # 1. THE BOOLEAN UNIFIER
+    if v_lower in ('true', 'yes', 'on', '1', 'resonant'): return True
+    if v_lower in ('false', 'no', 'off', '0', 'fractured'): return False
 
-    # 3. JSON Fast-Path (Optimized)
+    # 2. NUMERIC DIVINATION
+    if val.isdigit():
+        return int(val)
+
+    # 3. JSON/AST FAST-PATH
+    # Detect structured matter (JSON or Python Literals)
     if val.startswith(('[', '{')) and val.endswith((']', '}')):
         try:
             return json.loads(val)
         except json.JSONDecodeError:
-            # Fallback to AST for loose Python syntax like {'a': 1} (JSON requires quotes)
+            # Fallback to Safe Literal Evaluation for unquoted Python keys
             try:
                 return ast.literal_eval(val)
             except (ValueError, SyntaxError):
@@ -163,59 +213,60 @@ def _parse_cli_value(val: str) -> Any:
     return val
 
 
-# =================================================================================
-# == II. THE HAND OF THE CLI (THE PURE CONDUIT OF INVOCATION)                    ==
-# =================================================================================
+# =========================================================================================
+# == II. THE HAND OF THE CLI (THE PURE CONDUIT OF INVOCATION)                            ==
+# =========================================================================================
 
 def _handle_final_invocation_shim(
-        engine: Any,  # Typed as Any to avoid importing ScaffoldEngine at module level
+        engine: Any,  # Typed as Any to prevent premature Engine materialization
         args: argparse.Namespace,
         ArtisanClassName: str,
         RequestClassName: str
 ) -> Any:
     """
     =================================================================================
-    == THE HIGH PRIEST OF THE BRIDGE (V-Ω-TOTALITY-ASCENDED-FINAL)                ==
+    == THE SOVEREIGN CONDUIT (V-Ω-TOTALITY-V700.12-FINALIS)                        ==
     =================================================================================
-    LIF: INFINITY | auth_code: #)(@)(#()@_RECLAIMED
+    LIF: ∞ | ROLE: KINETIC_DISPATCHER | RANK: OMEGA_SUPREME
+    AUTH: Ω_DISPATCH_V700_SUBSTRATE_AWARE_2026
 
-    The Sovereign Executor. It performs the rite of invocation with lazy-loaded
-    dependencies to ensure maximum velocity.
+    The supreme conductor. It performs the rite of invocation with lazy-loaded
+    dependencies and substrate-aware safety wards.
+
+    [THE CURE]: This rite is now warded against the Threading Heresy.
+    =================================================================================
     """
-    # [LAZY IMPORTS] - The Engine is sleeping. We step softly.
     import importlib
-
-    # We define ArtisanHeresy locally or import only when needed to prevent circles
     from ...contracts.heresy_contracts import ArtisanHeresy
-    from ...interfaces.base import ScaffoldResult
+    # [ASCENSION 18]: HIGH-PERFORMANCE TRACE ID
+    # Forged using secrets to ensure cryptographic uniqueness and zero-latency generation.
+    trace_id = f"tr-{secrets.token_hex(4).upper()}"
 
-    # [ASCENSION 18] High-Performance Trace ID
-    trace_id = f"tr-{secrets.token_hex(4)}"
-
-    # [ASCENSION 24] Fallback Root Resolution
-    # We resolve the root without waking the full engine context if possible.
+    # [ASCENSION 24]: FALLBACK ROOT RESOLUTION
+    # We resolve the project anchor without waking the full engine context.
+    # Prioritizes: 1. Explicit --root | 2. Engine Memory | 3. Physical CWD
     raw_root = getattr(args, 'root', None) or getattr(engine, 'project_root', None) or os.getcwd()
     project_root = Path(raw_root).resolve()
 
     # --- MOVEMENT I: THE MASTER SCRIER ---
+    # Attempt to find a warm Daemon heart before defaulting to Sovereign execution.
     daemon_config = _discover_active_daemon(project_root)
-
-    # [ASCENSION 20] Force Sovereign logic
     force_sovereign = getattr(args, 'force_sovereign', False)
 
     if daemon_config and not force_sovereign:
-        Logger.info(f"Nexus Master found on port {daemon_config['port']}. Delegating rite...")
+        Logger.info(f"Nexus Master found on port {daemon_config['port']}. Delegating intent...")
         return _delegate_to_master(daemon_config, args, trace_id)
 
     # --- MOVEMENT II: THE SOVEREIGN PATHWAY ---
     try:
-        # We load the grimoire map only when needed
+        # JIT loading of the Grimoire map to prevent memory bloat
         from .grimoire_data import LAZY_RITE_MAP
         mod_info = LAZY_RITE_MAP.get(args.command)
         if not mod_info:
-            raise KeyError(f"Rite '{args.command}' is not inscribed in the Grimoire.")
+            raise KeyError(f"Rite '{args.command}' is unmanifest in the Grimoire.")
 
-        # [ROBUST IMPORT]: Handle different import roots for dev vs prod
+        # [ROBUST IMPORT LATTICE]
+        # Handles different package structures between local dev and Pyodide environments.
         try:
             req_mod = importlib.import_module("velm.interfaces.requests")
         except ImportError:
@@ -223,47 +274,63 @@ def _handle_final_invocation_shim(
 
         RequestClass = getattr(req_mod, RequestClassName)
 
-        # Import the Artisan module dynamically
-        art_mod = importlib.import_module(f"velm.{mod_info[0]}")
+        # Materialize the Artisan from its module shard
+        art_mod_path = f"velm.{mod_info[0]}" if not mod_info[0].startswith("velm.") else mod_info[0]
+        art_mod = importlib.import_module(art_mod_path)
         ArtisanClass = getattr(art_mod, ArtisanClassName)
 
-        # Consecrate the current reality
+        # Consecrate the current reality: Bind the Request to the Artisan in the Engine's mind
         engine.register_artisan(RequestClass, ArtisanClass)
 
     except (ImportError, AttributeError, KeyError) as e:
+        # [FORENSIC INQUEST]
+        Logger.error(f"Gnostic schism during {args.command} materialization: {e}")
         raise ArtisanHeresy(f"Gnostic schism during {args.command} inception.", child_heresy=e)
 
-    # [ASCENSION 6]: NON-BLOCKING DEBUGGER HANDSHAKE
-    if hasattr(args, 'debug') and args.debug:
-        _ignite_non_blocking_debugger()
+    # =========================================================================
+    # == [STRATUM: THE CURE] - SUBSTRATE-AWARE KINETIC GATING                ==
+    # =========================================================================
+    # [ASCENSION 6]: True threading is a heresy in the Ethereal Plane (WASM).
+    # We scry the substrate and stay the hand of all background Sentinels.
+    is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
-    # [ASCENSION 16 & 21]: FIRE-AND-FORGET UPDATE SENTINEL
-    # Moved inside execution path and wrapped in detached thread.
-    # We skip for genesis to maximize first-run impression.
-    if not "genesis" in str(getattr(args, 'handler', '')) and not getattr(args, 'silent', False):
-        _ignite_update_check()
+    if not is_wasm:
+        # PATH A: IRON CORE (NATIVE)
+        # Background Sentinels are willed into existence.
+        if hasattr(args, 'debug') and args.debug:
+            _ignite_non_blocking_debugger()
 
-    # --- MOVEMENT III: VESSEL INCEPTION ---
+        # Fire-and-forget update scrying (Skip for genesis to maximize velocity)
+        if "genesis" not in str(getattr(args, 'handler', '')) and not getattr(args, 'silent', False):
+            _ignite_update_check()
+    else:
+        # PATH B: ETHER PLANE (WASM)
+        # We obey the Law of Single-Threaded Totality. Background tasks remain dormant.
+        if getattr(args, 'verbose', False):
+            Logger.debug("WASM Substrate perceived. Background Sentinels stayed.")
+
+    # --- MOVEMENT III: VESSEL INCEPTION (CONTINUED FROM RITE 3) ---
     try:
+        # Extract the raw dictionary of intent from the Argparse vessel
         req_data = vars(args).copy()
 
-        # Sub-command Semantic Bridge
+        # [ASCENSION 20]: SUB-COMMAND SEMANTIC BRIDGE
+        # Maps 'genesis_command' or 'init_command' to a single 'command' key.
         sub_command_key = f"{args.command}_command"
         if sub_command_key in req_data:
-            # We assume the request class has a 'command' field if it uses subcommands
-            # Use 'in' check on fields to avoid importing Pydantic yet
             req_data['command'] = req_data[sub_command_key]
 
-        # Purification
+        # PURIFICATION: Remove non-logic keys that contaminate the Pydantic soul.
         req_data.pop('handler', None)
         req_data.pop('herald', None)
         req_data['project_root'] = project_root
 
-        # --- [ASCENSION 8]: GLOBAL PATH SANITIZATION ---
+        # [ASCENSION 8]: GLOBAL PATH SANITIZATION
+        # Transmutes all machine-specific paths into relative Gnostic coordinates.
         req_data = _sanitize_paths(req_data, project_root)
 
-        # --- [ASCENSION 7]: THE ALCHEMICAL SANITIZER (TYPE HEALING) ---
-        # Heals list fields that might come in as single strings or None
+        # [ASCENSION 7]: THE ALCHEMICAL SANITIZER (TYPE HEALING)
+        # Heals list fields that might arrive as single strings or NoneType voids.
         for list_field in ['needs', 'teach', 'paths', 'ignore', 'include', 'focus']:
             if list_field in req_data:
                 val = req_data[list_field]
@@ -273,16 +340,19 @@ def _handle_final_invocation_shim(
                     req_data[list_field] = [val]
 
         # [ASCENSION 5 & 21]: ALCHEMICAL VARIABLE COERCION & INHERITANCE
+        # Merges Environment DNA with explicit CLI Will.
         current_vars = req_data.get('variables', {}) or {}
 
-        # 1. Environment Inheritance
+        # 1. Environment DNA Inhalation
+        # Allows setting project variables via 'export SCAFFOLD_VAR_NAME=value'
         for k, v in os.environ.items():
             if k.startswith("SCAFFOLD_VAR_"):
                 var_key = k.replace("SCAFFOLD_VAR_", "").lower()
                 current_vars[var_key] = _parse_cli_value(v)
 
-        # 2. CLI Injection (--set)
-        if 'set' in req_data and isinstance(req_data['set'], list) and req_data['set']:
+        # 2. CLI Alchemical Strike (--set)
+        # Transmutes 'key=val' strings into a structured Gnostic Map.
+        if 'set' in req_data and isinstance(req_data['set'], list):
             for s in req_data['set']:
                 if '=' in s:
                     k, v = s.split('=', 1)
@@ -290,75 +360,113 @@ def _handle_final_invocation_shim(
 
         req_data['variables'] = current_vars
 
-        # Inject Trace Metadata
+        # [ASCENSION 11]: TRANSACTIONAL TRACE SUTURE
+        # Injects the silver cord (trace_id) into the request metadata.
         req_data['metadata'] = {**req_data.get('metadata', {}), 'trace_id': trace_id}
 
-        # Inception
+        # THE INCEPTION: Forge the strict Pydantic vessel from the purified data.
         req = RequestClass.model_validate(req_data)
 
     except Exception as e:
+        # [FORENSIC FRACTURE]
+        Logger.error(f"Request Vessel Fracture: {e}")
         raise ArtisanHeresy("Request Vessel Fracture", child_heresy=e)
 
     # --- MOVEMENT IV: THE DISPATCH ---
+    # The Conductor bestows the purified Will upon the Engine for execution.
     return engine.dispatch(req)
 
+
+# =========================================================================================
+# == STRATUM-3: BACKGROUND SENTINELS (IRON CORE ONLY)                                   ==
+# =========================================================================================
 
 def _ignite_update_check():
     """
     [ASCENSION 16]: THE SILENT SENTINEL.
-    Runs update check in a detached daemon thread that never blocks exit.
+    Runs a non-blocking update check in a detached daemon thread.
+
+    [THE CURE]: This function is ONLY summoned on IRON substrates to prevent
+    the WASM Threading Paradox.
     """
 
     def _check():
         try:
-            # Lazy import inside the thread
+            # Lazy import inside the thread to preserve boot speed
             from ...herald import check_for_updates
             check_for_updates()
-        except:
-            pass  # Silence is golden
+        except Exception:
+            # The Sentinel is a silent observer; it never interrupts the Architect.
+            pass
 
-    t = threading.Thread(target=_check, daemon=True)
+    t = threading.Thread(target=_check, name="UpdateSentinel", daemon=True)
     t.start()
 
+
+def _ignite_non_blocking_debugger():
+    """
+    [ASCENSION 6]: THE PARALLEL HANDSHAKE.
+    Engages the debugpy listener in a daemon thread.
+    """
+    import socket
+
+    def _awaken():
+        try:
+            import debugpy
+            # Scry for port vacancy before attempting ignition
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                if s.connect_ex(("127.0.0.1", 5678)) != 0:
+                    debugpy.listen(("127.0.0.1", 5678))
+                    Logger.info("Debugger's Handshake ready on port 5678.")
+                else:
+                    Logger.warn("Debug port 5678 is occupied. Handshake deferred.")
+        except Exception as e:
+            Logger.warn(f"Neural Handshake logic fractured: {e}")
+
+    threading.Thread(target=_awaken, name="DebugHandshake", daemon=True).start()
+
+
+# =========================================================================================
+# == STRATUM-4: DAEMON COMMUNION                                                        ==
+# =========================================================================================
 
 def _discover_active_daemon(root: Path) -> Optional[Dict[str, Any]]:
     """
     =================================================================================
-    == THE QUANTUM PULSE SCRIER (V-Ω-SYSCALL-ACCELERATED)                          ==
+    == THE QUANTUM PULSE SCRIER (V-Ω-SYSCALL-ACCELERATED-V700)                     ==
     =================================================================================
-    LIF: INFINITY | SPEED: <5ms | ROLE: REALITY_VERIFIER
+    LIF: ∞ | ROLE: REALITY_VERIFIER | RANK: OMEGA
 
-    [ASCENSION 25]: PSUTIL ANNIHILATION.
     Uses raw OS signals to verify process existence, bypassing the heavy overhead
-    of psutil. Implements ultra-fast TCP probing to confirm the socket is warm.
+    of psutil. [THE CURE]: Substrate-gated to prevent WASM fractures.
     """
     # 1. Spatial Coordination (Fast String Path)
-    # We use os.path for raw speed over Path object methods where possible.
     pulse_path = os.path.join(str(root), ".scaffold", "daemon.pulse")
 
     if not os.path.exists(pulse_path):
         return None
 
     try:
-        # 2. The Chronometric Guard (Stale Check)
-        # Verify the heartbeat is younger than 10 seconds.
+        # 2. THE CHRONOMETRIC GUARD (Stale Check)
+        # Verify the heartbeat is younger than 10 seconds to avoid zombie-linking.
         if (time.time() - os.path.getmtime(pulse_path)) > 10:
             return None
 
-        # 3. Gnostic Peeking
+        # 3. GNOSTIC PEEKING
+        # Only read the first 1KB to keep the I/O tax at a mathematical minimum.
         with open(pulse_path, 'r', encoding='utf-8') as f:
-            content = f.read(1024).strip()  # Only read first KB to stay light
+            content = f.read(1024).strip()
 
-        if not content: return None
+        if not content:
+            return None
 
         pid, port, token = None, None, None
 
-        # 4. Multi-Dialect Triage (JSON vs Legacy)
-        if content[0] == '{':
-            # [ASCENSION 20]: JSON Dialect (V2.3+)
+        # 4. MULTI-DIALECT TRIAGE (JSON vs Legacy)
+        if content.startswith('{'):
+            # [ASCENSION 20]: JSON Dialect (V2.3+ Optimized)
             data = json.loads(content)
             pid = data.get('pid')
-            # Check body and metadata containers
             meta = data.get('meta', {})
             port = data.get('port') or meta.get('port')
             token = data.get('token') or meta.get('token')
@@ -368,28 +476,34 @@ def _discover_active_daemon(root: Path) -> Optional[Dict[str, Any]]:
             if len(parts) >= 3:
                 pid, port, token = int(parts[0]), int(parts[1]), parts[2]
 
-        if not pid or not port: return None
+        if not pid or not port:
+            return None
 
-        # 5. [THE CURE]: RAW SYSCALL INQUEST
+        # 5. [THE CURE]: SUBSTRATE-AWARE SYSCALL INQUEST
         # os.kill(pid, 0) is the fastest way to ask the Kernel: "Is this PID breathing?"
-        # It does not actually kill the process; it only performs a permission check.
-        try:
-            os.kill(pid, 0)
-        except (OSError, ProcessLookupError):
-            # The PID is a ghost. It is no longer in the process table.
+        # It is strictly warded against the Ethereal Plane (WASM).
+        if sys.platform != "emscripten":
+            try:
+                os.kill(pid, 0)
+            except (OSError, ProcessLookupError, AttributeError):
+                # The PID is a ghost. It is no longer in the process table.
+                return None
+        else:
+            # In WASM, we assume the Daemon is unmanifest as we cannot probe PIDs
+            # or commune via native TCP sockets.
             return None
 
         # 6. [ASCENSION 23]: THE NEURAL PROBE (TCP)
-        # Ensure the process is not just alive, but actually listening on the port.
+        # Ensure the process is not just alive, but actually listening.
         import socket
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            # 50ms is more than enough for a local loopback handshake
+            # [THE WARD]: 50ms timeout to prevent CLI hangs on network friction.
             s.settimeout(0.05)
             if s.connect_ex(("127.0.0.1", port)) != 0:
                 return None
 
         # 7. THE REVELATION
-        # The Daemon is confirmed warm and responsive.
+        # The Daemon is confirmed warm, responsive, and warded.
         return {"pid": pid, "port": port, "token": token}
 
     except Exception:
@@ -400,20 +514,22 @@ def _discover_active_daemon(root: Path) -> Optional[Dict[str, Any]]:
 def _delegate_to_master(config: Dict, args: argparse.Namespace, trace_id: str) -> Any:
     """
     [ASCENSION 3 & 10]: THE ACOLYTE DELEGATION BRIDGE.
-    Transfers the rite to the Master Daemon and mirrors the outcome.
+    Transfers the kinetic intent to the Master Daemon and mirrors the outcome.
+
+    LIF-10: Annihilates boot-time by offloading logic to a pre-warmed Mind.
     """
     from ..daemon.sentinel import send_gnostic_plea
     from ...interfaces.base import ScaffoldResult
     from ...contracts.heresy_contracts import ArtisanHeresy
 
-    # Pack the plea
+    # Pack the plea for teleportation
     params = vars(args).copy()
     params.pop('handler', None)
     params.pop('herald', None)
     params['project_root'] = str(Path(args.root or "").resolve() or os.getcwd())
     params['metadata'] = {'trace_id': trace_id, 'client_mode': 'ACOLYTE'}
 
-    # [ASCENSION 8]: Sanitize Paths for the Daemon too
+    # Sanitize Paths for the Master's environment
     params = _sanitize_paths(params, Path(params['project_root']))
 
     payload = {
@@ -425,9 +541,11 @@ def _delegate_to_master(config: Dict, args: argparse.Namespace, trace_id: str) -
     }
 
     try:
+        # [KINETIC FORWARDING]: Connect to the Master's port and stream the rite.
         result = send_gnostic_plea(
             config['port'],
             payload,
+            # [ASCENSION 24]: Synchronous Log Radiation
             on_log=lambda log: sys.stdout.write(f"[{log['level']}] {log['content']}\n")
         )
         return ScaffoldResult.model_validate(result)
@@ -440,37 +558,16 @@ def _delegate_to_master(config: Dict, args: argparse.Namespace, trace_id: str) -
         )
 
 
-def _ignite_non_blocking_debugger():
-    """
-    [ASCENSION 6]: THE PARALLEL HANDSHAKE.
-    Engages the debugger listener in a daemon thread.
-    """
-    import socket
-
-    def _awaken():
-        try:
-            import debugpy
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                if s.connect_ex(("127.0.0.1", 5678)) != 0:
-                    debugpy.listen(("127.0.0.1", 5678))
-                    Logger.info("Debugger's Handshake ready on port 5678.")
-                else:
-                    Logger.warn("Debug port 5678 is occupied. Handshake deferred.")
-        except Exception as e:
-            Logger.warn(f"Neural Handshake logic fractured: {e}")
-
-    threading.Thread(target=_awaken, daemon=True).start()
-    time.sleep(0.05)
-
-
-# =================================================================================
-# == III. THE VOICE OF THE CLI (THE PANTHEON OF HERALDS)                         ==
-# =================================================================================
+# =========================================================================================
+# == III. THE VOICE OF THE CLI (THE PANTHEON OF HERALDS)                                 ==
+# =========================================================================================
 
 class RichProxy:
     """
     [ASCENSION 15]: THE RICH PROXY.
-    Loads 'rich' library components only when they are actually summoned.
+    An architectural ward that loads 'rich' library components only when
+    they are actually summoned. This prevents the 'Import Avalanche' during
+    the Engine's first millisecond of life.
     """
 
     @property
@@ -490,22 +587,24 @@ class RichProxy:
 
     @property
     def console(self):
+        # Summon the Luminous Voice from the global Registry
         from ...logger import get_console
         return get_console()
 
 
+# Consecrate the visual proxy
 Rich = RichProxy()
 
 
 def _handle_analyze_herald(result: 'ScaffoldResult', args: argparse.Namespace):
     """
     =============================================================================
-    == THE ANALYZE HERALD (V-Ω-HOLOGRAPHIC-PROJECTION-FINAL-V100)              ==
+    == THE ANALYZE HERALD (V-Ω-TOTALITY-V700-RESONANT)                         ==
     =============================================================================
-    LIF: INFINITY | ROLE: THE_SUPREME_VOICE | AUTH: Ω_REVELATION_V7
+    LIF: ∞ | ROLE: THE_SUPREME_VOICE | RANK: OMEGA
 
     Transmutes the God-Engine's perception into human-readable light.
-    Handles Single-Scripture Inquests and Multi-Project Panoptic summaries.
+    Handles both single-scripture Inquests and multi-project Panoptic summaries.
     """
     import json
     import sys
@@ -517,6 +616,7 @@ def _handle_analyze_herald(result: 'ScaffoldResult', args: argparse.Namespace):
         try:
             from ..daemon.serializer import gnostic_serializer
             payload = result.model_dump(mode='json')
+            # [ASCENSION 17]: Atomic Stream Suture
             sys.stdout.write(json.dumps(payload, default=gnostic_serializer, indent=2))
             sys.stdout.write("\n")
             sys.stdout.flush()
@@ -526,26 +626,21 @@ def _handle_analyze_herald(result: 'ScaffoldResult', args: argparse.Namespace):
 
     # --- MOVEMENT II: THE HUMAN REVELATION (RICH) ---
     try:
-        from rich.console import Console, Group
-        from rich.table import Table
-        from rich.panel import Panel
         from rich.tree import Tree
         from rich.syntax import Syntax
-        from rich.text import Text
-        from rich.align import Align
         from rich import box
 
-        console = Console()
+        console = Rich.console
         data = result.data or {}
 
         if not result.success:
-            console.print(Panel(
+            console.print(Rich.Panel(
                 f"[bold red]The Inquisition Fractured[/]\n\n[white]{result.message}[/]",
                 title="[bold red]FATAL HERESY[/]", border_style="red", padding=(1, 2)
             ))
             if result.traceback and getattr(args, 'verbose', False):
-                console.print(Panel(Syntax(result.traceback, "python", theme="monokai"), title="Forensic Trace",
-                                    border_style="red dim"))
+                console.print(Rich.Panel(Syntax(result.traceback, "python", theme="monokai"),
+                                         title="Forensic Trace", border_style="red dim"))
             return
 
         # --- MOVEMENT III: PANOPTICON MODE (BATCH) ---
@@ -553,7 +648,7 @@ def _handle_analyze_herald(result: 'ScaffoldResult', args: argparse.Namespace):
             summary = data.get("summary", {})
             results = data.get("results", {})
 
-            summary_grid = Table.grid(expand=True, padding=(0, 4))
+            summary_grid = Rich.Table.grid(expand=True, padding=(0, 4))
             summary_grid.add_column(style="cyan", justify="right")
             summary_grid.add_column(style="bold white")
             summary_grid.add_column(style="dim", justify="right")
@@ -572,10 +667,10 @@ def _handle_analyze_herald(result: 'ScaffoldResult', args: argparse.Namespace):
                 "Critical Zones:", f"[bold red]{len(summary.get('complex_files', []))}[/]"
             )
 
-            console.print(Panel(summary_grid, title="[bold magenta]Gnostic Panopticon[/]", border_style="magenta"))
+            console.print(Rich.Panel(summary_grid, title="[bold magenta]Gnostic Panopticon[/]", border_style="magenta"))
 
             if results:
-                file_table = Table(box=box.SIMPLE, expand=True, border_style="dim")
+                file_table = Rich.Table(box=box.SIMPLE, expand=True, border_style="dim")
                 file_table.add_column("Scripture", style="cyan")
                 file_table.add_column("Complexity", justify="right")
                 file_table.add_column("Heresies", justify="right")
@@ -595,14 +690,14 @@ def _handle_analyze_herald(result: 'ScaffoldResult', args: argparse.Namespace):
         metrics = data.get('metrics', {})
         diagnostics = result.diagnostics or data.get("diagnostics", [])
 
-        meta_grid = Table.grid(expand=True, padding=(0, 2))
+        meta_grid = Rich.Table.grid(expand=True, padding=(0, 2))
         meta_grid.add_column(style="blue", justify="right")
         meta_grid.add_column(style="bold white")
         meta_grid.add_row("Target:", target_path)
         meta_grid.add_row("Grammar:", f"[cyan]{str(metrics.get('grammar', 'Unknown')).upper()}[/]")
         meta_grid.add_row("Mass:", f"{metrics.get('line_count', '?')} LOC")
 
-        console.print(Panel(meta_grid, title="[bold blue]Forensic Analysis[/]", border_style="blue"))
+        console.print(Rich.Panel(meta_grid, title="[bold blue]Forensic Analysis[/]", border_style="blue"))
 
         # 1. Structural MRI (Symbol Tree)
         structure = data.get("structure", [])
@@ -620,13 +715,13 @@ def _handle_analyze_herald(result: 'ScaffoldResult', args: argparse.Namespace):
 
             try:
                 populate(structure, mri_tree)
-                console.print(Panel(mri_tree, title="[bold]Structural MRI[/]", border_style="dim"))
+                console.print(Rich.Panel(mri_tree, title="[bold]Structural MRI[/]", border_style="dim"))
             except Exception:
                 pass
 
         # 2. Heresy Ledger
         if diagnostics:
-            ledger = Table(expand=True, box=box.ROUNDED, border_style="red")
+            ledger = Rich.Table(expand=True, box=box.ROUNDED, border_style="red")
             ledger.add_column("Sev", width=4, justify="center")
             ledger.add_column("Locus", style="cyan", width=10)
             ledger.add_column("Heresy", ratio=1)
@@ -648,28 +743,28 @@ def _handle_analyze_herald(result: 'ScaffoldResult', args: argparse.Namespace):
                 lines = content.splitlines()
                 start_l, end_l = max(0, first_line - 2), min(len(lines), first_line + 3)
                 snippet = "\n".join(lines[start_l:end_l])
-                console.print(Panel(
+                console.print(Rich.Panel(
                     Syntax(snippet, metrics.get('grammar', 'python'), theme="monokai", line_numbers=True,
-                           start_line=start_l + 1, highlight_lines={first_line + 1}), title="Forensic Focus",
-                    border_style="dim"))
+                           start_line=start_l + 1, highlight_lines={first_line + 1}),
+                    title="Forensic Focus", border_style="dim"))
         else:
-            console.print(Align.center("\n[bold green]✨ The Lattice is Pure. No heresies perceived. ✨[/]\n"))
+            console.print(Rich.Align.center("\n[bold green]✨ The Lattice is Pure. No heresies perceived. ✨[/]\n"))
 
-        console.print(Align.center(
+        console.print(Rich.Align.center(
             f"[dim]Concluded in {result.duration_seconds * 1000:.2f}ms | Source: {data.get('reality', 'Unknown').upper()}[/]"))
 
     except Exception as e:
-        print(f"Herald Failure: {e}\nResult: {result.message}")
+        sys.stderr.write(f"Herald Failure: {e}\n")
 
 
-# =================================================================================
-# == THE CRASH SARCOPHAGUS (FORENSIC INJECTION)                                  ==
-# =================================================================================
+# =========================================================================================
+# == IV. THE CRASH SARCOPHAGUS (FORENSIC INJECTION)                                      ==
+# =========================================================================================
 
 def _install_crash_handler(root: Path):
     """
-    [ASCENSION 99]: THE IMMORTAL SCRIBE
-    Writes unhandled exceptions to disk, bypassing stdout/stderr.
+    [ASCENSION 99]: THE IMMORTAL SCRIBE.
+    Inscribes unhandled exceptions to disk, bypassing all standard logic.
     """
 
     def handle_exception(exc_type, exc_value, exc_traceback):
@@ -677,15 +772,15 @@ def _install_crash_handler(root: Path):
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
 
-        crash_file = root / ".scaffold" / "lsp_crash.log"
+        crash_file = root / ".scaffold" / "crash_dump.log"
         try:
             crash_file.parent.mkdir(parents=True, exist_ok=True)
             with open(crash_file, "a", encoding="utf-8") as f:
-                timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-                f.write(f"\n[{timestamp}] FATAL FRACTURE:\n")
+                ts = time.strftime("%Y-%m-%d %H:%M:%S")
+                f.write(f"\n[{ts}] FATAL FRACTURE DETECTED:\n")
                 traceback.print_exception(exc_type, exc_value, exc_traceback, file=f)
         except:
-            pass  # If we can't write, we die silently (stderr handles it)
+            pass
 
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
@@ -695,101 +790,63 @@ def _install_crash_handler(root: Path):
 def run_lsp_server(engine: Any, args: argparse.Namespace):
     """
     =============================================================================
-    == THE SOVEREIGN LSP IGNITION RITE (V-Ω-TOTALITY-V300-MODULAR)             ==
+    == THE SOVEREIGN LSP IGNITION RITE (V-Ω-TOTALITY-V700)                     ==
     =============================================================================
-    LIF: INFINITY | ROLE: ALPHA_INVOCATOR | RANK: SOVEREIGN
+    LIF: ∞ | ROLE: ALPHA_INVOCATOR | RANK: SOVEREIGN
 
-    This is the definitive shim. It prepares the physical hardware reality
-    (Binary mode, Paths, Signals) and then summons the modular bootstrap to
-    materialize the Gnostic Oracle.
+    The definitive ignition shim. Prepares binary mode and substrate anchors
+    before materializing the Gnostic Oracle.
     =============================================================================
     """
-    import sys
-    import os
-    import time
-    import traceback
-    from pathlib import Path
-
     # --- MOVEMENT 0: THE GHOST PROCLAMATION ---
-    # [ASCENSION 1]: Immediate signal to Electron to stop the watchdog timer.
     sys.stdout.write("DAEMON_VITALITY:AWAKENING\n")
     sys.stdout.flush()
 
-    # --- MOVEMENT I: THE BINARY GUARD (CRITICAL) ---
-    # [ASCENSION 2]: Banish CRLF mangling at the kernel level.
+    # --- MOVEMENT I: THE BINARY GUARD ---
+    # [ASCENSION 2]: Banish CRLF mangling at the kernel level for Windows parity.
     if sys.platform == "win32":
-        import msvcrt
         try:
+            import msvcrt
             msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
             msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
-        except Exception as e:
-            sys.stderr.write(f"[LSP] 💥 Binary Mode Shift failed: {e}\n")
-            sys.stderr.flush()
+        except Exception:
+            pass
 
     # --- MOVEMENT II: SPATIAL ANCHORING ---
-    # [ASCENSION 7]: Resolve the project root with absolute parity.
     try:
         raw_root = getattr(args, 'root', None) or (engine.project_root if engine else None) or os.getcwd()
         project_root = Path(raw_root).resolve()
-
-        # Inject into environment for child processes
         os.environ["SCAFFOLD_PROJECT_ROOT"] = str(project_root)
     except Exception as e:
         sys.stderr.write(f"[LSP] 💥 Path Resolution Fracture: {e}\n")
         sys.exit(1)
 
-    # --- MOVEMENT III: FORENSIC INSTRUMENTATION ---
-    # [ASCENSION 8]: Inscribe the Boot Marker.
+    # --- MOVEMENT III: ALPHA INVOCATION ---
     try:
-        debug_dir = project_root / ".scaffold" / "debug"
-        debug_dir.mkdir(parents=True, exist_ok=True)
-        (debug_dir / "lsp_boot.marker").write_text(f"{time.time()}")
-    except:
-        pass
-
-    # --- MOVEMENT IV: THE ALPHA INVOCATION ---
-    try:
-        # [ASCENSION 3 & 11]: LATE-BOUND DELEGATION
-        # We reach into our new modular package structure.
         from ..lsp.scaffold_server.bootstrap import main as ignite_oracle
 
-        # [ASCENSION 6]: RENAME PROCESS
+        # Rename process for system-level visibility
         try:
             import setproctitle
             setproctitle.setproctitle(f"scaffold: oracle-lsp [{project_root.name}]")
         except ImportError:
             pass
 
-        # [ASCENSION 4]: ARGV ALCHEMY
-        # The bootstrap uses argparse. We ensure it receives the necessary energy.
-        # We rebuild sys.argv to pass the root to the internal parser.
+        # ARGV Alchemy: Prepare the bootstrap environment
         sys.argv = [sys.argv[0], "--root", str(project_root)]
-        if getattr(args, 'verbose', False) or os.environ.get("SCAFFOLD_VERBOSE") == "1":
+        if getattr(args, 'verbose', False):
             sys.argv.append("--verbose")
 
         # --- THE MOMENT OF SINGULARITY ---
-        # ignite_oracle() performs the 12-part modular synthesis and calls server.run().
-        # This call blocks until the connection dissolves or EOF is reached.
+        # Blocks until the connection dissolves.
         ignite_oracle()
-        # ---------------------------------
 
     except KeyboardInterrupt:
-        # [ASCENSION 10]: GRACEFUL DISSOLUTION
         sys.exit(0)
-
     except Exception as e:
-        # [ASCENSION 5 & 12]: THE CATASTROPHIC AUTOPSY
         sys.stderr.write(f"\n[LSP:FATAL] Oracle Inception Failed: {str(e)}\n")
-        trace = traceback.format_exc()
-        sys.stderr.write(trace)
-        sys.stderr.flush()
-
-        # Inscribe to the Black Box
-        try:
-            crash_file = project_root / ".scaffold" / "lsp_boot_death.log"
-            with open(crash_file, "a", encoding="utf-8") as f:
-                f.write(f"\n[{time.ctime()}] FATAL INCEPTION FRACTURE:\n{trace}\n")
-        except:
-            pass
-
+        traceback.print_exc(file=sys.stderr)
         sys.exit(1)
+
+
+

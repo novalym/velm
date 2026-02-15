@@ -3,13 +3,14 @@
 
 import re
 from pathlib import Path
-from typing import List, TYPE_CHECKING
+from typing import List, Tuple, Set, Optional,TYPE_CHECKING
 
 from .contracts import StackFrame
 from .node_factory import NodeFactory
 from .stack_manager import StackManager
 from ....contracts.data_contracts import _GnosticNode, GnosticLineType, ScaffoldItem
-
+from ....contracts.heresy_contracts import ArtisanHeresy, Heresy
+from ....contracts.symphony_contracts import Edict
 if TYPE_CHECKING:
     from ..engine import ApotheosisParser
 
@@ -177,18 +178,26 @@ class GnosticASTWeaver:
                 return match.group(1).lower().startswith('end')
         return False
 
-    def resolve_paths_from_ast(self, node: _GnosticNode) -> List[ScaffoldItem]:
+    def resolve_paths_from_ast(self, node: _GnosticNode) -> Tuple[
+        List[ScaffoldItem],
+        List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],
+        List[Heresy],
+        List[Edict]
+    ]:
         """
-        [THE BRIDGE OF REALIZATION - ETERNALLY HEALED]
-        Summons the LogicWeaver, bestowing upon it the complete Gnostic Dowry
-        of the Parser's mind, including the sacred post-run commands.
+        =================================================================================
+        == THE BRIDGE OF REALIZATION: TOTALITY (V-Ω-QUATERNITY-SUTURE)                 ==
+        =================================================================================
+        LIF: ∞ | ROLE: CAUSAL_REALIZER | RANK: OMEGA_SUPREME
+        AUTH: Ω_WEAVER_V200_QUATERNITY_RETURN_FINALIS
+
+        [THE CURE]: This rite now righteously returns the full four-fold Dowry from
+        the LogicWeaver, ensuring the Master Parser can finalize the reality.
         """
         from ...logic_weaver import GnosticLogicWeaver
 
-        # === THE DIVINE HEALING: THE LAW OF THE GNOSTIC DOWRY ===
-        # The Weaver now makes the sacred, five-fold plea, bestowing upon the
-        # LogicWeaver the complete Gnosis of the Parser's mind, including the
-        # untransmuted, three-fold `post_run_commands`.
+        # --- MOVEMENT I: BESTOW THE DOWRY ---
+        # We pass the complete state of the Parser to the LogicWeaver.
         weaver = GnosticLogicWeaver(
             root=node,
             context=self.parser.variables,
@@ -196,13 +205,15 @@ class GnosticASTWeaver:
             all_edicts=self.parser.edicts,
             post_run_commands=self.parser.post_run_commands
         )
-        # === THE APOTHEOSIS IS COMPLETE. THE CONTRACT IS HONORED. ===
 
-        resolved_items, extra_commands_tuples, heresies, _ = weaver.weave()
+        # --- MOVEMENT II: THE LOGIC STRIKE ---
+        # LogicWeaver.weave() is already ascended to return 4 values.
+        resolved_items, extra_commands_tuples, heresies, resolved_edicts = weaver.weave()
 
-        # The LogicWeaver now returns the pure, three-fold tuples.
-        # We replace the parser's list entirely with this resolved reality.
+        # --- MOVEMENT III: PERSISTENCE SYNC ---
+        # We update the master parser's command ledger with the resolved reality.
         self.parser.post_run_commands = extra_commands_tuples
 
-        self.parser.heresies.extend(heresies)
-        return resolved_items
+        # [ASCENSION 12]: THE FINALITY VOW
+        # We return the full quaternity to satisfy the ApotheosisParser's expected signature.
+        return resolved_items, extra_commands_tuples, heresies, resolved_edicts

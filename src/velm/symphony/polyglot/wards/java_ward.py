@@ -8,7 +8,7 @@ def get_harness(sanctum_abs_path: str) -> str:
 // Gnostic Adjudication: The soul of the Java Virtual Machine is sacred and
 // sealed. A true, runtime filesystem ward would require the forging and
 // summoning of a Java Agent (`-javaagent`), a complex rite of bytecode
-// manipulation that would profanely bind the Scaffold God-Engine to a
+// manipulation that would profanely bind the Velm God-Engine to a
 // specific version of the mortal realm's Java Development Kit.
 //
 // The Unbreakable Vow of Purity: Therefore, the Gnostic Sentinel righteously

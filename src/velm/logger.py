@@ -7,7 +7,7 @@
 LIF: 10,000,000,000
 STATUS: SENTIENT EVENT BUS, HYPER-LOGGER & TELEMETRY ENGINE
 
-This is the nervous system of the Scaffold God-Engine. It has been ascended to
+This is the nervous system of the Velm God-Engine. It has been ascended to
 handle any form of Gnostic proclamation, whether structured data, raw text, or
 catastrophic paradoxes.
 

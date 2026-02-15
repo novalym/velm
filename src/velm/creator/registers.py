@@ -47,6 +47,15 @@ class QuantumRegisters:
     project_root: Optional[Path] = None
     """The logical root of the project within the sanctum."""
 
+
+
+    # =========================================================================
+    # == [SURGICAL SUTURE]: THE NEWLY MANIFEST ORGANS                        ==
+    # =========================================================================
+    sanctum: Optional[Any] = None  # Will be SanctumInterface
+    """The sacred reality (Local, SSH, Memory) in which the rite is conducted."""
+
+
     # =========================================================================
     # == II. CAUSAL IDENTITY (THE SILVER CORD)                               ==
     # =========================================================================

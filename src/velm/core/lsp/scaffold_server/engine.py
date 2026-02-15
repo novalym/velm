@@ -162,39 +162,10 @@ class ScaffoldLSPServer(BaseLSPServer):
     def safe_handler(method_name: str, default_return: Any = None):
         """
         =============================================================================
-        == THE OMNI-VARIADIC IRON-CLAD HANDLER (V-Ω-TOTALITY-V310)                 ==
+        == THE OMNI-VARIADIC IRON-CLAD HANDLER (V-Ω-TOTALITY-V310-LSP)             ==
         =============================================================================
-        LIF: 10,000,000,000 | ROLE: SOVEREIGN_WARDEN | RANK: GOD_TIER
-
-        The definitive execution boundary. It transmutes any function into a
-        fault-tolerant, telemetry-rich environment.
-
-        ### THE PANTHEON OF 12 NEW ASCENSIONS:
-        1.  **Variadic Signature Parity:** (THE FIX) Defined as a static factory to
-            accept (method_name, default_return) during class decoration.
-        2.  **Internal State Isolation:** Performs a `copy.deepcopy` on the
-            `default_return` to prevent list/dict state contamination across requests.
-        3.  **Hydrodynamic Context Siphon:** Intelligently scans `args` and `kwargs`
-            for 'ctx', 'context', or 'token' regardless of position.
-        4.  **Causal Trace Inheritance:** Force-synchronizes the worker thread's
-            internal `trace_id` with the incoming plea's metadata.
-        5.  **Metabolic Throttling:** Rejects ingress if the server is in a
-            `DRAINING` state or if backpressure exceeds kernel limits.
-        6.  **Haptic Reality Bloom:** Automatically dispatches a `gnostic/vfx`
-            pulse on successful sub-50ms intelligence rites.
-        7.  **Socratic Error Mapping:** Transmutes standard Python exceptions into
-            protocol-aligned `JsonRpcError` objects before return.
-        8.  **Automatic GC Pulse:** Triggers a generation-1 garbage collection
-            after heavy-matter rites (Analyze/Distill).
-        9.  **Recursive Depth Ward:** Monitors the stack depth to prevent
-            Infinite Loop heresies during deep AST traversal.
-        10. **Result Transmutation:** Automatically applies `.model_dump(by_alias=True)`
-            to Pydantic results to satisfy the Monaco Dialect.
-        11. **Circuit Breaker Sentinel:** Cauterizes the method for 60s if
-            fracture density exceeds 5 per 10s.
-        12. **Forensic Sarcophagus:** Inscribes the full local execution state
-            to the crash log upon catastrophic fracture.
-        =============================================================================
+        LIF: 10,000,000,000 | ROLE: SOVEREIGN_WARDEN | RANK: DIAMOND_OMEGA
+        AUTH: Ω_HANDLER_V310_LSP_SUTURE_2026_FINALIS
         """
         import copy
         import functools
@@ -202,91 +173,139 @@ class ScaffoldLSPServer(BaseLSPServer):
         import time
         import uuid
         import gc
+        import sys
+        import inspect
 
         def decorator(func: Callable):
             @functools.wraps(func)
             def wrapper(self, *args, **kwargs):
                 # --- MOVEMENT 0: METABOLIC GATING ---
-                if getattr(self, 'is_shutdown', False):
+                # Check if the server is in a terminal phase
+                if getattr(self, 'is_shutdown', False) or getattr(self, 'state', '') == 'DRAINING':
                     return copy.deepcopy(default_return)
 
-                # --- MOVEMENT I: THE CONTEXT SIPHON [THE FIX] ---
-                # LSP handlers typically receive (params, context)
-                # This logic finds the context regardless of how the Dispatcher sends it.
+                # --- MOVEMENT I: THE CONTEXT SIPHON ---
+                # LSP handlers receive (params, context) or (params). We extract the soul.
+                params = args[0] if len(args) > 0 else None
+
+                # Scry for Gnostic Context regardless of position
                 ctx = kwargs.get('ctx') or kwargs.get('context')
                 if not ctx and len(args) > 1:
                     ctx = args[1]
                 ctx = ctx or {}
 
-                params = args[0] if len(args) > 0 else None
-
                 # --- MOVEMENT II: CAUSAL ANCHORING ---
-                # Derive trace_id from context or params or void
+                # Extract or forge the Silver Cord
                 trace_id = ctx.get('trace_id')
-                if not trace_id and isinstance(params, dict):
-                    trace_id = params.get('metadata', {}).get('trace_id')
+                if not trace_id and hasattr(params, 'metadata'):
+                    trace_id = getattr(params.metadata, 'trace_id', None)
                 if not trace_id:
-                    trace_id = f"tr-{uuid.uuid4().hex[:6]}"
+                    trace_id = f"tr-{uuid.uuid4().hex[:6].upper()}"
 
-                # Bind identity to the OS Thread for log correlation
+                # Bind identity to the OS Thread for perfect forensic correlation
                 curr_thread = threading.current_thread()
-                curr_thread.name = f"Foundry:{method_name.split('/')[-1]}"
+                # e.g., "Warden:textDocument/hover"
+                curr_thread.name = f"Warden:{method_name.split('/')[-1]}"
                 setattr(curr_thread, 'trace_id', trace_id)
 
-                # --- MOVEMENT III: CIRCUIT BREAKER ---
-                if method_name in self._disabled_features:
+                # --- MOVEMENT III: CIRCUIT BREAKER ADJUDICATION ---
+                # Prevent cascading failure if the method is unstable
+                if hasattr(self, '_disabled_features') and method_name in self._disabled_features:
                     if time.time() - self._disabled_features[method_name] < 60.0:
                         return copy.deepcopy(default_return)
                     else:
                         del self._disabled_features[method_name]
-                        self._fracture_counts[method_name] = 0
+                        if hasattr(self, '_fracture_counts'):
+                            self._fracture_counts[method_name] = 0
 
                 # --- MOVEMENT IV: THE MOMENT OF SINGULARITY ---
                 try:
-                    # 1. Memory Guard
+                    # 1. ISOMORPHIC MEMORY GUARD
+                    # Scry the substrate to determine if we need a lustration rite
                     try:
+                        mem_pressure = False
                         import psutil
-                        if psutil.Process().memory_info().rss > (1.5 * 1024 * 1024 * 1024):
-                            gc.collect(1)
-                    except:
-                        pass
+                        if psutil.Process().memory_info().rss > (1.2 * 1024 * 1024 * 1024):
+                            mem_pressure = True
+                    except (ImportError, AttributeError):
+                        # WASM Fallback: Scry object density
+                        if len(gc.get_objects()) > 800000:
+                            mem_pressure = True
 
-                    # 2. EXECUTION
+                    if mem_pressure:
+                        gc.collect(1)  # Perform soft lustration
+
+                    # 2. RECURSION DEPTH WARD
+                    # Prevent deep AST scrying from melting the stack
+                    if not hasattr(curr_thread, '_stack_depth'):
+                        curr_thread._stack_depth = 0
+                    curr_thread._stack_depth += 1
+
+                    if curr_thread._stack_depth > 50:
+                        raise RecursionError(f"Gnostic Depth Breach in {method_name}")
+
+                    # 3. KINETIC EXECUTION
                     start_tick = time.perf_counter()
 
-                    # We invoke the function with the original variadic matter
+                    # --- THE STRIKE ---
                     result = func(self, *args, **kwargs)
+                    # ------------------
 
                     duration_ms = (time.perf_counter() - start_tick) * 1000
 
-                    # 3. TELEMETRY & TRANSMUTATION
-                    self.metrics.record(0, 0, is_err=False)
+                    # 4. TELEMETRY & HUD FEEDBACK
+                    if hasattr(self, 'metrics'):
+                        self.metrics.record(method_name, duration_ms, is_err=False)
 
-                    # [ASCENSION 6]: Haptic Feedback
+                    # [ASCENSION 6]: Haptic Reality Bloom
+                    # If the intelligence rite was fast, provide haptic confirmation
                     if duration_ms < 50 and method_name.startswith('textDocument/'):
-                        self.endpoint.send_notification("gnostic/vfx", {"type": "pulse", "intensity": 0.2})
+                        if hasattr(self, 'endpoint'):
+                            self.endpoint.send_notification("gnostic/vfx", {
+                                "type": "pulse",
+                                "color": "#64ffda",
+                                "intensity": 0.3,
+                                "trace_id": trace_id
+                            })
 
-                    # [ASCENSION 10]: ENFORCE ALIAS PARITY (THE CURE)
+                    # --- MOVEMENT V: RESULT TRANSMUTATION ---
+                    # [ASCENSION 7]: ENFORCE ALIAS PARITY
+                    # Transmute Pydantic results into JSON-safe camelCase for Monaco
                     if hasattr(result, 'model_dump'):
                         return result.model_dump(mode='json', by_alias=True, exclude_none=True)
 
                     return result
 
                 except Exception as fracture:
-                    # --- MOVEMENT V: CAUTERIZATION ---
-                    self.metrics.record(0, 0, is_err=True)
-                    self._fracture_counts[method_name] = self._fracture_counts.get(method_name, 0) + 1
+                    # --- MOVEMENT VI: CAUTERIZATION & FORENSICS ---
+                    if hasattr(self, 'metrics'):
+                        self.metrics.record(method_name, 0, is_err=True)
 
-                    forensic_log(f"Fracture in {method_name}: {fracture}", "ERROR", "ENGINE", trace_id=trace_id,
-                                 exc=fracture)
+                    if hasattr(self, '_fracture_counts'):
+                        self._fracture_counts[method_name] = self._fracture_counts.get(method_name, 0) + 1
 
-                    if self._fracture_counts[method_name] > 5:
-                        self._disabled_features[method_name] = time.time()
-                        self.endpoint.send_notification("gnostic/vfx", {"type": "glitch", "intensity": 0.8})
-                        self.log_message(f"Circuit Breaker: Feature '{method_name}' cauterized due to instability.",
-                                         type=1)
+                    # [ASCENSION 11]: Forensic Inscription
+                    # We utilize the Engine's Scribe if available
+                    log_fn = getattr(self, 'logger', None)
+                    if log_fn:
+                        log_fn.error(f"FRACTURE in {method_name} [{trace_id}]: {str(fracture)}")
 
+                    # [ASCENSION 9]: Circuit Breaker Activation
+                    if hasattr(self, '_fracture_counts') and self._fracture_counts[method_name] > 5:
+                        if hasattr(self, '_disabled_features'):
+                            self._disabled_features[method_name] = time.time()
+                            if hasattr(self, 'endpoint'):
+                                self.endpoint.send_notification("gnostic/vfx", {"type": "glitch", "color": "#ef4444"})
+                                self.log_message(
+                                    f"Boundary Cauterized: feature '{method_name}' isolated due to logic fracture.",
+                                    type=1)
+
+                    # Return the safe default (usually None or an empty list)
                     return copy.deepcopy(default_return)
+
+                finally:
+                    # Decant the stack depth
+                    curr_thread._stack_depth -= 1
 
             return wrapper
 

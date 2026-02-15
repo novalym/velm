@@ -1,5 +1,6 @@
-# Path: scaffold/core/maestro/handlers/shell.py
+# Path: src/velm/core/maestro/handlers/shell.py
 # ---------------------------------------------
+
 import os
 import re
 import shlex
@@ -8,9 +9,11 @@ import subprocess
 import threading
 import time
 import sys
+import platform
 from queue import Queue, Empty
-from typing import List, Tuple, Optional, Set, Dict, Any
+from typing import List, Tuple, Optional, Set, Dict, Any, Final
 from dataclasses import dataclass
+from pathlib import Path
 
 # --- THE DIVINE SUMMONS ---
 from .base import BaseRiteHandler
@@ -19,7 +22,7 @@ from ..scribe import CinematicScribe
 from ..contracts import KineticVessel
 from ....core.state import ActiveLedger
 from ....core.state.contracts import LedgerEntry, LedgerOperation, InverseOp
-from ....contracts.heresy_contracts import ArtisanHeresy
+from ....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
 # [ASCENSION 2] The Vitality Monitor
 try:
@@ -54,19 +57,34 @@ class ShellHandler(BaseRiteHandler):
     9.  **The Exit Code Diviner:** Translates raw exit codes (127, 126) into human-readable heresies ("Command Not Found", "Permission Denied").
     10. **The Input Conduit:** A robust thread for streaming input to `stdin` without blocking.
     11. **The Binary Ward:** Detects if the output stream is binary garbage and suppresses it to protect the terminal.
-    12. **The Gnostic Safe-Guard (THE FIX):** Ensures `self.regs.gnosis` is treated safely as a dictionary, preventing `AttributeError` if it has degraded into a string.
+    12. **The Makefile Suture (V1000):** Explicitly targets the Makefile on Windows to prevent "No rule to make target" heresies during rapid filesystem flux.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.reverser = MaestroReverser()
 
-    def conduct(self, command: str):
-        """The Grand Rite of Shell Conduction."""
+    def conduct(self, command: str, env: Optional[Dict[str, str]] = None):
+        """
+        =============================================================================
+        == THE RITE OF THE KINETIC WORMHOLE (V-Ω-TOTALITY-V7.5-ISOMORPHIC)         ==
+        =============================================================================
+        LIF: ∞ | ROLE: KINETIC_DISPATCH_HAND | RANK: OMEGA_SUPREME
+        AUTH: Ω_CONDUCT_V750_WASM_WORMHOLE_2026_FINALIS
+
+        Executes the Architect's will. Intelligently bifurcates execution between
+        the Native OS (Iron) and the Virtual Simulacrum (Ether).
+        """
+        import re
+        import time
+        import os
+        import sys
+        import subprocess
+
         retries = 0
         allow_fail = False
 
-        # Parse modifiers
+        # --- MOVEMENT I: MODIFIER ADJUDICATION ---
         retry_match = re.match(r'^retry\((\d+)\):\s*(.*)', command, re.IGNORECASE)
         if retry_match:
             retries = int(retry_match.group(1))
@@ -76,14 +94,15 @@ class ShellHandler(BaseRiteHandler):
             allow_fail = True
             command = command[11:].strip()
 
+        # --- MOVEMENT II: THE SIMULATION WARD ---
         if self.regs.dry_run:
             self.logger.info(f"[DRY-RUN] EXEC: {command} (in {self.context.cwd.name})")
             return
 
-        # Gnostic Ledger Integration
+        # --- MOVEMENT III: THE LEDGER INSCRIPTION ---
+        # Record the intent in the Gnostic Chronicle for future temporal reversal.
         undo_commands = self.context.explicit_undo or self.reverser.infer_undo(command, self.context.cwd)
 
-        # [ASCENSION 8] The Ledger Link (Pre-Flight)
         ledger_entry = LedgerEntry(
             actor="Maestro",
             operation=LedgerOperation.EXEC_SHELL,
@@ -92,203 +111,483 @@ class ShellHandler(BaseRiteHandler):
                 params={"commands": undo_commands, "cwd": str(self.context.cwd)}
             ) if undo_commands else None,
             forward_state={"command": command, "cwd": str(self.context.cwd)},
-            metadata={"line_num": self.context.line_num, "start_time": time.time()}
+            metadata={
+                "line_num": self.context.line_num,
+                "start_time": time.time(),
+                "trace_id": getattr(self.regs, 'trace_id', 'tr-unbound')
+            }
         )
         ActiveLedger.record(ledger_entry)
+
+        # --- MOVEMENT IV: THE SUBSTRATE BIFURCATION (THE FIX) ---
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
         attempt = 0
         while attempt <= retries:
             try:
-                # This is the default path: the Maestro uses its own cinematic scribe.
-                self._conduct_cinematic_rite(command, ledger_entry)
-                return  # Success
-            except subprocess.CalledProcessError as e:
+                # =========================================================================
+                # == [THE CURE]: THE KINETIC WORMHOLE                                    ==
+                # =========================================================================
+                if is_wasm:
+                    # PATH A: ETHER PLANE
+                    # [ASCENSION 12]: Bypasses subprocess.Popen to avoid Errno 138.
+                    try:
+                        import simulacrum.kernel as kernel
+                        self.logger.verbose(f"WASM Substrate: Tunneling edict to Virtual Kernel: {command[:40]}...")
+
+                        # The Kernel Router handles the simulated environment and CWD.
+                        res = kernel.subprocess_router.run(
+                            command,
+                            env=env,
+                            cwd=str(self.context.cwd),
+                            capture_output=False  # Ensure real-time radiation to TTY
+                        )
+
+                        if res.returncode != 0:
+                            # Transmute into a CalledProcessError to trigger retry logic
+                            raise subprocess.CalledProcessError(
+                                res.returncode, command, output=res.stdout, stderr=res.stderr
+                            )
+                        return  # Strike Successful
+
+                    except ImportError:
+                        raise OSError("Environment Paradox: WASM detected but Simulacrum is unmanifest.")
+
+                else:
+                    # PATH B: IRON CORE
+                    # Standard cinematic execution for CLI, Cockpit, and Cloud.
+                    self._conduct_cinematic_rite(command, ledger_entry, env=env)
+                    return  # Strike Successful
+                # =========================================================================
+
+            except (subprocess.CalledProcessError, Exception) as fracture:
                 attempt += 1
                 if attempt <= retries:
-                    self.logger.warn(f"Edict failed (Attempt {attempt}/{retries + 1}). Retrying in {attempt}s...")
-                    time.sleep(attempt)
+                    delay = attempt * 1.0
+                    self.logger.warn(
+                        f"L{self.context.line_num}: Edict failed (Attempt {attempt}/{retries + 1}). Retrying in {delay}s...")
+                    time.sleep(delay)
                 else:
                     if allow_fail:
-                        self.logger.warn(f"Edict failed, but 'allow_fail' protected the symphony. Error: {e}")
+                        self.logger.warn(
+                            f"L{self.context.line_num}: Edict failed, but 'allow_fail' warded the symphony. Error: {fracture}")
                         return
 
-                    # [ASCENSION 9] The Exit Code Diviner
-                    error_context = self._divine_exit_code(e.returncode)
-                    diagnosis = self.diagnostician.consult_council(e, {"command": command})
+                    # --- MOVEMENT V: FORENSIC ADJUDICATION ---
+                    # [ASCENSION 9]: Diagnostic Exit Code scrying
+                    rc = getattr(fracture, 'returncode', 1)
+                    error_context = self._divine_exit_code(rc)
+
+                    # Consult the council for a suggested cure
+                    diagnosis = self.diagnostician.consult_council(fracture, {"command": command})
 
                     raise ArtisanHeresy(
                         f"The Maestro's Edict failed: '{self._redact_secrets(command)}'",
-                        details=f"Exit Code: {e.returncode} ({error_context})\nDiagnosis: {diagnosis.advice if diagnosis else 'Unknown'}\n\n[dim]Final Output:[/dim]\n{e.output}",
-                        child_heresy=e,
-                        fix_command=diagnosis.cure_command if diagnosis else None
+                        details=f"Exit Code: {rc} ({error_context})\nDiagnosis: {diagnosis.advice if diagnosis else 'Logic Fracture'}",
+                        child_heresy=fracture,
+                        line_num=self.context.line_num,
+                        fix_command=diagnosis.cure_command if diagnosis else None,
+                        severity=HeresySeverity.CRITICAL
                     )
 
     def _divine_exit_code(self, code: int) -> str:
-        """[ASCENSION 9] Translates numeric death into semantic truth."""
-        if code == 127: return "Command Not Found"
-        if code == 126: return "Permission Denied (Not Executable)"
-        if code == 137: return "Slaughtered by OOM Killer"
-        if code == 130: return "Terminated by Signal"
-        return "General Heresy"
+        """
+        =============================================================================
+        == THE EXIT CODE DIVINER (V-Ω-TOTALITY-V200-WINDOWS-AWARE)                 ==
+        =============================================================================
+        [ASCENSION 2]: Decodes numeric failure into Gnostic Truth.
+        """
+        if code == 127: return "Command Not Found (Binary missing in PATH)"
+        if code == 126: return "Permission Denied (Execution Ward)"
+        if code == 137: return "Metabolic Collapse (OOM Killer)"
+        if code == 130: return "User Interruption (SIGINT)"
 
-    def _conduct_raw_process(self, command: str, ledger_entry: Optional[LedgerEntry] = None) -> KineticVessel:
+        # [THE CURE]: Windows/Make Specifics
+        if code == 2:
+            return "Execution Fracture: The target (Makefile) was not found or a command within it failed."
+
+        if code == 1:
+            return "General Script Failure: The edict was struck but the internal logic failed."
+
+        return f"Unknown Heresy (Code {code})"
+
+    def _conduct_raw_process(
+            self,
+            command: str,
+            ledger_entry: Optional[LedgerEntry] = None,
+            env: Optional[Dict] = None,
+            inputs: Optional[List[str]] = None
+    ) -> KineticVessel:
         """
-        [THE NEW SACRED RITE]
-        The "headless" execution engine. It forges the process and the output queue
-        but does NOT render them, bestowing this Gnostic duty upon its caller.
+        =================================================================================
+        == THE KINETIC FORGE: OMEGA POINT (V-Ω-TOTALITY-V1000.1-TITANIUM-FIX)          ==
+        =================================================================================
+        LIF: ∞ | ROLE: PHYSICAL_MATTER_TRANSFECTOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_RAW_PROCESS_V1000_MAKEFILE_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
+        The supreme rite of process inception. It transmutes human intent into kinetic
+        matter shards, warded against 'UNC Path Poisoning', 'NoneType Leaks', and
+        'Filesystem Latency'. It is the absolute hand of the God-Engine.
         """
+        import os
+        import subprocess
+        import threading
+        import time
+        import platform
+        import shlex
+        import shutil
+        from queue import Queue
+        from pathlib import Path
+
+        # [ASCENSION 4]: NANO-SCALE METABOLIC ANCHOR
         start_time = time.monotonic()
 
-        # [ASCENSION 5] The Output Cap (Prevent Memory Floods)
+        # [ASCENSION 5]: THE OUTPUT CAP (METABOLIC GOVERNOR)
         output_queue = Queue(maxsize=10000)
 
-        # [ASCENSION 6] The Environment Snapshot
-        # We ensure the process runs with the EXACT environment calculated by the ContextForge
-        final_env = self.context.env.copy()
+        # --- MOVEMENT I: IDENTITY & SUBSTRATE ADJUDICATION ---
+        trace_id = os.environ.get("GNOSTIC_REQUEST_ID") or \
+                   getattr(self.regs, 'trace_id', 'tr-unbound')
 
-        # [ASCENSION 7] The Windows Soul Separation
-        # On Windows, we create a new process group so we can kill the whole tree later.
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or platform.system() == "Emscripten"
+
+        # --- MOVEMENT II: REALITY MATERIALIZATION & STABILIZATION (THE CURE) ---
+        if self.regs.transaction and not self.regs.is_simulation:
+            # 1. Manifest the Staged Reality
+            self.regs.transaction.materialize()
+
+            # 2. The Titanium Wait (Filesystem Settling)
+            # Give NTFS/Kernel time to index the new inodes before we strike.
+            # This annihilates the 'Makefile not found' heresy caused by IO lag.
+            if platform.system() == "Windows":
+                time.sleep(0.15)
+
+            # 3. Hydraulic Flush
+            # Force OS buffers to disk.
+            if hasattr(os, 'sync'):
+                try:
+                    os.sync()
+                except:
+                    pass
+
+        # --- MOVEMENT III: ENVIRONMENT DNA ALCHEMY ---
+        # We merge the Context's purified environment with any specific overrides.
+        final_env = (self.context.env or os.environ).copy()
+        if env:
+            final_env.update(env)
+
+        final_env["SCAFFOLD_TRACE_ID"] = trace_id
+        final_env["PYTHONUNBUFFERED"] = "1"
+
+        # --- MOVEMENT IV: GEOMETRIC PURIFICATION ---
+        raw_cwd = self.context.cwd.resolve()
+        if platform.system() == "Windows":
+            # [ASCENSION 13]: LONG PATH DECAPITATION
+            # Strip extended path prefix for compatibility with external tools (like make/git)
+            # which often choke on the UNC \\?\ syntax.
+            clean_cwd_str = str(raw_cwd).replace("\\\\?\\", "")
+        else:
+            clean_cwd_str = str(raw_cwd)
+
+        # --- MOVEMENT V: THE MAKEFILE SUTURE (THE FIX) ---
+        # If the command is 'make' and a Makefile exists, we force explicit targeting
+        # to overcome implicit rule resolution failures on Windows shells.
+        final_command = command
+        is_make_command = command.strip().startswith("make ") or command.strip() == "make"
+
+        if is_make_command and platform.system() == "Windows":
+            # We look for the Makefile in the purified CWD
+            makefile_path = raw_cwd / "Makefile"
+            if makefile_path.exists() and "-f " not in command:
+                # Inject the -f flag to force acknowledgment of the file
+                parts = command.split(" ", 1)
+                args = parts[1] if len(parts) > 1 else ""
+                final_command = f"{parts[0]} -f Makefile {args}"
+                self.logger.verbose(f"[{trace_id}] Makefile Suture applied: {final_command}")
+
+        # --- MOVEMENT VI: THE KINETIC STRIKE ---
+        if is_wasm:
+            self.logger.warn("WASM Substrate: Native strike stayed. Dreaming in memory...")
+            return KineticVessel(None, output_queue, start_time, 0, final_command, "wasm_sim")
+
+        # Process Group Isolation for clean termination
         creationflags = 0
-        start_new_session = False
-        if os.name == 'nt':
+        preexec_fn = None
+        if platform.system() == "Windows":
             creationflags = subprocess.CREATE_NEW_PROCESS_GROUP
         else:
-            start_new_session = True  # Setsid on posix
+            preexec_fn = os.setsid
 
-        process = subprocess.Popen(
-            command,
-            shell=True,
-            executable=self.context.shell_executable,
-            cwd=self.context.cwd,
-            env=final_env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            # [ASCENSION 10] The Input Conduit (Prepare stdin)
-            stdin=subprocess.PIPE,
-            text=False,  # We read bytes for the Binary Ward
-            # [THE FIX]: Line buffering (1) is invalid in binary mode. We use 0 (unbuffered) to avoid RuntimeWarning.
-            bufsize=0,
-            start_new_session=start_new_session,
-            creationflags=creationflags
-        )
+        try:
+            # =========================================================================
+            # == THE ATOMIC KERNEL CALL (IRON CORE)                                  ==
+            # =========================================================================
+            process = subprocess.Popen(
+                final_command,
+                shell=True,
+                executable=self.context.shell_executable,
+                cwd=clean_cwd_str,  # <--- THE PURIFIED GROUND
+                env=final_env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                text=False,  # [THE FIX]: Read bytes for the Binary Sieve
+                bufsize=0,  # [THE CURE]: Zero-latency unbuffered stream
+                preexec_fn=preexec_fn,
+                creationflags=creationflags
+            )
 
-        # [ASCENSION 8] Update Ledger with PID
-        if ledger_entry:
-            ledger_entry.metadata['pid'] = process.pid
+            # [ASCENSION 10]: THE LEDGER SUTURE
+            if ledger_entry:
+                ledger_entry.metadata['pid'] = process.pid
 
-        # [ASCENSION 2] The Vitality Monitor
-        # We start a thread to track the child's resource usage
+        except Exception as e:
+            raise ArtisanHeresy(f"Forge Collapse: Process inception fractured: {e}", child_heresy=e)
+
+        # --- MOVEMENT VII: VITALITY SENTINEL ---
         if PSUTIL_AVAILABLE:
-            threading.Thread(target=self._monitor_vitals, args=(process.pid,), daemon=True).start()
+            threading.Thread(
+                target=self._monitor_vitals,
+                args=(process.pid, trace_id),
+                name=f"VitalsWatcher-{process.pid}",
+                daemon=True
+            ).start()
 
+        # --- MOVEMENT VIII: STREAMING (THE PRISM) ---
         def stream_reader(stream, stream_type):
-            """[ASCENSION 11] The Binary Ward & Stream Harmonizer."""
+            """[ASCENSION 4]: THE BINARY MATTER SIEVE & ENCODING ALCHEMIST."""
             try:
-                for line_bytes in stream:
-                    # Check for binary garbage
-                    if b'\0' in line_bytes:
-                        output_queue.put((stream_type, "[Binary Data Suppressed]"))
-                        continue
+                # We iterate shard-by-shard to eliminate buffer lag.
+                for shard in stream:
+                    if not shard: break
 
-                    line_str = line_bytes.decode('utf-8', errors='replace').rstrip()
-                    output_queue.put((stream_type, line_str))
-            except (ValueError, OSError):
+                    # 1. THE BINARY WARD
+                    if b'\0' in shard[:512]:
+                        output_queue.put((stream_type, "\x1b[31m[METABOLIC_RECOIL: BINARY_MATTER_REDACTED]\x1b[0m"))
+                        break  # Protect the Eye from corruption
+
+                    # 2. THE ENCODING RESURRECTION
+                    try:
+                        line_str = shard.decode('utf-8').rstrip()
+                    except UnicodeDecodeError:
+                        line_str = shard.decode('latin-1', errors='replace').rstrip()
+
+                    # 3. QUEUE INJECTION (Governor aware)
+                    if not output_queue.full():
+                        output_queue.put((stream_type, line_str))
+            except Exception:
                 pass
             finally:
                 if stream: stream.close()
-                # We do not close the queue here as multiple threads write to it
+                # [ASCENSION 9]: EOF SINGULARITY
+                output_queue.put((stream_type, None))
 
-        # [ASCENSION 4] Parallel Stream Reading
+        # [ASCENSION 4]: PARALLEL RADIATORS
         threading.Thread(target=stream_reader, args=(process.stdout, 'stdout'), daemon=True).start()
         threading.Thread(target=stream_reader, args=(process.stderr, 'stderr'), daemon=True).start()
 
-        # [ASCENSION 1] The Vessel is Forged
+        # --- MOVEMENT IX: INPUT CONDUIT ---
+        # [ASCENSION 7]: THE KINETIC HANDOVER
+        if inputs:
+            threading.Thread(
+                target=self._stream_writer,
+                args=(process.stdin, inputs),
+                name=f"InputConduit-{process.pid}",
+                daemon=True
+            ).start()
+
+        # [ASCENSION 12]: THE FINALITY VOW
         return KineticVessel(
             process=process,
             output_queue=output_queue,
             start_time=start_time,
             pid=process.pid,
-            command=command,
-            sandbox_type="local"
+            command=final_command,
+            sandbox_type="local_iron",
+            trace_id=trace_id
         )
 
-    def _monitor_vitals(self, pid: int):
-        """[ASCENSION 2] Tracks the health of the child process."""
+    def _stream_writer(self, stream, lines: List[str]):
+        """
+        =================================================================================
+        == THE INPUT CONDUIT (V-Ω-TOTALITY-V2.0-RESILIENT)                             ==
+        =================================================================================
+        LIF: 100x | ROLE: MATTER_INJECTOR
+        [ASCENSION 5]: Hydrates the child process stdin without blocking the Mind.
+        """
         try:
-            proc = psutil.Process(pid)
-            max_mem = 0
-            while proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE:
-                try:
-                    mem = proc.memory_info().rss
-                    if mem > max_mem:
-                        max_mem = mem
-                    # If memory exceeds 1GB in a simple shell script, warn?
-                    # For now, we just observe.
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    break
-                time.sleep(0.5)
-            # Future: Log max_mem to the ledger entry
-        except Exception:
+            for line in lines:
+                if line is None: continue
+                # Enforce UTF-8 scripture
+                stream.write((line + '\n').encode('utf-8'))
+                stream.flush()
+            # The Rite is concluded
+            stream.close()
+        except (ValueError, OSError, BrokenPipeError):
+            # The process has already returned its soul to the void.
             pass
 
-    def _conduct_cinematic_rite(self, command: str, ledger_entry: LedgerEntry):
+    def _is_wasm_substrate(self) -> bool:
+        """[ASCENSION 11]: SUBSTRATE-AWARE THREADING."""
+        return os.environ.get("SCAFFOLD_ENV") == "WASM"
+
+    def _monitor_vitals(self, pid: int, trace_id: str):
         """
-        The God-Engine of Gnostic Execution.
+        =============================================================================
+        == THE METABOLIC SENTINEL (V-Ω-TOTALITY-V320-SUTURED-FINALIS)              ==
+        =============================================================================
+        LIF: ∞ | ROLE: VITALITY_SCRIER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_MONITOR_VITALS_V320_SUTURED_2026_FINALIS
+
+        [THE CURE]: Signature correctly accepts trace_id to prevent TypeError.
+        Tracks the health of the child process and records peak metabolic load.
         """
+        try:
+            if not PSUTIL_AVAILABLE:
+                return
+
+            proc = psutil.Process(pid)
+            max_mem_mb = 0
+
+            while proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE:
+                try:
+                    # 1. Scry physical RAM mass
+                    mem_info = proc.memory_info()
+                    rss_mb = mem_info.rss / (1024 * 1024)
+
+                    if rss_mb > max_mem_mb:
+                        max_mem_mb = rss_mb
+
+                    # [ASCENSION 13]: METABOLIC FEVER DETECTION
+                    # If a single subprocess consumes > 1.5GB, warn the Architect.
+                    if rss_mb > 1500:
+                        self.logger.warn(
+                            f"[{trace_id}] Metabolic Fever: Process {pid} is consuming {rss_mb:.0f}MB RAM."
+                        )
+
+                    time.sleep(0.5)
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    break
+
+            # 2. Forensic Trace Inscription
+            if max_mem_mb > 100:
+                self.logger.verbose(f"[{trace_id}] Subprocess {pid} Peak Mass: {max_mem_mb:.2f}MB")
+
+        except Exception as paradox:
+            # The Sentinel must never be the cause of a Kernel Panic.
+            self.logger.debug(f"Vitality sentinel for {pid} dissolved: {paradox}")
+
+    def _conduct_cinematic_rite(self, command: str, ledger_entry: LedgerEntry, env: Optional[Dict[str, str]] = None):
+        """
+        =================================================================================
+        == THE CINEMATIC GOVERNOR (V-Ω-TOTALITY-V900.0-DOWRY-SUTURED)                  ==
+        =================================================================================
+        LIF: ∞ | ROLE: KINETIC_RECEPTION_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_CINEMATIC_V900_FINAL_REVELATION_2026
+
+        [THE MANIFESTO]
+        The God-Engine of Gnostic Execution. Orchestrates the transition from Matter
+        Shards (process output) to Visual Proclamations, now with a bit-perfect
+        Gnostic Dowry handoff.
+        =================================================================================
+        """
+        import time
+        import os
+        import sys
+        import subprocess
+        from queue import Empty
+
         rite_start_time = time.monotonic()
 
-        # [FACULTY 12] THE GNOSTIC SAFE-GUARD (THE FIX)
-        # We ensure gnosis is treated as a dict, or default to empty.
-        gnosis = self.regs.gnosis
+        # [FACULTY 12]: THE GNOSTIC SAFE-GUARD
+        gnosis = getattr(self.regs, 'gnosis', {})
         if not isinstance(gnosis, dict):
-            # This handles the case where gnosis has degraded into a string
-            # (e.g. if variables={"project_name": "foo"} was somehow flattened)
             gnosis = {}
 
-        is_raw_mode = gnosis.get('renderer') == 'raw' or os.getenv("SCAFFOLD_RAW_MODE") == "true"
+        # [ASCENSION 5]: BICAMERAL REALITY RENDERING
+        is_raw_mode = (
+                gnosis.get('renderer') == 'raw' or
+                os.getenv("SCAFFOLD_RAW_MODE") == "true" or
+                not sys.stdout.isatty()
+        )
 
         try:
-            # Summon the Vessel
-            vessel = self._conduct_raw_process(command, ledger_entry)
+            # =========================================================================
+            # == [THE CURE]: THE GNOSTIC DOWRY INJECTION                             ==
+            # =========================================================================
+            # We scry the context for any 'inputs' (stdin) willed by the parser.
+            # This is the fix for the NameError: name 'inputs' is not defined.
+            inputs_for_strike = self.context.inputs if hasattr(self.context, 'inputs') else None
 
-            # The Dynamic Redaction
+            # Bestow the command, ledger, environment, and inputs upon the Vessel.
+            vessel = self._conduct_raw_process(
+                command,
+                ledger_entry,
+                env=env,
+                inputs=inputs_for_strike
+            )
+            # =========================================================================
+
+            # [ASCENSION 10]: THE PRIVACY VEIL
             display_cmd = self._redact_secrets(command)
 
             if is_raw_mode:
                 self.logger.verbose(f"Engaging Raw Conduit for: {display_cmd}")
-                # [ASCENSION 3] The Signal Bridge (Manual forwarding in raw mode if needed)
-                # In raw mode, we just let it flow.
-                while vessel.process.poll() is None:
+
+                # In raw mode, we stream output shards directly to the TTY.
+                # This loop now handles the EOF signal (None) gracefully.
+                stdout_done, stderr_done = False, False
+                while not (stdout_done and stderr_done):
                     try:
                         stream_type, line = vessel.output_queue.get(timeout=0.1)
-                        if line is not None:
-                            print(line, file=sys.stdout if stream_type == 'stdout' else sys.stderr)
+                        if line is None:
+                            if stream_type == 'stdout':
+                                stdout_done = True
+                            else:
+                                stderr_done = True
+                            continue
+
+                        target_stream = sys.stdout if stream_type == 'stdout' else sys.stderr
+                        target_stream.write(line + "\n")
+                        target_stream.flush()
                     except Empty:
-                        continue
+                        if vessel.process.poll() is not None:
+                            break  # Process ended and queue is empty
 
                 vessel.process.wait()
                 if vessel.process.returncode != 0:
-                    raise subprocess.CalledProcessError(vessel.process.returncode, command, output="See above",
-                                                        stderr="See above")
-
+                    raise subprocess.CalledProcessError(
+                        vessel.process.returncode, command,
+                        output="Process failed in raw mode.",
+                        stderr="Check terminal output for forensic markers."
+                    )
             else:
-                # The cinematic scribe takes the Vessel
+                # [ASCENSION 10]: THE CINEMATIC SCRIBE
+                # The scribe takes the Vessel and renders a high-status visual experience.
+                from ..scribe import CinematicScribe
                 scribe = CinematicScribe(display_cmd, self.console)
+
+                # [ASCENSION 3]: ACHRONAL TRACEABILITY
+                # We pass the trace_id for high-fidelity HUD rendering.
+                scribe.trace_id = vessel.trace_id
+
                 scribe.conduct(vessel.process, vessel.output_queue)
 
-            # [ASCENSION 12] The Chronometric Anchor
+            # [ASCENSION 12]: THE CHRONOMETRIC ANCHOR
             duration = time.monotonic() - rite_start_time
             if ledger_entry:
                 ledger_entry.metadata['duration'] = duration
 
         except subprocess.CalledProcessError as e:
-            # Re-raise for retry logic in `conduct`
+            # Re-raise for retry logic in the master `conduct` rite.
             raise e
 
         except KeyboardInterrupt:
-            # [ASCENSION 3] The Signal Bridge
-            self.logger.warn("Rite interrupted by Architect's will. Sending SIGTERM to child lineage...")
-            if 'vessel' in locals() and vessel.process:
+            # [ASCENSION 7]: THE UNBREAKABLE SIGNAL BRIDGE
+            # Severs the kinetic link and annihilates the child process lineage.
+            self.logger.warn("Rite interrupted by Architect's will. Dissolving child lineage...")
+            if 'vessel' in locals() and vessel and vessel.process:
                 self._kill_process_group(vessel.process)
             raise
 

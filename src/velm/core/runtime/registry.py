@@ -97,7 +97,7 @@ class ArtisanRegistry:
     AUTH_CODE: Ω_REGISTRY_V600_UNBREAKABLE_FINALIS
 
     The definitive orchestrator for mapping architectural intent to kinetic action.
-    This is the heart of the Scaffold God-Engine's cognitive capabilities.
+    This is the heart of the Velm God-Engine's cognitive capabilities.
 
     ### THE PANTHEON OF 12+ ASCENDED FACULTIES:
 

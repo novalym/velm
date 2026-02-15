@@ -1,6 +1,41 @@
 # === [scaffold/inquisitor/sanctum/diagnostics/python_symbolic_cortex.py] - SECTION 1 of 1: The Ascended Python Cortex ===
+import sys
 from typing import Dict, Any, List, Tuple, Set, Optional
-from tree_sitter import Tree, Node, QueryCursor, Language, Query
+
+try:
+    # --- MOVEMENT I: NATIVE COMMUNION (THE HIGH PATH) ---
+    # Attempting to speak with the native C-matter (Local/Titan Node).
+    from tree_sitter import Tree, Node, QueryCursor, Language, Query
+
+    TREE_SITTER_AVAILABLE = True
+
+except ImportError:
+    # --- MOVEMENT II: PROXY RESURRECTION (THE WASM PATH) ---
+    # If the native library is unmanifest, we scry the Gnostic Registry
+    # for the Diamond Proxy forged by the Simulacrum's ignition.
+    if "tree_sitter" in sys.modules:
+        _ts = sys.modules["tree_sitter"]
+
+        # [ASCENSION]: We extract the Diamond souls from the Proxy
+        # These classes are telepathically linked to the JS WASM engine.
+        Tree = _ts.Tree
+        Node = _ts.Node
+        QueryCursor = _ts.QueryCursor
+        Language = _ts.Language
+
+        TREE_SITTER_AVAILABLE = True
+    else:
+        # --- MOVEMENT III: THE BLIND GAZE (STASIS) ---
+        # If the Mind is cold in all realms, we forge hollow vessels.
+        # This prevents 'AttributeError' and 'TypeError' during registration.
+        TREE_SITTER_AVAILABLE = False
+
+        # [ASCENSION 5]: Hollow Type Generation (The Sarcophagus)
+        # We create specific type identities rather than generic objects.
+        Tree = type("HollowTree", (object,), {})
+        Node = type("HollowNode", (object,), {})
+        QueryCursor = type("HollowQueryCursor", (object,), {})
+        Language = type("HollowLanguage", (object,), {})
 
 
 class PythonSymbolicCortex:

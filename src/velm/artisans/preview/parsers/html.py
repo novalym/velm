@@ -20,7 +20,7 @@
 # 10. [ROBUST FALLBACK]: A specialized Regex engine that handles unclosed tags gracefully.
 # 11. [DEPTH GUARD]: Prevents infinite recursion in malformed DOMs.
 # 12. [LUMINOUS LOGGING]: Reports parsing mode (High Gaze vs Low Gaze).
-
+import sys
 import re
 from typing import List, Dict, Any, Optional
 from .base import BaseUIParser
@@ -29,12 +29,46 @@ from ....logger import Scribe
 
 # --- THE DIVINE SUMMONS ---
 try:
+    # --- MOVEMENT I: NATIVE COMMUNION (THE HIGH PATH) ---
+    # We attempt to speak with the native C-extensions.
     from tree_sitter import Language, Parser, Node
     import tree_sitter_html
 
+    # In the Native realm, we get the language object from the package
+    HTML_LANGUAGE = tree_sitter_html.language()
     TREE_SITTER_AVAILABLE = True
+
 except ImportError:
-    TREE_SITTER_AVAILABLE = False
+    # --- MOVEMENT II: PROXY RESURRECTION (THE WASM PATH) ---
+    # If the native tongue is absent, we scry the Gnostic Registry
+    # for the Diamond Proxy forged by the Simulacrum.
+    if "tree_sitter" in sys.modules:
+        _ts = sys.modules["tree_sitter"]
+        Language = _ts.Language
+        Parser = _ts.Parser
+        Node = _ts.Node
+
+        # In the WASM stratum, we resolve the language via the Proxy Oracle
+        # 'tree_sitter_languages' is also warded by our Diamond Loader
+        try:
+            import tree_sitter_languages as ts_langs
+
+            HTML_LANGUAGE = ts_langs.get_language("html")
+        except (ImportError, AttributeError):
+            # Fallback if the specific grammar shard is unmanifested
+            HTML_LANGUAGE = None
+
+        TREE_SITTER_AVAILABLE = True
+    else:
+        # --- MOVEMENT III: THE BLIND GAZE (STASIS) ---
+        # If no soul is manifest in any realm, we forge hollow vessels.
+        TREE_SITTER_AVAILABLE = False
+        HTML_LANGUAGE = None
+
+        # Hollow types to prevent downstream attribute heresies
+        Language = type("HollowLanguage", (object,), {})
+        Parser = type("HollowParser", (object,), {})
+        Node = type("HollowNode", (object,), {})
 
 Logger = Scribe("HTMLTopologyParser")
 

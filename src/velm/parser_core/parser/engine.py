@@ -54,13 +54,22 @@ class ApotheosisParser:
     # Detects the toggle of a triple-quoted block to prevent parser leaks inside content.
     QUOTE_TOGGLE_REGEX: Final[re.Pattern] = re.compile(r'^\s*("""|\'\'\')')
 
-    def __init__(self, grammar_key: str = 'scaffold'):
-        """[ELEVATION 1] The Gnostic Triage of Tongues."""
-        if grammar_key not in SCRIBE_PANTHEON:
-            raise ArtisanHeresy(f"Unknown Grammar Key: {grammar_key}")
+    def __init__(self, grammar_key: str = 'scaffold', engine: Optional[Any] = None):
+        """
+        =================================================================================
+        == THE PARSER INCEPTION: TOTALITY (V-Ω-TOTALITY-V312-SUTURED)                 ==
+        =================================================================================
+        LIF: ∞ | ROLE: GNOSTIC_INTERPRETER | RANK: OMEGA
 
+        [THE SUTURE]: The Parser is now born with a link to the Engine, allowing it to
+        radiate signals to the Akashic Record during its meditative rites.
+        """
         self.grammar_key = grammar_key
-        # [ASCENSION 6]: Nanosecond Session Identity
+
+        # [ASCENSION 13]: THE SILVER CORD
+        # We bind the engine reference. If None, we operate in a state of Silent Isolation.
+        self.engine = engine
+
         self.parse_session_id = f"{uuid.uuid4().hex[:6].upper()}-{time.time_ns()}"
         self.Logger = Logger
 
@@ -70,6 +79,7 @@ class ApotheosisParser:
         # JIT Materialization of the Scribe Pantheon
         self.scribes: Dict[str, FormScribe] = self._forge_scribe_pantheon()
         self.alchemist = get_alchemist()
+
 
     def _reset_parser_state(self):
         """
@@ -125,48 +135,26 @@ class ApotheosisParser:
     ) -> Tuple['ApotheosisParser', List[ScaffoldItem], List[Tuple], List[Edict], Dict[str, Any], GnosticDossier]:
         """
         =================================================================================
-        == THE GRAND RITE OF DECONSTRUCTION (V-Ω-TOTALITY-V305-SOVEREIGN-UNBREAKABLE)  ==
+        == THE OMEGA PARSER: TOTALITY (V-Ω-TOTALITY-V310-HERESY-WARD-FINALIS)          ==
         =================================================================================
         LIF: ∞ | ROLE: REALITY_DECONSTRUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH_CODE: Ω_PARSE_STRING_V305_BICAMERAL_SOVEREIGNTY_2026_FINALIS
+        AUTH: Ω_PARSE_STRING_V310_COGNITIVE_TOXIN_WARD_2026_FINALIS
 
+        [THE MANIFESTO]
         This is the supreme kernel of perception. It has been Ascended to enforce the
-        **Law of Variable Sovereignty**, ensuring the Blueprint's internal Gnosis
-        annihilates external hallucinations.
-
-        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-        1.  **Bicameral Scoping (THE CURE):** Surgically isolates `external_vars` (L2)
-            from `blueprint_vars` (L1) to prevent the "Sentient FastAPI" poisoning.
-        2.  **Sovereignty Reconciliation:** Explicitly overwrites L2 memory with L1
-            truth at the conclusion of the deconstruction movement.
-        3.  **The Sanctuary Seal V3:** Employs a multi-mode state machine to detect
-            and shield top-level triple-quote blocks from topographical interpretation.
-        4.  **Achronal Root Anchoring:** Forcefully resolves the `base_path` to prevent
-            'Relative Path Drifting' during deep @include recursion.
-        5.  **Adrenaline Mode (Physics Elevation):** Temporarily raises the host
-            machine's recursion limit to handle complex, nested architectural graphs.
-        6.  **The Lexical Suture (Matter Guard):** Intercepts misclassified edicts
-            (>>/??/!!) and re-binds them to the kinetic layer before they leak.
-        7.  **Isomorphic Identity Probe:** Normalizes path casing in real-time to
-            prevent collision heresies on case-insensitive substrates (Windows/MacOS).
-        8.  **Contextual Line Mapping:** Perfectly aligns the internal `line_offset`
-            for deep forensics, ensuring the `crash.log` points to the exact pixel of failure.
-        9.  **The Silence Vow Compliance:** Surgically mutes telemetry during the
-            holographic pass to keep the synaptic stream pure for the Ocular HUD.
-        10. **Socratic Diagnostics:** Injects haptic 'vfx: shake' signals if a
-            catastrophic logic fracture shatters the deconstruction loop.
-        11. **The Git-Anchor Seal:** Siphons the physical commit hash of the
-            locus during the finalization movement for perfect causal replay.
-        12. **The Finality Vow:** A mathematical guarantee of a valid Gnostic Dowry
-            return, even if the world of logic collapses.
+        **Law of Variable Sovereignty** and the **Covenant of Purity**, ensuring the
+        Blueprint's internal Gnosis annihilates all external hallucinations.
         =================================================================================
         """
         import sys
         import time
         import re
+        import hashlib
         from pathlib import Path
+        from ...contracts.heresy_contracts import Heresy, HeresySeverity
+        from ...contracts.data_contracts import GnosticLineType, ScaffoldItem
 
-        # --- MOVEMENT I: THE OUROBOROS GUARD ---
+        # --- MOVEMENT I: THE OUROBOROS GUARD (RECURSION ADJUDICATION) ---
         if depth > self.MAX_RECURSION_DEPTH:
             raise ArtisanHeresy(
                 f"Cerebral Hemorrhage: Recursive loop detected at '{file_path_context}'.",
@@ -178,28 +166,27 @@ class ApotheosisParser:
         # --- MOVEMENT II: SPATIAL & COGNITIVE ANCHORING ---
         self.file_path = file_path_context
         self.line_offset = line_offset
-        # [ASCENSION 4]: Force absolute anchoring
+        # [ASCENSION 4]: Force absolute anchoring to prevent Relative Path Drift
         self.base_path = (file_path_context.parent if file_path_context else Path.cwd()).resolve()
 
-        # [ASCENSION 1]: BICAMERAL INGESTION
-        # We store external inputs in a separate silo to prevent poisoning.
+        # [ASCENSION 1 & 3]: BICAMERAL INGESTION (L2 SILO)
+        # External pleas (Wizard/CLI) are quarantined in external_vars.
         if pre_resolved_vars:
             self.external_vars.update(pre_resolved_vars)
         if overrides:
             self.external_vars.update(overrides)
 
-        # Initial view: Use external inputs as the baseline.
-        # They will be righteously overwritten by Blueprint Truth in Movement IV.
+        # Baseline view: Start with external gnosis; L1 Truth will overwrite later.
         self.variables.update(self.external_vars)
 
-        # [ASCENSION 5]: ADRENALINE MODE
+        # Raise recursion limit to handle high-complexity architectural nesting.
         original_recursion_limit = sys.getrecursionlimit()
-        sys.setrecursionlimit(max(original_recursion_limit, 3000))
+        sys.setrecursionlimit(max(original_recursion_limit, 5000))
 
         lines = content.splitlines()
         i = 0
 
-        # [ASCENSION 9]: TELEMETRY SILENCE
+        # [ASCENSION 9]: THE SILENCE VOW COMPLIANCE
         if depth == 0 and not self.Logger.is_verbose:
             self.Logger.verbose(
                 f"[{self.parse_session_id}] Inception: Deconstructing {len(lines)} verses of Form and Will.")
@@ -212,12 +199,34 @@ class ApotheosisParser:
                 line = lines[i]
                 current_line_num = i + 1 + self.line_offset
                 original_indent = self._calculate_original_indent(line)
+                stripped_line = line.strip()
 
-                # --- PHASE A: THE CODE-QUOTE SANCTUARY (THE SHIELD) ---
-                # [ASCENSION 3]: We protect content blocks from being parsed as structure.
+                # --- PHASE 0: THE COGNITIVE TOXIN WARD (THE CURE) ---
+                # [ASCENSION 1]: Pre-emptive scan for metabolic byproducts (Jinja errors).
+                # If the Alchemist failed silently, we incinerate the timeline here.
+                if "!!HERESY" in line:
+                    self._proclaim_heresy(
+                        "TEMPLATE_ERROR_LEAK",
+                        ScaffoldItem(
+                            path=Path("TOXIN_DETECTED"),
+                            line_num=current_line_num,
+                            raw_scripture=line,
+                            is_dir=False,
+                            line_type=GnosticLineType.VOID
+                        ),
+                        details=f"Metabolic toxin detected: '{stripped_line}'. The Alchemist is fractured.",
+                        suggestion="Check your blueprint for undefined variables or unmanifested check functions.",
+                        severity=HeresySeverity.CRITICAL,
+                        ui_hints={"vfx": "shake", "sound": "fracture_critical", "priority": "CRITICAL"}
+                    )
+                    # Halt the loop to prevent kinetic strike of malformed logic.
+                    self.all_rites_are_pure = False
+                    i += 1
+                    continue
+
+                # --- PHASE A: THE CODE-QUOTE SANCTUARY (THE SHIELD V4) ---
+                # [ASCENSION 6]: Protects matter (code) from structural misinterpretation.
                 quote_match = self.QUOTE_TOGGLE_REGEX.match(line)
-                # Check: Is this a lone quote toggle or an assignment?
-                # (Assignments like `:: """` are handled by the Structural Scribe)
                 if quote_match and not re.search(r'[:\+=^~]\s*("""|\'\'\')', line):
                     q_type = quote_match.group(1)
                     if self._in_code_block:
@@ -233,11 +242,10 @@ class ApotheosisParser:
                         continue
 
                 if self._in_code_block:
-                    # While inside the sanctuary, matter is invisible to the Inquisitor.
-                    i += 1
+                    i += 1;
                     continue
 
-                # --- PHASE B: THE INQUISITOR'S GAZE ---
+                # --- PHASE B: THE INQUISITOR'S GAZE (LEXICAL TRIAGE) ---
                 from ...parser_core.lexer_core.inquisitor import GnosticLineInquisitor
 
                 vessel = GnosticLineInquisitor.inquire(
@@ -248,52 +256,50 @@ class ApotheosisParser:
                     original_indent=original_indent
                 )
 
-                # --- PHASE C: THE LEXICAL SUTURE (THE FIX) ---
+                # --- PHASE C: THE LEXICAL SUTURE (MATTER GUARD) ---
                 # [ASCENSION 6]: The Kill-Switch for Parser Leaks.
-                # Prevents edicts from ever being mistaken for paths.
+                # Prevents edicts/directives from being misclassified as file paths (FORM).
                 self._suture_lexical_leak(vessel)
 
-                # [ASCENSION 7]: CASE-IDENTITY PROBE
+                # [ASCENSION 7]: ISOMORPHIC IDENTITY PROBE
+                # Case-normalizes paths for deterministic conflict detection on all substrates.
                 if vessel.line_type == GnosticLineType.FORM and vessel.path:
                     self._adjudicate_case_identity(vessel)
 
-                # --- PHASE D: SELECTIVE DISPATCH ---
+                # --- PHASE D: SELECTIVE DISPATCH (ARTISAN ASSIGNMENT) ---
+                # Summon the specialized Scribe for the divined line type.
                 scribe = self._get_scribe_for_vessel(vessel)
                 prev_i = i
 
                 if scribe:
-                    # The Scribe consumes the line (and potentially blocks) and returns the next index.
-                    # If it's a VARIABLE scribe, it populates self.blueprint_vars.
+                    # Scribe conducts the rite, potentially consuming multi-line blocks.
                     i = scribe.conduct(lines, i, vessel)
                 else:
-                    # No artisan willed for this line type; advance.
                     i += 1
 
-                # ANTI-STASIS WARD: Ensure we always move forward in time.
-                if i <= prev_i:
-                    i += 1
+                # ANTI-STASIS WARD: Guaranteed forward movement in the stream of time.
+                if i <= prev_i: i += 1
 
-        except Exception as e:
-            # [ASCENSION 10]: SOCRATIC ERROR MIRROR
+        except Exception as catastrophic_paradox:
+            # [ASCENSION 10]: FORENSIC EMERGENCY HUD MULTICAST
             self._proclaim_heresy(
                 "META_HERESY_PARSER_FRACTURE",
                 f"Catastrophic failure at L{i + 1}",
-                details=f"The deconstruction loop was shattered by a logic paradox: {str(e)}",
-                exception_obj=e,
+                details=f"Deconstruction loop shattered by paradox: {str(catastrophic_paradox)}",
+                exception_obj=catastrophic_paradox,
                 ui_hints={"vfx": "shake", "sound": "fracture_critical", "priority": "CRITICAL"}
             )
         finally:
-            # Restore Physics to standard levels.
+            # Restore Substrate Physics to standard levels.
             sys.setrecursionlimit(original_recursion_limit)
 
         # --- MOVEMENT IV: SOVEREIGNTY RECONCILIATION (THE CURE) ---
         # [ASCENSION 2]: THE APOTHEOSIS OF TRUTH.
-        # We now forcefully overwrite the external L2 variables with the internal L1 truths
-        # willed by the blueprint itself. The hallucination is annihilated.
+        # Blueprint Truth (L1) righteously overwrites External Pleas (L2).
         self.variables.update(self.blueprint_vars)
 
         # --- MOVEMENT V: ACHRONAL FINALIZATION ---
-        # [ASCENSION 11]: If we are the root, anchor the reality to the Git timeline.
+        # [ASCENSION 11]: Stamp the Merkle Root of the Git locus for perfect replay.
         if depth == 0:
             self._finalize_achronal_dossier()
 
@@ -302,7 +308,7 @@ class ApotheosisParser:
                 self.Logger.warn(
                     f"[{self.parse_session_id}] Parser concluding with impurities. Reality may be unstable.")
 
-        # Bestow the unified and reconciled variables upon the Dowry.
+        # Bestow the unified, reconciled, and warded Gnosis upon the Dowry.
         all_gnosis = {**self.blueprint_vars, **self.variables}
 
         return (self, self.raw_items, self.post_run_commands, self.edicts, all_gnosis, self.dossier)
@@ -583,96 +589,149 @@ class ApotheosisParser:
 
     def resolve_reality(self) -> List[ScaffoldItem]:
         """
-        =============================================================================
-        == THE BRIDGE OF REALIZATION (V-Ω-TOTALITY-V500.0-SINGULARITY-FINALIS)     ==
-        =============================================================================
+        =================================================================================
+        == THE BRIDGE OF REALIZATION: OMEGA (V-Ω-TOTALITY-V512-SUTURED-FINALIS)        ==
+        =================================================================================
         LIF: ∞ | ROLE: REALITY_CONVERGENCE_ENGINE | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_RESOLVE_REALITY_V500_DETERMINISTIC_CONVERGENCE_2026_FINALIS
-
-        The final, transcendental realization of the Parser's logic. This engine
-        forces the Mind (Gnosis) and the Form (AST) into a mathematical steady-state.
-
-        It annihilates 'Hallucination Fractures' not through whitelists, but through
-        the **Tiered Hierarchy of Truth**.
-        =============================================================================
+        AUTH: Ω_RESOLVE_REALITY_V512_OCULAR_SUTURE_2026_FINALIS
         """
+        import hashlib
+        import time
+        import gc
+        from pathlib import Path
+        from ...contracts.heresy_contracts import HeresySeverity
+        from ...contracts.data_contracts import ScaffoldItem
+        from ...core.runtime.vessels import GnosticSovereignDict
+
         start_ns = time.perf_counter_ns()
         self.Logger.info(f"[{self.parse_session_id}] Bridge: Initiating Deterministic Convergence.")
 
         # --- MOVEMENT I: THE BATTLE FOR SOVEREIGNTY (GNOSIS CONVERGENCE) ---
         # [ASCENSION 1]: BICAMERAL IDENTITY ARBITRATION
-        # We start by recognizing that Blueprint Truth ($$) is the only Sovereign reality.
-        # External pleas (defaults) are merely 'Substrate Matter' until willed otherwise.
-
-        # We forge the Unified Consciousness, prioritizing Internal Will over External Pleas.
-        # Note: GnosticSovereignDict handles the recursive null-safety.
+        # We forge the Unified Consciousness, prioritizing L1 Blueprint Truth ($$)
+        # over the baseline of L2 External Pleas.
         reconciled_gnosis = GnosticSovereignDict()
-        reconciled_gnosis.update(self.external_vars)  # L2: Injected Matter (Lowest Priority)
-        reconciled_gnosis.update(self.blueprint_vars)  # L1: Scripture Truth (Supreme Priority)
+        reconciled_gnosis.update(self.external_vars)  # L2: Injected Matter (Shadow)
+        reconciled_gnosis.update(self.blueprint_vars)  # L1: Scripture Truth (Sovereign)
 
-        # [ASCENSION 2]: THE ENTROPY STABILIZATION LOOP (ALCHEMICAL REACTOR)
-        # We perform a multi-pass resolution until the Gnostic state reaches stasis.
-        # This resolves variables that depend on other variables across infinite depth.
-        if hasattr(self.alchemist, 'render_string'):
-            max_passes = 10
-            pass_num = 0
-            while pass_num < max_passes:
-                pass_num += 1
-                state_before = hashlib.md5(str(reconciled_gnosis).encode()).hexdigest()
+        # --- MOVEMENT II: THE ENTROPY STABILIZATION LOOP (CONVERGENCE REACTOR) ---
+        # [ASCENSION 2 & 3]: THE FINAL BACKSTOP
+        # Multi-pass resolution to flatten nested Gnosis until steady-state is reached.
+        max_passes = 10
+        pass_num = 0
 
-                for key, val in reconciled_gnosis.items():
-                    if isinstance(val, str) and ("{{" in val or "{%" in val):
-                        # The Alchemist transmutes the placeholder using the current consciousness
+        while pass_num < max_passes:
+            pass_num += 1
+            state_before = hashlib.md5(str(reconciled_gnosis).encode()).hexdigest()
+
+            for key, val in list(reconciled_gnosis.items()):
+                if isinstance(val, str) and ("{{" in val or "{%" in val):
+                    try:
+                        # [THE FIX]: Strict Alchemical Rendering
+                        # If a variable is missing, this now bubbles a fatal UndefinedError.
                         reconciled_gnosis[key] = self.alchemist.render_string(val, reconciled_gnosis)
 
-                state_after = hashlib.md5(str(reconciled_gnosis).encode()).hexdigest()
-                if state_before == state_after:
-                    self.Logger.verbose(f"Gnostic Stasis achieved in {pass_num} alchemical pass(es).")
-                    break
-            else:
-                self.Logger.warn("Alchemical Recoil: Gnostic State failed to converge after 10 passes.")
+                    except Exception as alchemical_fracture:
+                        # [ASCENSION 10]: FORENSIC ADJUDICATION
+                        self._proclaim_heresy(
+                            "ALCHEMICAL_FRACTURE",
+                            f"$$ {key} = {val}",
+                            details=f"Convergence failed for variable '{key}': {str(alchemical_fracture)}",
+                            severity=HeresySeverity.CRITICAL,
+                            suggestion="Ensure all variables willed in templates are defined in the '$$' block or provided via CLI."
+                        )
+                        return []
 
-        # Update the Mind's internal state with the GROUNDED literals.
+            state_after = hashlib.md5(str(reconciled_gnosis).encode()).hexdigest()
+            if state_before == state_after:
+                self.Logger.verbose(f"Gnostic Stasis achieved in {pass_num} alchemical pass(es).")
+                break
+        else:
+            # [ASCENSION 4]: OUROBOROS DETECTION (INFINITE RECURSION)
+            self._proclaim_heresy(
+                "GNOSTIC_OUROBOROS_PARADOX",
+                "VARIABLE_LATTICE",
+                details="Variable resolution failed to reach stasis. Infinite recursion detected in '$$' blocks.",
+                severity=HeresySeverity.CRITICAL,
+                suggestion="Check for circular variable references (e.g. A = {{B}}, B = {{A}})."
+            )
+            return []
+
+        # Enshrine the GROUNDED literals into the Parser's living variables.
         self.variables.update(reconciled_gnosis)
 
-        # --- MOVEMENT II: TOPOLOGICAL INCEPTION (FORM CONVERGENCE) ---
-        # [ASCENSION 4]: SKELETON FORGING
-        # We materialize the hierarchical AST from the flat stream of raw items.
-        # This weaver handles the 'Geometric Anchor' logic internally.
+        # --- MOVEMENT III: TOPOLOGICAL INCEPTION (AST WEAVING) ---
+        # [ASCENSION 5]: SKELETON FORGING
+        # Materialize the hierarchical Gnostic Tree from the raw lexical atoms.
+        from .ast_weaver import GnosticASTWeaver
         weaver = GnosticASTWeaver(self)
         self.gnostic_ast = weaver.weave_gnostic_ast()
 
-        # --- MOVEMENT III: CAUSAL REALIZATION (THE WILL) ---
-        # [ASCENSION 5]: THE RITE OF REALIZATION
-        # We walk the Gnostic AST to resolve logic gates (@if/@for) and
-        # flatten path strings into the final Execution Plan.
+        # --- MOVEMENT IV: CAUSAL REALIZATION (THE WILL) ---
+        # [ASCENSION 6 & 7]: THE RITE OF REALIZATION
+        # Walk the AST to resolve logic gates (@if) and harvest the Quaternity Dowry.
         self.Logger.verbose("LogicWeaver: Materializing the Causal Path through the AST.")
-        final_items = weaver.resolve_paths_from_ast(self.gnostic_ast)
 
-        # --- MOVEMENT IV: BICAMERAL PURGATION (THE CURE) ---
-        # [ASCENSION 3]: THE GNOSTIC OBLIVION
-        # 1. We righteously annihilate the 'Transient Souls' (variables starting with '_').
-        # 2. We remove external hallucinations that were NOT claimed by the blueprint.
-        # If an external variable was neither willed in $$ nor used in the Form, it is waste.
+        # [THE CURE]: Explicitly harvest the 4-fold result from the Weaver.
+        final_items, final_commands, logic_heresies, _ = weaver.resolve_paths_from_ast(self.gnostic_ast)
+
+        # Merge logical heresies discovered during the walk into the Master Chronicle.
+        self.heresies.extend(logic_heresies)
+
+        # --- MOVEMENT V: BICAMERAL PURGATION (THE CURE) ---
+        # [ASCENSION 8 & 11]: METABOLIC LUSTRATION
+        # 1. Annihilate 'Transient Souls' (private '_' variables).
+        # 2. Evaporate external hallucinations not claimed by the scripture.
         self.variables = self.alchemist.purge_private_gnosis(self.variables)
 
-        # [ASCENSION 7]: MERKLE FINGERPRINTING
-        # We forge a unique ID for this specific realized reality.
-        plan_fingerprint = hashlib.sha256(
-            "".join([str(i.path) for i in final_items]).encode()
-        ).hexdigest()[:8]
+        # Release the young generation of objects to reduce substrate tax.
+        gc.collect(1)
 
-        # --- MOVEMENT V: FINALITY ADJUDICATION ---
+        # --- MOVEMENT VI: FINALITY ADJUDICATION ---
+        # [ASCENSION 9]: MERKLE FINGERPRINTING
+        # Forges a deterministic hash of the entire Execution Plan for auditing.
+        plan_blob = "".join([str(i.path) for i in final_items]) + "".join([str(c[0]) for c in final_commands])
+        plan_fingerprint = hashlib.sha256(plan_blob.encode()).hexdigest()[:8]
+
         # [ASCENSION 12]: THE FINALITY VOW
-        if not final_items and not self.post_run_commands:
+        if not final_items and not final_commands:
             self.Logger.warn("Convergence Paradox: The resulting reality is a void.")
+            self._proclaim_heresy("VOID_REALITY_PARADOX", "PLAN_EMPTY", severity=HeresySeverity.WARNING)
         else:
             duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
             self.Logger.success(
                 f"Convergence Complete: [cyan]{plan_fingerprint}[/cyan] manifest in {duration_ms:.2f}ms."
             )
 
+            # =========================================================================
+            # == [ASCENSION 10]: THE DEFENSIVE OCULAR SUTURE (THE FIX)               ==
+            # =========================================================================
+            # We use a defensive getattr chain to ensure that a missing engine link
+            # never shatters the convergence rite.
+            engine_ref = getattr(self, 'engine', None)
+            akashic_ref = getattr(engine_ref, 'akashic', None) if engine_ref else None
+
+            if akashic_ref:
+                try:
+                    akashic_ref.broadcast({
+                        "method": "novalym/hud_pulse",
+                        "params": {
+                            "type": "CONVERGENCE_SUCCESS",
+                            "label": f"PLAN_{plan_fingerprint}",
+                            "color": "#64ffda",
+                            "trace": self.parse_session_id,
+                            "latency_ms": duration_ms
+                        }
+                    })
+                except Exception:
+                    # If the signal fails to radiate, the Engine remains silent
+                    # to protect the integrity of the Matter.
+                    pass
+            # =========================================================================
+
         return final_items
+
+
 
     # --- HELPER: BLOCK CONSUMPTION BRIDGE ---
     # Needed for Scribes to consume blocks while respecting parser state

@@ -418,45 +418,108 @@ class GnosticNexus:
             self.logger.debug(traceback.format_exc())
             # We do not raise here to allow the engine to attempt recovery or provide diagnostics.
 
-
     def _reaper_loop(self):
-        """[ASCENSION 8 & 9]: ZOMBIE KILLER"""
+        """
+        =============================================================================
+        == THE OMEGA REAPER LOOP (V-Ω-TOTALITY-V20000.9-ISOMORPHIC)                ==
+        =============================================================================
+        LIF: ∞ | ROLE: EXISTENTIAL_SENTINEL | RANK: OMEGA_SUPREME
+        AUTH: Ω_REAPER_V20000_SENSORY_SUTURE_2026_FINALIS
+        """
+        import os
+        import sys
+        import time
+        import gc
+
+        # [ASCENSION 1]: SUBSTRATE DETECTION
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+        self.logger.success(f"Omega Reaper awakened on substrate [{'ETHER' if is_wasm else 'IRON'}].")
+
         while self.running and not self._shutdown_event.is_set():
             try:
-                # 1. Parent Watchdog
-                if self.parent_pid:
+                loop_start = time.perf_counter()
+
+                # =========================================================================
+                # == MOVEMENT I: THE PARENT WATCHDOG                                     ==
+                # =========================================================================
+                # [THE CURE]: Substrate-Agnostic Life-Sensing
+                parent_is_alive = True
+
+                if not is_wasm and self.parent_pid:
                     try:
+                        # [THE HIGH PATH]: Direct PID Probe
                         os.kill(self.parent_pid, 0)
                     except OSError:
-                        self.logger.critical(f"Parent PID {self.parent_pid} dissolved. Terminal exit.")
-                        self.shutdown()
+                        parent_is_alive = False
+                elif is_wasm:
+                    # [THE WASM PATH]: Leash Integrity check
+                    # In WASM, we rely on the VitalityMonitor to check the watch_file (leash)
+                    if hasattr(self, 'vitality') and self.vitality:
+                        parent_is_alive = self.vitality._check_leash_integrity()
+
+                if not parent_is_alive:
+                    self.logger.critical(f"Parent Identity Dissolved. Initiating Autonomic Banishment.")
+                    # [ASCENSION 7]: THE PHOENIX SIGNAL
+                    if hasattr(self, 'vitality'):
+                        self.vitality.proclaim_grace()
+
+                    self.shutdown()
+                    # Finality Strike: Use os._exit in Iron, simple break in WASM
+                    if not is_wasm:
                         os._exit(0)
+                    break
 
-                # 2. Memory Watchdog
+                # =========================================================================
+                # == MOVEMENT II: METABOLIC TOMOGRAPHY (MEMORY)                          ==
+                # =========================================================================
+                # [ASCENSION 3]: Heuristic Mass Tomography
                 try:
-                    import psutil
-                    process = psutil.Process(os.getpid())
-                    rss_mb = process.memory_info().rss / 1024 / 1024
+                    rss_mb = 0.0
+                    try:
+                        import psutil
+                        process = psutil.Process()
+                        rss_mb = process.memory_info().rss / (1024 * 1024)
+                    except (ImportError, AttributeError, Exception):
+                        # WASM Fallback: Scry the Heap mass
+                        # 1 block in Pyodide is ~150-200 bytes of logic mass
+                        rss_mb = sys.getallocatedblocks() * 0.0002
+
                     if rss_mb > self.memory_limit_mb:
-                        self.logger.warn(f"Critical Memory Ceiling [{rss_mb:.1f}MB]. Invoking GC.")
-                        gc.collect()
-                except ImportError:
-                    pass
-
-                # 3. Pulse Modulation
-                tick_rate = HEARTBEAT_INTERVAL
-                try:
-                    if self.akashic:
-                        vitals = self.akashic.get_telemetry
-                        active_links = vitals.get("network", {}).get("active_witnesses", 0)
-                        if active_links == 0: tick_rate *= 2
+                        self.logger.warn(f"Metabolic Ceiling Breached [{rss_mb:.1f}MB]. Initiating Lustration.")
+                        # [ASCENSION 4]: Tiered Lustration
+                        if rss_mb > self.memory_limit_mb * 1.2:
+                            gc.collect()  # Panic: Full Purgation
+                        else:
+                            gc.collect(1)  # Fever: Lazy Purgation
                 except:
                     pass
 
-                self._shutdown_event.wait(timeout=tick_rate)
+                # =========================================================================
+                # == MOVEMENT III: PULSE MODULATION                                      ==
+                # =========================================================================
+                # [ASCENSION 5]: Adaptive Tick Rate
+                tick_rate = getattr(self, 'HEARTBEAT_INTERVAL', 3.0)
 
-            except Exception as e:
-                time.sleep(2)
+                try:
+                    # If the HUD is silent, we slow down the pulse to save energy.
+                    akashic = getattr(self.engine, 'akashic', None)
+                    if akashic:
+                        vitals = akashic.get_telemetry
+                        # Scry for active Ocular Link witnesses
+                        active_links = vitals.get("network", {}).get("active_witnesses", 0)
+                        if active_links == 0:
+                            tick_rate *= 2.0  # Slow pulse for the deep shadows
+                except:
+                    pass
+
+                # [ASCENSION 12]: THE FINALITY WAIT
+                # Wait for the shutdown event or the next pulse cycle
+                elapsed = time.perf_counter() - loop_start
+                self._shutdown_event.wait(timeout=max(0.1, tick_rate - elapsed))
+
+            except Exception as paradox:
+                # [ASCENSION 9]: Reaper is warded; fail-open to the next tick
+                time.sleep(2.0)
 
     def _filtered_broadcast(self, packet: Dict[str, Any]):
         """[ASCENSION 6]: THE NEURAL FUSE (Auto-Reset)"""

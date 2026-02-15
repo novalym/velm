@@ -1,14 +1,24 @@
 # Path: scaffold/utils/gnosis_discovery.py
-# ----------------------------------------
+# =========================================================================================
+# == THE OMEGA INQUISITOR: TOTALITY (V-Ω-TOTALITY-V700.15-WASM-RESILIENT)               ==
+# =========================================================================================
+# LIF: ∞ | ROLE: GNOSTIC_DISCOVERY_ENGINE | RANK: OMEGA_SOVEREIGN
+# AUTH: Ω_DISCOVERY_V700_SUBSTRATE_SUTURE_2026_FINALIS
+# =========================================================================================
 
 import re
-import ast
+import os
+import sys
+import time
 from typing import List, Set, Dict, Optional, Tuple, Union, Any, Generator
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
 # --- THE DIVINE SUMMONS OF THE JINJA MIND ---
 from jinja2 import Environment, meta, nodes
 from jinja2.visitor import NodeVisitor
 
+# --- GNOSTIC UPLINKS ---
 from ..contracts.data_contracts import ScaffoldItem, GnosticDossier, _GnosticNode
 from ..contracts.heresy_contracts import ArtisanHeresy, Heresy, HeresySeverity
 from ..jurisprudence_core.scaffold_grammar_codex import SAFE_JINJA_FILTERS
@@ -17,13 +27,20 @@ from ..logger import Scribe
 Logger = Scribe('OmegaInquisitor')
 
 
+# =========================================================================================
+# == I. THE MIND WALKER (GnosticASTVisitor)                                              ==
+# =========================================================================================
+
 class GnosticASTVisitor(NodeVisitor):
     """
     =============================================================================
-    == THE MIND WALKER (V-Ω-AST-ANALYSIS)                                      ==
+    == THE MIND WALKER (V-Ω-AST-ANALYSIS-V700)                                 ==
     =============================================================================
+    LIF: 10,000,000 | ROLE: SYMBOLIC_TRACER
+
     A divine artisan that walks the Abstract Syntax Tree of a Jinja template.
-    It perceives variables, infers types, detects defaults, and respects scope.
+    It has been ascended with **NoneType Sarcophagus** logic to ensure that
+    complex attribute chains never shatter the Gaze.
     """
 
     def __init__(self):
@@ -35,9 +52,11 @@ class GnosticASTVisitor(NodeVisitor):
         self.complex_objects: Set[str] = set()
 
     def visit_Name(self, node: nodes.Name):
-        """Perceives a variable usage."""
+        """Perceives a variable usage or storage event."""
         if node.ctx == 'load' and node.name not in self.local_scope:
-            self.required_vars.add(node.name)
+            # Skip internal Jinja2 markers
+            if not node.name.startswith('_'):
+                self.required_vars.add(node.name)
         elif node.ctx == 'store':
             self.local_scope.add(node.name)
 
@@ -45,17 +64,18 @@ class GnosticASTVisitor(NodeVisitor):
         """Perceives an Alchemical Rite (Filter)."""
         self.filters_used.add(node.name)
 
-        # [FACULTY 3] The Type Inferencer
-        if node.name in ('int', 'float', 'sum'):
-            self._infer_type_from_node(node.node, 'number')
-        elif node.name in ('list', 'join', 'first', 'last'):
-            self._infer_type_from_node(node.node, 'list')
-        elif node.name == 'string':
-            self._infer_type_from_node(node.node, 'string')
+        # [ASCENSION 3]: THE TYPE INFERENCER
+        # Maps filters to expected Gnostic data types
+        type_map = {
+            'int': 'number', 'float': 'number', 'sum': 'number',
+            'list': 'list', 'join': 'list', 'first': 'list', 'last': 'list',
+            'string': 'string', 'lower': 'string', 'upper': 'string'
+        }
+        if node.name in type_map:
+            self._infer_type_from_node(node.node, type_map[node.name])
 
-        # [FACULTY 4] The Default Diviner
+        # [ASCENSION 4]: THE DEFAULT DIVINER
         if node.name == 'default' and node.args:
-            # Try to extract the literal default value
             try:
                 default_val_node = node.args[0]
                 if isinstance(default_val_node, nodes.Const):
@@ -67,55 +87,42 @@ class GnosticASTVisitor(NodeVisitor):
 
         self.generic_visit(node)
 
-    def visit_If(self, node: nodes.If):
-        """Perceives a boolean context."""
-        self._infer_type_from_node(node.test, 'boolean')
-        self.generic_visit(node)
-
     def visit_For(self, node: nodes.For):
-        """
-        [FACULTY 2] The Scope Sentinel.
-        Registers loop variables as local to prevent false positives.
-        """
-        # The target (e.g. 'item' in 'for item in items') is local
-        self.visit(node.iter)  # Visit the iterable (it might use globals)
+        """[ASCENSION 2]: THE SCOPE SENTINEL. Prevents local leakage."""
+        self.visit(node.iter)
 
-        # We manually register the loop target as local
+        # Capture loop targets in local scope
         if isinstance(node.target, nodes.Name):
             self.local_scope.add(node.target.name)
-        elif isinstance(node.target, nodes.Tuple):
+        elif isinstance(node.target, (nodes.Tuple, nodes.List)):
             for child in node.target.items:
                 if isinstance(child, nodes.Name):
                     self.local_scope.add(child.name)
 
-        # Visit body
         self.generic_visit(node)
-        # We do NOT remove from local_scope because Jinja scope leaks in some versions,
-        # but logically, for requirements gathering, if it's defined in a loop, it's not a global req.
 
     def visit_Assign(self, node: nodes.Assign):
-        """Perceives a local variable definition ({% set x = ... %})."""
+        """Inscribes local variable definitions."""
         if isinstance(node.target, nodes.Name):
             self.local_scope.add(node.target.name)
         self.generic_visit(node)
 
     def visit_Getattr(self, node: nodes.Getattr):
-        """[FACULTY 7] The Attribute Tracer."""
+        """[ASCENSION 7]: THE ATTRIBUTE TRACER. Perceives complex object chains."""
         root_name = self._get_root_var_name(node)
         if root_name:
             self.complex_objects.add(root_name)
             if root_name not in self.local_scope:
                 self.required_vars.add(root_name)
-        # We don't visit children to avoid flagging 'attr' as a variable
 
     def visit_Getitem(self, node: nodes.Getitem):
-        """[FACULTY 7] Handles dict/list access."""
+        """Handles dictionary and list indexing."""
         root_name = self._get_root_var_name(node)
         if root_name:
             self.complex_objects.add(root_name)
             if root_name not in self.local_scope:
                 self.required_vars.add(root_name)
-        self.visit(node.arg)  # Visit the index/key expression
+        self.visit(node.arg)
 
     def _infer_type_from_node(self, node, type_name: str):
         name = self._get_root_var_name(node)
@@ -123,123 +130,130 @@ class GnosticASTVisitor(NodeVisitor):
             self.inferred_types[name] = type_name
 
     def _get_root_var_name(self, node) -> Optional[str]:
+        """[THE CURE]: Recursively unwinds nodes to find the primordial name."""
+        if node is None: return None
         if isinstance(node, nodes.Name):
             return node.name
-        elif isinstance(node, (nodes.Getattr, nodes.Getitem)):
-            return self._get_root_var_name(node.node)
-        elif isinstance(node, nodes.Filter):
-            return self._get_root_var_name(node.node)
+        elif isinstance(node, (nodes.Getattr, nodes.Getitem, nodes.Filter)):
+            return self._get_root_var_name(getattr(node, 'node', None))
         return None
 
+
+# =========================================================================================
+# == II. THE OMEGA INQUISITOR (The Perception Engine)                                    ==
+# =========================================================================================
 
 class OmegaInquisitor:
     """
     =================================================================================
-    == THE ALL-SEEING EYE (V-Ω-JINJA-AWARE-ULTIMA)                                 ==
+    == THE ALL-SEEING EYE (V-Ω-TOTALITY-V700)                                      ==
     =================================================================================
-    Analyzes templates to discover the Void (Missing Variables) and the Law (Type/Validation).
+    Analyzes scriptures to discover the Void (Missing Variables) and the Law.
+
+    ### THE PANTHEON OF 12 ASCENSIONS:
+    1. **Achronal Thread-Sieve (THE CURE):** Substrate-aware dispatch of analysis.
+    2. **NoneType Sarcophagus:** Hardened Visitor logic to prevent crash-on-malformed.
+    3. **The Dual Gaze:** Fuses Jinja AST walking with fallback Regex scrying.
+    ...
     """
 
-    # Fallback Regex for non-Jinja files or when AST fails
     REGEX_VAR_BLOCK = re.compile(r'\{\{\s*(.*?)\s*\}\}')
     REGEX_ROOT_VAR = re.compile(r'^([a-zA-Z0-9_]+)')
-
-    # [FACULTY 8] Scaffold Definition Regex
     REGEX_SCAFFOLD_DEF = re.compile(r'^\s*\$\$\s*([a-zA-Z0-9_]+)\s*(?::\s*[^=]+)?\s*=(.*)')
 
     def __init__(self):
         self.env = Environment(autoescape=False)
+        # [ASCENSION 1]: SUBSTRATE DETECTION
+        # We scry the platform at inception to determine the physics of the Inquest.
+        self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
-    def _contextual_gaze(self, scripture: str, context_key: str) -> Set[str]:
-        """
-        =================================================================================
-        == THE GAZE OF THE ALCHEMIST'S EYE (V-Ω-RESURRECTED)                           ==
-        =================================================================================
-        This is the reborn Gaze. Its one true purpose is to perform a humble but
-        hyper-performant regex scan upon a scripture to perceive all Jinja variables
-        within it. It is the eye that the DivineAlchemist requires to see.
-        =================================================================================
-        """
-        found_vars = set()
-        # The REGEX_VAR_BLOCK is a humble but effective Gaze.
-        for match in self.REGEX_VAR_BLOCK.finditer(scripture):
-            # The expression is the soul within the {{ ... }}
-            expression = match.group(1)
-            # The root variable is the first part before any pipes or dots.
-            root_var_match = self.REGEX_ROOT_VAR.search(expression)
-            if root_var_match:
-                found_vars.add(root_var_match.group(1))
-        return found_vars
+        if self._is_wasm:
+            Logger.debug("WASM Substrate detected. Parallel Swarm stayed in favor of Sequential Path.")
 
-    # <<< THE APOTHEOSIS IS COMPLETE >>>
-
-    # Path: scaffold/utils/gnosis_discovery.py
-
-    # ... inside the OmegaInquisitor class ...
+    # --- MOVEMENT II: THE GRAND ORCHESTRATION (INQUIRE) ---
 
     def inquire(
             self,
             execution_plan: List[ScaffoldItem],
-            post_run_commands: List[Tuple[str, int, Optional[List[str]]]],  # ASCENSION 1
+            post_run_commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],
             blueprint_vars: Dict[str, Any],
             *,
             root_ast_node: Optional[_GnosticNode] = None
     ) -> GnosticDossier:
         """
         =================================================================================
-        == THE GRAND INQUEST (V-Ω-ETERNAL-APOTHEOSIS-ULTIMA++)                         ==
+        == THE GRAND INQUEST (V-Ω-TOTALITY-V700.15-RESILIENT)                          ==
         =================================================================================
-        The one true rite of Gnostic Discovery, ascended to its final, eternal form.
-        It conducts a parallelized, causally-aware Gaze upon the complete reality of a
-        blueprint to forge a perfect, unified Gnostic Dossier of all dependencies.
+        LIF: ∞ | ROLE: CAUSAL_DISCOVERY_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+
+        [THE CURE]: This rite is now Substrate-Aware. It annihilates the Threading
+        Heresy by bypassing the Executor in single-threaded environments.
         """
         dossier = GnosticDossier()
+        start_ns = time.perf_counter_ns()
 
-        # --- MOVEMENT I: THE RITE OF GNOSTIC UNIFICATION (DEFINITIONS) ---
-        # [ASCENSION 4] We unify all sources of defined variables.
+        # --- PHASE A: THE RITE OF UNIFICATION (DEFINITIONS) ---
+        # [ASCENSION 4]: We unify all sources of manifest Gnosis.
         dossier.defined.update(blueprint_vars.keys())
         for item in execution_plan:
             if item.raw_scripture:
+                # Scry for $$ assignments in the raw text
                 match = self.REGEX_SCAFFOLD_DEF.match(item.raw_scripture)
                 if match:
                     dossier.defined.add(match.group(1))
 
-        # --- MOVEMENT II: THE STREAM OF GNOSIS (REQUIREMENTS) ---
-        # [ASCENSION 7] A pure generator yields all strings that may contain variables.
-        all_content_streams = self._stream_all_gnosis(execution_plan, post_run_commands, blueprint_vars)
+        # --- PHASE B: THE STREAM OF GNOSIS (REQUIREMENTS) ---
+        # [ASCENSION 7]: A pure generator yields all matter that may contain variables.
+        all_content_streams = list(self._stream_all_gnosis(execution_plan, post_run_commands, blueprint_vars))
 
-        # --- MOVEMENT III: THE ASYNCHRONOUS GAZE ---
-        # [ASCENSION 3] We summon a legion of Scribes to analyze all content in parallel.
-        with ThreadPoolExecutor() as executor:
-            # We submit each piece of text to be analyzed by a worker.
-            future_to_source = {
-                executor.submit(self._analyze_text_worker, text, source_type): (source_type, text)
-                for source_type, text in all_content_streams
-            }
-
-            for future in as_completed(future_to_source):
+        # --- PHASE C: THE SUBSTRATE-AWARE ANALYSIS ---
+        # [THE FIX]: THE ACHRONAL THREAD-SIEVE
+        if self._is_wasm:
+            # PATH: ETHER PLANE (SEQUENTIAL)
+            # We conduct the workers one-by-one to respect the single-threaded substrate.
+            Logger.verbose(f"   -> Sequential Inquest: Scrying {len(all_content_streams)} streams...")
+            for source_type, text in all_content_streams:
                 try:
-                    # The worker returns a partial dossier, which we merge.
-                    partial_dossier = future.result()
-                    dossier.required.update(partial_dossier.required)
-                    for key, values in partial_dossier.dependencies.items():
-                        dossier.dependencies.setdefault(key, set()).update(values)
+                    partial = self._analyze_text_worker(text, source_type)
+                    self._merge_partial_dossier(dossier, partial)
                 except Exception as e:
-                    Logger.warn(f"A Gnostic Scribe faltered during the parallel Gaze: {e}")
+                    Logger.debug(f"Discovery anomaly in '{source_type}': {e}")
+        else:
+            # PATH: IRON CORE (PARALLEL SWARM)
+            # We summon the legion of Scribes to analyze in parallel.
+            Logger.verbose(f"   -> Parallel Swarm: Scrying {len(all_content_streams)} streams...")
+            with ThreadPoolExecutor() as executor:
+                future_to_source = {
+                    executor.submit(self._analyze_text_worker, text, stype): stype
+                    for stype, text in all_content_streams
+                }
+                for future in as_completed(future_to_source):
+                    try:
+                        self._merge_partial_dossier(dossier, future.result())
+                    except Exception as e:
+                        Logger.warn(f"Parallel Scribe fractured: {e}")
 
-        # --- MOVEMENT IV: THE FINAL ADJUDICATION ---
+        # --- PHASE D: THE FINAL ADJUDICATION ---
         dossier.all_vars = dossier.defined.union(dossier.required)
 
-        # [ASCENSION 9] Filter Validation
+        # [ASCENSION 9]: FILTER JURISPRUDENCE
+        # Validates that all used filters exist in the sacred Grammar Codex.
         unknown_filters = dossier.dependencies.get('filters', set()) - SAFE_JINJA_FILTERS
         for f in unknown_filters:
             dossier.heresies.append(Heresy(
                 message=f"Unknown Alchemical Filter: '{f}'",
                 severity=HeresySeverity.WARNING,
-                suggestion=f"Verify filter name. Allowed: {', '.join(sorted(list(SAFE_JINJA_FILTERS)))}"
+                suggestion=f"Verify filter name. Valid: {', '.join(sorted(list(SAFE_JINJA_FILTERS)))}"
             ))
 
+        latency_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+        dossier.metadata['discovery_latency_ms'] = latency_ms
+
         return dossier
+
+    # =========================================================================
+    # == STRATUM-4: THE GNOSTIC STREAMER (RESONANCE)                         ==
+    # =========================================================================
 
     def _stream_all_gnosis(
             self,
@@ -248,16 +262,13 @@ class OmegaInquisitor:
             blueprint_vars: Dict[str, Any]
     ) -> Generator[Tuple[str, str], None, None]:
         """
-        =============================================================================
-        == THE GNOSTIC STREAMER (V-Ω-QUATERNITY-RESONANT)                          ==
-        =============================================================================
-        LIF: ∞ | ROLE: SENSORY_DATA_EMITTER | RANK: OMEGA
-
-        [ASCENSION 7]: A pure generator that yields all strings requiring analysis.
-        Healed to support the 4-tuple command contract (Cmd, Line, Undo, Heresy).
+        [ASCENSION 7]: THE QUATERNITY-AWARE STREAMER.
+        Generates a sequence of (context, text) for analysis.
+        Healed to support the expanded Maestro contract (Cmd, Line, Undo, Heresy).
         """
-        # --- MOVEMENT A: TOPOGRAPHICAL SOULS (Paths & Content) ---
+        # 1. TOPOGRAPHICAL SOULS (The Anatomy)
         for item in execution_plan:
+            # We scry the path and the content for alchemical markers
             if item.path:
                 yield "path", str(item.path)
             if item.content:
@@ -265,31 +276,43 @@ class OmegaInquisitor:
             if item.seed_path:
                 yield "seed_path", str(item.seed_path)
 
-        # --- MOVEMENT B: KINETIC SOULS (The Maestro's Will) ---
-        # [THE CURE]: We now unpack the Quaternity (4 values)
-        for command, line_num, undo_cmds, heresy_cmds in post_run_commands:
-            # 1. The Forward Path
+        # 2. KINETIC SOULS (The Will)
+        # We unpack the 4-tuple: (command, line, undo_list, heresy_list)
+        for command, line, undo_cmds, heresy_cmds in post_run_commands:
             yield "command", command
 
-            # 2. The Reversal Path (Undo)
             if undo_cmds:
                 for undo in undo_cmds:
                     yield "on-undo", undo
 
-            # [ASCENSION]: The Redemption Path (Heresy)
-            # We now perceive the "On-Heresy" scriptures in the stream.
             if heresy_cmds:
                 for heresy in heresy_cmds:
                     yield "on-heresy", heresy
 
-        # --- MOVEMENT C: ALCHEMICAL SOULS (Variables) ---
-        for value in blueprint_vars.values():
+        # 3. ALCHEMICAL SOULS (The State)
+        for key, value in blueprint_vars.items():
             if isinstance(value, str):
                 yield "variable", value
 
+    def _merge_partial_dossier(self, main: GnosticDossier, partial: GnosticDossier):
+        """Surgically merges partial insights into the root dossier."""
+        main.required.update(partial.required)
+        for key, values in partial.dependencies.items():
+            main.dependencies.setdefault(key, set()).update(values)
+        if partial.validation_rules:
+            main.validation_rules.update(partial.validation_rules)
+
+    # =========================================================================
+    # == STRATUM-5: THE ATOMIC ANALYST (KINETIC RITES)                       ==
+    # =========================================================================
+
     def _analyze_text_worker(self, text: str, source_type: str) -> GnosticDossier:
-        """[ASCENSION 3] The rite performed by each ephemeral Scribe in the parallel symphony."""
-        # Each worker gets its own, clean dossier.
+        """
+        [ASCENSION 3]: THE EPHEMERAL SCRIBE.
+        The atomic rite performed by each worker in the Parallel or
+        Sequential symphony.
+        """
+        # Each worker operates within its own clean, isolated dossier.
         partial_dossier = GnosticDossier()
         self._analyze_text(text, source_type, partial_dossier)
         return partial_dossier
@@ -297,78 +320,102 @@ class OmegaInquisitor:
     def _analyze_text(self, text: str, source_type: str, dossier: GnosticDossier):
         """
         [THE DUAL GAZE]
-        Attempts Jinja AST analysis. Falls back to Regex if the soul is too profane.
+        Attempts high-status Jinja2 AST analysis. Falls back to the
+        Regex Scrier if the soul of the text is too profane to parse.
         """
+        # [THE VOID GUARD]: Skip analysis if no alchemical markers are manifest.
         if not text or ('{{' not in text and '{%' not in text):
             return
 
         try:
-            # [FACULTY 1] The Jinja AST Walker
+            # --- PATH A: THE HIGH GAZE (JINJA2 AST) ---
+            # [FACULTY 1]: Transmute text into an Abstract Syntax Tree.
             ast_node = self.env.parse(text)
+
+            # Summon the Mind Walker to traverse the tree.
             visitor = GnosticASTVisitor()
             visitor.visit(ast_node)
 
-            # Harvest Gnosis from the Visitor
+            # Harvest Gnosis from the traversal.
             dossier.required.update(visitor.required_vars)
             dossier.all_vars.update(visitor.required_vars)
 
-            # Record Filters
-            if not dossier.dependencies.get('filters'): dossier.dependencies['filters'] = set()
+            # Record Alchemical Rites (Filters)
+            if 'filters' not in dossier.dependencies:
+                dossier.dependencies['filters'] = set()
             dossier.dependencies['filters'].update(visitor.filters_used)
 
-            # [FACULTY 4] Defaults
-            # Merge defaults into dossier (assuming dossier has a place for them,
-            # or we just use them to mark variables as optional later)
-            # For now, we don't strictly require variables that have defaults.
-            # But 'required' usually means "used".
-
-            # [FACULTY 5] Path Context Validation
+            # [FACULTY 5]: GEOMETRIC CONTEXT VALIDATION
+            # If the variable is discovered within a 'path', it is warded
+            # with path-safe jurisprudence rules.
             if source_type == 'path':
                 for var in visitor.required_vars:
                     dossier.validation_rules[var] = 'var_path_safe'
 
-            # [FACULTY 6] Secret Sentinel
-            for var in visitor.required_vars:
-                if any(s in var.lower() for s in ['key', 'secret', 'token', 'password']):
-                    # We flag it. The UI can use this to mask input.
-                    # Currently we don't have a specific field in Dossier for "secrets",
-                    # but we can infer it or add a rule.
-                    pass
+            # [FACULTY 6]: THE PRIVACY SENTINEL
+            # (Prophecy): Future ascension will use visitor.complex_objects
+            # to map deep attribute dependencies.
 
-        except Exception as e:
-            # [FACULTY 12] The Resilience Ward
-            # AST parsing failed (syntax error in template?). Fallback to Regex.
-            # Logger.debug(f"AST Gaze failed: {e}. Falling back to Regex.")
+        except Exception:
+            # --- PATH B: THE HUMBLE GAZE (REGEX FALLBACK) ---
+            # [FACULTY 12]: THE RESILIENCE WARD.
+            # If the Jinja2 parser shatters (e.g. unclosed braces), we
+            # perform a linear regex scry to salvage the intent.
             self._regex_fallback(text, source_type, dossier)
 
     def _regex_fallback(self, text: str, source_type: str, dossier: GnosticDossier):
-        """The Humble Gaze (Regex)."""
+        """
+        The Humble Gaze. A robust fallback scrier for malformed matter.
+        """
+        # [ASCENSION 3]: Extract variables from {{ expression }} blocks.
         matches = self.REGEX_VAR_BLOCK.findall(text)
         for content in matches:
-            # Extract root variable (before filters/dots)
+            # Extract the root variable name (before any dots or pipes).
             root_match = self.REGEX_ROOT_VAR.search(content.strip())
             if root_match:
                 var_name = root_match.group(1)
+
+                # Filter out internal machine metadata
+                if var_name.startswith('_'):
+                    continue
+
                 dossier.required.add(var_name)
                 dossier.all_vars.add(var_name)
 
                 if source_type == 'path':
                     dossier.validation_rules[var_name] = 'var_path_safe'
 
+    def __repr__(self) -> str:
+        return f"<Ω_INQUISITOR substrate={'ETHER' if self._is_wasm else 'IRON'} status=RESONANT>"
+
+
+# =========================================================================================
+# == III. THE PUBLIC GATEWAY (THE UNIVERSAL SUTURE)                                      ==
+# =========================================================================================
 
 def discover_required_gnosis(
         execution_plan: List[ScaffoldItem],
-        post_run_commands: List[Tuple[str, int, Optional[List[str]]]], # The sacred, 3-tuple contract is honored.
+        post_run_commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],
         blueprint_vars: Dict[str, Any]
 ) -> GnosticDossier:
     """
     =================================================================================
-    == THE UNIVERSAL GATEWAY OF GNOSTIC INQUIRY (V-Ω-ETERNALLY-PERFECTED)          ==
+    == THE UNIVERSAL GATEWAY (V-Ω-TOTALITY-V700.15)                                ==
     =================================================================================
-    The one true, public rite for discovering required variables. It summons the
-    ascended Omega Inquisitor and bestows upon it the complete Gnostic Dowry, its
-    contract now in perfect harmony with the Parser's ascended soul.
+    LIF: 100x | ROLE: DISCOVERY_FACADE | RANK: OMEGA_SUPREME
+
+    The one true, public rite for discovering required variables. It materializes
+    the ascended Omega Inquisitor and bestows upon it the complete Gnostic Dowry.
+
+    [THE CURE]: By leveraging the internal Thread-Sieve of the Inquisitor, this
+    gateway is now stable in WASM/Pyodide environments.
     =================================================================================
     """
+    # 1. MATERIALIZE THE INQUISITOR
     inquisitor = OmegaInquisitor()
+
+    # 2. CONDUCT THE INQUEST
+    # This call now handles its own substrate-aware branching (Parallel vs Sequential).
     return inquisitor.inquire(execution_plan, post_run_commands, blueprint_vars)
+
+

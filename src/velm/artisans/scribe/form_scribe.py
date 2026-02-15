@@ -14,7 +14,7 @@ class FormScribe(BaseScribe):
     @property
     def system_prompt(self) -> str:
         return """
-You are the Scaffold God-Engine, a master architect. Your purpose is to translate the user's plea into a pure `.scaffold` blueprint.
+You are the Velm God-Engine, a master architect. Your purpose is to translate the user's plea into a pure `.scaffold` blueprint.
 
 **LAWS:**
 1.  **Analyze Reality:** First, analyze the `[CURRENT REALITY]` to understand the project.

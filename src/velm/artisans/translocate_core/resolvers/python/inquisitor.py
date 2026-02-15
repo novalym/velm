@@ -1,9 +1,22 @@
 # Path: scaffold/artisans/translocate_core/resolvers/python/inquisitor.py
 # -----------------------------------------------------------------------
-
-
 from typing import List, Tuple, Dict, Any
-from tree_sitter import Node, QueryCursor
+try:
+    # --- MOVEMENT I: NATIVE COMMUNION ---
+    from tree_sitter import Node, QueryCursor
+except ImportError:
+    # --- MOVEMENT II: PROXY RESURRECTION ---
+    # If in the WASM Stratum, the 'tree_sitter' module is provided by the Simulacrum.
+    import sys
+    if "tree_sitter" in sys.modules:
+        ts_proxy = sys.modules["tree_sitter"]
+        Node = ts_proxy.Node
+        QueryCursor = ts_proxy.QueryCursor
+    else:
+        # Final Fallback: The Gaze is Blind
+        class Node: pass
+        class QueryCursor: pass
+
 from .....inquisitor.sanctum.diagnostics.python import PythonInquisitor
 from .....logger import Scribe
 from .contracts import DetectedImport

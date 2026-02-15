@@ -1,12 +1,12 @@
 # =================================================================================
-# == GNOSTIC ARCHETYPE: FASTAPI CELESTIAL CITADEL (V-Ω-TOTALITY)                 ==
+# == GNOSTIC ARCHETYPE: FASTAPI CELESTIAL CITADEL (V-Ω-TOTALITY-V3.0)            ==
 # =================================================================================
-# @description: The definitive high-performance FastAPI foundation. Features 
-#               SQLAlchemy 2.0 (Async), JWT Security, Structured Logging, 
-#               Pydantic V2, and a multi-stage Docker fortress.
+# @description: The definitive high-performance, modular FastAPI foundation. 
+#               Features Domain-Driven Design layout, Async SQLAlchemy 2.0, 
+#               Argon2 Security, and a Self-Healing Kinetic Conductor.
 # @category: Backend
-# @tags: python, fastapi, sqlalchemy, postgres, jwt, docker, pydantic, async
-# @difficulty: Master
+# @tags: python, fastapi, ddd, sqlalchemy, postgres, jwt, docker, production
+# @difficulty: Grand Architect
 # @is_integration: false
 # @dna: use_docker=true, use_poetry=true, python_version=3.13, database_type=postgres
 # =================================================================================
@@ -14,484 +14,566 @@
 # --- I. THE ALTAR OF GNOSTIC WILL ---
 $$ project_name = "sentinel_api"
 $$ author = "The Architects"
-$$ database_type = "postgres" # Options: postgres, sqlite
+$$ database_type = "postgres" 
 $$ auth_method = "jwt"
+$$ cors_origins = ["*"]
+$$ log_level = "INFO"
 
-# Derived Gnosis
+# Derived Gnosis (The Variable Prism)
 $$ project_slug = {{ project_name | slug }}
 $$ package_name = {{ project_name | snake }}
 
 # --- II. THE SCRIPTURE OF FORM ---
 {{ project_slug }}/
 
-    # [1] THE KERNEL CONFIGURATION
+    # [1] THE KERNEL CONFIGURATION (Substrate-Agnostic Ward)
     .gitignore :: """
-        __pycache__/
-        *.py[cod]
-        *$py.class
-        .venv/
-        .env
-        .env.*
-        !.env.example
-        dist/
-        build/
-        *.egg-info/
-        .pytest_cache/
-        .ruff_cache/
-        .mypy_cache/
-        .coverage
-        htmlcov/
-        .DS_Store
-        *.db
-        *.sqlite
-    """
+# --- THE GNOSTIC ABYSS (EXCLUSIONS) ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.env
+.env.*
+!.env.example
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.DS_Store
+*.db
+*.sqlite
+.scaffold/
+"""
 
     pyproject.toml :: """
-        [tool.poetry]
-        name = "{{ project_slug }}"
-        version = "0.1.0"
-        description = "A Celestial API forged by the Velm God-Engine."
-        authors = ["{{ author }}"]
-        readme = "README.md"
-        packages = [{include = "{{ package_name }}", from = "src"}]
+[project]
+name = "{{ project_slug }}"
+version = "0.1.0"
+description = "A Sovereign API forged by Novalym Systems."
+authors = [{name = "{{ author }}"}]
+readme = "README.md"
+requires-python = ">=3.11"
 
-        [tool.poetry.dependencies]
-        python = "^3.11"
-        fastapi = "^0.110.0"
-        uvicorn = {extras = ["standard"], version = "^0.27.0"}
-        pydantic = {extras = ["email"], version = "^2.6.0"}
-        pydantic-settings = "^2.2.0"
-        python-dotenv = "^1.0.1"
-        rich = "^13.7.0"
-        python-jose = {extras = ["cryptography"], version = "^3.3.0"}
-        passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-        python-multipart = "^0.0.9"
+[tool.poetry]
+name = "{{ project_slug }}"
+version = "0.1.0"
+description = "A Sovereign API forged by Novalym Systems."
+authors = ["{{ author }}"]
+readme = "README.md"
+package-mode = false
 
-        {% if database_type == 'postgres' %}
-        sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
-        asyncpg = ">=0.30.0"
-        alembic = "^1.13.1"
-        psycopg2-binary = "^2.9.9" 
-        {% else %}
-        sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
-        aiosqlite = "^0.20.0"
-        alembic = "^1.13.1"
-        {% endif %}
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.0"
+uvicorn = {extras = ["standard"], version = "^0.27.0"}
+pydantic = {extras = ["email"], version = "^2.6.0"}
+pydantic-settings = "^2.2.0"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
+{% if database_type == 'postgres' %}
+asyncpg = ">=0.30.0"
+psycopg2-binary = "^2.9.9"
+{% else %}
+aiosqlite = "^0.20.0"
+{% endif %}
+alembic = "^1.13.1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["argon2"], version = "^1.7.4"}
+python-multipart = "^0.0.9"
+rich = "^13.7.0"
+httpx = "^0.27.0"
+loguru = "^0.7.2"
 
-        [tool.poetry.group.dev.dependencies]
-        pytest = "^8.0.0"
-        pytest-asyncio = "^0.23.5"
-        ruff = "^0.3.0"
-        black = "^24.2.0"
-        httpx = "^0.27.0"
-        mypy = "^1.8.0"
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.5"
+ruff = "^0.3.0"
+black = "^24.2.0"
+mypy = "^1.8.0"
 
-        [build-system]
-        requires = ["poetry-core"]
-        build-backend = "poetry.core.masonry.api"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
-        [tool.ruff]
-        line-length = 110
-        target-version = "py311"
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+"""
 
-        [tool.black]
-        line-length = 110
-    """
-
-    # [2] THE CONTROL PLANE
-    # Note: Indentation here uses literal tabs for the Makefile recipes.
+    # [2] THE CONTROL PLANE (Makefile)
     Makefile :: """
-        .PHONY: help install dev test lint format clean docker-up
+.PHONY: help install dev test lint format clean
 
-        # Variables
-        $APP_NAME = {{ project_slug }}
-        $PKG_NAME = {{ package_name }}
-        
-        help:  ## Proclaim available rites
-            @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\\033[36m%-20s\\033[0m %s\\n", $1, $2}'
+# Variables
+APP_NAME = {{ project_slug }}
+PKG_NAME = {{ package_name }}
 
-        install: ## Consecrate the local environment
-            @echo "📦 Summoning dependencies..."
-            @poetry install
+help:  ## Proclaim available rites
+    @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\\033[36m%-20s\\033[0m %s\\n", $$1, $$2}'
 
-        dev: ## Ignite the development server
-            @echo "🚀 Awakening {{ project_name }}..."
-            @poetry run uvicorn src.$(PKG_NAME).main:app --host 0.0.0.0 --port 8000 --reload
+install: ## Consecrate the local environment
+    @echo "📦 Summoning dependencies..."
+    @poetry install
 
-        test: ## Conduct the unit inquisition
-            @echo "🧪 Verifying logic..."
-            @poetry run pytest
+dev: ## Ignite the development server
+    @echo "🚀 Awakening {{ project_name }}..."
+    @poetry run uvicorn src.$(PKG_NAME).main:app --host 0.0.0.0 --port 8000 --reload
 
-        lint: ## Audit for architectural heresies
-            @echo "🔍 Gazing upon the code..."
-            @poetry run ruff check .
-            @poetry run mypy src/
+test: ## Conduct the unit inquisition
+    @echo "🧪 Verifying logic..."
+    @poetry run pytest
 
-        format: ## Apply sacred geometry to the code
-            @echo "✨ Purifying form..."
-            @poetry run ruff check --fix .
-            @poetry run black .
+lint: ## Audit for architectural heresies
+    @echo "🔍 Gazing upon the code..."
+    @poetry run ruff check .
+    @poetry run mypy src/
 
-        clean: ## Return ephemeral artifacts to the void
-            @rm -rf .venv __pycache__ .pytest_cache .ruff_cache dist build
+format: ## Apply sacred geometry to the code
+    @echo "✨ Purifying form..."
+    @poetry run ruff check --fix .
+    @poetry run black .
 
-        docker-up: ## Awaken the containerized reality
-            @docker-compose up --build -d
-    """
+clean: ## Return ephemeral artifacts to the void
+    @rm -rf .venv __pycache__ .pytest_cache .ruff_cache dist build
+"""
 
-    # [3] THE ENVIRONMENT DNA
+    # [3] THE ENVIRONMENT DNA (Gnostic Veil Template)
     .env.example :: """
-        APP_NAME="{{ project_name }}"
-        ENVIRONMENT="development"
-        LOG_LEVEL="INFO"
-        PORT=8000
-        
-        # --- Database Gnosis ---
-        {% if database_type == 'postgres' %}
-        DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/{{ package_name }}"
-        {% else %}
-        DATABASE_URL="sqlite+aiosqlite:///./{{ package_name }}.db"
-        {% endif %}
+# --- CORE IDENTITY ---
+APP_NAME="{{ project_name }}"
+ENVIRONMENT="development"
+LOG_LEVEL="{{ log_level }}"
+PORT=8000
 
-        # --- Security ---
-        # Generate with: openssl rand -base64 32
-        SECRET_KEY={{ secret('hex', 32) }}
-        ALGORITHM="HS256"
-        ACCESS_TOKEN_EXPIRE_MINUTES=30
-    """
+# --- DATABASE GNOSIS ---
+# For Docker: postgresql+asyncpg://postgres:postgres@db:5432/{{ package_name }}
+DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/{{ package_name }}"
 
-    # [4] THE SOURCE CODE (THE SOUL)
+# --- SECURITY STRATUM ---
+# Use 'velm tool hash' or 'openssl rand -base64 32'
+SECRET_KEY={{ secret('hex', 32) }}
+ALGORITHM="HS256"
+"""
+
+    # [4] THE SOURCE CODE (MODULAR DDD-LITE STRATA)
     src/
         {{ package_name }}/
             __init__.py :: "__version__ = '0.1.0'"
 
-            config.py :: """
-                from pydantic_settings import BaseSettings, SettingsConfigDict
-                from typing import Optional
-
-                class Settings(BaseSettings):
-                    \"\"\"
-                    =============================================================================
-                    == THE GNOSTIC SETTINGS (V-Ω-SINGLETON)                                    ==
-                    =============================================================================
-                    \"\"\"
-                    APP_NAME: str = "{{ project_name }}"
-                    ENVIRONMENT: str = "development"
-                    LOG_LEVEL: str = "INFO"
-                    
-                    DATABASE_URL: str
-                    SECRET_KEY: str
-                    ALGORITHM: str = "HS256"
-                    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-
-                    model_config = SettingsConfigDict(
-                        env_file=".env", 
-                        env_file_encoding="utf-8", 
-                        extra="ignore"
-                    )
-
-                settings = Settings()
-            """
-
-            # --- THE KINETIC INTERFACE ---
-            main.py :: """
-                import time
-                from contextlib import asynccontextmanager
-                from fastapi import FastAPI, Request
-                from fastapi.middleware.cors import CORSMiddleware
-                from rich.console import Console
-
-                from .config import settings
-                from .database import init_db
-                from .routers import auth, users
-
-                console = Console()
-
-                @asynccontextmanager
-                async def lifespan(app: FastAPI):
-                    \"\"\"The Inception and Dissolution rites.\"\"\"
-                    console.print(f"[bold green]✨ {settings.APP_NAME} awakening in {settings.ENVIRONMENT} mode...[/]")
-                    await init_db()
-                    yield
-                    console.print(f"[bold red]💀 {settings.APP_NAME} returning to the void...[/]")
-
-                app = FastAPI(
-                    title=settings.APP_NAME,
-                    version="0.1.0",
-                    lifespan=lifespan
-                )
-
-                # --- MIDDLEWARE ---
-                app.add_middleware(
-                    CORSMiddleware,
-                    allow_origins=["*"],
-                    allow_methods=["*"],
-                    allow_headers=["*"],
-                )
-
-                @app.middleware("http")
-                async def add_process_time_header(request: Request, call_next):
-                    start_time = time.time()
-                    response = await call_next(request)
-                    process_time = time.time() - start_time
-                    response.headers["X-Process-Time"] = str(process_time)
-                    return response
-
-                # --- RITES (ROUTERS) ---
-                app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
-                app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
-
-                @app.get("/")
-                async def root():
-                    return {
-                        "message": "Celestial API Online.",
-                        "status": "RESONANT",
-                        "timestamp": time.time()
-                    }
-
-                @app.get("/health")
-                async def health():
-                    return {"status": "vital"}
-            """
-
-            # --- THE CRYSTAL MIND (DATABASE) ---
-            database.py :: """
-                import logging
-                from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-                from sqlalchemy.orm import DeclarativeBase
-                from .config import settings
-
-                Logger = logging.getLogger("uvicorn")
-
-                # [THE CURE]: Async Engine with High-Fidelity logging
-                engine = create_async_engine(
-                    settings.DATABASE_URL, 
-                    echo=(settings.ENVIRONMENT == "development")
-                )
-                
-                AsyncSessionLocal = async_sessionmaker(
-                    engine, 
-                    class_=AsyncSession, 
-                    expire_on_commit=False
-                )
-
-                class Base(DeclarativeBase):
-                    \"\"\"The Ancestral Schema.\"\"\"
-                    pass
-
-                async def init_db():
-                    \"\"\"Materializes the schema in the physical world.\"\"\"
-                    try:
-                        async with engine.begin() as conn:
-                            await conn.run_sync(Base.metadata.create_all)
-                    except Exception as e:
-                        Logger.error(f"Database Inception Failed: {e}")
-
-                async def get_db():
-                    \"\"\"Gnosis context for database interaction.\"\"\"
-                    async with AsyncSessionLocal() as session:
-                        yield session
-            """
-
-            # --- THE ARCHITECTURAL SOULS (MODELS) ---
-            models.py :: """
-                from sqlalchemy import Column, Integer, String, Boolean, DateTime
-                from sqlalchemy.sql import func
-                from .database import Base
-
-                class User(Base):
-                    __tablename__ = "users"
-
-                    id = Column(Integer, primary_key=True, index=True)
-                    email = Column(String, unique=True, index=True, nullable=False)
-                    hashed_password = Column(String, nullable=False)
-                    is_active = Column(Boolean, default=True)
-                    created_at = Column(DateTime(timezone=True), server_default=func.now())
-            """
-
-            # --- THE DATA CONTRACTS (SCHEMAS) ---
-            schemas.py :: """
-                from pydantic import BaseModel, EmailStr, ConfigDict
-                from typing import Optional
-                from datetime import datetime
-
-                class UserBase(BaseModel):
-                    email: EmailStr
-
-                class UserCreate(UserBase):
-                    password: str
-
-                class UserRead(UserBase):
-                    id: int
-                    is_active: bool
-                    created_at: datetime
-                    model_config = ConfigDict(from_attributes=True)
-
-                class Token(BaseModel):
-                    access_token: str
-                    token_type: str
-
-                class TokenData(BaseModel):
-                    email: Optional[str] = None
-            """
-
-            # --- THE SACRED TONGUES (ROUTERS) ---
-            routers/
+            # --- STRATUM: CORE (Settings & Security) ---
+            core/
                 __init__.py :: ""
-                auth.py :: """
-                    from fastapi import APIRouter, Depends, HTTPException, status
-                    from fastapi.security import OAuth2PasswordRequestForm
-                    from ..schemas import Token
-                    
-                    router = APIRouter()
+                config.py :: """
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List
+import os
 
-                    @router.post("/login", response_model=Token)
-                    async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-                        # [PROPHETIC TODO]: Implement hash verification
-                        return {"access_token": "gnostic_placeholder", "token_type": "bearer"}
-                """
+class Settings(BaseSettings):
+    APP_NAME: str = "{{ project_name }}"
+    ENVIRONMENT: str = "development"
+    DATABASE_URL: str
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    CORS_ORIGINS: List[str] = {{ cors_origins }}
+    
+    model_config = SettingsConfigDict(
+        env_file=".env", 
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
 
-                users.py :: """
-                    from fastapi import APIRouter, Depends
-                    from sqlalchemy.ext.asyncio import AsyncSession
-                    from ..database import get_db
-                    
-                    router = APIRouter()
+settings = Settings()
+"""
+                security.py :: """
+from passlib.context import CryptContext
+from jose import jwt, JWTError
+from datetime import datetime, timedelta, timezone
+from .config import settings
+from .exceptions import AuthHeresy
 
-                    @router.get("/me")
-                    async def read_users_me():
-                        return {"email": "architect@velm.dev"}
-                """
+# Using Argon2ID for maximum entropy defense
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
-    # [5] THE INQUISITION (TESTS)
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=60)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+def decode_access_token(token: str) -> dict:
+    try:
+        return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    except JWTError:
+        raise AuthHeresy("Token is profane or expired.")
+"""
+                exceptions.py :: """
+class CitadelException(Exception):
+    \"\"\"Base exception for all architectural paradoxes.\"\"\"
+    def __init__(self, message: str, status_code: int = 400):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(self.message)
+
+class AuthHeresy(CitadelException):
+    \"\"\"Raised when identity validation fails.\"\"\"
+    def __init__(self, message: str = "Unauthorized access attempt."):
+        super().__init__(message, status_code=401)
+
+class ResourceNotFound(CitadelException):
+    \"\"\"Raised when matter is unmanifest in the database.\"\"\"
+    def __init__(self, resource: str):
+        super().__init__(f"{resource} is unmanifest in this reality.", status_code=404)
+"""
+
+
+# =================================================================================
+# == GNOSTIC ARCHETYPE: FASTAPI CELESTIAL CITADEL (V-Ω-PART-2)                  ==
+# =================================================================================
+
+{{ project_slug }}/
+
+            # --- STRATUM: INFRASTRUCTURE (The Memory & Persistence) ---
+            infra/
+                __init__.py :: ""
+                database.py :: """
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+from typing import AsyncGenerator
+from contextlib import asynccontextmanager
+from ..core.config import settings
+
+# [THE CURE]: High-performance Async Engine with Pool Management
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    pool_pre_ping=True,
+    echo=(settings.ENVIRONMENT == "development")
+)
+
+AsyncSessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autoflush=False
+)
+
+class Base(DeclarativeBase):
+    \"\"\"The Ancestral Schema of the Citadel.\"\"\"
+    pass
+
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    \"\"\"Gnostic Dependency Injection for DB Sessions.\"\"\"
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+@asynccontextmanager
+async def transaction():
+    \"\"\"Context manager for atomic domain operations.\"\"\"
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+"""
+
+            # --- STRATUM: DOMAIN (The Soul & Pure Logic) ---
+            domain/
+                __init__.py :: ""
+                models.py :: """
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
+from sqlalchemy.sql import func
+from ..infra.database import Base
+
+class TimestampMixin:
+    \"\"\"Bestows temporal awareness upon a model.\"\"\"
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+class User(Base, TimestampMixin):
+    \"\"\"The primary identity vessel.\"\"\"
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    is_superuser = Column(Boolean, default=False)
+"""
+                schemas.py :: """
+from pydantic import BaseModel, EmailStr, ConfigDict
+from datetime import datetime
+from typing import Optional
+
+class GnosticBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+class UserBase(GnosticBase):
+    email: EmailStr
+
+class UserCreate(UserBase):
+    password: str
+
+class UserRead(UserBase):
+    id: int
+    is_active: bool
+    created_at: datetime
+
+class Token(GnosticBase):
+    access_token: str
+    token_type: str = "bearer"
+
+class TokenData(GnosticBase):
+    email: Optional[str] = None
+"""
+
+            # --- STRATUM: API (The Voice & Interface) ---
+            api/
+                __init__.py :: ""
+                v1/
+                    __init__.py :: ""
+                    router.py :: """
+from fastapi import APIRouter
+from .health import router as health_router
+from .auth import router as auth_router
+
+api_router = APIRouter()
+api_router.include_router(health_router, prefix="/health", tags=["Vitality"])
+api_router.include_router(auth_router, prefix="/auth", tags=["Security"])
+"""
+                    health.py :: """
+from fastapi import APIRouter
+import time
+
+router = APIRouter()
+
+@router.get("/")
+async def check_vitality():
+    return {
+        "status": "RESONANT",
+        "metabolism": "NOMINAL",
+        "epoch": time.time()
+    }
+"""
+                    auth.py :: """
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+from ...infra.database import get_db
+from ...domain.models import User
+from ...domain.schemas import Token, UserCreate
+from ...core.security import verify_password, hash_password, create_access_token
+
+router = APIRouter()
+
+@router.post("/login", response_model=Token)
+async def login(
+    db: AsyncSession = Depends(get_db),
+    form_data: OAuth2PasswordRequestForm = Depends()
+):
+    # [THE INQUEST]: Scry the database for the identity
+    result = await db.execute(select(User).where(User.email == form_data.username))
+    user = result.scalar_one_or_none()
+    
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Profane credentials.")
+    
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/register", response_model=Token)
+async def register(
+    user_in: UserCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    # [THE RITE OF CREATION]
+    new_user = User(
+        email=user_in.email,
+        hashed_password=hash_password(user_in.password)
+    )
+    db.add(new_user)
+    await db.flush()
+    
+    access_token = create_access_token(data={"sub": new_user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+"""
+
+            main.py :: """
+import time
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
+
+from .core.config import settings
+from .core.exceptions import CitadelException
+from .api.v1.router import api_router
+
+# --- 1. THE OCULAR DISPATCHER ---
+app = FastAPI(
+    title=settings.APP_NAME,
+    description="Sovereign Architecture manifest via VELM.",
+    version="3.0.0-Ω"
+)
+
+# --- 2. THE GUARDIAN SPINES (MIDDLEWARE) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.middleware("http")
+async def gnostic_telemetry_middleware(request: Request, call_next):
+    \"\"\"Inscribes metabolic tax and trace ID into the revelation.\"\"\"
+    start_time = time.perf_counter()
+    trace_id = request.headers.get("X-Trace-ID", "tr-void")
+    
+    response = await call_next(request)
+    
+    process_time = (time.perf_counter() - start_time) * 1000
+    response.headers["X-Metabolic-Tax-MS"] = f"{process_time:.2f}"
+    response.headers["X-Trace-ID"] = trace_id
+    
+    return response
+
+# --- 3. THE REDEMPTION GATE (EXCEPTION HANDLING) ---
+@app.exception_handler(CitadelException)
+async def citadel_exception_handler(request: Request, exc: CitadelException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False, 
+            "heresy": exc.__class__.__name__,
+            "message": exc.message
+        }
+    )
+
+# --- 4. RITE MOUNTING ---
+app.include_router(api_router, prefix="/api/v1")
+
+@app.get("/")
+async def root():
+    return {
+        "entity": "Novalym Sovereign Node",
+        "status": "RESONANT",
+        "api_docs": "/docs"
+    }
+
+logger.info("Citadel Spine manifest. Reality is resonant.")
+"""
+
+    # [5] THE INQUISITION (Forensic Tests)
     tests/
         __init__.py :: ""
         conftest.py :: """
-            import pytest
-            import asyncio
-            from httpx import AsyncClient
-            from src.{{ package_name }}.main import app
+import pytest
+import asyncio
+from httpx import AsyncClient
+from src.{{ package_name }}.main import app
 
-            @pytest.fixture(scope="session")
-            def event_loop():
-                loop = asyncio.get_event_loop_policy().new_event_loop()
-                yield loop
-                loop.close()
+@pytest.fixture(scope="session")
+def event_loop():
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
-            @pytest.fixture
-            async def client():
-                async with AsyncClient(app=app, base_url="http://test") as ac:
-                    yield ac
-        """
+@pytest.fixture
+async def client():
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        yield ac
+"""
+        test_api.py :: """
+import pytest
+from httpx import AsyncClient
 
-        test_main.py :: """
-            import pytest
+@pytest.mark.asyncio
+async def test_citadel_health(client: AsyncClient):
+    response = await client.get("/api/v1/health/")
+    assert response.status_code == 200
+    assert response.json()["status"] == "RESONANT"
 
-            @pytest.mark.asyncio
-            async def test_root_resonance(client):
-                response = await client.get("/")
-                assert response.status_code == 200
-                assert response.json()["status"] == "RESONANT"
+@pytest.mark.asyncio
+async def test_root_revelation(client: AsyncClient):
+    response = await client.get("/")
+    assert response.status_code == 200
+    assert "Novalym" in response.json()["entity"]
+"""
 
-            @pytest.mark.asyncio
-            async def test_health_vow(client):
-                response = await client.get("/health")
-                assert response.status_code == 200
-        """
-
-    # [6] THE CELESTIAL VESSEL (DOCKER)
-    Dockerfile :: """
-        # --- STAGE 1: THE FORGE ---
-        FROM python:3.13-slim-bookworm as builder
-        
-        WORKDIR /app
-        ENV POETRY_NO_INTERACTION=1 \
-            POETRY_VIRTUALENVS_IN_PROJECT=1 \
-            POETRY_VIRTUALENVS_CREATE=1
-
-        RUN apt-get update && apt-get install -y build-essential curl
-        RUN pip install poetry==1.8.2
-
-        COPY pyproject.toml poetry.lock ./
-        RUN poetry install --no-root --only main
-
-        # --- STAGE 2: THE CELESTIAL VESSEL ---
-        FROM python:3.13-slim-bookworm
-        WORKDIR /app
-        
-        COPY --from=builder /app/.venv /app/.venv
-        ENV PATH="/app/.venv/bin:$PATH"
-        
-        COPY src /app/src
-        COPY .env.example /app/.env
-
-        EXPOSE 8000
-        CMD ["uvicorn", "src.{{ package_name }}.main:app", "--host", "0.0.0.0", "--port", "8000"]
-    """
-
-    docker-compose.yml :: """
-        version: '3.8'
-        services:
-          api:
-            build: .
-            ports: ["8000:8000"]
-            env_file: .env
-            volumes: ["./src:/app/src"]
-            depends_on:
-              db:
-                condition: service_healthy
-
-          db:
-            image: postgres:16-alpine
-            environment:
-              POSTGRES_USER: postgres
-              POSTGRES_PASSWORD: postgres
-              POSTGRES_DB: {{ package_name }}
-            healthcheck:
-              test: ["CMD-SHELL", "pg_isready -U postgres"]
-              interval: 5s
-              timeout: 5s
-              retries: 5
-    """
-
+    # [6] THE FINAL SCRIPTURE (README)
     README.md :: """
-        # {{ project_name }}
+# 🛡️ {{ project_name }}
+> Forged via VELM Singularity Architecture (V-Ω-TOTALITY-V3.0)
 
-        > {{ description }}
+## 🏛️ Gnostic Strata
+- **Core**: Pydantic V2 Settings & JWT Security.
+- **Infrastructure**: Async SQLAlchemy 2.0 & PostgreSQL.
+- **Domain**: Domain-Driven Models & Pydantic Schemas.
+- **API**: Versioned (v1) FastAPI Controllers.
 
-        Forged with **FastAPI**, **SQLAlchemy 2.0**, and **Titanium** resilience.
+## ⚡ Kinetic Rites
+1. **Initialize**: `make install`
+2. **Develop**: `make dev`
+3. **Test**: `make test`
 
-        ## 🚀 Quick Start
+## 🛡️ Security Vow
+This node utilizes **Argon2ID** hashing and **Novalym Distributed Tracing** middleware.
+"""
 
-        1. **Summon dependencies:** `make install`
-        2. **Prepare the Veil:** `cp .env.example .env`
-        3. **Awaken the core:** `make dev`
-
-        ## 🏛️ Architecture
-
-        - `src/{{ package_name }}/main.py`: Entrypoint & Lifespan.
-        - `src/{{ package_name }}/database.py`: Async Engine & Session.
-        - `src/{{ package_name }}/config.py`: Pydantic V2 Settings.
-        - `src/{{ package_name }}/routers/`: Modular Logic.
-    """
-
-# --- III. THE MAESTRO'S WILL ---
+# --- III. THE MAESTRO'S WILL (THE STRIKE) ---
 %% post-run
     # 1. Initialize the Chronicle
-    @if {{ use_git }} -> git init
+    {% if use_git %}
+    git init
+    {% endif %}
 
-    # 2. Summon the Toolchain
-    proclaim: "Summoning the Titanium toolchain... (Poetry Install)"
+    # 2. THE ALCHEMICAL VEIL SUTURE
+    proclaim: "Alchemizing environment DNA (.env)..."
+    py:
+        import shutil
+        example = ctx.cwd / ".env.example"
+        target = ctx.cwd / ".env"
+        if example.exists() and not target.exists():
+            shutil.copy2(example, target)
+            print("   -> Success: .env manifest from prophecy.")
+
+    # 3. Summon the Toolchain
+    proclaim: "Summoning the Titanium toolchain (Poetry Install)..."
     make install
 
-    # 3. Final Proclamation
+    # 4. Final Proclamation
     proclaim: "The FastAPI Celestial Citadel is manifest."
     proclaim: "To enter the cockpit:"
     proclaim: "  1. [bold cyan]cd {{ project_slug }}[/bold cyan]"
-    proclaim: "  2. [bold cyan]cp .env.example .env[/bold cyan]"
-    proclaim: "  3. [bold cyan]make dev[/bold cyan]"
-    proclaim: "  4. Scry the Oracle at http://localhost:8000/docs"
+    proclaim: "  2. [bold cyan]make dev[/bold cyan]"
+    proclaim: "  3. Scry the Oracle at http://localhost:8000/docs"
 
 %% on-heresy
-    proclaim: "The forge fractured. Purging the shards..."
-    rm -rf src/ tests/ pyproject.toml Makefile Dockerfile
+    proclaim: "[bold red]THE FORGE HAS FRACTURED.[/bold red]"
+    proclaim: "Purging imperfect matter shards to preserve sanctum purity..."
+    # Selective excision: only remove the debris, keep the blueprint.
+    rm -rf src/ tests/ pyproject.toml Makefile .env.example

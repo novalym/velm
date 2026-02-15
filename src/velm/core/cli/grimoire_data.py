@@ -30,6 +30,7 @@ LAZY_RITE_MAP = {
     "arch": ("artisans.arch", "ArchArtisan", "ArchRequest"),
     "upgrade": ("artisans.upgrade", "UpgradeArtisan", "UpgradeRequest"),
     "hover": ("artisans.hover", "HoverArtisan", "HoverRequest"),
+    "project": ("artisans.project.artisan", "ProjectArtisan", "ProjectRequest"),
     # Gnostic Perception & Analysis
     "distill": ("artisans.distill", "DistillArtisan", "DistillRequest"),
     "adopt": ("artisans.adopt", "AdoptArtisan", "AdoptRequest"),

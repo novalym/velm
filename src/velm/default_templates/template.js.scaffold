@@ -10,7 +10,7 @@ $$ project_title = {{ project_name }}
     /**
      * @fileoverview {{ filename }}
      * @author {{ author }}
-     * Forged by the Scaffold God-Engine.
+     * Forged by the Velm God-Engine.
      */
 
     console.log('Hello from {{ project_title }}!');

@@ -375,17 +375,128 @@ class TelemetryScribe:
 
     @staticmethod
     def capture_system_load() -> Dict[str, Any]:
-        """[ASCENSION 10]: METABOLIC SAMPLING"""
+        """
+        =============================================================================
+        == THE METABOLIC SAMPLING RITE (V-Ω-TOTALITY-V20000.11-GHOST-PROOF)        ==
+        =============================================================================
+        LIF: ∞ | ROLE: SYSTEM_VITALITY_SCRIER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_TELEMETRY_V20000_SINK_WARD_2026_FINALIS
+
+        [ARCHITECTURAL MANIFESTO]
+        This rite is the final defense against the 'UniversalSink' serialization heresy.
+        It enforces strict type-coercion at the source, ensuring that no complex
+        Python souls ever contaminate the JSON-RPC stream to the Ocular Membrane.
+        """
+        import time
+        import os
+        import sys
+        import gc
+        import platform
+        from datetime import datetime, timezone
+
+        # [ASCENSION 1]: THE METABOLIC SIEVE (GHOST BUSTER)
+        # A surgical local function to incinerate ghosts and ensure primitive purity.
+        def _coerce(val: Any, default: float = 0.0) -> float:
+            try:
+                # [THE FIX]: AGGRESSIVE GHOST DETECTION
+                # The UniversalSink might mock __float__, but Pydantic inspects the type first.
+                # We check the type name explicitly.
+                val_type = type(val).__name__
+                if "UniversalSink" in val_type or "Mock" in val_type:
+                    return default
+
+                # If it's a primitive, use it.
+                if isinstance(val, (int, float)):
+                    return float(val)
+
+                # Fallback to float conversion
+                return float(val)
+            except (TypeError, ValueError, AttributeError):
+                return default
+
+        vitals = {
+            "cpu": 0.0,
+            "ram": 0.0,
+            "load": [0.0, 0.0, 0.0],
+            "ts": time.time(),
+            "substrate": "VOID",
+            "aura": "#64748b"  # Default Slate (Cold)
+        }
+
         try:
-            import psutil
-            process = psutil.Process()
-            return {
-                "cpu": psutil.cpu_percent(),
-                "ram": round(process.memory_info().rss / 1024 / 1024, 2),
-                "load": os.getloadavg() if hasattr(os, 'getloadavg') else [0, 0, 0],
-                "ts": time.time()
-            }
-        except ImportError:
-            return {}
+            # --- MOVEMENT I: SENSORY ADJUDICATION ---
+            # [ASCENSION 2]: SUBSTRATE-AWARE TRIAGE
+            try:
+                # [THE HIGH PATH]: IRON CORE (NATIVE)
+                import psutil
+                process = psutil.Process()
+
+                # [ASCENSION 3]: ATOMIC SENSING
+                # We force instant coercion to prevent UniversalSink leakage.
+                vitals["cpu"] = _coerce(psutil.cpu_percent(interval=None))
+
+                # RSS memory is a pure integer, safe for the sieve.
+                vitals["ram"] = round(_coerce(process.memory_info().rss) / 1024 / 1024, 2)
+
+                # Load average is not manifest on Windows Iron.
+                if hasattr(os, 'getloadavg'):
+                    vitals["load"] = [_coerce(x) for x in os.getloadavg()]
+                else:
+                    vitals["load"] = [vitals["cpu"] / 100.0] * 3
+
+                vitals["substrate"] = "IRON"
+
+            except (ImportError, AttributeError, Exception):
+                # [THE WASM PATH]: ETHEREAL PLANE (ETHER)
+                # [ASCENSION 4]: CHRONOMETRIC DRIFT TOMOGRAPHY
+                # We measure the lag of a 1ms sleep to infer CPU pressure in WASM.
+                t0 = time.perf_counter()
+                time.sleep(0.001)
+                t1 = time.perf_counter()
+                drift_ms = (t1 - t0) * 1000
+
+                # Heuristic: 10ms drift = 90% saturation in the browser event loop.
+                vitals["cpu"] = round(min(100.0, (drift_ms / 10.0) * 95.0), 1)
+
+                # [ASCENSION 5]: HEAP OBJECT TOMOGRAPHY
+                # We scry the object count and apply the Gnostic Mass coefficient.
+                # 100k objects ~ 15MB Gnostic Mass in the WASM heap.
+                object_density = len(gc.get_objects())
+                vitals["ram"] = round(float(object_density * 0.00015), 2)
+
+                vitals["load"] = [vitals["cpu"] / 100.0] * 3
+                vitals["substrate"] = "ETHER"
+
+            # --- MOVEMENT II: HAPTIC AURA INJECTION ---
+            # [ASCENSION 6]: THERMODYNAMIC HUD FEEDBACK
+            # Map load factor to a visual color for the React Ocular membrane.
+            load_factor = vitals["cpu"]
+            if load_factor > 90.0:
+                vitals["aura"] = "#ef4444"  # Red (Panic)
+            elif load_factor > 75.0:
+                vitals["aura"] = "#f59e0b"  # Amber (Fever)
+            elif load_factor > 15.0:
+                vitals["aura"] = "#64ffda"  # Teal (Resonant)
+            else:
+                vitals["aura"] = "#3b82f6"  # Blue (Zen)
+
+            # --- MOVEMENT III: METADATA GRAFTING ---
+            # [ASCENSION 7]: PROVENANCE ANCHORING
+            vitals["machine"] = str(platform.node())
+            vitals["node"] = str(platform.machine())
+            vitals["python_v"] = sys.version.split()[0]
+
+            # [ASCENSION 8]: GARBAGE CYCLE TELEMETRY
+            # We count only the young generation to keep scrying latency low.
+            vitals["gc_gen"] = gc.get_count()[0]
+
+        except Exception:
+            # [ASCENSION 9]: FAULT-ISOLATED SILENCE
+            # Vital scrying must never be the cause of a Kernel Panic.
+            pass
+
+        # [ASCENSION 12]: THE FINALITY VOW
+        # We return a bit-perfect, primitive-only dictionary.
+        return vitals
 
 # == SCRIPTURE SEALED: THE SCRIBE IS NOW SOVEREIGN AND INTELLIGENT ==

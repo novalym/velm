@@ -4984,3 +4984,87 @@ class CalendarRequest(BaseRequest):
         return self
 
 # == SCRIPTURE SEALED: THE CALENDAR CONTRACT REACHES TOTALITY ==
+
+class ProjectRequest(BaseRequest):
+    """
+    =============================================================================
+    == THE OMEGA PROJECT REQUEST (V-Ω-TOTALITY-V705-RECONSTRUCTED)             ==
+    =============================================================================
+    The definitive contract for Multiverse Governance.
+    Warded against Null-Type heresies and Case-Sensitivity paradoxes.
+    """
+
+    # --- I. THE KINETIC COMMAND ---
+    action: str = Field(
+        ...,
+        description="The governance rite: list | create | delete | switch | update | import"
+    )
+
+    # --- II. IDENTITY & SOVEREIGNTY ---
+    id: Optional[str] = Field(None, description="The unique UUID of the target reality.")
+    name: Optional[str] = Field(None, description="The human-readable label for the project.")
+    description: Optional[str] = Field(None, description="The Gnostic summary of intent.")
+    owner_id: Optional[str] = Field("GUEST", description="The identity of the Architect.")
+    is_demo: bool = Field(False, description="True if this is an immutable Reference Reality.")
+
+    # --- III. GENETIC DNA (THE CURE) ---
+    # [ASCENSION 1]: Use Optional + default_factory to absorb JS 'null' or missing keys.
+    template: Optional[str] = Field(None, description="The Archetype DNA (e.g. 'react-vite').")
+
+    tags: Optional[List[str]] = Field(
+        default_factory=list,
+        description="Semantic labels for categorization."
+    )
+
+    filter_tags: Optional[List[str]] = Field(
+        default_factory=list,
+        description="Filter results by specific tags."
+    )
+
+    # --- IV. SPATIAL GEOMETRY ---
+    path: Optional[str] = Field(None, description="Physical path override (for imports).")
+    filter_status: Optional[str] = Field(None, description="active | archived")
+
+    # --- V. FORENSIC & OCULAR DATA ---
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Catch-all vessel for ephemeral Gnosis and telemetrics."
+    )
+
+    ui_hints: Dict[str, Any] = Field(
+        default_factory=lambda: {"vfx": "pulse", "color": "#64ffda"},
+        description="Haptic instructions for the Ocular HUD."
+    )
+
+    # =============================================================================
+    # == THE RITES OF VALIDATION (ALCHEMICAL PURIFICATION)                       ==
+    # =============================================================================
+
+    @field_validator('action', mode='before')
+    @classmethod
+    def _normalize_action(cls, v: Any) -> str:
+        """[ASCENSION 2]: Isomorphic Normalization. Forces lowercase."""
+        if isinstance(v, str):
+            return v.lower().strip()
+        return str(v).lower()
+
+    @model_validator(mode='before')
+    @classmethod
+    def _heal_null_collections(cls, data: Any) -> Any:
+        """
+        [ASCENSION 1]: THE NULL-VOID NULLIFIER.
+        Intercepts the raw dictionary and ensures 'tags' and 'filter_tags' are never None.
+        """
+        if isinstance(data, dict):
+            for key in ['tags', 'filter_tags']:
+                if key in data and data[key] is None:
+                    data[key] = []
+        return data
+
+    @field_validator('tags', 'filter_tags', mode='after')
+    @classmethod
+    def _sanitize_tags(cls, v: Optional[List[str]]) -> List[str]:
+        """[ASCENSION 4]: Semantic Sanitization."""
+        if not v: return []
+        # Strip whitespace and force lowercase for consistent indexing
+        return [tag.strip().lower() for tag in v if isinstance(tag, str) and tag.strip()]

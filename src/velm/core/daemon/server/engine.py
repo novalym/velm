@@ -116,71 +116,110 @@ class DaemonServer:
     def _vigil_loop(self):
         """
         =============================================================================
-        == THE VIGIL OF THE ETERNAL DAEMON (V-Ω-HOLLOW-METABOLISM-ULTIMA)          ==
+        == THE VIGIL OF THE ETERNAL DAEMON (V-Ω-TOTALITY-V20000.12-ISOMORPHIC)     ==
         =============================================================================
-        LIF: INFINITY | ROLE: VITALITY_GOVERNOR | AUTH: Ω_VIGIL_V12
+        LIF: ∞ | ROLE: VITALITY_GOVERNOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_VIGIL_V20000_ISOMORPHIC_HEARTBEAT_2026_FINALIS
         """
-        # --- ASCENSION 1: THE SOVEREIGN HANDOVER ---
-        # The first act of the loop is to silence the forensic guardians.
+        import time
+        import os
+        import threading
+        import random
+
+        # --- MOVEMENT I: THE SOVEREIGN HANDOVER ---
+        # [ASCENSION 1]: Silence the forensic guardians to prevent heartbeat feedback loops.
         try:
             # We reach through the Nexus to the Engine to the active Pipeline.
-            active_pipeline = self.nexus.engine.pipeline
-            if hasattr(active_pipeline, 'muzzle_watchdog'):
-                active_pipeline.muzzle_watchdog()
+            engine = getattr(self.nexus, 'engine', None)
+            pipeline = getattr(engine, 'pipeline', None)
+            if pipeline and hasattr(pipeline, 'muzzle_watchdog'):
+                pipeline.muzzle_watchdog()
         except Exception as e:
-            # If the Gnosis is obscured, we log the paradox but do not halt.
-            self.logger.debug(f"Muzzle Rite bypassed: {e}")
+            self.logger.debug(f"Muzzle Rite deferred: {e}")
 
-        # --- ASCENSION 4: PRIORITY INVERSION (Windows Optimization) ---
-        if os.name == 'nt':
+        # --- MOVEMENT II: SUBSTRATE-AWARE PRIORITY ---
+        # [ASCENSION 2 & 4]: Optimized Priority Inversion.
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+        if os.name == 'nt' and not is_wasm:
             try:
-                # [LAZY IMPORT]: Use local import to keep boot weight zero.
                 import psutil
+                # On Windows, we move the Daemon to IDLE priority.
+                # This ensures the Ocular UI and Architect's IDE always have precedence.
                 psutil.Process().nice(psutil.IDLE_PRIORITY_CLASS)
-            except:
+                self.logger.verbose("Priority Inversion: Daemon set to IDLE strata.")
+            except (ImportError, Exception):
                 pass
 
-        self.logger.success("The Eternal Vigil is manifest. Daemon entering metabolic rhythm.")
+        self.logger.success(f"The Eternal Vigil is manifest on substrate [{'ETHER' if is_wasm else 'IRON'}].")
 
+        # --- MOVEMENT III: THE METABOLIC RHYTHM ---
         while not self._shutdown_event.is_set():
             loop_start = time.perf_counter()
             self._tick_count += 1
 
-            # 1. Vitality Check
-            if not self.vitality.check_vitals():
-                self.initiate_shutdown()
-                break
-
-            # 2. Pressure Sensing
+            # 1. VITALITY ADJUDICATION
+            # [ASCENSION 8]: The Lazarus check. If the leash is broken, we dissolve.
             try:
-                # Peel back the layers of the engine to see the work queue.
-                q_size = self.nexus.engine.dispatcher.cortex_pool._work_queue.qsize()
+                if not self.vitality.check_vitals():
+                    self.logger.critical("Vitality Fracture: The Silver Cord has been severed.")
+                    self.initiate_shutdown()
+                    break
+            except Exception as e:
+                self.logger.debug(f"Vitality Inquest Paradox: {e}")
+
+            # 2. PRESSURE SENSING (HYDRAULIC GAZE)
+            # [ASCENSION 3]: Scry the depth of the Cortex work queue.
+            q_size = 0
+            try:
+                engine = getattr(self.nexus, 'engine', None)
+                dispatcher = getattr(engine, 'dispatcher', None)
+                # Look for the Cortex worker pool queue size
+                pool = getattr(dispatcher, 'cortex_pool', None)
+                q_size = pool._work_queue.qsize() if hasattr(pool, '_work_queue') else 0
             except:
-                q_size = 0
+                pass
 
-            # 3. Atomic Pulse
-            self.vitality.write_pulse(metadata={
-                "connections": len(self.nexus.active_connections),
-                "threads": threading.active_count(),
-                "pressure": q_size,
-                "state": self._state.name,
-                "uptime": int(time.time() - self._start_time)
-            })
+            # 3. ATOMIC PULSE INSCRIPTION
+            # [ASCENSION 7]: Enshrine the current state into the Pulse File.
+            try:
+                self.vitality.write_pulse(metadata={
+                    "connections": len(getattr(self.nexus, 'active_connections', [])),
+                    "threads": threading.active_count(),
+                    "pressure": q_size,
+                    "state": self._state.name,
+                    "substrate": "ETHER" if is_wasm else "IRON",
+                    "uptime": int(time.time() - getattr(self, '_start_time', time.time())),
+                    "ticks": self._tick_count
+                })
+            except Exception as e:
+                self.logger.debug(f"Pulse Inscription deferred: {e}")
 
-            # 4. Metabolic Regulation
-            base_sleep = HEARTBEAT_INTERVAL if q_size == 0 else 0.5
-            import random
+            # 4. METABOLIC REGULATION (ADAPTIVE SLEEP)
+            # Adjust the heartbeat based on system pressure (Queue depth).
+            # If the queue is busy (q_size > 0), we pulse faster (Adrenaline).
+            base_sleep = 0.5 if q_size > 0 else getattr(self, 'HEARTBEAT_INTERVAL', 3.0)
+
+            # [ASCENSION 6]: Entropy Jitter
+            # Prevents synchronous polling collisions with the Frontend.
             jitter = (random.random() - 0.5) * 0.2
 
             elapsed = time.perf_counter() - loop_start
+            # Calculate the drift (How much longer the loop took than expected)
+            drift = max(0, elapsed - base_sleep)
+
             final_sleep = max(0.1, (base_sleep - elapsed) + jitter)
 
             # [ASCENSION 12]: THE HOLLOW-WAIT
-            # Efficient kernel-level wait.
+            # Efficient kernel-level wait on the shutdown event.
             if self._shutdown_event.wait(timeout=final_sleep):
                 break
 
-        self.logger.system("Vigil Loop Terminated. Reality Dissolving.")
+            # [ASCENSION 9]: Hydraulic Yield
+            if is_wasm:
+                # In WASM, we must yield to the JS event loop to process messages.
+                time.sleep(0)
+
+        self.logger.system("Vigil Loop Terminated. Reality Dissolving into the Void.")
 
     def _handle_crash(self, error: Exception):
         """

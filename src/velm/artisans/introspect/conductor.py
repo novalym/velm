@@ -20,7 +20,7 @@ class IntrospectionArtisan(BaseArtisan):
     =================================================================================
     LIF: 10,000,000,000,000,000,000,000,000
 
-    This is the one true, sovereign Oracle of the Scaffold God-Engine.
+    This is the one true, sovereign Oracle of the Velm God-Engine.
     It now possesses the **Gaze of the Registry**, capable of proclaiming the
     CLI's own capabilities to the UI.
     """

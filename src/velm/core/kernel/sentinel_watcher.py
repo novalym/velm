@@ -8,7 +8,7 @@
 =================================================================================
 LIF: 10,000,000,000,000
 
-The Sentient Nervous System of the Scaffold God-Engine.
+The Sentient Nervous System of the Velm God-Engine.
 It watches. It remembers. It heals.
 
 It unifies:

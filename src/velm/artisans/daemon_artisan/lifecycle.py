@@ -132,7 +132,7 @@ class LifecycleManager:
         if info_path.exists() and PSUTIL_AVAILABLE:
             try:
                 import json
-                import psutil
+
                 existing_data = json.loads(info_path.read_text(encoding='utf-8'))
                 if psutil.pid_exists(existing_data.get('pid', 0)):
                     return self.parent.success("Daemon is already manifest in this reality.")
@@ -397,102 +397,137 @@ class LifecycleManager:
             except Exception:
                 continue
 
-    def stop(self, request: Any):
+    def stop(self, request: Any) -> ScaffoldResult:
         """
         =============================================================================
-        == THE RITE OF ABSOLUTE CESSATION (V-Ω-TEMPORAL-EXECUTIONER)               ==
+        == THE RITE OF ABSOLUTE CESSATION (V-Ω-TOTALITY-V20000.1-ISOMORPHIC)        ==
         =============================================================================
-        LIF: INFINITY | ROLE: REALITY_CLEANSER
-
-        [THE STRATEGY]:
-        1. SPATIAL RESOLUTION: Locate the project anchor without heavy imports.
-        2. GHOST DETECTION: Identify stale metadata before summoning the Executor.
-        3. IDENTITY VERIFICATION: Ensure the target PID is truly a Scaffold Daemon.
-        4. THE RITE OF GRACE: Issue SIGTERM and conduct a high-frequency vigil.
-        5. THE KILLING BLOW: If grace fails, invoke SIGKILL for total annihilation.
-        6. SANCTUM PURIFICATION: Atomic removal of lock and info scriptures.
-        =============================================================================
+        LIF: ∞ | ROLE: SOVEREIGN_EXECUTIONER | RANK: OMEGA_SUPREME
+        AUTH: Ω_STOP_V20000_ISOMORPHIC_SUTURE_2026_FINALIS
         """
         import os
         import signal
         import time
+        import gc
         from pathlib import Path
 
-        # --- MOVEMENT I: SPATIAL RESOLUTION ---
+        # --- MOVEMENT I: SPATIAL & SUBSTRATE RESOLUTION ---
         project_root = Path(request.project_root).resolve() if request.project_root else Path.cwd()
         info_path = project_root / self.INFO_FILE
         mutex_path = project_root / self.LOCK_FILE
+        pulse_path = project_root / self.PULSE_FILE_NAME
+
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
 
         if not info_path.exists():
-            # Acknowledge the Void: If the info file is missing, the Daemon is at rest.
-            return self.parent.success("The Daemon is already at rest (No Info Artifact found).")
+            return self.parent.success("The Daemon is already in a state of grace (No Info Artifact).")
 
         try:
-            # --- MOVEMENT II: JIT DATA MATERIALIZATION ---
-            # We load the Pydantic contract and psutil only at the moment of the kill.
+            # --- MOVEMENT II: JIT DATA MATERIALIZATION & IDENTITY VERIFICATION ---
             from .contracts import DaemonInfo
-            import psutil
 
             try:
-                raw_info = info_path.read_text(encoding='utf-8')
-                daemon_gnosis = DaemonInfo.model_validate_json(raw_info)
+                daemon_gnosis = DaemonInfo.model_validate_json(info_path.read_text(encoding='utf-8'))
                 target_pid = daemon_gnosis.pid
             except Exception as e:
-                # Corruption Ward: If the info file is profane, we reap it and assume death.
                 info_path.unlink(missing_ok=True)
-                return self.parent.failure(f"Metadata Corruption perceived. Reaped stale artifact: {e}")
+                return self.parent.failure(f"Metadata Corruption: Reaped stale artifact. Heresy: {e}")
 
-            # --- MOVEMENT III: IDENTITY VERIFICATION ---
-            # [ASCENSION 1]: We verify that the process is actually a Scaffold Daemon
-            # to prevent the "Recycled PID" heresy (killing an unrelated process).
-            try:
-                target_proc = psutil.Process(target_pid)
-                proc_cmd = " ".join(target_proc.cmdline()).lower()
-
-                # Verify the soul matches the mission
-                if "scaffold" not in proc_cmd and "python" not in proc_cmd:
-                    Logger.warn(f"PID {target_pid} matches a recycled soul. Purging stale metadata.")
-                    info_path.unlink(missing_ok=True)
-                    return self.parent.success("Reaped stale info file (PID collision detected).")
-            except psutil.NoSuchProcess:
-                info_path.unlink(missing_ok=True)
-                return self.parent.success("Reaped stale info file (Daemon process already dead).")
-
-            # --- MOVEMENT IV: THE RITE OF GRACE (SIGTERM) ---
-            Logger.info(f"Commanding Daemon (PID: {target_pid}) to enter a state of grace...")
-            target_proc.terminate()  # Standard SIGTERM
-
-            # --- MOVEMENT V: THE CHRONO-VIGIL ---
-            # We poll with increasing intensity to allow for graceful I/O flushing.
-            for attempt in range(15):  # 7.5 seconds total
-                if not target_proc.is_running():
-                    Logger.success(f"Daemon (PID: {target_pid}) has returned to the void gracefully.")
-                    break
-                time.sleep(0.5)
-
-            # --- MOVEMENT VI: THE KILLING BLOW (SIGKILL) ---
-            if target_proc.is_running():
-                Logger.warn(f"Daemon resisted grace. Invoking Absolute Annihilation (SIGKILL)...")
-                target_proc.kill()
-                # Brief wait for OS to harvest the zombie
+            # --- MOVEMENT III: BICAMERAL BANISHMENT PROTOCOL ---
+            if not is_wasm and target_pid:
+                # --- A. THE IRON CORE PATH (PID/SIGNAL) ---
                 try:
-                    target_proc.wait(timeout=1.0)
-                except:
+                    import psutil
+                    target_proc = psutil.Process(target_pid)
+                    proc_cmd = " ".join(target_proc.cmdline()).lower()
+
+                    # [ASCENSION 6]: RECYCLED SOUL WARD
+                    if "scaffold" not in proc_cmd and "python" not in proc_cmd:
+                        Logger.warn(f"PID {target_pid} is a recycled soul. Purging stale Gnosis.")
+                    else:
+                        # [ASCENSION 2]: THE PHOENIX SIGNAL
+                        self._proclaim_grace(pulse_path)
+
+                        # [ASCENSION 7]: RECURSIVE SOUL-REAPING
+                        Logger.info(f"Commanding Daemon (PID: {target_pid}) to enter the void...")
+                        self._reap_process_tree(target_proc)
+                except psutil.NoSuchProcess:
+                    Logger.success("Daemon soul had already departed. Reaping stale Gnosis.")
+                except (ImportError, AttributeError):
+                    # Fallback to simple OS kill if psutil has a late-stage fracture
+                    os.kill(target_pid, signal.SIGTERM)
+                    time.sleep(1)
+                    os.kill(target_pid, signal.SIGKILL)
+
+            # B. THE ETHER PLANE PATH (LEASH SEVERING)
+            # This path is also the fallback if PID is unknown on Native.
+            else:
+                # In WASM, we can't kill a process. We sever the leash and it will self-terminate.
+                Logger.info("Severing Chronometric Leash to signal graceful dissolution...")
+                leash_path = project_root / daemon_gnosis.leash_file
+                leash_path.unlink(missing_ok=True)
+
+                # We still proclaim grace on the pulse
+                self._proclaim_grace(pulse_path)
+
+                # Wait for the daemon to notice the severed leash
+                time.sleep(getattr(self, 'HEARTBEAT_INTERVAL', 3.0) * 1.5)
+
+            # --- MOVEMENT IV: SANCTUM PURIFICATION ---
+            # [ASCENSION 9 & 11]: Atomic & Fault-Isolated Cleanup
+            self.logger.verbose("Purifying Daemon sanctum...")
+            for artifact in [info_path, mutex_path, pulse_path]:
+                try:
+                    artifact.unlink(missing_ok=True)
+                except OSError:
                     pass
 
-            # --- MOVEMENT VII: SANCTUM PURIFICATION ---
-            # [ASCENSION 12]: Atomic cleanup of all control scriptures.
-            info_path.unlink(missing_ok=True)
-            mutex_path.unlink(missing_ok=True)
+            # [ASCENSION 8]: HYDRAULIC LUSTRATION
+            gc.collect()
 
-            # Clean up the pulse if it exists
-            pulse_path = project_root / ".scaffold" / self.PULSE_FILE_NAME
-            pulse_path.unlink(missing_ok=True)
+            # [ASCENSION 10]: HAPTIC DISSOLUTION
+            if self.parent.engine and hasattr(self.parent.engine, 'akashic'):
+                self.parent.engine.akashic.broadcast({
+                    "method": "novalym/hud_pulse", "params": {"type": "DAEMON_DISSOLVED", "label": "LATTICE_SILENT"}
+                })
 
             return self.parent.success(f"Daemon termination absolute. Sanctum '{project_root.name}' is now at rest.")
 
-        except Exception as e:
-            # The Final Ward: If the executioner falters, we report the fracture.
+        except Exception as fracture:
+            # [ASCENSION 12]: THE FINALITY VOW
             import traceback
-            Logger.error(f"Termination Paradox: {e}\n{traceback.format_exc()}")
-            return self.parent.failure(f"The Rite of Cessation failed: {str(e)}")
+            Logger.error(f"Termination Paradox: {fracture}\n{traceback.format_exc()}")
+            return self.parent.failure(f"The Rite of Cessation failed: {str(fracture)}")
+
+    def _proclaim_grace(self, pulse_path: Path):
+        """[ASCENSION 2]: Writes a final grace-note for the Ocular HUD."""
+        if not pulse_path: return
+        try:
+            grace_data = {"status": "VOID_GRACE", "timestamp": time.time()}
+            pulse_path.write_text(json.dumps(grace_data))
+        except:
+            pass
+
+    def _reap_process_tree(self, parent_proc: 'psutil.Process'):
+        """[ASCENSION 3]: The Recursive Scythe Engine."""
+        try:
+            children = parent_proc.children(recursive=True)
+            # Soft Banish (TERM)
+            for child in children:
+                try:
+                    child.terminate()
+                except:
+                    pass
+            parent_proc.terminate()
+
+            # Achronal Vigil
+            _, alive = psutil.wait_procs(children + [parent_proc], timeout=3.0)
+
+            # Hard Banish (KILL)
+            for survivor in alive:
+                try:
+                    survivor.kill()
+                except:
+                    pass
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass  # The soul has already departed

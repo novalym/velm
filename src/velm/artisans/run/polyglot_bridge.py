@@ -28,7 +28,7 @@ class PolyglotBridge:
     =================================================================================
     LIF: 100,000,000,000,000
 
-    The Diplomat between the Scaffold God-Engine and the Foreign Tongues.
+    The Diplomat between the Velm God-Engine and the Foreign Tongues.
     It translates a high-level RunRequest into a concrete, environmentally-enriched,
     and output-aware Polyglot Edict.
     """

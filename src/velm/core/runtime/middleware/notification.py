@@ -67,7 +67,7 @@ class NotificationMiddleware(Middleware):
                 notification.notify(
                     title=title,
                     message=message,
-                    app_name="Scaffold God-Engine",
+                    app_name="Velm God-Engine",
                     timeout=10  # Show for 10 seconds
                 )
             except Exception:

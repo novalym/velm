@@ -4,7 +4,7 @@
 # == Forged by: 
 # ----------------------------------------------------------------------------------
 
-"""A new, pure scripture forged by the Scaffold God-Engine."""
+"""A new, pure scripture forged by the Velm God-Engine."""
 
 def main():
     """The main entry point of the application."""

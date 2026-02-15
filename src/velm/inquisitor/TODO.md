@@ -4,7 +4,7 @@
 <h1 align="center">The Polyglot Prophecy: A Codex on the Ascension of the Gnostic Inquisitor</h1>
 
 <p align="center">
-<strong>This is the sacred architectural scripture for the future of the Scaffold God-Engine. It is the roadmap for transfiguring our Gnostic Inquisitor from a master of a single tongue into a true, Polyglot Oracle, capable of perceiving the soul of any programming language in the cosmos.</strong>
+<strong>This is the sacred architectural scripture for the future of the Velm God-Engine. It is the roadmap for transfiguring our Gnostic Inquisitor from a master of a single tongue into a true, Polyglot Oracle, capable of perceiving the soul of any programming language in the cosmos.</strong>
 </p>
 
 ---
@@ -70,7 +70,7 @@ The pattern is eternal. For each new tongue, we will forge a new Resolver, teach
 
 ## IV. The Doorways Opened: The Cosmic Potential of a Polyglot Gaze
 
-The integration of Tree-sitter is not a feature for a single command. It is a **foundational ascension for the entire Scaffold God-Engine**. It unlocks a cosmos of new possibilities, elevating every artisan we have forged.
+The integration of Tree-sitter is not a feature for a single command. It is a **foundational ascension for the entire Velm God-Engine**. It unlocks a cosmos of new possibilities, elevating every artisan we have forged.
 
 ### 1. The `distill` Command: The Sentient Reverse-Engineer
 

@@ -164,19 +164,18 @@ class ScaffoldEngine:
         if not silent and log_level == "DEBUG":
             self.logger.verbose(f"Quantum Engine Online. Session: {self.context.session_id}")
 
-    def parser_factory(self) -> 'ApotheosisParser':
+    def parser_factory(self, grammar: str = "scaffold") -> 'ApotheosisParser':
         """
         =================================================================================
-        == THE UNIFIED FACTORY (V-Ω-THE-CURE)                                          ==
+        == THE UNIFIED FACTORY (V-Ω-TOTALITY-V505-SUTURED)                             ==
         =================================================================================
         LIF: ∞ | ROLE: GNOSTIC_SENSE_PROVIDER
 
-        [THE CURE]: This rite materializes the ApotheosisParser JIT. It is anchored in
-        the Kernel to ensure all Artisans share the same sensory grammar.
-        Annihilates 'AttributeError' and 'Import Cycle' heresies across all timelines.
+        [THE CURE]: This factory now righteously bestows 'self' (the Engine) upon the
+        Parser, completing the causal link for telemetry and alchemical lookup.
         """
         from ....parser_core.parser import ApotheosisParser
-        return ApotheosisParser()
+        return ApotheosisParser(grammar_key=grammar, engine=self)
     # =========================================================================
     # == LAZY FACULTIES (JIT)                                                ==
     # =========================================================================
@@ -572,43 +571,112 @@ class ScaffoldEngine:
     def _neuro_optimize(self, heavy_mode: bool):
         """
         =============================================================================
-        == THE METABOLIC REGULATOR (V-Ω-ADRENALINE-ZEN)                            ==
+        == THE OMEGA METABOLIC REGULATOR (V-Ω-TOTALITY-V20000.12-ISOMORPHIC)       ==
         =============================================================================
-        LIF: ∞ | ROLE: ADAPTIVE_PHYSICS_GOVERNOR
+        LIF: ∞ | ROLE: ADAPTIVE_PHYSICS_GOVERNOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_NEURO_V20000_THERMODYNAMIC_SUTURE_2026_FINALIS
         """
         import gc
         import os
+        import sys
+        import time
+
+        # [ASCENSION 1]: SUBSTRATE SENSING
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+        trace_id = getattr(self.context, 'session_id', 'tr-unbound')
+
         try:
             if heavy_mode:
-                # [ADRENALINE MODE]: Silence the Reaper, Boost Priority
+                # =========================================================================
+                # == MOVEMENT I: ADRENALINE MODE (KINETIC SUPREMACY)                      ==
+                # =========================================================================
+                # [ASCENSION 2]: Silence the Reaper to maximize throughput
                 gc.disable()
-                if os.name == 'nt':
-                    # Set process to Above Normal priority on Windows
+                os.environ["SCAFFOLD_ADRENALINE"] = "1"
+
+                # [ASCENSION 4]: Windows High-Status Ward
+                if os.name == 'nt' and not is_wasm:
                     try:
                         import ctypes
+                        # Set process to ABOVE_NORMAL_PRIORITY_CLASS (0x8000)
                         ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x00008000)
-                    except:
-                        pass
-            else:
-                # [ZEN MODE]: Summon the Reaper, Normalize Priority
-                gc.enable()
-                if os.name == 'nt':
-                    try:
-                        import ctypes
-                        ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x00000020)
-                    except:
+                    except (ImportError, AttributeError):
                         pass
 
-                # [ASCENSION 5]: Memory Wall Check
+                self.logger.verbose(f"[{trace_id}] Physics Shift: [bold red]ADRENALINE[/] (GC_Mute=ON)")
+
+                # [ASCENSION 10]: HUD Multicast
+                if self.akashic:
+                    self.akashic.broadcast({
+                        "method": "novalym/hud_pulse",
+                        "params": {"type": "PHYSICS_SHIFT", "label": "ADRENALINE_MODE", "color": "#f87171"}
+                    })
+
+            else:
+                # =========================================================================
+                # == MOVEMENT II: ZEN MODE (METABOLIC RECOVERY)                          ==
+                # =========================================================================
+                # [ASCENSION 5]: Summon the Reaper, Normalize Priority
+                gc.enable()
+                os.environ.pop("SCAFFOLD_ADRENALINE", None)
+
+                if os.name == 'nt' and not is_wasm:
+                    try:
+                        import ctypes
+                        # Set process to NORMAL_PRIORITY_CLASS (0x0020)
+                        ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x00000020)
+                    except (ImportError, AttributeError):
+                        pass
+
+                # [ASCENSION 6]: Hydraulic Yielding (WASM Stability)
+                if is_wasm:
+                    time.sleep(0)  # Give the Browser's main thread a moment to breathe
+
+                # --- MOVEMENT III: THE MEMORY WALL INQUEST ---
+                # [ASCENSION 3]: Achronal Heap Tomography
+                memory_pressure_detected = False
+
                 try:
                     import psutil
+                    # Native path: RSS Scrying
                     process = psutil.Process(os.getpid())
-                    # If memory exceeds 1GB, force a deep lustrations rite (GC)
-                    if process.memory_info().rss > 1024 * 1024 * 1024:
-                        gc.collect()
-                except ImportError:
+                    rss_mb = process.memory_info().rss / (1024 * 1024)
+                    if rss_mb > 1024:  # 1GB Wall
+                        memory_pressure_detected = True
+                except (ImportError, AttributeError):
+                    # WASM path: Object Density Scrying
+                    # Heuristic: 800k objects indicates high metabolic tax in Pyodide
+                    if len(gc.get_objects()) > 800000:
+                        memory_pressure_detected = True
+
+                # [ASCENSION 6]: Tiered Lustration Rite
+                if memory_pressure_detected:
+                    self.logger.warn(f"[{trace_id}] Memory Wall detected. Initiating Hard Lustration...")
+
+                    # 1. Evaporate Alchemist Caches
+                    if hasattr(self, 'alchemist'):
+                        try:
+                            self.alchemist.env.cache.clear()
+                        except:
+                            pass
+
+                    # 2. Deep-tissue Garbage Collection
                     gc.collect()
-        except Exception:
+
+                    if self.akashic:
+                        self.akashic.broadcast({
+                            "method": "novalym/hud_pulse",
+                            "params": {"type": "MEMORY_PURGE", "label": "LUSTRATION_COMPLETE", "color": "#64ffda"}
+                        })
+                else:
+                    # Standard Zen lustration (Young generation only)
+                    gc.collect(1)
+
+                self.logger.verbose(f"[{trace_id}] Physics Shift: [bold green]ZEN[/] (GC_Mute=OFF)")
+
+        except Exception as paradox:
+            # [ASCENSION 11]: Fault-Isolated Execution
+            # Physics regulation must never fracture a primary Rite.
             pass
 
     def _emergency_dump(self, error: Exception, rite: str, trace: str):

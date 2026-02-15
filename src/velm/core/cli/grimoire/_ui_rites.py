@@ -37,7 +37,7 @@ RITES = {
         "module_path": "artisans.help",
         "artisan_class_name": "HelpArtisan",
         "request_class_name": "HelpRequest",
-        "help": "The Gnostic Oracle. Reveals the living codex of the Scaffold God-Engine.",
+        "help": "The Gnostic Oracle. Reveals the living codex of the Velm God-Engine.",
         "flags": [],
         "args": [("topic", {"nargs": "?", "help": "The specific Gnosis you seek."})],
     },

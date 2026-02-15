@@ -15,7 +15,7 @@ from typing import Dict, Any, Optional, Callable
 
 from .contract import Middleware
 from ....interfaces.base import ScaffoldResult
-from ....interfaces.requests import BaseRequest, DistillRequest, AnalyzeRequest, VerifyRequest, InspectRequest
+from ....interfaces.requests import BaseRequest, DistillRequest, AnalyzeRequest, VerifyRequest, InspectRequest, ProjectRequest
 
 # --- CONFIGURATION ---
 CACHE_VERSION = "v2"  # Bump to invalidate old caches
@@ -67,7 +67,7 @@ class CachingMiddleware(Middleware):
         DistillRequest: 3600,  # 1 Hour
         AnalyzeRequest: 600,  # 10 Minutes
         VerifyRequest: 30,  # 30 Seconds
-        InspectRequest: 86400  # 24 Hours
+        InspectRequest: 86400,  # 24 Hours
     }
 
     def handle(self, request: BaseRequest, next_handler: Callable[[BaseRequest], ScaffoldResult]) -> ScaffoldResult:

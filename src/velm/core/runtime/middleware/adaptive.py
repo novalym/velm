@@ -1,36 +1,27 @@
 # Path: core/runtime/middleware/adaptive.py
-# -----------------------------------------
-# LIF: 10,000,000,000,000 | AUTH_CODE: Ω_ADAPTIVE_SURVIVOR_V12
-# SYSTEM: SCAFFOLD_RUNTIME | ROLE: ENVIRONMENTAL_AEGIS
-# =================================================================================
-# [12 ASCENSIONS OF THE ADAPTIVE SURVIVOR]:
-# 1.  HOLLOW-BORE JIT: Zero top-level imports of psutil to annihilate boot latency.
-# 2.  RITE-WEIGHT TRIAGE: Only executes analytical probes for heavy "Foundry" rites.
-# 3.  ECONOMY MODE: Automatically swaps 'smart' models for 'fast' models on low power.
-# 4.  CONTEXT SHEDDING: Reduces RAG and Distill budgets if memory pressure is high.
-# 5.  THERMAL GUARD: (Prophecy) Prepares for thermal-aware compute regulation.
-# 6.  NETWORK GAUGE: Detects thin pipes and suggests RAG pruning.
-# 7.  DETERMINISTIC BYPASS: Honors SCAFFOLD_ADAPTIVE=0 for manual control.
-# 8.  RSS CEILING WATCH: Prevents OOM by blocking heavy rites near the memory wall.
-# 9.  PROCESS CONCURRENCY: Detects sibling daemons and reduces thread counts.
-# 10. ADAPTIVE TIMEOUTS: Relaxes chronometric limits if the machine is lagging.
-# 11. LUMINOUS TELEMETRY: Injects environmental health data into the final Result.
-# 12. ATOMIC CACHE: Remembers resource state for 5 seconds to prevent I/O thrashing.
-# =================================================================================
+# =========================================================================================
+# == THE ADAPTIVE SURVIVOR (V-Ω-TOTALITY-V20.0-ISOMORPHIC-AEGIS)                         ==
+# =========================================================================================
+# LIF: ∞ | ROLE: ENVIRONMENTAL_GOVERNOR | RANK: OMEGA_SOVEREIGN
+# AUTH: Ω_ADAPTIVE_V20_SUBSTRATE_AWARE_2026_FINALIS
+# =========================================================================================
 
 import os
 import sys
 import time
-from typing import Dict, Any, Optional
+import gc
+import random
+from typing import Dict, Any, Optional, Tuple, List, Final
 
 from .contract import Middleware, NextHandler
 from ....interfaces.requests import BaseRequest
 from ....interfaces.base import ScaffoldResult
+from ....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
-# [ASCENSION 12]: Atomic Resource Cache
-# (Timestamp, CPU_Load, Memory_Used, Battery_State)
-_RESOURCE_CACHE = [0.0, 0.0, 0.0, None]
-_CACHE_TTL = 5.0  # Seconds
+# [ASCENSION 12]: Atomic Metabolic Cache
+# (Timestamp, CPU_Load, Memory_Used, Is_WASM, Latency_Jitter)
+_METABOLIC_SNAPSHOT = [0.0, 0.0, 0.0, False, 0.0]
+_CACHE_TTL: Final[float] = 2.5  # Tightened for high-velocity adaptation
 
 
 class AdaptiveResourceMiddleware(Middleware):
@@ -38,91 +29,166 @@ class AdaptiveResourceMiddleware(Middleware):
     =============================================================================
     == THE ADAPTIVE SURVIVOR (V-Ω-ENVIRONMENTAL-AEGIS-ULTIMA)                  ==
     =============================================================================
-    LIF: ∞ | The Guardian of System Vitality.
+    LIF: ∞ | The Sovereign Protector of the Engine's Homeostasis.
 
     Dynamically modulates the Engine's ambition based on the physical reality
-    of the host machine.
+    of the host machine, whether forged in Iron (Native) or Ether (WASM).
     """
 
     def handle(self, request: BaseRequest, next_handler: NextHandler) -> ScaffoldResult:
-        """
-        Conducts the Rite of Environmental Adaptation.
-        """
-        # --- MOVEMENT I: THE SILENT BYPASS ---
-        # 1. Check for manual override
+        """Conducts the Rite of Environmental Adaptation."""
+
+        # --- MOVEMENT I: THE DETERMINISTIC BYPASS ---
         if os.environ.get("SCAFFOLD_ADAPTIVE") == "0":
             return next_handler(request)
 
-        # 2. Check Rite Weight
-        # We only perform intensive scans for rites that actually consume compute.
-        # This keeps 'status', 'ping', 'help', and 'version' at zero latency.
+        # 2. RITE-WEIGHT TRIAGE
+        # We skip metabolic scrying for lightweight telemetry or status rites.
         rite_name = type(request).__name__
-        is_heavy = any(k in rite_name for k in ["Manifest", "Distill", "Genesis", "Refactor", "Analyze"])
+        is_heavy = any(k in rite_name for k in ["Manifest", "Distill", "Genesis", "Refactor", "Analyze", "Train"])
 
-        if not is_heavy:
+        if not is_heavy and not getattr(request, "force_adaptive", False):
             return next_handler(request)
 
-        # --- MOVEMENT II: THE JIT MATERIALIZATION ---
-        # [THE CURE]: We import psutil ONLY here, inside the heavy rite path.
-        try:
-            import psutil
-        except ImportError:
-            # If psutil is missing, we are blind. We proceed in a pure state.
-            return next_handler(request)
+        # --- MOVEMENT II: THE MULTIVERSAL PROBE ---
+        # [ASCENSION 1 & 2]: Substrate Sensing
+        vitals = self._scry_metabolism()
 
-        # --- MOVEMENT III: THE VITALITY PROBE (CACHED) ---
-        now = time.time()
-        if now - _RESOURCE_CACHE[0] > _CACHE_TTL:
-            try:
-                # CPU Gaze (Non-blocking)
-                _RESOURCE_CACHE[1] = psutil.cpu_percent()
-                # Memory Gaze
-                _RESOURCE_CACHE[2] = psutil.virtual_memory().percent
-                # Battery Gaze
-                _RESOURCE_CACHE[3] = psutil.sensors_battery()
-                _RESOURCE_CACHE[0] = now
-            except Exception:
-                pass  # Hardware scrying failed; rely on last known truth.
+        # --- MOVEMENT III: THE RITE OF MODULATION ---
+        self._modulate_request(request, vitals)
 
-        cpu_load = _RESOURCE_CACHE[1]
-        mem_load = _RESOURCE_CACHE[2]
-        battery = _RESOURCE_CACHE[3]
+        # --- MOVEMENT IV: KINETIC EXECUTION ---
+        # [ASCENSION 6]: Hydraulic Yielding
+        # We yield a microsecond to the host OS to ensure we aren't starving sibling processes.
+        time.sleep(0)
 
-        # --- MOVEMENT IV: THE RITE OF MODULATION ---
-
-        # [ASCENSION 3]: ECONOMY MODE (Battery Protection)
-        if battery and not battery.power_plugged and battery.percent < 15:
-            if "model" in request.variables and request.variables["model"] == "smart":
-                self.logger.warn(f"Reality Threatened: Low Energy ({battery.percent}%). Downgrading to Fast Model.")
-                request.variables["model"] = "fast"
-                request.variables["_adapted_reason"] = "low_battery"
-
-        # [ASCENSION 4]: CONTEXT SHEDDING (Memory Protection)
-        if mem_load > 85:
-            self.logger.warn(f"Reality Threatened: Memory Wall ({mem_load}%). Pruning Gnostic Budget.")
-            # Reduce token budget for AI rites to prevent OOM
-            if hasattr(request, 'token_budget'):
-                original = request.token_budget or 100000
-                request.token_budget = int(original * 0.4)
-                request.variables["_adapted_reason"] = "memory_pressure"
-
-        # [ASCENSION 9]: CONCURRENCY THROTTLING (CPU Protection)
-        if cpu_load > 90:
-            # If the machine is screaming, we slow down our own background workers
-            os.environ["SCAFFOLD_MAX_THREADS"] = "1"
-            self.logger.verbose("System Fever detected. Restricting Engine to single-thread mode.")
-
-        # --- MOVEMENT V: THE EXECUTION ---
         result = next_handler(request)
 
-        # --- MOVEMENT VI: TELEMETRY INJECTION ---
-        # [ASCENSION 11]: We stamp the result with the machine state for the Cockpit to see.
-        if result.data is not None and isinstance(result.data, dict):
-            result.data["_env_health"] = {
-                "cpu": cpu_load,
-                "mem": mem_load,
-                "on_battery": battery.power_plugged is False if battery else False,
-                "battery_level": battery.percent if battery else 100
+        # --- MOVEMENT V: TELEMETRY INJECTION ---
+        # [ASCENSION 10 & 11]: Luminous Telemetry Suture
+        return self._inject_health_dossier(result, vitals)
+
+    def _scry_metabolism(self) -> Dict[str, Any]:
+        """
+        =============================================================================
+        == THE GAZE OF VITALITY (V-Ω-SUBSTRATE-AGNOSTIC)                           ==
+        =============================================================================
+        Performs a deep-tissue biopsy of the system. In WASM, it uses Chronometric
+        Drift to divine CPU pressure.
+        """
+        now = time.time()
+        if now - _METABOLIC_SNAPSHOT[0] < _CACHE_TTL:
+            return self._format_vitals(_METABOLIC_SNAPSHOT)
+
+        cpu_load = 0.0
+        mem_load = 0.0
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+        jitter = 0.0
+
+        try:
+            # --- PATH A: THE IRON CORE (NATIVE) ---
+            if not is_wasm:
+                try:
+                    import psutil
+                    cpu_load = psutil.cpu_percent(interval=None)
+                    mem_load = psutil.virtual_memory().percent
+                except ImportError:
+                    is_wasm = True  # Fallback to heuristic scrying
+
+            # --- PATH B: THE ETHER PLANE (HEURISTIC) ---
+            if is_wasm:
+                # [ASCENSION 2]: Achronal Drift Tomography
+                # Measure loop lag: A 1ms sleep that takes 10ms means 900% saturation.
+                t0 = time.perf_counter()
+                time.sleep(0.001)
+                t1 = time.perf_counter()
+                jitter = (t1 - t0) - 0.001
+
+                # CPU Inference from jitter
+                cpu_load = min(100.0, jitter * 50000)  # Heuristic scaling
+
+                # [ASCENSION 8]: Heap Object Tomography
+                # Count living Python objects to estimate memory pressure.
+                obj_count = len(gc.get_objects())
+                mem_load = min(100.0, (obj_count / 1000000) * 100)  # Assume 1M objects is 'Heavy'
+
+        except Exception as paradox:
+            self.logger.debug(f"Metabolic scrying deferred: {paradox}")
+
+        # Update Atomic Cache
+        _METABOLIC_SNAPSHOT[:] = [now, cpu_load, mem_load, is_wasm, jitter]
+        return self._format_vitals(_METABOLIC_SNAPSHOT)
+
+    def _modulate_request(self, request: BaseRequest, vitals: Dict[str, Any]):
+        """
+        =============================================================================
+        == THE ALCHEMICAL MODULATOR (V-Ω-WILL-TRANSFIGURATION)                    ==
+        =============================================================================
+        Surgically alters the plea to match the system's thermal and memory state.
+        """
+        cpu = vitals["cpu_percent"]
+        mem = vitals["mem_percent"]
+        is_wasm = vitals["is_wasm"]
+
+        # 1. ECONOMY MODE (Model Swapping)
+        if cpu > 85.0 or (is_wasm and cpu > 60.0):
+            if "model" in request.variables and request.variables["model"] == "smart":
+                self.logger.warn("Metabolic Fever: Downgrading to 'fast' neural model.")
+                request.variables["model"] = "fast"
+                request.variables["_adaptation"] = "cpu_throttle"
+
+        # 2. CONTEXT SHEDDING (Memory Protection)
+        if mem > 80.0:
+            if hasattr(request, 'token_budget'):
+                # [ASCENSION 4]: Shear the Gnostic Budget by 40%
+                original = request.token_budget or 100000
+                request.token_budget = int(original * 0.6)
+                self.logger.verbose(f"Memory Wall: Shearing token budget to {request.token_budget}")
+
+        # 3. ADAPTIVE CHRONOMETRY (Timeout Scaling)
+        if cpu > 70.0:
+            # [ASCENSION 7]: If the machine is lagging, we give it more time to think.
+            if hasattr(request, 'timeout_seconds'):
+                request.timeout_seconds = int(request.timeout_seconds * 1.5)
+
+    def _inject_health_dossier(self, result: ScaffoldResult, vitals: Dict[str, Any]) -> ScaffoldResult:
+        """Grafts environmental gnosis onto the final revelation."""
+        # Ensure result and data are manifest
+        if result is None: return None
+
+        # [ASCENSION 5]: NoneType Sarcophagus
+        if result.data is None:
+            # We initialize a safe container if none exists
+            object.__setattr__(result, 'data', {})
+
+        if isinstance(result.data, dict):
+            # 1. Physical Health
+            result.data["_metabolism"] = {
+                "substrate": "ETHER" if vitals["is_wasm"] else "IRON",
+                "cpu_load": round(vitals["cpu_percent"], 1),
+                "ram_load": round(vitals["mem_percent"], 1),
+                "resonant": vitals["cpu_percent"] < 90.0
             }
 
+            # 2. Haptic Ocular Hints
+            if result.ui_hints is None:
+                object.__setattr__(result, 'ui_hints', {})
+
+            # [ASCENSION 10]: Aura Radiation
+            if vitals["cpu_percent"] > 90.0:
+                result.ui_hints["glow"] = "#ef4444"  # Red Panic
+                result.ui_hints["vfx"] = "shake"
+            elif vitals["cpu_percent"] > 70.0:
+                result.ui_hints["glow"] = "#f59e0b"  # Amber Fever
+
         return result
+
+    def _format_vitals(self, snapshot: list) -> Dict[str, Any]:
+        return {
+            "ts": snapshot[0],
+            "cpu_percent": snapshot[1],
+            "mem_percent": snapshot[2],
+            "is_wasm": snapshot[3],
+            "jitter": snapshot[4]
+        }
+

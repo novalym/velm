@@ -10,7 +10,7 @@
 
 <p align="center">
   <strong>The Operating System for Manifestation.</strong><br>
-  <em>Powered by the Scaffold God-Engine.</em>
+  <em>Powered by the VELM God-Engine.</em>
 </p>
 
 <p align="center">
@@ -22,7 +22,7 @@
 
 <br>
 
-> **Architect's Note:** VELM is the public manifestation of the internal `scaffold` project. While the engine is largely functional and battle-tested within the Novalym Forge, it is currently in **Active Apotheosis (Work In Progress)**. You may encounter comment debris, vestigial logic, or raw Gnosis in the source. Proceed with the spirit of an explorer.
+> **Architect's Note:** VELM is the public manifestation of the internal `velm` project. While the engine is largely functional and battle-tested within the Novalym Forge, it is currently in **Active Apotheosis (Work In Progress)**. You may encounter comment debris, vestigial logic, or raw Gnosis in the source. Proceed with the spirit of an explorer.
 
 ---
 
@@ -64,7 +64,7 @@ pip install velm
 
 Consecrate the Alias:
 To wield the power of VELM properly, bind the internal scaffold command to its true name in your shell (.zshrc or .bashrc):
-code Bash
+
 
 alias velm="scaffold"
 

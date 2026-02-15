@@ -7,7 +7,7 @@
 LIF: 10,000,000,000,000,000
 
 This scripture defines the official, verified URLs and cryptographic signatures
-for all portable runtimes managed by the Scaffold God-Engine.
+for all portable runtimes managed by the Velm God-Engine.
 
 Sources of Truth:
 - Python: https://github.com/indygreg/python-build-standalone

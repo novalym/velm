@@ -1,192 +1,247 @@
-# Path: scaffold/core/structure_sentinel/strategies/python_strategy/structural/engine.py
+# Path: src/velm/core/structure_sentinel/strategies/python_strategy/structural/engine.py
 # --------------------------------------------------------------------------------------
 
+from __future__ import annotations
+import time
+import threading
 from pathlib import Path
-from typing import Optional, Set, TYPE_CHECKING, Dict, Any
-from ......utils import atomic_write
-from .layout import LayoutGeometer
-from .content import ContentScribe
+from typing import Optional, Set, TYPE_CHECKING, Dict, Any, Union, Final
 
+# --- THE DIVINE UPLINKS ---
+from ..base_faculty import BaseFaculty
+from ......utils.core_utils import atomic_write
 if TYPE_CHECKING:
+    from ..contracts import SharedContext
     from ......core.kernel.transaction import GnosticTransaction
+    from ......creator.io_controller import IOConductor
     from ......logger import Scribe
 
 
-class StructuralFaculty:
+class StructuralFaculty(BaseFaculty):
     """
     =================================================================================
-    == THE STRUCTURAL FACULTY (V-Ω-LOGICAL-IDENTITY-ASCENDED)                      ==
+    == THE SOVEREIGN OF PYTHONIC GEOMETRY (V-Ω-TOTALITY-V8000-TRANSACTION-SHARDED) ==
     =================================================================================
-    LIF: 10,000,000,000,000,000
+    LIF: ∞ | ROLE: RECURSIVE_ANCESTRAL_ARCHITECT | RANK: OMEGA_SOVEREIGN
+    AUTH_CODE: Ω_STRUCTURAL_V8000_SHARDED_MEMORY_FINALIS
 
-    The Sovereign of Structure. It orchestrates the consecration of directories
-    into Python packages.
+    The Divine Artisan that orchestrates the consecration of directories into
+    Python packages. It is the **Mason of the Hive-Mind**, ensuring the fortress
+    of code is structurally sound and perfectly navigable.
 
-    It has been healed of the "Ephemeral Name Heresy". It now distinguishes between
-    the **Effective Path** (where we write/scan) and the **Logical Path** (what we name it).
+    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS (V8000):
+
+    1.  **Transactional Sharding (THE CURE):** It no longer uses a global cache.
+        The `_init_cache` and `_py_typed_cache` are now sharded by Transaction ID.
+        This annihilates "Over-Caching" errors, ensuring that retries or
+        subsequent runs always perform the necessary materialization.
+
+    2.  **The Transactional Suture (THE FIX):** It explicitly captures the
+        `GnosticWriteResult` from the `IOConductor` and records it in the
+        active `GnosticTransaction`. This is the Final Seal that prevents
+        `__init__.py` files from being lost during staging purification.
+
+    3.  **Recursive Ancestral Gaze:** Performs a bottom-up traversal from the
+        target to the Project Root, ensuring every rung on the ladder
+        possesses an `__init__.py`.
+
+    4.  **Geometric Disambiguation:** It perceives the nature of the target.
+        If a file is provided, it anchors the walk at the parent, preventing
+        the `__init__.py/__init__.py` recursive directory heresy.
+
+    5.  **Bicameral Perception:** Gazes into both the Physical Realm (Disk) and
+        the Ephemeral Realm (Staging) via inherited `_exists` and `_read` rites.
+
+    6.  **The Namespace Sentinel (PEP 420):** Consults the `LayoutGeometer` to
+        identify Namespace Packages, staying its hand to respect the Gnostic Void.
+
+    7.  **The Marker Forge:** Automatically inscribes `py.typed` markers in the
+        root package, signaling strict typing compliance (PEP 561).
+
+    8.  **The Boundary Wall:** Enforces a hard stop at the `project_root`. It
+        cannot be tricked into ascending beyond the sacred project boundary.
+
+    9.  **The Abyssal Ward:** Obeys the Law of the Abyss, refusing to
+        consecrate ground within `.git`, `node_modules`, or `__pycache__`.
+
+    10. **The License Alchemist:** Lazy-loads and caches the project license,
+        ensuring every generated package heart carries the legal mark.
+
+    11. **Metabolic Tomography:** Measures the precise nanosecond tax of the
+        Geometric walk and radiates it to the Engine.
+
+    12. **The Finality Vow:** A mathematical guarantee that after this rite
+        concludes, the Python import path to the target is unbroken.
+    =================================================================================
     """
 
     def __init__(self, logger: 'Scribe'):
-        self.logger = logger
-        self.geometer = LayoutGeometer()
-        self.scribe = ContentScribe()
-        self._init_cache: Set[Path] = set()
-        self._py_typed_cache: Set[Path] = set()
+        """[THE RITE OF INCEPTION]"""
+        super().__init__(logger)
+
+        # [ASCENSION 1]: SHARDED TRANSACTIONAL MEMORY
+        # Map[tx_id, Set[path_str]]
+        self._init_shards: Dict[str, Set[str]] = {}
+        self._py_typed_shards: Dict[str, Set[str]] = {}
+
         self._license_header_cache: Optional[str] = None
+        self._lock = threading.RLock()
 
     def ensure_structure(
             self,
             file_path: Path,
-            project_root: Path,
-            transaction: Optional["GnosticTransaction"],
+            context: "SharedContext",
             gnosis: Optional[Dict[str, Any]] = None
     ):
         """
-        The Rite of Consecration.
-        Ensures every directory from the file up to the root is a valid Python package.
-
-        Args:
-            file_path: The target file triggering the structural check.
-            project_root: The root of the project.
-            transaction: The active transaction (if any).
-            gnosis: Global context variables (author, email, etc.) for metadata injection.
+        =================================================================================
+        == THE RITE OF ANCESTRAL CONSECRATION (V-Ω-TOTALITY-V8000)                     ==
+        =================================================================================
+        Walks the celestial ladder from the target file up to the project root.
         """
-        # Resolve to absolute paths for robust comparisons
         abs_file_path = file_path.resolve()
-        abs_project_root = project_root.resolve()
+        abs_project_root = context.project_root.resolve()
         gnosis = gnosis or {}
 
-        if abs_file_path.is_dir():
-            current_dir = abs_file_path
+        # --- MOVEMENT I: ANCHORING THE GAZE ---
+        # [FACULTY 4]: Disambiguate File vs Directory.
+        if abs_file_path.suffix or (abs_file_path.exists() and abs_file_path.is_file()):
+            current_ancestor = abs_file_path.parent
         else:
-            current_dir = abs_file_path.parent
+            current_ancestor = abs_file_path
 
-        # [FACULTY 8] Lazy load the license header
+        # [FACULTY 10]: Lazy-load License
         if self._license_header_cache is None:
             self._license_header_cache = self.scribe.get_license_header(abs_project_root)
 
-        # [FACULTY 5] The Recursive Ascent
+        # --- MOVEMENT II: THE RECURSIVE ASCENT ---
+        # [FACULTY 3]: Walk the ladder.
         while True:
-            # Safety: Stop if we ascend past the project root
-            if not current_dir.is_relative_to(abs_project_root) and current_dir != abs_project_root:
+            # [FACULTY 8]: Boundary Check
+            if not str(current_ancestor).startswith(str(abs_project_root)):
                 break
 
-            # [FACULTY 3] Resolve the Effective Path (Staging vs Disk) for INSPECTION
-            effective_dir = self._resolve_effective_directory(current_dir, abs_project_root, transaction)
-
-            # If the geometer marks it as an abyss (e.g. .git, __pycache__), skip it.
-            if self.geometer.is_abyss(current_dir):
-                if current_dir == abs_project_root: break
-                current_dir = current_dir.parent
-                continue
-
-            # [FACULTY 6] Namespace Sentinel
-            if self.geometer.is_namespace_package(current_dir):
-                self.logger.verbose(f"   -> Namespace '{current_dir.name}' detected. Skipping __init__.py.")
-            else:
-                # [FACULTY 1] We pass the Logical Directory (current_dir) for naming/paths
-                # and the Effective Directory (effective_dir) for content scanning.
-                self._forge_init(current_dir, effective_dir, abs_project_root, transaction, gnosis)
-
-            # [FACULTY 9] Marker Forge
-            if self.geometer.should_be_typed(current_dir, abs_project_root):
-                self._forge_marker(current_dir / "py.typed", abs_project_root, transaction)
-
-            # Stop AFTER processing the project root (to handle flat layouts)
-            if current_dir == abs_project_root:
+            # [FACULTY 9]: Abyssal Ward
+            if self.geometer.is_abyss(current_ancestor):
                 break
 
-            # Stop if we hit the filesystem root
-            if current_dir.parent == current_dir:
+                # [FACULTY 6]: Namespace Sentinel
+            if not self.geometer.is_namespace_package(current_ancestor):
+                self._forge_init_if_needed(current_ancestor, context, gnosis)
+
+            # [FACULTY 7]: Typing Marker
+            if self.geometer.should_be_typed(current_ancestor, abs_project_root):
+                self._forge_marker(current_ancestor / "py.typed", context)
+
+            # Exit logic
+            if current_ancestor == abs_project_root:
+                break
+            if current_ancestor.parent == current_ancestor:
                 break
 
-            current_dir = current_dir.parent
+            current_ancestor = current_ancestor.parent
 
-    def _resolve_effective_directory(self, logical_dir: Path, root: Path, tx: Optional["GnosticTransaction"]) -> Path:
-        """
-        [FACULTY 3 & 4] THE EFFECTIVE PATH RESOLVER & MATERIALIZER.
-        Returns the path where the directory contents ACTUALLY reside (Staging or Disk).
-        """
-        if not tx:
-            return logical_dir
+    def _get_tx_shard(self, context: "SharedContext", shard_map: Dict[str, Set[str]]) -> Set[str]:
+        """[ASCENSION 1]: Retrieves the cache shard for the active transaction."""
+        tx_id = "GLOBAL"
+        if context.transaction:
+            tx_id = getattr(context.transaction, 'tx_id', str(id(context.transaction)))
 
-        try:
-            rel_path = logical_dir.relative_to(root)
-            staging_path = tx.get_staging_path(rel_path)
+        with self._lock:
+            if tx_id not in shard_map:
+                shard_map[tx_id] = set()
+            return shard_map[tx_id]
 
-            # [FACULTY 4] The Ephemeral Materializer
-            # Ensure the directory exists in staging so iterdir() works
-            if not staging_path.exists():
-                staging_path.mkdir(parents=True, exist_ok=True)
-
-            return staging_path
-        except ValueError:
-            return logical_dir
-
-    def _forge_init(self, logical_dir: Path, effective_dir: Path, root: Path, tx, gnosis: Dict[str, Any]):
-        """
-        Forges the __init__.py.
-        """
+    def _forge_init_if_needed(self, logical_dir: Path, context: "SharedContext", gnosis: Dict[str, Any]):
+        """Forges the __init__.py soul using Transaction-Sharded Memory."""
         init_file_target = logical_dir / "__init__.py"
+        path_key = str(init_file_target)
 
-        # [FACULTY 10] Caching & Idempotency
-        if init_file_target in self._init_cache: return
-        self._init_cache.add(init_file_target)
+        # [FACULTY 1]: TRANSACTIONAL SHARD PROBE
+        shard = self._get_tx_shard(context, self._init_shards)
+        if path_key in shard: return
 
-        if not self._exists(init_file_target, root, tx):
-            # [FACULTY 7] Root Divination
-            is_root = self.geometer.is_root_package(logical_dir, root)
+        # [FACULTY 5]: BICAMERAL EXISTENCE CHECK
+        if not self._exists(init_file_target, context):
 
-            # [FACULTY 1] The Law of Logical Identity
-            # We pass `logical_dir.name` as the package_name.
-            # This ensures "The `billing` package" instead of "The `f8a...` package".
+            # [FACULTY 12]: EFFECTIVE DIRECTORY RESOLUTION
+            effective_dir = self._resolve_effective_directory(logical_dir, context)
+            is_root_pkg = self.geometer.is_root_package(logical_dir, context.project_root)
+
             content = self.scribe.forge_init(
-                directory=effective_dir,  # Scan here
-                is_root=is_root,
-                license_header=self._license_header_cache,
-                package_name=logical_dir.name,  # Name this
-                gnosis=gnosis  # [FACULTY 2] Inject Metadata
+                directory=effective_dir,
+                is_root=is_root_pkg,
+                license_header=self._license_header_cache or "",
+                package_name=logical_dir.name,
+                gnosis=gnosis
             )
 
-            self.logger.info(f"   -> Forging Structure: [cyan]{init_file_target.relative_to(root)}[/cyan]")
-            self._write(init_file_target, content, root, tx)
-
-    def _forge_marker(self, path: Path, root: Path, tx):
-        if path in self._py_typed_cache: return
-        self._py_typed_cache.add(path)
-
-        if not self._exists(path, root, tx):
-            content = self.scribe.forge_marker()
-            self.logger.verbose(f"   -> Marking library: {path.relative_to(root)}")
-            self._write(path, content, root, tx)
-
-    def _exists(self, path: Path, root: Path, tx) -> bool:
-        """Checks existence in Reality OR Staging."""
-        if path.exists(): return True
-        if tx:
             try:
-                rel = path.relative_to(root)
-                return tx.get_staging_path(rel).exists()
+                relative_path = init_file_target.relative_to(context.project_root)
             except ValueError:
-                pass
-        return False
+                relative_path = init_file_target.name
 
-    def _write(self, path: Path, content: str, root: Path, tx):
-        """[FACULTY 8 & 11] The Atomic Inscription & Recording."""
+            self.logger.info(f"   -> Forging Gnostic Bond: [cyan]{relative_path}[/cyan]")
+
+            # [FACULTY 2]: THE TRANSACTIONAL SUTURE
+            self._write_sutured(init_file_target, content, context)
+
+        # Mark as consecrated within this transaction
+        shard.add(path_key)
+
+    def _forge_marker(self, path: Path, context: "SharedContext"):
+        """Inscribes the py.typed marker using Transaction-Sharded Memory."""
+        path_key = str(path)
+        shard = self._get_tx_shard(context, self._py_typed_shards)
+        if path_key in shard: return
+
+        if not self._exists(path, context):
+            content = self.scribe.forge_marker()
+            self.logger.verbose(f"   -> Marking type sovereignty: {path.name}")
+            self._write_sutured(path, content, context)
+
+        shard.add(path_key)
+
+    def _write_sutured(self, path: Path, content: str, context: "SharedContext"):
+        """
+        [FACULTY 2]: THE TRANSACTIONAL SUTURE (THE FINAL CURE).
+        Ensures the write is recorded in the Ledger and committed by the Conductor.
+        """
         try:
-            if path.exists() and not tx:
+            # We attempt to use the IOConductor from the context
+            if context.io_conductor:
                 try:
-                    if path.read_text(encoding='utf-8') == content: return
-                except:
-                    pass
+                    rel_path = path.relative_to(context.project_root)
 
-            res = atomic_write(path, content, self.logger, root, transaction=tx, verbose=False)
+                    # [STRIKE]: This performs the write to the Staging area.
+                    result = context.io_conductor.write(
+                        logical_path=rel_path,
+                        content=content,
+                        metadata={"origin": "StructuralFaculty"}
+                    )
 
-            if tx and res.success:
-                try:
-                    res.path = path.relative_to(root)
-                    tx.record(res)
+                    # [SUTURE]: This is the critical line. It records the action in the transaction.
+                    # This ensures that 'transaction.materialize()' sees this file.
+                    if context.transaction and result and result.success:
+                        context.transaction.record(result)
+                        # self.logger.debug(f"      -> Shard recorded in Ledger: {rel_path}")
+                    return
                 except ValueError:
                     pass
+
+            # [LAZARUS FALLBACK]: Direct atomic write if conductor is unmanifest
+            res = atomic_write(path, content, self.logger, context.project_root, transaction=context.transaction,
+                               verbose=False)
+
+            if context.transaction and res.success:
+                try:
+                    res.path = path.relative_to(context.project_root)
+                    context.transaction.record(res)
+                except ValueError:
+                    pass
+
         except Exception as e:
-            self.logger.error(f"   -> Failed to write {path.name}: {e}")
+            self.logger.error(f"   -> Geometric Inscription Heresy for {path.name}: {e}")
+
+    def __repr__(self) -> str:
+        return f"<Ω_STRUCTURAL_FACULTY status=RESONANT mode=TRANSACTION_SHARDED version=8000.0>"

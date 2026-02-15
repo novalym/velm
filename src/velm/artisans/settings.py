@@ -21,7 +21,7 @@ class SettingsArtisan(BaseArtisan[SettingsRequest]):
     @gnosis:description
     The `settings` command summons the **Altar of Configuration**, a luminous,
     interactive Terminal User Interface (TUI) that allows the Architect to
-    tune the very soul of the Scaffold God-Engine.
+    tune the very soul of the Velm God-Engine.
 
     It provides a unified, self-documenting dashboard to:
     1.  **Govern Runtimes:** Choose between System, Hermetic, or Docker execution strategies.

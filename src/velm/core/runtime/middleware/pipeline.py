@@ -10,7 +10,8 @@ import threading
 import traceback
 import uuid
 import os
-import psutil
+
+
 from dataclasses import dataclass, field
 from typing import List, Callable, Type, Dict, Optional, Any
 
@@ -352,11 +353,36 @@ class MiddlewarePipeline:
         sys.stderr.flush()
 
     def _get_memory_usage(self) -> float:
-        """[ASCENSION 5]: MEMORY TOMOGRAPHY"""
+        """
+        =============================================================================
+        == THE METABOLIC TOMOGRAPHY (V-Ω-TOTALITY-V20000.5-ISOMORPHIC)             ==
+        =============================================================================
+        LIF: ∞ | ROLE: HEAP_PRESSURE_SCRIER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_PIPELINE_V20000_MEMORY_SUTURE_2026_FINALIS
+        """
+        import gc
+        import sys
+
         try:
-            process = psutil.Process()
-            return process.memory_info().rss / 1024 / 1024
-        except:
+            # --- MOVEMENT I: THE HIGH PATH (IRON CORE) ---
+            # Attempt to speak with the physical process sensors (psutil).
+            try:
+                import psutil
+                process = psutil.Process()
+                # Returns Resident Set Size (RSS) in Megabytes.
+                return process.memory_info().rss / (1024 * 1024)
+            except (ImportError, AttributeError, Exception):
+                # --- MOVEMENT II: THE WASM PATH (ETHER HEAP) ---
+                # [ASCENSION 3]: Heuristic Mass Inference.
+                # In WASM/Pyodide, physical RSS is veiled by the browser sandbox.
+                # We scry the object count and apply the "Gnostic Mass" coefficient.
+                # Heuristic: 100,000 Python objects is approx 15MB in the WASM heap.
+                object_density = len(gc.get_objects())
+                return float(object_density * 0.00015)
+
+        except Exception:
+            # [ASCENSION 5]: The NoneType Sarcophagus.
+            # Telemetry must never fracture the Gnostic Spine.
             return 0.0
 
     def _archive_telemetry(self, t: PipelineTelemetry):

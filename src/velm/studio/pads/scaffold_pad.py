@@ -81,7 +81,7 @@ try:
 except ImportError:
     PYPERCLIP_AVAILABLE = False
 
-# --- Gnostic Summons for the Scaffold God-Engine's Core Artisans ---
+# --- Gnostic Summons for the Velm God-Engine's Core Artisans ---
 from ...parser_core.parser import ApotheosisParser
 from ...core.blueprint_scribe import BlueprintScribe
 from ...core.alchemist import get_alchemist

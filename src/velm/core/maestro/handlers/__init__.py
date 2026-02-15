@@ -10,5 +10,8 @@ from .proclaim import ProclaimHandler
 from .shell import ShellHandler
 from .tunnel import TunnelHandler
 from .raw import RawHandler
-
-__all__ = ["BaseRiteHandler", "ProclaimHandler", "ShellHandler", "TunnelHandler", "RawHandler"]
+from .browser import BrowserHandler
+from .vault import VaultHandler
+from .hosts import HostsHandler
+from .polyglot import PolyglotHandler
+__all__ = ["BaseRiteHandler", "ProclaimHandler", "ShellHandler", "TunnelHandler", "RawHandler","BrowserHandler","VaultHandler","HostsHandler","PolyglotHandler", ]

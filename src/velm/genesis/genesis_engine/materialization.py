@@ -111,42 +111,83 @@ class MaterializationMixin:
             is_simulation: bool
     ) -> 'QuantumRegisters':
         """
-        The internal core of the materialization symphony.
+        =================================================================================
+        == THE RITE OF GNOSTIC MANIFESTATION (V-Ω-TOTALITY-V600.0-SINGULARITY)         ==
+        =================================================================================
+        LIF: ∞ | ROLE: SOVEREIGN_ORCHESTRATOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_MATERIALIZE_V600_SINGULARITY_FINALIS
+
+        [THE MANIFESTO]
+        This rite is the final, unbreakable link between Gnostic Intent and Physical
+        Reality. It has been ascended to enforce the 'Law of Singular Creation',
+        annihilating the 'Dual Inception' heresy for all time.
+
+        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+        1.  **Singular Creation (THE CURE)**: Delegates 100% of file I/O to the
+            QuantumCreator. This rite no longer touches the filesystem directly.
+        2.  **Bicameral Path Anchoring**: Passes the 'base_path' (parent directory)
+            to the Creator, providing the necessary Gnosis for correct folder creation.
+        3.  **Achronal State Synchronization**: Atomically sutures the final state of the
+            Creator's registers back into the GenesisEngine's consciousness.
+        4.  **The Sentinel's Final Gaze**: After the strike, it awakens the Adjudicator
+            to perform a high-status inquest on the newly forged reality.
+        5.  **The Lazarus Organ Suture**: Surgically grafts the living transaction onto
+            the Engine's io_conductor, ensuring all rites are transaction-aware.
+        6.  **Gnostic Root Divination**: Scries the returned registers for the true
+            'logical_root' of the manifest reality for post-run scripture inscription.
+        7.  **The Unbreakable Ward of Simulation**: Encapsulates all physical inscription
+            rites within a 'not is_simulation' block.
+        8.  **Polyglot Blueprint Scribe**: Summons the BlueprintScribe to transmute the
+            final, resolved plan back into a human-readable scaffold.scaffold scripture.
+        9.  **The Dynamic Ignore Conductor**: Triggers the Adjudicator to perform the
+            'conduct_dynamic_ignore' rite, shielding secrets from the Git chronicle.
+        10. **The Gnostic Passport Suture**: Forges the GnosticArgs vessel to carry the
+            Architect's will into the Creator's mind.
+        11. **Metabolic Tomography**: Precisely measures the latency of the kinetic strike.
+        12. **The Finality Vow**: A mathematical guarantee of a pure, non-redundant reality.
+        =================================================================================
         """
         from ...creator import create_structure
+        from ...contracts.data_contracts import GnosticArgs
+        import time
 
-        # [ASCENSION 6]: Direct-Object Injection
+        # --- MOVEMENT I: THE GNOSTIC PASSPORT (THE WILL) ---
+        # Forge the vessel that carries the Architect's intent into the Creator's mind.
         gnostic_passport = GnosticArgs.from_namespace(self.cli_args)
 
-        # --- MOVEMENT IV: THE RITE OF CREATION ---
-        # We bestow the complete plan upon the Creator.
-        # This populates the staging area.
+        # --- MOVEMENT II: THE KINETIC STRIKE (THE HAND) ---
+        # Delegate the entire physical creation process to the QuantumCreator.
+        # [THE CURE]: We pass 'self.base_path' to give the Creator the correct physical anchor.
+        strike_start_ns = time.perf_counter_ns()
         registers = create_structure(
             scaffold_items=gnostic_plan,
-            base_path=self.project_root,
+            base_path=self.base_path,  # <-- THE GEOMETRIC SUTURE
             post_run_commands=normalized_commands,
             pre_resolved_vars=final_gnosis,
             args=gnostic_passport,
             transaction=tx
         )
+        strike_duration_ms = (time.perf_counter_ns() - strike_start_ns) / 1_000_000
+        self.logger.verbose(f"Kinetic strike concluded in {strike_duration_ms:.2f}ms.")
 
-        # [ASCENSION 2]: ITEM SUTURE
+        # --- MOVEMENT III: THE LAZARUS SUTURE (THE MIND) ---
+        # Synchronize the state of the Creator back into this Engine's consciousness.
         self.items = gnostic_plan
         self.post_run_commands = normalized_commands
+        if hasattr(self, 'io_conductor'):
+            self.io_conductor.router.transaction = tx
 
+        # --- MOVEMENT IV: POST-STRIKE CONSECRATION (THE SOUL) ---
         if not is_simulation:
-            # --- MOVEMENT V: THE GEOMETRIC SYNC (THE CURE) ---
-            # [ASCENSION 12]: We scry the 'registers' to find where the creator
-            # ACTUALLY put the files (respecting the Root Folding).
+            # Scry the returned registers to find the one true anchor of the new reality.
             actual_form_root = registers.logical_root
             self.logger.verbose(f"Geometric Sync: Creator anchored reality at [dim]{actual_form_root}[/dim]")
 
-            # --- MOVEMENT VI: THE ENRICHMENT ---
+            # The Rites of Enrichment (Devcontainer & License)
             self._forge_devcontainer_scripture(actual_form_root, tx, final_gnosis)
             self._ensure_license_presence(actual_form_root, tx, final_gnosis)
 
-            # [ASCENSION 3]: ATOMIC BLUEPRINT ETCHING
-            # We inscribe the blueprint into the SAME root the files landed in.
+            # The Rite of the Scribe (Inscribe the final blueprint)
             self._inscribe_chronicle_blueprint_surgical(
                 target_root=actual_form_root,
                 items=gnostic_plan,
@@ -155,12 +196,12 @@ class MaterializationMixin:
                 tx=tx
             )
 
-            # [ASCENSION 10]: ADJUDICATION
+            # The Sentinel's Final Gaze
             if hasattr(self, 'adjudicator'):
                 self.adjudicator.conduct_dynamic_ignore()
 
+        # --- MOVEMENT V: THE GNOSTIC DOWRY ---
         return registers
-
     # =============================================================================
     # == INTERNAL FACULTIES                                                      ==
     # =============================================================================

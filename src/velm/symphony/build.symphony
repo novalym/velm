@@ -6,7 +6,7 @@
 # =================================================================================
 
 # This scripture is the one true Conductor for building, testing, and purifying
-# the Scaffold God-Engine itself.
+# the Velm God-Engine itself.
 
 @task install
     %% proclaim: "Summoning all Gnostic dependencies with Poetry..."

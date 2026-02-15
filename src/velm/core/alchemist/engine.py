@@ -64,39 +64,6 @@ from .inference import InferenceMixin
 
 
 # =============================================================================
-# == I. THE NULL-SAFE SHIELD (VOID STABILITY)                                ==
-# =============================================================================
-
-class GnosticUndefined(Undefined):
-    """
-    =============================================================================
-    == THE GNOSTIC UNDEFINED (V-Ω-VOID-STABILITY)                              ==
-    =============================================================================
-    [ASCENSION 4]: Annihilates the 'NoneType' and 'AttributeError' heresies.
-    If a variable is summoned but not manifest in the Gnosis, it returns an
-    empty string but remains 'False' in logic gates. It acts as a black hole
-    for dot-notation access.
-    """
-
-    def __getattr__(self, name):
-        if name.startswith('__'):
-            return super().__getattr__(name)
-        return self
-
-    def __str__(self): return ""
-
-    def __repr__(self): return "[GNOSTIC_VOID]"
-
-    def __iter__(self): return iter([])
-
-    def __bool__(self): return False
-
-    def __int__(self): return 0
-
-    def __float__(self): return 0.0
-
-
-# =============================================================================
 # == II. THE SOVEREIGN ALCHEMIST                                             ==
 # =============================================================================
 
@@ -115,35 +82,34 @@ class DivineAlchemist(ResolutionMixin, InferenceMixin):
         if hasattr(self, '_initialized') and self._initialized:
             return
 
-        # [ASCENSION 1]: THE HERMETIC SANDBOX
-        # We switch to a SandboxedEnvironment to ensure that even malicious
-        # community blueprints cannot perform a 'Cerebral Breach' (RCE).
+        # =========================================================================
+        # == THE UNBREAKABLE VOW OF STRICTNESS (THE CURE)                        ==
+        # =========================================================================
+        # We replace 'GnosticUndefined' with 'jinja2.StrictUndefined'.
+        # This ensures that any missing variable or unmanifested function raises
+        # a fatal error immediately, preventing "Ghost Matter" from being inscribed.
+        import jinja2
+
         self.env = SandboxedEnvironment(
             autoescape=False,
-            trim_blocks=True,
-            lstrip_blocks=True,
+            trim_blocks=True,  # Remove leading/trailing newlines from blocks
+            lstrip_blocks=True,  # Strip tabs/spaces from the start of a block line
+            keep_trailing_newline=False,  # Ensure we don't leak "Newline Ghosts"
             comment_start_string='<#',
             comment_end_string='#>',
-            undefined=GnosticUndefined
+            undefined=jinja2.StrictUndefined  # <--- THE SOVEREIGN ALIGNMENT
         )
+        # =========================================================================
 
-        # [ASCENSION 1]: THE CEREBRAL BLOCKADE
-        # Explicitly stripping access to Python's dangerous introspection layers.
         self._arm_hermetic_wards()
-
-        # 2. Teach Rites (Standard Lib)
         self._teach_standard_rites()
         self._bestow_gnostic_bridge()
         self._bestow_sentient_scribe()
-
-        # 3. Bind Finalizer
         self.env.finalize = self._bound_finalizer
-
-        # 4. Initialize State
-        self._resolution_stack: Set[str] = set()
+        self._resolution_stack = set()
         self._initialized = True
         self.instance_id = uuid.uuid4().hex[:8].upper()
-        self.Logger.success(f"Divine Alchemist [{self.instance_id}] Consecrated.")
+        self.Logger.success(f"Divine Alchemist [{self.instance_id}] Consecrated with Strict Sovereignty.")
 
     def _arm_hermetic_wards(self):
         """
@@ -184,45 +150,46 @@ class DivineAlchemist(ResolutionMixin, InferenceMixin):
     def render_string(self, source: str, context: Dict[str, Any], depth_limit: int = 5) -> str:
         """
         =============================================================================
-        == THE CONVERGENCE REACTOR (V-Ω-TOTALITY-RESOLUTION)                       ==
+        == THE CONVERGENCE REACTOR (V-Ω-TOTALITY-V301-FAIL-FAST)                   ==
         =============================================================================
-        LIF: ∞ | ROLE: RECURSIVE_ALCHEMIST
-
-        Transmutes a string into reality. If the result still contains braces '{{',
-        it automatically re-enters the forge until the truth is solid (Converged).
-
-        [ASCENSION 3]: Implements the Bicameral Scoping Protocol for '_' variables.
+        [ASCENSION V301]: Now warded against UndefinedError.
         """
+        import jinja2
         if not source or "{{" not in source:
             return source or ""
 
-        # [ASCENSION 3]: BICAMERAL SCOPING (THE CURE)
-        # Identify transient souls to prevent global context pollution.
-        # We ensure variables are warded by the SovereignDict.
         if not isinstance(context, GnosticSovereignDict):
             context = GnosticSovereignDict(context)
 
         current_matter = source
         iteration = 0
-
-        # [ASCENSION 5]: Nanosecond Timing
         start_ns = time.perf_counter_ns()
 
-        # --- MOVEMENT II: THE CONVERGENCE LOOP ---
         while "{{" in current_matter and iteration < depth_limit:
             previous_matter = current_matter
             try:
-                # Compile and Render in one atomic strike
                 template = self.env.from_string(current_matter)
                 current_matter = template.render(**context)
 
-                # If no change occurred after a pass, we have reached steady-state
                 if current_matter == previous_matter:
                     break
-
                 iteration += 1
+
+            # =========================================================================
+            # == THE ADJUDICATION OF THE VOID (THE CORE FIX)                        ==
+            # =========================================================================
+            except (jinja2.exceptions.UndefinedError, NameError) as void_error:
+                # If a variable is missing, we raise a Critical Heresy immediately.
+                # This prevents the "!!HERESY" strings from ever being born.
+                raise ArtisanHeresy(
+                    f"Alchemical Heresy: Gnosis is a void. {void_error}",
+                    severity=HeresySeverity.CRITICAL,
+                    details=f"The scripture attempted to summon an unmanifested entity: {void_error}",
+                    suggestion="Verify your '$$' definitions. If using system checks, ensure 'checks' is manifest in the context."
+                )
+            # =========================================================================
+
             except TemplateSyntaxError as e:
-                # Transmute SyntaxError into a luminous Gnostic Heresy
                 raise ArtisanHeresy(
                     f"Alchemical Syntax Fracture on Line {e.lineno}: {e.message}",
                     severity=HeresySeverity.CRITICAL,
@@ -231,10 +198,6 @@ class DivineAlchemist(ResolutionMixin, InferenceMixin):
             except Exception as e:
                 self.Logger.error(f"Alchemical Collapse: {e}")
                 raise ValueError(f"Transmutation Paradox: {e}")
-
-        # [ASCENSION 12]: THE FINALITY VOW
-        if iteration >= depth_limit and "{{" in current_matter:
-            self.Logger.warn(f"Convergence Aborted: Logic depth limit ({depth_limit}) reached.")
 
         latency_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
         if latency_ms > 10.0:
@@ -303,12 +266,19 @@ class DivineAlchemist(ResolutionMixin, InferenceMixin):
     def _teach_standard_rites(self):
         """
         =============================================================================
-        == THE LUMINOUS FILTER GRIMOIRE (V-Ω-TOTALITY)                             ==
+        == THE LUMINOUS FILTER GRIMOIRE (V-Ω-TOTALITY-V302-STRICT)                 ==
         =============================================================================
         [ASCENSION 6]: Inscribes the complete naming nomenclature and
         data alchemies as first-class citizens of the Alchemist's mind.
         """
+        import jinja2
+        import shlex
+        import os
+        import re
+        from pathlib import Path
+
         # --- 1. NAMING & NOMENCLATURE ---
+        # Logic remains identical to previous scripture
         naming_rites = {
             'pascal': conv.to_pascal_case,
             'camel': conv.to_camel_case,
@@ -320,10 +290,9 @@ class DivineAlchemist(ResolutionMixin, InferenceMixin):
         }
         for name, rite in naming_rites.items():
             self.env.filters[name] = rite
-            self.env.filters[name.title()] = rite  # Support Pascal or pascal
+            self.env.filters[name.title()] = rite
 
         # --- 2. SECURITY & WARDING ---
-        # [THE WARD]: Standard shell escaping to prevent command injection
         self.env.filters['shell_escape'] = shlex.quote
 
         # --- 3. PATH PERCEPTION ---
@@ -350,7 +319,14 @@ class DivineAlchemist(ResolutionMixin, InferenceMixin):
         self.env.filters['validate'] = gnostic_validation_rite
         self.env.tests['binary'] = is_binary_test
         self.env.tests['truthy'] = lambda v: str(v).lower() in ('true', '1', 'yes', 'y', 'on')
-        self.env.tests['defined'] = lambda v: not isinstance(v, GnosticUndefined)
+
+        # =========================================================================
+        # == THE VOID TEST TRANSMUTATION (THE CURE)                              ==
+        # =========================================================================
+        # We no longer need to check for GnosticUndefined. Jinja2's internal
+        # 'defined' test is now our sovereign judge. We only keep this if we
+        # want to provide a specific 'truthy' alias for the Architect.
+        # =========================================================================
 
     def _bestow_gnostic_bridge(self):
         """

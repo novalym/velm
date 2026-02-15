@@ -81,39 +81,102 @@ class GnosticLogicWeaver:
 
     def weave(self) -> Tuple[
         List[ScaffoldItem],
-        List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]], # [ASCENSION]: 4-Tuple Return
+        List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]],  # The Sacred Quaternity
         List[Heresy],
         List[Edict]
     ]:
         """
-        The Grand Rite of Weaving.
-        Commands the TraversalEngine to walk the AST and returns the final,
-        adjudicated reality. The contract is now pure.
+        =================================================================================
+        == THE GRAND RITE OF DIMENSIONAL CONVERGENCE (V-Ω-TOTALITY-V550-FINALIS)       ==
+        =================================================================================
+        LIF: ∞ | ROLE: REALITY_CONVERGENCE_CONDUCTOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_WEAVE_V550_QUATERNITY_RESONANCE_2026_FINALIS
 
-        Returns:
-            (Items, Commands, Heresies, Edicts)
+        [THE MANIFESTO]
+        This is the supreme rite of the Logic Weaver. It transmutes the hierarchical
+        Gnostic Tree (AST) into a linear scripture of Form and Will, warded against
+        logic leaks and environment collisions.
+        =================================================================================
         """
-        Logger.info("The Modular Logic Weaver begins its symphony...")
+        import time
+        import gc
+        from pathlib import Path
+        from ...contracts.heresy_contracts import HeresySeverity
 
-        if not self.root or not self.root.children:
-            Logger.warn("Weaver received an empty AST Root.")
-            # [THE FIX] Return empty lists for all four components of the Quaternity
+        start_ns = time.perf_counter_ns()
+        Logger.info(
+            f"[{self.gnostic_context.get('trace_id', 'tr-void')}] LogicWeaver: Initiating Dimensional Convergence...")
+
+        # --- MOVEMENT 0: THE VOID WARD ---
+        # [ASCENSION 12]: THE FINALITY VOW
+        # If the root is a void, we return a structured silence, never a NoneType.
+        if not self.root or (not self.root.children and not self.root.item):
+            Logger.warn("Weaver perceived a Void Root. Reality remains unmanifest.")
             return [], self.traversal_engine.post_run_commands, [], self.traversal_engine.edicts
 
-        # --- MOVEMENT I: THE TRAVERSAL OF REALITY ---
-        # The Conductor commands the TraversalEngine to walk the Gnostic Tree directly.
-        self.traversal_engine.traverse(self.root, Path("."))
+        # --- MOVEMENT I: THE RITE OF ADRENALINE (KINETIC SUPREMACY) ---
+        # [ASCENSION 5]: Physics Elevation
+        # Disable the Reaper during the walk to maximize pointer-traversal velocity.
+        gc_was_enabled = gc.isenabled()
+        if gc_was_enabled: gc.disable()
 
-        # --- MOVEMENT II: THE HARVEST OF GNOSIS ---
-        # We gather the fruits of the traversal from the Engine's internal state.
-        final_items = self.traversal_engine.items
-        final_commands = self.traversal_engine.post_run_commands
-        final_edicts = self.traversal_engine.edicts
+        try:
+            # --- MOVEMENT II: THE TEMPORAL SCAN (TRAVERSAL) ---
+            # The TraversalEngine walks the Gnostic Tree, evaluating @if/@for and
+            # expanding {{ placeholders }} with the Alchemist's Strict Gaze.
+            self.traversal_engine.traverse(self.root, Path("."))
 
-        # [THE FIX] We harvest the Heresies collected during the walk.
-        final_heresies = self.traversal_engine.heresies
+            # --- MOVEMENT III: THE HARVEST OF THE QUATERNITY ---
+            # [THE CURE]: We surgically harvest the four-fold scripture of Will.
 
-        Logger.success(f"Weaving complete. {len(final_items)} items manifest.")
+            # 1. PHYSICAL MATTER (Files & Folders)
+            final_items = self.traversal_engine.items
 
-        # The final, pure proclamation, honoring the sacred FOUR-FOLD contract.
-        return final_items, final_commands, final_heresies, final_edicts
+            # 2. KINETIC WILL (Maestro's Edicts)
+            # This is the 4-tuple: (Cmd, Line, Undo, Heresy)
+            final_commands = self.traversal_engine.post_run_commands
+
+            # 3. CHRONICLE OF SIN (Heresies)
+            final_heresies = self.traversal_engine.heresies
+
+            # 4. GNOSTIC SOULS (Raw Edicts)
+            final_edicts = self.traversal_engine.edicts
+
+            # --- MOVEMENT IV: METABOLIC ADJUDICATION ---
+            # Check for critical heresies that emerged during the walk.
+            critical_count = sum(1 for h in final_heresies if h.severity == HeresySeverity.CRITICAL)
+
+            if critical_count > 0:
+                Logger.error(
+                    f"Convergence Fractured: {critical_count} critical heresies perceived. Reality is unstable.")
+            else:
+                # [ASCENSION 11]: MASS TOMOGRAPHY
+                total_mass = sum(len(i.content or "") for i in final_items)
+                Logger.success(
+                    f"Weaving Complete. {len(final_items)} items manifest ({total_mass} bytes). "
+                    f"{len(final_commands)} kinetic edicts willed."
+                )
+
+            # --- MOVEMENT V: THE FINAL PROCLAMATION ---
+            duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+            # Inject metadata into context for downstream scrying
+            self.gnostic_context.raw['_weaving_tax_ms'] = duration_ms
+
+            return final_items, final_commands, final_heresies, final_edicts
+
+        except Exception as catastrophic_paradox:
+            # [ASCENSION 10]: FORENSIC EMERGENCY DUMP
+            Logger.critical(f"Logic Weaver Collapse: {str(catastrophic_paradox)}")
+            # We must return a valid Quaternity even in death to satisfy the Conductor's contract.
+            return [], [], [Heresy(
+                message="LOGIC_WEAVER_CATASTROPHE",
+                details=f"The Weaver's mind shattered: {catastrophic_paradox}",
+                severity=HeresySeverity.CRITICAL
+            )], []
+
+        finally:
+            # --- MOVEMENT VI: ZEN LUSTRATION ---
+            # Restore Substrate Metabolism and flush waste.
+            if gc_was_enabled:
+                gc.enable()
+                gc.collect(1)  # Soft sweep of young objects

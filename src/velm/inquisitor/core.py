@@ -34,6 +34,7 @@ healed of the 'PyCapsule' heresy and the 'Instance/Class' paradox.
 12. **The Luminous Logger:** Chronicles the exact mode of perception (High vs Low).
 =================================================================================
 """
+import sys
 import importlib
 import re
 from pathlib import Path
@@ -45,12 +46,36 @@ from ..logger import Scribe
 INQUISITOR_PANTHEON: Dict[str, Type[BaseInquisitor]] = {}
 
 try:
-    from tree_sitter import Language
+    # --- MOVEMENT I: NATIVE COMMUNION (THE HIGH PATH) ---
+    # Attempting to speak with the native C-matter (Local/Titan Node).
+    from tree_sitter import Language, Parser, Node
 
     TREE_SITTER_AVAILABLE = True
+
 except ImportError:
-    TREE_SITTER_AVAILABLE = False
-    Language = object
+    # --- MOVEMENT II: PROXY RESURRECTION (THE WASM PATH) ---
+    # If the native library is unmanifest, we scry the Gnostic Registry
+    # for the Diamond Proxy forged by the Simulacrum's ignition.
+    if "tree_sitter" in sys.modules:
+        _ts = sys.modules["tree_sitter"]
+
+        # We extract the Diamond souls from the Proxy
+        Language = _ts.Language
+        Parser = _ts.Parser
+        Node = _ts.Node
+
+        TREE_SITTER_AVAILABLE = True
+    else:
+        # --- MOVEMENT III: THE BLIND GAZE (STASIS) ---
+        # If the Mind is cold in all realms, we forge hollow vessels.
+        # This prevents 'AttributeError' and 'TypeError' during registration.
+        TREE_SITTER_AVAILABLE = False
+
+        # [ASCENSION 5]: Hollow Type Generation
+        # We create a specific type identity rather than a generic object.
+        Language = type("HollowLanguage", (object,), {})
+        Parser = type("HollowParser", (object,), {})
+        Node = type("HollowNode", (object,), {})
 
 Logger = Scribe("GnosticInquisitorCore")
 

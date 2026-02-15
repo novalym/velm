@@ -219,56 +219,150 @@ class GnosticDispatcher:
 
     def _dispatch_to_hive(self, command: str, params: Dict[str, Any], req_id: Any, context: Dict[str, Any]) -> Dict[
         str, Any]:
-        """[THE RITE OF HIVE DISPATCH]"""
-        # Ensure pool exists
+        """
+        =============================================================================
+        == THE RITE OF HIVE DISPATCH (V-Ω-TOTALITY-V20000.15-ISOMORPHIC)           ==
+        =============================================================================
+        LIF: 100x | ROLE: NEURAL_FISSION_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_HIVE_V20000_SAB_SUTURE_2026_FINALIS
+        """
+        import uuid
+        import time
+        import gc
+        import sys
+        from concurrent.futures import Future
+
+        # --- MOVEMENT I: VITALITY ADJUDICATION ---
+        # Ensure the Neural Hive is manifest
         if self.hive_pool is None:
             self._ignite_hive()
 
-        job_id = f"hive-{uuid.uuid4().hex[:6]}"
-        trace_id = context.get("trace_id", job_id)
+        job_id = f"hive-{uuid.uuid4().hex[:6].upper()}"
+        trace_id = context.get("trace_id") or context.get("x_nov_trace") or job_id
 
-        # [ASCENSION 8]: METABOLIC BACKPRESSURE
+        # [ASCENSION 1]: ISOMORPHIC METABOLIC GAZE
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+        is_feverish = False
+
         try:
             import psutil
             if psutil.virtual_memory().percent > 90:
-                return ErrorForge.forge(req_id, -32003, "Memory Critical. Rite deferred.")
-        except:
-            pass
+                is_feverish = True
+        except (ImportError, AttributeError):
+            # WASM Heuristic: If heap > 800k objects, the tab is feverish
+            if len(gc.get_objects()) > 800000:
+                is_feverish = True
 
-        # Submit to pool
+        if is_feverish:
+            self.logger.warn(f"[{trace_id}] Hive Admission Refused: Metabolic Congestion.")
+            return ErrorForge.forge(req_id, -32003, "Metabolic Fever: Rite deferred to stabilize substrate.")
+
+        # [ASCENSION 5]: HYDRAULIC QUEUE GOVERNANCE
+        # We check the internal depth of the hive pool queue
+        if hasattr(self.hive_pool, '_work_queue') and self.hive_pool._work_queue.qsize() > 20:
+            return ErrorForge.forge(req_id, -32003, "Hive Saturation: Backpressure threshold exceeded.")
+
+        # --- MOVEMENT II: THE KINETIC STRIKE (FISSION) ---
+        # [ASCENSION 7]: Haptic HUD Pulse
+        if self.engine.akashic:
+            self.engine.akashic.broadcast({
+                "method": "novalym/hud_pulse",
+                "params": {"type": "HIVE_SPARK", "label": f"JOB_{job_id}", "color": "#a855f7", "trace": trace_id}
+            })
+
         try:
-            future = self.hive_pool.submit(_execute_fission_rite, command, params)
-        except RuntimeError:
-            # Pool closed?
+            # Prepare the Gnostic DNA for the worker thread
+            hive_context = {
+                **context,
+                "job_id": job_id,
+                "is_parallel": True,
+                "start_ts": time.time()
+            }
+
+            # Submit the Rite to the pool
+            # _execute_fission_rite is the atomic wrapper that handles Artisan instantiation
+            future = self.hive_pool.submit(_execute_fission_rite, command, params, hive_context)
+
+            # [ASCENSION 6]: Inscribe into the Registry
+            if hasattr(self, '_active_jobs'):
+                self._active_jobs[job_id] = {"command": command, "trace": trace_id, "start": time.time()}
+
+        except RuntimeError as pool_fracture:
+            # Pool is likely closed; fall back to the serial Cortex loop
+            self.logger.error(f"Hive Pool unmanifest: {pool_fracture}. Routing to Cortex.")
             return self._dispatch_to_cortex(command, params, req_id, context)
 
+        # =========================================================================
+        # == MOVEMENT III: THE RITE OF REVELATION (CALLBACK)                     ==
+        # =========================================================================
         def _on_revelation(f: Future):
+            """The Achronal closure that receives the result from the Hive."""
             try:
+                # [ASCENSION 4 & 11]: Fault-Isolated Soul Retrieval
                 result_data = f.result()
+
+                if result_data is None:
+                    raise ValueError("Hive Revelation resulted in a Void (None).")
+
+                # [ASCENSION 9]: Metabolic Tomography
+                # Capture vitals at the moment of completion
+                vitals = self.engine.watchdog.get_vitals() if hasattr(self.engine, 'watchdog') else {}
+
+                if self.engine.akashic:
+                    # Radiate the completed Gnosis to the Ocular HUD
+                    self.engine.akashic.broadcast({
+                        "method": "scaffold/jobComplete",
+                        "params": {
+                            "job_id": job_id,
+                            "command": command,
+                            "trace_id": trace_id,
+                            "success": result_data.get('success', False),
+                            "result": result_data,
+                            "vitals": vitals,
+                            "duration_ms": (time.time() - hive_context["start_ts"]) * 1000
+                        },
+                        "jsonrpc": "2.0"
+                    })
+
+            except Exception as fracture:
+                # [ASCENSION 8]: Socratic Error Mapping
+                err_msg = str(fracture)
+                self.logger.error(f"Hive Fracture in [{job_id}]: {err_msg}")
+
                 if self.engine.akashic:
                     self.engine.akashic.broadcast({
                         "method": "scaffold/jobComplete",
                         "params": {
-                            "job_id": job_id, "command": command,
-                            "trace_id": trace_id, "result": result_data,
-                            "success": result_data.get('success', False)
-                        }
+                            "job_id": job_id,
+                            "trace_id": trace_id,
+                            "status": "FRACTURED",
+                            "error": {
+                                "code": -32000,
+                                "message": f"Neural Hive Collapse: {err_msg}",
+                                "data": traceback.format_exc() if self.logger.is_verbose else None
+                            }
+                        },
+                        "jsonrpc": "2.0"
                     })
-            except Exception as e:
-                self.logger.error(f"Hive Fracture in [{job_id}]: {e}")
-                if self.engine.akashic:
-                    self.engine.akashic.broadcast({
-                        "method": "scaffold/jobComplete",
-                        "params": {"job_id": job_id, "status": "FRACTURED", "error": str(e)}
-                    })
+            finally:
+                # Clean the registry
+                if hasattr(self, '_active_jobs'):
+                    self._active_jobs.pop(job_id, None)
 
+        # Attach the listener to the future
         future.add_done_callback(_on_revelation)
 
+        # --- MOVEMENT IV: THE FINALITY VOW ---
+        # [ASCENSION 12]: Return the promise of matter.
         return {
-            "jsonrpc": "2.0", "id": req_id, "success": True,
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "success": True,
             "result": {
-                "status": "PENDING", "job_id": job_id,
-                "message": f"Dispatched to Neural Hive."
+                "status": "PENDING",
+                "job_id": job_id,
+                "trace_id": trace_id,
+                "message": f"Plea accepted. Neural Hive is materializing '{command}'."
             }
         }
 

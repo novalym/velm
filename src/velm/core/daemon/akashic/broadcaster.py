@@ -83,13 +83,24 @@ class Congregation:
         self.surge_events = 0
         self.shed_events = 0
 
-        # [ASCENSION 1]: IGNITE THE PUMP
+        # [THE CURE]: SUBSTRATE DETECTION
+        # We determine if we are in the Ethereal Plane (WASM/Pyodide)
+        import sys
+        import os
+        self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
+        # [ASCENSION 1]: CONDITIONAL PUMP IGNITION
+        # Background threads are a heresy in standard WASM runtimes.
         self._pump_thread = threading.Thread(
             target=self._hydrodynamic_pump,
             name="AkashicPump",
             daemon=True
         )
-        self._pump_thread.start()
+
+        if not self._is_wasm:
+            self._pump_thread.start()
+        else:
+            logging.getLogger("Congregation").debug("WASM Substrate perceived. Congregation operating in Passive Mode.")
 
         self.logger = logging.getLogger("Congregation")
 
@@ -106,8 +117,13 @@ class Congregation:
 
         # 1. Stop the Pump
         self._stop_event.set()
-        if self._pump_thread.is_alive():
-            self._pump_thread.join(timeout=2.0)
+
+        # [THE FIX]: Only join the pump if it was actually started (Non-WASM)
+        if not self._is_wasm and self._pump_thread.is_alive():
+            try:
+                self._pump_thread.join(timeout=2.0)
+            except:
+                pass
 
         # 2. Banish the Witnesses
         with self._lock:

@@ -35,7 +35,8 @@ def _unify_rites():
         "_ui_rites",
         "_guild_rites",
         "_mimic_rites",
-        "_service_rites"
+        "_service_rites",
+        "_governance_rites"
     ]
 
     for module_stem in rite_files:

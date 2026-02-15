@@ -1,6 +1,7 @@
 
 # Path: scaffold/artisans/astrolabe/tui.py
 # ----------------------------------------
+import sys
 from pathlib import Path
 from typing import List, Tuple
 
@@ -15,11 +16,30 @@ from ...inquisitor.core import LANGUAGES, is_grammar_available
 
 # Try to import tree_sitter directly for query construction
 try:
+    # --- MOVEMENT I: NATIVE COMMUNION (THE HIGH PATH) ---
+    # We first attempt to speak with the native C-extension.
     from tree_sitter import Query, Node
 
     TREE_SITTER_LIB_AVAILABLE = True
+
 except ImportError:
-    TREE_SITTER_LIB_AVAILABLE = False
+    # --- MOVEMENT II: PROXY RESURRECTION (THE WASM PATH) ---
+    # If the native tongue is absent, we scry the Gnostic Registry
+    # for the Diamond Proxy forged by the Simulacrum.
+    if "tree_sitter" in sys.modules:
+        _ts = sys.modules["tree_sitter"]
+        Query = _ts.Query
+        Node = _ts.Node
+        TREE_SITTER_LIB_AVAILABLE = True
+    else:
+        # --- MOVEMENT III: THE BLIND GAZE (STASIS) ---
+        # If no soul is manifest in any realm, we forge hollow vessels.
+        TREE_SITTER_LIB_AVAILABLE = False
+
+        # We forge 'Hollow' types to allow code to be imported
+        # without crashing, even if the Gaze is blind.
+        Query = type("HollowQuery", (object,), {})
+        Node = type("HollowNode", (object,), {})
 
 
 class CodeView(Static):
@@ -79,46 +99,81 @@ class AstrolabeApp(App):
         self.run_query(event.value)
 
     def run_query(self, query_str: str):
+        """
+        =============================================================================
+        == THE RITE OF SYMBOLIC INQUEST (V-Ω-TOTALITY-V200.12-ISOMORPHIC)          ==
+        =============================================================================
+        LIF: 10x | ROLE: PATTERN_ADJUDICATOR | RANK: OMEGA
+
+        Executes a Gnostic Query against the active scripture. Engineered to mirror
+        modern C-bindings while remaining fully compatible with the Diamond Proxy.
+        =============================================================================
+        """
+        # [ASCENSION 1]: Functional Availability Check
+        # Now represents functional availability across both Iron and Ether.
         if not TREE_SITTER_LIB_AVAILABLE:
-            self.notify("Tree-sitter library not found.", severity="error")
+            self.notify("Gaze is Blind: Tree-sitter unmanifested in this stratum.", severity="error")
             return
 
-        tree_view = self.query_one(ResultTree)
-        tree_view.clear()
-        tree_view.root.expand()
+        # UI Ritual: Preparation of the Result Tree
+        try:
+            tree_view = self.query_one(ResultTree)
+            tree_view.clear()
+            tree_view.root.expand()
+        except Exception:
+            # Fallback for headless or initializing UI states
+            pass
 
+        # [ASCENSION 8]: Linguistic Shard Verification
+        # We verify against the central registry, which our Diamond Suture populates.
         if not is_grammar_available(f"tree_sitter_{self.language_name}", self.language_name):
-            self.notify(f"Grammar for {self.language_name} not available.", severity="error")
+            self.notify(f"Linguistic Shard '{self.language_name}' not available.", severity="error")
             return
 
         lang = LANGUAGES[self.language_name]
+
         try:
-            query = lang.query(query_str)
+            # [MOVEMENT I]: THE SUMMONS
+            # The Diamond Meta-Path Suture guarantees this import resolves correctly.
             from tree_sitter import Parser
+
+            # Pre-compile the pattern via the Language Proxy
+            query = lang.query(query_str)
+
             parser = Parser()
             parser.set_language(lang)
-            tree = parser.parse(bytes(self.source_code, "utf8"))
 
+            # [MOVEMENT II]: THE STRIKE
+            # Transmute source code to bytes for the engine.
+            # Our Proxy handles both 'str' and 'bytes' for maximum resilience.
+            source_bytes = self.source_code.encode("utf-8") if isinstance(self.source_code, str) else self.source_code
+            tree = parser.parse(source_bytes)
+
+            # [MOVEMENT III]: THE CAPTURE
+            # Our Proxy specifically returns a List[Tuple[Node, str]] to mirror modern bindings.
+            # We remove the legacy 'dict' check to enforce the new Diamond Standard.
             captures = query.captures(tree.root_node)
 
-            # Group by capture name
-            results = []
-            if isinstance(captures, list):  # Modern bindings
-                for node, name in captures:
-                    results.append((name, node))
-            elif isinstance(captures, dict):  # Older bindings
-                for name, nodes in captures.items():
-                    for node in nodes:
-                        results.append((name, node))
-
-            for name, node in results:
+            # [MOVEMENT IV]: THE REVELATION
+            for node, name in captures:
+                # [ASCENSION 1]: Achronal Point Parity
+                # node.start_point returns (row, col) in both C and WASM strata.
                 line_start = node.start_point[0] + 1
-                text_preview = node.text.decode('utf-8').splitlines()[0][:50]
-                label = f"@{name} [L{line_start}]: {text_preview}..."
-                tree_view.root.add(label)
 
-            self.notify(f"Found {len(results)} matches.")
+                # [ASCENSION 2]: Gnostic Byte Parity
+                # node.text returns bytes. We decode locally to preserve UI strings.
+                raw_text = node.text
+                text_preview = raw_text.decode('utf-8', errors='replace').splitlines()[0][:50]
+
+                label = f"@{name} [L{line_start}]: {text_preview}..."
+
+                # Inscribe the finding into the Ocular HUD
+                if 'tree_view' in locals():
+                    tree_view.root.add(label)
+
+            self.notify(f"Resonance Achieved: {len(captures)} matches perceived.")
 
         except Exception as e:
-            self.notify(f"Query Error: {e}", severity="error")
+            # [ASCENSION 11]: Forensic Fracture Capture
+            self.notify(f"Query Error: {str(e)}", severity="error")
 

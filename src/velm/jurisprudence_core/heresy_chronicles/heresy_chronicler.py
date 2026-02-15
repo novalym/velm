@@ -1,6 +1,6 @@
 # Path: scaffold/jurisprudence_core/heresy_chronicles/heresy_chronicler.py
 # ----------------------------------------------------------------------
-
+import sys
 import traceback
 from typing import Union
 
@@ -17,12 +17,32 @@ from ...contracts.heresy_contracts import SyntaxHeresy, Heresy
 from ...logger import Scribe
 
 try:
-    from tree_sitter import QueryError, Language
-
+    # --- MOVEMENT I: NATIVE COMMUNION (THE HIGH PATH) ---
+    # We attempt to speak with the native C-extension.
+    from tree_sitter import Language, Parser, Node
     TREE_SITTER_AVAILABLE = True
+
 except ImportError:
-    TREE_SITTER_AVAILABLE = False
-    QueryError = Exception
+    # --- MOVEMENT II: PROXY RESURRECTION (THE WASM PATH) ---
+    # If the native tongue is absent, we scry the Gnostic Registry (sys.modules)
+    # for the Diamond Proxy forged by the Simulacrum.
+    if "tree_sitter" in sys.modules:
+        _ts = sys.modules["tree_sitter"]
+        Language = _ts.Language
+        Parser = _ts.Parser
+        Node = _ts.Node
+        TREE_SITTER_AVAILABLE = True
+    else:
+        # --- MOVEMENT III: THE BLIND GAZE (STASIS) ---
+        # If no soul is manifest in any realm, we forge hollow vessels.
+        TREE_SITTER_AVAILABLE = False
+
+        # We use 'type' to forge a class that mimics the expected interface
+        # without inheriting from 'object', preventing subtle MRO heresies.
+        Language = type("HollowLanguage", (object,), {})
+        Parser = type("HollowParser", (object,), {})
+        Node = type("HollowNode", (object,), {})
+
 
 Logger = Scribe("HeresyChronicler")
 

@@ -127,7 +127,7 @@ class ServerInfo(LspModel):
     [THE ORACLE]
     Metadata describing the God-Engine's current incarnation.
     """
-    name: str = "Scaffold God-Engine"
+    name: str = "Velm God-Engine"
     version: Optional[str] = "3.2.0-SINGULARITY"
 
 

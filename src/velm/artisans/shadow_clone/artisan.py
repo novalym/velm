@@ -377,36 +377,108 @@ class ShadowCloneArtisan(BaseArtisan[ShadowCloneRequest]):
     # =================================================================================
 
     def _status(self, req: ShadowCloneRequest) -> ScaffoldResult:
+        """
+        =============================================================================
+        == THE RITE OF STATUS (V-Ω-TOTALITY-V20000.1-ISOMORPHIC)                   ==
+        =============================================================================
+        LIF: 100x | ROLE: SHADOW_SOUL_SCRIER | RANK: OMEGA_SUPREME
+        AUTH: Ω_STATUS_V20000_PULSE_SUTURE_2026_FINALIS
+        """
+        import os
+        import time
+        from pathlib import Path
+
+        # [ASCENSION 1]: SUBSTRATE DETECTION
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+
+        # [ASCENSION 4]: NONETYPE SARCOPHAGUS
         if not self.catalog:
-            return self.success("Void.", data={'alive': False, 'status': 'OFFLINE'})
+            return self.success("Void.", data={'alive': False, 'status': 'OFFLINE', 'reason': 'Catalog unmanifested'})
 
         shadows = self.catalog.list_shadows()
         # Find the most recent shadow for this label
         target = next((s for s in reversed(shadows) if s.label == req.label), None)
 
         if not target:
-            return self.success("Void.", data={'alive': False, 'status': 'OFFLINE'})
+            return self.success("Void.",
+                                data={'alive': False, 'status': 'OFFLINE', 'reason': 'No shadow with that label'})
 
-        import psutil
-        is_pid_alive = target.pid and psutil.pid_exists(target.pid)
-        status = 'ONLINE' if is_pid_alive else 'ZOMBIE'
+        # --- MOVEMENT I: THE BICAMERAL LIFE-SCRY ---
+        is_alive = False
+        reason = "UNKNOWN"
+        pulse_data = {}
 
-        # Auto-update status if dead
-        if not is_pid_alive and target.status != ShadowStatus.ZOMBIE:
-            target.status = ShadowStatus.ZOMBIE
-            status = 'OFFLINE'
+        # A. THE HIGH PATH (IRON CORE - PID)
+        if not is_wasm and target.pid and PSUTIL_AVAILABLE:
+            try:
+                is_alive = psutil.pid_exists(target.pid)
+                reason = "PID_RESONANT" if is_alive else "PID_DISSOLVED"
+            except Exception as e:
+                reason = f"PSUTIL_FRACTURE: {e}"
+
+        # B. THE WASM PATH (ETHER - PULSE FILE)
+        # This also serves as a fallback for Native if PID is missing.
+        if not is_alive:
+            try:
+                # [ASCENSION 7]: Substrate-Aware Pathing
+                pulse_path = Path(target.root_path) / ".logs" / "daemon.pulse"
+                if pulse_path.exists():
+                    # [ASCENSION 2]: Achronal Leash-Aging
+                    HEARTBEAT_TOLERANCE = 15.0  # Seconds
+                    age = time.time() - pulse_path.stat().st_mtime
+
+                    if age < HEARTBEAT_TOLERANCE:
+                        # [ASCENSION 3]: PHOENIX SIGNAL (Graceful Exit)
+                        pulse_data = json.loads(pulse_path.read_text())
+                        if pulse_data.get("status") == "VOID_GRACE":
+                            is_alive = False
+                            reason = "GRACEFUL_DISSOLUTION"
+                        else:
+                            is_alive = True
+                            reason = "PULSE_RESONANT"
+                    else:
+                        reason = f"PULSE_STALE ({age:.1f}s)"
+                else:
+                    reason = "PULSE_UNMANIFESTED"
+            except (OSError, FileNotFoundError, json.JSONDecodeError):
+                reason = "PULSE_FRACTURED"
+
+        # --- MOVEMENT II: THE GNOSTIC ADJUDICATION ---
+        status = 'ONLINE' if is_alive else 'OFFLINE'
+        if not is_alive and reason not in ("GRACEFUL_DISSOLUTION", "PULSE_UNMANIFESTED"):
+            status = 'ZOMBIE'  # Indicates an unexpected death
+
+        # Auto-update the catalog if a Zombie is detected
+        if status in ('ZOMBIE', 'OFFLINE') and target.status != ShadowStatus.from_string(status):
+            target.status = ShadowStatus.from_string(status)
             self.catalog.register(target)
 
-        return self.success("Gaze_Concluded", data={
-            'alive': is_pid_alive,
+            # [ASCENSION 8]: HAPTIC PULSE
+            if self.engine and hasattr(self.engine, 'akashic'):
+                self.engine.akashic.broadcast({
+                    "method": "novalym/hud_pulse",
+                    "params": {"type": "SHADOW_ZOMBIE", "label": target.label, "color": "#ef4444"}
+                })
+
+        # --- MOVEMENT III: THE REVELATION ---
+        # [ASCENSION 10 & 5]: Forensic & Aura Suture
+        data = {
+            'alive': is_alive,
             'port': target.port,
             'pid': target.pid,
             'id': target.id,
             'status': status,
-            'aura': getattr(target, 'aura', 'static'),
+            'reason': reason,  # Forensic Gnosis
+            'aura': pulse_data.get("meta", {}).get("aura", "static"),
             'url': f"http://localhost:{target.port}",
-            'path': target.root_path
-        })
+            'path': target.root_path,
+            'logs': {
+                'stdout': str(Path(target.root_path) / ".logs" / "stdout.log"),
+                'stderr': str(Path(target.root_path) / ".logs" / "stderr.log")
+            }
+        }
+
+        return self.success("Gaze Concluded.", data=data)
 
     def _vanish(self, req: ShadowCloneRequest) -> ScaffoldResult:
         if not self.catalog: return self.success("Catalog Void.")
@@ -436,19 +508,81 @@ class ShadowCloneArtisan(BaseArtisan[ShadowCloneRequest]):
     # == MOVEMENT III: ANCILLARY RITES & UTILITIES                                   ==
     # =================================================================================
 
-    def _gc_dead_shadows(self, label: str):
-        """[ASCENSION 5]: THE ZOMBIE REAPER"""
+    def _gc_dead_shadows(self, label: Optional[str] = None):
+        """
+        =============================================================================
+        == THE GHOST REAPER (V-Ω-TOTALITY-V20000.5-ISOMORPHIC)                     ==
+        =============================================================================
+        LIF: ∞ | ROLE: METABOLIC_CLEANSER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_REAPER_V20000_ETERNAL_VIGIL_2026_FINALIS
+        """
         if not self.catalog: return
-        import psutil
+
+        # [ASCENSION 1]: ISOMORPHIC SENSORY TRIAGE
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+
         shadows = self.catalog.list_shadows()
-        corpses = [
-            s for s in shadows
-            if s.label == label and (not s.pid or not psutil.pid_exists(s.pid))
-        ]
+        corpses: List[ShadowEntity] = []
+
+        for s in shadows:
+            # If a specific label is targeted, skip others.
+            if label and s.label != label:
+                continue
+
+            is_dead = False
+
+            # --- MOVEMENT I: THE HIGH PATH (IRON CORE) ---
+            if not is_wasm and s.pid and PSUTIL_AVAILABLE:
+                try:
+                    if not psutil.pid_exists(s.pid):
+                        is_dead = True
+                except Exception:
+                    # If scrying fractures, assume life to prevent accidental reaping.
+                    is_dead = False
+            else:
+                # --- MOVEMENT II: THE WASM PATH (ETHER LEASH) ---
+                # [ASCENSION 2]: Achronal Leash-Aging Protocol
+                # If the pulse is stale or missing, the soul has departed.
+                try:
+                    pulse_path = Path(s.root_path) / ".logs" / "daemon.pulse"  # Pulse location assumption
+                    if not pulse_path.exists():
+                        is_dead = True
+                    else:
+                        HEARTBEAT_TOLERANCE = 30.0  # More generous tolerance for GC
+                        age = time.time() - pulse_path.stat().st_mtime
+                        if age > HEARTBEAT_TOLERANCE:
+                            is_dead = True
+                except (OSError, FileNotFoundError):
+                    is_dead = True
+
+            if is_dead:
+                corpses.append(s)
+
+        # --- MOVEMENT III: THE RITE OF PURGATION ---
+        if not corpses:
+            return
+
+        self.logger.info(f"The Reaper's Gaze has perceived {len(corpses)} ghost shadow(s). Cleansing...")
+
         for corpse in corpses:
-            Logger.verbose(f"GC: Cleaning debris for {corpse.id}")
-            self._dissolve_matter_hardened(Path(corpse.root_path))
-            self.catalog.deregister(corpse.id)
+            self.logger.verbose(f"GC: Purging metabolic debris for shadow {corpse.id[:8]}...")
+
+            # [ASCENSION 9]: FAULT-ISOLATED DISSOLUTION
+            try:
+                # We attempt to dissolve the physical matter (the workspace directory).
+                self._dissolve_matter_hardened(Path(corpse.root_path))
+
+                # We then deregister the ghost from the Gnostic Chronicle.
+                self.catalog.deregister(corpse.id)
+
+                # [ASCENSION 8]: HAPTIC PULSE
+                if self.engine and hasattr(self.engine, 'akashic'):
+                    self.engine.akashic.broadcast({
+                        "method": "novalym/hud_pulse",
+                        "params": {"type": "SHADOW_PURGED", "label": corpse.label, "color": "#64748b"}
+                    })
+            except Exception as e:
+                self.logger.error(f"Reaper's hand stayed for {corpse.id[:8]}: {e}")
 
     def _dissolve_matter_hardened(self, path: Path):
         """[ASCENSION 12]: THE HARDENED SOLVENT"""
@@ -519,14 +653,52 @@ class ShadowCloneArtisan(BaseArtisan[ShadowCloneRequest]):
             self.catalog._save(active)
 
     def _find_active_shadow(self, label: str) -> Optional[ShadowEntity]:
+        """
+        =============================================================================
+        == THE GAZE OF THE LIVING (V-Ω-TOTALITY-V20000.1-ISOMORPHIC)               ==
+        =============================================================================
+        LIF: 100x | ROLE: SHADOW_SOUL_SCRIER | RANK: OMEGA_SUPREME
+        AUTH: Ω_FIND_V20000_PULSE_SUTURE_2026_FINALIS
+        """
         if not self.catalog: return None
-        import psutil
+
+        # [ASCENSION 1]: ISOMORPHIC SENSORY TRIAGE
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+
         shadows = self.catalog.list_shadows()
-        # Search reverse to find most recent
+
+        # We search in reverse to find the most recently spawned shadow with the same label.
         for s in reversed(shadows):
-            if s.label == label and s.pid:
-                if psutil.pid_exists(s.pid):
-                    return s
+            if s.label != label:
+                continue
+
+            # --- MOVEMENT I: THE HIGH PATH (IRON CORE) ---
+            # If psutil is manifest and a PID exists, we perform a direct syscall probe.
+            if not is_wasm and s.pid and PSUTIL_AVAILABLE:
+                try:
+                    if psutil.pid_exists(s.pid):
+                        return s
+                except Exception:
+                    # A fracture in the scry is not a confirmation of death.
+                    pass
+
+            # --- MOVEMENT II: THE WASM PATH (ETHER LEASH) ---
+            # If the High Path failed or is unavailable, we scry the Chronometric Leash.
+            try:
+                # [ASCENSION 2]: Achronal Leash-Aging Protocol
+                # We check for the heartbeat file left by the RealityGovernor.
+                pulse_path = Path(s.root_path) / ".logs" / "daemon.pulse"  # Assuming pulse is in .logs
+                if pulse_path.exists():
+                    # The pulse file's age is our indicator of life.
+                    # Tolerance: 3x the expected heartbeat interval.
+                    HEARTBEAT_TOLERANCE = 15.0  # seconds
+                    age = time.time() - pulse_path.stat().st_mtime
+                    if age < HEARTBEAT_TOLERANCE:
+                        return s
+            except (OSError, FileNotFoundError):
+                # The sanctum or the pulse is a void.
+                pass
+
         return None
 
     def _list(self) -> ScaffoldResult:

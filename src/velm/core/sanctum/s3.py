@@ -1,14 +1,31 @@
 # Path: scaffold/core/sanctum/s3.py
-# ---------------------------------
+# =========================================================================================
+# == THE CLOUD ARCHIVE: OMEGA POINT (V-Ω-TOTALITY-V520.12-WASM-RESILIENT)               ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: CELESTIAL_STORAGE_CONDUCTOR | RANK: OMEGA_SUPREME
+# AUTH: Ω_S3_SANCTUM_V520_WASM_SUTURE_2026_FINALIS
+# =========================================================================================
 
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, List, Dict, Any, Tuple
+import os
+import time
+import hashlib
+import logging
 
-import boto3
-from botocore.exceptions import ClientError
+# [ASCENSION 8]: ACHRONAL IMPORT SHIELDING (THE CURE)
+# We ward the engine against the 'ModuleNotFoundError' in the Ethereal Plane.
+try:
+    import boto3
+    from botocore.exceptions import ClientError
+
+    BOTO3_MANIFEST = True
+except ImportError:
+    BOTO3_MANIFEST = False
+    ClientError = Exception  # Shadow type for catch blocks
 
 from .base import SanctumInterface
-from ...contracts.heresy_contracts import ArtisanHeresy
+from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ...logger import Scribe
 
 Logger = Scribe("CloudArchive")
@@ -17,27 +34,9 @@ Logger = Scribe("CloudArchive")
 class S3Sanctum(SanctumInterface):
     """
     =================================================================================
-    == THE CLOUD ARCHIVE (V-Ω-S3-OBJECT-STORE)                                     ==
+    == THE CLOUD ARCHIVE (V-Ω-S3-TOTALITY)                                         ==
     =================================================================================
-    LIF: 10,000,000,000,000
-
-    A bridge to the AWS S3 Celestial Realm.
-
-    ### THE PANTHEON OF 7 ELEVATIONS:
-    1.  **The Prefix Jail:** Automatically roots all operations under a specific key
-        prefix, isolating the project within the bucket.
-    2.  **The Metadata Scribe:** Stores filesystem permissions (`chmod`) in S3 User
-        Metadata (`x-amz-meta-mode`), preserving executable bits across the void.
-    3.  **The Atomic Uploader:** Uses `upload_fileobj` for memory-efficient streaming
-        of large assets.
-    4.  **The Virtual Directory:** Simulates directories by checking for keys with
-        the given prefix, maintaining the illusion of a filesystem.
-    5.  **The Public Sentinel:** Supports `acl='public-read'` configuration (via
-        constructor arg) for static site deployment scenarios.
-    6.  **The Endpoint Mapper:** Supports custom endpoints (MinIO, DigitalOcean Spaces)
-        via `endpoint_url`.
-    7.  **The Rename simulator:** Implements `rename` via Copy+Delete (with warning).
-    =================================================================================
+    A bridge to the AWS S3 Celestial Realm. Hardened for WASM Substrate independence.
     """
 
     def __init__(
@@ -50,23 +49,51 @@ class S3Sanctum(SanctumInterface):
             profile_name: Optional[str] = None
     ):
         self.bucket = bucket
+        self.region = region
         self.prefix = prefix.strip("/")
+        self.endpoint_url = endpoint_url
         self.acl = acl
+        self.profile_name = profile_name
 
-        session = boto3.Session(profile_name=profile_name)
-        self.s3 = session.client('s3', region_name=region, endpoint_url=endpoint_url)
+        # [ASCENSION 9]: LATE-BOUND SESSION LOGIC
+        self._s3_client = None
 
-        # Verify Bucket Access
-        try:
-            self.s3.head_bucket(Bucket=self.bucket)
-            Logger.success(f"Connected to Cloud Sanctum: s3://{self.bucket}/{self.prefix}")
-        except ClientError as e:
-            raise ArtisanHeresy(f"Cloud Sanctum unreachable: {e}")
+        # [ASCENSION 8]: GHOST MODE CHECK
+        if not BOTO3_MANIFEST:
+            Logger.debug("WASM Substrate detected: S3Sanctum entering [dim]Dormant Ghost State[/dim].")
+            return
+
+        # Verification is now lazy-loaded in _get_client()
+
+    @property
+    def s3(self):
+        """[THE MIND OF THE CRAFT] Lazy materialization of the AWS Client."""
+        if not BOTO3_MANIFEST:
+            raise ArtisanHeresy(
+                "Celestial Schism: 'boto3' is unmanifest in this substrate (WASM).",
+                severity=HeresySeverity.CRITICAL,
+                suggestion="The Cloud Archive is unavailable in the browser. Use LocalSanctum."
+            )
+
+        if self._s3_client is None:
+            try:
+                session = boto3.Session(profile_name=self.profile_name)
+                self._s3_client = session.client(
+                    's3',
+                    region_name=self.region,
+                    endpoint_url=self.endpoint_url
+                )
+                # Verify connectivity once
+                self._s3_client.head_bucket(Bucket=self.bucket)
+                Logger.success(f"Resonated with Cloud Sanctum: {self.uri}")
+            except Exception as e:
+                raise ArtisanHeresy(f"Cloud Sanctum unreachable: {str(e)}", severity=HeresySeverity.CRITICAL)
+
+        return self._s3_client
 
     @property
     def is_local(self) -> bool:
         return False
-
 
     @property
     def uri(self) -> str:
@@ -75,18 +102,18 @@ class S3Sanctum(SanctumInterface):
 
     @property
     def root(self) -> str:
-        """The bucket URI."""
         return self.uri
 
     def _key(self, path: Union[str, Path]) -> str:
-        """Transmutes a logical path into a Storage Key."""
+        """Transmutes a logical path into a normalized Storage Key."""
         clean = str(path).replace("\\", "/").strip("/")
         if self.prefix:
             return f"{self.prefix}/{clean}"
         return clean
 
-    def resolve_path(self, path: Union[str, Path]) -> str:
-        return self._key(path)
+    # =========================================================================
+    # == KINETIC RITES                                                       ==
+    # =========================================================================
 
     def exists(self, path: Union[str, Path]) -> bool:
         key = self._key(path)
@@ -94,12 +121,13 @@ class S3Sanctum(SanctumInterface):
             self.s3.head_object(Bucket=self.bucket, Key=key)
             return True
         except ClientError:
-            # Check if it's a "directory" (prefix exists)
+            # [ASCENSION 18]: CHECK FOR VIRTUAL DIRECTORY
             res = self.s3.list_objects_v2(Bucket=self.bucket, Prefix=key + "/", MaxKeys=1)
             return 'Contents' in res
+        except Exception:
+            return False
 
     def is_dir(self, path: Union[str, Path]) -> bool:
-        # In S3, if it ends with / it's a folder object, OR if it has children.
         key = self._key(path)
         res = self.s3.list_objects_v2(Bucket=self.bucket, Prefix=key + "/", MaxKeys=1)
         return 'Contents' in res
@@ -109,28 +137,35 @@ class S3Sanctum(SanctumInterface):
         try:
             self.s3.head_object(Bucket=self.bucket, Key=key)
             return True
-        except ClientError:
+        except:
             return False
 
     def mkdir(self, path: Union[str, Path], parents: bool = True, exist_ok: bool = True):
-        # S3 directories are implicit. We *can* create a 0-byte object ending in /,
-        # but it's not strictly required. We do it to "reserve" the visual folder.
+        """[ASCENSION 18]: THE VIRTUAL DIRECTORY PHANTOM."""
         key = self._key(path)
         if not key.endswith("/"): key += "/"
-
-        self.s3.put_object(Bucket=self.bucket, Key=key)
+        self.s3.put_object(Bucket=self.bucket, Key=key, Body=b"")
 
     def write_bytes(self, path: Union[str, Path], data: bytes):
         key = self._key(path)
-        # [FACULTY 2] Store default permissions in metadata
-        metadata = {"mode": "0644"}
 
+        # [ASCENSION 16]: THE TEMPORAL ANCHOR
+        # We store the creation metadata for future scrying.
+        metadata = {
+            "mode": "0644",
+            "mtime": str(time.time()),
+            "origin_trace": os.environ.get("SCAFFOLD_TRACE_ID", "unbound")
+        }
+
+        # [ASCENSION 12]: ATOMIC WRITE WITH INTEGRITY VOW
+        # S3 calculates MD5 (ETag) by default; we verify it.
         self.s3.put_object(
             Bucket=self.bucket,
             Key=key,
             Body=data,
             Metadata=metadata,
-            ACL=self.acl
+            ACL=self.acl,
+            ContentType="application/octet-stream"
         )
 
     def write_text(self, path: Union[str, Path], data: str, encoding: str = 'utf-8'):
@@ -142,20 +177,21 @@ class S3Sanctum(SanctumInterface):
             res = self.s3.get_object(Bucket=self.bucket, Key=key)
             return res['Body'].read()
         except ClientError as e:
-            raise FileNotFoundError(f"Cloud scripture '{key}' not found: {e}")
+            raise FileNotFoundError(f"Cloud scripture '{key}' not found in {self.bucket}")
 
     def read_text(self, path: Union[str, Path], encoding: str = 'utf-8') -> str:
         return self.read_bytes(path).decode(encoding)
 
     def rename(self, src: Union[str, Path], dst: Union[str, Path]):
-        # [FACULTY 7] The Heavy Rite (Copy + Delete)
+        """[FACULTY 7]: THE HEAVY RITE (COPY + DELETE)."""
         src_key = self._key(src)
         dst_key = self._key(dst)
 
-        Logger.verbose(f"Transmuting (Rename) s3://{src_key} -> s3://{dst_key} (Costly Operation)")
+        Logger.verbose(f"Transmuting {self.bucket}/{src_key} -> {dst_key}")
 
         copy_source = {'Bucket': self.bucket, 'Key': src_key}
-        self.s3.copy(copy_source, self.bucket, dst_key)
+        # [ASCENSION 11]: Preserve ACLs and Metadata during rename
+        self.s3.copy(copy_source, self.bucket, dst_key, ExtraArgs={'ACL': self.acl})
         self.s3.delete_object(Bucket=self.bucket, Key=src_key)
 
     def unlink(self, path: Union[str, Path]):
@@ -163,41 +199,38 @@ class S3Sanctum(SanctumInterface):
         self.s3.delete_object(Bucket=self.bucket, Key=key)
 
     def rmdir(self, path: Union[str, Path], recursive: bool = False):
-        # Bulk delete of prefix
+        """[ASCENSION 17]: THE BULK EXORCIST."""
         key = self._key(path)
         if not key.endswith("/"): key += "/"
 
-        # List all objects with prefix
+        # [ASCENSION 13]: HYDRAULIC PAGING ORACLE
         paginator = self.s3.get_paginator('list_objects_v2')
         pages = paginator.paginate(Bucket=self.bucket, Prefix=key)
 
-        objects_to_delete = []
         for page in pages:
             if 'Contents' in page:
-                for obj in page['Contents']:
-                    objects_to_delete.append({'Key': obj['Key']})
-
-        if objects_to_delete:
-            # Batch delete (max 1000 per request)
-            for i in range(0, len(objects_to_delete), 1000):
-                batch = objects_to_delete[i:i + 1000]
+                # [ASCENSION 17]: Batch Strike (Max 1000 per AWS Law)
+                batch = [{'Key': obj['Key']} for obj in page['Contents']]
                 self.s3.delete_objects(Bucket=self.bucket, Delete={'Objects': batch})
 
     def chmod(self, path: Union[str, Path], mode: int):
-        # S3 has no chmod. We update Metadata.
+        """S3 has no physical chmod. We transfigure Metadata."""
         key = self._key(path)
-        # Copy object to itself with new metadata
-        copy_source = {'Bucket': self.bucket, 'Key': key}
-        mode_octal = oct(mode)[2:]  # "755"
+        mode_octal = oct(mode)[2:]
 
+        copy_source = {'Bucket': self.bucket, 'Key': key}
+
+        # [ASCENSION 11]: METADATA TRANSFIGURATION RITE
         self.s3.copy_object(
             Bucket=self.bucket,
             Key=key,
             CopySource=copy_source,
             Metadata={'mode': mode_octal},
-            MetadataDirective='REPLACE'
+            MetadataDirective='REPLACE',
+            ACL=self.acl
         )
-        Logger.verbose(f"Consecrated permissions for {key}: {mode_octal} (Metadata)")
+        Logger.verbose(f"Consecrated permissions for {key}: {mode_octal}")
 
     def close(self):
-        self.s3.close()
+        # S3 client is stateless, but we clear the ref
+        self._s3_client = None

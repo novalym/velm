@@ -332,16 +332,100 @@ class BaseLSPServer(BaseGnosticObject):
         forensic_log(f"Workspace Shift: +{len(added)} / -{len(removed)} sanctums.", "INFO", "KERNEL")
 
     def _check_memory_pressure(self):
-        """[ASCENSION 14]: MEMORY GAZE"""
+        """
+        =============================================================================
+        == THE METABOLIC LUSTRATION INQUEST (V-Ω-TOTALITY-V20000.14-ISOMORPHIC)    ==
+        =============================================================================
+        LIF: 100x | ROLE: HEAP_SOVEREIGN_SENTINEL | RANK: OMEGA_SUPREME
+        AUTH: Ω_MEMORY_V20000_HEAP_SUTURE_2026_FINALIS
+        """
+        import gc
+        import os
+        import sys
+        import time
+
+        # [ASCENSION 8]: HYSTERESIS WARD
+        # Prevents "GC Thrashing" by enforcing a 2-second cooldown between lustrations.
+        now = time.monotonic()
+        if now - getattr(self, '_last_lustration_ts', 0) < 2.0:
+            return
+
         try:
-            import psutil
-            process = psutil.Process()
-            rss_mb = process.memory_info().rss / 1024 / 1024
-            if rss_mb > 1024:  # 1GB Limit
-                forensic_log(f"Memory Pressure Critical: {rss_mb:.2f}MB", "WARN", "KERNEL")
-                import gc
+            # --- MOVEMENT I: SENSORY ADJUDICATION ---
+            rss_mb = 0.0
+            is_critical = False
+            substrate = "IRON"
+
+            try:
+                # [THE HIGH PATH]: IRON CORE (NATIVE)
+                import psutil
+                process = psutil.Process()
+                rss_mb = process.memory_info().rss / (1024 * 1024)
+                # Adjudicate against the 1GB Native Wall
+                if rss_mb > 1024:
+                    is_critical = True
+            except (ImportError, AttributeError, Exception):
+                # [THE WASM PATH]: ETHEREAL PLANE (ETHER)
+                # In WASM, physical RSS is veiled. We scry the Gnostic Mass.
+                substrate = "ETHER"
+                # Heuristic: 1 block in Pyodide is roughly 150-200 bytes of overhead
+                # sys.getallocatedblocks() is part of the core Python Mind.
+                blocks = sys.getallocatedblocks()
+                rss_mb = (blocks * 0.0002)  # Crude estimate of Megabytes
+
+                # Browser tabs have much lower ceilings. We trigger at 450MB.
+                if rss_mb > 450:
+                    is_critical = True
+
+            # --- MOVEMENT II: THE RITE OF LUSTRATION ---
+            if is_critical:
+                self._last_lustration_ts = now
+
+                # 1. THE HERALD'S CRY
+                msg = f"Metabolic Wall Breached: {rss_mb:.2f}MB on [{substrate}]. Initiating Lustration..."
+                # We use the internal forensic_log if manifest, else a standard log
+                if 'forensic_log' in globals():
+                    forensic_log(msg, "WARN", "KERNEL")
+                else:
+                    self.logger.warn(msg)
+
+                # 2. CACHE EVAPORATION
+                # Command the Alchemist to clear its template memory
+                if hasattr(self, 'alchemist'):
+                    try:
+                        self.alchemist.env.cache.clear()
+                    except:
+                        pass
+
+                # 3. THE GREAT LUSTRATION
+                # Force a full, multi-generational garbage collection sweep.
                 gc.collect()
-        except ImportError:
+
+                # 4. HUD RESONANCE
+                # Multicast the event to the Ocular HUD via the Akashic link
+                akashic = getattr(self.engine, 'akashic', None) if hasattr(self, 'engine') else None
+                if akashic:
+                    try:
+                        akashic.broadcast({
+                            "method": "novalym/hud_pulse",
+                            "params": {
+                                "type": "MEMORY_PURGE",
+                                "label": "METABOLIC_CLEANSING",
+                                "color": "#f59e0b",
+                                "value": rss_mb
+                            }
+                        })
+                    except:
+                        pass
+
+            elif rss_mb > (512 if substrate == "IRON" else 256):
+                # [ASCENSION 3]: THE LESSER LUSTRATION
+                # Perform a Generation 1 collect to keep the heap lean without a full pause.
+                gc.collect(1)
+
+        except Exception as paradox:
+            # [ASCENSION 9]: FAULT-ISOLATED PERCEPTION
+            # The sentinel must be silent in failure to protect the primary Rite.
             pass
 
     # =============================================================================

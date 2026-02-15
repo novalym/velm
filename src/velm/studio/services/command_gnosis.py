@@ -12,7 +12,7 @@ from typing import List, Dict, Any
 
 class GnosticAdjudicator:
     """
-    Performs a deep, introspective Gaze upon the Scaffold God-Engine's own soul
+    Performs a deep, introspective Gaze upon the Velm God-Engine's own soul
     (the argparse CLI) to dynamically forge a Grimoire of Rites and their Gnostic
     requirements.
     """

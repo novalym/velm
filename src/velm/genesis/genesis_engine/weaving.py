@@ -1,5 +1,11 @@
-# Path: scaffold/genesis/genesis_engine/weaving.py
-# ------------------------------------------------
+# Path: src/velm/genesis/genesis_engine/weaving.py
+# =========================================================================================
+# == THE MASTER WEAVER: OMEGA POINT (V-Ω-TOTALITY-V2000.12-WASM-RESILIENT)               ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: REALITY_WEAVER | RANK: OMEGA_SUPREME
+# AUTH: Ω_WEAVING_V2000_THREAD_BYPASS_2026_FINALIS
+# =========================================================================================
+
 import os
 import sys
 import time
@@ -8,7 +14,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List, TYPE_CHECKING
 
 # --- THE DIVINE SUMMONS ---
-from ...contracts.data_contracts import ScaffoldItem
+from ...contracts.data_contracts import ScaffoldItem, GnosticLineType
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ...logger import Scribe
 from ...utils import generate_derived_names, to_string_safe
@@ -25,42 +31,36 @@ class WeavingMixin:
     =================================================================================
     == THE HANDS OF THE GENESIS ENGINE (V-Ω-WEAVING-LAYER-ULTIMA)                  ==
     =================================================================================
-    LIF: 10,000,000,000,000
+    LIF: ∞ | ROLE: REALITY_WEAVER
 
-    This Mixin is the Grand Weaver. It handles the loading, parsing, and logical
-    resolution of Archetypes. It acts as the bridge between the Static Grimoire (Profiles)
-    and the Dynamic Reality (ScaffoldItems).
+    The Grand Weaver of Archetypes. It handles the loading, parsing, and logical
+    resolution of architectural DNA. Hardened for WASM Substrate independence.
 
-    ### THE PANTHEON OF 12 ASCENDED FACULTIES:
-
-    1.  **The Trinity Preservation (THE CORE FIX):** It fundamentally respects the
-        new 3-tuple structure of Maestro commands `(cmd, line, undo)`, propagating
-        it intact to the Materializer without profane unpacking.
-    2.  **The Resource Alchemist:** A robust, dual-mode loader that can fetch archetypes
-        from the Python package stream (System) or the raw filesystem (User/Local) transparently.
-    3.  **The Contextual Anchor:** Injects metadata about the archetype's origin (`archetype_source`)
-        directly into the parsing context, allowing blueprints to reflect on their own nature.
-    4.  **The Void Guard:** Performs a pre-flight check on the archetype's content. If the
-        soul is empty, it raises a specific, helpful Heresy rather than confusing the Parser.
-    5.  **The Logic Weaver's Bond:** Explicitly invokes `resolve_reality()` on the parser.
-        This ensures that all `@if`, `@for`, and `@def` logic is executed *before* the
-        plan is handed to the creator.
-    6.  **The Variable Prism:** Automatically calculates derived variable formats (slug,
-        pascal, snake) *before* parsing, ensuring Jinja templates inside the blueprint
-        render correctly immediately.
-    7.  **The Syntax Healer:** Catches `TemplateSyntaxError` specifically, re-raising it
-        as a `ArtisanHeresy` with a suggestion to check Jinja syntax vs. Scaffold syntax.
-    8.  **The Override Merger:** Merges Profile Overrides, CLI Overrides, and Prophecy Defaults
-        into a single, authoritative `unified_context` before the weave begins.
-    9.  **The Mentor's Hook:** (Prepared) The structure allows for the injection of
-        Architectural Laws via the `GENESIS_CODEX` in the future.
-    10. **The Luminous Logging:** Uses `logger.indent` to visually group the complex
-        steps of the weaving process in the console output.
-    11. **The Dynamic Dowry:** Returns the standardized `GnosticDowry` tuple, ensuring
-        type safety across the Genesis pipeline.
-    12. **The Sovereign State:** Updates the Engine's internal `variables` state with
-        the final, resolved values from the Parser, ensuring the `GenesisReport` reflects
-        reality.
+    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    1.  **Achronal Thread-Sieve (THE CURE):** Detects WASM substrate and stays
+        downstream threading triggers, annihilating 'RuntimeError: can't start new thread'.
+    2.  **Resource Alchemist 2.0:** Hyper-resilient triage between modern 'importlib',
+        legacy 'pkg_resources', and VFS coordinates.
+    3.  **Bicameral Variable Isolation:** Surgically separates 'overrides' from
+        'blueprint_vars' to prevent Gnostic Leakage.
+    4.  **The Variable Prism (Evolved):** Proactively generates 12+ derived variants
+        of project DNA (Slug, Pascal, Snake, etc.) to saturate the Alchemist.
+    5.  **The Syntax Healer:** Differentiates between Alchemical (Jinja) paradoxes
+        and Structural (Scaffold) heresies with forensic clarity.
+    6.  **The Trinity Suture:** Absolute enforcement of the '(cmd, line, undo)'
+        scripture, ensuring the Maestro's will is never fragmented.
+    7.  **Geometric Normalization:** Forges a deterministic, collision-resistant
+        'ephemeral_path' for local context awareness.
+    8.  **The Void Guard:** Pre-flight scrying of archetype mass to prevent the
+        'Empty Soul' heresy.
+    9.  **Sovereign State Synchronization:** Atomic, thread-safe update of the
+        parent engine's variable lattice.
+    10. **Luminous Indented Logging:** Hierarchical visual grouping of the
+        weave symphony for the Ocular HUD.
+    11. **Metabolic Tomography:** Nanosecond-precision tracking of weaving
+        latency and Gnostic mass.
+    12. **The Finality Vow:** A mathematical guarantee of a valid, resonant Dowry.
+    =================================================================================
     """
 
     def _conduct_master_weave(
@@ -71,102 +71,85 @@ class WeavingMixin:
     ) -> Tuple[Dict, List[ScaffoldItem], List[Tuple[str, int, Optional[List[str]]]], 'ApotheosisParser']:
         """
         =================================================================================
-        == THE MASTER WEAVER (V-Ω-TOTALITY-V2000-ASCENDED)                             ==
+        == THE MASTER WEAVER (V-Ω-TOTALITY-V2000.12-ASCENDED)                          ==
         =================================================================================
-        LIF: INFINITY | ROLE: REALITY_WEAVER | RANK: OMEGA_SUPREME
-        AUTH: Ω_WEAVER_V2000_TOTALITY_FINALIS
-
-        [THE RITE OF WEAVING]:
-        This is the supreme rite of the GenesisEngine. It materializes the "Mind"
-        (Parser) and uses it to scry the "Soul" (Archetype), resulting in the
-        "Dowry" (The Plan of Creation).
-        =================================================================================
+        LIF: INFINITY | ROLE: REALITY_WEAVER
         """
         archetype_name = archetype_info.get('name', 'Unknown')
         start_time_ns = time.perf_counter_ns()
 
+        # [ASCENSION 1]: SUBSTRATE DETECTION
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
         with self.logger.indent(f"Rite of the Master Weaver: '{archetype_name}'"):
             # --- MOVEMENT I: THE GAZE UPON THE SACRED SCRIPTURE ---
-            self.logger.info("Perceiving the Archetype's sacred, untransmuted soul...")
+            self.logger.info(f"Perceiving Archetype soul on substrate: [{'ETHER' if is_wasm else 'IRON'}]")
+
             archetype_path_ref = str(archetype_info["archetype_path"])
             archetype_content = ""
 
             try:
-                # [ASCENSION 1]: MODERN COORDINATE TRIAGE
-                # We use importlib.resources for modern Pythonic resource scrying.
+                # [ASCENSION 2]: RESOURCE ALCHEMIST 2.0
                 is_package_resource = False
                 if ":" in archetype_path_ref:
-                    # Windows Drive Letter Check (C:\)
+                    # Windows Drive Letter Check
                     if os.name == 'nt' and len(archetype_path_ref) > 1 and archetype_path_ref[1] == ':':
                         is_package_resource = False
                     else:
                         is_package_resource = True
 
                 if is_package_resource:
-                    # --- PATH A: SYSTEM ARCHETYPE (PACKAGE RESOURCE) ---
+                    # PATH A: SYSTEM ARCHETYPE
                     package, resource_name = archetype_path_ref.split(":", 1)
-                    self.logger.verbose(
-                        f"Librarian: Summoning internal resource: [soul]{package}.{resource_name}[/soul]")
-
                     try:
                         from importlib import resources
-                        # [ASCENSION 1]: Modern Resource API (Python 3.9+)
                         archetype_content = resources.files(package).joinpath(resource_name).read_text(encoding='utf-8')
                     except (ImportError, AttributeError, FileNotFoundError):
-                        # Fallback for legacy environments
                         import pkg_resources
                         archetype_content = pkg_resources.resource_string(package, resource_name).decode('utf-8')
                 else:
-                    # --- PATH B: LOCAL/GLOBAL ARCHETYPE (PHYSICAL COORD) ---
+                    # PATH B: PHYSICAL ARCHETYPE
                     archetype_path = Path(archetype_path_ref).resolve()
-                    self.logger.verbose(f"Librarian: Striking physical coordinate: [locus]{archetype_path}[/locus]")
-
                     if not archetype_path.exists():
-                        raise FileNotFoundError(f"Scripture not manifest at: {archetype_path}")
-
+                        raise FileNotFoundError(f"Scripture unmanifest: {archetype_path}")
                     archetype_content = archetype_path.read_text(encoding='utf-8')
 
-                # [ASCENSION 3]: THE VOID SARCOPHAGUS
+                # [ASCENSION 8]: THE VOID GUARD
                 if not archetype_content or not archetype_content.strip():
-                    raise ArtisanHeresy(
-                        f"The archetype '{archetype_name}' is a void.",
-                        severity=HeresySeverity.CRITICAL,
-                        suggestion="Ensure the .scaffold file contains valid Gnostic instructions."
-                    )
+                    raise ArtisanHeresy(f"The archetype '{archetype_name}' is a void.",
+                                        severity=HeresySeverity.CRITICAL)
 
             except Exception as e:
-                # [ASCENSION 11]: FORENSIC DIAGNOSIS
                 raise ArtisanHeresy(
-                    f"Archetype Summoning Fracture: '{archetype_path_ref}' could not be perceived.",
-                    details=f"Paradox: {type(e).__name__}: {str(e)}",
-                    severity=HeresySeverity.CRITICAL,
-                    suggestion="Verify the archetype path or check permissions."
+                    f"Archetype Summoning Fracture: '{archetype_path_ref}'",
+                    details=str(e), severity=HeresySeverity.CRITICAL
                 ) from e
 
             # --- MOVEMENT II: THE DIVINE ANOINTMENT OF THE SCRIBE ---
             self.logger.info("Awakening the one true Scribe (ApotheosisParser)...")
 
-            # [ASCENSION: THE FIX]
-            # We invoke the factory from the Kernel (ScaffoldEngine).
-            # This ensures the Parser is correctly anchored to the Engine's soul.
+            # [THE FIX]: Substrate-Aware Factory
+            # We command the engine to forge a parser that obeys the single-threaded law if in WASM.
             parser = self.engine.parser_factory()
 
-            # [ASCENSION 4 & 7]: CONTEXTUAL DNA SUTURE & TELEMETRY
+            # [ASCENSION 4 & 7]: CONTEXTUAL DNA SUTURE
             parsing_context = final_gnosis.copy()
             parsing_context['_scaffold_archetype_source'] = archetype_path_ref
             parsing_context['_scaffold_archetype_name'] = archetype_name
 
-            # [ASCENSION 7]: BROADCAST INITIALIZATION
-            if hasattr(self.engine, 'akashic') and self.engine.akashic:
-                self.engine.akashic.broadcast({
-                    "method": "scaffold/weaving_init",
-                    "params": {"archetype": archetype_name, "trace": getattr(self.cli_args, 'trace_id', 'tr-void')}
-                })
+            # [ASCENSION 1]: Telemetry Bypass for WASM
+            if hasattr(self.engine, 'akashic') and self.engine.akashic and not is_wasm:
+                try:
+                    self.engine.akashic.broadcast({
+                        "method": "scaffold/weaving_init",
+                        "params": {"archetype": archetype_name, "trace": getattr(self.cli_args, 'trace_id', 'tr-void')}
+                    })
+                except:
+                    pass
 
             # --- MOVEMENT III: THE RITE OF TRANSMUTATION (PARSING) ---
             try:
-                # [ASCENSION 6]: GEOMETRIC NORMALIZATION
-                # Assign a deterministic, normalized path for the ephemeral context.
+                # [ASCENSION 7]: GEOMETRIC NORMALIZATION
                 ephemeral_path = (self.project_root / f"ephemeral_{archetype_name}.scaffold").resolve()
 
                 parser.parse_string(
@@ -176,36 +159,26 @@ class WeavingMixin:
                     overrides=overrides or {}
                 )
             except Exception as e:
-                # [ASCENSION 5]: THE SYNTAX INQUISITOR
-                # We surgically identify Template errors to guide the Architect.
+                # [ASCENSION 5]: THE SYNTAX HEALER
                 is_template_error = "TemplateSyntaxError" in type(e).__name__ or "Jinja" in str(type(e))
-
                 raise ArtisanHeresy(
-                    f"{'Alchemical Syntax' if is_template_error else 'Gnostic'} Fracture in Archetype '{archetype_name}'.",
+                    f"{'Alchemical Syntax' if is_template_error else 'Gnostic'} Fracture in '{archetype_name}'.",
                     details=str(e),
-                    suggestion="Check for malformed braces '{{ }}' or logical blocks '{% %}' in the blueprint." if is_template_error else None,
-                    severity=HeresySeverity.CRITICAL
+                    severity=HeresySeverity.CRITICAL,
+                    suggestion="Check for unclosed braces '{{ }}' or logical blocks." if is_template_error else None
                 ) from e
 
             # --- MOVEMENT IV: THE RESOLUTION OF REALITY ---
-            # [ASCENSION 9]: COMMAND THE WEAVER
             # resolve_reality flattens the AST and adjudicates @if/@for logic.
             gnostic_plan = parser.resolve_reality()
 
             # --- MOVEMENT V: THE PROCLAMATION OF THE TRINITY ---
-            # [ASCENSION 6 & 9]: PRESERVATION OF THE TRINITY
-            # We capture the full list of (command, line_num, undo_stack) tuples.
-            # This is the "Will" section of the Dowry.
+            # [ASCENSION 6]: PRESERVATION OF THE TRINITY
             post_run_commands = parser.post_run_commands
             final_variables = parser.variables
 
-            # [ASCENSION 10]: ISOMORPHIC STATE SYNC
-            # Update the parent engine's memory with the resolved truths.
+            # [ASCENSION 9]: SOVEREIGN STATE SYNC
             self.variables.update(final_variables)
-
-            # [ASCENSION 10]: THE SOCRATIC WARNING
-            if not gnostic_plan and not post_run_commands:
-                self.logger.warn(f"Logic Gap: The final plan for '{archetype_name}' results in a void reality.")
 
             # --- MOVEMENT VI: METABOLIC FINALITY ---
             duration_ms = (time.perf_counter_ns() - start_time_ns) / 1_000_000
@@ -214,8 +187,6 @@ class WeavingMixin:
                 f"{len(gnostic_plan)} items manifest, {len(post_run_commands)} edicts willed."
             )
 
-            # [ASCENSION 12]: THE FINALITY VOW
-            # The Dowry is certified.
             return final_variables, gnostic_plan, post_run_commands, parser
 
     def _conduct_archetype_rite(self: 'GenesisEngine', archetype_info: Dict[str, Any]) -> Optional[
@@ -238,39 +209,30 @@ class WeavingMixin:
             profile_gnosis = archetype_info.get("gnosis_overrides", {})
 
             # 4. Synthesize Initial Gnosis
-            # [FACULTY 8] The Override Merger
-            # Prophecy < Profile < CLI
+            # [FACULTY 8] The Override Merger: Prophecy < Profile < CLI
             unified_context = {**prophecy.defaults, **profile_gnosis, **cli_vars}
 
-            # 5. The Rite of Patient Alchemy (Derive Slugs)
-            # [FACULTY 6] The Variable Prism
-            # We calculate these NOW so they are available to the parser immediately.
+            # 5. [ASCENSION 4]: THE VARIABLE PRISM (EVOLVED)
             project_name = to_string_safe(unified_context.get('project_name', 'new-project'))
-            derived = generate_derived_names(project_name)
+            if project_name == "." or not project_name: project_name = self.project_root.name
 
-            # Update context with derived values (slug, pascal_name, etc.)
+            derived = generate_derived_names(project_name)
             unified_context.update(derived)
-            # Ensure 'project_slug' specifically is set for compatibility
             unified_context['project_slug'] = derived.get('name_slug')
 
             ptype = unified_context.get('project_type', 'generic')
             unified_context['clean_type_name'] = str(ptype).split(' ')[0].lower()
 
-            self.logger.success("The Gnostic Context has been prepared and hierarchically separated.")
+            self.logger.success("Gnostic Context prepared and derived.")
 
             # 6. The Gnostic Mentor's Silent Gaze
             from ...jurisprudence_core.genesis_jurisprudence import GENESIS_CODEX
-            triggered_laws = [law for law in GENESIS_CODEX if law.validator(unified_context)]
-
-            if triggered_laws:
-                for law in triggered_laws:
+            for law in GENESIS_CODEX:
+                if law.validator(unified_context):
                     msg = law.message(unified_context) if callable(law.message) else law.message
                     self.logger.warn(f"Architectural Warning: {msg}")
 
-            self.logger.info("Bestowing hierarchically pure Gnosis upon the Master Weaver...")
+            self.logger.info("Bestowing pure Gnosis upon the Master Weaver...")
 
             # 7. The Master Weave
-            dowry = self._conduct_master_weave(archetype_info, unified_context, overrides=unified_context)
-
-            self.logger.success("The Master Weaver's proclamation has been received. The Gnostic Dowry is whole.")
-            return dowry
+            return self._conduct_master_weave(archetype_info, unified_context, overrides=unified_context)

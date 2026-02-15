@@ -143,7 +143,24 @@ class AkashicRecord:
 
     def __init__(self, persistence_path: str = ".scaffold/akashic.jsonl", **kwargs):
         self.memory = ScrollOfTime()
-        self.congregation = Congregation()
+
+        # [THE CURE]: WASM SUBSTRATE DETECTION
+        # True threading is a heresy in the Ethereal plane (WASM/Pyodide).
+        # We scry for the environment to determine if we must use passive I/O.
+        self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
+        if self._is_wasm:
+            # [ASCENSION]: PASSIVE CONGREGATION
+            # We bypass the 'Congregation' thread-pump in broadcaster.py to avoid RuntimeError.
+            # We use a dummy object that mirrors the interface but remains silent.
+            from types import SimpleNamespace
+            self.congregation = SimpleNamespace(
+                multicast=lambda p: None,
+                close_all=lambda: None,
+                get_census=lambda: {}
+            )
+        else:
+            self.congregation = Congregation()
 
         # 1. ANCHOR REALITY
         self.root_scaffold = Path(persistence_path).resolve().parent
@@ -158,6 +175,7 @@ class AkashicRecord:
         self._lock = threading.RLock()
         self._stop_event = threading.Event()
         self._heresy_map: Dict[str, str] = {}
+        self._scribe_thread = None  # Initialize for safe shutdown check
 
         # CONFIGURATION
         self._full_log = os.environ.get("SCAFFOLD_LOG_FULL") == "1"
@@ -170,11 +188,17 @@ class AkashicRecord:
         self._write_metrics = {"eps": 0.0, "latency": 0.0}
         self._start_time = time.time()
 
-        self._run_janitor()
-        self.vault.initialize()
-        self._start_scribe()
-        threading.Thread(target=self._hydrate_memory, name="AkashicHydrator", daemon=True).start()
-        atexit.register(self.shutdown)
+        # 5. RITE OF IGNITION (SUBSTRATE-AWARE)
+        if self._is_wasm:
+            self.vault.initialize()
+            # Hydrate memory synchronously in WASM to avoid thread panic
+            self._hydrate_memory()
+        else:
+            self._run_janitor()
+            self.vault.initialize()
+            self._start_scribe()
+            threading.Thread(target=self._hydrate_memory, name="AkashicHydrator", daemon=True).start()
+            atexit.register(self.shutdown)
 
     def _start_scribe(self):
         self._scribe_thread = threading.Thread(target=self._scribe_loop, name="AkashicScribe", daemon=True)
@@ -404,23 +428,37 @@ class AkashicRecord:
         pass
 
     def shutdown(self):
+        """[THE RITE OF DISSOLUTION]"""
         self._stop_event.set()
+
+        # [THE FIX]: Only join the scribe if it was manifest
+        if self._scribe_thread and self._scribe_thread.is_alive():
+            try:
+                self._scribe_thread.join(timeout=0.5)
+            except:
+                pass
+
         remaining = []
         with self._lock:
             remaining = list(self._queue)
+
         for item in remaining:
             try:
                 self.vault.write(item)
             except:
                 pass
+
         self.vault.seal("CLEAN_EXIT")
+
         try:
             snap = self.memory.snapshot()
             with open(self.vault.snapshot_file, 'w') as f:
                 json.dump(snap, f)
         except:
             pass
-        self.congregation.close_all()
+
+        if hasattr(self.congregation, "close_all"):
+            self.congregation.close_all()
 
     @property
     def get_telemetry(self) -> Dict[str, Any]:

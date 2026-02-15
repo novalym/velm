@@ -24,7 +24,7 @@ class AIEngine:
     =================================================================================
     LIF: 10,000,000,000,000,000,000
 
-    The Central Intelligence of the Scaffold God-Engine.
+    The Central Intelligence of the Velm God-Engine.
     It orchestrates the communion between the Architect (User), the Gnostic Memory (RAG),
     and the Celestial Providers (LLMs).
     """

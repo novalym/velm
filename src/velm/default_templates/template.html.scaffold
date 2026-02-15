@@ -13,7 +13,7 @@ $$ title = {{ project_name }}
 </head>
 <body>
     <h1>Welcome to {{ title }}</h1>
-    <p>Forged by the Scaffold God-Engine.</p>
+    <p>Forged by the Velm God-Engine.</p>
 </body>
 </html>
 """

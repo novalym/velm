@@ -145,7 +145,7 @@ class GnosticAdjudicator:
             self._broadcast_hud("VEIL_STRENGTHENED", "#64ffda")
 
             # [ASCENSION 7]: SEMANTIC METADATA STAMPING
-            append_content = "\n# [Scaffold] Automatic Gnostic Protection\n"
+            append_content = "\n# [Velm] Automatic Gnostic Protection\n"
             for entry in sorted(list(new_entries)):
                 append_content += f"{entry}\n"
 

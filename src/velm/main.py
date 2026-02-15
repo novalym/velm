@@ -302,7 +302,7 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] in ("--version", "-V"):
         try:
             from scaffold import __version__
-            print(f"Scaffold God-Engine v{__version__}")
+            print(f"Velm God-Engine v{__version__}")
             # We use os._exit here because --version is a pure metadata rite.
             os._exit(0)
         except:

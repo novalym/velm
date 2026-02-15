@@ -223,8 +223,25 @@ class ProjectScanner:
         self.metrics["throttled_ms"] += (time.perf_counter() - t_start) * 1000
 
     def _conduct_parallel_interrogation(self, targets: List[Path], inventory: List[FileGnosis]):
-        """[ASCENSION 6 & 11]: Parallel Swarm with Ocular Telemetry."""
-        Logger.info(f"Deep Scanning {len(targets)} modified/new scriptures...")
+        """
+        =============================================================================
+        == THE OMEGA SWARM SCRIER (V-Ω-TOTALITY-V20000.11-ISOMORPHIC)              ==
+        =============================================================================
+        LIF: 100x | ROLE: PARALLEL_SOUL_INQUISITOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_SCANNER_V20000_SWARM_SUTURE_2026_FINALIS
+        """
+        import concurrent.futures
+        import threading
+        import time
+        import gc
+        import os
+
+        Logger.info(f"Initiating Parallel Swarm: Scrying {len(targets)} scriptures...")
+        start_ns = time.perf_counter_ns()
+
+        # [ASCENSION 3]: ATOMIC PROTECTION LATTICE
+        # We ensure that merging the parallel insights is a thread-safe rite.
+        merge_lock = threading.RLock()
 
         interrogator = FileInterrogator(
             root=self.root,
@@ -235,40 +252,111 @@ class ProjectScanner:
             workspace_root=self.root
         )
 
-        # [ASCENSION 6]: Hardware-Aware Scaling
+        # =========================================================================
+        # == MOVEMENT I: METABOLIC ADJUDICATION (SCALING)                        ==
+        # =========================================================================
+        # [ASCENSION 1]: Differentiate between IRON (Native) and ETHER (WASM)
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
         cpu_count = os.cpu_count() or 1
-        # Detect if we are in a memory-starved container
-        max_workers = cpu_count + 2
-        if psutil_available := self._check_psutil():
-            import psutil
-            if psutil.virtual_memory().total < 2 * 1024 ** 3:  # 2GB
-                max_workers = min(max_workers, 2)
 
+        # Calibration of the Worker Density
+        if is_wasm:
+            # Browser workers are single-threaded; we use a small pool to handle
+            # I/O yielding without overwhelming the single-thread Pyodide loop.
+            max_workers = 2
+        else:
+            # Native iron can handle a true hurricane
+            max_workers = cpu_count + 4
+
+        # [ASCENSION 2]: Memory-Aware Backpressure
+        try:
+            import psutil
+            mem_total_gb = psutil.virtual_memory().total / (1024 ** 3)
+            if mem_total_gb < 2.0:
+                max_workers = min(max_workers, 2)
+        except (ImportError, AttributeError):
+            # WASM Fallback: Scry the Heap Object Density
+            if len(gc.get_objects()) > 500000:
+                max_workers = 1  # Throttle to serial mode if heap is heavy
+
+        # =========================================================================
+        # == MOVEMENT II: THE PARALLEL STRIKE                                    ==
+        # =========================================================================
         processed_count = 0
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        fresh_scans = 0
+        errors = 0
+
+        with concurrent.futures.ThreadPoolExecutor(
+                max_workers=max_workers,
+                thread_name_prefix=f"GnosticSwarm-{self.root.name[:4]}"
+        ) as executor:
+            # [STRIKE]: Dispatch interrogation pleas for every target atom
             future_to_path = {executor.submit(interrogator.interrogate, p): p for p in targets}
 
             for future in concurrent.futures.as_completed(future_to_path):
                 path = future_to_path[future]
                 processed_count += 1
 
-                # [ASCENSION 10]: Luminous Multicast
-                if processed_count % 25 == 0:
+                # [ASCENSION 6]: LUMINOUS TELEMETRY MULTICAST
+                if processed_count % 25 == 0 or processed_count == len(targets):
                     self._broadcast_progress(processed_count, len(targets), path.name)
 
                 try:
+                    # [ASCENSION 11]: FAULT-ISOLATED SOUL RETRIEVAL
                     result = future.result()
                     if not result: continue
+
                     gnosis, ast_dossier = result
+
                     if gnosis:
-                        inventory.append(gnosis)
-                        self.metrics["fresh_scans"] += 1
-                        path_key = str(gnosis.path).replace('\\', '/')
-                        if ast_dossier and "error" not in ast_dossier:
-                            self.project_gnosis[path_key] = ast_dossier
-                except Exception as e:
-                    self.metrics["errors"] += 1
-                    Logger.warn(f"Paradox scanning '{path.name}': {e}")
+                        # [ASCENSION 3]: ATOMIC MERGE
+                        with merge_lock:
+                            inventory.append(gnosis)
+                            fresh_scans += 1
+
+                            path_key = str(gnosis.path).replace('\\', '/')
+                            if ast_dossier and "error" not in ast_dossier:
+                                self.project_gnosis[path_key] = ast_dossier
+
+                except Exception as fracture:
+                    errors += 1
+                    Logger.warn(f"Causal Fracture while scanning '{path.name}': {str(fracture)}")
+
+                # [ASCENSION 4]: HYDRAULIC YIELD
+                if is_wasm and processed_count % 10 == 0:
+                    # Relinquish control to the Browser so the HUD can render
+                    time.sleep(0)
+
+        # --- MOVEMENT III: FINALITY TELEMETRY ---
+        self.metrics["fresh_scans"] += fresh_scans
+        self.metrics["errors"] += errors
+
+        duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+
+        # [ASCENSION 10]: HAPTIC BLOOM
+        if fresh_scans > 50:
+            self._multicast_hud("SCAN_SUCCESS", "#64ffda")
+
+        Logger.success(
+            f"Swarm Inquest complete. {fresh_scans} souls transfigured, "
+            f"{errors} heresies recorded in {duration_ms:.2f}ms."
+        )
+
+    def _multicast_hud(self, type_label: str, color: str):
+        """Broadcasts a visual heartbeat to the Ocular UI."""
+        if hasattr(self.engine, 'akashic') and self.engine.akashic:
+            try:
+                self.engine.akashic.broadcast({
+                    "method": "novalym/hud_pulse",
+                    "params": {
+                        "type": type_label,
+                        "label": "GNOSTIC_SCANNER",
+                        "color": color,
+                        "timestamp": time.time()
+                    }
+                })
+            except:
+                pass
 
     def _compute_merkle_totality(self):
         """[ASCENSION 3]: Forges the Merkle Root of the current Reality."""

@@ -100,7 +100,7 @@ class ContentScribe:
         lines.append(f'"""')
         lines.append(f"{desc}")
         lines.append(f"")
-        lines.append(f"Auto-consecrated by the Scaffold God-Engine.")
+        lines.append(f"Auto-consecrated by the Velm God-Engine.")
         lines.append(f'"""')
         lines.append("")
 

@@ -1,5 +1,6 @@
-# Path: scaffold/core/kernel/chronicle/facade.py
+# Path: src/velm/core/kernel/chronicle/facade.py
 # ----------------------------------------------
+
 
 import json
 import time
@@ -17,14 +18,12 @@ from ....logger import Scribe
 from ....utils import atomic_write
 
 # --- THE DIVINE SUMMONS OF THE CRYSTAL MIND ---
-# We check for the Gnostic Database's presence. If the 'sqlalchemy' artisan
-# is missing, we gracefully degrade to Pure Text Mode.
+# We check for the Gnostic Database's presence.
+# In WASM/Pyodide, this import may succeed but yield None if __init__.py masks it.
 try:
     from ...state.gnostic_db import GnosticDatabase
-
-    SQL_AVAILABLE = True
 except ImportError:
-    SQL_AVAILABLE = False
+    GnosticDatabase = None
 
 Logger = Scribe("ChronicleScribe")
 
@@ -67,33 +66,9 @@ class _ChronicleScribe:
     This is the divine artisan that bridges the gap between the Ephemeral (Memory),
     the Persistent (JSON), and the Queryable (SQLite).
 
-    ### THE PANTHEON OF 12 ASCENDED FACULTIES:
-
-    1.  **The Hybrid Persistence Engine:** Writes to both `scaffold.lock` and `gnosis.db`
-        in a strictly ordered, fail-safe sequence (Text First, Crystal Second).
-    2.  **The Atomic State Barrier:** Uses `atomic_write` for the JSON scroll to ensure
-        Git never sees a torn file.
-    3.  **The Gnostic Federation:** Merges the "Old Manifest" with the "New Writes"
-        to create a perfect continuity of history via the `ManifestFederator`.
-    4.  **The Integrity Seal:** Computes the Merkle Root of the new reality and stamps
-        it onto both the Scroll and the Crystal, guaranteeing they reflect the same truth.
-    5.  **The Contextual Crystal:** Serializes the `final_vars` (Gnosis) into the Database,
-        enabling future "Time Travel" to not just file states, but variable states.
-    6.  **The Heresy Ledger:** Inscribes all `heresies_perceived` into the Database,
-        creating a permanent, queryable audit log of warnings and failures.
-    7.  **The Edict Recorder:** Chronicles every Shell Command executed by the Maestro
-        into the Rite's database record.
-    8.  **The Provenance Chain:** Links every file modification to the specific Rite ID
-        that caused it, enabling "Who changed this line?" queries at the architectural level.
-    9.  **The Lazy Connection:** Only establishes a connection to the Crystal Mind if
-        SQLAlchemy is manifest, gracefully degrading if dependencies are missing.
-    10. **The Resilience Fallback:** If the Crystal Mind cracks (DB Error), the Scroll
-        survives. The User is warned, but the Git history is preserved.
-    11. **The Telemetric Split:** Measures and logs the time taken for JSON writing vs
-        SQL writing separately, for precise performance tuning.
-    12. **The Sovereign Soul:** It acts as the final arbiter of "What Happened,"
-        consolidating data from the Architect, the Engine, and the Sentinel.
-    =================================================================================
+    [ASCENSION 13]: WASM-PROOF NULL GUARD
+    It now checks if the GnosticDatabase class is actually manifest (not None)
+    before attempting to summon it, preventing the 'NoneType' heresy in the browser.
     """
 
     def __init__(self, **kwargs: Any):
@@ -167,14 +142,17 @@ class _ChronicleScribe:
 
         # --- Movement VI: The Proclamation to the Scroll (JSON Write) ---
         # This is the primary persistence layer (Git-compatible)
+        # We use verbose=False to keep the CLI clean during automated rites.
         json_start = time.monotonic()
         atomic_write(self.lock_path, json.dumps(lock_data, indent=2), Logger, self.project_root, verbose=False)
         json_duration = (time.monotonic() - json_start) * 1000
 
         # --- Movement VII: The Engraving of the Crystal (SQLite Write) ---
-        # This is the secondary persistence layer (Query-optimized)
+        # This is the secondary persistence layer (Query-optimized).
+        # [THE CURE]: We explicitly check if GnosticDatabase is a Class, not None.
         db_duration = 0.0
-        if SQL_AVAILABLE:
+
+        if GnosticDatabase is not None:
             db_start = time.monotonic()
             try:
                 db = GnosticDatabase(self.project_root)
@@ -184,18 +162,20 @@ class _ChronicleScribe:
                     **provenance,
                     "gnosis": gnosis_delta,
                     "id": provenance.get("rite_id", str(uuid.uuid4())),
-                    "command": f"scaffold {provenance.get('rite_name', 'unknown')}",  # Simplified
-                    # We could add heresies/edicts to DB models here if we expanded the schema
+                    "command": f"scaffold {provenance.get('rite_name', 'unknown')}",
                 }
 
                 db.sync_manifest(new_manifest, rite_data)
                 Logger.verbose("Crystal Mind synchronized successfully.")
             except Exception as e:
                 # [FACULTY 10] The Resilience Fallback
-                # If the DB fails, we do NOT crash. The JSON scroll is safe.
+                # If the DB fails (e.g. WASM file lock issues), we do NOT crash.
+                # The JSON scroll (scaffold.lock) is the ultimate source of truth.
                 Logger.warn(f"Crystal Mind update faltered: {e}. The Textual Scroll remains the source of truth.")
 
             db_duration = (time.monotonic() - db_start) * 1000
+        else:
+            Logger.verbose("Crystal Mind unavailable in this substrate. Skipping SQL inscription.")
 
         total_duration = (time.monotonic() - start_time) * 1000
 

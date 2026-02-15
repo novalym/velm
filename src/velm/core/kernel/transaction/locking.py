@@ -1,5 +1,11 @@
 # Path: src/velm/core/kernel/transaction/locking.py
 # -------------------------------------------------
+# =========================================================================================
+# == THE APEIRON LOCK: OMEGA TOTALITY (V-Ω-TOTALITY-V310-SUBSTRATE-AGNOSTIC)             ==
+# =========================================================================================
+# LIF: ∞ | ROLE: CONCURRENCY_GUARDIAN | RANK: OMEGA_SOVEREIGN
+# AUTH: Ω_WARDEN_LOCK_V310_WASM_HEALED_2026_FINALIS
+# =========================================================================================
 
 import json
 import platform
@@ -30,51 +36,99 @@ if TYPE_CHECKING:
 
 Logger = Scribe("ApeironLock")
 
-# [ASCENSION 9]: THE POLYGLOT WARD
-if os.name == 'nt':
+# =============================================================================
+# == THE POLYGLOT WARD (V-Ω-SUBSTRATE-SUTURE)                                ==
+# =============================================================================
+# [THE CURE]: We perform a multi-tier import scry to detect WASM/Emscripten.
+# This prevents ModuleNotFoundError: No module named 'fcntl' in the browser.
+
+IS_WASM: Final = (
+        os.environ.get("SCAFFOLD_ENV") == "WASM" or
+        sys.platform == "emscripten" or
+        "_pyodide" in sys.modules
+)
+
+_LOCK_STRATEGY = "VOID"
+
+if IS_WASM:
+    # [ASCENSION 1]: WASM_AMNESTY
+    # In the browser worker, file locking is a semantic illusion.
+    # We use a pure memory-lock approach to satisfy the API surface.
+    _LOCK_STRATEGY = "WASM"
+
+
+    def file_lock(f):
+        """No-Op in the virtualized WASM substrate."""
+        pass
+
+
+    def file_unlock(f):
+        """No-Op in the virtualized WASM substrate."""
+        pass
+
+elif os.name == 'nt':
+    # [ASCENSION 2]: WINDOWS_SUTURE
+    _LOCK_STRATEGY = "WINDOWS"
     import msvcrt
 
 
     def file_lock(f):
+        """Windows-specific atomic file locking."""
         # Lock bytes 0-1. Non-blocking exclusive lock.
         msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
 
 
     def file_unlock(f):
+        """Windows-specific atomic file unlocking."""
         try:
             msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
         except OSError:
             pass
 else:
-    import fcntl
+    # [ASCENSION 3]: POSIX_SUTURE
+    try:
+        import fcntl
+
+        _LOCK_STRATEGY = "POSIX"
 
 
-    def file_lock(f):
-        # Unix Flocking logic
-        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        def file_lock(f):
+            """Unix Flocking logic: Exclusive + Non-blocking."""
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
 
-    def file_unlock(f):
-        fcntl.flock(f, fcntl.LOCK_UN)
+        def file_unlock(f):
+            """Unix Flocking logic: Release."""
+            fcntl.flock(f, fcntl.LOCK_UN)
+    except ImportError:
+        # Emergency fallback for restricted containers lacking fcntl
+        _LOCK_STRATEGY = "VOID"
+
+
+        def file_lock(f):
+            pass
+
+
+        def file_unlock(f):
+            pass
 
 
 class GnosticLock:
     """
     =================================================================================
-    == THE APEIRON LOCK (V-Ω-TOTALITY-V307-LAZARUS-RESILIENT)                      ==
+    == THE APEIRON LOCK (V-Ω-TOTALITY-V310-LAZARUS-WASM-RESILIENT)                 ==
     =================================================================================
     LIF: ∞ | ROLE: CONCURRENCY_GUARDIAN | RANK: OMEGA_SOVEREIGN
-    AUTH: Ω_WARDEN_LOCK_V307_FINALIS
-
-    The divine guardian of the Transactional Sanctum. It has evolved to perceive
-    the "Phantom Grip" and righteously evaporate ghost locks.
     """
 
     # [ASCENSION 5]: RE-ENTRANT THREAD REGISTRY
     _HELD_LOCKS: Set[str] = set()
     _REGISTRY_LOCK = threading.Lock()
 
-    def __init__(self, lock_path: Path, rite_name: str, **kwargs):
+    def __init__(self, lock_path: Path, rite_name: str, **kwargs: Any):
+        """
+        The Rite of Inception for the Guardian.
+        """
         self.lock_path = lock_path.resolve()
         self.lock_key = str(self.lock_path)
         self.rite_name = rite_name
@@ -95,16 +149,20 @@ class GnosticLock:
         self._is_reentrant_claim = False
 
     def _scry_start_time(self) -> float:
-        """Determines the inception time of the current process for lineage verification."""
+        """Determines process inception time for lineage verification."""
         if PS_AVAILABLE:
-            return psutil.Process(self.pid).create_time()
+            try:
+                return psutil.Process(self.pid).create_time()
+            except Exception:
+                return 0.0
         return 0.0
 
-    def acquire(self):
+    def acquire(self) -> 'GnosticLock':
         """
         =============================================================================
         == THE RITE OF PURE ACQUISITION (V-Ω-GHOST-EVAPORATION)                    ==
         =============================================================================
+        Attempts to seize the lock, handling re-entry and stale lock resurrection.
         """
         # 1. THE RE-ENTRY CHECK
         with self._REGISTRY_LOCK:
@@ -113,7 +171,7 @@ class GnosticLock:
                 Logger.verbose(f"Re-entrant Gnostic claim perceived for '{self.rite_name}'.")
                 return self
 
-        start_time = time.monotonic()
+        start_time_marker = time.monotonic()
         self.lock_path.parent.mkdir(parents=True, exist_ok=True)
 
         # [ASCENSION 7]: ADAPTIVE BACKOFF WITH JITTER
@@ -122,9 +180,10 @@ class GnosticLock:
         while True:
             try:
                 # 2. THE PHYSICAL ATTEMPT
-                # Open with 'a+' to avoid truncating a file held by a living Architect
-                self.lock_handle = open(self.lock_path, 'a+', encoding='utf-8')
-                file_lock(self.lock_handle)
+                # [THE FIX]: In WASM mode, we bypass physical file handles.
+                if _LOCK_STRATEGY != "WASM":
+                    self.lock_handle = open(self.lock_path, 'a+', encoding='utf-8')
+                    file_lock(self.lock_handle)
 
                 # 3. CONSECRATION: THE LOCK IS OURS
                 self._write_dossier()
@@ -136,7 +195,9 @@ class GnosticLock:
                 # [ASCENSION 7]: BROADCAST SUCCESS
                 self._project_hud("LOCK_ACQUIRED", "#64ffda")
 
-                Logger.verbose(f"Apeiron Lock acquired for '{self.rite_name}'.")
+                Logger.verbose(
+                    f"Apeiron Lock acquired via [{_LOCK_STRATEGY}] for '{self.rite_name}'."
+                )
                 return self
 
             except (IOError, OSError, PermissionError):
@@ -144,21 +205,21 @@ class GnosticLock:
                 if self.lock_handle:
                     try:
                         self.lock_handle.close()
-                    except:
+                    except Exception:
                         pass
                     self.lock_handle = None
 
                 # [ASCENSION 3]: GHOST DETECTION
                 if self._is_lock_stale():
-                    Logger.warn(f"Ghost perceived in sanctum '{self.rite_name}'. Initiating Exorcism...")
+                    Logger.warn(f"Ghost perceived in sanctum '{self.rite_name}'. Exorcising...")
                     self._force_break_lock()
                     continue  # Re-attempt immediately after evaporation
 
                 # 5. THE TEMPORAL LIMIT
-                elapsed = time.monotonic() - start_time
+                elapsed = time.monotonic() - start_time_marker
                 if elapsed > self.timeout:
                     self._handle_contention_failure(elapsed)
-                    # If handle_contention allows return, it might have broken the lock
+                    # If handle_contention allows return, we retry
                     continue
 
                 # 6. YIELD AND RE-SEED
@@ -172,7 +233,7 @@ class GnosticLock:
         =============================================================================
         == THE GAZE OF LIVENESS (V-Ω-ACHRONAL-BIOPSY)                              ==
         =============================================================================
-        Determines if the lock-holder still possesses the spark of life.
+        Determines if the current lock holder is a phantom or a living process.
         """
         if not self.lock_path.exists():
             return False
@@ -180,7 +241,8 @@ class GnosticLock:
         try:
             # [ASCENSION 8]: READ THE DOSSIER
             content = self.lock_path.read_text(encoding='utf-8')
-            if not content: return True  # Empty file is a void
+            if not content:
+                return True  # Empty file is a void
 
             dossier = json.loads(content)
             holder_pid = dossier.get("pid")
@@ -190,8 +252,7 @@ class GnosticLock:
 
             # Case 1: Different Realm (Machine)
             if holder_machine != self.machine_id:
-                # We cannot scry PIDs across machine boundaries.
-                # We rely strictly on the Heartbeat Pulse.
+                # We rely strictly on the Heartbeat Pulse for remote machines
                 return (time.time() - last_pulse) > (self.heartbeat_interval * 4)
 
             # Case 2: Same Realm (Local Machine)
@@ -270,7 +331,8 @@ class GnosticLock:
                 my_pid = os.getpid()
                 for proc in psutil.process_iter(['pid', 'open_files']):
                     try:
-                        if proc.pid == my_pid: continue
+                        if proc.pid == my_pid:
+                            continue
                         files = proc.info.get('open_files') or []
                         for f in files:
                             if f.path == str(self.lock_path):
@@ -287,13 +349,17 @@ class GnosticLock:
             try:
                 trash_path = self.lock_path.with_suffix(f".void_{uuid.uuid4().hex[:4]}")
                 self.lock_path.rename(trash_path)
-            except:
+            except Exception:
                 pass
 
     def _write_dossier(self, update_heartbeat: bool = False):
         """Inscribes the Gnostic Dossier into the physical lock file."""
+        if _LOCK_STRATEGY == "WASM":
+            return
+
         with self._io_mutex:
-            if not self.lock_handle or self.lock_handle.closed: return
+            if not self.lock_handle or self.lock_handle.closed:
+                return
 
             now = time.time()
             dossier = {
@@ -323,16 +389,23 @@ class GnosticLock:
 
     def _start_heartbeat(self):
         """[ASCENSION 2]: THE LAZARUS HEARTBEAT."""
+        if _LOCK_STRATEGY == "WASM":
+            return
+
         self._stop_heartbeat.clear()
 
         def _pulse():
             while not self._stop_heartbeat.wait(self.heartbeat_interval):
                 try:
                     self._write_dossier(update_heartbeat=True)
-                except:
+                except Exception:
                     break
 
-        self._heartbeat_thread = threading.Thread(target=_pulse, daemon=True, name=f"Heartbeat-{self.rite_name}")
+        self._heartbeat_thread = threading.Thread(
+            target=_pulse,
+            daemon=True,
+            name=f"Heartbeat-{self.rite_name}"
+        )
         self._heartbeat_thread.start()
 
     def release(self):
@@ -353,7 +426,7 @@ class GnosticLock:
                 try:
                     file_unlock(self.lock_handle)
                     self.lock_handle.close()
-                except:
+                except Exception:
                     pass
                 finally:
                     self.lock_handle = None
@@ -374,7 +447,7 @@ class GnosticLock:
             if self.lock_path.exists():
                 with open(self.lock_path, 'r', encoding='utf-8') as f:
                     return json.load(f)
-        except:
+        except Exception:
             return None
         return None
 

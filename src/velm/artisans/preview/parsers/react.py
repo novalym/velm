@@ -11,7 +11,7 @@
 #    to find the render root, ensuring no component is hidden.
 # 3. [BROAD RETURN DETECTION]: Finds `return (...)` even in arrow functions without bodies.
 # 4. [FRAGMENT NORMALIZATION]: Handles `<>...</>` explicitly.
-
+import sys
 import re
 from typing import List, Dict, Any, Optional
 from .base import BaseUIParser
@@ -20,13 +20,43 @@ from ....logger import Scribe
 
 # --- THE DIVINE SUMMONS (CORE INTEGRATION) ---
 try:
+    # --- MOVEMENT I: NATIVE COMMUNION (THE HIGH PATH) ---
+    # Attempting to speak with the native C-matter.
     from tree_sitter import Query, Node
-    from ....inquisitor.sanctum.diagnostics.react import ReactInquisitor
+
+    # Internal Artisan Suture
+    try:
+        from ....inquisitor.sanctum.diagnostics.react import ReactInquisitor
+    except (ImportError, ValueError):
+        # Handle cases where the relative path is fractured or the file is missing
+        ReactInquisitor = None
 
     TREE_SITTER_AVAILABLE = True
+
 except ImportError:
-    TREE_SITTER_AVAILABLE = False
-    ReactInquisitor = None
+    # --- MOVEMENT II: PROXY RESURRECTION (THE WASM PATH) ---
+    # Native matter is unmanifest; we scry the Gnostic Registry for the Diamond Proxy.
+    if "tree_sitter" in sys.modules:
+        _ts = sys.modules["tree_sitter"]
+        Query = _ts.Query
+        Node = _ts.Node
+
+        # Internal Artisan Suture within the Proxy Realm
+        try:
+            from ....inquisitor.sanctum.diagnostics.react import ReactInquisitor
+        except (ImportError, ValueError):
+            ReactInquisitor = None
+
+        TREE_SITTER_AVAILABLE = True
+    else:
+        # --- MOVEMENT III: THE BLIND GAZE (STASIS) ---
+        # Reality is cold. We forge hollow vessels to preserve the script's existence.
+        TREE_SITTER_AVAILABLE = False
+        ReactInquisitor = None
+
+        # Hollow types to ward against downstream TypeErrors
+        Query = type("HollowQuery", (object,), {})
+        Node = type("HollowNode", (object,), {})
 
 Logger = Scribe("ReactTopologyParser")
 

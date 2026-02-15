@@ -28,7 +28,7 @@ class PathSentinel:
     AUTH: Ω_PATH_SENTINEL_V600_TOTALITY_FINALIS
 
     The supreme authority on spatial validity and the primary immune system of the
-    Scaffold God-Engine. It ensures that no geometry can exist outside the ordained
+    Velm God-Engine. It ensures that no geometry can exist outside the ordained
     boundaries of the Sanctum, while managing the complex overlap between
     Physical Jails and Transactional Staging areas.
 

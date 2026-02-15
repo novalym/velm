@@ -1,6 +1,6 @@
 # Path: inquisitor/sanctum/engine.py
 # ----------------------------------
-
+import sys
 from abc import ABC
 from pathlib import Path
 from typing import Dict, Optional, Any, List, Tuple, Type
@@ -16,11 +16,42 @@ from ...jurisprudence_core.jurisprudence import conduct_architectural_inquest
 from ...logger import Scribe
 
 try:
+    # --- MOVEMENT I: NATIVE COMMUNION (THE HIGH PATH) ---
+    # We attempt to speak with the native C-extensions (Titan Node / Local).
     from tree_sitter import Language, Parser, Node, QueryError, QueryCursor
+
     TREE_SITTER_AVAILABLE = True
+
 except ImportError:
-    TREE_SITTER_AVAILABLE = False
-    Parser, Node, Language, QueryError = object, object, object, Exception
+    # --- MOVEMENT II: PROXY RESURRECTION (THE WASM PATH) ---
+    # If the native tongue is absent, we scry the Gnostic Registry
+    # for the Diamond Proxy forged by the Simulacrum.
+    if "tree_sitter" in sys.modules:
+        _ts = sys.modules["tree_sitter"]
+
+        Language = _ts.Language
+        Parser = _ts.Parser
+        Node = _ts.Node
+        QueryError = _ts.QueryError
+        QueryCursor = _ts.QueryCursor
+
+        TREE_SITTER_AVAILABLE = True
+    else:
+        # --- MOVEMENT III: THE BLIND GAZE (STASIS) ---
+        # If no soul is manifest in any realm, we forge hollow vessels.
+        # This prevents 'AttributeError' and 'TypeError' during registration.
+        TREE_SITTER_AVAILABLE = False
+
+        # [ASCENSION 5]: Hollow Type Generation (The Sarcophagus)
+        # We forge specific type identities to maintain logical resonance.
+        Language = type("HollowLanguage", (object,), {})
+        Parser = type("HollowParser", (object,), {})
+        Node = type("HollowNode", (object,), {})
+        QueryCursor = type("HollowQueryCursor", (object,), {})
+
+        # [THE CURE]: QueryError must be a valid Exception type to allow
+        # 'try...except QueryError' blocks to remain syntactically pure.
+        QueryError = type("HollowQueryError", (Exception,), {})
 
 Logger = Scribe("UniversalParser")
 

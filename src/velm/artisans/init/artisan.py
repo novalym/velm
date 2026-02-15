@@ -413,7 +413,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
                 engine = GenesisEngine(project_root=root_path, engine=self.engine)
                 engine.transaction = tx
                 engine.cli_args = namespace_args
-
+                engine.request = request
                 # [ASCENSION 6]: RECURSIVE ALCHEMICAL FUSION
                 # Final pass to ensure all willed variables are stable.
                 engine.variables.update(tx.context)

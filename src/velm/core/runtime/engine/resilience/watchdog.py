@@ -43,7 +43,7 @@ class SystemWatchdog:
     LIF: ∞ | ROLE: BIOLOGICAL_GOVERNOR | RANK: OMEGA_IMMORTAL
     AUTH_CODE: Ω_WATCHDOG_2026_OMNISCIENT_FINALIS
 
-    The supreme, autonomous immune system of the Scaffold God-Engine.
+    The supreme, autonomous immune system of the Velm God-Engine.
     It does not merely watch; it governs the physics of the runtime.
 
     ### THE PANTHEON OF 16 LEGENDARY ASCENSIONS:
@@ -143,7 +143,7 @@ class SystemWatchdog:
             return
 
         if self._is_blind:
-            self.logger.warning(
+            self.logger.warn(
                 "Psutil unmanifest. Watchdog running in [yellow]Blind Mode[/yellow]. Capabilities limited.")
 
         with self._lock:
@@ -339,7 +339,7 @@ class SystemWatchdog:
                 self._last_lustration_ts = time.time()
 
             elif current_mb > self.mem_hard_limit and time_since_last > 5.0:
-                self.logger.warning(
+                self.logger.warn(
                     f"Metabolic Pressure High: {current_mb:.0f}MB. "
                     f"System Load: {vitals.get('sys_ram_percent', 0)}%. "
                     f"Shearing caches."
@@ -355,7 +355,7 @@ class SystemWatchdog:
 
         # 2. FD LEAK CHECK
         if vitals["fd_count"] > 800:  # Soft limit usually 1024
-            self.logger.warning(f"File Descriptor Leak Detected: {vitals['fd_count']} handles open.")
+            self.logger.warn(f"File Descriptor Leak Detected: {vitals['fd_count']} handles open.")
             # We can't easily fix this automatically, but we warn the Architect.
             # In V2, we might force-close non-essential log handlers.
 
