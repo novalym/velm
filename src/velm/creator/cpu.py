@@ -221,10 +221,10 @@ class QuantumCPU:
     def execute(self):
         """
         =============================================================================
-        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-TOTALITY-V500.20-WASM-RESONANT)    ==
+        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-TOTALITY-V505.5-WASM-STABILIZED)   ==
         =============================================================================
-        LIF: INFINITY | ROLE: KINETIC_ORCHESTRATOR | RANK: OMEGA_SUPREME
-        AUTH_CODE: Ω_EXECUTE_V500_SUBSTRATE_AWARE_2026_FINALIS
+        LIF: ∞ | ROLE: KINETIC_ORCHESTRATOR | RANK: OMEGA_SUPREME
+        AUTH_CODE: Ω_EXECUTE_V505_THREAD_SILENCE_2026_FINALIS
         """
         import time
         import os
@@ -235,12 +235,15 @@ class QuantumCPU:
             self.logger.verbose("Void Intent: Program is empty. Skipping Strike.")
             return
 
-        # [ASCENSION 2]: NANO-SCALE METABOLIC ANCHOR
+        # [ASCENSION 1]: SUBSTRATE IDENTITY DIVINATION (THE FIX)
+        # We divine the substrate at nanosecond zero to ensure the identity
+        # is available to the error handlers in the event of an early fracture.
+        # This annihilates the 'UnboundLocalError: local variable is_wasm' heresy.
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
         total_ops = len(self.program)
         start_ns = time.perf_counter_ns()
 
         # [ASCENSION 11]: SOVEREIGN IDENTITY
-        # We attempt to label the thread for OS-level forensics
         try:
             import threading
             threading.current_thread().name = f"QuantumCPU:{self.regs.project_root.name[:8]}"
@@ -248,19 +251,19 @@ class QuantumCPU:
             pass
 
         # =========================================================================
-        # == [THE CURE]: THE ACHRONAL STATUS SUTURE                              ==
+        # == [THE CURE]: THE THREAD-SILENCE VOW                                  ==
         # =========================================================================
-        # We scry the console for the 'status' faculty. If the Ethereal Plane (WASM)
-        # has suppressed it, we use nullcontext to prevent the AttributeError
-        # and the illegal Threading strike.
-        has_status = hasattr(self.regs.console, "status")
+        # We scry the substrate and the console. If we are in WASM, we FORBID the
+        # Rich Status Spinner, as it attempts to spawn an illegal background thread.
+        # This annihilates the 'RuntimeError: can't start new thread' heresy.
+        can_use_spinner = hasattr(self.regs.console, "status") and not is_wasm
 
-        if not self.regs.silent and has_status:
+        if not self.regs.silent and can_use_spinner:
             status_ctx = self.regs.console.status(
                 "[bold cyan]Quantum CPU: Materializing Reality...[/]"
             )
         else:
-            # Passive Proclamation for Status-less environments
+            # Passive Proclamation for Thread-silent or Silent environments
             if not self.regs.silent:
                 self.regs.console.print("[bold cyan]🌀 Quantum CPU: Materializing Reality...[/]")
             status_ctx = nullcontext()
@@ -269,16 +272,16 @@ class QuantumCPU:
         try:
             with status_ctx:
                 # --- MOVEMENT I: THE RITE OF FORM ---
-                is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
                 # [THE FIX]: DEFENSIVE UPDATE GUARD
-                # We check if the status_ctx possesses the .update() faculty before speaking.
+                # Prevents 'nullcontext' object has no attribute 'update' errors.
                 if not self.regs.silent and hasattr(status_ctx, "update"):
                     status_ctx.update("[bold cyan]Movement I: Forging Form (Physical Matter)...[/]")
                 elif not self.regs.silent and not is_wasm:
                     self.logger.info("Movement I: Forging Form (Physical Matter)...")
 
                 # Conduct the Form Materialization
+                # force_sequential is mandatory in WASM to avoid ThreadPool collisions
                 self._execute_parallel_strata(status_ctx, force_sequential=is_wasm)
 
                 # --- MOVEMENT II: THE RITE OF WILL ---
@@ -289,7 +292,6 @@ class QuantumCPU:
 
                 self._execute_kinetic_sequence(status_ctx)
 
-
         except Exception as fracture:
             # [ASCENSION 4 & 9]: FORENSIC EMERGENCY DUMP
             self._conduct_emergency_autopsy(fracture)
@@ -298,6 +300,7 @@ class QuantumCPU:
             self.regs.ui_hints = {"vfx": "shake", "sound": "fracture_critical", "priority": "CRITICAL"}
 
             if not isinstance(fracture, ArtisanHeresy):
+                # [THE FIX]: 'is_wasm' is now guaranteed manifest here via Movement I.
                 raise ArtisanHeresy(
                     "KINETIC_CPU_FRACTURE",
                     child_heresy=fracture,
@@ -308,8 +311,7 @@ class QuantumCPU:
 
         finally:
             # [ASCENSION 5 & 10]: HYDRAULIC POOL DRAIN
-            # Ensure the worker souls are returned to the void gracefully.
-            if hasattr(self, '_suture_pool'):
+            if hasattr(self, '_suture_pool') and not is_wasm:
                 try:
                     self._suture_pool.shutdown(wait=False)
                 except Exception:

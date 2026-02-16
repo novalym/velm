@@ -1,7 +1,10 @@
 # Path: src/velm/core/maestro/handlers/polyglot.py
-# ------------------------------------------------
-# LIF: ∞ | ROLE: NOETIC_TRANSMUTATION_ENGINE | RANK: OMEGA_SOVEREIGN
-# AUTH: Ω_POLYGLOT_V800_WASM_SUTURE_2026_FINALIS
+# =========================================================================================
+# == THE OMEGA POLYGLOT CONDUCTOR (V-Ω-TOTALITY-V32000-RECURSION-WARDED)                ==
+# =========================================================================================
+# LIF: ∞^Billion | ROLE: KINETIC_IO_TRANSFECTOR | RANK: OMEGA_SOVEREIGN
+# AUTH: Ω_POLYGLOT_V32K_REENTRANCY_SHIELD_2026_FINALIS
+# =========================================================================================
 
 import sys
 import io
@@ -19,7 +22,7 @@ import types
 import shutil
 import queue
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Union, Set, Final
+from typing import Optional, Dict, Any, List, Union, Set, Final, Tuple
 
 # --- THE DIVINE UPLINKS ---
 from .base import BaseRiteHandler
@@ -28,59 +31,94 @@ from ....contracts.data_contracts import GnosticWriteResult, InscriptionAction
 from ....utils import to_string_safe, generate_derived_names
 from ....logger import Scribe
 
-Logger = Scribe("PolyglotConcourse")
+# [ASCENSION 1]: ACHRONAL RE-ENTRANCY SHIELD
+# We use thread-local storage to track the "State of Speech".
+# This is the primary weapon against the Ouroboros Recursion.
+_thread_context = threading.local()
+
+
+def _is_radiating() -> bool:
+    """Perceives if the current thread is already conducting an I/O strike."""
+    return getattr(_thread_context, 'is_radiating', False)
 
 
 # =========================================================================================
-# == STRATUM-1: THE QUEUED RADIATOR (DECOUPLED I/O - NATIVE)                             ==
+# == STRATUM-1: THE GNOSTIC RADIATORS (INTERCEPTORS)                                     ==
 # =========================================================================================
 
-class QueuedStreamInterceptor(io.StringIO):
+class GnosticStreamInterceptor(io.StringIO):
     """
-    [ROLE]: ASYNCHRONOUS_MATTER_FLOWER (NATIVE)
-    Pushes lines into an atomic queue for the main thread to handle.
-    """
-
-    def __init__(self, stream_type: str, output_queue: queue.Queue):
-        super().__init__()
-        self.stream_type = stream_type
-        self.output_queue = output_queue
-
-    def write(self, s: str):
-        if not s: return 0
-        clean_s = s.rstrip('\r\n')
-        if clean_s:
-            for line in clean_s.splitlines():
-                if line.strip():
-                    self.output_queue.put((self.stream_type, line))
-        return super().write(s)
-
-
-# =========================================================================================
-# == STRATUM-1.5: THE DIRECT RADIATOR (SYNCHRONOUS I/O - WASM)                           ==
-# =========================================================================================
-
-class DirectStreamInterceptor(io.StringIO):
-    """
-    [ROLE]: SYNCHRONOUS_MATTER_FLOWER (WASM)
-    Directly radiates lines to the Console, bypassing the thread queue.
+    [ROLE]: ATOMIC_MATTER_FLOWER
+    The base guardian for all embedded script output.
+    Implements the RECURSION_WARD to prevent stack collapse.
     """
 
-    def __init__(self, stream_type: str, console: Any):
+    def __init__(self, stream_type: str, console: Any, is_wasm: bool):
         super().__init__()
         self.stream_type = stream_type
         self.console = console
+        self.is_wasm = is_wasm
+        self._buffer = io.StringIO()
+        self._lock = threading.Lock()
 
-    def write(self, s: str):
+    def write(self, s: str) -> int:
         if not s: return 0
-        clean_s = s.rstrip('\r\n')
-        if clean_s:
-            for line in clean_s.splitlines():
-                if line.strip():
-                    color = "cyan" if self.stream_type == "py" else "bold red"
-                    # Direct strike to the console
-                    self.console.print(f"[{color}]   {self.stream_type}: [/]{line}")
-        return super().write(s)
+
+        # --- MOVEMENT I: RE-ENTRANCY DETECTION ---
+        if _is_radiating():
+            # [ASCENSION 9]: BYPASS MODE
+            # We are already inside a print cycle. We must NOT call self.console.print().
+            # We shunt matter directly to the substrate to break the loop.
+            return self._radiate_raw_matter(s)
+
+        # --- MOVEMENT II: THE PROTECTED INSCRIPTION ---
+        _thread_context.is_radiating = True
+        try:
+            with self._lock:
+                # Buffer and radiate on newline to maintain HUD alignment
+                self._buffer.write(s)
+                if "\n" in s:
+                    self.flush()
+            return len(s)
+        finally:
+            _thread_context.is_radiating = False
+
+    def flush(self):
+        """Materializes buffered matter into a luminous proclamation."""
+        with self._lock:
+            content = self._buffer.getvalue()
+            if not content: return
+            self._buffer = io.StringIO()
+
+            lines = content.splitlines()
+            for line in lines:
+                if not line.strip(): continue
+
+                # [ASCENSION 3]: LUMINOUS PREFIXING
+                # We avoid Console.print if possible, or use it only when safe.
+                color = "cyan" if self.stream_type == "py" else "bold red"
+                prefix = f"\x1b[1;{'36' if self.stream_type == 'py' else '31'}m   {self.stream_type}: \x1b[0m"
+
+                # Radiate the formatted line
+                self._radiate_raw_matter(f"{prefix}{line}\n")
+
+    def _radiate_raw_matter(self, text: str) -> int:
+        """Final-tier radiation to the host substrate, bypassing all high-level logic."""
+        if self.is_wasm:
+            try:
+                import js
+                js.Telepathy.transmit(
+                    "STDOUT" if self.stream_type == "py" else "STDERR",
+                    text,
+                    {"trace_id": os.environ.get("GNOSTIC_REQUEST_ID", "local")}
+                )
+            except:
+                sys.__stdout__.write(text)
+        else:
+            target = sys.__stdout__ if self.stream_type == "py" else sys.__stderr__
+            target.write(text)
+            target.flush()
+        return len(text)
 
 
 # =========================================================================================
@@ -90,6 +128,7 @@ class DirectStreamInterceptor(io.StringIO):
 class ProjectFileSystemProxy:
     """
     [ROLE]: VIRTUAL_SUBSTRATE_INTERFACE
+    Provides the guest script with a warded, transactional interface to the project.
     """
 
     def __init__(self, regs: Any):
@@ -98,22 +137,31 @@ class ProjectFileSystemProxy:
         from ....creator.io_controller import IOConductor
         self._io = IOConductor(regs)
 
-    def write(self, path: Union[str, Path], content: str, perms: str = "644"):
-        return self._io.write(Path(path), content, {"origin": "polyglot_script", "permissions": perms})
+    def write(self, path: Union[str, Path], content: str, perms: str = "644") -> GnosticWriteResult:
+        """Inscribes matter with automatic transaction tracking."""
+        return self._io.write(Path(path), content, {"origin": "polyglot_strike", "permissions": perms})
 
     def read(self, path: Union[str, Path]) -> str:
+        """Recall scripture with spatial boundary protection."""
         target = (self.root / path).resolve()
         if not str(target).startswith(str(self.root)):
-            raise PermissionError(f"Gnostic Breach: Path '{path}' is outside the sanctum.")
+            raise ArtisanHeresy("Gnostic Breach: Path escaped the sanctum.", severity=HeresySeverity.CRITICAL)
         if not target.exists():
             raise FileNotFoundError(f"Void Scripture: '{path}'")
         return target.read_text(encoding='utf-8', errors='ignore')
 
     def exists(self, path: Union[str, Path]) -> bool:
-        return (self.root / path).exists()
+        return (self.root / Path(path)).exists()
 
     def remove(self, path: Union[str, Path]):
+        """Annihilates matter from the physical plane."""
         return self._io.delete(Path(path))
+
+    @property
+    def tree(self) -> List[Dict]:
+        """Provides an O(1) topographic scry via the VFS oracle."""
+        from ...vfs import vfs_scry_recursive
+        return vfs_scry_recursive(str(self.root))
 
 
 # =========================================================================================
@@ -123,15 +171,21 @@ class ProjectFileSystemProxy:
 class PolyglotHandler(BaseRiteHandler):
     """
     [ROLE]: NOETIC_TRANSMUTATION_ENGINE
-    Executes embedded Python logic within the Blueprint.
+    LIF: ∞ | ROLE: INTENT_MATERIALIZER | RANK: OMEGA_SUPREME
+
+    The supreme conductor of embedded Python logic. It has been ascended to
+    possess absolute substrate awareness and recursive re-entrancy wards.
     """
 
+    # [ASCENSION 11]: THE BANNED SOULS
+    # Wards against dangerous built-ins that could fracture the WASM loop.
     BANNED_SOULS: Final[Set[str]] = {
         "eval", "exec", "compile", "input", "help",
         "globals", "locals", "setattr", "delattr"
     }
 
     def __init__(self, registers: Any, alchemist: Any, context: Any):
+        """[THE RITE OF INCEPTION]"""
         super().__init__(registers, alchemist, context)
         self.engine = getattr(registers, 'engine', None)
         self.regs = registers
@@ -140,28 +194,25 @@ class PolyglotHandler(BaseRiteHandler):
             from ...runtime.middleware.contract import GnosticVoidEngine
             self.engine = GnosticVoidEngine()
 
-        # [ASCENSION 1]: DETECT SUBSTRATE
+        # [ASCENSION 1]: SUBSTRATE DIVINATION
         self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
     def conduct(self, script_body: str, env: Optional[Dict[str, str]] = None):
         """
-        [RITE]: NOETIC INCEPTION
-        Executes the script. Branches logic based on substrate (Iron vs Ether).
+        =============================================================================
+        == THE RITE OF NOETIC INCEPTION (CONDUCT)                                  ==
+        =============================================================================
+        LIF: 10,000,000,000 | ROLE: LOGIC_STRIKE | RANK: OMEGA
         """
         start_ns = time.perf_counter_ns()
         trace_id = (env or {}).get("SCAFFOLD_TRACE_ID", "tr-poly-void")
 
         # --- MOVEMENT I: THE ALCHEMICAL DEDENT ---
+        # Normalize the scripture to remove leading whitespace tax.
         pure_script = textwrap.dedent(script_body.strip("\n\r"))
 
-        # --- MOVEMENT II: PRE-EMPTIVE HYDRATION ---
-        import os as _os
-        import sys as _sys
-        import shutil as _shutil
-        from pathlib import Path as _Path
-
-        # --- MOVEMENT III: THE ALCHEMICAL FORGE ---
-        # Safe globals for the guest script
+        # --- MOVEMENT II: THE ALCHEMICAL FORGE ---
+        # Assemble the Gnostic Globals—the arsenal provided to the guest script.
         safe_builtins = {k: v for k, v in __builtins__.items() if k not in self.BANNED_SOULS} if isinstance(
             __builtins__, dict) else {k: getattr(__builtins__, k) for k in dir(__builtins__) if
                                       k not in self.BANNED_SOULS}
@@ -169,10 +220,10 @@ class PolyglotHandler(BaseRiteHandler):
         gnostic_globals = {
             "__builtins__": safe_builtins,
             "__name__": "__symphony__",
-            "os": _os,
-            "sys": _sys,
-            "shutil": _shutil,
-            "Path": _Path,
+            "os": os,
+            "sys": sys,
+            "shutil": shutil,
+            "Path": Path,
             "engine": self.engine,
             "regs": self.regs,
             "variables": self.regs.gnosis,
@@ -188,21 +239,25 @@ class PolyglotHandler(BaseRiteHandler):
 
         strike_state = {"success": False, "error": None, "traceback": None}
 
-        # --- MOVEMENT IV: THE SUBSTRATE BIFURCATION ---
+        # --- MOVEMENT III: THE SUBSTRATE BIFURCATION ---
         self._project_hud_signal(trace_id, "POLYGLOT_STRIKE", "#64ffda")
 
         if self.is_wasm:
-            # === PATH A: ETHER PLANE (SYNCHRONOUS) ===
-            # In WASM, we cannot spawn threads. We execute directly in the main loop.
-            # We use DirectStreamInterceptor to print immediately to the console.
-            self.logger.verbose("PolyglotHandler: WASM Substrate detected. Executing Synchronously.")
+            # =========================================================================
+            # == PATH A: ETHER PLANE (SYNCHRONOUS RECURSION-WARDED)                  ==
+            # =========================================================================
+            # [ASCENSION 1]: WASM cannot spawn threads. We execute in the main loop.
+            # We use the GnosticStreamInterceptor to annihilate the Ouroboros loop.
+            self.logger.verbose("PolyglotHandler: WASM Substrate detected. Initiating Synchronous Strike.")
 
-            out_interceptor = DirectStreamInterceptor("py", self.console)
-            err_interceptor = DirectStreamInterceptor("py_err", self.console)
+            out_interceptor = GnosticStreamInterceptor("py", self.console, is_wasm=True)
+            err_interceptor = GnosticStreamInterceptor("py_err", self.console, is_wasm=True)
 
             try:
+                # [THE CURE]: Atomic Redirection
                 with contextlib.redirect_stdout(out_interceptor), \
                         contextlib.redirect_stderr(err_interceptor):
+                    # THE MOMENT OF TRANSMUTATION
                     exec(pure_script, gnostic_globals)
                     strike_state["success"] = True
             except Exception as e:
@@ -210,11 +265,15 @@ class PolyglotHandler(BaseRiteHandler):
                 strike_state["traceback"] = traceback.format_exc()
 
         else:
-            # === PATH B: IRON CORE (THREADED) ===
-            # Native environment supports threading to prevent blocking the UI/CLI.
-            radiation_queue = queue.Queue()
-            out_interceptor = QueuedStreamInterceptor("py", radiation_queue)
-            err_interceptor = QueuedStreamInterceptor("py_err", radiation_queue)
+            # =========================================================================
+            # == PATH B: IRON CORE (THREADED RADIATION)                              ==
+            # =========================================================================
+            # Native iron core supports threading for non-blocking I/O.
+            self.logger.verbose("PolyglotHandler: Iron Core detected. Initiating Parallel Strike.")
+
+            # We still use the GnosticStreamInterceptor to prevent recursion in threads
+            out_interceptor = GnosticStreamInterceptor("py", self.console, is_wasm=False)
+            err_interceptor = GnosticStreamInterceptor("py_err", self.console, is_wasm=False)
 
             def _conduct_noetic_strike():
                 try:
@@ -233,53 +292,43 @@ class PolyglotHandler(BaseRiteHandler):
             )
             strike_thread.start()
 
-            # Main-Thread Radiator Loop
+            # Wait for conclusion with temporal ward
             timeout = float(os.getenv("SCAFFOLD_POLYGLOT_TIMEOUT", 60.0))
-            strike_deadline = time.monotonic() + timeout
+            strike_thread.join(timeout=timeout)
 
-            while strike_thread.is_alive():
-                # Drain Queue
-                try:
-                    while True:
-                        stream_type, line = radiation_queue.get_nowait()
-                        color = "cyan" if stream_type == "py" else "bold red"
-                        self.console.print(f"[{color}]   {stream_type}: [/]{line}")
-                except queue.Empty:
-                    pass
+            if strike_thread.is_alive():
+                self._project_hud_signal(trace_id, "TEMPORAL_EXHAUSTION", "#ef4444")
+                # We do not attempt to kill the thread (unsafe), we simply abandon it.
+                raise ArtisanHeresy("POLYGLOT_TIMEOUT: The scripture exceeded its 60s temporal budget.")
 
-                if time.monotonic() > strike_deadline:
-                    self._project_hud_signal(trace_id, "TEMPORAL_EXHAUSTION", "#ef4444")
-                    raise ArtisanHeresy("POLYGLOT_TIMEOUT", severity=HeresySeverity.CRITICAL)
-
-                time.sleep(0.05)
-
-            # Final Drain
-            try:
-                while not radiation_queue.empty():
-                    stream_type, line = radiation_queue.get_nowait()
-                    color = "cyan" if stream_type == "py" else "bold red"
-                    self.console.print(f"[{color}]   {stream_type}: [/]{line}")
-            except queue.Empty:
-                pass
-
-        # --- MOVEMENT V: ADJUDICATION ---
+        # --- MOVEMENT IV: ADJUDICATION ---
         if not strike_state["success"]:
             error = strike_state["error"]
             tb = strike_state["traceback"] or traceback.format_exc()
+
+            # [ASCENSION 12]: THE FINALITY VOW
+            # If the script fails, we perform a forensic dump.
             raise ArtisanHeresy(
                 "POLYGLOT_INCEPTION_FRACTURE",
                 details=f"Paradox: {type(error).__name__}: {str(error)}\n\nTraceback:\n{tb}",
                 severity=HeresySeverity.CRITICAL,
                 line_num=self.context.line_num,
-                suggestion="Gaze upon the internal traceback and verify your 'py:' logic."
+                suggestion="Gaze upon the internal traceback and ensure your 'py:' logic is pure."
             )
 
         total_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
         self.logger.success(f"Polyglot Rite concluded purely in {total_ms:.2f}ms.")
+
+        # [METABOLIC LUSTRATION]
         gc.collect()
 
     def _forge_haptic_bridge(self, trace_id: str):
-        """Bestows the Hud sigil-generator upon the guest script."""
+        """
+        =============================================================================
+        == THE HAPTIC BRIDGE (V-Ω-UI-TELEPATHY)                                    ==
+        =============================================================================
+        Bestows the ability to signal the Ocular HUD upon the guest script.
+        """
 
         class HudBridge:
             def __init__(self, engine, trace):
@@ -293,8 +342,9 @@ class PolyglotHandler(BaseRiteHandler):
             def pulse(self, color="#3b82f6"): self._send("pulse", color)
 
             def _send(self, vfx, color):
-                if hasattr(self.engine, 'akashic') and self.engine.akashic:
-                    self.engine.akashic.broadcast({
+                akashic = getattr(self.engine, 'akashic', None)
+                if akashic:
+                    akashic.broadcast({
                         "method": "novalym/hud_pulse",
                         "params": {"type": vfx, "color": color, "trace": self.trace}
                     })
@@ -302,9 +352,11 @@ class PolyglotHandler(BaseRiteHandler):
         return HudBridge(self.engine, trace_id)
 
     def _project_hud_signal(self, trace: str, label: str, color: str):
-        if hasattr(self.engine, 'akashic') and self.engine.akashic:
+        """Internal telemetry multicast."""
+        akashic = getattr(self.engine, 'akashic', None)
+        if akashic:
             try:
-                self.engine.akashic.broadcast({
+                akashic.broadcast({
                     "method": "novalym/hud_pulse",
                     "params": {
                         "type": "POLYGLOT_EVENT",
@@ -319,3 +371,4 @@ class PolyglotHandler(BaseRiteHandler):
 
     def __repr__(self) -> str:
         return f"<Ω_POLYGLOT_CONCOURSE substrate={'WASM' if self.is_wasm else 'IRON'} status=RESONANT>"
+

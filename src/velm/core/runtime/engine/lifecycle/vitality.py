@@ -115,34 +115,39 @@ class VitalityMonitor:
     def start_vigil(self, pulse_file_path: Optional[str] = None):
         """
         =============================================================================
-        == THE RITE OF IGNITION (THE FIX)                                          ==
+        == THE RITE OF IGNITION: SUBSTRATE-AWARE HEARTBEAT                         ==
         =============================================================================
-        [THE CURE]: This rite is now environment-aware. It will never attempt to
-        spawn a thread in the WASM Ethereal plane.
+        [THE CURE]: Prevents the 'can't start new thread' heresy in the browser tab.
         """
         if pulse_file_path:
             self.pulse_path = Path(pulse_file_path)
 
+        # [ASCENSION 1]: SUBSTRATE DETECTION
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
         self.logger.info(
-            f"Metabolic Sovereign active. [Substrate: {'ETHER' if self.is_wasm else 'IRON'}] "
-            f"Threshold: {self.memory_limit_mb:.0f}MB"
+            f"Vitality Monitor active. [Substrate: {'ETHER' if is_wasm else 'IRON'}]"
         )
 
-        # [ASCENSION 1 & 4]: CONDITIONAL BIFURCATION
-        if self.is_wasm:
-            self.logger.info("Watchdog entered [cyan]Passive Mode[/cyan]. Pulsing synchronously.")
-            # Trigger first pulse manually to initialize the HUD
+        if is_wasm:
+            self.logger.info("Heartbeat shifted to [cyan]Synchronous Pulse[/cyan].")
+            # We perform one manual pulse to initialize telemetry
             self.pulse()
             return
 
-        # Path: IRON CORE (NATIVE)
-        # We forge a dedicated daemon thread to stand vigil.
-        self._thread = threading.Thread(
-            target=self._vigil_loop,
-            name="VitalityVigil",
-            daemon=True
-        )
-        self._thread.start()
+        # PATH: IRON CORE (NATIVE)
+        # Background threads are only permitted on physical substrates.
+        try:
+            self._thread = threading.Thread(
+                target=self._vigil_loop,
+                name="VitalityVigil",
+                daemon=True
+            )
+            self._thread.start()
+        except RuntimeError:
+            self.logger.warn("Threading prohibited. Heartbeat remains silent.")
+
+
 
     def pulse(self):
         """

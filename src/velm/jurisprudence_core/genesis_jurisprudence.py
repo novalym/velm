@@ -1,159 +1,225 @@
-"""
-=================================================================================
-== THE SACRED CODEX OF GENESIS JURISPRUDENCE (V-Ω-ETERNAL-APOTHEOSIS-ULTIMA++)   ==
-=================================================================================
-@gnosis:title Genesis Jurisprudence
-@gnosis:summary The divine, declarative Grimoire of Gnostic Laws that guide the Genesis Mentor.
-@gnosis:LIF 100,000,000,000,000
+# Path: src/velm/jurisprudence/genesis_jurisprudence.py
+# =========================================================================================
+# == THE SACRED CODEX OF GENESIS JURISPRUDENCE (V-Ω-TOTALITY-V24000-OMEGA-FINALIS)       ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: ARCHITECTURAL_CONSCIENCE | RANK: OMEGA_SUPREME
+# AUTH: Ω_JURISPRUDENCE_V24K_SUBSTRATE_AWARE_2026_FINALIS
+# =========================================================================================
 
-This is the living, eternal, and self-aware soul of the Genesis Mentor in its final,
-glorious form. It is the sacred `GENESIS_CODEX`, a pantheon of pure `GnosticLaw`
-vessels. Each law is a sentient artisan, a Gnostic Judge that knows its own purpose,
-its voice, the heresy it is sworn to prevent, and the path to redemption.
-
-Its mind is now a multi-movement symphony, covering the Toolchain, Architectural
-Harmony, the DevOps Realm, AI Communion, the Project's Soul, and Prophecies of
-the Future Realm. It is the pinnacle of declarative, self-documenting
-architectural mentorship, a true AI Co-Architect's conscience.
-=================================================================================
-"""
 import shutil
-from typing import List
-
+import os
+import sys
+import re
+from typing import List, Dict, Any, Callable
 from .. import utils
 from ..contracts.law_contracts import GnosticLaw
+
+# =============================================================================
+# == INTERNAL ORGANS: THE SENSORY HELPERS                                    ==
+# =============================================================================
+
+def is_ether_plane() -> bool:
+    """Perceives if the Engine is breathing in the WASM substrate."""
+    return os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
+def scry_variable_entropy(val: Any) -> float:
+    """Measures the chaotic density of a variable string."""
+    import math
+    s = str(val)
+    if not s: return 0.0
+    prob = [float(s.count(c)) / len(s) for c in dict.fromkeys(list(s))]
+    return - sum([p * math.log(p) / math.log(2.0) for p in prob])
+
+# =============================================================================
+# == THE GRAND PANOPTICON OF LAWS                                            ==
+# =============================================================================
 
 GENESIS_CODEX: List[GnosticLaw] = [
 
     # =============================================================================
-    # == MOVEMENT I: THE LAWS OF THE GNOSTIC TOOLCHAIN (THE ARTISANS)            ==
+    # == STRATUM 0: THE LAWS OF THE SUBSTRATE (AMNESTY & TOOLS)                  ==
     # =============================================================================
+    
     GnosticLaw(
-        key="poetry_without_install",
-        validator=lambda g: g.get('project_type') in ['python', 'poetry'] and g.get('use_poetry') and not utils.is_poetry_installed(),
+        key="poetry_without_iron",
+        validator=lambda g: (
+            g.get('project_type') in ['python', 'poetry'] and 
+            g.get('use_poetry') and 
+            not utils.is_poetry_installed() and 
+            not is_ether_plane() # [THE CURE]
+        ),
         title="The Mute Artisan (Poetry)",
         message="The Gaze perceives a will for Poetry, but the `poetry` artisan is not manifest in this reality's PATH.",
-        elucidation="The 'Poetry' project type requires the 'poetry' command-line tool to be installed and accessible to manage dependencies, run scripts, and ensure a reproducible environment.",
+        elucidation="The 'Poetry' project type requires a physical binary on Iron. In the Ether (WASM), this is amnestied.",
         context_key="use_poetry",
-        suggestion="Install Poetry globally (`pip install poetry`) or choose a project type that uses pip/venv."
+        severity="WARNING",
+        suggestion="Install Poetry globally (`pip install poetry`) or switch to the WASM-native 'pip/venv' strategy."
     ),
+
     GnosticLaw(
-        key="docker_without_install",
-        validator=lambda g: g.get('use_docker') and not shutil.which('docker'),
+        key="docker_without_iron",
+        validator=lambda g: (
+            g.get('use_docker') and 
+            not shutil.which('docker') and 
+            not is_ether_plane() # [THE CURE]
+        ),
         title="The Unforged Vessel (Docker)",
         message="The Gaze perceives a will for containerization, but the `docker` artisan is a void in this reality.",
-        elucidation="Containerization relies on the Docker daemon and CLI. Without them, Dockerfiles and related artifacts cannot be built or run, making the project's soul bound to the mortal realm of the host machine.",
+        elucidation="Containerization relies on the Docker daemon. Without it, Dockerfiles cannot be built.",
         context_key="use_docker",
-        suggestion="Install Docker Desktop or the Docker engine for your OS to forge unbreakable, portable realities."
-    ),
-    GnosticLaw(
-        key="untestable_reality",
-        validator=lambda g: g.get('testing_framework') == 'none' and g.get('project_type') not in ['generic', 'docs', 'frontend-vanilla'],
-        title="A Reality Built on Faith",
-        message="A project that contains logic must be forged with a scripture of adjudication (a testing framework).",
-        elucidation="Without a testing framework, the project's soul cannot be verified for purity. This leads to architectural drift, regressions, and a reality built on hope rather than Gnostic certainty.",
-        context_key="testing_framework",
-        suggestion="Select a testing framework (e.g., pytest, jest) to ensure the Great Work remains pure."
+        severity="CRITICAL",
+        suggestion="Install Docker Desktop or enable the 'Shadow Strike' remote execution mode."
     ),
 
     # =============================================================================
-    # == MOVEMENT II: THE LAWS OF ARCHITECTURAL HARMONY                         ==
+    # == STRATUM 1: THE LAWS OF ARCHITECTURAL HARMONY                            ==
     # =============================================================================
+
     GnosticLaw(
         key="database_for_frontend",
         validator=lambda g: g.get('database_type') != 'none' and g.get('project_type') in ['frontend-vanilla', 'react-vite'],
         title="The Gnostic Schism of Realms",
         message=lambda g: f"A divine artisan of data, '{g.get('database_type')}', has been summoned for a frontend-only reality.",
-        elucidation="A frontend-only project typically consumes APIs and does not directly manage a database. Including database configuration suggests a potential misunderstanding of the project's architectural boundaries.",
+        elucidation="Frontend-only projects suggest a misunderstanding of architectural boundaries when requesting a DB.",
         context_key="database_type",
-        suggestion="Set the database type to 'none' for a pure frontend project."
+        severity="WARNING",
+        suggestion="Set the database type to 'none' for a pure frontend project and use an API instead."
     ),
+
     GnosticLaw(
         key="monolith_with_microservice_auth",
         validator=lambda g: g.get('project_structure_pattern') == 'monolithic' and g.get('auth_method') == 'jwt',
         title="A Soul Divided (Architecture & Auth)",
         message="A 'monolithic' form was chosen with 'JWT' authentication. Session cookies are often superior for monoliths.",
-        elucidation="While JWTs can be used in monoliths, their primary strength is in stateless, distributed systems. Traditional stateful session-based authentication is often simpler, more secure, and easier to manage in a single, unified application.",
+        elucidation="Traditional stateful sessions are often simpler and more secure for unified applications.",
         context_key="auth_method",
+        severity="INFO",
         suggestion="Consider using 'session-cookies' for a more harmonious monolithic architecture."
     ),
+
     GnosticLaw(
-        key="serverless_with_persistent_db",
-        validator=lambda g: g.get('project_structure_pattern') == 'serverless' and g.get('database_type') in ['postgres', 'mysql'],
-        title="The Ephemeral and the Eternal",
-        message=lambda g: f"A serverless architecture has been bound to an eternal, connection-based database ('{g.get('database_type')}').",
-        elucidation="Serverless functions can struggle with managing connection pools for traditional relational databases, leading to performance bottlenecks and scaling issues. Consider a serverless-native database like DynamoDB, Firestore, or use a proxy like RDS Proxy.",
-        context_key="project_structure_pattern",
-        suggestion="Choose a database designed for serverless architectures or ensure a connection pooling strategy is in place."
+        key="circular_dependency_intent",
+        validator=lambda g: g.get('project_name') and g.get('frontend_framework') == g.get('backend_framework'),
+        title="The Ouroboros Logic",
+        message="The blueprint suggests the same framework for both Frontend and Backend.",
+        elucidation="Unless using a meta-framework like Next.js, this usually signals a circular dependency in intent.",
+        context_key="project_name",
+        severity="WARNING",
+        suggestion="Verify that your frontend and backend choices are distinct or unified under a meta-framework."
     ),
 
     # =============================================================================
-    # == MOVEMENT III: THE LAWS OF THE DEVOPS REALM                            ==
+    # == STRATUM 2: THE LAWS OF THE PROJECT'S SOUL (NAMING & METADATA)           ==
     # =============================================================================
-    GnosticLaw(
-        key="ci_without_git",
-        validator=lambda g: g.get('use_ci') and g.get('use_ci') != 'none' and not g.get('use_git'),
-        title="The Unchronicled Symphony",
-        message="A CI symphony was willed, but the project will have no history (`.git`).",
-        elucidation="Continuous Integration (CI) pipelines are triggered by events (commits, pull requests) in a version control system. Without Git, the CI workflow has no events to react to and cannot perform its sacred duty of adjudication.",
-        context_key="use_ci",
-        suggestion="Enable Git (`use_git = True`) to allow the CI symphony to be conducted."
-    ),
-    GnosticLaw(
-        key="observability_without_docker",
-        validator=lambda g: g.get('observability_setup') and not g.get('use_docker'),
-        title="The Unseen Soul",
-        message="The Gaze of Observability was willed, but the reality will not be containerized.",
-        elucidation="While observability can be achieved on a host machine, containerized environments (via Docker Compose) provide a standardized, isolated, and reproducible way to run monitoring stacks like Prometheus and Grafana alongside the application.",
-        context_key="observability_setup",
-        suggestion="Enable Docker (`use_docker = True`) to forge a complete, self-aware, and observable reality."
-    ),
 
-    # =============================================================================
-    # == MOVEMENT IV: THE LAWS OF THE CO-ARCHITECT'S COMMUNION                   ==
-    # =============================================================================
-    GnosticLaw(
-        key="ai_consent_without_goals",
-        validator=lambda g: g.get('ai_code_generation_consent') and not g.get('project_goals'),
-        title="The Mute Oracle",
-        message="Consent granted for the AI Co-Architect, but no `project_goals` were proclaimed.",
-        elucidation="The AI Co-Architect's Gaze is most profound when it understands the ultimate destiny of the project. Proclaiming the project goals allows it to make more intelligent, context-aware prophecies and abstractions.",
-        context_key="ai_code_generation_consent",
-        suggestion="Proclaim the `project_goals` to empower the AI Co-Architect."
-    ),
-
-    # =============================================================================
-    # == MOVEMENT V: THE LAWS OF THE PROJECT'S SOUL                              ==
-    # =============================================================================
     GnosticLaw(
         key="casing_heresy_in_name",
         validator=lambda g: g.get('project_name') and (g.get('project_name') != utils.to_slug_case(g.get('project_name'))),
         title="A Profane Form (Project Name)",
         message=lambda g: f"Project name '{g.get('project_name')}' contains profane characters or casing.",
-        elucidation="Project names should be in 'kebab-case' (e.g., 'my-awesome-api') for universal compatibility with package managers, domain names, and container registries. This avoids a multitude of downstream heresies.",
+        elucidation="Project names should be in 'kebab-case' for universal compatibility with package managers.",
         context_key="project_name",
+        severity="WARNING",
         suggestion=lambda g: f"Consider renaming to '{utils.to_slug_case(g.get('project_name', ''))}'."
     ),
+
     GnosticLaw(
         key="vague_project_name",
-        validator=lambda g: g.get('project_name') and g.get('project_name').lower() in ['test', 'app', 'project', 'new-project'],
+        validator=lambda g: g.get('project_name') and g.get('project_name').lower() in ['test', 'app', 'project', 'new-project', 'sentinel'],
         title="The Nameless Soul",
         message=lambda g: f"The name '{g.get('project_name')}' is generic and lacks a unique Gnostic identity.",
-        elucidation="A unique and descriptive name is the first act of bestowing a soul upon a new reality. Generic names can lead to confusion and a lack of clear architectural intent.",
+        elucidation="A unique name is the first act of bestowing a soul upon a new reality.",
         context_key="project_name",
-        suggestion="Choose a more specific and meaningful name for your project."
+        severity="INFO",
+        suggestion="Choose a more specific name (e.g., 'sentinel-api-v1') to avoid multiversal collisions."
+    ),
+
+    GnosticLaw(
+        key="missing_progenitor_license",
+        validator=lambda g: not g.get('license') or g.get('license') == 'none',
+        title="The Unlicensed Reality",
+        message="No license scripture has been willed for this project.",
+        elucidation="Unlicensed code is a void of ownership. It cannot be legally adopted by the Guild or the public.",
+        context_key="license",
+        severity="WARNING",
+        suggestion="Choose a license (MIT, Apache-2.0, Proprietary) to define the project's sovereignty."
     ),
 
     # =============================================================================
-    # == MOVEMENT VI: THE LAWS OF THE FUTURE REALM (PROPHECIES)                  ==
+    # == STRATUM 3: THE LAWS OF SECURITY & PURITY                                ==
     # =============================================================================
+
     GnosticLaw(
-        key="prophecy_of_the_polyglot_cosmos",
-        validator=lambda g: g.get('frontend_framework') not in ['none', 'vanilla-js'] and g.get('project_type') in ['python', 'go', 'rust'],
-        title="Prophecy: The Birth of a Polyglot Cosmos",
-        message="Binding a compiled backend to a JS frontend creates a complex Polyglot Cosmos.",
-        elucidation="Managing a project with distinct frontend and backend languages introduces complexities in the build process, deployment, and developer experience. This is a powerful but advanced architectural choice.",
-        context_key="frontend_framework",
-        suggestion="Consider a full-stack framework (like Next.js or Django+HTMX) or ensure a robust monorepo and API contract strategy is planned."
+        key="high_entropy_placeholder",
+        validator=lambda g: any(scry_variable_entropy(v) > 4.5 for v in g.values() if isinstance(v, str) and len(v) > 16),
+        title="High-Entropy Matter Leak",
+        message="A variable contains a high-entropy string that resembles a raw secret or key.",
+        elucidation="Blueprint variables should never contain raw secrets. These should be warded via '@secret' rites.",
+        category="SECURITY",
+        severity="CRITICAL",
+        suggestion="Replace raw keys with Gnostic placeholders and use 'scaffold with' to inject secrets at runtime."
     ),
+
+    GnosticLaw(
+        key="missing_git_ward",
+        validator=lambda g: g.get('use_git') and not g.get('add_gitignore'),
+        title="The Unguarded Chronicle",
+        message="A Git chronicle was willed, but no '.gitignore' ward was manifest.",
+        elucidation="Without a .gitignore, profane system matter (node_modules, pycache) will leak into the Akasha.",
+        context_key="use_git",
+        severity="WARNING",
+        suggestion="Enable '.gitignore' materialization to keep the project's history pure."
+    ),
+
+    # =============================================================================
+    # == STRATUM 4: THE LAWS OF THE MAESTRO (ACTION & WILL)                      ==
+    # =============================================================================
+
+    GnosticLaw(
+        key="silent_symphony_edict",
+        validator=lambda g: g.get('use_ci') and not g.get('test_command'),
+        title="A Mute Symphony",
+        message="A CI pipeline was willed, but no test edict (command) was proclaimed.",
+        elucidation="CI is a rite of adjudication. If there is no command to run, the CI is an empty gesture.",
+        context_key="use_ci",
+        severity="WARNING",
+        suggestion="Proclaim a `test_command` (e.g., 'pytest' or 'npm test') to animate the CI."
+    ),
+
+    GnosticLaw(
+        key="root_execution_heresy",
+        validator=lambda g: g.get('run_as_root') or g.get('use_sudo'),
+        title="The Heresy of Absolute Power",
+        message="The blueprint contains edicts that demand 'root' or 'sudo' authority.",
+        elucidation="Executing as root is a security risk that can lead to host-substrate collapse.",
+        category="SECURITY",
+        severity="WARNING",
+        suggestion="Refactor edicts to run within user-space or use isolated container volumes."
+    ),
+
+    # =============================================================================
+    # == STRATUM 5: THE LAWS OF THE MULTIVERSE (PERSISTENCE)                     ==
+    # =============================================================================
+
+    GnosticLaw(
+        key="lockfile_bypass_vow",
+        validator=lambda g: g.get('skip_lockfile'),
+        title="The Amnesiac Reality",
+        message="The Gnostic Chronicle (scaffold.lock) has been willed into the void.",
+        elucidation="A project without a lockfile has no memory. It cannot be verified or healed by the Engine.",
+        context_key="skip_lockfile",
+        severity="WARNING",
+        suggestion="Enable the lockfile to ensure your architecture is recoverable across timelines."
+    ),
+
+    GnosticLaw(
+        key="heavy_matter_monolith",
+        validator=lambda g: g.get('file_count_estimate', 0) > 100 and g.get('project_structure_pattern') == 'monolithic',
+        title="The Heavy-Matter Monolith",
+        message="A high-mass monolithic form is being willed.",
+        elucidation="Large monoliths suffer from metabolic friction. Consider a 'Domain-Driven' structure.",
+        category="ARCHITECTURE",
+        severity="INFO",
+        suggestion="Explore the 'Modular' or 'Domain-Driven' archetypes for better cognitive scaling."
+    )
 ]

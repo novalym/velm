@@ -135,11 +135,17 @@ class SystemWatchdog:
 
     def start_vigil(self):
         """
-        [THE AWAKENING]
-        Ignites the Sentinel. If in WASM, enters Passive Mode.
+        =============================================================================
+        == THE AWAKENING: PASIVE METABOLISM (V-Ω-TOTALITY-V20000-WASM-SAFE)        ==
+        =============================================================================
+        [THE CURE]: This rite now scries the substrate. If in WASM, it stays the
+        hand of the Threading system to prevent the 'can't start new thread'
+        RuntimeError.
         """
         if self._is_wasm:
             self.logger.info("Watchdog entering [cyan]Passive Mode[/cyan] (WASM Substrate). Threading suspended.")
+            # In Passive Mode, we do not start the thread.
+            # We rely on the Dispatcher to call .poll_manual() during rites.
             return
 
         if self._is_blind:
@@ -158,13 +164,17 @@ class SystemWatchdog:
                 f"Critical={self.mem_critical_limit:.0f}MB"
             )
 
-            # [THE SUTURE]: Consecrated as a Daemon
-            self._thread = threading.Thread(
-                target=self._vigil_loop,
-                name="GnosticWatchdog",
-                daemon=True
-            )
-            self._thread.start()
+            # [STRIKE]: Only spawn the background soul on IRON substrates
+            try:
+                self._thread = threading.Thread(
+                    target=self._vigil_loop,
+                    name="GnosticWatchdog",
+                    daemon=True
+                )
+                self._thread.start()
+            except RuntimeError as thread_heresy:
+                self.logger.error(f"Threading Paradox: {thread_heresy}. Falling back to Passive Mode.")
+                self._is_wasm = True # Force passive mode for future calls
 
     def stop_vigil(self):
         """[THE DISSOLUTION]"""

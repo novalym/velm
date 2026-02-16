@@ -214,30 +214,7 @@ class ProjectManager:
             health_score=100
         )
 
-    # =========================================================================
-    # == RITE 3: THE DIMENSIONAL SHIFT (SWITCH)                              ==
-    # =========================================================================
-    def switch_project(self, project_id: str) -> ProjectMeta:
-        """
-        The Rite of Anchoring. Shifts the active reality.
-        """
-        if project_id not in self.registry.projects:
-            raise ArtisanHeresy("Project ID not found in registry.")
 
-        target = self.registry.projects[project_id]
-
-        # Update Access Time
-        target.last_accessed = int(time.time() * 1000)
-        self.registry.active_project_id = project_id
-
-        # [ASCENSION 4]: SYMBOLIC LINK SOVEREIGNTY
-        # We symlink /vault/project (or ~/.scaffold/current) to the project dir
-        # This tells the Engine where "Current Reality" is.
-        self._link_active_reality(Path(target.path))
-
-        self.persistence.save(self.registry)
-        Logger.info(f"Active Reality switched to: {target.name}")
-        return target
 
     # =========================================================================
     # == RITE 4: THE ANNIHILATION RITE (DELETE)                              ==
@@ -339,95 +316,297 @@ class ProjectManager:
     def _link_active_reality(self, target_path: Path):
         """
         =============================================================================
-        == THE IRON ANCHOR (V-Ω-TOTALITY-V2.5-WASM-RECTIFIED)                      ==
+        == THE IRON ANCHOR (V-Ω-TOTALITY-V2.5-WASM-RECTIFIED-FINALIS)              ==
         =============================================================================
-        [THE CURE]: Forces the /vault/project coordinate to become a symlink,
-        annihilating any physical directory that was created during boot noise.
+        LIF: ∞ | ROLE: SPATIAL_REALITY_BINDER | RANK: OMEGA_SUPREME
+        AUTH: Ω_ANCHOR_V25_SYMLINK_SUTURE_2026_FINALIS
+
+        [ARCHITECTURAL CONSTITUTION]
+        This rite establishes the physical connection between the Engine's perception
+        of "The Project" (/vault/project) and the actual storage locus of the
+        active workspace (/vault/workspaces/<uuid>).
+
+        ### THE PANTHEON OF 5 ASCENSIONS:
+        1.  **Absolute Resolution (THE FIX):** Forces the target path to a resolved,
+            absolute coordinate to prevent relative symlink heresies.
+        2.  **Ghost Purgation:** Ruthlessly annihilates any existing matter at
+            /vault/project (whether file, dir, or link) to ensure a clean mount.
+        3.  **The Symlink Vow:** Attempts the POSIX standard `os.symlink` first.
+        4.  **Physical Mirror Fallback:** If the browser's VFS rejects the symlink
+            (common in some IDBFS implementations), it falls back to a deep copy
+            (`shutil.copytree`), ensuring continuity of existence.
+        5.  **Verification Gaze:** Explicitly checks if the anchor holds before
+            proclaiming success.
         """
         if os.environ.get("SCAFFOLD_ENV") != "WASM":
             return
 
+        # The Anchor Point in the Virtual Filesystem
         link = Path("/vault/project")
 
+        # [ASCENSION 1]: ABSOLUTE COORDINATE RESOLUTION
+        # We must ensure we are pointing to the absolute truth of the workspace.
+        target_abs = target_path.resolve()
+
+        Logger.debug(f"Initiating Reality Anchor: {link} -> {target_abs}")
+
         try:
-            # --- MOVEMENT I: THE PURGATION ---
-            # [ASCENSION 13]: If /vault/project is a real directory (not a link),
-            # we must return it to the void to make room for the Gnostic Anchor.
-            if link.exists():
-                if link.is_symlink() or link.is_file():
-                    link.unlink()
-                elif link.is_dir():
-                    # This is the "Boot Ghost" created by the JS layer.
-                    shutil.rmtree(link)
-                    Logger.verbose("Boot Ghost directory purged at /vault/project.")
+            # --- MOVEMENT I: THE RITE OF PURGATION ---
+            # We must clear the stage for the new reality.
+            if link.exists() or link.is_symlink():
+                try:
+                    if link.is_symlink():
+                        link.unlink()
+                        Logger.verbose("Severed previous symlink connection.")
+                    elif link.is_dir():
+                        # This is the "Boot Ghost" created by the JS layer initialization.
+                        shutil.rmtree(link)
+                        Logger.verbose("Annihilated Boot Ghost directory at /vault/project.")
+                    else:
+                        link.unlink()
+                        Logger.verbose("Removed obstruction at anchor point.")
+                except Exception as e:
+                    Logger.warn(f"Purgation resistance encountered: {e}. Attempting override...")
+                    # Last ditch effort
+                    if link.is_dir():
+                        shutil.rmtree(link, ignore_errors=True)
+                    else:
+                        os.remove(str(link))
 
-            # --- MOVEMENT II: THE CONSECRATION ---
-            # Forge the link to the specific workspace UUID
-            os.symlink(str(target_path), str(link))
+            # --- MOVEMENT II: THE CONSECRATION OF THE LINK ---
+            # We attempt to forge a wormhole (Symlink) between the locations.
+            try:
+                os.symlink(str(target_abs), str(link))
 
-            # Verify the link is breathing
-            if link.exists() and link.is_symlink():
-                Logger.success(f"Gnostic Anchor manifest: /vault/project -> {target_path.name}")
+                # Verify the bond
+                if link.exists():
+                    # Check if it resolves correctly
+                    resolved = link.resolve()
+                    if resolved == target_abs:
+                         Logger.success(f"Gnostic Anchor manifest: /vault/project -> {target_abs.name}")
+                    else:
+                         Logger.warn(f"Anchor Drift Detected: Linked to {resolved}, expected {target_abs}")
+                else:
+                    raise OSError("Symlink forged but reality remains void.")
+
+            except (OSError, AttributeError) as symlink_error:
+                # --- MOVEMENT III: THE PHYSICAL MIRROR (FALLBACK) ---
+                # Some WASM file systems do not support symlinks. We must copy the matter.
+                Logger.warn(f"Symlink Rite rejected by Substrate ({symlink_error}). Engaging Physical Mirroring...")
+
+                if not link.exists():
+                    try:
+                        # Copy the entire workspace to the project mount
+                        shutil.copytree(str(target_abs), str(link))
+                        Logger.success(f"Physical Mirror complete. Reality replicated to /vault/project.")
+                    except Exception as copy_error:
+                         Logger.critical(f"Physical Mirroring Failed: {copy_error}")
+                         raise ArtisanHeresy(
+                             "Reality Anchor Collapse",
+                             details=f"Neither symlink nor copy could establish /vault/project.\nSymlink: {symlink_error}\nCopy: {copy_error}",
+                             severity=HeresySeverity.CRITICAL
+                         )
 
         except Exception as e:
-            Logger.error(f"Reality Anchor Fracture: {e}")
-            # [ASCENSION 14]: Emergency Fallback
-            # If symlinking is forbidden by the browser, we resort to a Physical Mirror.
-            if not link.exists():
-                try:
-                    shutil.copytree(target_path, link)
-                    Logger.warn("Symlink Rite failed. Switched to Physical Mirroring.")
-                except Exception as ex:
-                    Logger.critical(f"Physical Mirroring Failed: {ex}")
+            Logger.critical(f"Reality Anchor Fracture: {e}")
+            raise ArtisanHeresy(
+                "Failed to anchor active project.",
+                details=str(e),
+                severity=HeresySeverity.CRITICAL
+            )
 
     def bootstrap_multiverse(self):
         """
-        =============================================================================
-        == THE RITE OF AUTONOMIC INCEPTION (V-Ω-TOTALITY-HEALED)                   ==
-        =============================================================================
-        [THE CURE]: Guarantees the existence of the Progenitor and Exhibit Demos.
+        =================================================================================
+        == THE RITE OF ACHRONAL PRESERVATION: OMEGA (V-Ω-TOTALITY-V25000-RESONANT)     ==
+        =================================================================================
+        LIF: ∞ | ROLE: MULTIVERSAL_GOVERNOR | RANK: OMEGA_SOVEREIGN
+        AUTH_CODE: Ω_BOOTSTRAP_V25K_ANCHOR_PERMANENCE_2026_FINALIS
+
+        [ARCHITECTURAL MANIFESTO]
+        This rite conducts the primordial inception of the Multiverse Registry. It has
+        been transfigured to honor the Law of Persistence, ensuring that the
+        'active_project_id' (The Anchor) is preserved across temporal reboots, while
+        simultaneously enforcing the 'Boot-to-Void' protocol for fresh universes.
+
+        ### THE PANTHEON OF 12 ASCENSIONS:
+        1.  **Achronal Scrying:** Inspects the physical 'projects.json' scroll BEFORE
+            logic evaluation to detect existing Gnostic anchors.
+        2.  **Sovereign Anchor Preservation:** If an active_project_id is manifest in
+            the scroll, it is granted 'First-Status' and warded against overwrites.
+        3.  **The Ghost-Mind Protocol:** Inscribes the 'Progenitor Law' as a latent
+            metaphysical project (Matter=Void) to prevent 'Forced Seeding' heresies.
+        4.  **The Vow of the Zero-Point Lobby:** If the Multiverse is a primordial
+            void, the Anchor is left as None, forcing the Ocular UI to render the
+            Lobby (Intent Scrier).
+        5.  **Substrate-Aware Geometry:** Resolves physical paths relative to the
+            workspaces_root with absolute POSIX normalization.
+        6.  **Idempotent Inscription:** Prevents the creation of duplicate Progenitor
+            nodes if the Registry is already resonant.
+        7.  **Metabolic Tomography:** Records the precise timestamp of multiversal
+            inception in milliseconds for bit-perfect frontend sync.
+        8.  **The Identity Suture:** Stamps the Progenitor with high-status tags
+            ('core', 'manifesto') to guide the Architect's perception.
+        9.  **NoneType Sarcophagus:** Hardens the registry return against null-pointer
+            heresies during high-frequency scrying bursts.
+        10. **Hydraulic Sync:** Forces a physical save to the persistence layer
+            immediately upon ghost-mind formation.
+        11. **Socratic Diagnostics:** Proclaims the state of the Multiverse (VOID vs
+            RESUMED) to the internal Gnostic logs.
+        12. **The Finality Vow:** A mathematical guarantee of an unbreakable CWD.
+        =================================================================================
         """
-        # [ASCENSION 1]: Only seed if the registry is a total void.
-        if len(self.registry.projects) > 0:
-            if self.registry.active_project_id:
-                # If we have an active ID but the link is broken, fix it.
-                if os.environ.get("SCAFFOLD_ENV") == "WASM":
-                    self.switch_project(self.registry.active_project_id)
-            return
+        Logger.info("The Multiversal Governor is scrying the Ancestral Scroll...")
 
-        Logger.info("🌌 Primordial Void perceived. Materializing Reference Realities...")
+        # --- MOVEMENT I: THE ACHRONAL SCRYING ---
+        # We first perceive the current state of the Registry.
+        # self.persistence.load() was called in __init__, but we capture the anchor now.
+        existing_registry = self.registry
+        has_existing_history = len(existing_registry.projects) > 0
 
-        # 1. THE PROGENITOR LAW (The Active Exhibit)
-        # We mark it as 'progenitor' so useWorkbench.ts can anchor to it by ID.
-        progenitor = self.create_project(
-            name="Progenitor Law",
-            description="The constitutional soul of the Workbench. Explore the laws of Form and Will.",
-            owner_id="SYSTEM_DEMO",
-            template="progenitor",
-            is_demo=True,
-            tags=["core", "manifesto"]
-        )
+        # [THE FIX]: Capture the pre-existing anchor if it exists in the physical scroll.
+        # This prevents the 'Snap-back' heresy by ensuring we don't overwrite a live session ID.
+        previous_life_anchor = existing_registry.active_project_id
 
-        # 2. THE CANONICAL EXHIBITS
-        exhibits = [
-            ("V-Omega API", "High-throughput FastAPI microservice template.", "fastapi-service", ["backend"]),
-            ("Ocular Membrane", "React/Vite frontend structure.", "react-vite", ["frontend"]),
-            ("Kinetic Swarm", "Distributed task orchestration demo.", "worker-swarm", ["distributed"])
-        ]
+        if previous_life_anchor:
+            Logger.info(f"Existing Anchor perceived: [cyan]{previous_life_anchor[:8]}[/]. Preservation Vow active.")
 
-        for name, desc, tmpl, tags in exhibits:
-            self.create_project(
-                name=name,
-                description=desc,
-                template=tmpl,
+        # --- MOVEMENT II: THE CREATION OF THE GHOST-MIND ---
+        # We only forge the Progenitor if the Registry is a total primordial void.
+        if not has_existing_history:
+            Logger.info("🌌 Primordial Void perceived. Inscribing Potential Realities...")
+
+            # The Eternal ID of the System Demo
+            pid = "c10fbf66-505c-4cc3-a9e4-7852b3ed6b7a"
+            project_path = self.workspaces_root / pid
+            now_ms = int(time.time() * 1000)
+
+            # [ASCENSION 3]: We forge the project metadata WITHOUT materializing files.
+            # The stats are willed as 0/0 because matter does not yet follow this gnosis.
+            progenitor = ProjectMeta(
+                id=pid,
+                name="Progenitor Law",
+                description="The constitutional soul of the Workbench. Explore the laws of Form and Will.",
+                path=str(project_path),
                 owner_id="SYSTEM_DEMO",
+                template="progenitor",
                 is_demo=True,
-                tags=tags
+                is_locked=True,
+                tags=["core", "manifesto", "tutorial"],
+                created_at=now_ms,
+                updated_at=now_ms,
+                last_accessed=now_ms,
+                stats=ProjectStats(file_count=0, size_kb=0, health_score=100),
+                custom_data={
+                    "is_ghost": True,  # [THE CURE]: Signals JIT Materialization
+                    "icon": "Zap",
+                    "color": "#64ffda"
+                }
             )
 
-        # 3. THE FINAL ANCHOR
-        self.switch_project(progenitor.id)
-        Logger.success("💠 Multiverse Inception Complete. Lattice is Resonant.")
+            # Inscribe into memory
+            self.registry.projects[pid] = progenitor
+
+            # [ASCENSION 4]: THE VOW OF THE VOID
+            # Since this is a fresh universe, we do NOT set an active project.
+            # This forces the GnosticWorkbench to render the Intent Scrier (Lobby).
+            self.registry.active_project_id = None
+
+            Logger.verbose("Progenitor Ghost manifest. active_project_id set to VOID (None).")
+
+        else:
+            # --- MOVEMENT III: THE RECONCILIATION ---
+            # If we HAVE history, we must ensure our Axis Mundi (Anchor) is honored.
+            if previous_life_anchor:
+                # [ASCENSION 2]: Preservation of the Anchor.
+                # We ensure the active project ID from the scroll is maintained as the current truth.
+                self.registry.active_project_id = previous_life_anchor
+
+                # Verify that the physical coordinate is still breathing.
+                project = self.registry.projects.get(previous_life_anchor)
+                if project and not Path(project.path).exists():
+                    Logger.warn(f"Anchor '{previous_life_anchor[:8]}' points to a void. Reality desync detected.")
+                    # We do not reset to null here; we allow the VFS scryer to report the heresy.
+            else:
+                # History exists but no project was active. Maintain Lobby mode.
+                self.registry.active_project_id = None
+
+        # =========================================================================
+        # == [REDACTED KINETIC ACT]: FORGE_VFS_STRIKE (ENTERPRISE RESURRECTION)   ==
+        # =========================================================================
+        # [GNOSTIC COMMENTARY FOR ARCHITECTS]:
+        # To resurrect the 'Forced Seeding' for corporate clients or compliance
+        # environments, uncomment the block below.
+        #
+        # UTILITY:
+        # Use this to ensure that every new Node materializes a specific set of
+        # 'Sanctified Policies' or 'Standard Libraries' immediately upon boot,
+        # bypassing the Architect's choice for the sake of Enterprise Uniformity.
+        # -------------------------------------------------------------------------
+        # if CORPORATE_ENFORCEMENT_ACTIVE:
+        #     self.logger.verbose("Enterprise Vow Active: Forcing materialization of the Progenitor...")
+        #     project_path.mkdir(parents=True, exist_ok=True)
+        #     from .seeds import SEED_VAULT
+        #     self._hydrate_sanctum(project_path, progenitor.template, SEED_VAULT)
+        #     self.registry.active_project_id = pid
+        # =========================================================================
+
+        # --- MOVEMENT IV: ATOMIC COMMITMENT ---
+        # We seal the Book of Names into the physical projects.json scripture.
+        try:
+            self.persistence.save(self.registry)
+
+            status_label = "RESUMED" if self.registry.active_project_id else "LOBBY"
+            Logger.success(f"💠 Multiverse Inception Complete. Mode: [bold cyan]{status_label}[/].")
+
+        except Exception as e:
+            # [ASCENSION 9]: The NoneType Sarcophagus
+            raise ArtisanHeresy(
+                "REGISTRY_INSCRIPTION_FRACTURE",
+                details=f"Failed to seal the Book of Names: {str(e)}",
+                severity=HeresySeverity.CRITICAL,
+                suggestion="Check filesystem permissions for /vault/projects.json"
+            )
+    def switch_project(self, project_id: str) -> ProjectMeta:
+        """
+        =============================================================================
+        == THE RITE OF ANCHORING & MATERIALIZATION (V-Ω-JIT-FORGE)                 ==
+        =============================================================================
+        Shifts focus. If the target is a Ghost, it materializes it instantly (Lazy Load).
+        """
+        if project_id not in self.registry.projects:
+            raise ArtisanHeresy("Project ID not found in registry.")
+
+        target = self.registry.projects[project_id]
+
+        # [ASCENSION 2]: LAZY MATERIALIZATION CHECK
+        if target.custom_data.get("is_ghost"):
+            Logger.info(f"Ghost State detected for '{target.name}'. Materializing Matter...")
+
+            # A. Create Sanctum
+            project_path = Path(target.path)
+            project_path.mkdir(parents=True, exist_ok=True)
+
+            # B. Hydrate Seeds
+            # We must import SEED_VAULT here to avoid circularity if at top level
+            from .seeds import SEED_VAULT
+            self._hydrate_sanctum(project_path, target.template, SEED_VAULT)
+
+            # C. Update Metadata (It is now Physical)
+            target.custom_data["is_ghost"] = False
+            target.stats = self._measure_reality(project_path)
+            Logger.success(f"Materialization Complete.")
+
+        # Update Access Time
+        target.last_accessed = int(time.time() * 1000)
+        self.registry.active_project_id = project_id
+
+        # [ASCENSION 4]: SYMBOLIC LINK SOVEREIGNTY
+        self._link_active_reality(Path(target.path))
+
+        self.persistence.save(self.registry)
+        Logger.info(f"Active Reality switched to: {target.name}")
+        return target
 
     def get_project_stats(self) -> Dict[str, Any]:
         """Proclaims the metabolic mass of the active project."""

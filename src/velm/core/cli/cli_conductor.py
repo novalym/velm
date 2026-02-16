@@ -148,7 +148,7 @@ def _try_commune_with_daemon(argv: list[str]) -> bool:
     return False
 
 
-def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -> Optional[ScaffoldResult]:
+def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -> ScaffoldResult:
     """
     =============================================================================
     == THE SOVEREIGN CONDUCTOR (V-Ω-TOTALITY-V2000-THE-RETURN)                 ==
@@ -217,7 +217,8 @@ def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -
                 pass
         from .cli_shims import run_lsp_server
         run_lsp_server(engine_instance, None)
-        return None
+        # [THE CURE]: Explicit Return for LSP termination in WASM
+        return ScaffoldResult(success=True, message="LSP Session Concluded")
 
     # [ASCENSION 6]: DAEMON COMMUNION (Native Only)
     if not engine_instance and not IS_WASM:
@@ -226,15 +227,18 @@ def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -
         try:
             if _try_commune_with_daemon(argv):
                 _trace("Daemon Commune established. Kinetic intent forwarded.", "92")
-                return None  # Result handled by daemon printer
+                # Native daemon handles output; return phantom success to satisfy type checker
+                return ScaffoldResult(success=True, message="Delegated to Daemon")
         except Exception as e:
             _trace(f"Daemon link fractured: {e}. Falling back to Local Ignition.", "93")
 
     # --- FALLBACK: LOCAL IGNITION (COLD START) ---
     if len(argv) > 1 and argv[1] in ("--version", "-V"):
         from ... import __version__
-        sys.stdout.write(f"Velm God-Engine v{__version__}\n")
-        return None
+        msg = f"Velm God-Engine v{__version__}"
+        sys.stdout.write(msg + "\n")
+        # [THE CURE]: Explicit Return for Version Check
+        return ScaffoldResult(success=True, message=msg)
 
     try:
         from .core_cli import build_parser
@@ -268,16 +272,17 @@ def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -
         parser = build_parser()
         if len(argv) == 1:
             parser.print_help()
-            # [ASCENSION 22]: In WASM, do not exit process, just return None
-            if IS_WASM: return None
-            sys.exit(0)
+            # [THE CURE]: Explicit Return for Help (WASM Safe)
+            return ScaffoldResult(success=True, message="Help Proclaimed")
 
         _trace("Parsing Spoken Will (Arguments)...")
         # [ASCENSION 21]: Argv Alchemy (Prevent partial parsing errors)
         try:
             args = parser.parse_args(argv[1:])
         except SystemExit as se:
-            if IS_WASM: return None  # Capture help output instead of dying
+            # [THE CURE]: Catch SystemExit in WASM to prevent worker death
+            if IS_WASM:
+                return ScaffoldResult(success=se.code == 0, message=f"CLI Exit Code: {se.code}")
             raise se
 
         command_name = getattr(args, 'command', 'unknown')
@@ -357,8 +362,10 @@ def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -
                     _trace("Summoning Herald for Revelation...")
                     args.herald(handler_result, args)
 
-                # [ASCENSION 1 - THE CURE]: RETURN THE VESSEL
-                # We return the object so the caller (WASM/API) can perceive the Gnosis.
+                # [THE CURE]: ENSURE RETURN VALUE FOR JS BRIDGE
+                if handler_result is None:
+                    return ScaffoldResult(success=True, message=f"Rite {command_name} concluded silently.")
+
                 return handler_result
 
             except Exception as handler_err:
@@ -371,14 +378,14 @@ def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -
                 raise handler_err
         else:
             parser.print_help()
-            if not IS_WASM: sys.exit(1)
-            return None
+            # [THE CURE]: Explicit Return for Help
+            return ScaffoldResult(success=True, message="Help Proclaimed")
 
     except KeyboardInterrupt:
         # [ASCENSION 18]: SIGNAL SHIELDING
         sys.stderr.write("\n\x1b[31m[CLI] 🔌 Neural Link severed by Architect. Dissolving reality...\x1b[0m\n")
         if not IS_WASM: sys.exit(130)
-        return None
+        return ScaffoldResult(success=False, message="Interrupted by Architect")
 
     except Exception as catastrophic_paradox:
         # =========================================================================
@@ -422,5 +429,3 @@ def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -
         # [ASCENSION 20]: FINALITY TELEMETRY
         total_latency = (time.perf_counter_ns() - _boot_start_ns) / 1_000_000
         _trace(f"Total Lifecycle Concluded. Latency: {total_latency:.2f}ms", "92")
-
-    return None
