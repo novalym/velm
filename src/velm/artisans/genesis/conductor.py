@@ -370,6 +370,7 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         # --- MOVEMENT I: THE SYNTACTIC MATERIALIZATION ---
         try:
             # The Parser is summoned to deconstruct the atoms of Form.
+            # Returns: (parser, items, commands, edicts, variables, dossier)
             parser, items, commands, edicts, variables, dossier = parse_structure(
                 target_blueprint, args=gnostic_passport, pre_resolved_vars=cli_vars
             )
@@ -456,8 +457,13 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
         self.logger.success(f"Gnostic Inquest: [green]PASSED[/green] ({duration_ms:.2f}ms). Reality is stable.")
 
-        # Bestow the Dowry upon the Materializer
-        return parser, items, commands, edicts, combined_vars, dossier
+        # [THE CRITICAL FIX]: TYPE HARMONIZATION
+        # 1. Flatten command tuples to strings (Materializer expects List[str])
+        # 2. Remove 'edicts' (Materializer expects 5 items, not 6)
+        clean_commands = [c[0] if isinstance(c, tuple) else c for c in commands]
+
+        # Bestow the Dowry upon the Materializer (5-Tuple)
+        return parser, items, clean_commands, combined_vars, dossier
 
     def _survey_for_collisions(self, items: List[ScaffoldItem], final_vars: Dict, project_root: Path) -> List[Path]:
         """[FACULTY 12] The Guardian's Prophecy."""

@@ -685,6 +685,13 @@ src/velm/artisans/project/contracts.py
 src/velm/artisans/project/manager.py
 src/velm/artisans/project/persistence.py
 src/velm/artisans/project/seeds.py
+src/velm/artisans/project/__pycache__/__init__.cpython-313.pyc
+src/velm/artisans/project/__pycache__/artisan.cpython-313.pyc
+src/velm/artisans/project/__pycache__/constants.cpython-313.pyc
+src/velm/artisans/project/__pycache__/contracts.cpython-313.pyc
+src/velm/artisans/project/__pycache__/manager.cpython-313.pyc
+src/velm/artisans/project/__pycache__/persistence.cpython-313.pyc
+src/velm/artisans/project/__pycache__/seeds.cpython-313.pyc
 src/velm/artisans/prophesy/__init__.py
 src/velm/artisans/prophesy/artisan.py
 src/velm/artisans/qr/__init__.py

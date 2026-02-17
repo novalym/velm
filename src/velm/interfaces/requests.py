@@ -2538,7 +2538,10 @@ class WorkspaceRequest(BaseRequest):
     Observatory. Its soul changes form based on the rite being conducted.
     """
     workspace_command: str = Field(description="The primary rite to be conducted (list, health, exec, etc.).")
-
+    non_interactive: bool = Field(
+        False,
+        description="The Vow of Silence. Suppresses all interactive prompts, accepting default Gnosis."
+    )
     # --- Vessels for Specific Rites ---
 
     command_to_run: Optional[str] = Field(None,
