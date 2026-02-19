@@ -1,0 +1,129 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: PROGENITOR LAW (V-Ω-TOTALITY-V3.0)                       ==
+# =================================================================================
+# @name: Progenitor Law
+# @description: The Constitutional Anchor of the Novalym Ecosystem. It demonstrates
+#               the fundamental physics of Form (`.scaffold`) and Will (`.symphony`).
+# @category: System
+# @tags: system, demo, core, tutorial, gnostic-primer
+# @difficulty: Novice
+# @icon: Fingerprint
+# @color: #9333ea
+# @dna: use_git=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
+# These variables define the soul of this reality. They are immutable Gnostic constants.
+$$ project_name = "Progenitor"
+$$ engine_version = "v3.0.0-OMEGA"
+$$ python_version = "3.11"
+
+# --- II. THE SCRIPTURE OF FORM (THE BODY) ---
+# The indentation defines the hierarchy. `::` inscribes content. `<<` seeds it.
+{{ project_name }}/
+
+    # [1] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # 🏛️ The Progenitor Law
+    > "Reality is not found; it is willed into existence through the Gnostic Hand."
+
+    Welcome, Architect. You are standing at the **Axis Mundi** of the Novalym Ecosystem. 
+
+    This project is the **Constitutional Anchor** of your Workbench. It exists to demonstrate the fundamental physics of Gnostic Engineering. 
+
+    ### 🔮 The Three Pillars
+    1. **The Law (Form):** Gaze into `scaffold.scaffold`. It defines the atoms of this reality.
+    2. **The Will (Kinetic):** Gaze into `scripts/setup.symphony`. It defines the ritual of awakening.
+    3. **The Memory (Chronicle):** Gaze into `scaffold.lock`. It is the fingerprint of Truth.
+
+    ### ⚡ First Rites
+    Speak these commands in the terminal below:
+    `velm tree --size`
+    `velm analyze src/kernel.py`
+    `velm run scripts/setup.symphony`
+    """
+
+    # [2] THE GNOSTIC LAW (A SELF-REPLICATING MIRROR)
+    # This scripture is a mirror of the project's own form.
+    scaffold.scaffold :: """
+    # == Gnostic Constitution: Progenitor ==
+    # Version: 1.0.0-OMEGA
+
+    $$ project_name = "{{ project_name }}"
+    $$ engine_version = "{{ engine_version }}"
+
+    src/
+        kernel.py :: "print('● TITAN_KERNEL_RESONANT')"
+        utils/
+            purity.py :: "def verify_purity(): return True"
+
+    docs/
+        MANIFESTO.md :: "The Singularity is Inevitable."
+
+    scripts/
+        setup.symphony << ./templates/symphony/base
+    """
+
+    # [3] THE KINETIC SOUL
+    src/
+        kernel.py :: "print('● TITAN_KERNEL_RESONANT')"
+        utils/
+            purity.py :: "def verify_purity(): return True"
+
+    # [4] THE GNOSTIC CHRONICLE
+    docs/
+        MANIFESTO.md :: "The Singularity is Inevitable."
+    
+    # [5] THE WILL OF AUTOMATION
+    scripts/
+        setup.symphony :: """
+        # == The Rite of Inception ==
+        # This Symphony validates the reality forged by the blueprint.
+        
+        %% proclaim: "Awakening the Progenitor..."
+        
+        # Vow I: Ensure the Substrate is manifest
+        >> echo "Substrate: WASM_IDBFS"
+        ?? succeeds
+        
+        # Vow II: Conduct the Kernel's First Breath
+        >> python src/kernel.py
+        ?? stdout_contains: "RESONANT"
+        
+        %% proclaim: "Reality matches the Law. Resonance: 100%."
+        """
+
+    # [6] THE BANNER OF IDENTITY
+    .scaffold/
+        banner.txt :: """
+     _   _  ___  _   _  ___  _   _  _   _  _
+    | | | || __|| | | || __|| | | || | | || |
+    | |_| || _| | |_| || _| | |_| || |_| || |_
+     \\___/ |___| \\___/ |___| \\___/  \\___/  \\__|
+    THE GNOSTIC ENGINE // PROGENITOR
+        """
+    
+    # [7] THE VEIL OF IGNORANCE
+    .gitignore :: """
+    # Gnostic Veil
+    .venv/
+    __pycache__/
+    *.pyc
+    .scaffold/
+    scaffold.lock
+    """
+
+# --- III. THE MAESTRO'S WILL (POST-RUN SYMPHONY) ---
+%% post-run
+    # 1. Initialize the Gnostic Chronicle
+    # We only conduct this rite if the Architect willed for Git to be used.
+    @if {{ use_git }}
+        proclaim: "Initializing the Git Chronicle..."
+        >> git init
+        >> git add .
+        >> git commit -m "feat: Initialized Progenitor Law v1.0.0"
+    @endif
+    
+    # 2. Final Proclamation to the Architect
+    proclaim: "✅ The Progenitor Law is manifest in '{{ project_name }}/'."
+    proclaim: "   Enter the sanctum and begin your Great Work."

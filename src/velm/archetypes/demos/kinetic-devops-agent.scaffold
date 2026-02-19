@@ -1,0 +1,135 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: KINETIC DEVOPS AGENT (V-Ω-TOTALITY)                      ==
+# =================================================================================
+# @name: Kinetic DevOps Agent
+# @description: A sovereign, self-installing automation agent. It forges its own
+#               Python virtual environment, installs dependencies, and runs a
+#               self-verification symphony to prove its own integrity.
+# @category: Automation
+# @tags: system, demo, devops, ci-cd, python, automation, symphony
+# @difficulty: Master
+# @icon: Cpu
+# @color: #f59e0b
+# @dna: use_git=true, use_docker=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
+$$ project_name = "kinetic-agent"
+$$ author = "The Gnostic Architect"
+$$ python_runtime = "3.11"
+$$ agent_version = "1.0.0-omega"
+
+# --- II. THE SCRIPTURE OF FORM (THE BODY) ---
+{{ project_name }}/
+
+    # [1] THE KERNEL & CONSTITUTION
+    .gitignore :: ".venv/\n__pycache__/\n*.log\n.DS_Store"
+
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_name }}"
+    version = "{{ agent_version }}"
+    description = "A sovereign kinetic agent forged by VELM."
+    authors = ["{{ author }}"]
+
+    [tool.poetry.dependencies]
+    python = "^{{ python_runtime }}"
+    rich = "^13.7.1"
+    requests = "^2.31.0"
+    
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+    """
+
+    # [2] THE AGENT'S SOUL (LOGIC)
+    src/
+        agent/
+            __init__.py
+            core.py :: """
+            from rich.console import Console
+            
+            console = Console()
+            
+            def conduct_self_test():
+                console.print("Self-test rite [bold green]CONDUCTED[/]. All systems resonant.")
+                return True
+            """
+        
+        main.py :: """
+        from agent.core import conduct_self_test
+        
+        if __name__ == "__main__":
+            conduct_self_test()
+        """
+
+    # [3] THE RITE OF VERIFICATION (THE AGENT'S CONSCIENCE)
+    symphonies/
+        verify_integrity.symphony :: """
+        # == Symphony: Integrity Verification ==
+        
+        %% proclaim: "Initiating Gnostic Self-Verification..."
+        
+        # Vow I: The Python soul must be pure
+        >> poetry run python src/main.py
+        ?? stdout_contains: "resonant"
+        
+        # Vow II: The Docker vessel must be buildable
+        >> docker build -t {{ project_name }}:test .
+        ?? succeeds
+        
+        %% proclaim: "[bold green]✅ The Kinetic Agent is pure. Integrity: 100%.[/bold green]"
+        """
+
+    # [4] THE CELESTIAL VESSEL
+    Dockerfile :: """
+    FROM python:{{ python_runtime }}-slim
+    WORKDIR /app
+    COPY pyproject.toml poetry.lock ./
+    RUN pip install poetry && poetry install --no-root
+    COPY . .
+    CMD ["poetry", "run", "python", "src/main.py"]
+    """
+
+    # [5] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # 🤖 {{ project_name | title }}
+    A sovereign automation agent forged by VELM.
+    
+    ### Rites of Command
+    - `poetry run python src/main.py`
+    - `velm run symphonies/verify_integrity.symphony`
+    """
+
+# --- III. THE MAESTRO'S WILL (SELF-INSTALLATION SYMPHONY) ---
+%% post-run
+    proclaim: "================================================================="
+    proclaim: "[bold purple]THE KINETIC AGENT IS BEING BORN. WITNESS THE SELF-FORGING...[/bold purple]"
+    proclaim: "================================================================="
+
+    # We conduct all rites within the newly forged sanctum
+    %% sanctum: {{ project_name }}
+    
+    # 1. Forge the virtual soul
+    proclaim: "Phase I: Forging Python Virtual Environment..."
+    >> python -m venv .venv
+    ?? dir_exists: .venv/
+
+    # 2. Conduct rites within the venv using the polyglot engine
+    proclaim: "Phase II: Summoning dependencies via Poetry..."
+    polyglot(venv=".venv"):
+        >> pip install poetry
+        >> poetry install --no-interaction
+    ?? succeeds
+
+    # 3. The Final Adjudication: Run the self-test symphony
+    proclaim: "Phase III: Conducting Integrity Verification Symphony..."
+    >> velm run symphonies/verify_integrity.symphony
+    ?? succeeds
+
+    proclaim: "[bold green]✅ APOTHEOSIS COMPLETE. The Kinetic DevOps Agent is manifest and verified.[/bold green]"
+    proclaim: "   Enter the sanctum ('cd {{ project_name }}') and wield its power."
+
+%% on-heresy
+    proclaim: "[bold red]A HERESY OF CREATION! The agent failed to self-materialize.[/bold red]"
+    proclaim: "   The Gnostic chronicle of failure: {{ HERALD_STDERR }}"

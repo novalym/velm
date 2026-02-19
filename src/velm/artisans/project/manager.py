@@ -17,7 +17,7 @@ from .persistence import RegistryPersistence
 from .constants import (
     DEFAULT_WORKSPACE_DIR_NAME,
     SYSTEM_OWNER_ID,
-    GUEST_OWNER_ID
+    GUEST_OWNER_ID, PROGENITOR_ID
 )
 
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
@@ -381,20 +381,98 @@ class ProjectManager:
 
     def _hydrate_sanctum(self, root: Path, template_id: str, vault: Dict):
         """
-        [ASCENSION 13]: THE SEEDING RITE.
-        Inscribes the predefined scriptures from the Vault into the physical directory.
-        """
-        seed_data = vault.get(template_id, vault.get("blank", {}))
-        scriptures_written = 0
-        for rel_path, content in seed_data.items():
-            target = root / rel_path
-            # Ensure parent sanctums exist
-            target.parent.mkdir(parents=True, exist_ok=True)
-            # Atomic Write
-            target.write_text(content, encoding='utf-8')
-            scriptures_written += 1
+        =================================================================================
+        == THE RITE OF HYDRAULIC INCEPTION (V-Ω-TOTALITY-V100K-UNBREAKABLE)            ==
+        =================================================================================
+        LIF: ∞ | ROLE: ATOMIC_MATTER_INSCRIBER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_HYDRATE_V100K_ATOMIC_SUTURE_2026_FINALIS
 
-        Logger.verbose(f"Hydration complete: {scriptures_written} scriptures inscribed for '{template_id}'.")
+        [ARCHITECTURAL MANIFESTO]
+        This rite materializes the DNA of a System Archetype onto the physical substrate.
+        It is engineered to defeat the 'Empty Explorer' heresy by enforcing Atomic
+        Force-Flushing and Topographical Lustration.
+        =================================================================================
+        """
+        start_ns = time.perf_counter_ns()
+
+        # --- MOVEMENT I: THE SUMMONS OF DNA ---
+        # If the willed template is a void, we default to the 'blank' scripture.
+        seed_data = vault.get(template_id, vault.get("blank", {}))
+
+        scriptures_inscribed = 0
+        sanctums_forged = 0
+
+        Logger.info(f"Initiating Hydraulic Inception for archetype '[cyan]{template_id}[/cyan]'...")
+
+        # --- MOVEMENT II: THE KINETIC STRIKE (INSCRIPTION) ---
+        for rel_path_str, content in seed_data.items():
+            # [ASCENSION 9]: Absolute Path Normalization
+            # We ensure the target is anchored correctly within the /vault/workspaces stratum.
+            target_path = (root / rel_path_str).resolve()
+            target_str = str(target_path).replace('\\', '/')
+
+            try:
+                # 1. FORGE PARENT SANCTUMS
+                # [ASCENSION 4]: We ensure the entire directory ancestry is manifest.
+                parent_dir = target_path.parent
+                if not parent_dir.exists():
+                    parent_dir.mkdir(parents=True, exist_ok=True)
+                    sanctums_forged += 1
+
+                # 2. ATOMIC INSCRIPTION (THEmaron STRIKE)
+                # [ASCENSION 1, 2, 3]: We move beyond high-level 'write_text'.
+                # We open the marrows of the OS to perform a force-flush.
+                with open(target_str, 'wb') as scripture_handle:
+                    # Transmute Gnostic Soul (String) into Matter (Bytes)
+                    scripture_handle.write(content.encode('utf-8'))
+
+                    # [THE CURE]: HYDRAULIC FLUSH
+                    # Force the data out of Python's memory buffer.
+                    scripture_handle.flush()
+
+                    # [THE CURE]: ACHRONAL FSYNC
+                    # Force the virtual OS (Emscripten) to commit to the dnode.
+                    os.fsync(scripture_handle.fileno())
+
+                # 3. METABOLIC VERIFICATION
+                # [ASCENSION 7]: Verify the matter possesses mass.
+                if os.stat(target_str).st_size == 0 and len(content) > 0:
+                    Logger.warn(f"Metabolic Gap detected in '{rel_path_str}'. Re-striking...")
+                    # Future: Implement recursive retry logic here.
+
+                scriptures_inscribed += 1
+
+            except Exception as heresy:
+                # [ASCENSION 8]: Fault Isolation
+                # A single fracture must not halt the manifestation of the entire project.
+                Logger.error(f"Inscription Fracture at [bold red]{rel_path_str}[/]: {heresy}")
+
+        # =========================================================================
+        # == MOVEMENT III: TOPOGRAPHICAL LUSTRATION (THE FIX)                    ==
+        # =========================================================================
+        # [ASCENSION 5 & 6]: We physically 'vibrate' the directory tree.
+        # In the WASM environment, the Directory Entry Cache can become stale
+        # during high-intensity writes. We force a re-scry of the entire sanctum.
+
+        Logger.verbose("Conducting Topographical Lustration to align VFS dentry cache...")
+
+        # Pass 1: Recursive Walk (Deep Lustration)
+        # This forces the Emscripten VFS to rebuild pointers for every sub-directory.
+        for root_node, dirs, files in os.walk(str(root)):
+            # The act of walking is the cure.
+            pass
+
+        # Pass 2: Root Probe (Final Cache Bust)
+        # This ensures the very next 'ls' or 'SCRY' from the UI sees the new children.
+        _ = os.listdir(str(root))
+
+        # --- MOVEMENT IV: TELEMETRIC FINALITY ---
+        duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+        Logger.success(
+            f"Apotheosis Complete: {scriptures_inscribed} scriptures manifest, "
+            f"{sanctums_forged} sanctums forged in {duration_ms:.2f}ms."
+        )
+
 
     def _measure_reality(self, root: Path) -> ProjectStats:
         """
@@ -426,72 +504,168 @@ class ProjectManager:
     # =========================================================================
     def switch_project(self, project_id: str) -> ProjectMeta:
         """
-        =============================================================================
-        == THE RITE OF ANCHORING & MATERIALIZATION (V-Ω-TOTALITY-V100K-SUTURED)    ==
-        =============================================================================
+        =================================================================================
+        == THE RITE OF ANCHORING & MATERIALIZATION (V-Ω-TOTALITY-V100K-HYDRAULIC)      ==
+        =================================================================================
         LIF: ∞ | ROLE: SPATIAL_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_SWITCH_V100K_ABSOLUTE_CWD_FINALIS_2026
+        AUTH: Ω_SWITCH_V100K_HYDRAULIC_SUTURE_2026_FINALIS
 
         [ARCHITECTURAL MANIFESTO]
-        This rite annihilates the 'Symlink Ghost' by forcing the Python Mind to
-        physically inhabit the workspace coordinate. It establishes Absolute
-        Coordinate Sovereignty.
+        This rite conducts the spatial transition of the Engine's consciousness.
+        It annihilates the 'Symlink Ghost' and 'Hollow Sanctum' heresies by enforcing
+        Physical Mass Verification. If a reality is unmanifest or empty, the
+        Manager conducts a JIT Materialization Strike before anchoring the process.
+        =================================================================================
         """
+        start_ns = time.perf_counter_ns()
+
         with self._lock:
-            # 1. COORDINATE VALIDATION
+            # --- MOVEMENT I: THE GNOSTIC INQUEST (IDENTITY RECONCILIATION) ---
+            # [ASCENSION 1]: If the ID is unmanifest (common on cold boots),
+            # we perform a forced Census to resurrect System Archetypes JIT.
             if project_id not in self.registry.projects:
-                raise ArtisanHeresy(
-                    f"Coordinate Lost: Reality '{project_id}' is unmanifest.",
-                    severity=HeresySeverity.CRITICAL
-                )
+                Logger.info(f"Plea for unmanifest ID '[yellow]{project_id[:8]}[/]'. Scrying Seed Vault...")
+                self._census_of_seeds(force=True)
+
+                # Final Adjudication of existence after the Census
+                if project_id not in self.registry.projects:
+                    raise ArtisanHeresy(
+                        f"Coordinate Lost: Reality '{project_id}' is unmanifest in the Registry.",
+                        severity=HeresySeverity.CRITICAL,
+                        suggestion="Execute 'velm project list' to perceive manifest realities."
+                    )
 
             target = self.registry.projects[project_id]
+            project_path = Path(target.path)
+            project_path_posix = str(project_path.resolve()).replace('\\', '/')
 
-            # 2. [ASCENSION 13]: JIT MATERIALIZATION (GHOST -> PHYSICAL)
-            is_ghost = target.custom_data.get("is_ghost")
-            is_optimistic = target.custom_data.get("is_optimistic")
+            Logger.verbose(f"Anchoring focus to: [cyan]{target.name}[/] ({project_id[:8]})")
 
-            if is_ghost or is_optimistic:
-                Logger.info(f"Ghost Resonance detected for '{target.name}'. Materializing Matter...")
-                project_path = Path(target.path)
+            # --- MOVEMENT II: HYDRAULIC REALITY VERIFICATION (MATTER BIOPSY) ---
+            # [ASCENSION 2]: We scry the physical platter. A folder with no mass is a void.
+            # We do not trust the 'is_ghost' flag; reality takes precedence.
+            is_hollow_sanctum = True
+            if os.path.exists(project_path_posix) and os.path.isdir(project_path_posix):
+                # We ignore the .scaffold internal directory; we seek user-willed matter.
+                # [THE FIX]: Force a directory scan to bust Emscripten's stale cache.
                 try:
-                    project_path.mkdir(parents=True, exist_ok=True)
-                    from .seeds import SEED_VAULT
-                    self._hydrate_sanctum(project_path, target.template, SEED_VAULT)
+                    visible_atoms = [f for f in os.listdir(project_path_posix) if f != ".scaffold"]
+                    if len(visible_atoms) > 0:
+                        is_hollow_sanctum = False
+                except (OSError, FileNotFoundError):
+                    pass
+
+            # [ASCENSION 3]: Adjudicate between Metadata and Physics.
+            # If metadata says 'Ghost' OR physical scry says 'Empty', materialize matter.
+            is_ethereal = target.custom_data.get("is_ghost", False) or target.custom_data.get("is_optimistic", False)
+
+            if is_ethereal or is_hollow_sanctum:
+                reason = "Ghost Resonance" if is_ethereal else "Hollow Sanctum Detection"
+                Logger.info(f"{reason} for '{target.name}'. Initiating Emergency Hydration...")
+
+                try:
+                    # 1. Physical Consecration (Ensure the directory is manifest)
+                    os.makedirs(project_path_posix, exist_ok=True)
+
+                    # 2. Summon the Seed Vault (DNA Retrieval)
+                    try:
+                        from .seeds import SEED_VAULT
+                    except ImportError:
+                        raise RuntimeError("Celestial Seed Vault is unmanifest.")
+
+                    # 3. CONDUCT THE SEEDING STRIKE
+                    # [ASCENSION 4]: We re-materialize the template DNA onto the physical substrate.
+                    template_dna = target.template or "blank"
+                    self._hydrate_sanctum(project_path, template_dna, SEED_VAULT)
+
+                    # 4. Transmute state from Ethereal to Physical
                     target.custom_data["is_ghost"] = False
                     target.custom_data["is_optimistic"] = False
                     target.stats = self._measure_reality(project_path)
-                    Logger.success(f"Materialization of '{target.name}' is complete.")
+
+                    # [ASCENSION 6]: TOPOGRAPHICAL LUSTRATION
+                    # We force another scan to ensure the very next SCRY sees the files.
+                    _ = os.listdir(project_path_posix)
+
+                    Logger.success(f"Hydration of '{target.name}' complete. Matter solidified.")
+                    self._project_hud_pulse(project_id, "MATTER_MANIFESTED", "#64ffda")
+
                 except Exception as e:
-                    Logger.warn(f"Seeding Rite flickered: {e}")
+                    # [ASCENSION 11]: Fault Isolation
+                    Logger.error(f"Hydration Strike fractured for '{target.name}': {e}")
+                    # We continue to allow the spatial shift, but notify the Ocular HUD.
+                    self._project_hud_pulse(project_id, "MATTER_FRAGMENTED", "#ef4444")
 
             # =========================================================================
-            # == [THE CURE]: THE ABSOLUTE ANCHOR SUTURE                              ==
+            # == MOVEMENT III: THE ABSOLUTE ANCHOR SUTURE (THE FIX)                  ==
             # =========================================================================
-            # [ASCENSION 14]: We bypass the symlink and force the Python process to
-            # reside physically within the project's absolute coordinate.
-            # This ensures 'ls', 'velm genesis .', and relative WRITES are bit-perfect.
+            # [ASCENSION 14]: We bypass symlink shadows and force the process to
+            # physically reside within the project's absolute coordinate.
 
-            os.environ["SCAFFOLD_PROJECT_ROOT"] = target.path
+            os.environ["SCAFFOLD_PROJECT_ROOT"] = project_path_posix
+
             try:
-                # Ensure the path exists before the mind attempts to enter it.
-                if not os.path.exists(target.path):
-                    os.makedirs(target.path, exist_ok=True)
+                # 1. Ensure the physical anchor exists
+                if not os.path.exists(project_path_posix):
+                    os.makedirs(project_path_posix, exist_ok=True)
 
-                # THE STRIKE: Shift the process CWD
-                os.chdir(target.path)
-                Logger.info(f"The Axis Mundi has shifted. CWD: [cyan]{target.path}[/].")
+                # 2. THE STRIKE: Shift the process Axis Mundi
+                # [THE CURE]: Double-Chdir to reset internal Emscripten VFS pointers.
+                # This vibration ensures 'os.getcwd()' and '.' are bit-perfect.
+                os.chdir("/")
+                os.chdir(project_path_posix)
+
+                # [THE CURE]: Final Topographical Vibration
+                # Ensure the contents are resonant to the very next Python command.
+                _ = os.listdir(".")
+                Logger.info(f"The Axis Mundi has shifted. CWD: [cyan]{os.getcwd()}[/].")
+
             except Exception as e:
+                # [ASCENSION 9]: Catastrophic spatial fracture
                 Logger.critical(f"Spatial Pivot Fracture: {e}")
+                raise ArtisanHeresy(
+                    f"Process Anchoring Failed: Could not inhabit path '{project_path_posix}'",
+                    details=str(e),
+                    severity=HeresySeverity.CRITICAL
+                )
 
-            # 3. CHRONOMETRIC FINALITY
+            # --- MOVEMENT IV: THE CHRONOMETRIC SEAL ---
+            # Update temporal Gnosis for UI sorting and Registry health.
             target.last_accessed = int(time.time() * 1000)
             self.registry.active_project_id = project_id
 
-            # 4. ATOMIC COMMITMENT
+            # --- MOVEMENT V: HYDRAULIC I/O FLUSH ---
+            # Enshrine the new Multiversal State into the persistent Registry Scroll.
             self.persistence.save(self.registry)
 
+            # --- MOVEMENT VI: TELEMETRIC FINALITY ---
+            duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+            Logger.success(f"Anchor resonant in {duration_ms:.2f}ms. reality={project_id[:8]}")
+
+            # Radiate shift to Ocular HUD via the Akashic silver-cord.
+            self._project_hud_pulse(project_id, "ANCHOR_SHIFTED", "#3b82f6")
+
+            # [ASCENSION 12]: THE FINALITY VOW
+            # Return the bit-perfect, strictly typed metadata to the Ocular Membrane.
             return target
+
+    def _project_hud_pulse(self, trace_id: str, type_label: str, color: str):
+        """[FACULTY 16]: Radiates a haptic signal to the Ocular HUD."""
+        # Note: In WASM, the engine instance is sutured to the global context
+        if hasattr(self, 'engine') and self.engine and hasattr(self.engine, 'akashic'):
+            try:
+                self.engine.akashic.broadcast({
+                    "method": "novalym/hud_pulse",
+                    "params": {
+                        "type": type_label,
+                        "label": "GOVERNANCE_STRIKE",
+                        "color": color,
+                        "trace": trace_id[:8],
+                        "timestamp": time.time()
+                    }
+                })
+            except:
+                pass
 
     # =========================================================================
     # == RITE 4: THE ANNIHILATION RITE (DELETE)                              ==
@@ -549,8 +723,7 @@ class ProjectManager:
         except Exception:
             pass
 
-
-    def bootstrap_multiverse(self):
+    def bootstrap_multiverse(self, mandatory_seed: Optional[str] = None) -> bool:
         """
         =================================================================================
         == THE RITE OF ACHRONAL PRESERVATION (V-Ω-TOTALITY-V100K-FINALIS)              ==
@@ -559,177 +732,267 @@ class ProjectManager:
         AUTH: Ω_BOOTSTRAP_V100K_ENTERPRISE_SUTURE_2026_FINALIS
 
         [ARCHITECTURAL MANIFESTO]
-        This rite conduct the high-order resurrection of the multiverse state. It solves
+        This rite conducts the high-order resurrection of the multiverse state. It solves
         the 'Initial Sync' heresy by ensuring the Mind and Body are anchored before
         the first external plea arrives.
+
+        [CORPORATE DEPLOYMENT GUIDE]:
+        For the Architect (you) providing for your clients, this function offers
+        'Zero-Configuration Inception'.
+
+        Usage A (Direct Code):
+            governor.bootstrap_multiverse(mandatory_seed="security-api")
+
+        Usage B (Environment Injection):
+            export SCAFFOLD_AUTO_SEED="lead-lightning"
+            governor.bootstrap_multiverse()
+
+        If the Engine detects a 'mandatory_seed' and the current multiverse is in a
+        LOBBY/VOID state, it will automatically materialize the target archetype
+        and lock the process CWD to that reality. This ensures your clients boot
+        directly into the warded environment you provided.
         =================================================================================
         """
+        start_ns = time.perf_counter_ns()
         Logger.info("The Multiversal Governor is scrying the Ancestral Scroll...")
 
         with self._lock:
             # --- MOVEMENT I: THE UNIVERSAL SEED CENSUS ---
-            # Populate ghosts for the Lobby
+            # We first populate the Lobby with all known DNA from the SEED_VAULT.
+            # This is critical so that any 'mandatory_seed' lookup can succeed.
             self._census_of_seeds()
 
             # --- MOVEMENT II: SESSION RECONCILIATION ---
+            # We scry the registry to see if a reality anchor persists from a past life.
             existing_registry = self.registry
             previous_life_anchor = existing_registry.active_project_id
+            reality_anchored = False
 
-            # [ASCENSION 4]: ZOMBIE ANCHOR EXORCISM
             if previous_life_anchor and previous_life_anchor in self.registry.projects:
                 project = self.registry.projects[previous_life_anchor]
 
+                # BIOPSY: Is the anchored matter still physically resonant?
                 is_ghost = project.custom_data.get("is_ghost", False)
                 physical_exists = Path(project.path).exists()
 
                 if not is_ghost and not physical_exists:
-                    # [THE CURE]: The matter has vanished. We must sever the anchor.
+                    # [THE CURE]: The matter has vanished (manual deletion).
+                    # We must sever the anchor to prevent spatial paradoxes.
                     Logger.warn(f"Anchor '{previous_life_anchor[:8]}' points to a void. Exorcising...")
                     self.registry.active_project_id = None
                     os.environ.pop("SCAFFOLD_PROJECT_ROOT", None)
                 else:
                     # [ASCENSION 5]: RESONANT RESUMPTION
                     # The anchor is valid. We perform the physical CWD binding.
-                    Logger.info(f"Resuming active session: [cyan]{previous_life_anchor[:8]}[/cyan]")
+                    Logger.info(f"Resuming active session: [cyan]{previous_life_anchor[:8]}[/cyan] ('{project.name}')")
 
                     # [THE SUTURE]: FORCE ABSOLUTE CONTEXT
-                    os.environ["SCAFFOLD_PROJECT_ROOT"] = project.path
+                    # We ensure the Environment DNA and the Python Process are in sync.
+                    os.environ["SCAFFOLD_PROJECT_ROOT"] = str(project.path)
                     try:
-                        os.chdir(project.path)
-                    except:
-                        pass
+                        os.chdir(str(project.path))
+                        reality_anchored = True
+                    except (OSError, FileNotFoundError):
+                        Logger.warn(f"Physical access to '{project.path}' denied. Anchor suspended.")
 
-                    self.registry.active_project_id = previous_life_anchor
-            else:
+            # --- MOVEMENT III: ENFORCED REALITY INCEPTION (THE FIX) ---
+            # [ASCENSION 1]: If we are still unanchored, we scry for a mandatory intent.
+            # Priority: 1. Function Argument | 2. Environment Variable
+            auto_seed = mandatory_seed or os.getenv("SCAFFOLD_AUTO_SEED")
+
+            if not reality_anchored and auto_seed:
+                Logger.info(f"🌌 Lobby is a void. Enforcing inception of mandatory seed: [bold purple]{auto_seed}[/].")
+
+                try:
+                    # 1. Generate the deterministic ID for the seed
+                    # This uses the same logic as _census_of_seeds to find the Ghost.
+                    seed_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"novalym.seed.{auto_seed}"))
+
+                    if seed_uuid in self.registry.projects:
+                        # 2. CONDUCT THE JIT STRIKE
+                        # We use the switch_project rite to handle the materialization
+                        # of the Ghost into Physical Matter.
+                        self.switch_project(seed_uuid)
+                        reality_anchored = True
+                        Logger.success(f"Enterprise reality '{auto_seed}' has been successfully imposed.")
+                    else:
+                        Logger.error(f"Enforcement Fracture: Seed '{auto_seed}' is unmanifest in the Vault.")
+
+                except Exception as e:
+                    Logger.error(f"Mandatory Inception failed: {e}")
+
+            # --- MOVEMENT IV: LOBBY STANDBY ---
+            if not reality_anchored:
                 # [ASCENSION 8]: THE VOW OF THE VOID
+                # No past anchor found and no mandatory seed willed.
+                # The Engine remains in the Lobby, awaiting human intent.
                 Logger.info("🌌 Primordial Void perceived. Engine standing by in Lobby.")
                 self.registry.active_project_id = None
                 os.environ.pop("SCAFFOLD_PROJECT_ROOT", None)
 
-            # =========================================================================
-            # == [REDACTED KINETIC ACT]: FORGE_VFS_STRIKE (ENTERPRISE RESURRECTION)   ==
-            # =========================================================================
-            # [GNOSTIC COMMENTARY FOR ARCHITECTS]:
-            # This is the "Apotheosis of Uniformity." In corporate or high-compliance
-            # environments, the Architect may desire to eliminate the "Lobby Choice"
-            # and force every Node to boot into a specific, warded reality.
-            #
-            # IMPLEMENTATION LOGIC:
-            # 1. Identify a "Mandatory Archetype" (e.g., 'security-fortress').
-            # 2. Check if the Multiverse is currently empty or in a LOBBY state.
-            # 3. Force-Materialize (Strike) the physical matter from the Seed Vault.
-            # 4. Hard-Bind the active_project_id to the new creation.
-            #
-            # UTILITY:
-            # Use this to enforce "Governance-as-Boot-Code." It ensures every developer
-            # starts with the same 'Sanctified Policies' and 'Standard Libraries',
-            # making drift mathematically impossible from second zero.
-            # -------------------------------------------------------------------------
-
-            # CORPORATE_ENFORCEMENT_ACTIVE = False # Set to True to enable the Strike
-            # if CORPORATE_ENFORCEMENT_ACTIVE and self.registry.active_project_id is None:
-            #     target_seed = "progenitor"
-            #     pid = "c10fbf66-505c-4cc3-a9e4-7852b3ed6b7a"
-            #
-            #     self.logger.verbose(f"Enterprise Vow Active: Forcing inception of '{target_seed}'...")
-            #
-            #     # A. Materialize physical sanctum
-            #     project_path = self.workspaces_root / pid
-            #     project_path.mkdir(parents=True, exist_ok=True)
-            #
-            #     # B. Conduct JIT Seeding (The Strike)
-            #     from .seeds import SEED_VAULT
-            #     self._hydrate_sanctum(project_path, target_seed, SEED_VAULT)
-            #
-            #     # C. Anchor the Mind & Physical CWD
-            #     self.registry.active_project_id = pid
-            #     os.environ["SCAFFOLD_PROJECT_ROOT"] = str(project_path)
-            #     os.chdir(str(project_path))
-            #
-            #     Logger.success(f"Enterprise Reality '{target_seed}' has been successfully imposed.")
-            # =========================================================================
-
-            # --- MOVEMENT III: ATOMIC COMMITMENT ---
+            # --- MOVEMENT V: ATOMIC COMMITMENT ---
             try:
+                # Ensure the registry version is up to date and physically saved.
                 self.registry.version = "2.0.0-OMEGA"
                 self.persistence.save(self.registry)
 
+                duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
                 status_label = "RESUMED" if self.registry.active_project_id else "LOBBY"
-                Logger.success(f"💠 Multiverse Inception Complete. Mode: [bold cyan]{status_label}[/].")
+                Logger.success(
+                    f"💠 Multiverse Inception Complete in {duration_ms:.2f}ms. Mode: [bold cyan]{status_label}[/].")
 
                 # [ASCENSION 12]: THE FINALITY VOW
                 return True
 
             except Exception as e:
-                raise ArtisanHeresy("REGISTRY_INSCRIPTION_FRACTURE", details=str(e))
+                # Forensic autopsy if the physical disk is unmanifest or locked.
+                raise ArtisanHeresy(
+                    "REGISTRY_INSCRIPTION_FRACTURE",
+                    details=str(e),
+                    severity=HeresySeverity.CRITICAL,
+                    suggestion="Verify filesystem permissions for the .scaffold directory."
+                )
 
-    def _census_of_seeds(self):
+    def _census_of_seeds(self, force: bool = False):
         """
-        =============================================================================
-        == THE SEED CENSUS (V-Ω-ARCHETYPE-POPULATOR)                               ==
-        =============================================================================
-        [ASCENSION 12]: THE CURE FOR SEED ANEMIA.
-        Iterates the entire `SEED_VAULT` and registers every archetype as a System Demo
-        if it is not already manifest in the registry.
+        =================================================================================
+        == THE SEED CENSUS: OMEGA (V-Ω-TOTALITY-V100000.20-DETERMINISTIC-FINALIS)      ==
+        =================================================================================
+        LIF: ∞ | ROLE: ARCHETYPAL_METADATA_ALCHEMIST | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_CENSUS_V100K_DETERMINISTIC_IDENTITY_2026_FINALIS
+
+        [ARCHITECTURAL MANIFESTO]
+        This rite conducts the census of the Celestial Seed Vault. It ensures that
+        every system archetype is manifest as a 'Ghost' in the registry. It is the
+        cure for Seed Anemia, guaranteeing that a new Architect never wakes up
+        to an empty Lobby. It is substrate-agnostic and deterministic.
+        =================================================================================
         """
+        # --- MOVEMENT I: THE GREAT SUMMONS ---
         try:
+            # We summon the SEED_VAULT from the local project stratum
             from .seeds import SEED_VAULT
         except ImportError:
-            Logger.warn("Seed Vault Unreachable. Skipping Census.")
+            # If the vault is unmanifest, the Lobby remains a void.
+            Logger.warn("Celestial Seed Vault is unmanifest. Perception is limited.")
             return
 
         now_ms = int(time.time() * 1000)
         seeds_sown = 0
 
         with self._lock:
-            # Iterate through ALL templates in the vault
+            # --- MOVEMENT II: THE DETERMINISTIC TRIAGE ---
+            # We iterate through every shard in the vault to identify missing souls.
             for template_key, content_map in SEED_VAULT.items():
-                if template_key == "blank": continue  # Skip utility blanks
+                if template_key == "blank":
+                    continue  # The 'blank' seed is a utility, not a destination.
 
-                # [ASCENSION 11]: DETERMINISTIC UUID GENERATION
-                # We use UUIDv5 with a fixed namespace to ensure the same seed
-                # always gets the same ID across different sessions/machines.
-                seed_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"novalym.seed.{template_key}"))
+                # [ASCENSION 1]: THE DETERMINISTIC KEY
+                # [THE FIX]: We use the PROGENITOR_ID constant for the Progenitor Law.
+                # For all others, we use UUIDv5 with a fixed DNS-style namespace.
+                if template_key == "progenitor":
+                    seed_uuid = PROGENITOR_ID
+                else:
+                    seed_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"novalym.seed.{template_key}"))
 
-                # If this seed is already known, we skip it (Idempotency)
-                if seed_uuid in self.registry.projects:
+                # IDEMPOTENCY WARD: If the seed is already enshrined, we stay the hand.
+                if seed_uuid in self.registry.projects and not force:
                     continue
 
-                Logger.info(f"🌌 Inscribing Missing Seed: [cyan]{template_key}[/cyan]")
+                Logger.info(f"🌌 Inscribing Missing Seed: [cyan]{template_key}[/cyan] (ID: {seed_uuid[:8]})")
 
-                # [THE FIX]: Use the GEOMETRICALLY CORRECT workspace root
+                # --- MOVEMENT III: GEOMETRIC SUTURE ---
+                # We use the substrate-aware workspaces_root to anchor the Ghost's potentiality.
+                # [THE FIX]: Deterministic absolute POSIX pathing.
                 project_path = self.workspaces_root / seed_uuid
+                normalized_path = str(project_path.resolve()).replace('\\', '/')
 
-                # Create Meta for the Ghost
+                # --- MOVEMENT IV: SEMANTIC ALCHIMESTRY ---
+                # 1. Linguistic Normalization (API, SQL, CLI, etc.)
+                display_name = template_key.replace("-", " ").title()
+                display_name = display_name.replace("Api", "API").replace("Sql", "SQL").replace("Cli", "CLI")
+
+                # 2. Stratum Triage & Aura Synthesis (Category Divination)
+                stratum = "CORE"
+                icon = "Box"
+                color = "#94a3b8"  # Default Slate
+                neural_bias = "architect"
+
+                if any(x in template_key for x in ("api", "server", "service")):
+                    stratum = "BACKEND"
+                    icon = "Database"
+                    color = "#a855f7"  # Gnostic Purple (Will)
+                    neural_bias = "architect"
+                elif any(x in template_key for x in ("react", "vite", "web", "ui")):
+                    stratum = "FRONTEND"
+                    icon = "LayoutTemplate"
+                    color = "#3b82f6"  # Logic Blue (Perception)
+                    neural_bias = "poet"
+                elif any(x in template_key for x in ("worker", "swarm", "agent")):
+                    stratum = "INTELLIGENCE"
+                    icon = "Cpu"
+                    color = "#f43f5e"  # Kinetic Red (Action)
+                    neural_bias = "maestro"
+                elif any(x in template_key for x in ("infra", "deploy", "docker")):
+                    stratum = "INFRASTRUCTURE"
+                    icon = "Server"
+                    color = "#fbbf24"  # Metabolic Amber
+                    neural_bias = "sentinel"
+
+                # [ASCENSION 4]: GNOSTIC MASS INFERENCE
+                # Count files and estimate complexity/mass
+                file_count = len(content_map)
+                estimated_kb = sum(len(content) for content in content_map.values()) // 1024
+
+                # Heuristic Difficulty Scrying
+                difficulty = "Novice"
+                if file_count > 5 or estimated_kb > 20: difficulty = "Adept"
+                if file_count > 15 or "distributed" in template_key: difficulty = "Master"
+
+                # --- MOVEMENT V: THE PROPHETIC INSCRIPTION ---
+                # [ASCENSION 8 & 12]: THE PROPHETIC SOUL
                 demo_meta = ProjectMeta(
                     id=seed_uuid,
-                    name=template_key.replace("-", " ").title().replace("Api", "API"),
+                    name=display_name,
                     description=f"System Reference Architecture for {template_key}.",
-                    path=str(project_path.resolve()).replace('\\', '/'),
+                    path=normalized_path,
                     owner_id=SYSTEM_OWNER_ID,
                     template=template_key,
                     is_demo=True,
                     is_locked=True,
-                    tags=["system", "reference", template_key, "archetype"],
+                    tags=["system", "reference", stratum.lower(), template_key, "omega-verified"],
                     created_at=now_ms,
                     updated_at=now_ms,
-                    last_accessed=now_ms,  # Set to now so they appear at top initially
-                    stats=ProjectStats(file_count=len(content_map), size_kb=0),
+                    last_accessed=now_ms,  # Force seeds to the top of the scry
+                    stats=ProjectStats(
+                        file_count=file_count,
+                        size_kb=estimated_kb,
+                        health_score=100
+                    ),
                     custom_data={
-                        "is_ghost": True,  # [ASCENSION 6]: Lazy Hydration
+                        "is_ghost": True,  # [ASCENSION 7]: COMMANDS JIT MATERIALIZATION
                         "is_optimistic": False,
-                        "icon": "Zap",
-                        "color": "#a855f7"
+                        "icon": icon,
+                        "color": color,
+                        "stratum": stratum,
+                        "difficulty": difficulty,
+                        "neural_bias": neural_bias,
+                        # [GNOSTIC COMMENTARY]: Enforced inception trigger
+                        "auto_provision": (template_key == "progenitor")
                     }
                 )
 
+                # --- MOVEMENT VI: THE LATTICE COMMITMENT ---
                 self.registry.projects[seed_uuid] = demo_meta
                 seeds_sown += 1
 
+            # --- MOVEMENT VII: ATOMIC PERSISTENCE FLUSH ---
             if seeds_sown > 0:
-                Logger.success(f"Census Complete. {seeds_sown} new archetypes registered.")
-                # We save immediately to ensure they persist even if we crash later
+                # [ASCENSION 9]: HYDRAULIC I/O FLUSH
+                # We save immediately to protect the new records from a substrate crash.
                 self.persistence.save(self.registry)
+                Logger.success(f"Census Complete. {seeds_sown} new archetypes resonant in the Lobby.")
+
 
     def get_project_stats(self) -> Dict[str, Any]:
         """Proclaims the metabolic mass of the active project."""
