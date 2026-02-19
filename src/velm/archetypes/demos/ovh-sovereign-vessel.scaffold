@@ -1,0 +1,178 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: OVH SOVEREIGN VESSEL (V-Ω-TOTALITY-V6.0)                ==
+# =================================================================================
+# @name: OVH Sovereign Vessel
+# @description: The ultimate infrastructure node for OVH Public Cloud. Features 
+#               interactive Gnostic Handshake authentication, automated UFW 
+#               hardening, and JIT matter materialization.
+# @category: Infrastructure
+# @tags: ovh, cloud, vm, sovereign, infrastructure-as-code, automation
+# @difficulty: Master
+# @icon: Server
+# @color: #0050d7
+# @dna: substrate=ovh, auth_mode=interactive, isolation=hardened
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
+$$ project_name = "OVH-Titan-Node"
+$$ ovh_region = "GRA11"
+$$ instance_flavor = "d2-4"
+$$ author = "{{ author | default('The Architect') }}"
+
+# --- II. THE SCRIPTURE OF FORM (THE BODY) ---
+{{ project_name }}/
+
+    # [1] THE INFRASTRUCTURE CONSTITUTION
+    README.md :: """
+    # 🏛️ OVH Sovereign Vessel: {{ project_name }}
+    > "Reality is not rented; it is willed into existence on Sovereign Iron."
+
+    This project is a **High-Status Infrastructure Node** warded by the VELM Engine.
+    It manages a dedicated compute shard in the **{{ ovh_region }}** sector.
+
+    ### 🏗️ Topology
+    - **Mind:** `scripts/provision.py` (The Hand of Genesis)
+    - **Ward:** `config/cloud-init.yaml` (Day-0 Constitutional Law)
+    - **Will:** `symphonies/harden.symphony` (The Post-Creation Baptism)
+
+    ### ⚡ Kinetic Strike
+    To initiate the browser-based Handshake and provision the node:
+    `make ignite`
+
+    ### 🛡️ Security Vow
+    This node implements a **Zero-Trust Perimeter** via UFW and SSH Key Enshrining.
+    """
+
+    # [2] THE ENVIRONMENT DNA (THE VEIL)
+    .env.example :: """
+    # == OVH CLOUD IDENTITY ==
+    # Leave Consumer Key void to trigger the Interactive Handshake.
+    OVH_ENDPOINT=ovh-eu
+    OVH_APPLICATION_KEY=your_app_key
+    OVH_APPLICATION_SECRET=your_app_secret
+    OVH_CONSUMER_KEY=
+    OVH_PROJECT_ID=
+    """
+
+    # [3] THE KINETIC SCRIPTS (THE HAND)
+    scripts/
+        provision.py :: """
+        #!/usr/bin/env python3
+        # [LIF: 1000x] [ROLE: INFRA_GENESIS] [RANK: OMEGA]
+        import os
+        import sys
+        from velm.core.infrastructure.manager import InfrastructureManager
+
+        def strike():
+            print("🌀 [GENESIS] Awakening the Infrastructure Hypervisor...")
+            
+            # Anchor to OVH substrate
+            manager = InfrastructureManager(provider_override="ovh")
+            
+            # [THE CURE]: The provision_node call will automatically detect 
+            # missing keys and trigger the browser-based validation flow.
+            try:
+                node = manager.provision_node(
+                    name="{{ project_name }}",
+                    size="{{ instance_flavor }}",
+                    image="Ubuntu 22.04"
+                )
+                print(f"✅ [SUCCESS] Node Materialized: {node.id}")
+                print(f"📍 Coordinate: {node.public_ip}")
+                print(f"🔗 Aura: {node.connection_string}")
+            except Exception as e:
+                print(f"❌ [FRACTURE] Materialization failed: {e}")
+                sys.exit(1)
+
+        if __name__ == "__main__":
+            strike()
+        """
+
+    config/
+        cloud-init.yaml :: """
+        #cloud-config
+        # [ASCENSION]: Constitutional Day-0 Hardening
+        package_update: true
+        packages:
+          - docker.io
+          - ufw
+          - fail2ban
+        runcmd:
+          - ufw allow 22/tcp
+          - ufw allow 80/tcp
+          - ufw allow 443/tcp
+          - ufw --force enable
+          - systemctl enable docker
+          - systemctl start docker
+        """
+
+    # [4] THE CONTROL PLANE (THE RITES)
+    Makefile :: """
+    .PHONY: ignite status scry terminate
+
+    ignite: ## materialize the node via the interactive handshake
+    	@python3 scripts/provision.py
+
+    status: ## scry the remote metabolic vitals
+    	@velm cloud status --provider ovh
+
+    terminate: ## return the node matter to the void
+    	@velm cloud terminate --provider ovh --force
+    """
+
+    # [5] THE FORENSIC CHRONICLE
+    .scaffold/
+        identity.json :: """
+        {
+            "archetype": "ovh-sovereign-vessel",
+            "version": "6.0.0-OMEGA",
+            "substrate": "ovh-public-cloud"
+        }
+        """
+
+    .gitignore :: """
+    .venv/
+    __pycache__/
+    .env
+    .scaffold/
+    *.log
+    """
+
+# --- III. THE MAESTRO'S WILL (POST-RUN SYMPHONY) ---
+%% post-run
+    proclaim: "================================================================="
+    proclaim: "THE OVH SOVEREIGN VESSEL IS MATERIALIZING IN THE SUBSTRATE."
+    proclaim: "================================================================="
+    
+    # Shift focus to the newly forged sanctum
+    %% sanctum: {{ project_name }}
+
+    # 1. Initialize the Environment
+    proclaim: "Phase I: Incepting local state and directory structure..."
+    >> mkdir -p .scaffold/infrastructure
+    >> cp .env.example .env
+    
+    # 2. TRIGGER THE HANDSHAKE (THE BILLION DOLLAR MOMENT)
+    # We attempt a 'status' scry. If keys are missing, the OVHProvider 
+    # will pause the symphony, open the user's browser, and wait for validation.
+    proclaim: "Phase II: Initiating [bold cyan]Interactive Handshake[/bold cyan] with OVH..."
+    proclaim: "A portal will open in your browser to validate the Sovereign Bond."
+    
+    @try:
+        # This triggers the interactive auth flow built into the provider
+        >> velm cloud list --provider ovh
+    @catch:
+        proclaim: "[yellow]Handshake deferred. Configure .env manually to enable Cloud Rites.[/yellow]"
+    @end
+
+    # 3. Final Proclamation
+    proclaim: "================================================================="
+    proclaim: "✅ [bold blue]VESSEL FORM ESTABLISHED[/bold blue] in '{{ project_name }}/'."
+    proclaim: "   The Engine is aligned with OVH Cloud."
+    proclaim: "   To strike the iron and provision your node, speak:"
+    proclaim: "   [bold cyan]make ignite[/bold cyan]"
+    proclaim: "================================================================="
+
+%% on-heresy
+    proclaim: "[bold red]OVH INCEPTION FRACTURED![/bold red]"
+    proclaim: "The Sovereign Vessel failed to anchor. Forensic Data: {{ HERALD_STDERR }}"

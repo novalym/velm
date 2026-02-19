@@ -1,0 +1,168 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: GNOSTIC CITADEL (V-Ω-TOTALITY-ADAPTIVE-DEFENSE)          ==
+# =================================================================================
+# @name: Gnostic Citadel
+# @description: A self-mutating security fortress. It scries incoming traffic for 
+#               heresies and automatically rewrites its own architectural wards 
+#               using JIT-forged patches to neutralize emerging threats.
+# @category: Security
+# @tags: system, demo, security, zero-trust, self-mutation, adaptive-firewall
+# @difficulty: Grand Architect
+# @icon: ShieldCheck
+# @color: #10b981
+# @dna: defense_tier=omega, mutation_strategy=aggressive, vault=isolated
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
+$$ project_name = "Gnostic-Citadel"
+$$ package_name = "citadel"
+$$ auth_method = "merkle-handshake"
+$$ author = "The Architect"
+
+# --- II. THE SCRIPTURE OF FORM (THE BODY) ---
+{{ project_name }}/
+
+    # [1] THE CITADEL CORE (ADAPTIVE WARDEN)
+    src/{{ package_name }}/
+        __init__.py :: "__version__ = '1.0.0-Ω'"
+        
+        warden.py :: """
+        import time
+        import logging
+        from rich.console import Console
+        from .alchemist import PolicyAlchemist
+
+        console = Console()
+
+        class SentinelWarden:
+            \"\"\"The Sentient Immune System of the Citadel.\"\"\"
+            def __init__(self):
+                self.threat_level = 0.0
+                self.alchemist = PolicyAlchemist()
+                self.blocked_patterns = ["DROP TABLE", "exec("]
+
+            def scry_plea(self, payload: str):
+                console.print(f"[dim]🔍 [WARDEN] Scrying plea mass: {len(payload)} bytes...[/]")
+                
+                # Check for known heresies
+                for pattern in self.blocked_patterns:
+                    if pattern in payload:
+                        return self.trigger_mutation(pattern)
+                
+                console.print("[bold green]✅ Plea Accepted. Resonance: PURE.[/]")
+                return True
+
+            def trigger_mutation(self, heresy_pattern: str):
+                console.print(f"[bold red]☢️  [INTRUSION_DETECTED] Pattern: {heresy_pattern}[/]")
+                console.print("[bold yellow]🌀 Summoning the Alchemist to mutate the Citadel...[/]")
+                
+                # Command the Alchemist to forge a self-patching symphony
+                return self.alchemist.forge_redemption_rite(heresy_pattern)
+
+        if __name__ == "__main__":
+            warden = SentinelWarden()
+            warden.scry_plea("SELECT * FROM users; DROP TABLE logs;")
+        """
+
+        alchemist.py :: """
+        from pathlib import Path
+
+        class PolicyAlchemist:
+            \"\"\"Forges JIT patches to harden the architecture.\"\"\"
+            def forge_redemption_rite(self, pattern: str):
+                patch_content = f"# Gnostic Patch: Hardening against {pattern}\\n"
+                patch_content += "src/citadel/warden.py:\\n"
+                patch_content += f"    BLOCK_LIST += ['{pattern}']\\n"
+                
+                Path("hardening.patch.scaffold").write_text(patch_content)
+                print(f"✨ [ALCHEMIST] Inscribed hardening.patch.scaffold.")
+                return "MUTATION_PLAN_READY"
+        """
+
+    # [2] THE CONSTITUTION OF THE FORTRESS
+    rules/
+        firewall.scaffold :: """
+        # == Gnostic Law: Firewall v1 ==
+        $$ ingress_policy = "restrictive"
+        $$ egress_policy = "warded"
+        
+        # [BLOCKLIST_START]
+        # Rules will be injected here by the Alchemist
+        # [BLOCKLIST_END]
+        """
+
+    # [3] THE RITES OF HARDENING (SYMPHONY)
+    symphonies/
+        adaptive_defense.symphony :: """
+        # == Symphony: The Rite of Adaptive Defense ==
+        
+        @task main
+            %% proclaim: "Initiating Global Vigilance..."
+            
+            # Vow I: Execute Warden Scry
+            >> python src/{{ package_name }}/warden.py as status
+            
+            # Vow II: Adjudicate if Mutation is willed
+            @if "MUTATION_PLAN_READY" in status:
+                %% proclaim: "[bold purple]⚡ [STRIKE] Mutation Willed. Transmuting Architecture...[/bold purple]"
+                
+                # Apply the JIT-forged patch to the Citadel
+                >> velm patch hardening.patch.scaffold
+                ?? succeeds
+                
+                # Verify the new ward
+                >> velm verify
+                ?? succeeds
+                
+                %% proclaim: "[bold green]✅ CITADEL HARDENED. The timeline has evolved.[/bold green]"
+            @else:
+                %% proclaim: "No threats perceived. Perimeter remains stable."
+            @end
+        """
+
+    # [4] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # 🛡️ {{ project_name }}
+    > The Sovereign Adaptive Fortress (V-Ω-TOTALITY)
+
+    This is a **Billion Dollar Archetype**. It is a security system that **Rewrites Itself**
+    to survive attacks. 
+
+    ### 🏗️ Unique Physics
+    - **Threat Scrying:** The `SentinelWarden` identifies attack patterns in real-time.
+    - **Self-Mutation:** The `PolicyAlchemist` forges `.patch.scaffold` files JIT.
+    - **Achronal Sync:** Uses the `adaptive_defense.symphony` to apply patches and verify.
+
+    ### ⚡ Witness the Mutation
+    `velm run symphonies/adaptive_defense.symphony`
+    """
+
+# --- III. THE MAESTRO'S WILL (POST-RUN SYMPHONY) ---
+%% post-run
+    proclaim: "================================================================="
+    proclaim: "THE GNOSTIC CITADEL IS RISING FROM THE IRON."
+    proclaim: "================================================================="
+    
+    # Anchor to the fortress
+    %% sanctum: {{ project_name }}
+    
+    # 1. Forge the virtual soul
+    proclaim: "Phase I: Materializing Security Environment..."
+    >> python -m venv .venv
+    
+    # 2. Consecrate the Warden
+    proclaim: "Phase II: Summoning the Gnostic Sentinel (Rich)..."
+    polyglot(venv=".venv"):
+        >> pip install rich
+    ?? succeeds
+    
+    proclaim: "================================================================="
+    proclaim: "✅ [bold green]CITADEL ACTIVE[/bold green] in '{{ project_name }}/'."
+    proclaim: "   Perimeter secured. Adaptive Gaze enabled."
+    proclaim: "   To simulate an intrusion and see it self-heal: "
+    proclaim: "   [bold cyan]velm run symphonies/adaptive_defense.symphony[/bold cyan]"
+    proclaim: "================================================================="
+
+%% on-heresy
+    proclaim: "[bold red]THE FORTRESS HAS FRACTURED![/bold red]"
+    proclaim: "Perimeter breach during inception. Data: {{ HERALD_STDERR }}"

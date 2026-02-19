@@ -1,0 +1,73 @@
+# =================================================================================
+# == GNOSTIC TRAIT: METABOLIC SENTINEL (V-Ω-TOTALITY-HEALTH)                    ==
+# =================================================================================
+# @name: Metabolic Sentinel
+# @description: Injects real-time vitality monitoring. Scries CPU/RAM pressure 
+#               and radiates heartbeat signals to the Ocular HUD.
+# @category: Monitoring
+# @tags: health, telemetry, metrics, performance, watchdog, homeostasis
+# @difficulty: Adept
+# @is_integration: true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ heartbeat_interval = 5.0
+$$ memory_threshold_mb = 1024
+
+# --- II. THE SCRIPTURE OF FORM ---
+src/core/metabolism/
+    __init__.py
+    
+    watchdog.py :: """
+    # [LIF: 100x] [ROLE: METABOLIC_GOVERNOR]
+    import os
+    import time
+    import psutil
+    from rich.console import Console
+
+    class MetabolicWatchdog:
+        \"\"\"Monitors the physical heat and mass of the project mind.\"\"\"
+        def __init__(self, limit_mb: int):
+            self.limit = limit_mb
+            self.process = psutil.Process(os.getpid())
+
+        def scry_vitals(self):
+            rss = self.process.memory_info().rss / 1024 / 1024
+            cpu = psutil.cpu_percent()
+            status = "RESONANT" if rss < self.limit else "FEVERISH"
+            return {"rss_mb": rss, "cpu_load": cpu, "status": status}
+
+    if __name__ == "__main__":
+        watchdog = MetabolicWatchdog({{ memory_threshold_mb }})
+        while True:
+            vitals = watchdog.scry_vitals()
+            print(f"💓 HEARTBEAT: {vitals}")
+            time.sleep({{ heartbeat_interval }})
+    """
+
+symphonies/
+    health_inquest.symphony :: """
+    # == Symphony: Metabolic Inquest ==
+    @task main
+        %% proclaim: "Initiating Panoptic Health Scry..."
+        >> python src/core/metabolism/watchdog.py --once as vitals
+        ?? stdout_contains: "RESONANT"
+        %% proclaim: "Metabolism: [bold green]NOMINAL[/bold green]"
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Metabolic Sentinel manifest in 'src/core/metabolism/'."
+    
+    # Check for psutil dependency
+    @try:
+        >> python -c "import psutil"
+    @catch:
+        proclaim: "[yellow]Missing 'psutil'. Summoning metabolic dependencies...[/yellow]"
+        >> pip install psutil rich
+    @end
+    
+    proclaim: "✅ [bold blue]SENTINEL ACTIVE[/bold blue]. Heartbeat interval: {{ heartbeat_interval }}s."
+
+%% on-heresy
+    proclaim: "Sentinel failed to wake. Metabolism remains unmonitored."

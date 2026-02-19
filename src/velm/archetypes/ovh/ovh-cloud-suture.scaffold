@@ -1,0 +1,137 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: OVH CLOUD SUTURE (V-Ω-TOTALITY-V7.0-FINALIS)              ==
+# =================================================================================
+# @name: OVH Cloud Suture
+# @description: A high-gravity integration trait. Surgically injects OVH Public 
+#               Cloud capabilities into any project. Materializes the 'Prophet of 
+#               Thrift' cost-scrier and the 'Celestial Ascension' symphony.
+# @category: Integration
+# @tags: ovh, cloud, infrastructure, suture, automation, deployment, fiscal-aware
+# @difficulty: Adept
+# @icon: Zap
+# @color: #0050d7
+# @is_integration: true
+# @dna: substrate=ovh, handshake=interactive, telemetry=luminous
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
+$$ ovh_endpoint = "ovh-eu"
+$$ preferred_region = "GRA11"
+$$ default_flavor = "d2-4"
+$$ author = "{{ author | default('The Architect') }}"
+
+# --- II. THE SCRIPTURE OF FORM (THE INJECTION) ---
+# [1] THE FISCAL DNA (ENVIRONMENT AUGMENTATION)
+# We append these to the project's .env.example, preserving existing matter.
+.env.example += """
+
+# == OVH CLOUD SOVEREIGNTY STRATUM ==
+# Leave OVH_CONSUMER_KEY void to trigger the Interactive Handshake.
+OVH_ENDPOINT={{ ovh_endpoint }}
+OVH_APPLICATION_KEY=your_app_key
+OVH_APPLICATION_SECRET=your_app_secret
+OVH_CONSUMER_KEY=
+OVH_PROJECT_ID=
+OVH_REGION={{ preferred_region }}
+"""
+
+# [2] THE KINETIC SYMPHONIES (THE WILL)
+symphonies/
+    # This symphony handles the entire lifecycle from local code to remote iron.
+    ascend_to_ovh.symphony :: """
+    # == Symphony: Celestial Ascension (OVH) ==
+    # @description: Transmutes local reality into a remote Sovereign Node.
+    
+    @task main
+        %% proclaim: "Initiating [bold blue]OVH Celestial Ascension[/bold blue]..."
+        
+        # Vow I: Verify Account Resonance
+        %% proclaim: "Step 1: Adjudicating Gnostic Handshake..."
+        >> velm cloud list --provider ovh as account_status
+        ?? succeeds
+        
+        # Vow II: Scry for existing Node Identity
+        # We check if a node for this project already exists in the fleet
+        py:
+            import re
+            ctx.node_exists = "{{ project_slug }}-node" in ctx.account_status
+        
+        @if not ctx.node_exists:
+            %% proclaim: "Step 2: No node perceived. Materializing new Substrate..."
+            >> velm cloud provision --provider ovh --name {{ project_slug }}-node --size {{ default_flavor }}
+            ?? succeeds
+        @else:
+            %% proclaim: "Step 2: Node perceived. Reality is already manifest."
+        @endif
+        
+        # Vow III: The Great Teleportation
+        %% proclaim: "Step 3: [bold cyan]Teleporting Matter Shards to Remote Iron...[/bold cyan]"
+        >> velm cloud teleport --provider ovh --target {{ project_slug }}-node
+        ?? succeeds
+        
+        %% proclaim: "[bold green]✅ ASCENSION COMPLETE. Project is now Sovereign.[/bold green]"
+    """
+
+# [3] THE FISCAL ORACLE (THE EYE)
+scripts/telemetry/
+    scry_ovh_cost.py :: """
+    #!/usr/bin/env python3
+    # [LIF: 50x] [ROLE: FISCAL_PROPHET]
+    import os
+    from velm.core.infrastructure.manager import InfrastructureManager
+
+    def scry():
+        print("🔍 [PROPHET] Scrying OVH Market for {{ default_flavor }}...")
+        manager = InfrastructureManager(provider_override="ovh")
+        best_locus, cost = manager.arbitrate_best_substrate("{{ default_flavor }}")
+        print(f"Prophecy: Hourly Metabolic Tax for this project is currently ${cost}.")
+        print(f"Target Locus: {best_locus.upper()}")
+
+    if __name__ == "__main__":
+        scry()
+    """
+
+# [4] THE CONTROL PLANE (THE HAND)
+Makefile += """
+
+# --- OVH CLOUD RITES ---
+ship: ## conduct the symphony of cloud ascension
+	@velm run symphonies/ascend_to_ovh.symphony
+
+scry-cost: ## scry the metabolic tax of the cloud
+	@python3 scripts/telemetry/scry_ovh_cost.py
+"""
+
+# --- III. THE MAESTRO'S WILL (THE STRIKE) ---
+%% post-run
+    proclaim: "================================================================="
+    proclaim: "THE OVH CLOUD SUTURE IS COMMENCING."
+    proclaim: "================================================================="
+    
+    # 1. Forge the Telemetry Sanctum
+    >> mkdir -p scripts/telemetry symphonies
+    
+    # 2. TRIGGER THE INTERACTIVE HANDSHAKE
+    # We attempt a 'status' check. If the Architect has not yet validated their 
+    # OVH account, this will open the browser and block until resonant.
+    proclaim: "Phase I: Initiating [bold cyan]Interactive Handshake[/bold cyan] with OVH..."
+    proclaim: "The Ocular Membrane is scrying for your Consumer Key..."
+    
+    @try:
+        # This triggers the interactive Oauth flow inside the OVHProvider
+        >> velm cloud status --provider ovh
+    @catch:
+        proclaim: "[yellow]Handshake stayed. Please configure .env manually to enable Cloud Rites.[/yellow]"
+    @end
+
+    # 3. Final Proclamation
+    proclaim: "================================================================="
+    proclaim: "✅ [bold green]SUTURE RESONANT.[/bold green]"
+    proclaim: "   Project '{{ project_title }}' is now Cloud-Aware."
+    proclaim: "   To teleport your code to the heavens, speak:"
+    proclaim: "   [bold cyan]make ship[/bold cyan]"
+    proclaim: "================================================================="
+
+%% on-heresy
+    proclaim: "[bold red]SUTURE FRACTURED![/bold red]"
+    proclaim: "The Cloud Suture failed to integrate. Forensic Data: {{ HERALD_STDERR }}"

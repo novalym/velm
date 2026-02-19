@@ -5161,3 +5161,158 @@ class ProjectRequest(BaseRequest):
         if not v: return []
         # Strip whitespace and force lowercase for consistent indexing
         return [tag.strip().lower() for tag in v if isinstance(tag, str) and tag.strip()]
+
+
+# =============================================================================
+# == STRATUM-0: INFRASTRUCTURE ENUMS                                         ==
+# =============================================================================
+
+CloudAction = Literal["provision", "terminate", "status", "list", "reconcile", "cost_check"]
+CloudProvider = Literal["aws", "oracle", "hetzner", "azure", "docker", "local"]
+
+
+# =============================================================================
+# == STRATUM-1: THE GNOSTIC CONFIGURATION VESSELS                            ==
+# =============================================================================
+
+class NodeSpecification(BaseRequest):
+    """
+    =============================================================================
+    == THE NODE SPECIFICATION (DNA)                                            ==
+    =============================================================================
+    Defines the physical characteristics of the willed compute node.
+    """
+    model_config = ConfigDict(extra='allow')
+
+    size: str = Field("t3.micro", description="Instance shape or size slug.")
+    image: str = Field("ubuntu-22.04", description="The OS image or AMI ID.")
+    region: str = Field("us-east-1", description="Geographic locus of materialization.")
+    storage_gb: int = Field(20, ge=8, le=4096)
+
+    # Network Constraints
+    open_ports: List[int] = Field(default_factory=lambda: [22, 80, 443])
+    assign_public_ip: bool = True
+
+    # Security Matter
+    ssh_key_name: Optional[str] = None
+    user_data: Optional[str] = Field(None, description="Cloud-init script soul.")
+
+
+# =============================================================================
+# == STRATUM-2: THE OMEGA CLOUD REQUEST                                      ==
+# =============================================================================
+
+class CloudRequest(BaseRequest):
+    """
+    =============================================================================
+    == THE CELESTIAL PLEA: CLOUD REQUEST (V-Ω-TOTALITY)                        ==
+    =============================================================================
+    LIF: INFINITY | ROLE: INFRASTRUCTURE_CONDUCTOR
+
+    The definitive contract for all kinetic actions targeting the cloud.
+    """
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        populate_by_name=True,
+        extra='allow'
+    )
+
+    # --- MOVEMENT I: PRIMARY INTENT ---
+    command: CloudAction = Field(..., description="The Infrastructure Rite to perform.")
+    provider: Optional[CloudProvider] = Field(None, description="Target cloud substrate.")
+
+    # --- MOVEMENT II: TARGET COORDINATES ---
+    instance_id: Optional[str] = Field(None, description="The UUID of the node to scry or annihilate.")
+    name: Optional[str] = Field(None, description="The human-readable name for a new reality.")
+
+    # --- MOVEMENT III: SPECIFICATIONS (PROVISION ONLY) ---
+    spec: NodeSpecification = Field(
+        default_factory=lambda: NodeSpecification(project_root=Path(".")),
+        description="The hardware DNA for provisioning."
+    )
+
+    # --- MOVEMENT IV: GOVERNANCE & FISCAL Wards ---
+    max_hourly_rate: float = Field(0.50, description="The metabolic ceiling (USD/hr).")
+    tags: Dict[str, str] = Field(default_factory=dict, description="Semantic labels.")
+
+    # --- MOVEMENT V: KINETIC MODIFIERS ---
+    force: bool = False
+    non_interactive: bool = False
+    timeout: int = 300
+    adrenaline_mode: bool = False  # Prioritize speed over cost
+
+    # =========================================================================
+    # == THE RITES OF ADJUDICATION (VALIDATORS)                              ==
+    # =========================================================================
+
+    @model_validator(mode='after')
+    def adjudicate_intent(self) -> 'CloudRequest':
+        """
+        [THE ORACLE'S VOW]
+        Ensures the plea is internally consistent before reaching the Artisan.
+        """
+        # 1. ANNIHILATION WARD: Require ID for termination
+        if self.command in ["terminate", "status"] and not self.instance_id:
+            raise ValueError(f"The '{self.command}' rite requires a target 'instance_id'.")
+
+        # 2. GENESIS WARD: Require identity for provisioning
+        if self.command == "provision":
+            if not self.name:
+                # Auto-generate name if void
+                self.name = f"velm-node-{uuid.uuid4().hex[:6]}"
+
+            # Ensure provider is manifest
+            if not self.provider:
+                self.provider = "docker"  # Default to local simulation
+
+        # 3. TRACE SUTURE
+        if not self.trace_id:
+            self.trace_id = f"stk-{uuid.uuid4().hex[:8].upper()}"
+
+        return self
+
+    @field_validator('tags', mode='before')
+    @classmethod
+    def ensure_governance_tags(cls, v: Any) -> Dict[str, str]:
+        """[ASCENSION 6]: Enforces the inclusion of management metadata."""
+        base = v if isinstance(v, dict) else {}
+        base.setdefault("ManagedBy", "VELM")
+        base.setdefault("InceptionTS", str(time.time()))
+        return base
+
+    # =========================================================================
+    # == KINETIC METHODS                                                     ==
+    # =========================================================================
+
+    def forge_identity_hash(self) -> str:
+        """
+        [ASCENSION 10]: Generates an idempotency fingerprint.
+        """
+        payload = f"{self.provider}:{self.name}:{self.spec.size}:{self.spec.image}"
+        return hashlib.sha256(payload.encode()).hexdigest()
+
+    @property
+    def is_destructive(self) -> bool:
+        """Adjudicates if the rite is lethal."""
+        return self.command == "terminate"
+
+    @property
+    def ui_hints(self) -> Dict[str, Any]:
+        """[ASCENSION 8]: Proclaims haptic instructions for the Ocular UI."""
+        if self.command == "provision":
+            return {
+                "vfx": "bloom_teal",
+                "sound": "ignition_sequence",
+                "label": "MATERIALIZING_NODE",
+                "color": "#64ffda"
+            }
+        if self.command == "terminate":
+            return {
+                "vfx": "shake_red",
+                "sound": "annihilation_echo",
+                "label": "DISSOLVING_MATTER",
+                "color": "#ef4444"
+            }
+        return {"vfx": "pulse", "label": "SCRYING_CLOUD", "color": "#3b82f6"}
+
+

@@ -1,0 +1,77 @@
+# =================================================================================
+# == GNOSTIC TRAIT: IDENTITY WARD (V-Ω-TOTALITY-SECURITY)                       ==
+# =================================================================================
+# @name: Identity Ward
+# @description: Injects a multi-layered security phalanx. Implements PII shrouding, 
+#               entropy-based secret scrubbing, and Merkle-validated JWT authentication.
+# @category: Security
+# @tags: auth, security, rbac, jwt, encryption, sentinel
+# @difficulty: Adept
+# @is_integration: true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ auth_provider = "novalym-citadel"
+$$ secret_key = "{{ secret(64, 'hex') }}"
+$$ encryption_algo = "HS256"
+
+# --- II. THE SCRIPTURE OF FORM (THE INJECTION) ---
+# We surgically extend the project's core nervous system.
+src/core/security/
+    __init__.py :: "from .warden import IdentityWarden"
+    
+    warden.py :: """
+    # [LIF: 50x] [ROLE: SECURITY_SENTINEL] [RANK: OMEGA]
+    import hmac
+    import hashlib
+    from datetime import datetime, timezone
+    from pydantic import BaseModel
+
+    class IdentityWarden:
+        \"\"\"The Gnostic Guardian of Identity.\"\"\"
+        def __init__(self, master_secret: str):
+            self.secret = master_secret.encode()
+
+        def forge_seal(self, identity_claim: dict) -> str:
+            \"\"\"Forges a Merkle-validated Gnostic Seal (Token).\"\"\"
+            payload = json.dumps(identity_claim, sort_keys=True)
+            return hmac.new(self.secret, payload.encode(), hashlib.sha256).hexdigest()
+
+        def verify_seal(self, claim: dict, seal: str) -> bool:
+            \"\"\"Adjudicates the purity of a presented seal.\"\"\"
+            expected = self.forge_seal(claim)
+            return hmac.compare_digest(expected, seal)
+    """
+
+    scrubber.py :: """
+    import re
+    class EntropySieve:
+        \"\"\"Scans for and shrouds high-entropy matter (Secrets).\"\"\"
+        PATTERNS = [r'sk-[a-zA-Z0-9]{32}', r'ghp_[a-zA-Z0-9]{36}']
+        def scrub(self, text: str) -> str:
+            for p in self.PATTERNS:
+                text = re.sub(p, "[REDACTED_GNOSTIC_MATTER]", text)
+            return text
+    """
+
+# Add to Environment DNA
+.env.example += """
+# == IDENTITY WARD DNA ==
+SCAFFOLD_INTERNAL_KEY={{ secret_key }}
+SCAFFOLD_AUTH_REALM={{ auth_provider }}
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Warden logic manifest in 'src/core/security/'."
+    proclaim: "Initializing the [bold green]Veil of Silence[/bold green]..."
+    
+    # 1. Forge the internal secrets vault
+    >> mkdir -p .scaffold/vault
+    >> echo "{{ secret_key }}" > .scaffold/vault/master.key
+    
+    proclaim: "✅ Identity Ward Resonant. Secrets warded by Entropy Sieve."
+
+%% on-heresy
+    proclaim: "[bold red]SECURITY FRACTURE![/bold red]"
+    proclaim: "Failed to materialize Identity Ward. Perimeter vulnerable."

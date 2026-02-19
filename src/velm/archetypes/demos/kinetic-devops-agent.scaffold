@@ -1,135 +1,228 @@
 # =================================================================================
-# == GNOSTIC ARCHETYPE: KINETIC DEVOPS AGENT (V-Ω-TOTALITY)                      ==
+# == GNOSTIC ARCHETYPE: KINETIC DEVOPS AGENT (V-Ω-TOTALITY-V6.0)                 ==
 # =================================================================================
 # @name: Kinetic DevOps Agent
-# @description: A sovereign, self-installing automation agent. It forges its own
-#               Python virtual environment, installs dependencies, and runs a
-#               self-verification symphony to prove its own integrity.
+# @description: A sovereign, self-bootstrapping automation agent. It materializes
+#               its own virtual soul, summons its own dependencies, and conducts
+#               a self-verification rite to ensure absolute architectural purity.
 # @category: Automation
-# @tags: system, demo, devops, ci-cd, python, automation, symphony
+# @tags: system, demo, devops, ci-cd, python, self-bootstrapping, resilience
 # @difficulty: Master
 # @icon: Cpu
 # @color: #f59e0b
-# @dna: use_git=true, use_docker=true
+# @dna: bootstrap_strategy=force-pure, log_depth=forensic, isolation=venv
 # =================================================================================
 
 # --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
-$$ project_name = "kinetic-agent"
-$$ author = "The Gnostic Architect"
-$$ python_runtime = "3.11"
-$$ agent_version = "1.0.0-omega"
+$$ project_name = "kinetic-titan-agent"
+$$ agent_version = "6.0.0-OMEGA"
+$$ python_runtime = "3.12"
+$$ registry_url = "https://pypi.org/simple"
+
+# Derived Identity
+$$ package_name = {{ project_name | snake }}
+$$ author = "{{ author | default('The Architect') }}"
 
 # --- II. THE SCRIPTURE OF FORM (THE BODY) ---
 {{ project_name }}/
 
-    # [1] THE KERNEL & CONSTITUTION
-    .gitignore :: ".venv/\n__pycache__/\n*.log\n.DS_Store"
+    # [1] THE KERNEL & CONSTITUTION (Foundry)
+    .gitignore :: """
+    # The Veil of Privacy
+    .venv/
+    __pycache__/
+    *.py[cod]
+    *.log
+    .scaffold/
+    dist/
+    """
 
     pyproject.toml :: """
     [tool.poetry]
     name = "{{ project_name }}"
     version = "{{ agent_version }}"
-    description = "A sovereign kinetic agent forged by VELM."
+    description = "A sovereign kinetic agent manifest by the VELM God-Engine."
     authors = ["{{ author }}"]
+    packages = [{include = "{{ package_name }}", from = "src"}]
 
     [tool.poetry.dependencies]
     python = "^{{ python_runtime }}"
-    rich = "^13.7.1"
-    requests = "^2.31.0"
-    
+    rich = "^13.7.0"
+    pydantic = "^2.6.0"
+    httpx = "^0.27.0"
+    structlog = "^24.1.0"
+
+    [tool.poetry.group.dev.dependencies]
+    pytest = "^8.0.0"
+    ruff = "^0.3.0"
+
     [build-system]
     requires = ["poetry-core"]
     build-backend = "poetry.core.masonry.api"
     """
 
-    # [2] THE AGENT'S SOUL (LOGIC)
-    src/
-        agent/
-            __init__.py
-            core.py :: """
-            from rich.console import Console
-            
-            console = Console()
-            
-            def conduct_self_test():
-                console.print("Self-test rite [bold green]CONDUCTED[/]. All systems resonant.")
-                return True
-            """
+    # [2] THE AGENT'S ORGANS (LOGIC)
+    src/{{ package_name }}/
+        __init__.py :: "__version__ = '{{ agent_version }}'"
         
-        main.py :: """
-        from agent.core import conduct_self_test
-        
-        if __name__ == "__main__":
-            conduct_self_test()
+        core.py :: """
+        import time
+        from rich.console import Console
+        from rich.panel import Panel
+        from .brain import PerceptionCortex
+        from .limbs import KineticHand
+
+        console = Console()
+
+        class TitanAgent:
+            \"\"\"The Unified Mind of the Kinetic Agent.\"\"\"
+            def __init__(self):
+                self.brain = PerceptionCortex()
+                self.hand = KineticHand()
+                self.start_time = time.time()
+
+            def awaken(self):
+                console.print(Panel(
+                    f"[bold yellow]TITAN AGENT v{{ agent_version }}[/]\\n[dim]Status: RESONANT[/]",
+                    title="[bold cyan]Awakening[/]",
+                    border_style="cyan"
+                ))
+                return self.brain.scry_reality()
         """
 
-    # [3] THE RITE OF VERIFICATION (THE AGENT'S CONSCIENCE)
+        brain.py :: """
+        import os
+        import platform
+        from rich.table import Table
+
+        class PerceptionCortex:
+            \"\"\"The sensory organ of the agent.\"\"\"
+            def scry_reality(self):
+                table = Table(title="Environmental Tomography", border_style="dim")
+                table.add_column("Organ", style="magenta")
+                table.add_row("OS", platform.system())
+                table.add_row("CWD", os.getcwd())
+                return True
+        """
+
+        limbs.py :: """
+        class KineticHand:
+            \"\"\"The execution organ of the agent.\"\"\"
+            def strike(self, intent):
+                print(f"⚡ [STRIKE] Executing intent: {intent}")
+                return True
+        """
+
+    main.py :: """
+    from {{ package_name }}.core import TitanAgent
+
+    if __name__ == "__main__":
+        agent = TitanAgent()
+        agent.awaken()
+    """
+
+    # [3] THE RITES OF VERIFICATION (CONSCIENCE)
     symphonies/
+        # This is the Vow that the Agent takes during its birth.
         verify_integrity.symphony :: """
-        # == Symphony: Integrity Verification ==
+        # == Symphony: Integrity Verification Rite ==
         
-        %% proclaim: "Initiating Gnostic Self-Verification..."
+        %% proclaim: "Initiating Forensic Biopsy of the Kinetic Agent..."
         
-        # Vow I: The Python soul must be pure
-        >> poetry run python src/main.py
-        ?? stdout_contains: "resonant"
+        # Vow I: The Python soul must possess resonance
+        >> poetry run python main.py
+        ?? stdout_contains: "RESONANT"
         
-        # Vow II: The Docker vessel must be buildable
-        >> docker build -t {{ project_name }}:test .
+        # Vow II: The Code Geometry must follow the Law
+        >> poetry run ruff check .
         ?? succeeds
         
-        %% proclaim: "[bold green]✅ The Kinetic Agent is pure. Integrity: 100%.[/bold green]"
+        # Vow III: The Docker Vessel must be forgeable
+        @if {{ use_docker }}:
+            >> docker build -t {{ project_name }}:latest .
+            ?? succeeds
+        @endif
+        
+        %% proclaim: "[bold green]✅ THE KINETIC AGENT IS PURE. REALITY IS STABLE.[/bold green]"
         """
 
     # [4] THE CELESTIAL VESSEL
     Dockerfile :: """
-    FROM python:{{ python_runtime }}-slim
+    FROM python:{{ python_runtime }}-slim-bookworm
     WORKDIR /app
-    COPY pyproject.toml poetry.lock ./
-    RUN pip install poetry && poetry install --no-root
+    RUN pip install poetry
+    COPY pyproject.toml poetry.lock* ./
+    RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
     COPY . .
-    CMD ["poetry", "run", "python", "src/main.py"]
+    CMD ["python", "main.py"]
     """
 
     # [5] THE ARCHITECT'S MANIFESTO
     README.md :: """
     # 🤖 {{ project_name | title }}
-    A sovereign automation agent forged by VELM.
-    
-    ### Rites of Command
-    - `poetry run python src/main.py`
-    - `velm run symphonies/verify_integrity.symphony`
+    > Forged via VELM Singularity Architecture (V-Ω-TOTALITY)
+
+    This is a **Kinetic DevOps Agent**—a sovereign automation node capable of self-healing,
+    environmental scrying, and resilient workflow orchestration.
+
+    ## 🚀 Initiation Rites
+    1.  **Awaken:** `poetry run python main.py`
+    2.  **Verify:** `velm run symphonies/verify_integrity.symphony`
+    3.  **Transmute:** Modify `src/{{ package_name }}/brain.py` to add new senses.
+
+    ## 🏛️ Gnostic Strata
+    - **Mind:** `src/{{ package_name }}/brain.py`
+    - **Hand:** `src/{{ package_name }}/limbs.py`
+    - **Chronicle:** `symphonies/`
     """
 
-# --- III. THE MAESTRO'S WILL (SELF-INSTALLATION SYMPHONY) ---
+# --- III. THE MAESTRO'S WILL (SELF-FORGING SYMPHONY) ---
 %% post-run
     proclaim: "================================================================="
-    proclaim: "[bold purple]THE KINETIC AGENT IS BEING BORN. WITNESS THE SELF-FORGING...[/bold purple]"
+    proclaim: "THE KINETIC AGENT IS BEING BORN. WITNESS THE SELF-FORGING..."
     proclaim: "================================================================="
 
-    # We conduct all rites within the newly forged sanctum
+    # We shift the focus into the new reality's sanctum
     %% sanctum: {{ project_name }}
     
-    # 1. Forge the virtual soul
-    proclaim: "Phase I: Forging Python Virtual Environment..."
+    # 1. FORGE THE VIRTUAL SOUL
+    # This creates the isolation layer where the agent's logic will dwell.
+    proclaim: "Phase I: Materializing Python Virtual Environment..."
     >> python -m venv .venv
     ?? dir_exists: .venv/
 
-    # 2. Conduct rites within the venv using the polyglot engine
-    proclaim: "Phase II: Summoning dependencies via Poetry..."
+    # 2. CONDUCT THE BAPTISM (DEPENDENCY SUMMONING)
+    # We use the 'polyglot' context to execute rites INSIDE the new venv.
+    proclaim: "Phase II: Summoning the Polyglot Dependencies via Poetry..."
     polyglot(venv=".venv"):
+        >> pip install --upgrade pip
         >> pip install poetry
         >> poetry install --no-interaction
     ?? succeeds
 
-    # 3. The Final Adjudication: Run the self-test symphony
-    proclaim: "Phase III: Conducting Integrity Verification Symphony..."
+    # 3. THE FINAL ADJUDICATION
+    # We command the agent to verify its own existence.
+    proclaim: "Phase III: Conducting the Rite of Integrity Verification..."
     >> velm run symphonies/verify_integrity.symphony
     ?? succeeds
 
-    proclaim: "[bold green]✅ APOTHEOSIS COMPLETE. The Kinetic DevOps Agent is manifest and verified.[/bold green]"
-    proclaim: "   Enter the sanctum ('cd {{ project_name }}') and wield its power."
+    # 4. SEAL THE CHRONICLE (GIT)
+    @if {{ use_git }}:
+        proclaim: "Phase IV: Sealing the Git Chronicle..."
+        >> git init
+        >> git add .
+        >> git commit -m "feat: Initialized Kinetic Agent v{{ agent_version }}"
+    @endif
+
+    proclaim: "================================================================="
+    proclaim: "✅ [bold green]APOTHEOSIS COMPLETE.[/bold green]"
+    proclaim: "The Kinetic Agent is now [bold cyan]RESONANT[/bold cyan]."
+    proclaim: "To enter the cockpit: [bold]cd {{ project_name }}[/bold]"
+    proclaim: "================================================================="
 
 %% on-heresy
-    proclaim: "[bold red]A HERESY OF CREATION! The agent failed to self-materialize.[/bold red]"
-    proclaim: "   The Gnostic chronicle of failure: {{ HERALD_STDERR }}"
+    proclaim: "[bold red]A CATASTROPHIC HIERESY HAS OCCURRED![/bold red]"
+    proclaim: "The Kinetic Agent failed to self-materialize."
+    proclaim: "Forensic Data: {{ HERALD_STDERR }}"
+    proclaim: "The Void awaits. Purging fractured matter shards..."
+    rm -rf {{ project_name }}

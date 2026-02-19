@@ -1,0 +1,186 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: SUBSTRATE ARBITRATOR (V-Ω-TOTALITY-FISCAL-AGENCY)        ==
+# =================================================================================
+# @name: Substrate Arbitrator
+# @description: An economically-aware autonomous node. It scries the cost of its own 
+#               existence across multiple cloud providers and automatically conducts 
+#               migration rites to the most metabolically efficient substrate.
+# @category: Economy
+# @tags: system, demo, infrastructure, cloud-arbitrage, self-migration, automation
+# @difficulty: Grand Architect
+# @icon: Scale
+# @color: #fbbf24
+# @dna: fiscal_strategy=aggressive, migration_threshold=0.15, multi_cloud=enabled
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
+$$ project_name = "Fiscal-Arbitrator"
+$$ package_name = "arbitrator"
+$$ current_substrate = "azure"
+$$ drift_threshold = {{ dna.migration_threshold | default(0.15) }}
+$$ author = "The Architect"
+
+# --- II. THE SCRIPTURE OF FORM (THE BODY) ---
+{{ project_name }}/
+
+    # [1] THE FISCAL SCRYER (THE MIND)
+    src/{{ package_name }}/
+        __init__.py :: "__version__ = '1.0.0-Ω'"
+        
+        scryer.py :: """
+        import random
+        import time
+        from rich.console import Console
+        from rich.table import Table
+
+        console = Console()
+
+        class FiscalScryer:
+            \"\"\"Perceives the cost of existence across the Multiverse.\"\"\"
+            def __init__(self):
+                self.prices = {
+                    "azure": 0.042, # USD per hour
+                    "ovh": 0.021,
+                    "aws": 0.055
+                }
+
+            def conduct_market_inquest(self, current_substrate: str):
+                console.print(f"🔍 [SCRYER] Inquest into Cloud Market. Current: [bold]{current_substrate}[/]")
+                
+                # Simulate price flux
+                current_cost = self.prices.get(current_substrate, 0.1)
+                best_substrate = current_substrate
+                min_cost = current_cost
+
+                for substrate, price in self.prices.items():
+                    if price < min_cost:
+                        min_cost = price
+                        best_substrate = substrate
+
+                savings = (current_cost - min_cost) / current_cost
+                return best_substrate, savings
+
+        if __name__ == "__main__":
+            scryer = FiscalScryer()
+            target, savings = scryer.conduct_market_inquest("{{ current_substrate }}")
+            print(f"RESULT_TARGET:{target}")
+            print(f"RESULT_SAVINGS:{savings:.2f}")
+        """
+
+    # [2] THE MIGRATION LEDGER
+    ledger/
+        history.jsonl :: """
+        {"timestamp": 1771486699, "action": "GENESIS", "substrate": "azure", "cost": 0.042}
+        """
+
+    # [3] THE RITES OF MIGRATION (SYMPHONY)
+    symphonies/
+        great_migration.symphony :: """
+        # == Symphony: The Great Migration ==
+        # Conducted when a more efficient substrate is perceived.
+        
+        @task main
+            %% proclaim: "Initiating Substrate Arbitrage..."
+            
+            # Vow I: Scry the Market
+            >> python src/{{ package_name }}/scryer.py as market_gnosis
+            
+            # Extract variables from scryer output
+            py:
+                import re
+                target = re.search(r"RESULT_TARGET:(\\w+)", ctx.market_gnosis).group(1)
+                savings = float(re.search(r"RESULT_SAVINGS:([0-9.]+)", ctx.market_gnosis).group(1))
+                ctx.target_substrate = target
+                ctx.is_profitable = savings > {{ drift_threshold }}
+            
+            # Vow II: Adjudicate the Move
+            @if ctx.is_profitable:
+                %% proclaim: "[bold yellow]⚡ [STRIKE] Metabolic Drift Detected. Target: !{ctx.target_substrate}[/bold yellow]"
+                
+                # 1. Snapshot Reality (The Ghost Archive)
+                %% proclaim: "Phase I: Forging Reality Snapshot..."
+                >> velm export
+                ?? succeeds
+                
+                # 2. Provision New Substrate
+                %% proclaim: "Phase II: Provisioning !{ctx.target_substrate} via Cloud Artisan..."
+                >> velm cloud provision --provider !{ctx.target_substrate}
+                ?? succeeds
+                
+                # 3. Teleport Matter
+                %% proclaim: "Phase III: Materializing Reality on New Substrate..."
+                >> velm deploy --target !{ctx.target_substrate}
+                ?? succeeds
+                
+                # 4. Finality: Terminate the Expensive Life
+                %% proclaim: "Phase IV: Severing link to expensive past..."
+                >> velm cloud terminate --id {{ current_substrate }}
+                
+                %% proclaim: "[bold green]✅ MIGRATION SUCCESSFUL. Sovereignty maintained.[/bold green]"
+            @else:
+                %% proclaim: "Current substrate remains the most efficient. Stasis maintained."
+            @end
+        """
+
+    # [4] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # ⚖️ {{ project_name }}
+    > The Sovereign Substrate Arbitrator (V-Ω-TOTALITY)
+
+    This is a **Billion Dollar Archetype**. It is an autonomous agent that ensures your 
+    infrastructure costs are always minimized by migrating itself between clouds.
+
+    ### 🏗️ Economic Organs
+    1. **Fiscal Scryer:** `src/{{ package_name }}/scryer.py` (Price monitoring).
+    2. **Great Migration:** `symphonies/great_migration.symphony` (The teleportation logic).
+    3. **The Ledger:** `ledger/history.jsonl` (Temporal cost tracking).
+
+    ### ⚡ Conduct Inquest (Scry Prices)
+    `velm run symphonies/great_migration.symphony`
+    """
+
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_name | lower }}"
+    version = "1.0.0"
+    description = "Self-Migrating Autonomous Node"
+    authors = ["{{ author }}"]
+
+    [tool.poetry.dependencies]
+    python = "^3.11"
+    rich = "^13.7.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+    """
+
+# --- III. THE MAESTRO'S WILL (POST-RUN SYMPHONY) ---
+%% post-run
+    proclaim: "================================================================="
+    proclaim: "THE SUBSTRATE ARBITRATOR IS VIGILANT."
+    proclaim: "================================================================="
+    
+    # Anchor to the economy
+    %% sanctum: {{ project_name }}
+    
+    # 1. Forge the virtual soul
+    proclaim: "Phase I: Materializing Arbitrage Environment..."
+    >> python -m venv .venv
+    
+    # 2. Summon Artisans
+    proclaim: "Phase II: Summoning the Fiscal Oracle (Rich)..."
+    polyglot(venv=".venv"):
+        >> pip install rich
+    ?? succeeds
+    
+    proclaim: "================================================================="
+    proclaim: "✅ [bold yellow]ARBITRATOR ACTIVE[/bold yellow] in '{{ project_name }}/'."
+    proclaim: "   The node is now scrying for cheaper substrates."
+    proclaim: "   To test the Market Inquest, speak:"
+    proclaim: "   [bold cyan]velm run symphonies/great_migration.symphony[/bold cyan]"
+    proclaim: "================================================================="
+
+%% on-heresy
+    proclaim: "[bold red]FISCAL FRACTURE![/bold red]"
+    proclaim: "The Arbitrator failed to initialize. Financial leakage possible."

@@ -1,0 +1,65 @@
+# =================================================================================
+# == GNOSTIC TRAIT: OUROBOROS GUARDIAN (V-Ω-TOTALITY-INTEGRITY)                 ==
+# =================================================================================
+# @name: Ouroboros Guardian
+# @description: Enforces absolute architectural discipline. Injects Git hooks 
+#               that mandate 'velm verify' resonance before any matter can be 
+#               committed to the chronicle.
+# @category: Integrity
+# @tags: git, hooks, automation, quality-gate, verify, enforcer
+# @difficulty: Adept
+# @is_integration: true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ strict_mode = true
+$$ bypass_key = "GNOSTIC_OVERRIDE"
+
+# --- II. THE SCRIPTURE OF FORM (THE INJECTION) ---
+# We forge the guardian script that will block profane commits.
+.scaffold/hooks/
+    pre-commit.sh :: """
+    #!/bin/bash
+    # [LIF: ∞] [ROLE: INTEGRITY_ADJUDICATOR]
+    
+    echo "🔍 [GUARDIAN] Adjudicating reality before commitment..."
+    
+    # Run the Gnostic Verify Rite
+    velm verify --strict
+    
+    if [ $? -ne 0 ]; then
+        echo "❌ [HERESY DETECTED] Reality has drifted from Gnostic Law."
+        echo "   Execute 'velm adopt' or 'velm transmute' to achieve resonance."
+        exit 1
+    fi
+    
+    echo "✅ [RESONANT] Matter matches Law. Proceeding to enshrine."
+    exit 0
+    """
+
+# Add to the Control Plane
+Makefile += """
+# --- INTEGRITY RITES ---
+protect: ## install the Ouroboros Guardian git hooks
+	@chmod +x .scaffold/hooks/pre-commit.sh
+	@ln -sf ../../.scaffold/hooks/pre-commit.sh .git/hooks/pre-commit
+	@echo "🛡️ Guardian installed at .git/hooks/pre-commit"
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Ouroboros Guardian manifest in '.scaffold/hooks/'."
+    
+    # 1. Initialize the protection
+    @if {{ dir_exists('.git') }}:
+        proclaim: "Phase I: Consecrating the Git Hooks..."
+        >> make protect
+        ?? succeeds
+    @else:
+        proclaim: "[yellow]WARNING: .git not found. Guardian is latent until 'git init' is run.[/yellow]"
+    @endif
+    
+    proclaim: "✅ [bold red]REALITY LOCKED[/bold red]. No drift will be permitted."
+
+%% on-heresy
+    proclaim: "Guardian failed to anchor. Reality remains vulnerable to drift."

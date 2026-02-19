@@ -1,0 +1,74 @@
+# =================================================================================
+# == GNOSTIC TRAIT: CHRONICLE SCRIBE (V-Ω-TOTALITY-HISTORY)                     ==
+# =================================================================================
+# @name: Chronicle Scribe
+# @description: Injects deep forensic logging and automated history tracking. 
+#               Transmutes every kinetic strike into a Merkle-signed entry.
+# @category: Governance
+# @tags: logging, audit, history, git, forensics, traceability
+# @difficulty: Adept
+# @is_integration: true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ chronicle_format = "json-l"
+$$ forensic_depth = "full"
+
+# --- II. THE SCRIPTURE OF FORM ---
+scripts/governance/
+    provenance.py :: """
+    # [LIF: ∞] [ROLE: FORENSIC_SCRIBE] [RANK: OMEGA]
+    import json
+    import time
+    import uuid
+    from pathlib import Path
+
+    class ChronicleScribe:
+        \"\"\"Inscribes the story of every change into the Akasha.\"\"\"
+        def __init__(self, project_root: Path):
+            self.log_path = project_root / ".scaffold" / "forensic_journal.jsonl"
+            self.log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        def record_rite(self, rite_name: str, author: str, outcome: str):
+            entry = {
+                "ts": time.time(),
+                "id": str(uuid.uuid4())[:8],
+                "rite": rite_name,
+                "author": author,
+                "outcome": outcome,
+                "machine": platform.node()
+            }
+            with open(self.log_path, "a") as f:
+                f.write(json.dumps(entry) + "\\n")
+            print(f"📜 [SCRIBE] Rite '{rite_name}' chronicled.")
+    """
+
+symphonies/
+    audit_reality.symphony :: """
+    # == Symphony: Gnostic Audit ==
+    @task main
+        %% proclaim: "Initiating Forensic Audit..."
+        >> velm verify --strict
+        ?? succeeds
+        >> git log --oneline -n 5
+        %% proclaim: "[bold green]✅ CHRONICLE VERIFIED. History is pure.[/bold green]"
+    """
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Chronicle Scribe manifest in 'scripts/governance/'."
+    
+    # 1. Prepare the Journal
+    >> touch .scaffold/forensic_journal.jsonl
+    
+    # 2. Add Audit Rite to Makefile
+    .Makefile += """
+# --- GOVERNANCE RITES ---
+audit: ## conduct a forensic audit of the project chronicle
+	@velm run symphonies/audit_reality.symphony
+"""
+    
+    proclaim: "✅ [bold purple]SCRIBE ENTHRONED[/bold purple]. Every strike will now be chronicled."
+
+%% on-heresy
+    proclaim: "History failed to anchor. Reality remains unchronicled."

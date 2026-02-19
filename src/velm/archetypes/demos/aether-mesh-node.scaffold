@@ -1,0 +1,182 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: AETHER MESH NODE (V-Ω-TOTALITY-POLYGLOT)                 ==
+# =================================================================================
+# @name: Aether Mesh Node
+# @description: A high-performance polyglot bridge combining Rust (Iron Core) and 
+#               Python (Gnostic Mind) into a single distributed node.
+# @category: System
+# @tags: system, demo, rust, python, ffi, high-performance, distributed, bridge
+# @difficulty: Grand Architect
+# @icon: Globe
+# @color: #3b82f6
+# @dna: performance_tier=omega, bridge_type=ffi, auto_compile=true
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
+$$ project_name = "Aether-Node"
+$$ package_name = "aether_core"
+$$ rust_edition = "2021"
+$$ author = "The Architect"
+
+# --- II. THE SCRIPTURE OF FORM (THE BODY) ---
+{{ project_name }}/
+
+    # [1] THE IRON CORE (RUST)
+    # The physical substrate where high-speed computation is forged.
+    Cargo.toml :: """
+    [package]
+    name = "{{ package_name }}"
+    version = "0.1.0"
+    edition = "{{ rust_edition }}"
+
+    [lib]
+    name = "{{ package_name }}"
+    crate-type = ["cdylib"]
+
+    [dependencies]
+    pyo3 = { version = "0.20", features = ["extension-module"] }
+    """
+
+    src/lib.rs :: """
+    use pyo3::prelude::*;
+
+    /// [ASCENSION: IRON_LOGIC]
+    /// High-speed computation warded by the Rust Compiler.
+    #[pyfunction]
+    fn calculate_resonance(intensity: f64) -> PyResult<String> {
+        let resonance = intensity * 42.0;
+        Ok(format!("● IRON_CORE_RESONANT: Intensity {:.2} verified.", resonance))
+    }
+
+    /// The Gnostic Module definition.
+    #[pymodule]
+    fn {{ package_name }}(_py: Python, m: &PyModule) -> PyResult<()> {
+        m.add_function(wrap_pyfunction!(calculate_resonance, m)?)?;
+        Ok(())
+    }
+    """
+
+    # [2] THE COGNITIVE MIND (PYTHON)
+    # The high-level orchestrator that wields the Iron Core.
+    pyproject.toml :: """
+    [build-system]
+    requires = ["maturin>=1.0,<2.0"]
+    build-backend = "maturin"
+
+    [project]
+    name = "{{ project_name | lower }}"
+    version = "0.1.0"
+    dependencies = [
+        "rich>=13.0.0"
+    ]
+    """
+
+    main.py :: """
+    import {{ package_name }}
+    from rich.console import Console
+    from rich.panel import Panel
+
+    console = Console()
+
+    def ignite_node():
+        console.print(Panel(
+            "[bold blue]AETHER MESH NODE ONLINE[/]\\n"
+            "[dim]Substrate: RUST_IRON_CORE[/]\\n"
+            "[dim]Mind: PYTHON_GNOSTIC_CORTEX[/]",
+            title="[bold cyan]System Initialization[/]",
+            border_style="blue"
+        ))
+        
+        # Calling the Rust function via the FFI bridge
+        result = {{ package_name }}.calculate_resonance(1.35)
+        console.print(f"[bold green]>>[/] {result}")
+
+    if __name__ == "__main__":
+        ignite_node()
+    """
+
+    # [3] THE SYMPHONY OF FUSION (WILL)
+    symphonies/
+        ignite.symphony :: """
+        # == Symphony: Polyglot Fusion Rite ==
+        
+        @task main
+            %% proclaim: "Initiating Fusion of Iron and Mind..."
+            
+            # Vow I: Ensure the Toolchains are manifest
+            >> cargo --version
+            ?? succeeds
+            >> python --version
+            ?? succeeds
+            
+            # Vow II: Materialize the Native Module (The Hard Part)
+            %% proclaim: "Forging the Native Rust Shard (this may take a moment)..."
+            >> pip install maturin
+            >> maturin develop
+            ?? succeeds
+            
+            # Vow III: Conduct the First Pulse
+            %% proclaim: "Conducting Unified System Pulse..."
+            >> python main.py
+            ?? stdout_contains: "IRON_CORE_RESONANT"
+            
+            %% proclaim: "[bold green]✅ AETHER MESH IS RADIANT. Polyglot Singularity Achieved.[/bold green]"
+        """
+
+    # [4] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # 🌐 {{ project_name }}
+    > The Sovereign Polyglot Bridge (Rust + Python)
+
+    This is a **Gem-tier Archetype**. It demonstrates the power of VELM to bridge the gap between 
+    system-level performance and high-level logic.
+
+    ### 🏗️ Topology
+    1. **Rust Core:** `src/lib.rs` (High-performance FFI logic).
+    2. **Python Mind:** `main.py` (Orchestration and UI).
+    3. **The Suture:** `Cargo.toml` & `pyproject.toml` configured for `maturin` fusion.
+
+    ### ⚡ Ignition
+    `velm run symphonies/ignite.symphony`
+    """
+
+    .gitignore :: """
+    target/
+    __pycache__/
+    *.so
+    *.pyd
+    .venv/
+    """
+
+# --- III. THE MAESTRO'S WILL (POST-RUN SYMPHONY) ---
+%% post-run
+    proclaim: "================================================================="
+    proclaim: "THE AETHER MESH NODE IS MATERIALIZING."
+    proclaim: "================================================================="
+    
+    # We shift focus to the new sanctum
+    %% sanctum: {{ project_name }}
+    
+    # [ASCENSION: PRE-FLIGHT TOOLCHAIN BIOPSY]
+    proclaim: "Phase I: Scrying for Rust and Python toolchains..."
+    @try:
+        >> cargo --version
+        >> python --version
+    @catch:
+        proclaim: "[bold red]FRACTURE:[/bold red] Rust or Python not found. Materialization paused."
+        %% stop
+    @end
+
+    proclaim: "Phase II: Preparing the Fusion Environment..."
+    >> python -m venv .venv
+    
+    # Final Guidance
+    proclaim: "================================================================="
+    proclaim: "✅ [bold blue]AETHER MESH FORGED[/bold blue] in '{{ project_name }}/'."
+    proclaim: "   To conduct the Fusion Rite and compile the Iron Core, speak:"
+    proclaim: "   [bold cyan]velm run symphonies/ignite.symphony[/bold cyan]"
+    proclaim: "================================================================="
+
+%% on-heresy
+    proclaim: "[bold red]A HERESY OF FUSION![/bold red]"
+    proclaim: "The Polyglot Bridge failed to anchor. Forensic data: {{ HERALD_STDERR }}"

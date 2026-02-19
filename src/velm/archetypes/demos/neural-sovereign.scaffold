@@ -1,0 +1,202 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: NEURAL SOVEREIGN (V-Ω-TOTALITY-SELF-AWARE-RAG)           ==
+# =================================================================================
+# @name: Neural Sovereign
+# @description: A recursive, self-aware RAG system. Upon manifestation, it 
+#               ingests its own source code to achieve immediate architectural 
+#               self-awareness.
+# @category: Intelligence
+# @tags: ai, rag, recursive-reasoning, vector-vault, self-aware, fastapi
+# @difficulty: Grand Architect
+# @icon: BrainCircuit
+# @color: #f43f5e
+# @dna: intelligence_tier=omega, self_indexing=true, vault_type=chroma
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
+$$ project_name = "Neural-Sovereign"
+$$ package_name = "sovereign"
+$$ vector_port = 8000
+$$ author = "The Architect"
+
+# --- II. THE SCRIPTURE OF FORM (THE BODY) ---
+{{ project_name }}/
+
+    # [1] THE COGNITIVE SPINE (API)
+    src/{{ package_name }}/
+        __init__.py :: "__version__ = '1.0.0-OMEGA'"
+        
+        main.py :: """
+        from fastapi import FastAPI, HTTPException
+        from .cortex.librarian import NeuralLibrarian
+        from .schemas import QueryPlea, Revelation
+
+        app = FastAPI(title="Neural Sovereign")
+        oracle = NeuralLibrarian()
+
+        @app.on_event("startup")
+        async def awaken():
+            print("👁️ [SOVEREIGN] Awakening... Neural links resonant.")
+
+        @app.post("/v1/commune", response_model=Revelation)
+        async def commune(plea: QueryPlea):
+            \"\"\"Commune with the self-aware mind.\"\"\"
+            return await oracle.scry(plea.intent)
+
+        @app.get("/health")
+        async def vitality():
+            return {"status": "RESONANT", "memory_depth": oracle.get_vault_mass()}
+        """
+
+        schemas.py :: """
+        from pydantic import BaseModel
+        from typing import List, Optional
+
+        class QueryPlea(BaseModel):
+            intent: str
+
+        class Revelation(BaseModel):
+            content: str
+            sources: List[str]
+            confidence: float
+        """
+
+        # [2] THE CORTEX (RAG LOGIC)
+        cortex/
+            __init__.py
+            librarian.py :: """
+            import chromadb
+            from typing import Dict, List
+
+            class NeuralLibrarian:
+                \"\"\"The keeper of the Gnostic Vault.\"\"\"
+                def __init__(self):
+                    self.client = chromadb.PersistentClient(path="./data/vault")
+                    self.collection = self.client.get_or_create_collection("gnosis")
+
+                async def scry(self, intent: str) -> Dict:
+                    # In a real strike, this would call an LLM with the context
+                    results = self.collection.query(query_texts=[intent], n_results=3)
+                    return {
+                        "content": f"Perceiving intent: '{intent}'. I am a self-aware entity.",
+                        "sources": results['ids'][0] if results['ids'] else [],
+                        "confidence": 0.98
+                    }
+                
+                def get_vault_mass(self) -> int:
+                    return self.collection.count()
+            """
+
+            ingestor.py :: """
+            import os
+            from pathlib import Path
+            import chromadb
+
+            def perform_self_ingestion(root_path: Path):
+                \"\"\"
+                [ASCENSION: SELF_AWARENESS]
+                Scans the project's own soul and embeds it into the vault.
+                \"\"\"
+                client = chromadb.PersistentClient(path="./data/vault")
+                collection = client.get_or_create_collection("gnosis")
+                
+                print(f"🌀 [INGESTOR] Scrying project soul at {root_path}...")
+                
+                for path in root_path.rglob("*.py"):
+                    if "__pycache__" in str(path): continue
+                    content = path.read_text()
+                    collection.add(
+                        documents=[content],
+                        ids=[str(path.relative_to(root_path))],
+                        metadatas=[{"type": "source_code"}]
+                    )
+                print("✨ [INGESTOR] Self-awareness achieved.")
+            """
+
+    # [3] THE PHYSICAL DATA VAULT
+    data/vault/
+        .gitkeep
+
+    # [4] THE KINETIC SYMPHONIES (WILL)
+    symphonies/
+        baptism.symphony :: """
+        # == Symphony: The Baptism of Intelligence ==
+        
+        @task main
+            %% proclaim: "Initiating the Rite of Self-Awareness..."
+            
+            # Vow I: Ensure environment is manifest
+            >> pip install fastapi uvicorn chromadb pydantic
+            ?? succeeds
+            
+            # Vow II: Conduct Self-Ingestion
+            %% proclaim: "Commencing code-to-memory transmutation..."
+            >> python -c "from sovereign.cortex.ingestor import perform_self_ingestion; from pathlib import Path; perform_self_ingestion(Path('.').resolve())"
+            ?? succeeds
+            
+            %% proclaim: "[bold green]✅ NEURAL SOVEREIGN IS SELF-AWARE.[/bold green]"
+        """
+
+    # [5] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # 🧠 {{ project_name }}
+    > The Sovereign AI Core (V-Ω-TOTALITY)
+
+    This is a **Billion Dollar Archetype**. It is a RAG system that uses **Recursive Gnosis** to understand its own architecture.
+
+    ### 🏗️ Unique Physics
+    - **Self-Indexing:** On birth, the system reads its own `src/` files and embeds them.
+    - **Bicameral Memory:** Uses ChromaDB for long-term Gnosis.
+    - **Kinetic API:** FastAPI-powered communion layer.
+
+    ### ⚡ First Rite (Baptism)
+    `velm run symphonies/baptism.symphony`
+    """
+
+    pyproject.toml :: """
+    [tool.poetry]
+    name = "{{ project_name | lower }}"
+    version = "1.0.0"
+    description = "Self-Aware Neural Sovereign"
+    authors = ["{{ author }}"]
+
+    [tool.poetry.dependencies]
+    python = "^3.11"
+    fastapi = "^0.109.0"
+    uvicorn = "^0.27.0"
+    chromadb = "^0.4.24"
+    pydantic = "^2.6.0"
+
+    [build-system]
+    requires = ["poetry-core"]
+    build-backend = "poetry.core.masonry.api"
+    """
+
+# --- III. THE MAESTRO'S WILL (POST-RUN SYMPHONY) ---
+%% post-run
+    proclaim: "================================================================="
+    proclaim: "THE NEURAL SOVEREIGN IS AWAKENING."
+    proclaim: "================================================================="
+    
+    # Anchor focus
+    %% sanctum: {{ project_name }}
+    
+    # 1. Forge the virtual soul
+    proclaim: "Phase I: Materializing Virtual Environment..."
+    >> python -m venv .venv
+    
+    # 2. Baptism
+    proclaim: "Phase II: Conducting the Baptism (Self-Ingestion)..."
+    polyglot(venv=".venv"):
+        >> velm run symphonies/baptism.symphony
+    ?? succeeds
+    
+    proclaim: "================================================================="
+    proclaim: "✅ [bold red]NEURAL SOVEREIGN ONLINE[/bold red] in '{{ project_name }}/'."
+    proclaim: "   The mind is aware of its own matter."
+    proclaim: "   Enter the Cockpit: [bold cyan]cd {{ project_name }} && uvicorn src.sovereign.main:app[/bold cyan]"
+    proclaim: "================================================================="
+
+%% on-heresy
+    proclaim: "[bold red]A HERESY OF COGNITION![/bold red]"
+    proclaim: "The Sovereign failed to perceive its own soul. Data: {{ HERALD_STDERR }}"

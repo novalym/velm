@@ -1,0 +1,232 @@
+# =================================================================================
+# == GNOSTIC ARCHETYPE: OCULAR MEMBRANE (V-Ω-TOTALITY-MULTIMODAL-UI)             ==
+# =================================================================================
+# @name: Ocular Membrane
+# @description: The ultimate multimodal UI engine. Materializes a high-status 
+#               React membrane and a Vision Sentinel that maps rendered pixels 
+#               back to the source code for absolute visual-logic parity.
+# @category: Ocular
+# @tags: ui, nextjs, react, vision, multimodal, frontend, reflection, atomic-design
+# @difficulty: Grand Architect
+# @icon: Eye
+# @color: #64ffda
+# @dna: vision_tier=omega, reflection_sync=enabled, design_system=obsidian
+# =================================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
+$$ project_name = "Ocular-Membrane"
+$$ package_name = "membrane"
+$$ ui_port = 3000
+$$ author = "The Architect"
+
+# --- II. THE SCRIPTURE OF FORM (THE BODY) ---
+{{ project_name }}/
+
+    # [1] THE OCULAR LAYER (NEXT.JS / REACT 19)
+    # The high-status visual surface of the machine.
+    frontend/
+        package.json :: """
+        {
+          "name": "{{ project_name | lower }}-ui",
+          "version": "1.0.0",
+          "type": "module",
+          "dependencies": {
+            "react": "^19.0.0",
+            "react-dom": "^19.0.0",
+            "next": "15.1.0",
+            "lucide-react": "latest",
+            "framer-motion": "latest",
+            "clsx": "latest",
+            "tailwind-merge": "latest"
+          },
+          "devDependencies": {
+            "typescript": "^5.0.0",
+            "tailwindcss": "^4.0.0",
+            "@types/react": "^19.0.0",
+            "@types/node": "^20.0.0"
+          }
+        }
+        """
+
+        app/
+            layout.tsx :: """
+            import { Inter } from "next/font/google";
+            const inter = Inter({ subsets: ["latin"] });
+
+            export default function RootLayout({ children }: { children: React.ReactNode }) {
+              return (
+                <html lang="en" className="dark bg-black">
+                  <body className={`${inter.className} antialiased selection:bg-teal-400/30`}>
+                    {children}
+                  </body>
+                </html>
+              );
+            }
+            """
+
+            page.tsx :: """
+            "use client";
+            import { motion } from "framer-motion";
+            import { Eye, Zap, ShieldCheck } from "lucide-react";
+
+            export default function OcularStage() {
+              return (
+                <main className="min-h-screen flex flex-col items-center justify-center p-24 relative overflow-hidden">
+                  {/* METABOLIC BACKGROUND VIBE */}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#115e59_0%,_transparent_70%)] opacity-10" />
+                  
+                  <motion.div 
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="z-10 text-center space-y-8"
+                    data-gnostic-id="root-stage"
+                  >
+                    <div className="inline-flex items-center gap-3 px-4 py-1 rounded-full border border-teal-500/20 bg-teal-500/5 backdrop-blur-xl">
+                      <Eye size={14} className="text-teal-400 animate-pulse" />
+                      <span className="text-[10px] font-mono text-teal-400 font-black uppercase tracking-[0.4em]">Ocular_Sync_Active</span>
+                    </div>
+
+                    <h1 className="text-8xl font-black text-white italic uppercase tracking-tighter leading-none">
+                      THE <br /> <span className="text-teal-400">MEMBRANE.</span>
+                    </h1>
+
+                    <p className="text-slate-500 font-mono text-xs uppercase tracking-widest max-w-md mx-auto leading-relaxed">
+                      [STRATUM_03]: Multimodal Visual Perception. <br/> 
+                      Mapping Pixels to Logic @ 144Hz.
+                    </p>
+
+                    {/* [ASCENSION]: THE REFLECTION ANCHOR */}
+                    <div 
+                      className="p-12 border border-white/5 bg-white/[0.01] rounded-3xl backdrop-blur-2xl group cursor-crosshair"
+                      data-gnostic-id="reflection-node"
+                    >
+                        <Zap size={48} className="text-slate-800 group-hover:text-teal-400 transition-all duration-700" />
+                    </div>
+                  </motion.div>
+
+                  <footer className="absolute bottom-12 flex items-center gap-8 opacity-20 hover:opacity-100 transition-opacity">
+                      <span className="text-[8px] font-mono tracking-[1em] text-white uppercase">Ω_Novalym_Systems</span>
+                      <ShieldCheck size={16} className="text-teal-500" />
+                  </footer>
+                </main>
+              );
+            }
+            """
+
+    # [2] THE VISION SENTINEL (PYTHON / PLAYWRIGHT)
+    # The "Mind's Eye" that gazes at the UI.
+    src/{{ package_name }}/
+        __init__.py
+        sentinel.py :: """
+        import asyncio
+        import json
+        from playwright.async_api import async_playwright
+        from rich.console import Console
+
+        console = Console()
+
+        class VisionSentinel:
+            \"\"\"The Gaze of the Machine. Scries the UI for alignment.\"\"\"
+            def __init__(self, url: str):
+                self.url = url
+                self.reflection_map = {}
+
+            async def conduct_gaze(self):
+                console.print(f"[bold cyan]👁️  [SENTINEL] Opening Ocular Link to: {self.url}[/]")
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch()
+                    page = await browser.new_current_page()
+                    await page.goto(self.url)
+                    
+                    # [ASCENSION: RECURSIVE_SCRY]
+                    # We locate elements with the 'data-gnostic-id' seal
+                    console.print("[dim]Scrying Gnostic coordinates from DOM...[/]")
+                    elements = await page.query_selector_all("[data-gnostic-id]")
+                    
+                    for el in elements:
+                        id = await el.get_attribute("data-gnostic-id")
+                        box = await el.bounding_box()
+                        if box:
+                            self.reflection_map[id] = box
+                            console.print(f"   [bold green]»[/] Anchored: [white]{id}[/] @ {box['x']},{box['y']}")
+                    
+                    await browser.close()
+                    return self.reflection_map
+
+        if __name__ == "__main__":
+            sentinel = VisionSentinel("http://localhost:3000")
+            asyncio.run(sentinel.conduct_gaze())
+        """
+
+    # [3] THE RITE OF REFLECTION (SYMPHONY)
+    symphonies/
+        ocular_handshake.symphony :: """
+        # == Symphony: The Ocular Handshake ==
+        
+        @task main
+            %% proclaim: "Initiating Multimodal Ocular Handshake..."
+            
+            # Vow I: Ensure the Frontend is Breathing
+            >> cd frontend && npm run build
+            ?? succeeds
+            
+            # Vow II: Materialize the Vision Sentinel
+            %% proclaim: "Summoning the Vision Sentinel..."
+            >> pip install playwright
+            >> playwright install chromium
+            ?? succeeds
+            
+            # Vow III: Conduct the Mirror Rite
+            %% proclaim: "[bold teal]🌀 GAZE INITIATED: Synchronizing UI and Logic...[/bold teal]"
+            # This would normally run against a live dev server
+            >> python src/{{ package_name }}/sentinel.py
+            ?? succeeds
+            
+            %% proclaim: "[bold green]✅ OCULAR RESONANCE ACHIEVED. Reality is bit-perfect.[/bold green]"
+        """
+
+    # [4] THE ARCHITECT'S MANIFESTO
+    README.md :: """
+    # 👁️ {{ project_name }}
+    > The Sovereign Ocular Membrane (V-Ω-TOTALITY)
+
+    This is a **High-Status "Gem" Archetype**. It demonstrates the power of VELM to 
+    unify visual rendering and logical analysis into a single, multimodal feedback loop.
+
+    ### 🏗️ Unique Strata
+    1. **Ocular Membrane:** Next.js 15 / React 19 Frontend.
+    2. **Vision Sentinel:** Python / Playwright Agent for visual scrying.
+    3. **The Mirror:** `data-gnostic-id` markers that link pixels to source lines.
+
+    ### ⚡ Ignition (The Mirror Rite)
+    `velm run symphonies/ocular_handshake.symphony`
+    """
+
+# --- III. THE MAESTRO'S WILL (POST-RUN SYMPHONY) ---
+%% post-run
+    proclaim: "================================================================="
+    proclaim: "THE OCULAR MEMBRANE IS MATERIALIZING IN THE TAB."
+    proclaim: "================================================================="
+    
+    # Secure the sanctum
+    %% sanctum: {{ project_name }}
+    
+    # 1. Forge the virtual soul
+    proclaim: "Phase I: Materializing Python Virtual Environment..."
+    >> python -m venv .venv
+    
+    # 2. Materialize the Ocular dependencies
+    proclaim: "Phase II: Summoning Node Artisans (npm install)..."
+    %% sanctum: {{ project_name }}/frontend
+    >> npm install
+    ?? succeeds
+    
+    proclaim: "================================================================="
+    proclaim: "✅ [bold teal]OCULAR MEMBRANE ONLINE[/bold teal] in '{{ project_name }}/'."
+    proclaim: "   The Eye is open. The Code is manifest."
+    proclaim: "   Enter the Stage: [bold cyan]cd {{ project_name }}/frontend && npm run dev[/bold cyan]"
+    proclaim: "================================================================="
+
+%% on-heresy
+    proclaim: "[bold red]THE EYE IS CLOUDED![/bold red]"
+    proclaim: "Ocular Inception failed. Forensic Data: {{ HERALD_STDERR }}"
