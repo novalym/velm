@@ -105,7 +105,13 @@ RITES = {
         "request_class_name": "GenesisRequest",
         "help": "The Rite of Genesis. Forges a new reality from a blueprint.",
         "description": "The `genesis` command is the Alpha. It takes a `.scaffold` blueprint and materializes it, running the full interactive dialogue if needed.",
-        "flags": [add_common_flags, add_simulation_flags, add_variable_flags],
+        "flags": [
+            add_common_flags,
+            add_simulation_flags,
+            add_variable_flags,
+            # [ASCENSION]: The Vow of Silence for Maestro
+            lambda p: p.add_argument('--no-edicts', action='store_true', help='Suppress execution of %% post-run edicts (Maestro Silence).')
+        ],
         "args": [("blueprint_path", {"nargs": "?", "default": ".", "help": "Path to the .scaffold blueprint or an archetype name."})],
     },
     "init": {

@@ -62,8 +62,9 @@ class ProjectManager:
         ensuring that user projects are distinct from system references.
     8.  **Metabolic Tomography:** Tracks high-precision millisecond timestamps for `created_at`,
         `updated_at`, and `last_accessed` for accurate LRU sorting in the UI.
-    9.  **Geometric Anchor Heuristics:** Resolves relative paths into absolute VFS coordinates,
-        enforcing POSIX standards (`/vault/workspaces/...`) even on Windows hosts.
+    9.  **Geometric Anchor Heuristics (THE FIX):** Decouples the `workspaces_root` from the
+        persistence layer in WASM. It enforces a flat `/vault/workspaces` topology to align
+        with the Ocular Eye's perception, while keeping the registry in `.scaffold`.
     10. **The Socratic Auditor:** Runs a background audit on init to prune "Zombie Projects"
         (registry entries pointing to non-existent paths) unless they are marked as Ghosts.
     11. **NoneType Sarcophagus:** All retrieval methods return guaranteed objects or raise
@@ -100,9 +101,12 @@ class ProjectManager:
     def __init__(self, persistence: Optional[RegistryPersistence] = None):
         """
         =================================================================================
-        == THE RITE OF MULTIVERSAL INCEPTION (V-Ω-TOTALITY-V100K-BOOTSTRAP)            ==
+        == THE RITE OF MULTIVERSAL INCEPTION (V-Ω-TOTALITY-V100K-BOOTSTRAP-HEALED)     ==
         =================================================================================
-        Initializes the Governor, loads the Registry, and prepares the physical substrate.
+        LIF: ∞ | ROLE: SPATIAL_ANCHOR_GOVERNOR | RANK: OMEGA_SOVEREIGN
+
+        [THE CURE]: This init now deterministically anchors the 'workspaces_root' to
+        the correct topological stratum based on the substrate.
         """
         # [ASCENSION 7]: CHRONOMETRIC ANCHOR
         self._inception_ts = time.perf_counter_ns()
@@ -111,7 +115,11 @@ class ProjectManager:
         self._lock = threading.RLock()
 
         # [ASCENSION 2]: PERSISTENCE SUTURE
+        # The ascended persistence.py now handles the /vault vs ~/.scaffold triage
         self.persistence = persistence or RegistryPersistence()
+
+        # [ASCENSION 22]: SUBSTRATE SENSING
+        self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
 
         # [ASCENSION 5]: TABULA RASA RESILIENCE
         try:
@@ -128,15 +136,25 @@ class ProjectManager:
             self.registry = RegistrySchema()
             self.persistence.save(self.registry)
 
+        # =========================================================================
+        # == [THE CURE]: DETERMINISTIC WORKSPACE ANCHORING                      ==
+        # =========================================================================
         # [ASCENSION 9]: GEOMETRIC ANCHOR HEURISTIC
-        self.workspaces_root = self.persistence.root / DEFAULT_WORKSPACE_DIR_NAME
+        # In WASM, the persistence root is /vault/.scaffold, but workspaces MUST be
+        # at /vault/workspaces to align with the Ocular UI's perception.
+        if self.is_wasm:
+            self.workspaces_root = Path("/vault/workspaces")
+            Logger.info(f"WASM Substrate detected. Anchoring Workspaces to Sovereign Root: {self.workspaces_root}")
+        else:
+            # In Iron, we nest inside the persistence root for tidiness.
+            self.workspaces_root = self.persistence.root / DEFAULT_WORKSPACE_DIR_NAME
 
         # [ASCENSION 5]: IDEMPOTENT SANCTUM FORGING
         try:
             # Ensure the physical substrate for project shards exists.
             self.workspaces_root.mkdir(parents=True, exist_ok=True)
         except (OSError, PermissionError):
-            # In restricted WASM/IDBFS environments, we may be blind to physical dir creation
+            # In restricted environments, we proceed with Gnostic Faith
             pass
 
         # [ASCENSION 10]: ACHRONAL AUDIT TRIGGER
@@ -144,15 +162,16 @@ class ProjectManager:
         self._audit_active_anchor()
 
         Logger.success(
-            f"Multiversal Governor is [bold green]RESONANT[/bold green]. Managed Projects: {len(self.registry.projects)}")
+            f"Multiversal Governor is [bold green]RESONANT[/bold green]. Substrate: {self.workspaces_root}")
 
     def _audit_active_anchor(self):
         """
         =============================================================================
-        == THE ACHRONAL AUDIT (V-Ω-GHOST-AMNESTY-V1)                               ==
+        == THE ACHRONAL AUDIT (V-Ω-GHOST-AMNESTY-V1.2-HEALED)                      ==
         =============================================================================
-        Verifies that the currently active project actually exists.
-        Grants amnesty to 'Ghost' projects (metadata only) to prevent boot loops.
+        [THE CURE]: Performs a physical biopsy of the project path.
+        It is now warded against the 'Relative-Path Heresy' by resolving
+        coordinates before verification.
         """
         active_id = self.registry.active_project_id
         if not active_id:
@@ -168,20 +187,24 @@ class ProjectManager:
             return
 
         # 2. [ASCENSION 8]: THE GHOST AMNESTY VOW
-        # If the project is a "Ghost" (Willed but not yet materialized), we stay the hand of the Auditor.
-        # This is critical for the "Seed Census" where we create metadata before files.
         is_ghost = project.custom_data.get("is_ghost", False)
         is_optimistic = project.custom_data.get("is_optimistic", False)
 
         if is_ghost or is_optimistic:
-            Logger.verbose(f"Auditor: Anchor '{active_id}' is a Nascent Reality (Ghost). Granting passage.")
             return
 
-        # 3. Physical Matter Verification
-        # For non-ghost projects, we ensure the matter matches the Gnosis.
-        # Note: In WASM, path checks might be virtual.
-        if not Path(project.path).exists():
-            Logger.warn(f"Physical Matter for project '{project.name}' ({project.path}) has vanished. Severing Anchor.")
+        # 3. [THE FIX]: PHYSICAL MATTER VERIFICATION
+        # We normalize the path to ensure we aren't looking for relative shadows.
+        try:
+            p_path = Path(project.path).resolve()
+
+            if not p_path.exists():
+                Logger.warn(f"Reality '{project.name}' vanished from {p_path}. Severing Anchor.")
+                self.registry.active_project_id = None
+                self._sever_link()  # Purge the /vault/project link
+                self.persistence.save(self.registry)
+        except Exception:
+            # If path resolution fails, the reality is fractured.
             self.registry.active_project_id = None
             self.persistence.save(self.registry)
 
@@ -214,7 +237,7 @@ class ProjectManager:
                 if not include_archived and p.is_archived:
                     continue
 
-                # 2. [ASCENSION 7]: SOVEREIGNTY PHALANX
+                # 2. [ASCENSION 14]: SOVEREIGNTY PHALANX
                 if owner_id:
                     # The Trinity of Access
                     is_owner = p.owner_id == owner_id
@@ -251,39 +274,42 @@ class ProjectManager:
                        tags: List[str] = None) -> ProjectMeta:
         """
         =============================================================================
-        == THE RITE OF KINETIC GENESIS (V-Ω-TOTALITY-V50000)                       ==
+        == THE RITE OF KINETIC GENESIS (V-Ω-TOTALITY-V50K-GEOMETRIC-FIX)           ==
         =============================================================================
-        Forges a new reality, allocates space, and anchors it to the Multiverse.
+        LIF: 50x | ROLE: MATTER_FISSION_CONDUCTOR
+
+        [THE CURE]: Forces the 'project_path' to be a clean, absolute POSIX
+        coordinate derived from the decoupled `workspaces_root`. This prevents
+        the WASM worker from creating recursive 'vault/workspaces/vault' structures.
         """
         # --- MOVEMENT I: GNOSTIC TRIAGE ---
         try:
             from .seeds import SEED_VAULT
         except ImportError:
-            # Fallback for broken installs
             SEED_VAULT = {"blank": {"README.md": "# Primordial Void\nWaiting for Intent."}}
 
-        # Template Validation Oracle
         if template not in SEED_VAULT:
-            Logger.warn(f"Oracle: Template '{template}' unmanifest. Falling back to 'blank'.")
             template = "blank"
 
         # --- MOVEMENT II: GEOMETRIC ALLOCATION ---
         pid = str(uuid.uuid4())
-        project_path = self.workspaces_root / pid
 
-        # [ASCENSION 11]: COLLISION GUARD
-        if project_path.exists():
+        # [THE FIX]: Deterministic Absolute Pathing
+        # We ensure the path is absolute and uses POSIX slashes for the Registry.
+        # This resolves the schism between the Python Manager and the React Explorer.
+        raw_path = self.workspaces_root / pid
+        project_path_str = raw_path.as_posix()
+
+        # Collision Check
+        if raw_path.exists():
             raise ArtisanHeresy(
                 f"Sovereignty Paradox: Sanctum collision for ID {pid}",
                 severity=HeresySeverity.CRITICAL
             )
 
         try:
-            # --- MOVEMENT III: ATOMIC REGISTRATION (THE FIX) ---
-            # We register the project IN MEMORY before we strike the disk.
-            # This allows the UI to see it instantly.
+            # --- MOVEMENT III: ATOMIC REGISTRATION ---
             now_ms = int(time.time() * 1000)
-
             final_tags = tags or []
             if template != "blank": final_tags.append(template)
             if is_demo: final_tags.append("reference")
@@ -292,7 +318,7 @@ class ProjectManager:
                 id=pid,
                 name=name,
                 description=description,
-                path=str(project_path.resolve()).replace('\\', '/'),
+                path=project_path_str,  # THE PURE COORDINATE
                 owner_id=owner_id,
                 template=template,
                 is_demo=is_demo,
@@ -310,38 +336,37 @@ class ProjectManager:
             # Inscribe into memory and PERSIST immediately
             with self._lock:
                 self.registry.projects[pid] = project
+                # [ASCENSION 17]: Hydraulic I/O Flush
                 self.persistence.save(self.registry)
 
             # --- MOVEMENT IV: PHYSICAL MANIFESTATION ---
-            project_path.mkdir(parents=True, exist_ok=True)
+            # We strike the disk with the new project sanctum
+            raw_path.mkdir(parents=True, exist_ok=True)
 
             # [ASCENSION 13]: ATOMIC SEED HYDRATION
-            # We strike the physical disk with the DNA of the chosen template.
-            self._hydrate_sanctum(project_path, template, SEED_VAULT)
+            self._hydrate_sanctum(raw_path, template, SEED_VAULT)
 
             # --- MOVEMENT V: METABOLIC TOMOGRAPHY ---
-            # Measure the reality we just created
-            project.stats = self._measure_reality(project_path)
+            project.stats = self._measure_reality(raw_path)
             project.custom_data["is_active_creation"] = False
 
-            # Update and Finalize Persistence
+            # Finalize Persistence
             with self._lock:
                 self.persistence.save(self.registry)
 
-            Logger.success(f"Reality '{name}' ({pid[:8]}) manifest from template '{template}'.")
+            Logger.success(f"Reality '{name}' manifest at {project_path_str}")
 
             # [ASCENSION 14]: AUTO-ANCHORING
-            # If the multiverse is a void, we anchor to this new reality instantly.
             if not self.registry.active_project_id:
-                Logger.info(f"First light detected. Anchoring Gaze to '{name}'.")
                 self.switch_project(pid)
 
             return project
 
         except Exception as fracture:
             # --- MOVEMENT VI: THE RITE OF OBLIVION (ROLLBACK) ---
-            if project_path.exists():
-                shutil.rmtree(project_path, ignore_errors=True)
+            # [ASCENSION 16]: Atomic Rollback
+            if raw_path.exists():
+                shutil.rmtree(raw_path, ignore_errors=True)
 
             with self._lock:
                 if pid in self.registry.projects:
@@ -402,12 +427,18 @@ class ProjectManager:
     def switch_project(self, project_id: str) -> ProjectMeta:
         """
         =============================================================================
-        == THE RITE OF ANCHORING & MATERIALIZATION (V-Ω-JIT-FORGE-V2)              ==
+        == THE RITE OF ANCHORING & MATERIALIZATION (V-Ω-TOTALITY-V100K-SUTURED)    ==
         =============================================================================
-        LIF: 50x | ROLE: SPATIAL_ORCHESTRATOR
-        Shifts focus to a new reality. If the target is a Ghost, it is materialized.
+        LIF: ∞ | ROLE: SPATIAL_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_SWITCH_V100K_ABSOLUTE_CWD_FINALIS_2026
+
+        [ARCHITECTURAL MANIFESTO]
+        This rite annihilates the 'Symlink Ghost' by forcing the Python Mind to
+        physically inhabit the workspace coordinate. It establishes Absolute
+        Coordinate Sovereignty.
         """
         with self._lock:
+            # 1. COORDINATE VALIDATION
             if project_id not in self.registry.projects:
                 raise ArtisanHeresy(
                     f"Coordinate Lost: Reality '{project_id}' is unmanifest.",
@@ -416,47 +447,50 @@ class ProjectManager:
 
             target = self.registry.projects[project_id]
 
-            # 1. [ASCENSION 13]: LAZY MATERIALIZATION CHECK (GHOST -> PHYSICAL)
-            # If the project was born as a Prophecy (Ghost), we must now strike the matter.
+            # 2. [ASCENSION 13]: JIT MATERIALIZATION (GHOST -> PHYSICAL)
             is_ghost = target.custom_data.get("is_ghost")
             is_optimistic = target.custom_data.get("is_optimistic")
 
             if is_ghost or is_optimistic:
-                Logger.info(f"Ghost Resonance detected for '{target.name}'. Materializing Matter from Seed...")
-
+                Logger.info(f"Ghost Resonance detected for '{target.name}'. Materializing Matter...")
                 project_path = Path(target.path)
-
                 try:
-                    # Forge Sanctum
                     project_path.mkdir(parents=True, exist_ok=True)
-
-                    # Hydrate DNA
                     from .seeds import SEED_VAULT
                     self._hydrate_sanctum(project_path, target.template, SEED_VAULT)
-
-                    # Update Metadata: The Ghost is now Physical
                     target.custom_data["is_ghost"] = False
                     target.custom_data["is_optimistic"] = False
                     target.stats = self._measure_reality(project_path)
-
                     Logger.success(f"Materialization of '{target.name}' is complete.")
-
                 except Exception as e:
-                    Logger.warn(f"Seeding Rite flickered for Ghost '{target.name}': {e}")
-                    # We continue, as the directory exists now.
+                    Logger.warn(f"Seeding Rite flickered: {e}")
 
-            # 2. [ASCENSION 14]: SYMBOLIC LINK SOVEREIGNTY (THE CURE)
-            # We physically bind the /vault/project path to this specific project.
-            self._link_active_reality(Path(target.path))
+            # =========================================================================
+            # == [THE CURE]: THE ABSOLUTE ANCHOR SUTURE                              ==
+            # =========================================================================
+            # [ASCENSION 14]: We bypass the symlink and force the Python process to
+            # reside physically within the project's absolute coordinate.
+            # This ensures 'ls', 'velm genesis .', and relative WRITES are bit-perfect.
 
-            # 3. CHRONOMETRIC UPDATE
+            os.environ["SCAFFOLD_PROJECT_ROOT"] = target.path
+            try:
+                # Ensure the path exists before the mind attempts to enter it.
+                if not os.path.exists(target.path):
+                    os.makedirs(target.path, exist_ok=True)
+
+                # THE STRIKE: Shift the process CWD
+                os.chdir(target.path)
+                Logger.info(f"The Axis Mundi has shifted. CWD: [cyan]{target.path}[/].")
+            except Exception as e:
+                Logger.critical(f"Spatial Pivot Fracture: {e}")
+
+            # 3. CHRONOMETRIC FINALITY
             target.last_accessed = int(time.time() * 1000)
             self.registry.active_project_id = project_id
 
             # 4. ATOMIC COMMITMENT
             self.persistence.save(self.registry)
 
-            Logger.info(f"The Axis Mundi has shifted. Active Reality: [cyan]{target.name}[/].")
             return target
 
     # =========================================================================
@@ -494,6 +528,7 @@ class ProjectManager:
             if self.registry.active_project_id == project_id:
                 self.registry.active_project_id = None
                 self._sever_link()
+                os.environ.pop("SCAFFOLD_PROJECT_ROOT", None)
 
             self.persistence.save(self.registry)
             Logger.success(f"Project '{target.name}' has returned to the void.")
@@ -514,71 +549,36 @@ class ProjectManager:
         except Exception:
             pass
 
-    def _link_active_reality(self, target_path: Path):
-        """
-        [THE IRON ANCHOR]
-        Updates /vault/project to point to the active workspace.
-        In WASM (IDBFS), symlinks might be emulated or copies.
-        """
-        link = Path("/vault/project")
-
-        try:
-            # 1. Purge existing anchor
-            if link.exists() or link.is_symlink():
-                self._sever_link()
-
-            # 2. Forge new anchor
-            target_abs = target_path.resolve()
-
-            try:
-                # Try Symlink first (Fastest)
-                os.symlink(str(target_abs), str(link))
-            except (OSError, AttributeError):
-                # Fallback: Copy (Slow but robust for some VFS implementations)
-                # But syncing the whole dir is heavy.
-                # In WASM IDBFS, we often just rely on the path mapping in the Kernel logic.
-                # However, for 'velm run' to work in CWD, we need this.
-                if not link.exists():
-                    shutil.copytree(str(target_abs), str(link))
-                    Logger.verbose("Symlink failed, forged Physical Mirror.")
-
-        except Exception as e:
-            Logger.critical(f"Reality Anchor Fracture: {e}")
-            # Non-fatal, but navigation might be broken in terminal
 
     def bootstrap_multiverse(self):
         """
         =================================================================================
-        == THE RITE OF ACHRONAL PRESERVATION (V-Ω-TOTALITY-RESONANT-FINALIS)           ==
+        == THE RITE OF ACHRONAL PRESERVATION (V-Ω-TOTALITY-V100K-FINALIS)              ==
         =================================================================================
         LIF: ∞ | ROLE: MULTIVERSAL_GOVERNOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_BOOTSTRAP_V20000_ENTERPRISE_SUTURE_2026_FINALIS
+        AUTH: Ω_BOOTSTRAP_V100K_ENTERPRISE_SUTURE_2026_FINALIS
 
-        The supreme conduction of the Engine's birth. This rite scries the Ancestral Scroll,
-        populates the Seed Census to cure the Progenitor Monopoly, and adjudicates the
-        Axis Mundi (Active Anchor) with absolute deterministic logic.
+        [ARCHITECTURAL MANIFESTO]
+        This rite conduct the high-order resurrection of the multiverse state. It solves
+        the 'Initial Sync' heresy by ensuring the Mind and Body are anchored before
+        the first external plea arrives.
         =================================================================================
         """
         Logger.info("The Multiversal Governor is scrying the Ancestral Scroll...")
 
-        with self._lock:  # [ASCENSION 2]: Mutex-Warded Inception
+        with self._lock:
             # --- MOVEMENT I: THE UNIVERSAL SEED CENSUS ---
-            # [ASCENSION 3]: We perform the census regardless of history to ensure new
-            # archetypes forged in the SEED_VAULT are instantly manifest as Ghost options.
+            # Populate ghosts for the Lobby
             self._census_of_seeds()
 
             # --- MOVEMENT II: SESSION RECONCILIATION ---
-            # We scry the registry to determine if we are resurrecting a past session
-            # or beginning anew in the Primordial Void.
             existing_registry = self.registry
             previous_life_anchor = existing_registry.active_project_id
 
             # [ASCENSION 4]: ZOMBIE ANCHOR EXORCISM
-            # We verify the anchor: Does the project exist in our roster?
             if previous_life_anchor and previous_life_anchor in self.registry.projects:
                 project = self.registry.projects[previous_life_anchor]
 
-                # Check for physical matter integrity for non-ghosts
                 is_ghost = project.custom_data.get("is_ghost", False)
                 physical_exists = Path(project.path).exists()
 
@@ -586,19 +586,25 @@ class ProjectManager:
                     # [THE CURE]: The matter has vanished. We must sever the anchor.
                     Logger.warn(f"Anchor '{previous_life_anchor[:8]}' points to a void. Exorcising...")
                     self.registry.active_project_id = None
-                    self._sever_link()
+                    os.environ.pop("SCAFFOLD_PROJECT_ROOT", None)
                 else:
                     # [ASCENSION 5]: RESONANT RESUMPTION
-                    # The anchor is valid. We perform the physical binding.
+                    # The anchor is valid. We perform the physical CWD binding.
                     Logger.info(f"Resuming active session: [cyan]{previous_life_anchor[:8]}[/cyan]")
+
+                    # [THE SUTURE]: FORCE ABSOLUTE CONTEXT
+                    os.environ["SCAFFOLD_PROJECT_ROOT"] = project.path
+                    try:
+                        os.chdir(project.path)
+                    except:
+                        pass
+
                     self.registry.active_project_id = previous_life_anchor
-                    self._link_active_reality(Path(project.path))
             else:
                 # [ASCENSION 8]: THE VOW OF THE VOID
-                # If no valid anchor exists, we stand by in the Lobby.
                 Logger.info("🌌 Primordial Void perceived. Engine standing by in Lobby.")
                 self.registry.active_project_id = None
-                self._sever_link()  # [ASCENSION 9]: Purge /vault/project
+                os.environ.pop("SCAFFOLD_PROJECT_ROOT", None)
 
             # =========================================================================
             # == [REDACTED KINETIC ACT]: FORGE_VFS_STRIKE (ENTERPRISE RESURRECTION)   ==
@@ -622,8 +628,8 @@ class ProjectManager:
 
             # CORPORATE_ENFORCEMENT_ACTIVE = False # Set to True to enable the Strike
             # if CORPORATE_ENFORCEMENT_ACTIVE and self.registry.active_project_id is None:
-            #     target_seed = "progenitor" # The Archetype to force-seed
-            #     pid = "c10fbf66-505c-4cc3-a9e4-7852b3ed6b7a" # Deterministic UUID
+            #     target_seed = "progenitor"
+            #     pid = "c10fbf66-505c-4cc3-a9e4-7852b3ed6b7a"
             #
             #     self.logger.verbose(f"Enterprise Vow Active: Forcing inception of '{target_seed}'...")
             #
@@ -635,38 +641,27 @@ class ProjectManager:
             #     from .seeds import SEED_VAULT
             #     self._hydrate_sanctum(project_path, target_seed, SEED_VAULT)
             #
-            #     # C. Anchor the Mind
+            #     # C. Anchor the Mind & Physical CWD
             #     self.registry.active_project_id = pid
-            #     self._link_active_reality(project_path)
+            #     os.environ["SCAFFOLD_PROJECT_ROOT"] = str(project_path)
+            #     os.chdir(str(project_path))
             #
             #     Logger.success(f"Enterprise Reality '{target_seed}' has been successfully imposed.")
             # =========================================================================
 
             # --- MOVEMENT III: ATOMIC COMMITMENT ---
             try:
-                # [ASCENSION 7]: Graft Environment DNA
                 self.registry.version = "2.0.0-OMEGA"
-                # ... (Additional metadata grafting could occur here) ...
-
-                # [ASCENSION 10]: HYDRAULIC I/O FLUSH
                 self.persistence.save(self.registry)
 
                 status_label = "RESUMED" if self.registry.active_project_id else "LOBBY"
                 Logger.success(f"💠 Multiverse Inception Complete. Mode: [bold cyan]{status_label}[/].")
 
                 # [ASCENSION 12]: THE FINALITY VOW
-                # We return True to signal the kernel that the Governor is Resonant.
                 return True
 
             except Exception as e:
-                # [ASCENSION 12]: CATASTROPHIC RECOIL
-                raise ArtisanHeresy(
-                    "REGISTRY_INSCRIPTION_FRACTURE",
-                    details=str(e),
-                    severity=HeresySeverity.CRITICAL,
-                    suggestion="Verify write permissions in the .scaffold directory or check for I/O lock contention."
-                )
-
+                raise ArtisanHeresy("REGISTRY_INSCRIPTION_FRACTURE", details=str(e))
 
     def _census_of_seeds(self):
         """
@@ -691,7 +686,7 @@ class ProjectManager:
             for template_key, content_map in SEED_VAULT.items():
                 if template_key == "blank": continue  # Skip utility blanks
 
-                # [ASCENSION 3]: DETERMINISTIC UUID GENERATION
+                # [ASCENSION 11]: DETERMINISTIC UUID GENERATION
                 # We use UUIDv5 with a fixed namespace to ensure the same seed
                 # always gets the same ID across different sessions/machines.
                 seed_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"novalym.seed.{template_key}"))
@@ -702,6 +697,7 @@ class ProjectManager:
 
                 Logger.info(f"🌌 Inscribing Missing Seed: [cyan]{template_key}[/cyan]")
 
+                # [THE FIX]: Use the GEOMETRICALLY CORRECT workspace root
                 project_path = self.workspaces_root / seed_uuid
 
                 # Create Meta for the Ghost
@@ -717,12 +713,13 @@ class ProjectManager:
                     tags=["system", "reference", template_key, "archetype"],
                     created_at=now_ms,
                     updated_at=now_ms,
-                    last_accessed=now_ms,  # Set to now so they appear at top initially? No, maybe older.
+                    last_accessed=now_ms,  # Set to now so they appear at top initially
                     stats=ProjectStats(file_count=len(content_map), size_kb=0),
                     custom_data={
-                        "is_ghost": True,  # [ASCENSION 8]: Lazy Hydration
+                        "is_ghost": True,  # [ASCENSION 6]: Lazy Hydration
                         "is_optimistic": False,
-                        "icon": "Zap"
+                        "icon": "Zap",
+                        "color": "#a855f7"
                     }
                 )
 

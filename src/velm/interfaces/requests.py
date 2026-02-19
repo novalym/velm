@@ -36,7 +36,7 @@ from pydantic import (
     EmailStr
 )
 from ..core.runtime.vessels import GnosticSovereignDict
-
+from ..contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 # --- LOCAL UTILITY (To avoid circular deps with Core) ---
 def _clean_uri_to_path(uri: str) -> str:
     """Minimalist version of UriUtils for the Interface layer."""
@@ -280,29 +280,73 @@ class BaseRequest(BaseModel):
 
 class GenesisRequest(BaseRequest):
     """
-    Plea to materialize a Blueprint (Form).
-    This matches the `scaffold genesis` command and the implicit `scaffold file.scaffold`.
+    =============================================================================
+    == THE GENESIS VESSEL (V-Ω-TOTALITY-V200-FINALIS)                          ==
+    =============================================================================
+    LIF: ∞ | ROLE: BLUEPRINT_CARRIER | RANK: OMEGA_SOVEREIGN
+
+    The sacred plea to materialize a Blueprint (Form) into Reality (Matter).
+    It carries the location of the Law, the Variables of the Soul, and the
+    Vows of Execution.
     """
+    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
+
+    # --- I. THE SOURCE OF LAW ---
     blueprint_path: Union[Path, str] = Field(
         default=".",
-        description="Path to the blueprint file, URL, or raw content."
+        description="The Gnostic Anchor: Path to the .scaffold file, Celestial URL, or Archetype Name."
     )
 
-    # ★★★ THE DIVINE HEALING ★★★
-    # The 'silent' vow is now an explicit part of the Genesis contract,
-    # inheriting its Gnosis from the BaseRequest but making it directly
-    # perceivable by the GenesisArtisan. The AttributeError is annihilated.
+    # --- II. THE ALCHEMICAL INJECTIONS ---
+    profile: Optional[str] = Field(
+        default=None,
+        description="The Archetype Profile ID (e.g., 'fastapi-service') to act as the base DNA."
+    )
+    variables: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="The Alchemical Context. Key-Value pairs that transmute the blueprint templates."
+    )
+
+    # --- III. THE VOWS OF EXECUTION (FLAGS) ---
+    no_edicts: bool = Field(
+        default=False,
+        description="The Vow of Silence. If True, the Maestro stays its hand (skips %% post-run)."
+    )
+
+    # [ASCENSION]: EXPLICIT SILENCE
+    # Inherits from BaseRequest, but redefined here for CLI clarity.
     silent: bool = Field(
         default=False,
-        description="Suppress all non-essential output (derived from verbosity)."
+        description="The Vow of Invisibility. Suppresses standard metabolic output."
     )
-    # ==========================
+
+    # [ASCENSION]: FORCE MAJEURE
+    force: bool = Field(
+        default=False,
+        description="The Rite of Absolute Will. Overwrites existing matter without hesitation."
+    )
+
+    # [ASCENSION]: QUANTUM SIMULATION
+    dry_run: bool = Field(
+        default=False,
+        description="The Prophetic Gaze. Simulates the rite without touching the physical substrate."
+    )
 
     @field_validator('blueprint_path')
+    @classmethod
     def validate_blueprint_path(cls, v):
-        if isinstance(v, str) and not (v.startswith('http') or '\n' in v):
+        """
+        [THE GEOMETRIC VALIDATOR]
+        Distinguishes between a Physical Path, a Celestial URL, and Raw Content.
+        """
+        if isinstance(v, str):
+            # If it looks like a URL or has newlines (raw content), keep as string
+            if v.startswith(('http://', 'https://', 'gh:', 'git@')) or '\n' in v:
+                return v
+            # Otherwise, it is a physical coordinate
             return Path(v)
         return v
+
 
 # =============================================================================
 # == 2. SYMPHONY RITE (scaffold symphony)                                    ==
@@ -2501,19 +2545,65 @@ class TelepresenceRequest(BaseRequest):
     # Simulation Logic
     patch_scripture: Optional[str] = None  # For impact prophecy
 
+
 class ManifestRequest(BaseRequest):
     """
-    Plea to transmute Natural Language into Structural Reality.
+    =============================================================================
+    == THE MANIFEST VESSEL (V-Ω-NEURAL-INCEPTION-FINALIS)                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: INTENT_CARRIER | RANK: OMEGA_SOVEREIGN
+
+    The sacred plea to transmute Natural Language (Intent) directly into
+    Structural Reality (Architecture) via the Neural Cortex (AI).
     """
-    prompt: str = Field(..., description="The Architect's intent in plain English.")
+    # [ASCENSION 1]: The Permissive Vow allows for future cognitive expansion.
+    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
 
-    # Context Injection
-    with_context: bool = Field(default=True, description="Inject current directory structure as context?")
+    # --- I. THE WILL (INTENT) ---
+    prompt: str = Field(
+        ...,
+        description="The Architect's intent in plain English. The seed of the new reality."
+    )
 
-    # Interaction
-    interactive: bool = Field(default=True, description="Review the AI's plan in the TUI before execution.")
+    # --- II. CONTEXTUAL AWARENESS ---
+    with_context: bool = Field(
+        default=True,
+        description="The Gaze of the Surroundings. If True, injects the current directory structure into the AI's mind."
+    )
 
+    # --- III. INTERACTION PROTOCOL ---
+    interactive: bool = Field(
+        default=True,
+        description="The Guardian's Veto. If True, the AI's plan must be reviewed in the TUI before materialization."
+    )
 
+    # --- IV. THE VOWS OF EXECUTION ---
+    # [THE CURE]: This field is critical for the Wormhole Rite.
+    no_edicts: bool = Field(
+        default=False,
+        description="The Vow of Silence. If True, the forged blueprint will NOT execute kinetic commands (%% post-run)."
+    )
+
+    # --- V. COGNITIVE PARAMETERS ---
+    model: str = Field(
+        default="smart",
+        description="The Neural Engine to summon (e.g., 'gpt-4', 'claude-3-opus', 'smart', 'fast')."
+    )
+
+    fidelity: str = Field(
+        default="balanced",
+        description="The Resolution of the Dream. 'balanced', 'high', or 'prototype'."
+    )
+
+    output_path: Optional[str] = Field(
+        default=None,
+        description="Optional: Where to save the dreamed .scaffold file instead of executing it."
+    )
+
+    variables: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Additional context variables to guide the Neural Cortex."
+    )
 
 class SummarizeRequest(BaseRequest):
     """

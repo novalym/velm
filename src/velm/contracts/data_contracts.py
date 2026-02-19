@@ -713,42 +713,54 @@ class GnosticArgs(BaseModel):
     @classmethod
     def from_namespace(cls, args: argparse.Namespace) -> 'GnosticArgs':
         """
-        The Bridge from the Profane (argparse) to the Sacred (GnosticArgs).
-        Extracts known fields and sweeps the rest into `extra_args`.
+        =============================================================================
+        == THE BRIDGE OF TRANSMUTATION (V-Ω-TOTALITY-V8000-HARVESTER)              ==
+        =============================================================================
+        LIF: ∞ | ROLE: ARGUMENT_CRYSTALLIZER
+
+        The Unbreakable Bridge from the Profane (argparse) to the Sacred (GnosticArgs).
+        It performs Deep Harvesting of all flags, merging Environment DNA with
+        Explicit Will to ensure no intent is lost in the transition.
 
         [ASCENSION 7]: Wraps the entire process in a safety sarcophagus.
         """
         import os
+        import sys
 
         try:
             # 1. Identify known fields to avoid duplication in extra_args
             known_fields = cls.model_fields.keys()
 
             # [ASCENSION 1]: HARVEST ENVIRONMENT DNA
+            # We scry the environment for overrides, establishing the baseline reality.
             env_non_interactive = os.getenv("SCAFFOLD_NON_INTERACTIVE", "0").lower() in ('1', 'true', 'yes')
             env_force = os.getenv("SCAFFOLD_FORCE", "0").lower() in ('1', 'true', 'yes')
             env_debug = os.getenv("SCAFFOLD_DEBUG", "0").lower() in ('1', 'true', 'yes')
             is_ci = os.getenv("CI", "").lower() in ('true', '1')
 
             # [ASCENSION 2]: THE GRAND BOOLEAN UNIFICATION
-            # Determine flags by merging CLI intent with Environmental Truth
+            # Determine flags by merging CLI intent with Environmental Truth.
             force = getattr(args, 'force', False) or env_force
             quick = getattr(args, 'quick', False)
             verbose = getattr(args, 'verbose', False) or env_debug
 
             # [ASCENSION 12]: THE FINALITY VOW (SILENCE)
-            # If any signal of automation is present, we enforce Silence.
+            # If any signal of automation is present, we enforce Silence to prevent hanging.
             non_interactive = (
-                getattr(args, 'non_interactive', False) or
-                env_non_interactive or
-                is_ci or
-                force or
-                quick
+                    getattr(args, 'non_interactive', False) or
+                    env_non_interactive or
+                    is_ci or
+                    force or
+                    quick
             )
 
             # [ASCENSION 3]: THE ROOT ANCHOR HEURISTIC
             # We prioritize explicit CLI args over CWD.
             raw_root = getattr(args, 'root', None) or getattr(args, 'project_root', None) or Path.cwd()
+
+            # [ASCENSION 5]: THE VOW OF KINETIC SILENCE (THE FIX)
+            # Explicitly harvesting 'no_edicts' to ensure the Wormhole Rite does not fracture.
+            no_edicts = getattr(args, 'no_edicts', False)
 
             # 2. Extract values with safe defaults via getattr
             constructor_args = {
@@ -764,28 +776,28 @@ class GnosticArgs(BaseModel):
                 "non_interactive": non_interactive,
                 "is_genesis_rite": getattr(args, 'is_genesis_rite', False),
                 "adjudicate_souls": getattr(args, 'adjudicate_souls', False),
-                "no_edicts": getattr(args, 'no_edicts', False),
+                "no_edicts": no_edicts,  # <--- The Critical Link
             }
 
-            # 3. Harvest the Unknown (Extra Args)
+            # 3. HARVEST THE UNKNOWN (Extra Args)
             # [ASCENSION 10]: The Unknown Harvester
+            # We sweep up any flag that isn't explicitly mapped in the constructor_args
+            # but exists on the namespace, preserving plugin compatibility.
             ignored_keys = {'command', 'handler', 'herald', 'root', 'project_root', 'set'}
             extras = {}
             for k, v in vars(args).items():
-                if k not in known_fields and k not in ignored_keys:
+                if k not in constructor_args and k not in ignored_keys:
                     extras[k] = v
 
             constructor_args['extra_args'] = extras
 
-            # 4. Forge the Vessel
+            # 4. FORGE THE VESSEL
             return cls(**constructor_args)
 
         except Exception as e:
             # [ASCENSION 7]: THE SAFETY SARCOPHAGUS
             # If the factory fractures, we return a safe default vessel
             # to prevent the CLI from crashing before the Logger is alive.
-            # We print to stderr as a last resort.
-            import sys
             sys.stderr.write(f"[GnosticArgs] ⚠️ Factory Fracture: {e}. Using Safe Defaults.\n")
             return cls()
 

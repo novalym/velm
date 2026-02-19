@@ -1,6 +1,7 @@
 # Path: src/velm/artisans/genesis/conductor.py
 # --------------------------------------------
 
+
 import re
 import tempfile
 import time
@@ -142,11 +143,18 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         try:
             # --- MOVEMENT IV: THE GNOSTIC INQUEST (PARSING THE PROPHECY) ---
             gnostic_passport = GnosticArgs.from_namespace(request)
-            parser, items, commands, edicts, variables, dossier = self._conduct_parsing(
+
+            # [THE CURE]: UNPACKING HARMONIZATION (5 ITEMS)
+            # We now unpack exactly what the updated _conduct_parsing returns.
+            # The 'edicts' were merged into 'commands' or discarded in the previous step.
+            parser, items, commands, variables, dossier = self._conduct_parsing(
                 target_path, gnostic_passport, request.variables, request
             )
+
             final_vars = {**variables, **request.variables, 'blueprint_path': target_path.name}
             self._consecrate_items_with_origin(items, target_path)
+
+            # Reconstruct the Dowry for the Materializer
             gnostic_dowry = (parser, items, commands, final_vars, dossier)
 
             # --- MOVEMENT V: THE GUARDIAN'S OFFER (SAFETY & REASSURANCE) ---
@@ -158,10 +166,8 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
                 return self._conduct_simulation(request)
             else:
                 # ★★★ THE DIVINE HEALING ★★★
-                # The heresy is annihilated. The Conductor now performs its one true duty:
-                # it summons the Materializer and then RIGHTEOUSLY RETURNS its pure ScaffoldResult
-                # to the cosmos. The profane, redundant `_proclaim_success` rite has been
-                # returned to the void. The Gnostic flow is now pure.
+                # The Conductor now performs its one true duty:
+                # it summons the Materializer and then RIGHTEOUSLY RETURNS its pure ScaffoldResult.
                 materializer = GenesisMaterializer(self.engine, request, gnostic_dowry, collisions=collisions)
                 return materializer.conduct_materialization_symphony()
                 # ★★★ THE APOTHEOSIS IS COMPLETE ★★★
