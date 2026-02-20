@@ -5,6 +5,7 @@
 
 import os
 import re
+import time
 import uuid
 import json
 from pathlib import Path
@@ -54,34 +55,103 @@ class ArchetypeOracle:
         self._sources: Dict[str, Path] = self._triangulate_sources()
 
     def _triangulate_sources(self) -> Dict[str, Path]:
-        """[FACULTY 1] Triangulates the physical sanctums of DNA."""
-        sources = {}
+        """
+        =============================================================================
+        == THE TRIPLE-APERTURE GAZE: OMEGA POINT (V-Ω-TOTALITY-V20000.8-FINALIS)   ==
+        =============================================================================
+        LIF: ∞ | ROLE: SPATIAL_TRIANGULATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_TRIANGULATE_V20000_WASM_SUTURE_2026_FINALIS
 
-        # 1. BUNDLED CORE (The shipped library)
+        [ARCHITECTURAL MANIFESTO]
+        This rite scries the project multiverse to locate the sacred sanctums where
+        architectural DNA resides. It has been ascended to its final form,
+        implementing the "Virtual-First" priority to ensure the WASM mount is
+        immediately resonant and unmanifested drift is annihilated.
+        """
+        start_ns = time.perf_counter_ns()
+        sources: Dict[str, Path] = {}
+
+        # =========================================================================
+        # == MOVEMENT I: THE ETHEREAL PLANE (WASM_VIRTUAL)                      ==
+        # =========================================================================
+        # [ASCENSION 1]: THE CURE. In the browser, the Simulacrum mount is Supreme.
+        # We scry the absolute mount point provided by the simulacrum_installer.
+        if self.is_wasm:
+            # Locus A: The Primary Package Mount
+            virtual_pkg = Path("/home/pyodide/simulacrum_pkg/archetypes").resolve()
+            # Locus B: Fallback for root-level unzips
+            virtual_root = Path("/home/pyodide/archetypes").resolve()
+
+            if virtual_pkg.exists() and virtual_pkg.is_dir():
+                sources["virtual"] = virtual_pkg
+                # Logger.verbose(f"VFS_RESONANCE: Sanctum manifest at {virtual_pkg}")
+            elif virtual_root.exists() and virtual_root.is_dir():
+                sources["virtual"] = virtual_root
+
+        # =========================================================================
+        # == MOVEMENT II: THE BUNDLED CORE (SYSTEM_GNOSIS)                       ==
+        # =========================================================================
+        # [ASCENSION 8]: DNA shipped within the Engine's own soul.
         try:
-            # We climb from artisans/project/seeds.py to the package root
-            pkg_root = Path(__file__).resolve().parents[2]
-            bundled_root = pkg_root / "archetypes"
-            if bundled_root.exists():
-                sources["bundled"] = bundled_root
+            # Navigate from seeds.py (Level 2) to the package root.
+            package_root = Path(__file__).resolve().parents[2]
+            system_forge = (package_root / "archetypes").resolve()
+
+            if system_forge.exists() and system_forge.is_dir():
+                # We do not overwrite "virtual" if it already claimed "system"
+                if "virtual" not in sources:
+                    sources["system"] = system_forge
+        except Exception as e:
+            Logger.debug(f"System Forge scry hindered: {e}")
+
+        # =========================================================================
+        # == MOVEMENT III: THE GLOBAL FORGE (USER_WILL)                          ==
+        # =========================================================================
+        # [ASCENSION 11]: The Architect's universal library (~/.scaffold/archetypes)
+        if not self.is_wasm:
+            try:
+                global_forge = (Path.home() / ".scaffold" / "archetypes").resolve()
+                if global_forge.exists() and global_forge.is_dir():
+                    sources["global"] = global_forge
+            except Exception:
+                pass
+
+        # =========================================================================
+        # == MOVEMENT IV: THE PROJECT SANCTUM (LOCAL_MATTER)                      ==
+        # =========================================================================
+        # [ASCENSION 1]: Highest-order precedence: The local project's own Forge.
+        try:
+            local_forge = (self.root / ".scaffold" / "archetypes").resolve()
+            if local_forge.exists() and local_forge.is_dir():
+                sources["local"] = local_forge
         except Exception:
             pass
 
-        # 2. VIRTUAL SANCTUM (WASM Fallback)
-        if self.is_wasm:
-            sources["virtual"] = Path("/home/pyodide/simulacrum_pkg/archetypes")
+        # =========================================================================
+        # == MOVEMENT V: VALIDATION & CANONIZATION                               ==
+        # =========================================================================
+        # [ASCENSION 4 & 5]: Final lustration of the spatial map.
+        purified_sources: Dict[str, Path] = {}
+        for realm, path in sources.items():
+            try:
+                # Force absolute normalization and verify physical resonance
+                canonical_path = path.resolve(strict=True)
+                if canonical_path.is_dir():
+                    purified_sources[realm] = canonical_path
+            except (OSError, RuntimeError, FileNotFoundError):
+                # The sanctum is a ghost. We stay our hand.
+                continue
 
-        # 3. GLOBAL FORGE (User's home directory)
-        global_forge = Path.home() / ".scaffold" / "archetypes"
-        if global_forge.exists():
-            sources["global"] = global_forge
+        # --- FINAL TELEMETRY ---
+        duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+        if purified_sources:
+            # self.logger.verbose(f"Triangulation RESONANT: {list(purified_sources.keys())} strata detected ({duration_ms:.2f}ms)")
+            pass
+        else:
+            Logger.warn("TOTAL DISRESONANCE: No architectural DNA found in any strata.")
 
-        # 4. LOCAL FORGE (Project-specific)
-        local_forge = self.root / ".scaffold" / "archetypes"
-        if local_forge.exists():
-            sources["local"] = local_forge
-
-        return sources
+        # [ASCENSION 12]: THE FINALITY VOW
+        return purified_sources
 
     # =========================================================================
     # == MOVEMENT I: SYSTEM DEMO CENSUS (The Specific Will)                  ==
@@ -90,24 +160,35 @@ class ArchetypeOracle:
     def scry_system_demos(self) -> List[Dict[str, Any]]:
         """
         =============================================================================
-        == THE RITE OF DEMO DISCOVERY                                              ==
+        == THE RITE OF DEMO DISCOVERY (V-Ω-TOTALITY-V2.0-WARDED)                  ==
         =============================================================================
-        [THE CURE]: Specifically targets the 'demos/' subfolder within any
-        manifest source to identify 'System Demos' for the Multiverse Registry.
+        [THE CURE]: Implements multi-path scrying for the demos/ sanctum.
         """
         Logger.verbose("Scrying for System Demos (demos/ sanctums)...")
         demo_strands = []
 
+        # [ASCENSION 1]: THE TRIPLE-GAZE
+        # We scry: 1. Bundled (WASM), 2. Global (Home), 3. Local (.scaffold)
         for source_name, source_path in self._sources.items():
-            demo_dir = source_path / "demos"
-            if not demo_dir.exists():
-                continue
+            # [THE FIX]: Check both 'demos' and 'archetypes/demos' for path-drift resilience
+            candidates = [
+                source_path / "demos",
+                source_path / "archetypes" / "demos"
+            ]
 
-            # We perform a shallow scan of the demos folder
-            for scripture in demo_dir.glob("*"):
-                if scripture.suffix in GNOSTIC_EXTENSIONS:
-                    strand = self._materialize_strand(scripture, source_path, is_system=True)
-                    demo_strands.append(strand)
+            for demo_dir in candidates:
+                if not demo_dir.exists() or not demo_dir.is_dir():
+                    continue
+
+                Logger.verbose(f"   -> Perceiving Sanctum: {demo_dir}")
+                for scripture in demo_dir.glob("*"):
+                    if scripture.suffix in GNOSTIC_EXTENSIONS:
+                        try:
+                            strand = self._materialize_strand(scripture, source_path, is_system=True)
+                            demo_strands.append(strand)
+                            Logger.success(f"      [✓] Demo Manifest: {strand['name']}")
+                        except Exception as e:
+                            Logger.debug(f"      [!] Strand Fracture in {scripture.name}: {e}")
 
         return demo_strands
 

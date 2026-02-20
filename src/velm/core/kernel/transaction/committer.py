@@ -1,5 +1,6 @@
 # Path: src/velm/core/kernel/transaction/committer.py
-# --------------------------------------------------------------------------------------
+# ---------------------------------------------------
+
 from __future__ import annotations
 import json
 import os
@@ -12,11 +13,12 @@ import uuid
 import platform
 import threading
 import concurrent.futures
+import errno
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple, TYPE_CHECKING, Final, Union, Set
 
 # --- THE DIVINE UPLINKS ---
-from ....utils import _resilient_rename, hash_file, get_human_readable_size
+from ....utils import hash_file, get_human_readable_size
 from ....logger import Scribe, get_console
 from ....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ....contracts.data_contracts import InscriptionAction
@@ -31,45 +33,50 @@ Logger = Scribe("GnosticCommitter")
 class GnosticCommitter:
     """
     =================================================================================
-    == THE GNOSTIC TITANIUM COMMITTER (V-Ω-TOTALITY-V1000-INDESTRUCTIBLE)          ==
+    == THE GNOSTIC TITANIUM COMMITTER (V-Ω-TOTALITY-V2000-SKELETON-EATER)           ==
     =================================================================================
     LIF: ∞ | ROLE: ATOMIC_MATERIALIZER | RANK: OMEGA_SOVEREIGN
-    AUTH: Ω_COMMITTER_V1000_ZERO_LOSS_FINALIS
+    AUTH: Ω_COMMITTER_V2000_SKELETON_EATER_FINALIS
 
     The supreme arbiter of physical manifestation. It governs the transition from
     Staging (Ephemeral) to the Project Root (Physical) with absolute atomicity.
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    ### THE PANTHEON OF 14 LEGENDARY ASCENSIONS:
 
-    1.  **The Registers Suture (THE FIX):** Standardizes the `.registers` organ,
-        annihilating the 'AttributeError' that paralyzed previous timelines.
-    2.  **Atomic Idempotent Verification:** Scries the destination soul BEFORE
+    1.  **The Skeleton Eater (THE CORE FIX):** Implements Recursive Skeleton Evaporation.
+        When a file is moved, its parent directory in Staging is instantly checked.
+        If empty, it is annihilated. This climbs the tree up to the Staging Root,
+        ensuring no "Ghost Directories" remain to clobber reality in subsequent passes.
+    2.  **The Registers Suture:** Standardizes the `.registers` organ, annihilating
+        the 'AttributeError' that paralyzed previous timelines.
+    3.  **Atomic Idempotent Verification:** Scries the destination soul BEFORE
         the move. If the Gnostic Fingerprint matches, the Hand is stayed,
         saving thousands of metabolic cycles.
-    3.  **Transactional Multi-Phase Buffer:** Engineered to support 'Rite of Final
+    4.  **Transactional Multi-Phase Buffer:** Engineered to support 'Rite of Final
         Lustration', allowing it to be invoked multiple times in a single
         transaction to commit structural bonds as they emerge.
-    4.  **Windows Long-Path Phalanx:** Automatically injects UNC prefixes
+    5.  **Windows Long-Path Phalanx:** Automatically injects UNC prefixes
         ('\\\\?\\') for deep architectural nesting, defeating the 260-char heresy.
-    5.  **Forensic Journaling (WAL):** Maintains an encrypted Write-Ahead Log
+    6.  **Forensic Journaling (WAL):** Maintains an encrypted Write-Ahead Log
         of every move, enabling the Lazarus Protocol to resurrect torn
         realities after a system crash.
-    6.  **Substrate-Agnostic Concurrency:** Intelligently modulates between
+    7.  **Substrate-Agnostic Concurrency:** Intelligently modulates between
         Parallel Hurricane (Iron) and Sequential Totality (WASM) modes based
         on perceived physics.
-    7.  **Metabolic I/O Throttling:** Observes the disk queue and load factors
+    8.  **Metabolic I/O Throttling:** Observes the disk queue and load factors
         to pace the materialization, preventing Kernel Congestion.
-    8.  **Merkle Totality Validation:** Calculates the final Merkle Root of the
+    9.  **Merkle Totality Validation:** Calculates the final Merkle Root of the
         manifested files to ensure reality perfectly mirrors the willed blueprint.
-    9.  **Lazarus Resurrection Protocol:** A static rite that can be summoned
+    10. **Lazarus Resurrection Protocol:** A static rite that can be summoned
         during Engine boot to heal any interrupted commitments from past lives.
-    10. **Haptic Progress Radiation:** Multicasts high-frequency manifestation
+    11. **Haptic Progress Radiation:** Multicasts high-frequency manifestation
         events to the Ocular HUD for 1:1 visual parity with physical work.
-    11. **Inode Synchronization (POSIX):** Forces an `fsync` on directory parents
+    12. **Inode Synchronization (POSIX):** Forces an `fsync` on directory parents
         to guarantee the directory entry itself is etched into the platter.
-    12. **The Zero-Loss Guarantee:** A mathematical promise that every byte willed
-        by the Architect is either manifest in reality or safely archived in
-        the Shadow Sanctum.
+    13. **Collision Dampener:** Refined logic prevents overwriting a populated
+        directory with an empty one unless explicitly willed by a deletion entry.
+    14. **The Zero-Loss Guarantee:** A mathematical promise that every byte willed
+        by the Architect is either manifest in reality or safely archived.
     =================================================================================
     """
 
@@ -88,7 +95,7 @@ class GnosticCommitter:
     ):
         """
         =============================================================================
-        == THE RITE OF INCEPTION (V-Ω-TOTALITY-V1000.1-METRIC-SUTURE)              ==
+        == THE RITE OF INCEPTION (V-Ω-TOTALITY-V2000.1-METRIC-SUTURE)              ==
         =============================================================================
         LIF: ∞ | ROLE: ATOMIC_COMMIT_GOVERNOR | RANK: OMEGA_SUPREME
         """
@@ -123,8 +130,8 @@ class GnosticCommitter:
             "start_ns": 0,
             "shards_committed": 0,
             "bytes_translocated": 0,
-            "bytes_shadowed": 0,  # <--- FIXED: The missing key
-            "heresies_encountered": 0  # <--- FIXED: Aligning with the archive rite
+            "bytes_shadowed": 0,
+            "heresies_encountered": 0
         }
         # =========================================================================
 
@@ -147,7 +154,7 @@ class GnosticCommitter:
     def commit(self):
         """
         =============================================================================
-        == THE GRAND SYMPHONY OF FINALITY (V-Ω-TOTALITY-V1000)                     ==
+        == THE GRAND SYMPHONY OF FINALITY (V-Ω-TOTALITY-V2000)                     ==
         =============================================================================
         LIF: ∞ | ROLE: REALITY_CONSOLIDATOR
 
@@ -159,6 +166,7 @@ class GnosticCommitter:
 
         # 1. THE CENSUS OF ATOMIC SOULS
         # [ASCENSION 2]: Leaf-Node Triage. We scan for what has changed in staging.
+        # This will now be clean of "Skeleton Directories" thanks to Ascension 13.
         staged_shards = self._collect_manifest_shards()
         if not staged_shards:
             self.logger.verbose("Staging Area is a void. No structural flux detected.")
@@ -209,7 +217,6 @@ class GnosticCommitter:
         [ASCENSION 6]: Bifurcates execution between Iron (Parallel) and Ether (WASM).
         """
         is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
-        total = len(manifest_map)
 
         if is_wasm:
             # PATH A: ETHER PLANE (SEQUENTIAL)
@@ -246,9 +253,10 @@ class GnosticCommitter:
     def _move_atomic_resilient(self, src: Path, dst: Path):
         """
         =============================================================================
-        == THE ATOMIC STRIKE: OMEGA (V-Ω-TOTALITY-V1000-INDESTRUCTIBLE)            ==
+        == THE ATOMIC STRIKE: OMEGA (V-Ω-TOTALITY-V2000-SKELETON-EATER)            ==
         =============================================================================
         [ASCENSION 2]: Performs the absolute, atomic translocation of a matter shard.
+        [ASCENSION 13]: Performs the Skeleton Evaporation Rite after moving.
         """
         # 1. CANONICAL COORDINATES
         # [ASCENSION 4]: Use long-path suture to bypass Windows 260-char wall.
@@ -260,7 +268,8 @@ class GnosticCommitter:
         # If the destination already holds the same soul, we stay the hand.
         if dst_path.exists() and dst_path.is_file():
             if hash_file(src) == hash_file(dst_path):
-                # self.logger.debug(f"   -> Already Manifest: {dst_path.name}")
+                # Clean up the redundant source before leaving
+                self._evaporate_skeleton(src)
                 return
 
         # 3. GEOMETRIC CONSECRATION
@@ -271,40 +280,57 @@ class GnosticCommitter:
         # If a different soul exists, return it to the void (it's already backed up).
         if dst_path.exists():
             try:
-                if dst_path.is_dir() and not dst_path.is_symlink():
-                    shutil.rmtree(dst_raw)
+                # [ASCENSION 13]: COLLISION DAMPENER
+                # If we are moving a directory onto a directory, we do NOT delete.
+                # We only delete if we are replacing a file with a file, or if
+                # types mismatch (Dir -> File or File -> Dir).
+                # Note: `_collect_manifest_shards` ensures `src` is either a file or EMPTY dir.
+                src_is_dir = src.is_dir()
+                dst_is_dir = dst_path.is_dir()
+
+                if src_is_dir and dst_is_dir:
+                    # Merge Logic: Do nothing. The empty dir 'moves' into the existing one.
+                    # We just evaporate the source skeleton later.
+                    pass
                 else:
-                    os.remove(dst_raw)
+                    # Annihilation Logic: Mismatch or File overwrite.
+                    if dst_is_dir and not dst_path.is_symlink():
+                        shutil.rmtree(dst_raw)
+                    else:
+                        os.remove(dst_raw)
             except Exception:
                 time.sleep(0.05)  # Yield if OS is busy indexing
 
         # 5. THE KINETIC STRIKE
         # [ASCENSION 12]: Zero-Loss Exponential Backoff.
         last_paradox = None
-        for attempt in range(self.LOCK_RETRY_COUNT):
-            try:
-                # [ASCENSION 11]: ATOMIC MOVE RITE
-                # os.replace is a syscall that ensures atomicity on POSIX.
-                os.replace(src_raw, dst_raw)
 
-                # [ASCENSION 11]: INODE SYNC
-                # Force directory sync on POSIX to ensure the entry is written.
-                if os.name == 'posix':
-                    dir_fd = os.open(str(dst_path.parent), os.O_RDONLY)
-                    try:
-                        os.fsync(dir_fd)
-                    finally:
-                        os.close(dir_fd)
-                break
-            except (OSError, PermissionError) as e:
-                last_paradox = e
-                time.sleep(self.LOCK_RETRY_DELAY_S * (2 ** attempt))  # Geometric relaxation
-        else:
-            raise ArtisanHeresy(
-                f"Lattice Lock Paradox: Could not materialize '{dst_path.name}'",
-                details=f"System Error: {last_paradox}",
-                severity=HeresySeverity.CRITICAL
-            )
+        # Only attempt move if we didn't do a Dir-on-Dir merge above
+        if not (src.is_dir() and dst_path.exists() and dst_path.is_dir()):
+            for attempt in range(self.LOCK_RETRY_COUNT):
+                try:
+                    # [ASCENSION 11]: ATOMIC MOVE RITE
+                    # os.replace is a syscall that ensures atomicity on POSIX.
+                    os.replace(src_raw, dst_raw)
+
+                    # [ASCENSION 11]: INODE SYNC
+                    # Force directory sync on POSIX to ensure the entry is written.
+                    if os.name == 'posix':
+                        dir_fd = os.open(str(dst_path.parent), os.O_RDONLY)
+                        try:
+                            os.fsync(dir_fd)
+                        finally:
+                            os.close(dir_fd)
+                    break
+                except (OSError, PermissionError) as e:
+                    last_paradox = e
+                    time.sleep(self.LOCK_RETRY_DELAY_S * (2 ** attempt))  # Geometric relaxation
+            else:
+                raise ArtisanHeresy(
+                    f"Lattice Lock Paradox: Could not materialize '{dst_path.name}'",
+                    details=f"System Error: {last_paradox}",
+                    severity=HeresySeverity.CRITICAL
+                )
 
         # 6. METRIC INSCRIPTION
         with self._io_lock:
@@ -314,8 +340,59 @@ class GnosticCommitter:
                 self._metrics["bytes_translocated"] += dst_path.stat().st_size
 
         # 7. [ASCENSION 10]: HUD RADIATION
-        # We notify the Ocular HUD of every successful matter inscription.
         self._radiate_haptic_event(dst_path)
+
+        # 8. [ASCENSION 13 & 14]: THE SKELETON EVAPORATION RITE
+        # Now that the soul has moved, we destroy the empty vessel it left behind
+        # in the Staging Realm. This prevents "Ghost Directories" in future passes.
+        self._evaporate_skeleton(src)
+
+    def _evaporate_skeleton(self, src_path: Path):
+        """
+        =============================================================================
+        == THE SKELETON EATER (V-Ω-RECURSIVE-VOID-CLEANSE)                         ==
+        =============================================================================
+        Ascends the directory tree from the source path up to the Staging Root.
+        If a directory is found to be empty (because its children moved), it is
+        annihilated. This ensures the Staging Area is kept pristine.
+        """
+        try:
+            # If we just moved 'src', it might still exist if it was a directory copy?
+            # No, os.replace moves it. But if we moved a file, the parent dir remains.
+
+            # Start with the parent of the moved file
+            current = src_path.parent if src_path.is_file() else src_path
+
+            staging_root = self.staging_manager.staging_root.resolve()
+
+            # We walk up until we hit the Staging Root
+            while current.resolve() != staging_root:
+                # Security Ward: Ensure we are still inside Staging
+                if not str(current.resolve()).startswith(str(staging_root)):
+                    break
+
+                try:
+                    # The Atomic Test: Try to remove.
+                    # os.rmdir fails if directory is not empty. This is our safety check.
+                    # We accept the failure as proof of life (other files exist).
+                    os.rmdir(current)
+                    # self.logger.verbose(f"   -> Skeleton Evaporated: {current.name}")
+
+                    # Ascend to grandparent
+                    current = current.parent
+                except OSError as e:
+                    if e.errno in (errno.ENOTEMPTY, errno.EEXIST, 66):  # 66 is ENOTEMPTY on Windows sometimes
+                        # The directory still holds souls. We stop the ascent.
+                        break
+                    elif e.errno == errno.ENOENT:
+                        # Already gone. Ascend.
+                        current = current.parent
+                    else:
+                        # Unknown friction. Stop to be safe.
+                        break
+        except Exception:
+            # Evaporation is a housekeeping rite. It must not crash the Commit.
+            pass
 
     def _radiate_haptic_event(self, path: Path):
         """Radiates a high-frequency pulse to the Ocular HUD."""
@@ -420,34 +497,6 @@ class GnosticCommitter:
         of every scripture currently manifest in the project root that is willed for
         transfiguration or excision. It ensures the 'Path of Reversal' is paved with
         absolute integrity before the Hand of Manifestation strikes.
-
-        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-        1.  **Parallel Hurricane Inception**: Utilizes the `ThreadPoolExecutor` to forge
-            backups across 32+ hardware threads, annihilating the 'Backup Latency' tax.
-        2.  **Bicameral Path Scrying**: Simultaneously scries the Staging Root and the
-            Project Root to identify the exact intersection where reality will be altered.
-        3.  **Windows Long-Path Suture**: Every backup path is warded by the `\\?\\` UNC
-            prefix, allowing for deep architectural shadows that escape the 260-char wall.
-        4.  **Metadata Preservation (STAT)**: Employs `shutil.copy2` to mirror not just
-            the soul (bytes), but the breath (mtime, permissions, flags) of the original.
-        5.  **Sanctum Pre-Materialization**: Recursively forges the directory tree within
-            the `backup_root` to prevent 'Missing Parent' filesystem paradoxes.
-        6.  **Idempotent Shadow Guard**: If a shadow already exists (from a previous pass
-            of the same transaction), it is verified for bit-parity rather than re-copied.
-        7.  **Fault-Isolated Convergence**: Captures individual copy fractures in a
-            collection of heresies, allowing the Inquisitor to decide if a partial
-            failure is worthy of a full strike abort.
-        8.  **Atomic Write-Ahead Handshake**: Marks the shadow as 'COMMITTED' only
-            after the file handle is closed and flushed to the hardware platter.
-        9.  **Substrate-Agnostic Resilience**: Modulates I/O priority to avoid
-            starving the Ocular HUD or sibling Engine threads during mass archival.
-        10. **Luminous Telemetry Radiation**: Reports the 'Mass of Shadows' forged (in bytes)
-            to the internal metrics cell for forensic profiling.
-        11. **Inode Collision Ward**: Prevents backing up the same physical file twice
-            if symlinks create multiple logical paths to a single soul.
-        12. **The Finality Vow**: A mathematical guarantee that every file willed for
-            change has an existing replica safely enshrined in the Shadow Sanctum.
-        =================================================================================
         """
         import concurrent.futures
         import shutil
@@ -538,7 +587,6 @@ class GnosticCommitter:
         self.logger.verbose(
             f"Shadow Archive Sealed. Mass: {get_human_readable_size(self._metrics['bytes_shadowed'])}."
         )
-
 
     def _inscribe_journal(self, shards: List[Path]) -> Dict[str, str]:
         """
@@ -651,5 +699,3 @@ class GnosticCommitter:
     def __repr__(self) -> str:
         status = "RESONANT" if self._metrics["shards_committed"] > 0 else "IDLE"
         return f"<Ω_GNOSTIC_COMMITTER status={status} committed={self._metrics['shards_committed']}>"
-
-

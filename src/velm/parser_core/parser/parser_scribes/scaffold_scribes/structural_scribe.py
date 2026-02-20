@@ -32,18 +32,18 @@ Logger = Scribe("StructuralScribe")
 class StructuralScribe(ScaffoldBaseScribe):
     """
     =================================================================================
-    == THE GEOMETRIC CITADEL (V-Ω-TOTALITY-V900.5-EXTENSION-SOVEREIGNTY)           ==
+    == THE GEOMETRIC CITADEL (V-Ω-TOTALITY-V900.6-MATHEMATICALLY-CERTAIN)          ==
     =================================================================================
     @gnosis:title The Geometric Citadel
     @gnosis:summary The final, unbreakable fortress of structural perception.
     @gnosis:LIF INFINITY
-    @gnosis:auth_code Ω_STRUCTURE_V900_EXTENSION_SOVEREIGNTY
+    @gnosis:auth_code Ω_STRUCTURE_V900_INDEX_HEALED
 
     This artisan adjudicates the boundary between **Topography** (Sanctums/Scriptures)
     and **Matter** (Content). It has been Ascended to enforce the **Law of Extension
     Sovereignty**, annihilating the "Phantom Directory" heresy.
 
-    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
+    ### THE PANTHEON OF 25 LEGENDARY ASCENSIONS:
 
     1.  **The Colon-Cleansing Gaze (THE FIX):** Surgically strips trailing colons (`:`)
         from path tokens *before* adjudicating Extension Sovereignty. This prevents
@@ -77,7 +77,9 @@ class StructuralScribe(ScaffoldBaseScribe):
     21. **The Mutation Operator:** Captures `+=` (Append) vs `::` (Overwrite).
     22. **The Semantic Selector:** Parses `@inside(...)` modifiers.
     23. **The Void Guard:** Safely handles empty lines without state corruption.
-    24. **The Finality Vow:** Guaranteed valid return index, preventing infinite loops.
+    24. **The Index Healer (THE CURE):** Correctly passes the *current* line index
+        to the BlockConsumer, preventing the "First Line Vanishing" heresy.
+    25. **The Finality Vow:** Guaranteed valid return index, preventing infinite loops.
     =================================================================================
     """
 
@@ -120,7 +122,7 @@ class StructuralScribe(ScaffoldBaseScribe):
         re.compile(r'^\s*#!\s*/'),  # Shebangs
         re.compile(r'^\s*[\{\}\[\]\(\)]\s*$'),  # Stray Brackets
         re.compile(r'^\s*".*":\s*'),  # JSON Keys
-        re.compile(r'^\s*\w+:\s*'),  # YAML Keys (Risk: Could be directory with colon? No, dir colon is at end)
+        re.compile(r'^\s*\w+:\s*'),  # YAML Keys
     ]
 
     PERMISSION_MAP: Final[Dict[str, str]] = {
@@ -167,7 +169,7 @@ class StructuralScribe(ScaffoldBaseScribe):
         raw_line = vessel.raw_scripture
         raw_stripped = raw_line.strip()
 
-        # [FACULTY 24]: Safe Default Return (The Finality Vow)
+        # [FACULTY 25]: Safe Default Return (The Finality Vow)
         next_index = i + 1
         classification_reason = "Triage: Default Fallback"
 
@@ -294,7 +296,7 @@ class StructuralScribe(ScaffoldBaseScribe):
             return next_index
 
         except Exception as catastrophic_paradox:
-            # [FACULTY 24]: THE FINALITY VOW
+            # [FACULTY 25]: THE FINALITY VOW
             # We catch all fractures to ensure the parser does not halt.
             self.parser._proclaim_heresy(
                 "META_HERESY_STRUCTURAL_SCRIBE_FRACTURED",
@@ -363,7 +365,10 @@ class StructuralScribe(ScaffoldBaseScribe):
         return end_index
 
     def _conduct_explicit_block_rite(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
-        """[FACULTY 4]: EXPLICIT BLOCK CONSUMPTION."""
+        """
+        [FACULTY 4]: EXPLICIT BLOCK CONSUMPTION.
+        Uses GnosticBlockConsumer to consume content between quotes.
+        """
         consumer = GnosticBlockConsumer(lines)
 
         # Normalize delimiters
@@ -374,10 +379,14 @@ class StructuralScribe(ScaffoldBaseScribe):
             delimiter = '"""'
 
         # Hand off to the Block Consumer
-        content_lines, end_index = consumer.consume_explicit_block(i + 1, vessel.raw_scripture)
+        # [ASCENSION 24 - THE CURE]: WE PASS 'i', NOT 'i+1'.
+        # The Consumer expects the index of the header line to initialize its search
+        # for atomic/single-line blocks, or to begin the loop correctly at i+1.
+        # Passing i+1 causes it to start at i+2, skipping the first content line.
+        content_lines, end_index = consumer.consume_explicit_block(i, vessel.raw_scripture)
         pure_content = dedent("\n".join(content_lines)).strip()
 
-        # [FACULTY 15]: Quote Stripping & Backslash Healing
+        # [FACULTY 17]: Quote Stripping & Backslash Healing
         if delimiter == '"""':
             pure_content = re.sub(r'\\"{3}', '"""', pure_content)
         elif delimiter == "'''":
@@ -388,7 +397,7 @@ class StructuralScribe(ScaffoldBaseScribe):
         return end_index
 
     def _conduct_trait_definition(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
-        """[FACULTY 17]: Trait Definition Logic."""
+        """[FACULTY 19]: Trait Definition Logic."""
         match = re.match(r"^\s*%%\s*trait\s+(?P<name>\w+)\s*=\s*(?P<path>.*)$", vessel.raw_scripture.strip())
         if not match: return i + 1
 
@@ -406,7 +415,7 @@ class StructuralScribe(ScaffoldBaseScribe):
         return i + 1
 
     def _conduct_trait_usage(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
-        """[FACULTY 17]: Trait Usage Logic."""
+        """[FACULTY 19]: Trait Usage Logic."""
         match = re.match(r"^\s*%%\s*use\s+(?P<name>\w+)(?:\s+(?P<args>.*))?$", vessel.raw_scripture.strip())
         if not match: return i + 1
 
@@ -470,7 +479,7 @@ class StructuralScribe(ScaffoldBaseScribe):
         if vessel.is_dir and name and not name.endswith('/'):
             name += '/'
 
-        # [FACULTY 11]: ONTOLOGICAL CONSISTENCY GUARD
+        # [FACULTY 13]: ONTOLOGICAL CONSISTENCY GUARD
         path_key = name.lower().rstrip('/')
         if path_key in self._identity_registry:
             original_is_dir = self._identity_registry[path_key]
@@ -499,7 +508,7 @@ class StructuralScribe(ScaffoldBaseScribe):
         # [FACULTY 11]: Binary Divination
         is_binary = bool(vessel.content and ("| base64" in vessel.content or "| binary" in vessel.content))
 
-        # [FACULTY 6]: Bracket Check (Path Validity)
+        # [FACULTY 9]: Bracket Check (Path Validity)
         if re.search(r'[\[\]\{\}\(\)]', name) and not ('{{' in name):
             self.Logger.warn(f"Path '{name}' contains brackets. Possible Parser Leak.")
 
@@ -535,6 +544,4 @@ class StructuralScribe(ScaffoldBaseScribe):
         self.parser.raw_items.append(item)
 
     def __repr__(self) -> str:
-        return f"<Ω_STRUCTURAL_SCRIBE_V900 status=OMNISCIENT version=900.5>"
-
-# == SCRIPTURE SEALED: THE GEOMETRIC CITADEL IS TOTALITY ==
+        return f"<Ω_STRUCTURAL_SCRIBE_V900 status=OMNISCIENT version=900.6-HEALED>"

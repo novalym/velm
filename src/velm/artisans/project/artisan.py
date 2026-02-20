@@ -68,15 +68,53 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
     Warded against Property Heresies and Memory Schisms.
     """
 
-    def __init__(self, engine):
-        """[THE RITE OF INCEPTION]"""
+    def __init__(self, engine: Any):
+        """
+        =================================================================================
+        == THE ARTISAN INCEPTION: OMEGA POINT (V-Ω-TOTALITY-V7005.1-SUTURED)           ==
+        =================================================================================
+        LIF: ∞ | ROLE: MULTIVERSAL_HYPERVISOR_INTERFACE | RANK: OMEGA_SUPREME
+        AUTH: Ω_INIT_V7005_ENGINE_SUTURE_2026_FINALIS
+
+        [ARCHITECTURAL MANIFESTO]
+        This constructor materializes the sovereign gateway for project governance.
+        It has been ascended to its final form, performing the "Twin-Organ Suture"
+        to bridge the Gnostic Mind with the Multiversal Governor.
+        """
+        # [ASCENSION 1]: THE ANCESTRAL CONSECRATION
         super().__init__(engine)
-        self.manager = ProjectManager()
-        self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+
+        # [ASCENSION 1]: THE TWIN-ORGAN SUTURE (THE CURE)
+        # We surgically bestow the Engine's soul upon the ProjectManager.
+        # This annihilates the 'ProjectManager object has no attribute engine' heresy.
+        self.manager = ProjectManager(engine=self.engine)
+
+        # --- MOVEMENT I: SUBSTRATE CALIBRATION ---
+        # [ASCENSION 2]: Sensing the environment for a-temporal execution.
+        self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
+        # [ASCENSION 8]: SCRIBE MATERIALIZATION
+        # Binds a dedicated Scribe to this Artisan's channel.
         self.logger = Logger
 
-        # [ASCENSION 1]: Private Context Anchor
+        # --- MOVEMENT II: THE CONTEXT ANCHOR (THE CURE) ---
+        # [ASCENSION 3]: MUTABLE PROPERTY SUTURE
+        # We initialize the request slot as a void. This allows the Dispatcher
+        # to inject the Architect's intent without property-setter fractures.
         self._active_req: Optional[ProjectRequest] = None
+
+        # [ASCENSION 4]: TRACE ANCHORING
+        # Injects a 'tr-void' placeholder to ensure telemetric stability.
+        self._trace_id = "tr-gov-void"
+
+        # --- MOVEMENT III: METABOLIC WARM-UP ---
+        # [ASCENSION 10]: Trigger a shallow audit of the registry.
+        if not self.is_wasm:
+            # Native iron can handle the initial disk scry.
+            try:
+                self.manager._audit_active_anchor()
+            except:
+                pass
 
     # =========================================================================
     # == [THE CURE]: THE PROPERTY OVERRIDE SUTURE                            ==
@@ -241,17 +279,17 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
                            start_ns: int) -> ScaffoldResult:
         """
         =============================================================================
-        == THE RITE OF TOTAL CENSUS (V-Ω-TOTALITY-V9500-FORENSIC)                  ==
+        == THE RITE OF TOTAL CENSUS (V-Ω-TOTALITY-V9501-RECONCILED)                ==
         =============================================================================
-        [THE CURE]: Performs a recursive deep-audit of every manifest project before
-        proclaiming the list. This annihilates 'Stale Anchor' heresies.
+        [THE CURE]: This rite now uses the Manager's ascended 'list_projects' method,
+        which correctly merges Living matter with System Ghosts.
         """
         # [ASCENSION 5]: GHOST-BUSTING AUDIT
-        # Synchronize physical existence with logical registration.
+        # Ensure the physical anchor matches the logical mind.
         self.manager._audit_active_anchor()
 
         # 1. THE RECLAMATION OF SOULS
-        # Filter projects based on the Owner ID and optional Gnostic Tags.
+        # [THE TITANIUM SUTURE]: We delegate to the manager's unified list logic.
         projects = self.manager.list_projects(
             owner_id=owner,
             tags=request.filter_tags
@@ -260,12 +298,16 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
         active_id = self.manager.registry.active_project_id
 
         # 2. ISOMORPHIC SERIALIZATION
-        # We use the Collapser from Movement I to ensure no UniversalSink ghosts
-        # contaminate the bridge.
-        registry_primitive = self._collapse(self.manager.registry)
+        # We collapse the list of ProjectMeta objects into primitives for the bridge.
+        # This ensures the Progenitor is manifest in the JSON payload.
+        project_list_primitives = [self._collapse(p) for p in projects]
 
         data = {
-            "registry": registry_primitive,
+            "registry": {
+                "version": self.manager.registry.version,
+                "active_project_id": active_id,
+                "projects": {p['id']: p for p in project_list_primitives}
+            },
             "count": len(projects),
             "owner": owner,
             "active_id": active_id,
@@ -328,35 +370,46 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
     def _conduct_switch_rite(self, request: ProjectRequest, proclaim: Callable, start_ns: int) -> ScaffoldResult:
         """
         =============================================================================
-        == THE RITE OF ANCHORING (V-Ω-TOTALITY)                                    ==
+        == THE RITE OF ANCHORING (V-Ω-TOTALITY-V9501-ALLIANCE-AWARE)               ==
         =============================================================================
-        Shifts the Engine's focus to a specific logical coordinate.
+        [THE CURE]: This rite now scries both User and System registries to find
+        the target coordinate, annihilating the 'Coordinate Lost' heresy.
         """
         target_id = getattr(request, 'id', None)
         if not target_id:
             return self.failure("Coordinate Lost: Target ID is a void.")
 
-        # IDEMPOTENT ANCHOR WARD
-        if self.manager.registry.active_project_id == target_id:
-            proclaim("Anchor is already Resonant. Staying rite.")
-            return self._forge_result(True, "Anchor maintained.", {}, start_ns)
+        # [THE TITANIUM SUTURE]
+        # We scry both the User Registry and the System Demos (Ghosts)
+        project = (
+            self.manager.registry.projects.get(target_id) or
+            self.manager.system_demos.get(target_id)
+        )
 
-        project = self.manager.registry.projects.get(target_id)
         if not project:
-            return self.failure(f"Coordinate Lost: Reality '{target_id}' is unmanifest.")
+            return self.failure(
+                message=f"Coordinate Lost: Reality '{target_id}' is unmanifest.",
+                suggestion="Perform a fresh census via 'scaffold project list' to resync.",
+                code="ANCHOR_FRACTURE"
+            )
 
-        p_name = project.name
+        p_name = project.get('name') # Use .get() due to GnosticSovereignDict/Meta hybrid
         proclaim(f"Shifting Anchor to reality: '[bold cyan]{p_name}[/]'...")
 
         # 1. CONDUCT THE PHYSICAL SWITCH
-        # This handles the symlinking of /vault/project in WASM.
-        self.manager.switch_project(target_id)
+        # This triggers JIT Ghost Materialization if needed.
+        target_meta = self.manager.switch_project(target_id)
 
         # 2. BROADCAST THE SHIFT
         proclaim("Dimensional shift complete. Reality locked.")
         self._multicast_hud("ANCHOR_SHIFTED", "#3b82f6")
 
-        return self._forge_result(True, f"Anchored to '{p_name}'.", {"project_id": target_id}, start_ns)
+        return self._forge_result(
+            True,
+            f"Anchored to '{p_name}'.",
+            {"project_id": target_id, "project": self._collapse(target_meta)},
+            start_ns
+        )
 
     # =========================================================================
     # == MOVEMENT: THE RITE OF ANNIHILATION (DELETE)                         ==

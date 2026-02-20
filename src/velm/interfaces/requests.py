@@ -935,21 +935,55 @@ class DistillRequest(BaseRequest):
 # =============================================================================
 # == 7. INIT RITE (scaffold init)                                            ==
 # =============================================================================
-
 class InitRequest(BaseRequest):
     """
-    Plea to initialize a new project (The Rite of Inception).
+    =============================================================================
+    == THE RITE OF INCEPTION (INIT REQUEST)                                    ==
+    =============================================================================
+    The sacred plea to forge a new reality. It carries the Architect's will regarding
+    the shape, nature, and origin of the new project.
     """
-    lint: bool = Field(default=False, description="Whether to conduct a Gnostic Lint Inquest post-inception.")
-    # -----------------------------
+    no_edicts: bool = Field(
+        default=False,
+        description="The Maestro's Silence. If true, stays the hand of the conductor for %% post-run edicts."
+    )
+
+    # --- I. THE OBSERVABILITY MODES (THE FIX) ---
+    # These fields ensure the Namespace has the required attributes for the logger.
+    debug: bool = Field(
+        default=False,
+        description="Enable high-fidelity debug traces."
+    )
+    verbose: bool = Field(
+        default=False,
+        description="Enable luminous verbose logging."
+    )
+    dry_run: bool = Field(
+        default=False,
+        description="Simulate the inception without touching the disk."
+    )
+
+    # --- II. THE QUALITY GATES ---
+    lint: bool = Field(
+        default=False,
+        description="Whether to conduct a Gnostic Lint Inquest post-inception."
+    )
+
+    # --- III. THE INTERACTIVE MODES ---
     launch_pad_with_path: Optional[str] = Field(
         default=None,
         description="Launch the Genesis Pad TUI. Optional starting path."
     )
+    non_interactive: bool = Field(
+        default=False,
+        description="The Vow of Silence. Suppresses all interactive prompts, accepting default Gnosis."
+    )
     quick: bool = Field(
         default=False,
-        description="Skip prompts, use intelligent defaults."
+        description="Skip prompts, use intelligent defaults (The Speed Vow)."
     )
+
+    # --- IV. THE ARCHETYPAL DNA ---
     profile: Optional[str] = Field(
         default=None,
         description="Use a specific Genesis Profile (e.g., 'python-universal')."
@@ -960,17 +994,32 @@ class InitRequest(BaseRequest):
     )
     from_remote: Optional[str] = Field(
         default=None,
-        description="Initialize from a remote URL/Gist."
+        description="Initialize from a remote URL or Gist."
     )
+
+    # --- V. THE PATHS OF ORIGIN ---
     manual: bool = Field(
         default=False,
         description="Manually forge a blank scripture."
     )
     distill: bool = Field(
         default=False,
-        description="Initialize by distilling the current directory."
+        description="Initialize by distilling the current directory into a blueprint."
     )
 
+    # --- VI. IDENTITY OVERRIDES (ASCENDED) ---
+    name: Optional[str] = Field(
+        default=None,
+        description="The sacred name of the project (CLI Override)."
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="The semantic purpose of the project (CLI Override)."
+    )
+    provider: Optional[str] = Field(
+        default=None,
+        description="The cloud substrate target (e.g. 'ovh', 'aws')."
+    )
 
 # =============================================================================
 # == 8. TEMPLATE RITE (scaffold templates)                                   ==

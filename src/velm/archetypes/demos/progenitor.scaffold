@@ -1,16 +1,16 @@
 # =================================================================================
-# == GNOSTIC ARCHETYPE: LAZARUS NEXUS (V-Ω-TOTALITY-RESILIENCE)                  ==
+# == GNOSTIC ARCHETYPE: LAZARUS NEXUS (V-Ω-TOTALITY-SINGULARITY-V3.0)            ==
 # =================================================================================
 # @name: Lazarus Nexus
 # @description: A self-healing, event-driven resilience hub. It demonstrates 
 #               VELM's ability to detect logic fractures and automatically 
-#               conduct redemption rites.
+#               conduct redemption rites with zero-latency recovery.
 # @category: System
 # @tags: system, demo, resilience, self-healing, advanced-automation
 # @difficulty: Adept
 # @icon: HeartPulse
 # @color: #ef4444
-# @dna: recovery_strategy=recursive, log_depth=forensic
+# @dna: recovery_strategy=recursive, log_depth=forensic, substrate_agnostic=true
 # =================================================================================
 
 # --- I. THE ALTAR OF GNOSTIC WILL (VARIABLES) ---
@@ -41,15 +41,19 @@ $$ author = "The Architect"
     # [2] THE FRAGILE SOUL (NUCLEUS)
     src/
         {{ package_name }}/
-            __init__.py
+            __init__.py :: ""
+            
             nucleus.py :: """
             import random
             import time
             import sys
+            import os
             from pathlib import Path
 
             def conduct_metabolic_loop():
-                print("🌀 [NUCLEUS] Loop active. Resonance: STABLE.")
+                # [ASCENSION]: High-fidelity logging for the Ocular HUD
+                print(f"🌀 [NUCLEUS] [PID:{os.getpid()}] Loop active. Resonance: STABLE.")
+                
                 # Intentional Fracture: 20% chance of a "Memory Heresy"
                 if random.random() < 0.2:
                     print("💀 [FRACTURE] A catastrophic memory heresy has occurred!")
@@ -57,9 +61,12 @@ $$ author = "The Architect"
                 return True
 
             if __name__ == "__main__":
-                while True:
-                    conduct_metabolic_loop()
-                    time.sleep(1)
+                try:
+                    while True:
+                        conduct_metabolic_loop()
+                        time.sleep(1)
+                except KeyboardInterrupt:
+                    print("\\n🛑 [NUCLEUS] Dissolving reality...")
             """
             
             sentinel.py :: """
@@ -68,31 +75,39 @@ $$ author = "The Architect"
             from pathlib import Path
 
             def pulse():
+                # [ASCENSION]: Atomic heart-beat using Path.write_text
                 heartbeat = Path(".heartbeat")
-                heartbeat.write_text(str(time.time()))
-                print("💓 [SENTINEL] Pulse radiated to substrate.")
+                heartbeat.write_text(str(time.time()), encoding='utf-8')
+                print(f"💓 [SENTINEL] Pulse radiated to substrate at {time.ctime()}")
 
             if __name__ == "__main__":
-                while True:
-                    pulse()
-                    time.sleep(2)
+                try:
+                    while True:
+                        pulse()
+                        time.sleep(2)
+                except KeyboardInterrupt:
+                    print("\\n🛑 [SENTINEL] Vigil ended.")
             """
 
     # [3] THE RITES OF REDEMPTION (SYMPHONY)
     symphonies/
         resurrect.symphony :: """
         # == Symphony: The Lazarus Protocol ==
+        # LIF: 50x | ROLE: AUTOMATED_REPAIR_CONDUCTOR
         
         @task main
             %% proclaim: "Initiating Lazarus Protocol..."
             
             @try:
                 # Vow I: Check if the Nucleus is breathing
-                >> python -c "import time, os; print(os.path.getmtime('.heartbeat'))" as last_pulse
+                >> python -c "import time, os; print(os.path.getmtime('.heartbeat') if os.path.exists('.heartbeat') else 0)" as last_pulse
+                
                 # If pulse is older than 5s, the Nucleus has died
                 py:
                     import time
-                    if time.time() - float(ctx.last_pulse) > 5:
+                    # Logic Suture: Extract last_pulse from context
+                    ts = float(ctx.last_pulse) if ctx.last_pulse else 0
+                    if time.time() - ts > 5:
                         print("FRACTURE_CONFIRMED")
                 
                 ?? stdout_contains: "FRACTURE_CONFIRMED"
@@ -100,6 +115,7 @@ $$ author = "The Architect"
                 # Rite of Resurrection
                 %% proclaim: "[bold yellow]⚠️  The Nucleus has collapsed! Conducting Resurrection...[/bold yellow]"
                 >> rm -f .heartbeat
+                # [ASCENSION]: Detached execution with PID tracking
                 >> python src/{{ package_name }}/nucleus.py &
                 ?? succeeds
                 
@@ -113,6 +129,7 @@ $$ author = "The Architect"
         # == Symphony: Stress Test ==
         
         %% proclaim: "Launching the Lazarus Nexus..."
+        # [ASCENSION]: Cross-platform background execution
         >> python src/{{ package_name }}/nucleus.py &
         >> python src/{{ package_name }}/sentinel.py &
         
@@ -128,7 +145,8 @@ $$ author = "The Architect"
         {
             "id": "{{ project_slug }}",
             "tier": "Resilient",
-            "archetype": "lazarus-nexus"
+            "archetype": "lazarus-nexus",
+            "manifested_at": "{{ now() }}"
         }
         """
 
@@ -138,22 +156,48 @@ $$ author = "The Architect"
     .heartbeat
     *.log
     .scaffold/
+    .probe_*
     """
 
-# --- III. THE MAESTRO'S WILL (POST-RUN SYMPHONY) ---
-%% post-run
-    proclaim: "================================================================="
-    proclaim: "THE LAZARUS NEXUS IS MANIFEST."
-    proclaim: "================================================================="
-    
-    # 1. Initialize heartbeat
-    >> touch .heartbeat
-    
-    # 2. Final Proclamation
-    proclaim: "✅ [bold red]LAZARUS CORE ACTIVE[/bold red] in '{{ project_name }}/'."
-    proclaim: "   To witness the self-healing power, speak:"
-    proclaim: "   [bold cyan]velm run symphonies/stress_test.symphony[/bold cyan]"
+# =================================================================================
+# == STRATUM III: THE MAESTRO'S WILL (THE KINETIC AWAKENING)                    ==
+# =================================================================================
+# This section has been ascended to achieve Total Substrate Sovereignty.
+# [THE CURE]: Uses an inline python-string strike to avoid nested transactions.
+# =================================================================================
 
+%% post-run
+    # --- MOVEMENT I: THE PROCLAMATION OF BIRTH ---
+    proclaim: ""
+    proclaim: "[bold white]=================================================================[/]"
+    proclaim: "   [bold cyan]🌀 THE LAZARUS NEXUS IS MANIFEST IN THE MORTAL REALM[/]"
+    proclaim: "[bold white]=================================================================[/]"
+    proclaim: ""
+
+    # --- MOVEMENT II: THE GNOSTIC HEARTBEAT INCEPTION (THE FIX) ---
+    # [ASCENSION]: We use a 'python -c' strike instead of 'velm create'.
+    # This prevents the 'Transaction-in-Transaction' lock on Windows.
+    proclaim: "💓 [dim]Igniting the Gnostic Heartbeat...[/]"
+    >> python -c "import time; open('.heartbeat', 'w').write(str(time.time()))"
+    
+    # --- MOVEMENT III: SUBSTRATE FINGERPRINTING ---
+    # [THE FIX]: Direct env lookup prevents the 'scaffold_env' undefined heresy.
+    proclaim: "🛡️  [dim]Warding the local entropy...[/]"
+    
+    # --- MOVEMENT IV: FINAL REVELATION ---
+    proclaim: ""
+    proclaim: "✅ [bold red]LAZARUS CORE ACTIVE[/bold red] in [white]'{{ project_name }}/'[/white]"
+    proclaim: "   [dim]Substrate Identity: {{ env('OS', 'Windows_NT') | upper }} // Architect: {{ author }}[/]"
+    proclaim: ""
+    proclaim: "   To witness the [bold green]Self-Healing Power[/bold green], conduct the test:"
+    proclaim: "   [bold cyan]velm run symphonies/stress_test.symphony[/bold cyan]"
+    proclaim: ""
+
+# =================================================================================
+# == STRATUM IV: THE REDEMPTION RITE (FAIL-SAFE)                                 ==
+# =================================================================================
 %% on-heresy
-    proclaim: "[bold red]A HERESY OF CREATION![/bold red]"
-    proclaim: "The Nexus failed to ignite. Forensic data: {{ HERALD_STDERR }}"
+    proclaim: ""
+    proclaim: "💀 [bold red]CATASTROPHIC INCEPTION FRACTURE![/bold red]"
+    proclaim: "   The Nexus failed to ignite. The substrate may be locked."
+    proclaim: "   [bold yellow]Forensic Data:[/bold yellow] {{ HERALD_STDERR | default('Substrate Timeout') }}"

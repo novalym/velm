@@ -132,17 +132,23 @@ RITES = {
                 add_common_flags,    # Verbositiy, Force, Root, and Trace DNA
                 add_variable_flags,  # The --set alchemical injections
 
-                # [ASCENSION 1]: THE PROFILE ORACLE
-                # This lambda performs a dual-binding. It allows the profile to be passed
-                # as a flag for legacy/explicit scripts, or as a positional locus for
-                # high-speed manual initiation.
+                # [ASCENSION 1]: IDENTITY VOWS
+                # Allows the Architect to proclaim the Name and Purpose upfront.
+                lambda p: p.add_argument('--name', help="The sacred name of the new reality (project_name)."),
+                lambda p: p.add_argument('--desc', dest='description', help="The semantic purpose of the project."),
+
+                # [ASCENSION 2]: SUBSTRATE VOW (THE NEW POWER)
+                # Allows defining the physical cloud target immediately.
+                lambda p: p.add_argument('--provider', help="The infrastructure substrate (ovh, aws, azure, docker)."),
+
+                # [ASCENSION 3]: THE PROFILE ORACLE
                 lambda p: p.add_argument(
                     '--profile',
                     dest='profile_flag',
                     help="Summon a specific Archetype Profile (e.g., 'fastapi-service')."
                 ),
 
-                # [ASCENSION 2]: THE CENSUS RADIATOR
+                # [ASCENSION 4]: THE CENSUS RADIATOR
                 lambda p: p.add_argument(
                     '--list',
                     action='store_true',
@@ -150,7 +156,7 @@ RITES = {
                     help="Proclaim the census of all manifest and user-forged profiles."
                 ),
 
-                # [ASCENSION 3]: THE SPEED VOWS
+                # [ASCENSION 5]: THE SPEED VOWS
                 lambda p: p.add_argument(
                     '--quick',
                     action='store_true',
@@ -162,14 +168,14 @@ RITES = {
                     help="The Scribe's Altar. Forges a minimal, blank blueprint for manual inscription."
                 ),
 
-                # [ASCENSION 4]: THE ADOPTION RITE
+                # [ASCENSION 6]: THE ADOPTION RITE
                 lambda p: p.add_argument(
                     '--distill',
                     action='store_true',
                     help="Gaze upon the current reality and adopt it into a Gnostic Blueprint before initializing."
                 ),
 
-                # [ASCENSION 5]: THE SEMANTIC ALIAS
+                # [ASCENSION 7]: THE SEMANTIC ALIAS
                 lambda p: p.add_argument(
                     '--type',
                     dest='type_alias',
@@ -181,10 +187,7 @@ RITES = {
             # == THE POSITIONAL LOCUS (ARGUMENTS)                                    ==
             # =========================================================================
             "args": [
-                # [ASCENSION 6]: POSITIONAL SOVEREIGNTY
-                # We define 'profile' as an optional positional argument.
-                # The InitArtisan will perform the Rite of Unification:
-                # If 'profile' is void, check 'profile_flag'. If both are void, trigger the menu.
+                # The Profile Name (Optional positional)
                 ("profile", {
                     "nargs": "?",
                     "help": "The sacred name of the Archetype to materialize."

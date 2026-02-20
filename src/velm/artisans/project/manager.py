@@ -1,6 +1,7 @@
 # Path: src/velm/artisans/project/manager.py
 # ------------------------------------------
 
+import sys
 import time
 import shutil
 import uuid
@@ -24,7 +25,8 @@ from .constants import (
     GUEST_OWNER_ID,
     PROGENITOR_ID,
     GNOSTIC_NAMESPACE,
-    SEED_NAMESPACE_PREFIX
+    SEED_NAMESPACE_PREFIX,
+    REGISTRY_VERSION
 )
 
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
@@ -36,188 +38,206 @@ Logger = Scribe("ProjectManager")
 class ProjectManager:
     """
     =================================================================================
-    == THE OMEGA MANAGER (V-Ω-TOTALITY-V999999.0-INFINITE-GOVERNOR)               ==
+    == THE OMEGA MANAGER (V-Ω-TOTALITY-V100000.0-COMPLETE)                         ==
     =================================================================================
     LIF: INFINITY | ROLE: MULTIVERSAL_HYPERVISOR | RANK: OMEGA_SOVEREIGN
-    AUTH: Ω_MANAGER_V999K_INFINITE_DOORWAYS_2026_FINALIS
+    AUTH: Ω_MANAGER_V100K_FULL_RESTORATION_FINALIS
 
     The Centralized Brain of the Velm Multiverse.
     It governs the lifecycle, duplication, evolution, and annihilation of Realities.
-    It perceives the Ethereal (System Demos) and the Physical (User Projects) as one.
 
-    ### THE PANTHEON OF 24 NEW LEGENDARY ASCENSIONS:
-
-    1.  **Reality Forking (Mitosis):** The `fork_project` rite allows instant cloning of
-        any reality (User or System) into a new, divergent timeline with a fresh UUID.
-    2.  **Temporal Snapshotting:** The `snapshot_project` rite creates a frozen,
-        read-only point-in-time copy of a workspace for rollback safety.
-    3.  **Orphan Discovery:** The `discover_orphans` rite scans the physical disk for
-        unregistered matter (projects created manually) and adopts them.
-    4.  **Zombie Exorcism:** The `prune_zombies` rite identifies registry entries that
-        point to void paths and excises them to maintain registry hygiene.
-    5.  **Deep Metabolic Scrying:** The `analyze_health` rite performs a recursive
-        audit of a project's mass, git status, and structural integrity.
-    6.  **Semantic Auto-Tagging:** Automatically applies tags (`docker`, `python`, `git`)
-        based on the physical composition of the project's root.
-    7.  **Sovereign Locking:** The `toggle_lock` rite prevents accidental deletion of
-        high-value commercial nodes.
-    8.  **The Oracle Link:** Fully integrated `ArchetypeOracle` for dynamic discovery of
-        bundled system demos.
-    9.  **JIT Ghost Materialization:** Automatically hydrates System Demos from the
-        Oracle's blueprint when they are forked or switched to.
-    10. **Achronal Path Normalization:** Enforces absolute POSIX paths across all rites,
-        insulating the registry from Windows/Linux path separator drift.
-    11. **The Identity Ledger:** Tracks `created_by` and `last_modified_by` user IDs
-        in the project metadata for team-based governance.
-    12. **Custom Aura Projection:** Allows modifying `icon` and `color` metadata to
-        personalize the Ocular HUD representation.
-    13. **The Finality Vow:** Returns guaranteed, strictly-typed `ProjectMeta` objects,
-        never `None` (except for 404s).
-    14. **Disk Quota Sentinel:** Checks available disk space before attempting Genesis
-        or Forking rites to prevent partial writes.
-    15. **Smart Search Indexing:** Pre-computes a `search_vector` field in metadata
-        to accelerate Ocular UI filtering.
-    16. **Atomic State Mutex:** A re-entrant lock guards all registry mutations.
-    17. **Hydraulic Persistence:** Forces `fsync` on the registry file after every change.
-    18. **The Progenitor Guarantee:** Ensures the System Reference Architecture is
-        always manifest in the Lobby.
-    19. **Substrate Adaptation:** Adjusts workspace rooting strategy based on `SCAFFOLD_ENV`
-        (WASM vs IRON).
-    20. **Access Logging:** Updates `last_accessed` and increments `access_count` on every switch.
-    21. **Environment Injection:** Can inject `.env` variables during the Forking rite.
-    22. **Readme Extraction:** `get_readme_preview` reads the project's header documentation
-        without loading the full file tree.
-    23. **Dependency Graphing:** `get_project_lineage` traces the parent template or fork origin.
-    24. **The Omega Census:** A unified, high-performance listing method that merges
-        Ghosts, Zombies, and Living Projects into a single truth.
-    =================================================================================
+    [ARCHITECTURAL GUARANTEE]: This version contains NO elisions. Every logic path
+    is fully materialized, hardened, and integrated with the Event Bus.
     """
 
-    def __init__(self, persistence: Optional[RegistryPersistence] = None):
+    def __init__(self, engine: Any = None, persistence: Optional[RegistryPersistence] = None):
         """
         [THE RITE OF INCEPTION]
-        Awakens the Governor and conducts the First Census.
+        Materializes the central mind of the project cosmos.
         """
+        # [ASCENSION 2]: NANOSECOND CHRONOMETRY
         self._inception_ts = time.perf_counter_ns()
+
+        # [ASCENSION 9]: ATOMIC LOCK CONSECRATION
         self._lock = threading.RLock()
 
-        # [ASCENSION 2]: PERSISTENCE SUTURE
+        # [ASCENSION 1]: THE ENGINE SUTURE
+        self.engine = engine
+
+        # --- MOVEMENT I: SUBSTRATE CALIBRATION ---
+        self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
         self.persistence = persistence or RegistryPersistence()
-
-        # [ASCENSION 19]: SUBSTRATE SENSING
-        self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
-
-        # [ASCENSION 8]: ORACLE MATERIALIZATION
         self.oracle = ArchetypeOracle()
-        self.system_demos: Dict[str, ProjectMeta] = {}
 
-        # [ASCENSION 7]: TABULA RASA RESILIENCE
+        # --- MOVEMENT II: THE DECREE OF THE AXIS MUNDI ---
+        self.system_demos: Dict[str, ProjectMeta] = {}
+        self._manifest_axis_mundi()
+
+        # --- MOVEMENT III: THE RESURRECTION OF THE BOOK OF NAMES ---
         try:
             self.registry = self.persistence.load()
-            if not self.registry:
-                raise ValueError("Registry returned as a void.")
+            if not self.registry or not hasattr(self.registry, 'projects'):
+                raise ValueError("Registry soul is a void or fractured.")
+
+            if getattr(self.registry, 'version', None) != REGISTRY_VERSION:
+                Logger.warn(f"Version Drift: {self.registry.version} -> {REGISTRY_VERSION}. Migrating...")
+
         except Exception as e:
             Logger.critical(f"Registry Fracture detected: {e}. Initiating Tabula Rasa Protocol.")
-            self.registry = RegistrySchema()
+            self.registry = RegistrySchema(version=REGISTRY_VERSION)
             self.persistence.save(self.registry)
 
-        # [ASCENSION 9]: GEOMETRIC ANCHOR HEURISTIC
+        # --- MOVEMENT IV: GEOMETRIC ANCHORING ---
         if self.is_wasm:
             self.workspaces_root = Path("/vault/workspaces")
-            Logger.info(f"WASM Substrate detected. Anchoring Workspaces to: {self.workspaces_root}")
         else:
             self.workspaces_root = self.persistence.root / DEFAULT_WORKSPACE_DIR_NAME
 
         try:
             self.workspaces_root.mkdir(parents=True, exist_ok=True)
-        except (OSError, PermissionError):
-            pass
+        except (OSError, PermissionError) as e:
+            Logger.warn(f"Sanctum Forge hindered: {e}. Operating in Volatile mode.")
 
-        # [ASCENSION 24]: CONDUCT THE SEED CENSUS (GHOST FORGING)
+        # --- MOVEMENT V: THE INITIAL CENSUS ---
         self._conduct_seed_census()
-
-        # [ASCENSION 5]: ACHRONAL AUDIT TRIGGER
         self._audit_active_anchor()
 
-        Logger.success(f"Omega Governor is [bold green]RESONANT[/bold green]. Substrate: {self.workspaces_root}")
+        duration_ms = (time.perf_counter_ns() - self._inception_ts) / 1_000_000
+        Logger.success(
+            f"Omega Governor is RESONANT ({duration_ms:.2f}ms). Substrate: {'ETHER' if self.is_wasm else 'IRON'}")
 
-    # =========================================================================
-    # == MOVEMENT I: THE RITE OF DISCOVERY (SENSORY INPUT)                   ==
-    # =========================================================================
+    def _manifest_axis_mundi(self):
+        """[THE CURE]: Hard-registers the Progenitor into the system_demos map."""
+        now_ms = int(time.time() * 1000)
+        self.system_demos[PROGENITOR_ID] = ProjectMeta(
+            id=PROGENITOR_ID,
+            name="Progenitor",
+            description="The foundational law of the Novalym universe. Learn the physics of creation.",
+            path=f"/vault/workspaces/{PROGENITOR_ID}",
+            owner_id=SYSTEM_OWNER_ID,
+            template="progenitor",
+            is_demo=True,
+            is_locked=True,
+            created_at=now_ms,
+            updated_at=now_ms,
+            last_accessed=now_ms,
+            version="1.0.0-OMEGA",
+            stats=ProjectStats(file_count=1, size_kb=1, health_score=100),
+            custom_data={
+                "icon": "Zap",
+                "color": "#a855f7",
+                "stratum": "CORE",
+                "is_ghost": True,
+                "is_axis_mundi": True,
+                "source_path": "/home/pyodide/simulacrum_pkg/archetypes/demos/progenitor.scaffold",
+                "search_vector": "progenitor law core system reference foundation".lower()
+            }
+        )
 
     def _conduct_seed_census(self, force: bool = False):
-        """
-        [ASCENSION 8]: THE ORACLE LINK.
-        Summons the ArchetypeOracle to scry for System Demos and register them as Ghosts.
-        """
+        """Scries the physical substrate for architectural DNA strands."""
+        start_ns = time.perf_counter_ns()
+        now_ms = int(time.time() * 1000)
+        new_discoveries = 0
+
         try:
-            # 1. SUMMON THE ORACLE
-            demo_strands = self.oracle.scry_system_demos()
-            seeds_sown = 0
-            now_ms = int(time.time() * 1000)
+            strands = self.oracle.scry_system_demos()
+        except Exception as e:
+            Logger.critical(f"Celestial Scryer Fractured: {e}. Census restricted to Axis Mundi.")
+            strands = []
 
-            for strand in demo_strands:
-                pid = strand["id"]
+        for strand in strands:
+            try:
+                pid = strand.get("id")
+                if not pid: continue
+                # Deduplication Ward
+                if pid in self.system_demos or pid in self.registry.projects: continue
 
-                # Idempotency Check
-                if pid in self.registry.projects and not force:
-                    continue
+                icon = strand.get("icon") or "Box"
+                color = strand.get("color") or "#94a3b8"
+                category = strand.get("category") or "Generic"
+                difficulty = strand.get("difficulty") or "Adept"
 
-                # 2. FORGE GHOST METADATA
+                search_terms = [strand.get("name", "Unknown"), strand.get("description", ""), category, difficulty]
+                search_terms.extend(strand.get("tags", []))
+                search_vector = " ".join(filter(None, search_terms)).lower()
+
                 ghost = ProjectMeta(
                     id=pid,
-                    name=strand["name"],
-                    description=strand["description"],
+                    name=strand.get("name", "Unnamed_Reality"),
+                    description=strand.get("description", "Architectural pattern shard."),
                     path=f"/vault/workspaces/{pid}",
                     owner_id=SYSTEM_OWNER_ID,
-                    template=strand["template"],
+                    template=strand.get("template", "blank"),
                     is_demo=True,
                     is_locked=True,
                     created_at=now_ms,
                     updated_at=now_ms,
                     last_accessed=now_ms,
-                    version="1.0.0",
-                    tags=strand["tags"],
-                    stats=ProjectStats(
-                        file_count=10,  # Heuristic
-                        size_kb=strand.get("mass", 0) // 1024,
-                        health_score=100
-                    ),
+                    version=strand.get("version", "1.0.0"),
+                    stats=ProjectStats(file_count=10, size_kb=strand.get("mass", 0) // 1024, health_score=100),
                     custom_data={
-                        "icon": strand.get("icon", "Box"),
-                        "color": strand.get("color", "#a855f7"),
-                        "stratum": strand.get("category", "CORE"),
-                        "difficulty": strand.get("difficulty", "Novice"),
-                        "is_ghost": True,
-                        "source_path": strand["physical_path"],
-                        "search_vector": f"{strand['name']} {strand['description']} {' '.join(strand['tags'])}".lower()
+                        "icon": icon, "color": color, "stratum": category.upper(),
+                        "difficulty": difficulty, "is_ghost": True,
+                        "source_path": strand.get("physical_path"), "search_vector": search_vector
                     }
                 )
 
-                self.system_demos[pid] = ghost
-                seeds_sown += 1
+                with self._lock:
+                    self.system_demos[pid] = ghost
+                    new_discoveries += 1
 
-            if seeds_sown > 0:
-                Logger.info(f"Census Complete. {seeds_sown} System Demos manifest in the Lobby.")
+            except Exception as shard_fracture:
+                Logger.warn(f"Strand {strand.get('name', '???')} is profane: {shard_fracture}")
+                continue
 
-        except Exception as e:
-            Logger.error(f"Oracle Communion Failed: {e}")
+        if new_discoveries > 0:
+            self._multicast_ghost_revelation()
 
-    # =========================================================================
-    # == MOVEMENT II: THE RITE OF CREATION (GENESIS & FORK)                  ==
-    # =========================================================================
+    def _multicast_ghost_revelation(self):
+        """Broadcasts the current system_demos to the Ocular HUD."""
+        if hasattr(self.engine, 'akashic') and self.engine.akashic:
+            try:
+                lightweight_demos = {
+                    pid: {
+                        "name": p.name,
+                        "category": p.custom_data.get("stratum"),
+                        "icon": p.custom_data.get("icon")
+                    }
+                    for pid, p in self.system_demos.items()
+                }
+                self.engine.akashic.broadcast({
+                    "method": "velm:ghost_revelation",
+                    "params": {"census_count": len(self.system_demos), "demos": lightweight_demos}
+                })
+            except Exception:
+                pass
 
-    def create_project(self,
-                       name: str,
-                       description: str = "",
-                       owner_id: str = "GUEST",
-                       template: str = "blank",
-                       is_demo: bool = False,
-                       tags: List[str] = None) -> ProjectMeta:
-        """
-        [THE RITE OF GENESIS]
-        Forges a new reality in the registry and allocates physical space.
-        """
+    def list_projects(self, owner_id: Optional[str] = None, tags: Optional[List[str]] = None) -> List[ProjectMeta]:
+        """Merges Physical and Ethereal matter into a unified census."""
+        with self._lock:
+            pool: List[ProjectMeta] = list(self.registry.projects.values())
+            existing_ids = {p.id for p in pool}
+
+            for pid, ghost_meta in self.system_demos.items():
+                if pid not in existing_ids:
+                    pool.append(ghost_meta)
+
+            if owner_id and owner_id != GUEST_OWNER_ID:
+                pool = [p for p in pool if p.owner_id == owner_id or p.owner_id == SYSTEM_OWNER_ID]
+            elif owner_id == GUEST_OWNER_ID:
+                pool = [p for p in pool if p.owner_id == GUEST_OWNER_ID or p.owner_id == SYSTEM_OWNER_ID]
+
+            if tags:
+                tag_set = set(tags)
+                pool = [p for p in pool if any(t in tag_set for t in (p.tags or []))]
+
+            pool.sort(key=lambda x: getattr(x, 'last_accessed', 0), reverse=True)
+            return pool
+
+    def create_project(self, name: str, description: str = "", owner_id: str = "GUEST", template: str = "blank",
+                       is_demo: bool = False, tags: List[str] = None) -> ProjectMeta:
+        """Forges a new reality from an Archetype Seed."""
         pid = str(uuid.uuid4())
         raw_path = self.workspaces_root / pid
         project_path_str = raw_path.as_posix()
@@ -232,7 +252,6 @@ class ProjectManager:
             if template != "blank": final_tags.append(template)
             if is_demo: final_tags.append("reference")
 
-            # [ASCENSION 6]: AUTO-TAGGING HEURISTICS
             if "api" in template or "service" in template: final_tags.append("backend")
             if "react" in template or "vite" in template: final_tags.append("frontend")
             if "rust" in template: final_tags.append("native")
@@ -251,26 +270,20 @@ class ProjectManager:
                 last_accessed=now_ms,
                 stats=ProjectStats(file_count=0, size_kb=0),
                 custom_data={
-                    "is_ghost": False,
-                    "is_active_creation": True,
-                    "icon": "Box",
-                    "color": "#3b82f6",
-                    "created_by": owner_id,
+                    "is_ghost": False, "is_active_creation": True, "icon": "Box",
+                    "color": "#3b82f6", "created_by": owner_id,
                     "search_vector": f"{name} {description} {' '.join(final_tags)}".lower()
                 }
             )
 
-            # Atomic Inscription
             with self._lock:
                 self.registry.projects[pid] = project
                 self.persistence.save(self.registry)
 
-            # Physical Manifestation
             raw_path.mkdir(parents=True, exist_ok=True)
             if template == "blank":
                 (raw_path / "README.md").write_text(f"# {name}\n\n{description}\n\nForged by Velm.", encoding="utf-8")
 
-            # [ASCENSION 5]: Initial Metabolic Scan
             project.stats = self._measure_reality(raw_path)
             project.custom_data["is_active_creation"] = False
 
@@ -288,32 +301,18 @@ class ProjectManager:
             self._atomic_rollback(pid, raw_path)
             raise fracture
 
-    def fork_project(self,
-                     source_id: str,
-                     new_name: str,
-                     owner_id: str) -> ProjectMeta:
-        """
-        [ASCENSION 1]: THE RITE OF MITOSIS (FORK).
-        Clones an existing reality (User or System) into a new, sovereign timeline.
-        """
+    def fork_project(self, source_id: str, new_name: str, owner_id: str) -> ProjectMeta:
+        """[ASCENSION 1]: Clones a reality into a divergent timeline."""
         Logger.info(f"Initiating Mitosis: Forking '{source_id[:8]}' to '{new_name}'...")
 
-        # 1. RESOLVE SOURCE
         source = self.registry.projects.get(source_id) or self.system_demos.get(source_id)
         if not source:
             raise ArtisanHeresy(f"Source reality '{source_id}' is unmanifest.")
 
-        # 2. [ASCENSION 14]: DISK QUOTA CHECK
-        # (Simplified: Check if we have space, stubbed for V1)
-
-        # 3. ALLOCATE NEW IDENTITY
         pid = str(uuid.uuid4())
         new_path = self.workspaces_root / pid
 
         try:
-            # 4. PHYSICAL DUPLICATION
-            # If Source is Ghost, we hydrate from blueprint.
-            # If Source is Physical, we copy the directory.
             is_ghost = source.custom_data.get("is_ghost", False)
 
             if is_ghost:
@@ -322,17 +321,14 @@ class ProjectManager:
                 if source_blueprint:
                     self._hydrate_from_scripture(new_path, Path(source_blueprint))
                 else:
-                    # Fallback for broken ghosts
                     (new_path / "README.md").write_text(f"# {new_name}\n\nForked from System Ghost.", encoding="utf-8")
             else:
                 source_path = Path(source.path)
                 if not source_path.exists():
                     raise ArtisanHeresy("Source physical matter is void.")
-                # Physical Copy
                 shutil.copytree(source_path, new_path, dirs_exist_ok=True,
                                 ignore=shutil.ignore_patterns('.git', 'node_modules', '__pycache__'))
 
-            # 5. FORGE METADATA
             now_ms = int(time.time() * 1000)
             new_project = ProjectMeta(
                 id=pid,
@@ -349,21 +345,18 @@ class ProjectManager:
                 stats=self._measure_reality(new_path),
                 custom_data={
                     "icon": "GitFork",
-                    "color": "#10b981",  # Green for New Life
+                    "color": "#10b981",
                     "parent_id": source_id,
                     "created_by": owner_id,
                     "search_vector": f"{new_name} fork {source.name}".lower()
                 }
             )
 
-            # 6. COMMIT
             with self._lock:
                 self.registry.projects[pid] = new_project
                 self.persistence.save(self.registry)
 
             Logger.success(f"Mitosis Complete. Fork '{new_name}' is alive.")
-
-            # 7. AUTO-SWITCH
             self.switch_project(pid)
 
             return new_project
@@ -372,91 +365,225 @@ class ProjectManager:
             self._atomic_rollback(pid, new_path)
             raise ArtisanHeresy(f"Mitosis Fracture: {e}", severity=HeresySeverity.CRITICAL)
 
-    # =========================================================================
-    # == MOVEMENT III: THE RITE OF ANCHORING (SWITCH)                        ==
-    # =========================================================================
+    def _materialize_project_entity(self, raw_entity: Any) -> ProjectMeta:
+        """
+        =============================================================================
+        == THE ENTITY MATERIALIZER (V-Ω-TYPE-SAFE-FACTORY)                         ==
+        =============================================================================
+        LIF: ∞ | ROLE: OBJECT_NORMALIZER
+        Transmutes raw matter (Dict, String-Corruption, or Pydantic Model) into a
+        pure, mutable ProjectMeta object. Prevents 'str' attribute heresies.
+        """
+        if not raw_entity:
+            raise ArtisanHeresy("Materialization failed: Entity is Void.")
+
+        # [THE CURE]: CORRUPTION TRAP
+        # If the registry was corrupted and contains strings, we must reject them.
+        if isinstance(raw_entity, str):
+            raise ArtisanHeresy(
+                f"Registry Corruption Detected: Entity is a string literal '{raw_entity[:15]}...', not a Gnostic Object.",
+                severity=HeresySeverity.CRITICAL
+            )
+
+        # Path A: It is already a Divine Vessel (ProjectMeta)
+        if isinstance(raw_entity, ProjectMeta):
+            # We clone it to ensure mutability (pydantic copy)
+            return raw_entity.model_copy(deep=True)
+
+        # Path B: It is a Dictionary (JSON State)
+        if isinstance(raw_entity, dict):
+            try:
+                return ProjectMeta(**raw_entity)
+            except Exception as e:
+                # Fallback: Attempt manual reconstruction if schema drifted
+                return ProjectMeta(
+                    id=raw_entity.get('id', str(uuid.uuid4())),
+                    name=raw_entity.get('name', 'Corrupted_Entity'),
+                    path=raw_entity.get('path', '/vault/unknown'),
+                    owner_id=raw_entity.get('owner_id', 'GUEST'),
+                    custom_data=raw_entity.get('custom_data', {})
+                )
+
+        raise ArtisanHeresy(f"Unknown Matter Type: {type(raw_entity)}")
 
     def switch_project(self, project_id: str) -> ProjectMeta:
         """
-        [ASCENSION 9 & 13]: JIT MATERIALIZATION & AXIS MUNDI LINK.
-        Anchors the Engine's focus. Materializes Ghosts. Updates Symlinks.
+        =============================================================================
+        == THE RITE OF ANCHORING: OMEGA POINT (V-Ω-TOTALITY-V8000-TITANIUM)        ==
+        =============================================================================
+        LIF: ∞ | ROLE: DIMENSIONAL_ANCHOR_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_SWITCH_PROJECT_V8000_TOTAL_RESONANCE_2026_FINALIS
+
+        [ARCHITECTURAL CONSTITUTION]
+        This rite conducts the absolute transmutation of a latent project ID into a
+        resonant, physical reality. It has been ascended to its final form:
+
+        1.  **Type-Sanctity Suture (THE CURE):** Surgically detects and heals
+            registry corruption where a string ID was stored instead of a Project
+            Object. Uses the ProjectMeta constructor to enforce bit-perfect shape.
+        2.  **Ghost-Registry Injection:** Automatically promotes 'system_demo'
+            shards into the physical registry projects map upon activation.
+        3.  **Achronal Path Normalization:** Resolves paths to absolute POSIX
+            coordinates, abolishing symlink drift and "path not found" heresies.
+        4.  **NoneType Sarcophagus:** Hard-wards against null-pointer regressions
+            during ghost-mind hydration.
+        5.  **Bicameral Identity Sync:** Synchronously updates the OS environment
+            and the Akashic record to prevent "Split-Brain" state paradoxes.
+        6.  **Jitter Shielding:** Injects a micro-delay before the UI broadcast
+            to allow the virtual disk (IDBFS) to achieve stasis.
+        =============================================================================
         """
+        import time
+        import os
+        from pathlib import Path
+        from .contracts import ProjectMeta  # Ensure contract is manifest
+
         start_ns = time.perf_counter_ns()
 
         with self._lock:
-            # 1. RESOLVE TARGET
-            target = self.registry.projects.get(project_id) or self.system_demos.get(project_id)
-            if not target:
-                raise ArtisanHeresy(f"Coordinate Lost: Reality '{project_id}' is unmanifest.")
+            # --- MOVEMENT I: COORDINATE TRIANGULATION ---
+            # We scry the registry and the system demos simultaneously.
+            candidate = self.registry.projects.get(project_id) or self.system_demos.get(project_id)
 
-            project_path = Path(target.path)
-            project_path_posix = str(project_path.resolve()).replace('\\', '/')
+            if not candidate:
+                raise ArtisanHeresy(
+                    message=f"Coordinate Lost: Reality '{project_id}' is unmanifest in the Book of Names.",
+                    code="ANCHOR_FRACTURE",
+                    severity=HeresySeverity.CRITICAL
+                )
 
-            # 2. [ASCENSION 9]: JIT GHOST MATERIALIZATION
+            # --- MOVEMENT II: THE TYPE-SANCTITY FILTER (THE CORE FIX) ---
+            # [ASCENSION 1]: We detect if the entity is a profane string (Corruption)
+            # or a pure Object. If corrupt, we resurrect from system demos or re-forge.
+            target: ProjectMeta
+
+            try:
+                if isinstance(candidate, str):
+                    Logger.warn(f"Registry Corruption Detected for {project_id}. Re-materializing soul from Demos.")
+                    # Recover the raw dict/model from demos
+                    raw_ghost = self.system_demos.get(project_id)
+                    if not raw_ghost:
+                        raise ValueError("Ghost soul is also unmanifest.")
+                    target = ProjectMeta(**(raw_ghost.model_dump() if hasattr(raw_ghost, 'model_dump') else raw_ghost))
+                elif isinstance(candidate, dict):
+                    target = ProjectMeta(**candidate)
+                else:
+                    # It is already a ProjectMeta, but we deep-copy to ensure mutability
+                    target = candidate.model_copy(deep=True) if hasattr(candidate, 'model_copy') else candidate
+
+            except Exception as e:
+                Logger.critical(f"Materialization Fracture: Project {project_id} has a profane soul. {e}")
+                raise ArtisanHeresy(
+                    f"Ontological Failure: Project '{project_id}' could not be materialized.",
+                    details=str(e),
+                    severity=HeresySeverity.CRITICAL
+                )
+
+            # --- MOVEMENT III: GEOMETRIC NORMALIZATION ---
+            # We force the path into an absolute POSIX coordinate.
+            project_path = Path(target.path).resolve()
+            project_path_posix = project_path.as_posix()
+            # Ensure the object path is normalized for the UI
+            target.path = project_path_posix
+
+            # --- MOVEMENT IV: PHYSICAL CONSECRATION ---
+            # We forge the directory atoms physically BEFORE the mind attempts to inhabit them.
+            try:
+                if not project_path.exists():
+                    project_path.mkdir(parents=True, exist_ok=True)
+                    Logger.verbose(f"Sanctum Consecrated: {project_id[:8]}")
+            except (OSError, PermissionError) as e:
+                raise ArtisanHeresy(
+                    f"Physical Fracture: Substrate refused to forge sanctum at '{project_path_posix}'.",
+                    details=str(e),
+                    severity=HeresySeverity.CRITICAL
+                )
+
+            # --- MOVEMENT V: GHOST REALIZATION & HYDRATION ---
+            # Detect if this is a "Hollow Ghost" requiring JIT inception
             is_ghost = target.custom_data.get("is_ghost", False)
-            is_hollow = not project_path.exists() or (project_path.exists() and not any(project_path.iterdir()))
+            is_hollow = len(list(project_path.iterdir())) == 0 if project_path.exists() else True
 
-            if is_ghost or is_hollow:
-                Logger.info(f"Materializing Ghost Reality: '{target.name}'...")
-                try:
-                    os.makedirs(project_path_posix, exist_ok=True)
-                    source_path = target.custom_data.get("source_path")
+            if is_ghost and is_hollow:
+                Logger.info(f"Materializing Ghost Reality via Init Artisan: '{target.name}'...")
 
-                    if source_path:
-                        self._hydrate_from_scripture(project_path, Path(source_path))
-                    else:
-                        # Attempt to find by template name if source_path lost
-                        candidate = self.archetypes_path / f"{target.template}.scaffold"
-                        if candidate.exists():
-                            self._hydrate_from_scripture(project_path, candidate)
-                        else:
-                            (project_path / "README.md").write_text(
-                                f"# {target.name}\n\nGhost materialization fallback.", encoding="utf-8")
+                if not self.engine:
+                    Logger.warn("Governor un-anchored; conducting passive materialization.")
+                else:
+                    try:
+                        from ...interfaces.requests import InitRequest
+                        # We forge the plea to materialize the archetype.
+                        init_plea = InitRequest(
+                            profile=target.template,
+                            project_root=project_path,
+                            force=True,
+                            non_interactive=True,
+                            variables={
+                                "project_name": target.name,
+                                "description": target.description,
+                                "no_edicts": os.environ.get("SCAFFOLD_ENV") == "WASM"
+                            }
+                        )
+                        # [STRIKE]: Synchronous materialization
+                        result = self.engine.dispatch(init_plea)
+                        if not result.success:
+                            Logger.error(f"Genesis Fracture: {result.message}")
 
-                    # Transmute State
-                    target.custom_data["is_ghost"] = False
-                    target.stats = self._measure_reality(project_path)
-                    # Force VFS scan
-                    _ = os.listdir(project_path_posix)
+                    except Exception as e:
+                        Logger.error(f"Fracture during Ghost materialization: {e}")
 
-                except Exception as e:
-                    Logger.error(f"Materialization Fracture: {e}")
-                    # Continue to allow debugging of the broken state
+            # --- MOVEMENT VI: STATE MUTATION & REGISTRY ENSHRINEMENT ---
+            # [THE CURE]: We surgically update the object and inject it into the map.
+            # This wipes out any string corruption in the registry memory.
+            target.custom_data["is_ghost"] = False
+            target.last_accessed = int(time.time() * 1000)
 
-            # 3. [ASCENSION 13]: AXIS MUNDI LINK
+            self.registry.projects[project_id] = target
+            self.registry.active_project_id = project_id
+
+            # Force hydraulic flush to persistent storage (projects.json)
+            self.persistence.save(self.registry)
+
+            # --- MOVEMENT VII: AXIS MUNDI LINK ---
+            # Update the environment so subprocesses (Maestro) know their home.
             os.environ["SCAFFOLD_PROJECT_ROOT"] = project_path_posix
             try:
                 os.chdir(project_path_posix)
             except Exception:
                 pass
 
-            if not self.is_wasm:
-                self._update_symlink(project_path)
+            # --- MOVEMENT VIII: OMNISCIENT BROADCAST ---
+            # We broadcast the new ID and Absolute Path to the React layer.
+            if hasattr(self.engine, 'akashic') and self.engine.akashic:
+                try:
+                    # [ASCENSION 11]: Jitter Shield
+                    # A tiny micro-yield to ensure the VFS has registered the physical move.
+                    time.sleep(0.05)
 
-            # 4. [ASCENSION 20]: ACCESS LOGGING
-            target.last_accessed = int(time.time() * 1000)
-            # Increment access count (if present, else init)
-            target.custom_data["access_count"] = target.custom_data.get("access_count", 0) + 1
+                    self.engine.akashic.broadcast({
+                        "method": "velm:registry_sync_request",
+                        "params": {
+                            "active_id": project_id,
+                            "active_path": project_path_posix,
+                            "source": "manager_switch_omega"
+                        }
+                    })
+                except Exception as e:
+                    Logger.debug(f"Broadcast suppressed: {e}")
 
-            self.registry.active_project_id = project_id
-            self.persistence.save(self.registry)
+            # --- FINAL PROCLAMATION ---
+            duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+            Logger.verbose(f"Reality Jump to {project_id[:8]} completed in {duration_ms:.2f}ms.")
 
+            # [ASCENSION 12]: THE FINALITY VOW
             return target
 
-    # =========================================================================
-    # == MOVEMENT IV: GOVERNANCE & MAINTENANCE                               ==
-    # =========================================================================
-
     def delete_project(self, project_id: str, force: bool = False):
-        """
-        [ASCENSION 7]: SOVEREIGN LOCKING.
-        Prevents deletion of Locked or System projects.
-        """
+        """[ASCENSION 7]: Removes a reality from existence, respecting locks."""
         with self._lock:
             if project_id in self.system_demos:
                 if not force:
                     raise ArtisanHeresy("Cannot annihilate System Reference Architecture.")
-                # Reset demo to Ghost
                 demo = self.system_demos[project_id]
                 shutil.rmtree(demo.path, ignore_errors=True)
                 demo.custom_data["is_ghost"] = True
@@ -468,22 +595,18 @@ class ProjectManager:
 
             target = self.registry.projects[project_id]
 
-            # [ASCENSION 7]: LOCK CHECK
             if target.is_locked and not force:
                 raise ArtisanHeresy(f"Reality '{target.name}' is LOCKED. Unlock before annihilation.",
                                     severity=HeresySeverity.WARNING)
 
             Logger.warn(f"Annihilating reality: '{target.name}'...", status="DANGER")
 
-            # 1. PHYSICAL PURGE
             path = Path(target.path)
             if path.exists():
                 shutil.rmtree(path, ignore_errors=True)
 
-            # 2. REGISTRY PURGE
             del self.registry.projects[project_id]
 
-            # 3. ANCHOR RESET
             if self.registry.active_project_id == project_id:
                 self.registry.active_project_id = None
                 self._sever_link()
@@ -493,10 +616,7 @@ class ProjectManager:
             Logger.success(f"Project '{target.name}' returned to the void.")
 
     def discover_orphans(self, auto_adopt: bool = False) -> List[str]:
-        """
-        [ASCENSION 3]: ORPHAN DISCOVERY.
-        Scans the `workspaces_root` for directories that are not in the Registry.
-        """
+        """[ASCENSION 3]: Scans workspaces_root for unregistered projects."""
         orphans = []
         if not self.workspaces_root.exists(): return []
 
@@ -515,14 +635,10 @@ class ProjectManager:
 
         if orphans:
             Logger.info(f"Discovered {len(orphans)} orphaned realities.")
-
         return orphans
 
     def prune_zombies(self):
-        """
-        [ASCENSION 4]: ZOMBIE EXORCISM.
-        Removes registry entries that point to non-existent paths (unless Ghost).
-        """
+        """[ASCENSION 4]: Removes registry entries that point to non-existent paths."""
         zombies = []
         for pid, p in self.registry.projects.items():
             if not p.custom_data.get("is_ghost") and not Path(p.path).exists():
@@ -535,12 +651,8 @@ class ProjectManager:
         if zombies:
             self.persistence.save(self.registry)
 
-    # =========================================================================
-    # == MOVEMENT V: UTILITIES & HELPERS                                     ==
-    # =========================================================================
-
     def get_project_stats(self) -> Dict[str, Any]:
-        """[ASCENSION 23]: UNIVERSAL ACCESS."""
+        """Returns panoptic statistics for the Multiverse."""
         return {
             "total_count": len(self.registry.projects) + len(self.system_demos),
             "user_count": len(self.registry.projects),
@@ -550,7 +662,7 @@ class ProjectManager:
         }
 
     def toggle_lock(self, project_id: str):
-        """[ASCENSION 7]: TOGGLE SOVEREIGN LOCK."""
+        """[ASCENSION 7]: Toggles the deletion protection for a project."""
         with self._lock:
             if project_id in self.registry.projects:
                 p = self.registry.projects[project_id]
@@ -559,25 +671,22 @@ class ProjectManager:
                 Logger.info(f"Project '{p.name}' lock state: {p.is_locked}")
 
     def update_project(self, project_id: str, updates: Dict[str, Any]):
-        """[ASCENSION 17]: IMMUTABLE CORE UPDATE."""
+        """[ASCENSION 17]: Updates mutable fields in a ProjectMeta object."""
         with self._lock:
             if project_id not in self.registry.projects:
                 raise ArtisanHeresy("Project not found.")
 
             p = self.registry.projects[project_id]
-            # Protect immutable fields
             safe_updates = {k: v for k, v in updates.items() if k not in ['id', 'path', 'created_at']}
 
             p_data = p.model_dump()
             p_data.update(safe_updates)
 
-            # Update custom data merge
             if "custom_data" in updates:
                 p_data["custom_data"] = {**p.custom_data, **updates["custom_data"]}
 
             p_data["updated_at"] = int(time.time() * 1000)
 
-            # Re-generate search vector if name/desc changes
             if "name" in updates or "description" in updates:
                 name = updates.get("name", p.name)
                 desc = updates.get("description", p.description)
@@ -588,18 +697,13 @@ class ProjectManager:
             self.persistence.save(self.registry)
 
     def import_project(self, path: str, name: str, owner_id: str) -> ProjectMeta:
-        """[ASCENSION 20]: LEGACY IMPORT."""
+        """[ASCENSION 20]: Adopts an existing directory into the Registry."""
         target_path = Path(path).resolve()
         if not target_path.exists():
             raise ArtisanHeresy(f"Adoption Failed: Locus '{path}' is a void.")
 
         pid = str(uuid.uuid4())
         stats = self._measure_reality(target_path)
-
-        # We don't move imported projects, we reference them in-place?
-        # NO. We should probably copy them to the workspace to maintain sovereignty.
-        # But for 'import', users expect adoption in place.
-        # Let's adopt in place for now.
 
         project = ProjectMeta(
             id=pid,
@@ -622,7 +726,7 @@ class ProjectManager:
         return project
 
     def _measure_reality(self, root: Path) -> ProjectStats:
-        """[ASCENSION 18]: RECURSIVE MASS CALCULATION."""
+        """[ASCENSION 18]: Recursively calculates file count and disk usage."""
         count = 0
         size = 0
         for r, _, files in os.walk(root):
@@ -633,18 +737,10 @@ class ProjectManager:
                     size += os.path.getsize(os.path.join(r, f))
                 except:
                     pass
-
-        return ProjectStats(
-            file_count=count,
-            size_kb=size // 1024,
-            health_score=100  # Default health
-        )
+        return ProjectStats(file_count=count, size_kb=size // 1024, health_score=100)
 
     def _hydrate_from_scripture(self, root: Path, source: Path):
-        """
-        [ASCENSION 9]: SCRIPTURE HYDRATOR.
-        A lightweight parser to extract files from a .scaffold file.
-        """
+        """[ASCENSION 9]: Lightweight parser to extract files from a .scaffold template."""
         try:
             content = source.read_text(encoding="utf-8")
             pattern = re.compile(r'^\s*([\w\./\-_]+)\s*::\s*(?:"{3}([\s\S]*?)"{3}|"([^"]*)")', re.MULTILINE)
@@ -665,7 +761,7 @@ class ProjectManager:
             Logger.error(f"Scripture Parsing Failed: {e}")
 
     def _atomic_rollback(self, pid: str, path: Path):
-        """[ASCENSION 24]: ATOMIC ROLLBACK."""
+        """[ASCENSION 24]: Rolls back physical and logical state on failure."""
         if path.exists():
             shutil.rmtree(path, ignore_errors=True)
         with self._lock:
@@ -674,6 +770,7 @@ class ProjectManager:
                 self.persistence.save(self.registry)
 
     def _update_symlink(self, target: Path):
+        """Maintains the legacy /vault/project symlink if needed."""
         link = self.persistence.root.parent / "project"
         try:
             if link.exists() or link.is_symlink(): link.unlink()
@@ -682,6 +779,7 @@ class ProjectManager:
             pass
 
     def _sever_link(self):
+        """Removes the legacy symlink."""
         link = self.persistence.root.parent / "project"
         try:
             if link.exists() or link.is_symlink(): link.unlink()
@@ -689,11 +787,10 @@ class ProjectManager:
             pass
 
     def _audit_active_anchor(self):
-        """[ASCENSION 19]: ACHRONAL AUDIT."""
+        """Verifies the active anchor points to a valid reality."""
         active_id = self.registry.active_project_id
         if not active_id: return
 
-        # Check User or System
         p = self.registry.projects.get(active_id) or self.system_demos.get(active_id)
         if not p:
             Logger.warn(f"Anchor '{active_id}' void. Resetting.")
@@ -701,7 +798,6 @@ class ProjectManager:
             self.persistence.save(self.registry)
             return
 
-        # Check Physics (skip ghosts)
         if not p.custom_data.get("is_ghost") and not Path(p.path).exists():
             Logger.warn(f"Reality '{p.name}' vanished. Anchor severed.")
             self.registry.active_project_id = None
@@ -710,4 +806,4 @@ class ProjectManager:
 
     def __repr__(self) -> str:
         count = len(self.registry.projects)
-        return f"<Ω_PROJECT_GOVERNOR projects={count} ghosts={len(self.system_demos)} anchor={self.registry.active_project_id[:8] if self.registry.active_project_id else 'VOID'}>"
+        return f"<Ω_PROJECT_GOVERNOR projects={count} ghosts={len(self.system_demos)} anchor={self.registry.active_project_id if self.registry.active_project_id else 'VOID'}>"

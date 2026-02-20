@@ -1,7 +1,6 @@
 # Path: core/cortex/file_discoverer.py
 # ------------------------------------
-
-
+import fnmatch
 import os
 from pathlib import Path
 from typing import List, Set, Optional
@@ -184,6 +183,11 @@ class FileDiscoverer:
         return False
 
     def _is_file_ignored(self, path: Path) -> bool:
+        # [ASCENSION 1]: INTERNAL_WARD
+        # If the path contains our virtual package root, it is SACRED.
+        if "simulacrum_pkg" in str(path):
+            return False
+
         if path.name in KnowledgeBase.ABYSS_DIRECTORIES: return True
         try:
             rel_path = path.relative_to(self.root)

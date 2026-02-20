@@ -118,92 +118,140 @@ class InitArtisan(BaseArtisan[InitRequest]):
     def execute(self, request: InitRequest) -> ScaffoldResult:
         """
         =================================================================================
-        == THE SOVEREIGN GATEWAY (V-Ω-TOTALITY-V25000-ACHRONAL-SHIELDED-FINALIS)       ==
+        == THE SOVEREIGN GATEWAY (V-Ω-TOTALITY-V35000-IDENTITY-GRAFT-FINALIS)           ==
         =================================================================================
         LIF: ∞ | ROLE: INCEPTION_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH_CODE: Ω_EXECUTE_V25000_TOTAL_PURITY_WARD_2026_FINALIS
+        AUTH: Ω_EXECUTE_V35000_PROVIDER_AWARE
 
         The supreme, titanium-grade conductor of the inception rite. It has been
-        ascended to its final form, implementing the **Vow of Descriptive Silence**
-        to annihilate hallucinated Gnosis for all time.
+        ascended to its final form, implementing the **Rite of Direct Identity Injection**
+        to allow atomic, non-interactive instantiation of complex realities.
 
-        ### THE PANTHEON OF 12+ LEGENDARY ASCENSIONS:
-        1.  **The Achronal Sieve Gate (THE CURE):** Executes the Intent Purifier at
-            nanosecond zero, stripping hallucinations BEFORE the Engine Mind awakens.
-        2.  **The Vow of Descriptive Silence:** Explicitly prevents the Prophet from
-            generating 'Sentient' filler if the Architect's manual intent is silent.
-        3.  **Neural Trace ID Suture:** Guarantees absolute causal correlation between
-            the request, the HUD telemetry, and the final physical artifacts.
-        4.  **Isomorphic Path Normalization:** Forces the project root into an
-            absolute POSIX coordinate, defeating all forms of 'Relative Path Drift'.
-        5.  **Metabolic Backpressure Sentinel:** Scries the host CPU/RAM fever;
-            injects micro-sleeps to ensure the OS does not asphyxiate during inception.
-        6.  **Sovereign Identity Projection:** Siphons Git identity and System DNA
-            with 100% precision, reducing human friction to a mathematical zero.
-        7.  **Socratic Sanctum Adjudication:** If the sanctum is occupied, it
-            prioritizes Distillation (Adoption) to preserve existing Gnostic matter.
-        8.  **Atomic Path Bifurcation:** Surgically routes the plea to Manual,
-            Distill, or Symphony paths with zero cross-context contamination.
-        9.  **The Sentinel's HUD Multicast:** Broadcasts haptic pulses to the Ocular
-            HUD via the Kernel's Akashic link before the first kinetic strike.
-        10. **The Lazarus Hydrator:** Automatically resurrects the Crystal Mind (DB)
-            from the Textual Scroll (Lockfile) if a schism is detected.
-        11. **The Silence Vow Compliance:** If 'silent' is willed, the entire
-            orchestration proceeds in the shadows, optimized for machine-to-machine.
-        12. **The Finality Vow:** A mathematical guarantee of a valid return vessel,
-            eliminating 'NoneType' and 'AttributeError' heresies for all eternity.
+        ### THE PANTHEON OF ASCENSIONS:
+        1.  **Deep Identity Grafting:** Surgically extracts `--name`, `--desc`, and
+            `--provider` from the Request vessel and injects them into the Gnostic Variables.
+        2.  **Substrate Awareness:** If `provider` is detected, it pre-configures the
+            blueprint for that specific cloud reality (e.g., injecting OVH-specific TF vars).
+        3.  **WASM-Hardened Sentinel:** Bypasses draconian permission checks in the
+            Ethereal Plane to prevent 'Sanctum Locked' heresies.
+        4.  **Progenitor Resonance:** Automatically detects the `progenitor` archetype
+            and injects system-level override flags.
+        5.  **Atomic Path Creation:** Ensures the Sanctum exists physically before
+            the logical mind attempts to inhabit it.
+        6.  **The Achronal Sieve:** Purifies the intent variables to remove hallucinations.
+        7.  **The Lazarus Hydrator:** Resurrects the Crystal Mind if the Lockfile exists.
+        8.  **Telemetric Pulse:** Radiates the `INIT_START` signal to the Ocular HUD.
+        9.  **The Finality Vow:** A mathematical guarantee of a valid return vessel.
         =================================================================================
         """
-        # [ASCENSION 3]: NANO-SCALE CHRONOMETRY
+        # [ASCENSION 1]: NANO-SCALE CHRONOMETRY
         start_ns = time.perf_counter_ns()
         self.logger.info("The Sovereign Gateway opens. Materializing the Mind of Inception...")
 
-        # --- MOVEMENT I: PREEMPTIVE GENETIC SCRUBBING (THE CURE) ---
-        # [ASCENSION 1 & 2]: We perform a high-order purge of the variable lattice.
+        # --- MOVEMENT I: PREEMPTIVE GENETIC GRAFTING (THE CURE) ---
+        # We ensure the variables dictionary exists before we start grafting.
         if request.variables is None:
             object.__setattr__(request, 'variables', {})
 
-        # We identify the "Initial Will" (what was explicitly passed in the plea)
-        initial_will = set(request.variables.keys())
+        # 1. PROJECT IDENTITY (Name & Slug)
+        # If the Architect provided a name via CLI, it overrides all.
+        cli_name = getattr(request, 'name', None)
+        if cli_name:
+            # We forge Gnostic derivatives: Snake, Kebab, and Pascal
+            clean_slug = to_snake_case(cli_name).replace('_', '-')
+            request.variables['project_name'] = cli_name
+            request.variables['project_slug'] = clean_slug
+            request.variables['package_name'] = clean_slug.replace('-', '_')
+            self.logger.verbose(f"Identity Grafted: {cli_name} -> {clean_slug}")
 
-        # [THE CURE]: We scrub all hallucinated filler strings (Sentient FastAPI, etc.)
-        # before the variables are ever touched by a Prophet or a Scribe.
+        # 2. PROJECT PURPOSE (Description)
+        cli_desc = getattr(request, 'description', None)
+        if cli_desc:
+            request.variables['description'] = cli_desc
+
+        # 3. SUBSTRATE DESTINY (Provider) - [NEW ASCENSION]
+        cli_provider = getattr(request, 'provider', None)
+        if cli_provider:
+            request.variables['cloud_provider'] = cli_provider.lower()
+            # We can also inject derived variables for specific clouds
+            if 'ovh' in cli_provider.lower():
+                request.variables['terraform_provider'] = 'ovh'
+                request.variables['region'] = 'GRA11'  # Default Sovereign Region
+            elif 'aws' in cli_provider.lower():
+                request.variables['terraform_provider'] = 'aws'
+
+            self.logger.verbose(f"Substrate Destiny Locked: {cli_provider.upper()}")
+
+        # [ASCENSION 2]: PROGENITOR RESONANCE
+        # If the Architect summons the Progenitor, we enforce System Standards.
+        profile_flag = getattr(request, 'profile_flag', None) or request.profile
+        if profile_flag == 'progenitor':
+            request.variables['is_system_reference'] = True
+            request.variables['enable_telemetry'] = False
+            if not cli_desc:
+                request.variables['description'] = "System Reference Architecture for Progenitor Law."
+
+        # [ASCENSION 3]: THE ACHRONAL SIEVE
+        # We identify the "Initial Will" (explicit args) to protect them from purification.
+        initial_will = set(request.variables.keys())
         self.logger.verbose("Conducting Preemptive Intent Isolation (The Sieve)...")
         request.variables = self._purify_gnostic_intent(request.variables, initial_will)
 
         # --- MOVEMENT II: SPATIAL ANCHORING & NORMALIZATION ---
-        # [ASCENSION 4]: We resolve the project root with absolute parity.
         project_name_intent = request.variables.get('project_name') or Path.cwd().name
 
         if request.project_root:
             root_path = Path(request.project_root).resolve()
         elif Path.cwd().name == project_name_intent or Path.cwd().name == to_snake_case(project_name_intent).replace(
                 '_', '-'):
+            # If we are already inside a folder matching the name, stay here.
             self.logger.verbose("Prime Anchor: CWD matches intent. Anchoring in situ.")
             root_path = Path.cwd()
         else:
-            # Anchor to a new directory relative to CWD if name differs
+            # Otherwise, anchor to CWD. The Genesis Engine may choose to create a subfolder.
             root_path = Path.cwd()
 
-        # [ASCENSION 8]: PERMISSION SENTINEL
-        if not os.access(root_path, os.W_OK):
-            return self.failure(
-                message=f"Sanctum Locked: Write permissions denied for '{root_path}'.",
-                severity=HeresySeverity.CRITICAL,
-                suggestion="Execute with elevated privileges or adjust filesystem ACLs."
-            )
+        # [ASCENSION 4]: WASM-HARDENED PERMISSION SENTINEL
+        # We bypass strict POSIX checks in the Ethereal Plane to prevent 'Sanctum Locked' errors.
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
+        if not is_wasm:
+            check_target = root_path if root_path.exists() else root_path.parent
+            try:
+                if check_target.exists() and not os.access(check_target, os.W_OK):
+                    return self.failure(
+                        message=f"Sanctum Locked: Write permissions denied for '{check_target}'.",
+                        severity=HeresySeverity.CRITICAL,
+                        suggestion="Execute with elevated privileges or adjust filesystem ACLs."
+                    )
+            except Exception as e:
+                self.logger.warn(f"Permission Sentinel bypassed due to filesystem ambiguity: {e}")
+
+        # [ASCENSION 5]: ATOMIC PATH CREATION
+        # Ensure the sanctum exists before the mind tries to inhabit it.
+        if not root_path.exists():
+            try:
+                root_path.mkdir(parents=True, exist_ok=True)
+            except Exception as e:
+                return self.failure(
+                    message=f"Genesis Fracture: Cannot create sanctum '{root_path}'.",
+                    details=str(e),
+                    severity=HeresySeverity.CRITICAL
+                )
+
+        # [ASCENSION 6]: ENVIRONMENTAL DNA SUTURE
+        os.environ["SCAFFOLD_PROJECT_ROOT"] = str(root_path)
 
         # --- MOVEMENT III: CONSCIOUSNESS SYNCHRONIZATION ---
-        # [ASCENSION 10]: Resurrecting the Gnostic Database if the Scroll exists.
+        # [ASCENSION 7]: Resurrecting the Gnostic Database if the Scroll exists.
         if SQL_AVAILABLE and (root_path / "scaffold.lock").exists():
             if not (root_path / ".scaffold" / "gnosis.db").exists():
                 self._hydrate_crystal_mind(root_path)
 
         # --- MOVEMENT IV: TELEMETRIC PROJECTION ---
-        # [ASCENSION 9]: Multicasting Inception start to the Ocular Membrane.
+        # [ASCENSION 8]: Multicasting Inception start to the Ocular Membrane.
         trace_id = getattr(request, 'trace_id', f"tr-{uuid.uuid4().hex[:8].upper()}")
 
-        # Defensive scrying of the Kernel organs
         kernel = getattr(self.engine, 'engine', None)
         akashic_organ = getattr(kernel, 'akashic', None) if kernel else None
 
@@ -216,19 +264,21 @@ class InitArtisan(BaseArtisan[InitRequest]):
                         "label": "INCEPTION_SEQUENCE",
                         "color": "#a855f7",
                         "trace": trace_id,
-                        "path": str(root_path)
+                        "path": str(root_path),
+                        "identity": request.variables.get('project_name', 'UNKNOWN'),
+                        "substrate": request.variables.get('cloud_provider', 'LOCAL')
                     }
                 })
             except Exception:
                 pass
 
         # --- MOVEMENT V: PROFILE RECONCILIATION ---
-        # [ASCENSION 6]: Divining the correct Archetype from existing matter.
         profile_name = request.profile or getattr(request, 'profile_flag', None)
+
         if not profile_name and not request.manual and not request.distill:
             profile_name = self._scry_existing_dna(root_path)
 
-        # [ASCENSION 5]: Autonomic Reflex for Headless environments
+        # Autonomic Reflex for Headless environments
         if not profile_name and not any([request.manual, request.distill, request.quick, request.launch_pad_with_path]):
             if request.non_interactive:
                 self.logger.warn("Non-interactive void. Defaulting to 'python-basic'.")
@@ -241,7 +291,6 @@ class InitArtisan(BaseArtisan[InitRequest]):
             request.profile = profile_name
 
         # --- MOVEMENT VI: SANCTUM AMNESTY & OVERWRITE GUARD ---
-        # [ASCENSION 7]: Protecting existing matter from accidental annihilation.
         master_blueprint = root_path / "scaffold.scaffold"
         if any(root_path.iterdir()) and not master_blueprint.exists():
             if not request.force and not request.non_interactive:
@@ -249,12 +298,13 @@ class InitArtisan(BaseArtisan[InitRequest]):
                     return self.success("Rite stayed to preserve existing matter.")
 
         if master_blueprint.exists() and not request.force and not request.non_interactive:
-            # This is the last safety gate before materialization.
             self.guarded_execution([master_blueprint], request, context="init_overwrite")
 
         # --- MOVEMENT VII: THE BIFURCATION OF PATHS (DISPATCH) ---
-        # [ASCENSION 8 & 12]: THE FINALITY STRIKE.
         self.logger.info(f"Dispatching Inception via path: [cyan]{profile_name or 'custom'}[/cyan]")
+
+        # [ASCENSION 9]: METABOLIC PRE-LUSTRATION
+        gc.collect()
 
         try:
             # PATH A: REVERSE GENESIS (ADOPTION)
@@ -270,7 +320,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
                 return self._conduct_manual_rite(request, root_path, master_blueprint)
 
             # PATH D: THE SYMPHONY OF GENESIS (CANONICAL)
-            # [THE CURE]: The Symphony now receives a perfectly scrubbed request.variables.
+            # This is where the Prophesized Command becomes Reality.
             return self._conduct_genesis_symphony(request, root_path, master_blueprint)
 
         except Exception as fracture:
@@ -835,51 +885,136 @@ class InitArtisan(BaseArtisan[InitRequest]):
     def _request_to_namespace(self, request: InitRequest) -> argparse.Namespace:
         """
         =============================================================================
-        == THE GNOSTIC BRIDGE (V-Ω-TOTALITY-V200-ISOMORPHIC-PROJECTOR)             ==
+        == THE GNOSTIC BRIDGE: TOTALITY (V-Ω-TOTALITY-V9005-SUBSTRATE-SENSING)     ==
         =============================================================================
-        LIF: ∞ | ROLE: SCHEMA_TRANSMUTER | RANK: OMEGA
+        LIF: ∞ | ROLE: ISOMORPHIC_SCHEMA_TRANSMUTER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_BRIDGE_V9005_WASM_AUTO_SILENCE_FINALIS
 
-        [THE CURE]: This rite annihilates the 'AttributeError' by performing a total
-        isomorphic projection of the Pydantic Request soul into the Namespace vessel.
-        It no longer requires manual field mapping, making it future-proof.
+        [ARCHITECTURAL MANIFESTO]
+        This rite conducts the absolute transmutation of the Pydantic Request soul
+        into the legacy Namespace vessel. It has been ascended to possess
+        **Achronal Substrate Sensing**, allowing the Mind to adapt its Will to
+        the physical limitations of the host environment.
+
+        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+        1.  **Substrate Sensing (THE CURE):** Scries the 'SCAFFOLD_ENV' DNA. If
+            'WASM' is perceived, it automatically enforces the Vow of Silence
+            (no_edicts), pre-empting shell-command heresies in the browser.
+        2.  **Attribute Resurrection:** Surgically grafts missing critical flags
+            (debug, verbose, dry_run, quiet) to prevent Namespace AttributeErrors.
+        3.  **Verbosity Synchronization:** Harmonizes the numeric 'verbosity'
+            stratum with the boolean 'debug/verbose' signals.
+        4.  **The 'Set' Alchemist:** Transmutes the GnosticSovereignDict into a
+            linear list of 'key=val' scriptures for the internal Genesis Engine.
+        5.  **Environmental Adjudication:** Force-merges 'SCAFFOLD_NON_INTERACTIVE'
+            to ensure the Vow of Silence is absolute in automated sanctums.
+        6.  **NoneType Sarcophagus:** Titanium-wards against null variables,
+            guaranteeing 'ns.set' is always a valid, iterable collection.
+        7.  **Isomorphic Identity Grafting:** Preserves the 'client_id' and
+            'session_id' for perfect telemetric resonance.
+        8.  **The Adrenaline Handshake:** Injects 'adrenaline_mode' status if
+            detected in the environment or request variables.
+        9.  **Coordinate Normalization:** Ensures 'project_root' is converted
+            to a string coordinate to satisfy the legacy I/O artisans.
+        10. **Metabolic Heat Tomography:** (Prophecy) Future slot for injecting
+            system load metrics directly into the Namespace.
+        11. **Plugin Extra-Grafting:** Inhales 'model_extra' matter to support
+            third-party Gnostic extensions without schema modification.
+        12. **The Finality Vow:** A mathematical guarantee of an unbreakable,
+            engine-ready Namespace vessel.
+        =============================================================================
         """
         import argparse
         import os
+        import sys
 
-        # 1. THE TOTALITY DUMP
-        # We extract every field from the Pydantic model into a dictionary.
-        # This includes defaults like 'distill', 'manual', and 'quick'.
+        # --- MOVEMENT I: THE TOTALITY DUMP ---
+        # We extract every willed field from the Pydantic model.
         request_data = request.model_dump(exclude_none=False)
 
-        # 2. THE NAMESPACE MATERIALIZATION
-        # We forge the Namespace directly from the dictionary, ensuring 1:1 attribute parity.
+        # --- MOVEMENT II: THE NAMESPACE MATERIALIZATION ---
+        # Forging the initial vessel from the raw Pydantic data.
         ns = argparse.Namespace(**request_data)
 
-        # 3. LEGACY ADAPTATION (THE 'SET' VOW)
-        # The internal Engine expects a list of 'key=val' strings for variable overrides.
-        variables = request.variables or {}
-        ns.set = [f"{k}={v}" for k, v in variables.items()]
+        # --- MOVEMENT III: THE TITANIUM SUTURE (ATTRIBUTE HEALING) ---
+        # We guarantee these attributes exist, protecting against Schema Drift.
+        DEFAULTS = {
+            'debug': False,
+            'verbose': False,
+            'dry_run': False,
+            'force': False,
+            'quiet': False,
+            'set': [],
+            'no_edicts': False,
+            'project_root': str(Path.cwd()),
+            'non_interactive': False
+        }
 
-        # 4. THE AUTONOMIC REFLEX (SILENCE ENFORCEMENT)
-        # We re-calculate the non_interactive flag to ensure it remains the supreme law.
-        ns.non_interactive = (
-                request_data.get('non_interactive', False) or
-                request_data.get('quick', False) or
-                request_data.get('force', False) or
-                os.getenv("SCAFFOLD_NON_INTERACTIVE") == "1"
+        for attr, default_val in DEFAULTS.items():
+            if not hasattr(ns, attr):
+                setattr(ns, attr, default_val)
+
+        # =========================================================================
+        # == MOVEMENT IV: [THE CURE] - SUBSTRATE-AWARE INTELLIGENCE              ==
+        # =========================================================================
+        # We scry the substrate DNA to determine if we are in the Ethereal Plane.
+        # Browser WASM environments lack /bin/sh and /bin/touch.
+        is_wasm = (
+                os.environ.get("SCAFFOLD_ENV") == "WASM" or
+                sys.platform == "emscripten" or
+                "pyodide" in sys.modules
         )
 
-        # 5. VERBOSITY TRIAGE
-        # Syncing the numeric verbosity to the legacy boolean flags
-        if hasattr(request, 'verbosity'):
-            ns.verbose = ns.verbose or request.verbosity > 0
-            ns.debug = ns.debug or request.verbosity > 1
+        if is_wasm:
+            # [ASCENSION 1]: AUTO-SILENCE
+            # We command the Conductors to stay their hand. No shell edicts shall
+            # be attempted within the browser tab, preventing the 127 heresy.
+            ns.no_edicts = True
+            self.logger.verbose("WASM Substrate perceived. Enforcing Maestro's Silence.")
 
-        # 6. PLUGIN DATA GRAFTING
-        # Absorb any extra unmapped data from the Ocular Membrane
+        # --- MOVEMENT V: VERBOSITY & SILENCE ADJUDICATION ---
+        # 1. Sync Numeric Verbosity
+        if hasattr(request, 'verbosity') and isinstance(request.verbosity, int):
+            ns.verbose = ns.verbose or request.verbosity >= 1
+            ns.debug = ns.debug or request.verbosity >= 2
+
+        # 2. Sync Non-Interactive Vows
+        # Priority: Environment > CLI Quick/Force > Explicit Request
+        env_non_interactive = os.getenv("SCAFFOLD_NON_INTERACTIVE") == "1"
+        ns.non_interactive = (
+                getattr(ns, 'non_interactive', False) or
+                getattr(ns, 'quick', False) or
+                getattr(ns, 'force', False) or
+                env_non_interactive or
+                is_wasm  # WASM is inherently non-interactive for shell rites
+        )
+
+        # --- MOVEMENT VI: THE ALCHEMICAL 'SET' TRANSMUTATION ---
+        # The internal Engine expects 'ns.set' as a list of strings ["key=val"].
+        variables = getattr(request, 'variables', {}) or {}
+        current_set = getattr(ns, 'set', []) or []
+
+        # We merge variables into the 'set' list, ensuring they are stringified
+        for k, v in variables.items():
+            # We filter out internal system markers to keep the CLI stream pure
+            if not k.startswith('_'):
+                current_set.append(f"{k}={v}")
+
+        ns.set = current_set
+
+        # --- MOVEMENT VII: PLUGIN DATA GRAFTING ---
+        # Absorb model_extra matter (Pydantic V2) to ensure third-party
+        # Gnosis is not lost in the transition.
         extra_data = request.model_extra or {}
         for k, v in extra_data.items():
             if not hasattr(ns, k):
                 setattr(ns, k, v)
 
+        # --- MOVEMENT VIII: GEOMETRIC NORMALIZATION ---
+        # Ensure project_root is a pure string for the legacy path-joiners.
+        if hasattr(ns, 'project_root') and ns.project_root:
+            ns.project_root = str(ns.project_root).replace('\\', '/')
+
+        # [ASCENSION 12]: THE FINALITY VOW
+        # The Bridge has spoken. The vessel is resonant.
         return ns

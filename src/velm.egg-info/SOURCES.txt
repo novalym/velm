@@ -46,6 +46,7 @@ src/velm/archetypes/demos/kinetic-devops-agent.scaffold
 src/velm/archetypes/demos/lazarus-nexus.scaffold
 src/velm/archetypes/demos/neural-sovereign.scaffold
 src/velm/archetypes/demos/ocular-membrane.scaffold
+src/velm/archetypes/demos/ovh-sovereign-vessel.scaffold
 src/velm/archetypes/demos/progenitor.scaffold
 src/velm/archetypes/demos/substrate-arbitrator.scaffold
 src/velm/archetypes/frontend/atomic-component.scaffold
@@ -103,6 +104,8 @@ src/velm/archetypes/meta/babel-conduit.scaffold
 src/velm/archetypes/meta/mirror-test-oracle.scaffold
 src/velm/archetypes/meta/new-artisan.scaffold
 src/velm/archetypes/meta/universal-sdk-forge.scaffold
+src/velm/archetypes/ovh/ovh-cloud-suture.scaffold
+src/velm/archetypes/ovh/ovh-sovereign-ai-foundry.scaffold
 src/velm/archetypes/security/audit-chronicler.scaffold
 src/velm/archetypes/security/privacy-shroud.scaffold
 src/velm/archetypes/security/rbac-citadel.scaffold
@@ -122,6 +125,11 @@ src/velm/archetypes/system/multi-tenant-warden.scaffold
 src/velm/archetypes/system/quantum-pulse-sync.scaffold
 src/velm/archetypes/system/reactive-hub.scaffold
 src/velm/archetypes/system/resilient-mesh-guard.scaffold
+src/velm/archetypes/traits/chronicle-scribe.scaffold
+src/velm/archetypes/traits/identity-ward.scaffold
+src/velm/archetypes/traits/metabolic-sentinel.scaffold
+src/velm/archetypes/traits/neural-synapse.scaffold
+src/velm/archetypes/traits/ouroboros-guardian.scaffold
 src/velm/archetypes/velm-core/achronal-migrator.scaffold
 src/velm/archetypes/velm-core/ai-context-anchor.scaffold
 src/velm/archetypes/velm-core/architectural-mri.scaffold
@@ -296,6 +304,9 @@ src/velm/artisans/ci_optimize/engine.py
 src/velm/artisans/cli_bridge/artisan.py
 src/velm/artisans/cloud/__init__.py
 src/velm/artisans/cloud/artisan.py
+src/velm/artisans/cloud/oracle.py
+src/velm/artisans/cloud/orchestrator.py
+src/velm/artisans/cloud/telemetry.py
 src/velm/artisans/codex/__init__.py
 src/velm/artisans/codex/artisan.py
 src/velm/artisans/completion_artisan/__init__.py
