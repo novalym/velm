@@ -178,7 +178,7 @@ $$ author = "The Architect"
     # [ASCENSION]: We use a 'python -c' strike instead of 'velm create'.
     # This prevents the 'Transaction-in-Transaction' lock on Windows.
     proclaim: "💓 [dim]Igniting the Gnostic Heartbeat...[/]"
-    >> python -c "import time; open('.heartbeat', 'w').write(str(time.time()))"
+    >> velm create .heartbeat --content "{{ now() }}" --raw --silent
     
     # --- MOVEMENT III: SUBSTRATE FINGERPRINTING ---
     # [THE FIX]: Direct env lookup prevents the 'scaffold_env' undefined heresy.

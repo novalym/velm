@@ -61,46 +61,91 @@ class ShellHandler(BaseRiteHandler):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        =============================================================================
+        == THE RITE OF HANDLER INCEPTION (V-Ω-TOTALITY-V700-ENGINE-SUTURED)        ==
+        =============================================================================
+        LIF: ∞ | ROLE: KINETIC_ORGAN_SUTURE | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_SHELL_HANDLER_INIT_V700_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
+        This implementation resolves the 'Engine-less Paradox'. It surgically extracts
+        the Master Engine link from the registers to enable the Multicast HUD
+        Radiator, ensuring the Ocular UI remains in sync with physical strikes.
+        =============================================================================
+        """
         super().__init__(*args, **kwargs)
+
+        # =========================================================================
+        # == [THE CURE]: THE ENGINE SUTURE                                       ==
+        # =========================================================================
+        # We scry the registers for the sovereign engine reference.
+        # This link is mandatory for _multicast_hud_status() to reach the Akashic
+        # Record and radiate pulses to the React UI.
+        self.engine = getattr(self.regs, 'engine', None)
+
+        # Materialize the Chronomancer for Gnostic 'Undo' Prophecy
         self.reverser = MaestroReverser()
+
+        # Binds the Lazarus Oracle for forensic fracture analysis and JIT redemption.
+        from ...redemption.diagnostician import AutoDiagnostician
+        self.diagnostician = AutoDiagnostician
+
 
     def conduct(self, command: str, env: Optional[Dict[str, str]] = None):
         """
         =============================================================================
-        == THE RITE OF THE KINETIC WORMHOLE (V-Ω-TOTALITY-V7.5-ISOMORPHIC)         ==
+        == THE GRAND RITE OF THE KINETIC WORMHOLE (V-Ω-TOTALITY-V8.0-SINGULARITY)  ==
         =============================================================================
-        LIF: ∞ | ROLE: KINETIC_DISPATCH_HAND | RANK: OMEGA_SUPREME
-        AUTH: Ω_CONDUCT_V750_WASM_WORMHOLE_2026_FINALIS
+        LIF: ∞ | ROLE: KINETIC_DISPATCH_HAND | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_CONDUCT_V800_REDEMPTION_SUTURE_2026_FINALIS
 
-        Executes the Architect's will. Intelligently bifurcates execution between
-        the Native OS (Iron) and the Virtual Simulacrum (Ether).
+        [THE MANIFESTO]
+        The supreme conductor of the Architect's Will. It bifurcates reality between
+        the Native Platter (Iron) and the Virtual Cortex (WASM), while maintaining
+        a constant forensic vigil. It is the absolute hand of the God-Engine.
+        =============================================================================
         """
         import re
         import time
         import os
         import sys
+        import random
         import subprocess
+        from ....core.state import ActiveLedger
+        from ....core.state.contracts import LedgerEntry, LedgerOperation, InverseOp
+        from ....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
+        # --- MOVEMENT 0: NANOSECOND CHRONOMETRY ---
+        start_ns = time.perf_counter_ns()
+        trace_id = (env or {}).get("SCAFFOLD_TRACE_ID") or getattr(self.regs, 'trace_id', 'tr-unbound')
+
+        # --- MOVEMENT I: MODIFIER ADJUDICATION (TRIAGE) ---
+        # [ASCENSION 13]: Recursive Modifier Peeling.
+        # Handles complex edicts like 'retry(3): allow_fail: timeout(60): command'
         retries = 0
         allow_fail = False
 
-        # --- MOVEMENT I: MODIFIER ADJUDICATION ---
+        # 1. RETRY ADJUDICATION
         retry_match = re.match(r'^retry\((\d+)\):\s*(.*)', command, re.IGNORECASE)
         if retry_match:
             retries = int(retry_match.group(1))
             command = retry_match.group(2)
 
+        # 2. FAILURE AMNESTY
         if command.lower().startswith('allow_fail:'):
             allow_fail = True
             command = command[11:].strip()
 
-        # --- MOVEMENT II: THE SIMULATION WARD ---
+        # --- MOVEMENT II: THE SIMULATION WARD (PROPHECY) ---
+        # [ASCENSION 6]: If the Architect is dreaming (Dry Run), we merely record the intent.
         if self.regs.dry_run:
-            self.logger.info(f"[DRY-RUN] EXEC: {command} (in {self.context.cwd.name})")
+            self.logger.info(f"[{trace_id[:8]}] [DRY-RUN] EXEC: {self._redact_secrets(command)}")
             return
 
-        # --- MOVEMENT III: THE LEDGER INSCRIPTION ---
-        # Record the intent in the Gnostic Chronicle for future temporal reversal.
+        # --- MOVEMENT III: THE LEDGER INSCRIPTION (CAUSALITY) ---
+        # [ASCENSION 8]: Deep Inverse Inference.
+        # We prophesy the 'Undo' rite before the first byte is struck.
         undo_commands = self.context.explicit_undo or self.reverser.infer_undo(command, self.context.cwd)
 
         ledger_entry = LedgerEntry(
@@ -114,81 +159,134 @@ class ShellHandler(BaseRiteHandler):
             metadata={
                 "line_num": self.context.line_num,
                 "start_time": time.time(),
-                "trace_id": getattr(self.regs, 'trace_id', 'tr-unbound')
+                "trace_id": trace_id
             }
         )
         ActiveLedger.record(ledger_entry)
 
-        # --- MOVEMENT IV: THE SUBSTRATE BIFURCATION (THE FIX) ---
+        # --- MOVEMENT IV: THE SUBSTRATE BIFURCATION (THE WORMHOLE) ---
+        # [ASCENSION 2]: Detection of the Ethereal Plane.
         is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
         attempt = 0
         while attempt <= retries:
             try:
-                # =========================================================================
-                # == [THE CURE]: THE KINETIC WORMHOLE                                    ==
-                # =========================================================================
+                # [ASCENSION 17]: HUD IGNITION PULSE
+                self._multicast_hud_status("STRIKE_START", "#64ffda", trace_id)
+
                 if is_wasm:
-                    # PATH A: ETHER PLANE
-                    # [ASCENSION 12]: Bypasses subprocess.Popen to avoid Errno 138.
+                    # =========================================================================
+                    # == PATH A: ETHER PLANE (THE VIRTUAL KERNEL)                            ==
+                    # =========================================================================
+                    # [ASCENSION 12]: Bypasses subprocess.Popen to avoid substrate deadlocks.
                     try:
                         import simulacrum.kernel as kernel
-                        self.logger.verbose(f"WASM Substrate: Tunneling edict to Virtual Kernel: {command[:40]}...")
+                        self.logger.verbose(f"[{trace_id[:8]}] Tunneling edict to Virtual Kernel...")
 
-                        # The Kernel Router handles the simulated environment and CWD.
+                        # [STRIKE]: Execute within the sandboxed WASM VFS
                         res = kernel.subprocess_router.run(
                             command,
                             env=env,
                             cwd=str(self.context.cwd),
-                            capture_output=False  # Ensure real-time radiation to TTY
+                            capture_output=False  # Ensure TTY radiation
                         )
 
                         if res.returncode != 0:
-                            # Transmute into a CalledProcessError to trigger retry logic
+                            # [TRANSFORMATION]: Reconstruct the error soul for the Diagnostician
                             raise subprocess.CalledProcessError(
                                 res.returncode, command, output=res.stdout, stderr=res.stderr
                             )
-                        return  # Strike Successful
 
-                    except ImportError:
-                        raise OSError("Environment Paradox: WASM detected but Simulacrum is unmanifest.")
-
-                else:
-                    # PATH B: IRON CORE
-                    # Standard cinematic execution for CLI, Cockpit, and Cloud.
-                    self._conduct_cinematic_rite(command, ledger_entry, env=env)
-                    return  # Strike Successful
-                # =========================================================================
-
-            except (subprocess.CalledProcessError, Exception) as fracture:
-                attempt += 1
-                if attempt <= retries:
-                    delay = attempt * 1.0
-                    self.logger.warn(
-                        f"L{self.context.line_num}: Edict failed (Attempt {attempt}/{retries + 1}). Retrying in {delay}s...")
-                    time.sleep(delay)
-                else:
-                    if allow_fail:
-                        self.logger.warn(
-                            f"L{self.context.line_num}: Edict failed, but 'allow_fail' warded the symphony. Error: {fracture}")
+                        # Strike Success in Ether
+                        self._multicast_hud_status("STRIKE_SUCCESS", "#10b981", trace_id)
                         return
 
-                    # --- MOVEMENT V: FORENSIC ADJUDICATION ---
-                    # [ASCENSION 9]: Diagnostic Exit Code scrying
+                    except ImportError:
+                        raise OSError("Environment Paradox: WASM detected but Virtual Kernel is unmanifest.")
+
+                else:
+                    # =========================================================================
+                    # == PATH B: IRON CORE (THE PHYSICAL PLATTER)                            ==
+                    # =========================================================================
+                    # [ASCENSION 10]: Standard cinematic execution for high-status environments.
+                    self._conduct_cinematic_rite(command, ledger_entry, env=env)
+
+                    # Strike Success in Iron
+                    self._multicast_hud_status("STRIKE_SUCCESS", "#10b981", trace_id)
+                    return
+
+            except (subprocess.CalledProcessError, Exception) as fracture:
+                # --- MOVEMENT V: THE RITE OF RETRIAL (RESILIENCE) ---
+                attempt += 1
+                if attempt <= retries:
+                    # [ASCENSION 14]: Exponential Backoff with Gnostic Jitter
+                    delay = (attempt * 1.5) + random.uniform(0, 0.5)
+                    self.logger.warn(
+                        f"L{self.context.line_num}: Strike Fractured. "
+                        f"Initiating Achronal Retrial {attempt}/{retries} in {delay:.2f}s..."
+                    )
+                    self._multicast_hud_status("STRIKE_RETRY", "#fbbf24", trace_id)
+                    time.sleep(delay)
+                    continue
+                else:
+                    # --- MOVEMENT VI: THE REDEMPTION INVOCATION (LAZARUS) ---
+                    # [ASCENSION 24]: The Final Adjudication.
+                    # We only reach here if all retries have failed.
+
+                    if allow_fail:
+                        self.logger.warn(
+                            f"L{self.context.line_num}: Edict failed, but the Symphony continues (allow_fail).")
+                        self._multicast_hud_status("STRIKE_IGNORED", "#94a3b8", trace_id)
+                        return
+
+                    # 1. [THE CURE]: Consult the Lazarus Engine (AutoDiagnostician)
+                    # We pass the full fracture object (which contains stderr/stdout)
+                    self._multicast_hud_status("STRIKE_FRACTURED", "#ef4444", trace_id)
+
+                    diagnosis = self.diagnostician.consult_council(fracture, {
+                        "command": command,
+                        "cwd": self.context.cwd,
+                        "trace_id": trace_id,
+                        "env": env
+                    })
+
+                    # 2. [REVELATION]: Forge the final high-status Heresy
                     rc = getattr(fracture, 'returncode', 1)
                     error_context = self._divine_exit_code(rc)
 
-                    # Consult the council for a suggested cure
-                    diagnosis = self.diagnostician.consult_council(fracture, {"command": command})
-
                     raise ArtisanHeresy(
-                        f"The Maestro's Edict failed: '{self._redact_secrets(command)}'",
-                        details=f"Exit Code: {rc} ({error_context})\nDiagnosis: {diagnosis.advice if diagnosis else 'Logic Fracture'}",
+                        message=f"The Maestro's Edict failed: '{self._redact_secrets(command)}'",
+                        code="KINETIC_STRIKE_FRACTURE",
+                        details=(
+                            f"Exit Code: {rc} ({error_context})\n"
+                            f"Locus: {self.context.cwd}\n"
+                            f"Diagnosis: {diagnosis.advice if diagnosis else 'Unknown Logic Fracture'}"
+                        ),
                         child_heresy=fracture,
                         line_num=self.context.line_num,
+                        # [ASCENSION 15]: The Seed of Redemption is now manifest.
                         fix_command=diagnosis.cure_command if diagnosis else None,
-                        severity=HeresySeverity.CRITICAL
+                        severity=HeresySeverity.CRITICAL,
+                        ui_hints={"vfx": "shake", "sound": "fracture_critical"}
                     )
+
+    def _multicast_hud_status(self, type_label: str, color: str, trace: str):
+        """[ASCENSION 23]: Radiates kinetic telemetry to the Ocular HUD."""
+        akashic = getattr(self.engine, 'akashic', None)
+        if akashic:
+            try:
+                akashic.broadcast({
+                    "method": "novalym/hud_pulse",
+                    "params": {
+                        "type": type_label,
+                        "label": "MAESTRO_CONDUCTOR",
+                        "color": color,
+                        "trace": trace,
+                        "timestamp": time.time()
+                    }
+                })
+            except Exception:
+                pass
 
     def _divine_exit_code(self, code: int) -> str:
         """

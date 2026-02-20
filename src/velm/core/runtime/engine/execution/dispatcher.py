@@ -137,40 +137,34 @@ class QuantumDispatcher:
                  params: Optional[Dict[str, Any]] = None,
                  **kwargs) -> ScaffoldResult:
         """
-        =============================================================================
-        == THE OMNISCIENT DISPATCH RITE (V-Ω-TOTAL-TRANSPARENCY-ASCENDED)          ==
-        =============================================================================
-        LIF: ∞ | ROLE: KINETIC_CONDUCTOR | RANK: OMEGA_SUPREME
+        =================================================================================
+        == THE OMNISCIENT DISPATCH RITE: TOTALITY (V-Ω-V3000-LOCK-GATED-FINALIS)       ==
+        =================================================================================
+        LIF: ∞ | ROLE: SOVEREIGN_TRAFFIC_CONDUCTOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_DISPATCH_V3000_TITANIUM_STABILITY_2026_FINALIS
 
-        ### THE 12 SOVEREIGNTIES OF THIS RITE:
-        1.  **Immediate Stderr Inscription (THE FIX):** Prints a raw, unbuffered
-            traceback to stderr at the exact microsecond of fracture.
-        2.  **Recursive Depth De-escalation:** Uses a `finally` block to guarantee
-            that the recursion guard is decremented, even if the world ends.
-        3.  **Shadow Context Mirroring:** Preserves the `trace_id` and `rite_name`
-            outside the `try` scope to ensure they are always available for lamentation.
-        4.  **Bypass-Safe Telemetry:** Conducts a direct `sys.stderr.write` bypass of
-            the logging system if a crash is detected, ensuring visibility.
-        5.  **NoneType Sarcophagus:** Transmutes `None` returns from artisans or
-            middleware into structured Failure vessels automatically.
-        6.  **Metabolic Heat Tomography:** Consults the Watchdog to capture CPU/RAM
-            pressure at the exact moment of failure.
-        7.  **Signal Multicast Shield:** Wraps the Ocular UI broadcast in its own
-            ward to prevent a "Crash-within-a-Crash" loop.
-        8.  **Atomic Scope Isolation:** Isolates the `_conduct_rite` closure to
-            prevent variable leakage or scoping paradoxes.
-        9.  **JIT Awakening Pulse:** Measures and chronicled the "Warm-up" time for
-            lazy-loaded artisans with microsecond precision.
-        10. **Chain of Custody Validation:** Stamps every log entry with both
-            `request_id` and `trace_id` for perfect forensic reconstruction.
-        11. **Socratic Intent Divination:** If the Semantic Router divines an
-            incorrect intent, it preserves the original prompt in the failure dossier.
-        12. **The Finality Vow:** Guaranteed return of a valid `ScaffoldResult`
-            vessel, ensuring the Engine never hangs in silence.
+        [THE MANIFESTO]
+        The absolute entry point of the God-Engine. It implements the Achronal Lock
+        Grid (LIF-100) to annihilate the Windows Read-Write Schism. It performs
+        multi-modal intent recovery, metabolic backpressure throttling, and
+        forensic dump protection with automated entropy redaction.
+        =================================================================================
         """
+        import time
+        import hashlib
         import importlib
-        import traceback as tb_scribe  # Renamed to avoid collisions
+        import inspect
+        import asyncio
+        import threading
+        import re
+        import uuid
+        import traceback as tb_scribe
+        from .locking import ResourceLockManager
+        from .....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+        from .....interfaces.base import ScaffoldResult, Artifact
+        from .....core.runtime.vessels import GnosticSovereignDict
 
+        # --- MOVEMENT 0: NANOSECOND CHRONOMETRY & IDENTITY ---
         start_time = time.perf_counter()
         jit_overhead_ms = 0.0
         rite_name = "UnknownRite"
@@ -178,19 +172,19 @@ class QuantumDispatcher:
         request_obj = None
 
         # [ASCENSION 3]: SHADOW CONTEXT MIRROR
-        # We capture the trace_id early to ensure our lamentation has an identity
+        # Pre-emptive trace identification to ensure failures are always named.
         if isinstance(request, (BaseRequest, object)) and hasattr(request, 'trace_id'):
-            trace_id = getattr(request, 'trace_id')
+            trace_id = getattr(request, 'trace_id') or trace_id
 
         try:
             # --- MOVEMENT I: TRANSMUTATION (INPUT NORMALIZATION) ---
+            # [ASCENSION 4 & 11]: SOCRATIC INTENT RECOVERY & DIVINATION
             if isinstance(request, str):
                 request_obj = self._resolve_request_vessel(request, params or kwargs)
             elif isinstance(request, dict):
                 command = request.get('command') or request.get('method')
                 payload = request.get('params') or request
 
-                # [ASCENSION 11]: SOCRATIC INTENT DIVINATION
                 if not command and 'prompt' in payload:
                     command = self._divine_intent_from_prompt(payload['prompt'])
                     self.logger.info(f"[{trace_id}] Semantic Router divined intent: {command}")
@@ -204,6 +198,7 @@ class QuantumDispatcher:
             request_type = type(request_obj)
             rite_name = request_type.__name__
             request_id = getattr(request_obj, 'request_id', 'unknown')
+            project_root = getattr(request_obj, 'project_root', self.engine.project_root)
 
             # --- MOVEMENT II: CAUSAL IDENTITY (TRACE ANCHORING) ---
             meta = getattr(request_obj, 'metadata', {})
@@ -217,7 +212,11 @@ class QuantumDispatcher:
                     f"tr-{uuid.uuid4().hex[:8].upper()}"
             )
 
-            # Forge the Silver Cord
+            # [ASCENSION 9]: BICAMERAL CONTEXT MIRRORING
+            # Mirror the trace ID into the Engine's primary thread cell for non-passed logging.
+            self.engine.active_trace_id = trace_id
+
+            # Suture the silver cord to the object for distributed traceability.
             if not hasattr(request_obj, 'trace_id') or getattr(request_obj, 'trace_id') in [None, "None", "tr-void"]:
                 try:
                     object.__setattr__(request_obj, 'trace_id', trace_id)
@@ -231,164 +230,144 @@ class QuantumDispatcher:
                 current_depth = self._recursion_depths.get(trace_id, 0)
                 if current_depth > self.MAX_DISPATCH_DEPTH:
                     raise ArtisanHeresy(
-                        f"Recursion Heresy: Dispatch depth exceeded limit ({self.MAX_DISPATCH_DEPTH}) for trace {trace_id}.",
+                        f"Recursion Heresy: Dispatch depth limit ({self.MAX_DISPATCH_DEPTH}) breached for {trace_id}.",
                         severity=HeresySeverity.CRITICAL
                     )
                 self._recursion_depths[trace_id] = current_depth + 1
 
-            # --- MOVEMENT IV: THERMODYNAMIC ADJUDICATION ---
-            is_heavy = any(
-                k in rite_name for k in ['Genesis', 'Transmute', 'Analyze', 'Refactor', 'Manifest', 'Inception'])
+            # --- MOVEMENT IV: THERMODYNAMIC ADJUDICATION & LOCK GATING ---
+            # [ASCENSION 1]: THE ACHRONAL LOCK GRID (LIF-100)
+            is_writing_rite = any(
+                k in rite_name for k in ['Genesis', 'Transmute', 'Create', 'Patch', 'Undo', 'Refactor'])
+            is_heavy = is_writing_rite or any(k in rite_name for k in ['Analyze', 'Manifest', 'Inception', 'Index'])
 
-            # [ASCENSION 6]: METABOLIC HEAT TOMOGRAPHY
-            if is_heavy and hasattr(request_obj, 'metadata'):
-                load = self.engine.watchdog.get_vitals().get("load_percent", 0)
-                if load > 85.0:
-                    self.logger.warn(f"[{trace_id}] Metabolic Fever ({load}%). Throttling priority.")
+            # Anchor the lock to the project root coordinate.
+            resource_key = f"project:{hashlib.md5(str(project_root).encode()).hexdigest()}"
+
+            # [ASCENSION 5 & 6]: METABOLIC BACKPRESSURE THROTTLING
+            load = self.engine.watchdog.get_vitals().get("load_percent", 0)
+            if load > 85.0:
+                self.logger.warn(f"[{trace_id}] Metabolic Fever ({load}%). Priority set to background.")
+                if hasattr(request_obj, 'metadata'):
                     request_obj.metadata.priority = "background"
+                if load > 92.0:
+                    time.sleep(0.1)  # Hydraulic Yield
+
+            # =========================================================================
+            # == THE QUANTUM BARRIER (ACHRONAL LOCK GRID)                           ==
+            # =========================================================================
+            # Substrate-aware gating: Shared lock for reading (Cortex), Exclusive for writing (Committer).
+            with ResourceLockManager.acquire(resource_key, exclusive=is_writing_rite):
+
+                self.engine._neuro_optimize(heavy_mode=is_heavy)
+
+                # --- MOVEMENT V: ARTISAN RESOLUTION ---
+                if hasattr(request_obj, 'project_root') and request_obj.project_root:
+                    self.engine.memory.record_focus(str(request_obj.project_root))
+
+                # Check Circuit Breaker health
+                if hasattr(self.engine, 'healer') and not self.engine.healer.circuit_breaker.check_state(rite_name):
+                    return self.engine.failure(f"Subsystem Quarantined: {rite_name} is fracturing.")
+
+                artisan_info = self.engine.registry.get_artisan_for(request_type)
+                artisan_instance = None
+
+                if artisan_info is None:
+                    suggestion = self.engine.registry.suggest_alternative(rite_name)
+                    return self.engine.failure(
+                        message=f"Unmanifest Artisan: No handler for '{rite_name}'.",
+                        suggestion=suggestion,
+                        details=f"The Gnostic Registry returned None for {request_type}."
+                    )
+
+                # [ASCENSION 9]: JIT AWAKENING PULSE (HOT-SWAP AWARE)
+                if isinstance(artisan_info, tuple):
+                    module_path, class_name = artisan_info
+                    jit_start = time.perf_counter()
+                    if os.environ.get("SCAFFOLD_HOT_SWAP") == "1":
+                        with self.engine.kernel_lock("jit_reception"):
+                            try:
+                                for m in [m for m in sys.modules if m.startswith(module_path)]:
+                                    sys.modules.pop(m, None)
+                                module = importlib.import_module(module_path)
+                                artisan_instance = getattr(module, class_name)(self.engine)
+                            except Exception as syntax_heresy:
+                                self._conduct_forensic_dump(syntax_heresy, f"JIT_FRACTURE:{class_name}", trace_id)
+                                return self.engine.failure(f"Syntax Heresy in {class_name}",
+                                                           details=tb_scribe.format_exc())
+
+                    if not artisan_instance:
+                        module = importlib.import_module(module_path)
+                        artisan_instance = getattr(module, class_name)(self.engine)
+
+                    jit_overhead_ms = (time.perf_counter() - jit_start) * 1000
                 else:
-                    request_obj.metadata.priority = "normal"
+                    artisan_instance = artisan_info(self.engine) if isinstance(artisan_info, type) else artisan_info
 
-            self.engine._neuro_optimize(heavy_mode=is_heavy)
+                if hasattr(artisan_instance, 'engine'):
+                    object.__setattr__(artisan_instance, 'engine', self.engine)
 
-            # --- MOVEMENT V: ARTISAN RESOLUTION ---
-            if hasattr(request_obj, 'project_root') and request_obj.project_root:
-                self.engine.memory.record_focus(str(request_obj.project_root))
+                # --- MOVEMENT VI: HYBRID KINETIC EXECUTION ---
+                def _conduct_rite(req: BaseRequest) -> ScaffoldResult:
+                    self._broadcast_progress(f"Executing {rite_name}...", 25, trace_id)
 
-            if hasattr(self.engine, 'healer') and not self.engine.healer.circuit_breaker.check_state(rite_name):
-                return self.engine.failure(f"Subsystem Quarantined: {rite_name} is currently fracturing.")
+                    if is_heavy and not req.dry_run:
+                        self._chronicle_replay_capability(req, rite_name)
 
-            artisan_info = self.engine.registry.get_artisan_for(request_type)
-            artisan_instance = None
+                    with self.engine.transactions.atomic_rite(f"{rite_name}:{req.request_id}") as tx_id:
+                        if req.context is None: req.context = {}
+                        req.context['transaction_id'] = tx_id
 
-            if artisan_info is None:
-                suggestion = self.engine.registry.suggest_alternative(rite_name)
-                return self.engine.failure(
-                    message=f"Unmanifest Artisan: No handler for '{rite_name}'.",
-                    suggestion=suggestion,
-                    details=f"The Gnostic Registry returned None for {request_type}."
-                )
-
-            # [ASCENSION 9]: JIT AWAKENING PULSE
-            if isinstance(artisan_info, tuple):
-                module_path, class_name = artisan_info
-                jit_start = time.perf_counter()
-                if os.environ.get("SCAFFOLD_HOT_SWAP") == "1":
-                    with self.engine.kernel_lock("jit_reception"):
-                        try:
-                            to_purge = [m for m in sys.modules if m.startswith(module_path)]
-                            for m in to_purge:
-                                sys.modules.pop(m, None)
-                            module = importlib.import_module(module_path)
-                            ArtisanClass = getattr(module, class_name)
-                            artisan_instance = ArtisanClass(self.engine)
-                        except Exception as syntax_heresy:
-                            # REDUNDANT TRACEBACK DUMP (FACULTY 1)
-                            sys.stderr.write(f"\n[FORENSIC:JIT_FRACTURE] {rite_name}\n")
-                            tb_scribe.print_exc(file=sys.stderr)
-                            return self.engine.failure(f"Syntax Heresy in {class_name}", details=tb_scribe.format_exc())
-
-                if not artisan_instance:
-                    module = importlib.import_module(module_path)
-                    artisan_instance = getattr(module, class_name)(self.engine)
-
-                jit_overhead_ms = (time.perf_counter() - jit_start) * 1000
-            else:
-                artisan_instance = artisan_info(self.engine) if isinstance(artisan_info, type) else artisan_info
-
-            if hasattr(artisan_instance, 'engine'):
-                object.__setattr__(artisan_instance, 'engine', self.engine)
-
-            artisan_name = getattr(artisan_instance, 'name', artisan_instance.__class__.__name__)
-
-            # --- MOVEMENT VI: HYBRID KINETIC EXECUTION ---
-            # [ASCENSION 8]: ATOMIC SCOPE ISOLATION
-            def _conduct_rite(req: BaseRequest) -> Union[ScaffoldResult, Any]:
-                if self.engine.akashic:
-                    self.engine.akashic.broadcast({
-                        "method": "scaffold/progress",
-                        "params": {"message": f"Executing {rite_name}...", "percentage": 25, "trace": trace_id}
-                    })
-
-                if is_heavy and not req.dry_run:
-                    self._chronicle_replay_capability(req, rite_name)
-
-                with self.engine.transactions.atomic_rite(f"{rite_name}:{req.request_id}") as tx_id:
-                    if req.context is None: req.context = {}
-                    req.context['transaction_id'] = tx_id
-                    timeout = getattr(req, 'timeout', 300)
-
-                    if inspect.iscoroutinefunction(artisan_instance.execute):
-                        async def _async_wrapper():
-                            return await asyncio.wait_for(artisan_instance.execute(req), timeout=timeout)
-
-                        try:
-                            loop = asyncio.get_event_loop()
-                            if loop.is_running():
-                                return asyncio.run_coroutine_threadsafe(_async_wrapper(), loop).result()
-                            else:
-                                return asyncio.run(_async_wrapper())
-                        except RuntimeError:
-                            return asyncio.run(_async_wrapper())
-                        except asyncio.TimeoutError:
-                            raise ArtisanHeresy(f"Temporal Exhaustion: Rite '{rite_name}' exceeded {timeout}s budget.")
-                    else:
+                        # Async/Sync Bifurcation
+                        if inspect.iscoroutinefunction(artisan_instance.execute):
+                            return asyncio.run(artisan_instance.execute(req))
                         return artisan_instance.execute(req)
 
-            # Pipeline Ignition
-            result = self.engine.pipeline.execute(request_obj, _conduct_rite)
+                # [PIPELINE IGNITION]
+                result = self.engine.pipeline.execute(request_obj, _conduct_rite)
 
-            # [ASCENSION 5]: NONETYPE SARCOPHAGUS
-            if result is None:
-                result = self.engine.failure(f"Void Return: Middleware or Artisan {rite_name} returned None.")
+                # [ASCENSION 5 & 6]: NONETYPE SARCOPHAGUS V2
+                if result is None:
+                    result = self.engine.failure(f"Void Return: Subsystem {rite_name} returned None.")
 
-            # --- MOVEMENT VII: POST-PROCESS & TELEMETRY ---
-            if hasattr(result, 'duration_seconds') and not result.duration_seconds:
+                if not result.data:
+                    try:
+                        object.__setattr__(result, 'data', GnosticSovereignDict())
+                    except:
+                        pass
+
+                # --- MOVEMENT VII: KINETIC AFTERSHOCK (THE FIX) ---
+                # [ASCENSION 3]: Immediately invalidate stale Cortex memories if reality was transfigured.
+                if is_writing_rite and result.success and result.artifacts:
+                    self.engine.cortex.forget_affected_areas(result.artifacts)
+
+                # --- MOVEMENT VIII: POST-PROCESS & TELEMETRY ---
                 result.duration_seconds = time.perf_counter() - start_time
+                if jit_overhead_ms > 0:
+                    result.ui_hints["jit_ms"] = jit_overhead_ms
 
-            if jit_overhead_ms > 0:
-                result.ui_hints["jit_ms"] = jit_overhead_ms
+                if hasattr(self.engine, 'predictor'):
+                    self.engine.predictor.observe_outcome(request_obj, result)
 
-            if hasattr(self.engine, 'predictor'):
-                self.engine.predictor.observe_outcome(request_obj, result)
+                self.engine.memory.record_rite(rite_name, result.success)
 
-            self.engine.memory.record_rite(rite_name, result.success)
-            self.engine.last_reality = result
+                # [ASCENSION 23]: REVELATION (HUD MULTICAST)
+                if self.engine.akashic:
+                    self._multicast_revelation(request_obj, result, rite_name)
 
-            if result.success and not request_obj.dry_run and is_heavy:
-                self._scan_for_unclaimed_artifacts(request_obj, result, start_time)
-
-            self._synthesize_haptics(result)
-
-            if self.engine.akashic:
-                self._multicast_revelation(request_obj, result, artisan_name)
-
-            return result
+                return result
 
         except Exception as catastrophic_paradox:
-            # --- MOVEMENT VIII: FORENSIC ILLUMINATION (FACULTY 1 & 4) ---
-            # We dump the TRUTH immediately to stderr, bypassing all standard logic.
-            sys.stderr.write(f"\n" + "!" * 80 + "\n")
-            sys.stderr.write(f"🔥 CATASTROPHIC DISPATCH FRACTURE: {rite_name}\n")
-            sys.stderr.write(f"📍 TRACE ID: {trace_id}\n")
-            sys.stderr.write(f"📍 EXCEPTION: {type(catastrophic_paradox).__name__}: {str(catastrophic_paradox)}\n")
-            sys.stderr.write("-" * 80 + "\n")
-            # [THE FIX]: REDUNDANT, UNBREAKABLE TRACEBACK DUMP
-            tb_scribe.print_exc(file=sys.stderr)
-            sys.stderr.write("!" * 80 + "\n\n")
-            sys.stderr.flush()
-
-            self.engine._emergency_dump(catastrophic_paradox, rite_name, trace_id)
-            self.logger.critical(f"Catastrophic Dispatch Fracture in {rite_name}: {catastrophic_paradox}")
+            # --- MOVEMENT IX: FORENSIC ILLUMINATION ---
+            # [ASCENSION 1 & 8]: Redundant stderr dump with Entropy Redaction.
+            self._conduct_forensic_dump(catastrophic_paradox, rite_name, trace_id)
 
             fail_duration = time.perf_counter() - start_time
             if request_obj:
                 return self.engine.healer.handle_panic(catastrophic_paradox, request_obj, fail_duration)
             else:
-                return ScaffoldResult(
-                    success=False,
-                    message=f"Request Transmutation Failed: {catastrophic_paradox}",
-                    error=str(catastrophic_paradox),
+                return ScaffoldResult.forge_failure(
+                    message=f"Dispatch Collapse: {catastrophic_paradox}",
                     traceback=tb_scribe.format_exc()
                 )
 
@@ -403,6 +382,40 @@ class QuantumDispatcher:
             if 'is_heavy' in locals() and is_heavy:
                 self.engine._neuro_optimize(heavy_mode=False)
 
+    def _conduct_forensic_dump(self, error: Exception, rite: str, trace: str):
+        """
+        =============================================================================
+        == THE FORENSIC SCRIBE (V-Ω-ENTROPY-SAFE-REDACTION)                        ==
+        =============================================================================
+        [ASCENSION 8]: Performs a high-impact stderr dump while surgically scrubbing
+        high-entropy variables (API keys/secrets) from the traceback string.
+        """
+        import re
+        import sys
+        import traceback as tb_scribe
+
+        raw_tb = tb_scribe.format_exc()
+
+        # [ENTROPY SIEVE]: Redact potential secrets before proclamation.
+        # Targets standard patterns like 'sk_live', 'ghp_', 'password=', etc.
+        patterns = [
+            (r'(api_key|token|password|secret)\s*[:=]\s*["\']?[^\s"\'}]+["\']?', r'\1=REDACTED'),
+            (r'(sk_live_[a-zA-Z0-9]{24})', '[STRIPE_KEY_REDACTED]'),
+            (r'(ghp_[a-zA-Z0-9]{36})', '[GITHUB_KEY_REDACTED]')
+        ]
+
+        clean_tb = raw_tb
+        for pat, repl in patterns:
+            clean_tb = re.sub(pat, repl, clean_tb, flags=re.IGNORECASE)
+
+        sys.stderr.write(f"\n" + "!" * 80 + "\n")
+        sys.stderr.write(f"🔥 CATASTROPHIC DISPATCH FRACTURE: {rite}\n")
+        sys.stderr.write(f"📍 TRACE ID: {trace}\n")
+        sys.stderr.write(f"📍 ERROR: {type(error).__name__}: {str(error)}\n")
+        sys.stderr.write("-" * 80 + "\n")
+        sys.stderr.write(clean_tb)
+        sys.stderr.write("!" * 80 + "\n\n")
+        sys.stderr.flush()
 
     def _resolve_request_vessel(self, command: str, params: Dict[str, Any]) -> BaseRequest:
         """
@@ -662,8 +675,8 @@ class QuantumDispatcher:
 
     def _conduct_simulation(self, request: BaseRequest) -> ScaffoldResult:
         """[ASCENSION 6]: Redirects the request to the Simulation Subsystem."""
-        from ...simulation.conductor.orchestrator import SimulationConductor
-        from ...simulation.scribe import ProphecyScribe
+        from ....simulation.conductor.orchestrator import SimulationConductor
+        from ....simulation.scribe import ProphecyScribe
 
         conductor = SimulationConductor(self.engine)
         prophecy = conductor.conduct(request)
