@@ -370,20 +370,33 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
     def _conduct_switch_rite(self, request: ProjectRequest, proclaim: Callable, start_ns: int) -> ScaffoldResult:
         """
         =============================================================================
-        == THE RITE OF ANCHORING (V-Ω-TOTALITY-V9501-ALLIANCE-AWARE)               ==
+        == THE RITE OF ANCHORING: OMEGA (V-Ω-HYPER-DIAGNOSTIC-GHOST-FORGE)         ==
         =============================================================================
-        [THE CURE]: This rite now scries both User and System registries to find
-        the target coordinate, annihilating the 'Coordinate Lost' heresy.
+        LIF: ∞ | ROLE: DIMENSIONAL_ANCHOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_SWITCH_V9999_FORCE_MATERIALIZATION_FINALIS
+
+        [THE MANIFESTO]
+        This is the ultimate version of the Switching Rite. It does not trust the
+        Manager to materialize reality. It takes the burden of Genesis upon itself.
+
+        1.  **Triangulation:** Scries both User Registry and System Demos.
+        2.  **Forensic Path Resolution:** Prints absolute path telemetry to stdout.
+        3.  **Physical Biopsy:** Manually checks `os.listdir()` to detect Hollow Sanctums.
+        4.  **JIT Genesis:** If a Ghost is found, it constructs an `InitRequest` with
+            `force=True` and dispatches it SYNCHRONOUSLY to the Engine.
+        5.  **Post-Genesis Census:** Verifies the file count after the strike.
+        6.  **Ledger Synchronization:** Only after matter is verified does it update
+            the persistent registry.
         """
         target_id = getattr(request, 'id', None)
         if not target_id:
             return self.failure("Coordinate Lost: Target ID is a void.")
 
-        # [THE TITANIUM SUTURE]
-        # We scry both the User Registry and the System Demos (Ghosts)
+        # --- MOVEMENT I: THE TRIANGULATION ---
+        # We scry both registries.
         project = (
-            self.manager.registry.projects.get(target_id) or
-            self.manager.system_demos.get(target_id)
+                self.manager.registry.projects.get(target_id) or
+                self.manager.system_demos.get(target_id)
         )
 
         if not project:
@@ -393,17 +406,101 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
                 code="ANCHOR_FRACTURE"
             )
 
-        p_name = project.get('name') # Use .get() due to GnosticSovereignDict/Meta hybrid
+        p_name = project.get('name')
         proclaim(f"Shifting Anchor to reality: '[bold cyan]{p_name}[/]'...")
 
-        # 1. CONDUCT THE PHYSICAL SWITCH
-        # This triggers JIT Ghost Materialization if needed.
+        # --- MOVEMENT II: GEOMETRIC NORMALIZATION & FORENSICS ---
+        # Resolve to absolute path immediately.
+        project_path = Path(project.path).resolve()
+        project_path_posix = project_path.as_posix()
+
+        # [FORENSIC]: PROCLAIM THE TARGET
+        print(f"[SWITCH_RITE] 🎯 TARGETING SANCTUM: {project_path_posix}")
+
+        # Ensure directory exists physically
+        try:
+            if not project_path.exists():
+                project_path.mkdir(parents=True, exist_ok=True)
+                print(f"[SWITCH_RITE] ✨ Sanctum Created: {project_path_posix}")
+        except Exception as e:
+            raise ArtisanHeresy(f"Physical Fracture: {e}")
+
+        # --- MOVEMENT III: THE GHOST BIOPSY ---
+        # We assume it is a ghost if marked OR if the directory is empty (Hollow).
+        is_marked_ghost = project.custom_data.get("is_ghost", False)
+
+        try:
+            # We ignore .scaffold metadata when checking for emptiness
+            visible_matter = [
+                p for p in project_path.iterdir()
+                if p.name not in [".scaffold", "scaffold.lock", ".heartbeat"]
+            ]
+            is_hollow = len(visible_matter) == 0
+        except Exception:
+            is_hollow = True
+
+        print(f"[SWITCH_RITE] 👻 Is Ghost Marked: {is_marked_ghost}, Is Hollow: {is_hollow}")
+
+        # --- MOVEMENT IV: THE RITE OF JIT GENESIS ---
+        if is_marked_ghost or is_hollow:
+            Logger.info(f"Materializing Ghost Reality via Init Artisan: '{project.name}'...")
+            print(f"[SWITCH_RITE] ⚡ INITIATING GENESIS STRIKE for {p_name}")
+
+            try:
+                from ...interfaces.requests import InitRequest
+
+                # [THE CURE]: ABSOLUTE FORCE INJECTION
+                # We command the InitArtisan to overwrite the empty directory we just made.
+                # We inject 'force_creation' to bypass any interactive safety checks.
+                init_plea = InitRequest(
+                    profile=project.template,
+                    project_root=project_path,  # Explicitly bind the root
+                    force=True,  # Force overwrite
+                    non_interactive=True,  # Silence the dialogue
+                    variables={
+                        "project_name": project.name,
+                        "description": project.description,
+                        "no_edicts": self.is_wasm,  # Silence shell commands in WASM
+                        "force_creation": "true",
+                        "trace_id": getattr(request, 'trace_id', 'tr-ghost-gen')
+                    }
+                )
+
+                # [STRIKE]: Synchronous materialization via the Engine
+                result = self.engine.dispatch(init_plea)
+
+                if not result.success:
+                    Logger.error(f"Genesis Fracture: {result.message}")
+                    print(f"[SWITCH_RITE] 💀 GENESIS FAILED: {result.message}")
+                    return self.failure(f"Ghost Materialization Failed: {result.message}")
+                else:
+                    print(f"[SWITCH_RITE] ✅ GENESIS SUCCESS. Verifying Matter...")
+
+                    # [IMMEDIATE VERIFICATION]
+                    try:
+                        after_files = os.listdir(str(project_path))
+                        print(f"[SWITCH_RITE] 📂 POST-GENESIS CENSUS: {after_files}")
+                        if not after_files:
+                            print(f"[SWITCH_RITE] ⚠️ WARNING: Sanctum is still void after Genesis!")
+                    except:
+                        pass
+
+            except Exception as e:
+                Logger.error(f"Fracture during Ghost materialization: {e}")
+                traceback.print_exc()
+                return self.failure(f"Genesis Exception: {e}")
+
+        # --- MOVEMENT V: THE LEDGER UPDATE ---
+        # Now that matter exists, we update the Manager's records.
         target_meta = self.manager.switch_project(target_id)
 
-        # 2. BROADCAST THE SHIFT
+        # --- MOVEMENT VI: BROADCAST THE SHIFT ---
         proclaim("Dimensional shift complete. Reality locked.")
+
+        # [ASCENSION]: Force-cast the HUD update to ensure the UI catches up
         self._multicast_hud("ANCHOR_SHIFTED", "#3b82f6")
 
+        # Return the final result
         return self._forge_result(
             True,
             f"Anchored to '{p_name}'.",
