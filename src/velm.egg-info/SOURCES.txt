@@ -1271,6 +1271,7 @@ src/velm/core/cli/grimoire/_workspace_rites.py
 src/velm/core/cli/grimoire/__pycache__/__init__.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_ai_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_automation_rites.cpython-313.pyc
+src/velm/core/cli/grimoire/__pycache__/_cloud_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_core_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_evolution_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_governance_rites.cpython-313.pyc

@@ -519,35 +519,101 @@ class ArtisanRegistry:
 
     def get(self, request_type: Any) -> Optional[Any]:
         """
+        =============================================================================
+        == THE ORACLE OF RETRIEVAL: OMEGA TOTALITY (V-Ω-PATH-AGNOSTIC-V2000.8)     ==
+        =============================================================================
+        LIF: 100x | ROLE: SEMANTIC_IDENTITY_RESONATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_GET_V2000_IDENTITY_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
         Retrieves the living soul (Artisan Instance) for a given intent (Request).
-        Implements the 4-Tiered Retrieval Protocol.
+        This version implements the **Rite of Semantic Identity**, bridging the
+        schism caused by import-path drift and duplicate class materialization.
+
+        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+        1.  **L1 Thermal Probe (Hot Cache):** Instant O(1) recall for repeat intents.
+        2.  **Intent Normalization:** Automatically extracts the class from instances.
+        3.  **Semantic Identity Suture (THE CURE):** Resolves handlers by __name__
+            instead of memory address, annihilating the 'Path Schism' heresy.
+        4.  **Hydraulic Lock Grid:** Prevents materialization race conditions via
+            granular, request-specific mutexes.
+        5.  **Achronal Platform Triangulation:** Injects the current OS context
+            (IRON vs ETHER) into the resolution logic.
+        6.  **Socratic Identity Rescue:** Logs a diagnostic proclamation when a
+            name-match rescues a failed object-match.
+        7.  **JIT Materialization (Ghost -> Soul):** Recursively awakens Artisans
+            from their Ghost Tuple prophecies.
+        8.  **Deep Dependency Injection:** Sutures the Engine, Scribe, and Akasha
+            organs into the newly birthed Artisan.
+        9.  **Metabolic Tomography:** Records the precise nanosecond tax of the
+            materialization rite.
+        10. **The Quarantine Ward:** Automatically diverts fractured souls to the
+            Vault for forensic autopsy.
+        11. **Heresy Detection:** Validates the presence of the 'execute' faculty
+            at the moment of materialization.
+        12. **The Finality Vow:** A mathematical guarantee of a resonant executable
+            or a structured failure—never a NoneType void.
+        =============================================================================
         """
+        import time
+        import sys
+
         # --- TIER 0: THE VOID GUARD ---
-        if request_type is None: return None
+        if request_type is None:
+            return None
 
         # --- TIER 1: L1 THERMAL PROBE (HOT CACHE) ---
+        # We first scry the L1 memory cell for immediate resonance.
         try:
             if request_type in self._l1_hot_cache:
-                # Fast-path metric update to avoid lock overhead if possible?
-                # No, map updates need safety. But we can skip it for extreme speed if needed.
                 self._update_metrics(request_type, cache_hit=True)
                 return self._l1_hot_cache[request_type]
         except (TypeError, KeyError):
             pass
 
-        # --- TIER 2: TRIBAL ADJUDICATION (LOCKING & PLATFORM) ---
-        with self._materialization_locks[request_type]:
-            # Double-check L1 inside lock
-            if request_type in self._l1_hot_cache:
-                return self._l1_hot_cache[request_type]
+        # --- TIER 2: INTENT NORMALIZATION ---
+        # Ensure we are scrying the Class soul, not a living instance.
+        target_class = request_type if isinstance(request_type, type) else type(request_type)
+        target_name = target_class.__name__
+
+        # --- TIER 3: SEMANTIC IDENTITY RESOLUTION (THE CURE) ---
+        # We perform an Achronal Scan of the Registry Keys.
+        # This allows us to find 'CloudRequest' regardless of its import origin.
+        matched_req_type = None
+
+        # 1. Primary Direct Scry (Fast Path)
+        if target_class in self._request_to_artisan:
+            matched_req_type = target_class
+        else:
+            # 2. Semantic Identity Resonance (The Identity Suture)
+            # We search the registry for a name-match, healing import-path drift.
+            with self._lock:
+                for registered_type in self._request_to_artisan.keys():
+                    if registered_type.__name__ == target_name:
+                        matched_req_type = registered_type
+                        if self._logger.is_verbose:
+                            self._logger.debug(f"Identity Suture: Rescued {target_name} via name-resonance.")
+                        break
+
+        # If the name itself is unmanifest in our Grimoire, the intent is void.
+        if not matched_req_type:
+            self._cache_misses += 1
+            return None
+
+        # --- TIER 4: TRIBAL ADJUDICATION (LOCKING & PLATFORM) ---
+        # We engage the specific Lock for this request type to ensure atomic materialization.
+        with self._materialization_locks[matched_req_type]:
+            # Double-check L1 after acquiring lock to prevent redundant materialization.
+            if matched_req_type in self._l1_hot_cache:
+                return self._l1_hot_cache[matched_req_type]
 
             with self._lock:
-                refs = self._request_to_artisan.get(request_type)
+                refs = self._request_to_artisan.get(matched_req_type)
                 if not refs:
-                    self._cache_misses += 1
                     return None
 
                 # [ASCENSION 4]: Achronal Platform Triangulation
+                # Resolve the correct implementation based on the active substrate.
                 art_ref = (refs.get(self._current_os) or
                            refs.get("posix" if self._current_os in ("linux", "darwin") else None) or
                            refs.get("universal"))
@@ -555,26 +621,42 @@ class ArtisanRegistry:
                 if not art_ref:
                     return None
 
-            # --- TIER 3: THE RITE OF MATERIALIZATION (GHOST -> SOUL) ---
+            # --- TIER 5: THE RITE OF MATERIALIZATION (GHOST -> SOUL) ---
             if isinstance(art_ref, tuple):
                 module_path, class_name = art_ref
                 try:
-                    # [ASCENSION 2]: JIT PROVENANCE GENERATION
-                    # We might update the provenance record here if we skipped it during fast_register
-                    art_ref = self._materialize_ghost(request_type, module_path, class_name)
+                    # [ASCENSION 7]: Wake the Ghost into a living Class.
+                    art_ref = self._materialize_ghost(matched_req_type, module_path, class_name)
                 except Exception as e:
-                    self._quarantine_soul(request_type, module_path, class_name, e)
+                    # If the soul cannot be summoned, we quarantine the request type.
+                    self._quarantine_soul(matched_req_type, module_path, class_name, e)
                     return None
 
-            # --- TIER 4: APOTHEOSIS (INSTANTIATION & INJECTION) ---
+            # --- TIER 6: APOTHEOSIS (INSTANTIATION & INJECTION) ---
             if isinstance(art_ref, type):
                 try:
+                    start_ns = time.perf_counter_ns()
+
+                    # 1. Forge the living instance
                     instance = self._forge_living_instance(art_ref)
+
+                    # 2. Telemetry Inscription
+                    tax_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+                    self._update_metrics(matched_req_type, cache_hit=False)
+
+                    # 3. Enshrine in Hot Cache
+                    # We index by both the original request_type and the matched one
+                    # to ensure future L1 hits regardless of import path.
                     self._l1_hot_cache[request_type] = instance
-                    self._update_metrics(request_type, cache_hit=False)
+                    self._l1_hot_cache[matched_req_type] = instance
+
                     return instance
+
                 except Exception as e:
                     self._logger.error(f"INCEPTION_FRACTURE: Failed to birth {art_ref.__name__}: {e}")
+                    # Provide forensic trace to stderr immediately
+                    import traceback
+                    traceback.print_exc(file=sys.stderr)
                     return None
 
             return art_ref

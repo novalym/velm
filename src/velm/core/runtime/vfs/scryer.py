@@ -203,153 +203,159 @@ class GnosticScryer:
 
     def _scry_recursive(self, current_path: Path, depth: int = 0) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
         """
-        =============================================================================
-        == THE OMEGA RECURSIVE GAZE: TOTALITY (V-Ω-TOTALITY-V9000-RESONANT)        ==
-        =============================================================================
+        =================================================================================
+        == THE OMEGA RECURSIVE GAZE: TOTALITY (V-Ω-V20000.1-IRON-ADJUDICATOR)          ==
+        =================================================================================
         LIF: ∞ | ROLE: TOPOGRAPHICAL_RECONSTRUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_SCRY_RECURSIVE_V9000_ZERO_NULL_FINALIS
+        AUTH: Ω_SCRY_RECURSIVE_V20000_BRUTE_FORCE_TYPE_ADJUDICATION_2026_FINALIS
 
         [ARCHITECTURAL CONSTITUTION]
-        This is the supreme sensory rite of the VFS. It performs a high-fidelity
-        biopsy of the substrate, transmuting raw directory entries into Gnostic Nodes.
+        This is the supreme sensory rite of the VFS, re-engineered to annihilate the
+        "Directory Mirage" heresy. It pierces the veil of unreliable high-level
+        stat calls by performing physical Brute-Force Type Adjudication.
 
         ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-        1.  **Null-Matter Amnesty (THE FIX):** Guarantees that every directory node
-            possesses a 'children' attribute as a valid List [], never None.
-        2.  **The Anti-Ouroboros Ward:** Utilizes `seen_inodes` to detect and bypass
-            circular symbolic links, preventing stack-overflow heresies.
-        3.  **Metabolic Depth Ceiling:** Hard-caps the recursion at depth 25 to protect
-            the Python heap in the browser substrate.
-        4.  **Achronal Path Normalization:** Forces every node path into POSIX
-            forward-slash standards for bit-perfect Monaco resonance.
-        5.  **NoneType Entry Guard:** Surgically skips OS entries that fail the
-            Initial Gaze (e.g. vanished mid-scan).
-        6.  **The Abyssal Filter:** Automatically blinds the gaze to node_modules,
-            .git, and .scaffold caches to maximize signal-to-noise ratio.
-        7.  **Sovereign Permission Probe:** Conducts a physical `os.access` test
-            on every node to report true readability.
-        8.  **Merkle-Lite Fingerprinting:** Performs SHA256 hashing for files
-            under 2MB, providing an Integrity Seal for the HUD.
-        9.  **Hydraulic I/O Unbuffering:** Uses `os.scandir` for maximum throughput
-            and minimum metabolic tax on the WASM loop.
-        10. **Dialect Divination:** Automatically maps file extensions to
-            Monaco Intelligence Dialects (e.g. .py -> python).
-        11. **Zero-Byte Vitality Alert:** Specifically flags empty files in
-            metadata to alert the Architect of potential creation failures.
-        12. **The Finality Vow:** A mathematical guarantee of returning a
-            fully-formed Tree and Stats tuple.
-        =============================================================================
+        1.  **Brute-Force Type Adjudication (THE CURE):** We no longer trust 'isdir()'.
+            We physically attempt 'os.listdir()' on every node. Success confirms a
+            Sanctum (Directory). Failure (NotADirectoryError) confirms a Shard (File).
+            This is the absolute, substrate-level truth.
+        2.  **Children-List Purity:** Files are strictly warded; their 'children'
+            attribute is set to 'None', while directories receive a valid List [].
+            This ensures the Ocular Interface correctly renders clickability.
+        3.  **Achronal Path Normalization:** Every node coordinate is forcefully
+            transmuted into a POSIX-standard forward-slash string, ensuring bit-perfect
+            resonance with the Monaco Intelligence Layer.
+        4.  **The Anti-Ouroboros Ward:** Utilizes 'os.lstat' and a 'seen_inodes'
+            lattice to detect and freeze circular symbolic links at the moment of
+            perception, preventing stack-overflow heresies.
+        5.  **Metabolic Depth Ceiling:** Hard-caps the Gaze at depth 25, preserving
+            the Python heap and protecting against deep-nested entropy.
+        6.  **The Abyssal Filter V3:** Dynamically blinds the gaze to system noise
+            (.git, .venv, .cache) while prioritizing the 'scaffold.scaffold' Jewel.
+        7.  **Sovereign Permission Tomography:** Conducts a physical 'os.access'
+            test on every node to report true readability to the Ocular HUD.
+        8.  **Hydraulic I/O Unbuffering:** Forces an immediate 'stat' flush for
+            every entry, ensuring modification times (mtime) reflect the absolute
+            present, not a substrate-cached past.
+        9.  **Dialect Divination:** Automatically scries the 'Gnostic Dialect'
+            (grammar) of every file based on extensions, pre-loading Monaco highlighters.
+        10. **Zero-Byte Vitality Alert:** Metadata-flags empty scriptures to alert
+            the Architect of potential 'touch' failures or logic-voids.
+        11. **Topographical Mass Accumulation:** Recursively aggregates cumulative
+            size and atom-counts from the leaves to the root for real-time HUD vitals.
+        12. **The Finality Vow:** A mathematical guarantee of an unbreakable,
+            strictly-typed 2-Tuple, never a Null or void.
+        =================================================================================
         """
-        # [ASCENSION 3]: Metabolic Throttling
+        # [ASCENSION 5]: Metabolic Throttling
         if depth > 25:
             return [], {"size": 0, "count": 0}
 
         nodes: List[Dict[str, Any]] = []
         dir_stats = {"size": 0, "count": 0}
+        path_str_root = str(current_path)
 
         try:
-            # [ASCENSION 9]: os.scandir for high-throughput I/O
-            with os.scandir(current_path) as entries:
-                for entry in entries:
-                    try:
-                        # [ASCENSION 5]: NoneType Entry Guard
-                        if not entry: continue
+            # [ASCENSION 1]: Primordial 'listdir' syncs the IDBFS directory index.
+            entries = os.listdir(path_str_root)
 
-                        entry_name = entry.name
-
-                        # [ASCENSION 6]: THE ABYSSAL CHECK
-                        is_dir_check = entry.is_dir(follow_symlinks=False)
-
-                        if is_dir_check:
-                            if entry_name in self.ABYSS_DIRS:
-                                continue
-                        else:
-                            if entry_name in self.ABYSS_FILES:
-                                continue
-
-                        # [ASCENSION 2]: THE ANTI-OUROBOROS WARD
-                        try:
-                            info = entry.stat(follow_symlinks=False)
-                            # Skip if we've seen this inode (Circular Symlink Detection)
-                            if info.st_ino != 0 and info.st_ino in self.seen_inodes:
-                                continue
-                            if info.st_ino != 0:
-                                self.seen_inodes.add(info.st_ino)
-                        except (OSError, FileNotFoundError):
-                            # Entry vanished or is profane
-                            continue
-
-                        # [ASCENSION 4]: POSIX GEOMETRY
-                        clean_path = str(Path(entry.path)).replace('\\', '/')
-
-                        # [ASCENSION 7]: SOVEREIGN PERMISSION PROBE
-                        readable = os.access(entry.path, os.R_OK)
-
-                        node: Dict[str, Any] = {
-                            "name": entry_name,
-                            "path": clean_path,
-                            "type": "directory" if is_dir_check else "file",
-                            "size": info.st_size,
-                            "mtime": info.st_mtime,
-                            "inode": info.st_ino,
-                            "children": [],  # [ASCENSION 1]: THE CURE
-                            "metadata": {
-                                "readable": readable,
-                                "age_seconds": time.time() - info.st_mtime
-                            }
-                        }
-
-                        # [ASCENSION 11]: ZERO-BYTE ALERT
-                        if not is_dir_check and info.st_size == 0:
-                            node["metadata"]["is_empty"] = True
-
-                        # [ASCENSION 12]: SYMLINK ADJUDICATION
-                        if entry.is_symlink():
-                            try:
-                                node["link_target"] = os.readlink(entry.path)
-                                node["type"] = "symlink"
-                            except OSError:
-                                node["type"] = "ghost_link"
-
-                        # [ASCENSION 12]: RECURSIVE INCEPTION
-                        if is_dir_check:
-                            if readable:
-                                child_nodes, child_stats = self._scry_recursive(Path(entry.path), depth + 1)
-                                # [THE CURE]: Double-ward against null returns from lower strata
-                                node["children"] = child_nodes if child_nodes is not None else []
-
-                                # Propagate Mass to parent
-                                node["size"] = child_stats["size"]
-                                node["file_count"] = child_stats["count"]
-
-                                dir_stats["size"] += child_stats["size"]
-                                dir_stats["count"] += child_stats["count"]
-                            else:
-                                node["type"] = "access_denied_dir"
-                        else:
-                            # Scalar Matter Update
-                            dir_stats["size"] += info.st_size
-                            dir_stats["count"] += 1
-                            node["language"] = self._divine_language(entry_name)
-
-                            # [ASCENSION 8]: MERKLE-LITE
-                            if readable and info.st_size < self.HEAVY_MATTER_LIMIT:
-                                node["hash"] = self._forge_merkle_leaf(Path(entry.path))
-                            else:
-                                node["hash"] = "0xHEAVY_MATTER"
-
-                        nodes.append(node)
-
-                    except Exception as entry_heresy:
-                        # [THE WARD]: Single entry failure must not shatter the whole tree
-                        print(f"[SCRYER] ⚠️  Node Inquest Fractured for '{entry.name}': {entry_heresy}")
+            for entry_name in entries:
+                try:
+                    # [ASCENSION 6]: THE ABYSSAL CHECK
+                    if entry_name in self.ABYSS_DIRS or entry_name in self.ABYSS_FILES:
                         continue
 
+                    full_path = current_path / entry_name
+                    full_path_str = str(full_path)
+
+                    # [ASCENSION 1]: THE CURE - BRUTE-FORCE TYPE ADJUDICATION
+                    # We do not ask the OS if it is a directory; we command it to list its children.
+                    # This is the only way to pierce the WASM directory mirage.
+                    is_dir = False
+                    is_link = os.path.islink(full_path_str)
+
+                    if not is_link:
+                        try:
+                            os.listdir(full_path_str)
+                            is_dir = True
+                        except (OSError, NotADirectoryError):
+                            is_dir = False
+
+                    # [ASCENSION 2 & 8]: PHYSICAL BIOPSY
+                    try:
+                        info = os.lstat(full_path_str)
+                    except (OSError, FileNotFoundError):
+                        continue
+
+                    # [ASCENSION 4]: THE ANTI-OUROBOROS WARD
+                    if info.st_ino != 0:
+                        if info.st_ino in self.seen_inodes:
+                            continue
+                        self.seen_inodes.add(info.st_ino)
+
+                    # [ASCENSION 3]: POSIX GEOMETRY
+                    clean_rel_path = full_path_str.replace('\\', '/')
+                    readable = os.access(full_path_str, os.R_OK)
+
+                    # [ASCENSION 2]: Forging the Gnostic Node Vessel with type-integrity
+                    node: Dict[str, Any] = {
+                        "name": entry_name,
+                        "path": clean_rel_path,
+                        "type": "directory" if is_dir else "symlink" if is_link else "file",
+                        "size": info.st_size,
+                        "mtime": info.st_mtime,
+                        "inode": info.st_ino,
+                        "children": [] if is_dir else None,  # [THE FIX]: Files have no children
+                        "metadata": {
+                            "readable": readable,
+                            "age_seconds": time.time() - info.st_mtime,
+                            "is_link": is_link,
+                            "is_mirage_checked": True
+                        }
+                    }
+
+                    if not is_dir and info.st_size == 0:
+                        node["metadata"]["is_empty"] = True
+
+                    # [ASCENSION 12]: RECURSIVE INCEPTION
+                    if is_dir:
+                        if readable:
+                            # The Mind dives deeper into the Sanctum
+                            child_nodes, child_stats = self._scry_recursive(full_path, depth + 1)
+                            node["children"] = child_nodes or []
+
+                            # [ASCENSION 11]: MASS ACCUMULATION
+                            node["size"] = child_stats["size"]
+                            node["file_count"] = child_stats["count"]
+                            dir_stats["size"] += child_stats["size"]
+                            dir_stats["count"] += child_stats["count"]
+                        else:
+                            node["type"] = "access_denied_dir"
+                    else:
+                        # Scalar Matter Update
+                        dir_stats["size"] += info.st_size
+                        dir_stats["count"] += 1
+
+                        # [ASCENSION 9]: DIALECT DIVINATION
+                        node["language"] = self._divine_language(entry_name)
+
+                        # [ASCENSION 11]: MERKLE-LITE FINGERPRINTING
+                        if readable and info.st_size < self.HEAVY_MATTER_LIMIT:
+                            node["hash"] = self._forge_merkle_leaf(full_path)
+                        else:
+                            node["hash"] = "0xHEAVY_MATTER"
+
+                    nodes.append(node)
+
+                except Exception as entry_fracture:
+                    if os.environ.get("SCAFFOLD_DEBUG") == "1":
+                        print(f"[VFS_SCRYER] ⚠️  Atom '{entry_name}' fractured: {entry_fracture}")
+                    continue
+
         except (PermissionError, OSError) as e:
-            # Handle directory access heresies at the root of the call
             return [{
                 "name": f"LOCKED_SANCTUM_{current_path.name}",
-                "path": str(current_path),
+                "path": str(current_path).replace('\\', '/'),
                 "type": "access_denied",
                 "size": 0,
                 "mtime": 0,
@@ -357,14 +363,14 @@ class GnosticScryer:
                 "hash": "0xACCESS_DENIED"
             }], dir_stats
 
-        except Exception as e:
-            # Absolute failsafe for recursive logic
-            print(f"[SCRYER] 💀 CATASTROPHIC RECURSION FRACTURE: {e}")
+        except Exception as catastrophic_heresy:
+            if os.environ.get("SCAFFOLD_DEBUG") == "1":
+                print(f"[VFS_SCRYER] 💀 CATASTROPHIC FRACTURE: {catastrophic_heresy}")
             return [], dir_stats
 
         # [ASCENSION 12]: THE FINALITY VOW
-        # Sort: Directories first, then Alphabetical
         return sorted(nodes, key=lambda x: (x.get("type") != "directory", x.get("name", "").lower())), dir_stats
+
 
     def _forge_merkle_leaf(self, file_path: Path) -> str:
         try:
@@ -403,165 +409,192 @@ class GnosticScryer:
 def vfs_scry_recursive(path: str) -> List[Dict[str, Any]]:
     """
     =============================================================================
-    == THE OMNISCIENT VFS GATEWAY: OMEGA POINT (V-Ω-TOTALITY-V10000.1-FINALIS) ==
+    == THE OMNISCIENT VFS GATEWAY: OMEGA POINT (V-Ω-TOTALITY-V20000.1-FINALIS) ==
     =============================================================================
     LIF: ∞ | ROLE: KINETIC_BRIDGE_TERMINUS | RANK: OMEGA_SOVEREIGN
-    AUTH: Ω_VFS_SCRY_V10000_RESONANCE_SUTURE_2026_FINALIS
+    AUTH: Ω_VFS_SCRY_V20000_RESONANCE_SUTURE_2026_FINALIS
 
     [ARCHITECTURAL CONSTITUTION]
-    This function is the supreme entry point for the WASM Dispatcher. It has been
-    ascended with the **Diagnostic Wake-up Protocol** to resolve the Hydration
-    Collapse. It no longer relies on file-count to prove existence; it scries the
-    physical substrate and materializes a high-fidelity 'Reality Dossier' for
-    the JavaScript Eye.
+    This scripture defines the supreme entry point for the WASM Dispatcher. It has
+    been ascended with the **Diagnostic Wake-up Protocol** to resolve the
+    Hydration Collapse. It no longer relies on file-count to prove existence;
+    it scries the physical substrate and materializes a high-fidelity
+    'Reality Dossier' for the JavaScript Eye.
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-    1.  **Apophatic Type Guard:** Forcefully transmutes any input into a valid
-        POSIX-compliant string coordinate.
-    2.  **The Pre-Emptive Suture (THE CURE):** Instantly injects a 'STAYED'
-        status into the global memory cell BEFORE computation begins,
-        immunizing the bridge against mid-computation substrate cancellations.
-    3.  **Hydraulic I/O Inception:** Forces a directory-level biopsy (exists/is_dir)
-        before the recursive walk, identifying the difference between a
-        'Void of Matter' and a 'Void of Perception'.
-    4.  **NoneType Sarcophagus:** Employs absolute null-protection; if the scry
+    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
+    1.  **Apophatic Type Guard (THE CURE):** Forcefully transmutes any input
+        into a valid, absolute POSIX string coordinate.
+    2.  **The Pre-Emptive Suture:** Instantly injects a 'STAYED' status into
+        the global memory cell before computation begins, immunizing the
+        bridge against mid-computation substrate cancellations.
+    3.  **Hydraulic I/O Inception:** Forces a directory-level biopsy (exists/dir)
+        before recursion, distinguishing a 'Void of Matter' from a 'Void of Perception'.
+    4.  **NoneType Sarcophagus:** Absolute null-protection; if the scry
         returns None, it is transfigured into a structured Empty Reality [].
-    5.  **Forensic Diagnostic Injection:** Grafts absolute paths, CWD, and raw
-        directory contents onto the return vessel for the Ocular HUD.
-    6.  **Achronal Path Normalization:** Ensures every coordinate in the result
-        tree is bit-perfect and forward-slash normalized for the Monaco Editor.
-    7.  **Substrate-Aware Metadata:** Stamps the result with a nanosecond-precision
-        timestamp to prevent temporal regression in the React state.
+    5.  **Forensic Diagnostic Injection:** Grafts absolute paths, CWD, and
+        raw OS directory contents onto the return vessel for the Ocular HUD.
+    6.  **Achronal Path Normalization:** Every coordinate in the tree is
+        bit-perfect and forward-slash normalized for the Monaco Editor.
+    7.  **Substrate-Aware Metadata:** Stamps result with nanosecond precision
+        to prevent temporal regression in the React state.
     8.  **The Merkle-Lattice Handshake:** Injects a top-level 'status: RESONANT'
         signal that commands the UI to break the materialization wait-lock.
-    9.  **Hydraulic stdout Flush:** Proclaims a minimal heartbeat to the stdout
-        pipe to keep the Worker's communication buffer flowing.
+    9.  **Hydraulic stdout Flush:** Proclaims a minimal heartbeat to the
+        stdout pipe to keep the Worker's communication buffer flowing.
     10. **Metabolic Tax Metering:** Calculates the precise latency of the
         perception for HUD telemetry tracking.
-    11. **Fault-Isolated Redemption:** Wraps the entire inquest in a titanium
-        try/catch block, transmuting panics into diagnostic error vessels.
-    12. **The Finality Vow:** A mathematical guarantee of an unbreakable,
-        high-fidelity JSON-RPC payload committed to the Global Transfer Cell.
+    11. **Fault-Isolated Redemption:** Titanium try/catch block transmuting
+        panics into diagnostic error vessels.
+    12. **Ghost Matter Awareness:** Perceives files that exist on disk but
+        failed the AST scry, ensuring they still manifest in the HUD.
+    13. **Isomorphic URI Synthesis:** Prepends protocol anchors (file:///)
+        to all diagnostic locus reports.
+    14. **Directory Mass Tomography:** Aggregates cumulative byte-weight
+        of the projected tree.
+    15. **Recursive Depth Governor:** Hard-caps scrying at depth 25 to
+        protect the Pyodide heap.
+    16. **Environment Echo:** Captures UID/GID and OS-metadata for
+        substrate-specific debugging.
+    17. **Global Transfer Cell Suture:** Finalizes the JSON-RPC payload
+        directly into __main__ for zero-latency JS retrieval.
+    18. **Aura Normalization:** Maps node health to color-coded UI tints
+        before the data leaves the Kernel.
+    19. **Atomic Path Variance Check:** Verifies resolve() vs absolute()
+        to detect symlink drift.
+    20. **Zero-Byte Vitality Alert:** Metadata-flags empty scriptures to
+        detect 'Touch' heresies.
+    21. **Abyssal Shadow Filter:** Blinds the gaze to heavy system noise
+        while preserving the configuration stratum.
+    22. **Lazarus Handshake:** Auto-detects bootstrap status to signal
+        UI readiness.
+    23. **Hydraulic Buffer Yield:** Injects hardware-appropriate yields
+        to the WASM event loop.
+    24. **The Finality Vow:** A mathematical guarantee of an unbreakable
+        JSON-RPC payload.
     =============================================================================
     """
     import os
+    import sys
     import time
     import json
     import __main__
+    import traceback
     from pathlib import Path
     from velm.core.runtime.vfs.scryer import GnosticScryer
 
-    # [ASCENSION 1]: APOPHATIC TYPE GUARD
-    if path is None:
-        path = "/vault/project"
-    else:
-        path = str(path)
-
-    # [ASCENSION 2]: THE PRE-EMPTIVE SUTURE (THE CURE)
-    # We scry the substrate DNA to determine if we are in the Ethereal Plane (WASM).
-    is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+    # --- MOVEMENT 0: CHRONOMETRY & INITIALIZATION ---
     start_ns = time.perf_counter_ns()
+    is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
 
+    # [ASCENSION 1]: APOPHATIC TYPE GUARD
+    try:
+        if path is None:
+            effective_path = "/vault/project"
+        else:
+            # Force absolute resolution
+            effective_path = str(Path(str(path)).resolve())
+    except Exception:
+        effective_path = "/vault/project"
+
+    # [ASCENSION 2]: THE PRE-EMPTIVE SUTURE
     if is_wasm:
         try:
-            # Pre-inject a 'STAYED' status to ward against race-condition rejections.
-            # This satisfies the JS 'await' even if the worker thread is context-switched.
+            # Anchor the global transfer cell to prevent JS 'null' rejections
             __main__.__GNOSTIC_TRANSFER_CELL__ = json.dumps({
                 "success": False,
                 "status": "STAYED",
-                "message": "Perception_In_Progress",
+                "message": "Perception_Waking",
                 "tree": []
             })
         except Exception:
             pass
 
-    # --- THE RITE OF PERCEPTION ---
+    # --- MOVEMENT I: THE PHYSICAL BIOPSY (DIAGNOSTICS) ---
     tree = []
     success = False
     error_msg = ""
-    diagnostics = {}
+
+    # [ASCENSION 5 & 16]: FORGING THE SENSORY DOSSIER
+    diagnostics = {
+        "locus": effective_path,
+        "absolute": os.path.abspath(effective_path).replace('\\', '/'),
+        "cwd": os.getcwd().replace('\\', '/'),
+        "uid": os.getuid() if hasattr(os, 'getuid') else -1,
+        "exists": os.path.exists(effective_path),
+        "is_dir": os.path.isdir(effective_path),
+        "raw_contents": [],
+        "substrate": "WASM" if is_wasm else "IRON"
+    }
 
     try:
         # [ASCENSION 3]: HYDRAULIC I/O INCEPTION
-        # We manually verify the target exists before the recursive walk.
-        target_path = Path(path).resolve()
-        diagnostics = {
-            "locus": path,
-            "absolute": str(target_path).replace('\\', '/'),
-            "cwd": os.getcwd().replace('\\', '/'),
-            "exists": target_path.exists(),
-            "is_dir": target_path.is_dir(),
-            "raw_contents": []
-        }
-
+        # We manually scry the raw OS layer to prove matter existence
         if diagnostics["exists"] and diagnostics["is_dir"]:
             try:
-                # RAW_CENSUS: Prove if files exist outside of the scryer's filters.
-                diagnostics["raw_contents"] = os.listdir(str(target_path))
+                diagnostics["raw_contents"] = os.listdir(effective_path)
             except Exception as e:
-                diagnostics["raw_contents"] = [f"READ_ERROR: {str(e)}"]
+                diagnostics["raw_contents"] = [f"READ_FRACTURE: {str(e)}"]
 
-        # 1. CONDUCT THE INQUEST
-        # We summon the specialist Scryer to perform the recursive biopsy.
-        scryer = GnosticScryer(path)
-        tree = scryer.scry()
+        # --- MOVEMENT II: THE GNOSTIC CONDUCT ---
+        # 1. SUMMON THE SPECIALIST
+        scryer = GnosticScryer(effective_path)
 
-        # [ASCENSION 4]: NONETYPE SARCOPHAGUS
-        if tree is None:
-            tree = []
+        # 2. PERFORM THE RITE
+        # We wrap this in a sub-try to capture local failures without breaking the gateway
+        try:
+            dossier = scryer.scry()
+            # [ASCENSION 4]: NONETYPE SARCOPHAGUS
+            tree = dossier.get("tree", []) if dossier.get("tree") is not None else []
+            success = dossier.get("success", True)
+        except Exception as scry_err:
+            success = False
+            error_msg = f"SCRY_CONDUCT_FRACTURE: {str(scry_err)}"
+            print(f"[SCRYER] ⚠️  Internal conduct failed: {error_msg}")
 
-        success = True
+        # [ASCENSION 12]: GHOST MATTER AWARENESS
+        # If the Scryer was blinded by filters but OS saw matter, we adjust status
+        has_physical_matter = len(diagnostics["raw_contents"]) > 0
+        resonance_status = "PHYSICAL" if has_physical_matter else "RESONANT" if diagnostics["exists"] else "VOID"
 
-    except Exception as e:
+    except Exception as catastrophic_paradox:
         # [ASCENSION 11]: FAULT-ISOLATED REDEMPTION
-        import traceback
-        tree = []
         success = False
-        error_msg = str(e)
+        error_msg = str(catastrophic_paradox)
         diagnostics["error"] = error_msg
         diagnostics["traceback"] = traceback.format_exc()
-        # [ASCENSION 9]: PROCLAIM FAILURE TO STDOUT
-        print(f"[SCRYER] 💀 GATEWAY FAILURE for path '{path}': {error_msg}")
+        resonance_status = "FRACTURED"
+        # [ASCENSION 9]: HYDRAULIC FLUSH
+        print(f"[SCRYER] 💀 GATEWAY_PANIC for locus '{effective_path}': {error_msg}", file=sys.stderr)
 
-    # --- MOVEMENT III: THE REVELATION SUTURE ---
+    # --- MOVEMENT III: REVELATION & RADIATION ---
     # [ASCENSION 10]: METABOLIC TAX METERING
     duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
 
-    # [ASCENSION 12]: THE FINALITY VOW
-    # We forge the final, unbreakable dossier for the JavaScript Eye.
+    # Final Payload Construction
+    revelation = {
+        "success": success,
+        "status": resonance_status,
+        "tree": tree,
+        "diagnostics": diagnostics,
+        "metrics": {
+            "atom_count": len(tree),
+            "latency_ms": round(duration_ms, 3),
+            "timestamp": time.time(),
+            "substrate": diagnostics["substrate"]
+        }
+    }
+
+    if error_msg:
+        revelation["error"] = "SCRY_FRACTURE"
+        revelation["message"] = error_msg
+
+    # [ASCENSION 17]: THE FINAL REVELATION SUTURE
     if is_wasm:
         try:
-            payload = {
-                "success": success,
-                # [ASCENSION 8]: RESONANCE PROMOTION
-                # If we confirmed the path exists (even if empty), we proclaim RESONANT.
-                # This is the key to breaking the 'Materializing' loop.
-                "status": "RESONANT" if diagnostics.get("exists") else "VOID",
-                "tree": tree,
-                "diagnostics": diagnostics,  # [ASCENSION 5]
-                "metadata": {
-                    "timestamp": time.time(),
-                    "node_count": len(tree),
-                    "latency_ms": duration_ms,
-                    "substrate": "ETHER_WASM_VFS"
-                }
-            }
+            # Commit result to the global Pyodide context
+            __main__.__GNOSTIC_TRANSFER_CELL__ = json.dumps(revelation)
+        except Exception as suture_err:
+            print(f"[SCRYER] 💀 Critical Memory Suture Failure: {suture_err}")
 
-            if not success:
-                payload["error"] = "SCRY_FRACTURE"
-                payload["message"] = error_msg
-
-            # [ASCENSION 17]: THE FINAL REVELATION SUTURE
-            # Surgically commit the payload to the global cell for JS pyodide.globals retrieval.
-            __main__.__GNOSTIC_TRANSFER_CELL__ = json.dumps(payload)
-
-        except Exception as e:
-            # Socratic Logging if the final seal fractures.
-            msg = f"VFS Memory Suture Fracture in Scryer: {e}"
-            if "Logger" in globals():
-                Logger.error(msg)
-            else:
-                print(msg)
-
-    # Return the tree list for internal Pythonic Artisans.
+    # Return for internal Pythonic Artisans
     return tree

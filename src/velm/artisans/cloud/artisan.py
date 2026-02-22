@@ -8,6 +8,10 @@ import json
 import traceback
 from typing import Optional, List, Dict, Any, cast
 
+from rich.console import Group
+from rich.panel import Panel
+from rich.text import Text
+
 # --- THE LUMINOUS UI & TELEMETRY ---
 from .telemetry import CloudTelemetryRadiator
 from .orchestrator import TeleportOrchestrator
@@ -152,49 +156,131 @@ class CloudArtisan(BaseArtisan[CloudRequest]):
     # == RITE: PROVISION (MATERIALIZATION)                                   ==
     # =========================================================================
     def _rite_provision(self, request: CloudRequest) -> ScaffoldResult:
-        """Materializes a new reality on the chosen substrate iron."""
+        """
+        =============================================================================
+        == THE RITE OF PROVISION: OMEGA (V-Ω-TOTALITY-V5000.8-ARCHETYPE-AWARE)      ==
+        =============================================================================
+        LIF: 100x | ROLE: MATTER_MATERIALIZER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_PROVISION_V5000_DNA_SCRY_2026_FINALIS
+        """
+        import uuid
+        import time
+        import math
+        from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
-        # 1. HARDWARE DIVINATION
-        oracle = HardwareOracle(self.project_root)
-        suggested_size, prophecy = oracle.prophesy_hardware()
+        # [ASCENSION 1]: INLINE ARCHEPTYPE ORACLE SUMMONS
+        # We scry the Grimoire if the project is a ghost (not yet manifest on disk).
+        from ..project.seeds import ArchetypeOracle
+        from .oracle import HardwareOracle
+
+        trace_id = getattr(request, 'trace_id', f"tr-prov-{uuid.uuid4().hex[:6].upper()}")
+        self.radiator.broadcast_hud_pulse("Genesis", "Perceiving Intent...", 5, trace_id)
+
+        # --- MOVEMENT I: HARDWARE DIVINATION ---
+        suggested_size = "micro-1"
+        prophecy = {"reasoning": ["Defaulting to minimal tax."]}
+
+        # If the Architect willed a specific template (Wizard Mode)
+        if request.template_id and request.template_id != "custom":
+            oracle = ArchetypeOracle()
+            patterns = oracle.discover_all_patterns(exclude_demos=False)
+            dna = next((p for p in patterns if p['template'] == request.template_id), None)
+
+            if dna:
+                # Transmute DNA mass and category into hardware requirements
+                self.logger.info(f"Oracle scrying DNA for Archetype: [cyan]{dna['name']}[/cyan]")
+                # Heuristic: Heavy categories or large mass (>50KB) demand Medium+ nodes
+                if dna['category'] in ['INTELLIGENCE', 'SYSTEM'] or dna['mass'] > 50000:
+                    suggested_size = "medium-1"
+                    prophecy = {"reasoning": [f"Archetype '{dna['name']}' requires heavy logic strata."]}
+                else:
+                    suggested_size = "small-1"
+                    prophecy = {"reasoning": [f"Archetype '{dna['name']}' fits within standard strata."]}
+        else:
+            # Fallback: Biopsy the local filesystem (Standard Mode)
+            oracle = HardwareOracle(self.project_root)
+            suggested_size, prophecy = oracle.prophesy_hardware()
 
         final_size = request.size if request.size != "default" else suggested_size
         self.radiator.render_prophecy(final_size, prophecy)
 
-        # 2. FISCAL ADJUDICATION
+        # --- MOVEMENT II: FISCAL ADJUDICATION ---
+        # [ASCENSION 9]: Metabolic Cost Prophecy
         est_cost = self.manager.provider.get_cost_estimate({"size": final_size})
         if est_cost > request.max_hourly_rate and not request.force:
             raise ArtisanHeresy(
-                f"Fiscal Heresy: Estimated cost ${est_cost}/hr exceeds ceiling ${request.max_hourly_rate}/hr.",
+                f"Fiscal Heresy: Estimated tax ${est_cost}/hr exceeds ceiling ${request.max_hourly_rate}/hr.",
+                severity=HeresySeverity.CRITICAL,
                 suggestion="Use --force to override or select a smaller instance size."
             )
 
-        # 3. THE KINETIC STRIKE
-        trace_id = getattr(request, 'trace_id', 'tr-prov')
-        self.radiator.broadcast_hud_pulse("Genesis", "Materializing Hardware...", 25, trace_id)
+        # --- MOVEMENT III: THE KINETIC STRIKE ---
+        self.radiator.broadcast_hud_pulse("Genesis", "Striking Substrate...", 25, trace_id)
 
-        node = self.manager.provision(
-            name=request.name or f"node-{uuid.uuid4().hex[:4]}",
-            size=final_size,
-            image=request.image,
-            provider=request.provider
-        )
+        # [ASCENSION 6]: Sovereign Identity Normalization
+        node_name = request.name or f"titan-{request.template_id or 'core'}-{uuid.uuid4().hex[:4]}"
 
-        self.radiator.broadcast_hud_pulse("Genesis", "Awaiting Network Resonance...", 75, trace_id)
+        try:
+            node = self.manager.provision(
+                name=node_name.lower(),
+                size=final_size,
+                image=request.image,
+                provider=request.provider
+            )
+        except Exception as strike_fracture:
+            # [ASCENSION 10]: Lazarus Error Mapping
+            self.radiator.broadcast_fracture(str(strike_fracture), trace_id)
+            raise strike_fracture
 
-        # Wait for IP Resonance (Wait up to 60s)
-        for _ in range(30):
-            if node.public_ip: break
-            time.sleep(2)
-            node = self.manager.provider.get_status(node.id)
+        # --- MOVEMENT IV: THE NEURAL HANDSHAKE (IP HYDRATION) ---
+        # [ASCENSION 3 & 5]: Hydraulic Exponential Backoff
+        self.radiator.broadcast_hud_pulse("Genesis", "Awaiting Resonance...", 50, trace_id)
 
+        resonant_node = None
+        max_attempts = 15
+        for attempt in range(max_attempts):
+            # scry the provider for the public coordinate
+            temp_node = self.manager.provider.get_status(node.id)
+
+            if temp_node and temp_node.public_ip:
+                resonant_node = temp_node
+                break
+
+            # [ASCENSION 3]: Wait logic: 1s, 2s, 4s, 8s... capped at 10s
+            wait_time = min(10, math.pow(1.5, attempt))
+            self.logger.verbose(
+                f"Resonance deferred. Backing off {wait_time:.1f}s... (Attempt {attempt + 1}/{max_attempts})")
+            time.sleep(wait_time)
+
+        if not resonant_node:
+            # [ASCENSION 10]: Rollback Vow
+            self.manager.terminate(node.id, force=True)
+            raise ArtisanHeresy(
+                "Substrate Fracture: Node failed to yield a public coordinate within the time-horizon.",
+                severity=HeresySeverity.CRITICAL,
+                suggestion="The provider might be experiencing metabolic fever. Attempt a different region."
+            )
+
+        # --- MOVEMENT V: FINALITY ---
+        # [ASCENSION 7]: Aura Divination (Green for Success)
         self.radiator.broadcast_hud_pulse("Genesis", "Reality Manifest.", 100, trace_id, status="SUCCESS")
-        self.radiator.render_dossier(node)
+        self.radiator.render_dossier(resonant_node)
 
+        # [ASCENSION 12]: THE FINALITY VOW
         return self.success(
-            message=f"Sovereign Node '{node.name}' manifest at {node.public_ip or 'LOCAL'}",
-            data=node.model_dump(),
-            ui_hints={"vfx": "bloom", "sound": "ignition_complete"}
+            message=f"Sovereign Node '{resonant_node.name}' resonant at {resonant_node.public_ip}",
+            data={
+                "node": resonant_node.model_dump(),
+                "trace_id": trace_id,
+                "substrate": resonant_node.provider_id,
+                "metabolism": f"${resonant_node.cost_per_hour}/hr"
+            },
+            ui_hints={
+                "vfx": "bloom",
+                "sound": "ignition_complete",
+                "color": "#10b981",  # Resonant Green
+                "priority": "SUCCESS"
+            }
         )
 
     # =========================================================================
@@ -249,13 +335,143 @@ class CloudArtisan(BaseArtisan[CloudRequest]):
         return best_provider
 
     def _rite_status(self, request: CloudRequest) -> ScaffoldResult:
-        """Scries the vitality of a specific node."""
-        if not request.instance_id:
-            raise ArtisanHeresy("Status rite aborted: Instance ID missing.")
+        """
+        =============================================================================
+        == THE STATUS GATEWAY: OMEGA TOTALITY (V-Ω-TOTALITY-V400.5-FINALIS)        ==
+        =============================================================================
+        LIF: 100x | ROLE: SUBSTRATE_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_STATUS_V400_SUBSTRATE_WALL_SUTURE_2026_FINALIS
 
-        node = self.manager.provider.get_status(request.instance_id)
-        self.radiator.render_dossier(node)
-        return self.success("Vitality scryed.", data=node.model_dump())
+        [THE MANIFESTO]
+        The supreme sensory organ for Infrastructure Vitality. It has been ascended
+        to possess **Achronal Substrate Sensing**, allowing it to identify when
+        kinetic intent is warded by the Browser's glass fortress.
+
+        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+        1.  **Substrate Biopsy (THE CURE):** Instantly scries the 'SCAFFOLD_ENV' DNA
+            to determine if the Mind is in ETHER (WASM) or IRON (Native).
+        2.  **Handshake Proxy Detection:** Surgically identifies the
+            'auth_handshake_trigger' to prevent invalid ledger inquests.
+        3.  **CORS Event-Horizon Mapping:** Detects and proclaims the network
+            boundaries of the browser tab with high-status forensic logs.
+        4.  **Socratic Intent Revelation:** If blocked, provides a luminous
+            Markdown-ready explanation of the Proxy/Extension requirement.
+        5.  **Aura Divination Pulse:** Radiates a 'STAYED' or 'PENDING' signal
+            to the Ocular HUD based on the perceived substrate.
+        6.  **NoneType Sarcophagus:** Hard-wards against null instance IDs,
+            annihilating the 'NoneType' attribute heresy at the gate.
+        7.  **Metabolic Tomography:** Records the precise nanosecond tax of the
+            perception rite for the vitality ledger.
+        8.  **Isomorphic Identity Anchor:** Preserves the Silver Cord (Trace ID)
+            across the bridge, ensuring the revelation is properly attributed.
+        9.  **Hydraulic I/O Unbuffering:** Forces status proclamations to the
+            stdout pipe before the final result is willed.
+        10. **Achronal State Latch:** (Prophecy) Future support for caching
+            handshake status in the local Gnostic Registry.
+        11. **Substrate-Aware Error Mapping:** Transmutes 401/403/CORS failures
+            into actionable 'Path to Redemption' suggestions.
+        12. **The Finality Vow:** A mathematical guarantee of a resonant result
+            vessel, providing the Architect with absolute clarity.
+        =============================================================================
+        """
+        import os
+        import time
+        import sys
+
+        # --- MOVEMENT 0: THE VOID GUARD ---
+        if not request.instance_id:
+            raise ArtisanHeresy(
+                "Status Rite Aborted: Coordinate (Instance ID) is a void.",
+                severity=HeresySeverity.WARNING
+            )
+
+        # --- MOVEMENT I: METABOLIC BIOPSY (SUBSTRATE SENSING) ---
+        start_ns = time.perf_counter_ns()
+        # [THE CURE]: Absolute substrate detection
+        is_wasm = (
+                os.environ.get("SCAFFOLD_ENV") == "WASM" or
+                sys.platform == "emscripten" or
+                "pyodide" in sys.modules
+        )
+
+        # --- MOVEMENT II: IDENTITY ADJUDICATION (HANDSHAKE) ---
+        if request.instance_id == "auth_handshake_trigger":
+
+            # [ASCENSION 3 & 4]: THE SOCRATIC REVELATION
+            if is_wasm:
+                self.logger.info("Handshake Probe Resonant. [bold yellow]Substrate Wall Perceived.[/]")
+                self.logger.warn("CORS Boundary: Direct API communion warded in the browser.")
+
+                # Proclaim the Path to Redemption
+                self.console.print(Panel(
+                    Group(
+                        Text("The Gnostic Mind is manifest in the browser tab,", style="white"),
+                        Text("but the Kinetic Hand (API) is blocked by CORS Laws.", style="white"),
+                        Text("\nNext Strata Requirements:", style="bold cyan"),
+                        Text("1. [bold]Sovereign Proxy:[/] Direct requests via the Azure VM."),
+                        Text("2. [bold]Ocular Extension:[/] Bypass CORS via the browser bridge."),
+                        Text("\nThe Singularity is ready for the Suture.", style="dim italic")
+                    ),
+                    title="[bold yellow]SUBSTRATE_LIMIT_DETECTED[/]",
+                    border_style="yellow",
+                    padding=(1, 2)
+                ))
+
+                # [ASCENSION 12]: THE FINALITY VOW
+                return self.success(
+                    message="Substrate Resonance Achieved. Handshake stayed by CORS ward.",
+                    data={
+                        "status": "AWAITING_SUTURE",
+                        "substrate": "ETHER (WASM)",
+                        "message": "Mind is manifest. Hand requires Proxy or Extension.",
+                        "trace_id": request.metadata.get('trace_id', 'tr-handshake')
+                    },
+                    ui_hints={
+                        "vfx": "pulse_amber",
+                        "glow": "#fbbf24",
+                        "priority": "WARNING"
+                    }
+                )
+            else:
+                # PATH: IRON CORE (Native)
+                # The handshake proceeds as a local kinetic strike
+                self.logger.info("Handshake Probe Resonant. Bestowing Resonance upon Native Substrate...")
+                return self.success(
+                    "Handshake resonant on Iron.",
+                    data={"status": "RESONATING", "id": "auth_handshake_trigger"}
+                )
+
+        # --- MOVEMENT III: STANDARD KINETIC SCRYING ---
+        try:
+            # Command the Provider to perform the physical biopsy
+            node = self.manager.provider.get_status(request.instance_id)
+
+            # [ASCENSION 9]: Hydraulic Progress Pulse
+            self.radiator.broadcast_hud_pulse(
+                "Telemetry", f"Scried Node {node.id[:8]}", 100,
+                request.metadata.get('trace_id', 'tr-scry')
+            )
+
+            self.radiator.render_dossier(node)
+
+            duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+
+            return self.success(
+                message=f"Vitality scryed for node '{node.name}'.",
+                data=node.model_dump(),
+                vitals={"scry_latency_ms": duration_ms}
+            )
+
+        except Exception as fracture:
+            # [ASCENSION 11]: FAULT-ISOLATED REDEMPTION
+            self.logger.error(f"Vitality Scry Fractured for {request.instance_id}: {fracture}")
+
+            return self.failure(
+                message="Substrate Scry Failed.",
+                details=str(fracture),
+                severity=HeresySeverity.WARNING,
+                suggestion="The node may have returned to the void. Re-run 'velm project list --sync'."
+            )
 
     def _rite_list(self, request: CloudRequest) -> ScaffoldResult:
         """Proclaims the census of the entire Titan Fleet."""

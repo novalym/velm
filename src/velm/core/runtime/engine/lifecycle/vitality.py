@@ -17,7 +17,7 @@ import logging
 import platform
 from pathlib import Path
 from typing import Optional, Dict, Any, Final, Union
-
+from .....logger import Scribe
 # [ASCENSION 1]: SURGICAL SENSORY GUARD
 # We attempt to manifest the psutil artisan for Iron Core realities.
 try:
@@ -31,7 +31,7 @@ except ImportError:
 # --- GNOSTIC UPLINKS ---
 from .state import LifecyclePhase
 
-Logger = logging.getLogger("QuantumEngine:Metabolism")
+Logger = Scribe("QuantumEngine:Metabolism")
 
 
 class VitalityMonitor:
@@ -76,14 +76,24 @@ class VitalityMonitor:
     ETHER_DRIFT_CEILING: Final[float] = 15.0  # ms of lag before "Fever"
 
     def __init__(self, engine: Any):
+        """
+        [THE RITE OF INCEPTION]
+        Calibrates the Vitality Monitor to the host substrate.
+        Includes deep-tissue WASM detection to prevent threading fractures.
+        """
+        import sys
         self.engine = engine
         self.logger = Logger
         self._stop_event = threading.Event()
         self._thread: Optional[threading.Thread] = None
 
-        # [ASCENSION 1]: SUBSTRATE DETECTION
-        # We scry the environment to determine the physics of the vigil.
-        self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+        # [ASCENSION 1]: ABSOLUTE SUBSTRATE DETECTION (THE CURE)
+        # We check sys.modules for 'pyodide' as the ultimate truth.
+        self.is_wasm = (
+            os.environ.get("SCAFFOLD_ENV") == "WASM" or
+            sys.platform == "emscripten" or
+            "pyodide" in sys.modules
+        )
         self.is_blind = not PS_AVAILABLE
 
         # --- 1. ADAPTIVE THRESHOLD CALCULATION ---
@@ -105,8 +115,12 @@ class VitalityMonitor:
         self._last_biopsy_ts = time.monotonic()
 
         # [ASCENSION 5]: Parent Identification
+        # In WASM, getppid might not exist or return garbage. We protect it.
         try:
-            self._parent_pid = os.getppid() if hasattr(os, 'getppid') else 0
+            if hasattr(os, 'getppid'):
+                self._parent_pid = os.getppid()
+            else:
+                self._parent_pid = 0
         except Exception:
             self._parent_pid = 0
 
@@ -115,24 +129,35 @@ class VitalityMonitor:
     def start_vigil(self, pulse_file_path: Optional[str] = None):
         """
         =============================================================================
-        == THE RITE OF IGNITION: SUBSTRATE-AWARE HEARTBEAT                         ==
+        == THE RITE OF IGNITION: SUBSTRATE-AWARE HEARTBEAT (V-Ω-FINALIS)           ==
         =============================================================================
-        [THE CURE]: Prevents the 'can't start new thread' heresy in the browser tab.
+        [THE CURE]: This function is now the ultimate authority on threading.
+        If it detects the Ether (WASM), it performs a single synchronous pulse
+        to establish the baseline, then refuses to spawn a thread.
         """
         if pulse_file_path:
             self.pulse_path = Path(pulse_file_path)
 
-        # [ASCENSION 1]: SUBSTRATE DETECTION
-        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
-
-        self.logger.info(
-            f"Vitality Monitor active. [Substrate: {'ETHER' if is_wasm else 'IRON'}]"
+        # [ASCENSION 1]: RE-VERIFY SUBSTRATE
+        # We check again just in case the environment shifted during boot.
+        import sys
+        self.is_wasm = (
+            os.environ.get("SCAFFOLD_ENV") == "WASM" or
+            sys.platform == "emscripten" or
+            "pyodide" in sys.modules
         )
 
-        if is_wasm:
+        self.logger.info(
+            f"Vitality Monitor active. [Substrate: {'ETHER' if self.is_wasm else 'IRON'}]"
+        )
+
+        if self.is_wasm:
             self.logger.info("Heartbeat shifted to [cyan]Synchronous Pulse[/cyan].")
-            # We perform one manual pulse to initialize telemetry
-            self.pulse()
+            # We perform one manual pulse to initialize telemetry immediately
+            try:
+                self.pulse()
+            except Exception:
+                pass
             return
 
         # PATH: IRON CORE (NATIVE)
@@ -144,8 +169,9 @@ class VitalityMonitor:
                 daemon=True
             )
             self._thread.start()
-        except RuntimeError:
-            self.logger.warn("Threading prohibited. Heartbeat remains silent.")
+        except RuntimeError as e:
+            self.logger.warn(f"Threading prohibited by substrate ({e}). Heartbeat remains silent.")
+            self.is_wasm = True # Fallback to prevent future attempts
 
 
 

@@ -5217,7 +5217,8 @@ class ProjectRequest(BaseRequest):
 # =============================================================================
 
 CloudAction = Literal["provision", "terminate", "status", "list", "reconcile", "cost_check"]
-CloudProvider = Literal["aws", "oracle", "hetzner", "azure", "docker", "local"]
+CloudProvider = Literal["aws", "oracle", "hetzner", "azure", "docker", "local", "ovh"]
+
 
 
 # =============================================================================

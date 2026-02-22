@@ -81,17 +81,26 @@ class SystemWatchdog:
 
     def __init__(self, engine: Any):
         """
-        [THE RITE OF INCEPTION]
-        Binds the Watchdog to the Engine and calibrates sensors to the host hardware.
+        =============================================================================
+        == THE RITE OF INCEPTION (V-Ω-TOTALITY-V30000-SUBSTRATE-OMNISCIENT)        ==
+        =============================================================================
+        Binds the Watchdog to the Engine and performs a deep-tissue calibration
+        of the host sensors. Ascended to detect Ethereal (WASM) substrates.
         """
+        import sys
         self.engine = engine
         self.logger = Scribe("Watchdog")
         self._stop_event = threading.Event()
         self._thread: Optional[threading.Thread] = None
         self._lock = threading.RLock()
 
-        # [ASCENSION 1]: ENVIRONMENT SENSING
-        self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+        # [ASCENSION 1]: ABSOLUTE SUBSTRATE BIOPSY
+        # We check multiple dimensions of reality to confirm if we are in the Browser.
+        self._is_wasm = (
+                os.environ.get("SCAFFOLD_ENV") == "WASM" or
+                sys.platform == "emscripten" or
+                "pyodide" in sys.modules
+        )
         self._is_blind = not PS_AVAILABLE
         self._pid = os.getpid()
 
@@ -104,12 +113,11 @@ class SystemWatchdog:
                 self._is_blind = True
 
         # --- 1. ADAPTIVE THRESHOLD CALCULATION ---
-        # [ASCENSION 2]: Divine capacity.
         try:
             if not self._is_blind:
                 total_ram_gb = psutil.virtual_memory().total / (1024 ** 3)
             else:
-                # In WASM/Blind mode, we assume a standard container limit
+                # In WASM/Blind mode, we assume a standard container limit (4GB)
                 total_ram_gb = 4.0
         except Exception:
             total_ram_gb = 8.0
@@ -129,18 +137,15 @@ class SystemWatchdog:
         self._entropy_velocity = 0.0  # MB/s
         self._drift_ms = 0.0  # Thread Lag
 
-    # =========================================================================
-    # == THE RITE OF VIGILANCE (LIFECYCLE)                                   ==
-    # =========================================================================
-
     def start_vigil(self):
         """
         =============================================================================
-        == THE AWAKENING: PASIVE METABOLISM (V-Ω-TOTALITY-V20000-WASM-SAFE)        ==
+        == THE AWAKENING: PASSIVE METABOLISM (V-Ω-THREAD-SAFE-ULTIMA)              ==
         =============================================================================
-        [THE CURE]: This rite now scries the substrate. If in WASM, it stays the
-        hand of the Threading system to prevent the 'can't start new thread'
-        RuntimeError.
+        [THE CURE]: This rite scries the substrate. If WASM is perceived, it
+        IMMEDIATELY stays the hand of the Threading system, preventing the
+        'RuntimeError: can't start new thread' heresy. It enters Passive Mode,
+        awaiting manual polls from the Dispatcher.
         """
         if self._is_wasm:
             self.logger.info("Watchdog entering [cyan]Passive Mode[/cyan] (WASM Substrate). Threading suspended.")
@@ -173,8 +178,8 @@ class SystemWatchdog:
                 )
                 self._thread.start()
             except RuntimeError as thread_heresy:
-                self.logger.error(f"Threading Paradox: {thread_heresy}. Falling back to Passive Mode.")
-                self._is_wasm = True # Force passive mode for future calls
+                self.logger.error(f"Threading Paradox detected: {thread_heresy}. Forcing Passive Mode.")
+                self._is_wasm = True  # Force passive mode for future calls to prevent retry loops
 
     def stop_vigil(self):
         """[THE DISSOLUTION]"""

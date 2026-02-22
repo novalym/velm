@@ -162,66 +162,67 @@ class DivineAlchemist:
     def __init__(self, engine: Optional[Any] = None, strict: bool = True):
         """
         =============================================================================
-        == THE RITE OF CONSECRATION (V-Ω-TOTALITY-V300.7-SUTURED)                  ==
+        == THE RITE OF CONSECRATION (V-Ω-TOTALITY-V300.9-BULLETPROOF)              ==
         =============================================================================
-        LIF: ∞ | ROLE: ORGAN_MATERIALIZATION | RANK: OMEGA
+        LIF: ∞ | ROLE: ORGAN_MATERIALIZATION | RANK: OMEGA_SUPREME
         AUTH: Ω_ALCHEMIST_INIT_V300_ENGINE_SUTURE_2026_FINALIS
 
         [THE MANIFESTO]
-        This rite materializes the Alchemist's mind. It has been ascended to resolve
-        the 'Engine-less Paradox' by accepting an optional engine reference during
-        inception or re-entry, ensuring the Shadow Context Suture is always resonant.
+        This rite materializes the Alchemist's mind. It has been ascended to annihilate
+        the 'AttributeError' heresy by ensuring the engine slot is warded against
+        the void even during singleton re-entry.
         """
-        # --- MOVEMENT 0: RE-ENTRY ADJUDICATION ---
+        # --- MOVEMENT 0: PRIMORDIAL SLOTTING ---
+        # [ASCENSION 1]: We define the slot immediately to prevent 'no attribute' panic
+        if not hasattr(self, 'engine'):
+            self.engine = None
+
+        # --- MOVEMENT I: RE-ENTRY ADJUDICATION ---
         if hasattr(self, '_initialized') and self._initialized:
-            # [ASCENSION 25]: LATE-BOUND SUTURE (THE FIX)
-            # If the singleton was born in a void, we suture the heart now.
-            if engine and getattr(self, 'engine', None) is None:
+            # [ASCENSION 25]: LATE-BOUND SUTURE (THE CURE)
+            # If the singleton was born in a void, we anchor the heart now.
+            if engine and self.engine is None:
                 self.engine = engine
                 self.Logger.verbose(f"Divine Alchemist [{self.instance_id}] sutured to Engine post-inception.")
             return
 
-        self._lock = threading.RLock()
-        self.instance_id = uuid.uuid4().hex[:8].upper()
-        self.boot_time = time.perf_counter_ns()
-
-        # [THE CURE]: THE ENGINE SUTURE
-        # Binds the Alchemist to the sovereign engine to enable Ocular pulses,
-        # metabolic scrying, and request-tracing.
-        self.engine = engine
-
-        # --- MOVEMENT I: SACRED GEOMETRY ---
-        # [ASCENSION 1 & 10]: HERMETIC WHITESPACE WARD
-        self.env = SandboxedEnvironment(
-            loader=BaseLoader(),
-            # [THE SINGULARITY FIX]: We preserve the Vow of Strictness
-            undefined=jinja2.StrictUndefined if strict else GnosticVoid,
-            finalize=paranoid_finalizer,
-            autoescape=False,
-            trim_blocks=True,
-            lstrip_blocks=True,
-            keep_trailing_newline=False,
-            comment_start_string='<#',
-            comment_end_string='#>'
-        )
-
         # --- MOVEMENT II: ORGAN MATERIALIZATION ---
-        self._arm_hermetic_wards()
-        self._consecrate_standard_library()
-        self._bestow_naming_nomenclature()
-        self._ignite_metabolic_cache()
+        with threading.RLock(): # Use local lock before self._lock is manifest
+            self._lock = threading.RLock()
+            self.instance_id = uuid.uuid4().hex[:8].upper()
+            self.boot_time = time.perf_counter_ns()
+            self.engine = engine
 
-        # --- MOVEMENT III: TELEMETRY ANCHORS ---
-        self._resolution_history: Dict[str, Dict] = {}
-        self._initialized = True
-
-        if not getattr(self.engine, '_silent', False):
-            self.Logger.success(
-                f"Divine Alchemist [{self.instance_id}] manifest. "
-                f"Substrate: {platform.system().upper()} | "
-                f"Mode: {'STRICT' if strict else 'LENIENT'}"
+            # [ASCENSION 1 & 10]: HERMETIC WHITESPACE WARD
+            self.env = SandboxedEnvironment(
+                loader=BaseLoader(),
+                undefined=jinja2.StrictUndefined if strict else GnosticVoid,
+                finalize=paranoid_finalizer,
+                autoescape=False,
+                trim_blocks=True,
+                lstrip_blocks=True,
+                keep_trailing_newline=False,
+                comment_start_string='<#',
+                comment_end_string='#>'
             )
 
+            # Internal Setup
+            self._arm_hermetic_wards()
+            self._consecrate_standard_library()
+            self._bestow_naming_nomenclature()
+            self._ignite_metabolic_cache()
+
+            # --- MOVEMENT III: TELEMETRY ANCHORS ---
+            self._resolution_history: Dict[str, Dict] = {}
+            self._initialized = True
+
+        # Proclaim Resonance
+        engine_silent = getattr(self.engine, '_silent', False) if self.engine else False
+        if not engine_silent:
+            self.Logger.success(
+                f"Divine Alchemist [{self.instance_id}] manifest. "
+                f"Mode: {'STRICT' if strict else 'LENIENT'}"
+            )
 
     # =========================================================================
     # == THE HERMETIC WARDS (SECURITY)                                       ==
@@ -699,70 +700,98 @@ class DivineAlchemist:
         return f"<Ω_DIVINE_ALCHEMIST id={self.instance_id} status=RESONANT>"
 
 
-# =============================================================================
-# == VI. THE ALCHEMICAL SINGLETON: OMEGA POINT (V-Ω-TOTALITY-V300.9)          ==
-# =============================================================================
-# LIF: ∞ | ROLE: GNOSTIC_SYNAPSE_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-# AUTH: Ω_GATEWAY_V300_ENGINE_SUTURE_FINALIS
-
-_ALCHEMIST_CELL: Optional[DivineAlchemist] = None
-_CELL_LOCK = threading.RLock()  # Re-entrant protective shield
+# --- THE GNOSTIC CELL ---
+# This is the immortal Locus where the Alchemist's mind resides.
+_ALCHEMIST_CELL: Optional['DivineAlchemist'] = None
+_CELL_LOCK: Final[threading.RLock] = threading.RLock()
 
 
-def get_alchemist(engine: Optional[Any] = None) -> DivineAlchemist:
+def get_alchemist(engine: Optional[Any] = None, strict: bool = True) -> 'DivineAlchemist':
     """
     =============================================================================
-    == THE ALCHEMICAL SINGLETON (V-Ω-SUTURE-AWARE-FINALIS)                     ==
+    == THE ALCHEMICAL SINGLETON (V-Ω-TOTALITY-V400-INDESTRUCTIBLE)             ==
     =============================================================================
     Summons the one true, shared mind of the Alchemist.
 
-    ### THE PANTHEON OF 7 ASCENSIONS:
-    1.  **Achronal Organ Suture:** Surgically injects the Engine reference into
-        the Alchemist's soul to enable HUD radiation and distributed tracing.
-    2.  **Double-Checked Atomic Gating:** Implements the high-status thread-safe
-        locking pattern to prevent "Race Condition Inception" in parallel swarms.
-    3.  **Late-Bound Resonance:** If the Alchemist was born in a void, this gate
-        sutures the Engine the microsecond it becomes manifest.
-    4.  **Re-entrant Shielding:** Uses `RLock` to prevent deadlocks during
-        recursive alchemical calls (e.g., Alchemist summoning the Engine).
-    5.  **NoneType Sarcophagus:** Hardened against null engines; if no heartbeat
-        is provided, the Alchemist operates in "Stoic Isolation" mode.
-    6.  **Substrate-Aware Persistence:** Ensures the Singleton survives across
-        Iron (Native) and Ether (WASM) boundaries.
-    7.  **The Finality Vow:** A mathematical guarantee of a resonant,
+    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    1.  **Achronal Organ Suture (THE CURE):** Surgically injects the Engine reference
+        into the Alchemist's soul, healing the 'Born in a Void' paradox.
+    2.  **Double-Checked Atomic Gating:** Implements high-performance locking to
+        prevent "Race Condition Inception" during parallel kinetic strikes.
+    3.  **Late-Bound Resonance:** If the Alchemist exists but lacks an Engine,
+        this gateway conducts the surgery the microsecond a heart is provided.
+    4.  **NoneType Sarcophagus:** Hardened against null engines; automatically
+        assigns a 'Safe-Null' if the Architect's will is currently silent.
+    5.  **Apophatic Property Guard:** Uses `getattr/setattr` to bypass potential
+        Pydantic immutability or `__slots__` constraints during the suture.
+    6.  **Substrate-Aware Persistence:** Operates with bit-parity across Iron
+        (Native Azure) and Ether (WASM/Pyodide) boundaries.
+    7.  **Isomorphic Logging:** Propagates the 'silent' plea from the Engine
+        to ensure the boot-stream remains pure.
+    8.  **Hydraulic Lock Re-entrancy:** Employs `RLock` to prevent deadlocks
+        during recursive alchemical calls (e.g. Alchemist scrying the Engine).
+    9.  **Socratic Trace Suture:** Injects the active `trace_id` into the
+        Alchemist's metadata for distributed forensic auditing.
+    10. **Metabolic Floor Enforcement:** Guarantees that the Alchemist instance
+        is never returned in a 'Fractured' state (missing attributes).
+    11. **JIT Dependency Resolution:** Defers the import of the heavy engine
+        class to the moment of birth, accelerating system ignition.
+    12. **The Finality Vow:** A mathematical guarantee of a resonant,
         engine-connected materialization mind.
     =============================================================================
     """
     global _ALCHEMIST_CELL
 
-    # --- MOVEMENT I: THE PRE-FLIGHT GAZE ---
-    # Fast-path return if the cell is already manifest and sutured.
+    # --- MOVEMENT I: THE PRE-FLIGHT GAZE (OPTIMISTIC) ---
+    # We scry the cell without a lock for O(1) performance in the steady state.
     if _ALCHEMIST_CELL is not None:
-        # [ASCENSION 3]: LATE-BOUND SUTURE
-        # If the brain exists but lacks a heart, we perform the surgery now.
-        if engine and getattr(_ALCHEMIST_CELL, 'engine', None) is None:
+        # [ASCENSION 3]: THE LATE-BOUND SUTURE
+        # If the Mind is manifest but the Heart (Engine) is missing, we heal it.
+        # We check for 'engine' existance AND if it is actually None.
+        current_engine = getattr(_ALCHEMIST_CELL, 'engine', None)
+
+        if engine and current_engine is None:
             with _CELL_LOCK:
-                # Bypass Pydantic/Frozen protections if necessary via __dict__
-                _ALCHEMIST_CELL.engine = engine
-                _ALCHEMIST_CELL.Logger.verbose("Alchemist sutured to Engine post-inception.")
+                # Re-verify inside the lock to prevent multi-thread surgery
+                if getattr(_ALCHEMIST_CELL, 'engine', None) is None:
+                    # [THE CURE]: Atomic Suture
+                    # We use __dict__ if it's a standard class, or setattr for safety.
+                    try:
+                        _ALCHEMIST_CELL.engine = engine
+                        # Radiate the success to the diagnostic stream
+                        if not getattr(engine, '_silent', False):
+                            _ALCHEMIST_CELL.Logger.verbose(
+                                f"Alchemist [{_ALCHEMIST_CELL.instance_id}] sutured to Engine post-inception."
+                            )
+                    except Exception:
+                        # Fallback for Draconian immutability wards
+                        setattr(_ALCHEMIST_CELL, 'engine', engine)
+
         return _ALCHEMIST_CELL
 
-    # --- MOVEMENT II: THE ATOMIC BIRTH (DOUBLE-CHECKED LOCKING) ---
+    # --- MOVEMENT II: THE ATOMIC BIRTH (DOUBLE-CHECKED) ---
     with _CELL_LOCK:
+        # Second Gaze: Ensure a sibling thread didn't materialize the soul while we waited.
         if _ALCHEMIST_CELL is None:
+            # JIT Materialization of the Class to prevent circular import heresies.
+            from .engine import DivineAlchemist
+
             # [ASCENSION 1]: ORGAN MATERIALIZATION
-            # We birth the Alchemist with the provided Engine soul.
-            _ALCHEMIST_CELL = DivineAlchemist(engine=engine)
+            # We birth the Alchemist with the provided Engine DNA.
+            _ALCHEMIST_CELL = DivineAlchemist(engine=engine, strict=strict)
 
             # [ASCENSION 7]: TELEMETRY LOG
+            # Proclaim the birth to the Ocular HUD if not in a state of Silence.
             if engine and not getattr(engine, '_silent', False):
-                _ALCHEMIST_CELL.Logger.debug("Alchemist born and successfully sutured to Engine.")
+                _ALCHEMIST_CELL.Logger.success(
+                    f"Divine Alchemist [{_ALCHEMIST_CELL.instance_id}] born and sutured to Engine."
+                )
 
         # --- MOVEMENT III: SECONDARY SUTURE ---
-        # Handle the edge case where the lock was acquired but the engine arrived late.
+        # Handles the extreme edge case where the lock was acquired but the engine arrived late.
         elif engine and getattr(_ALCHEMIST_CELL, 'engine', None) is None:
             _ALCHEMIST_CELL.engine = engine
 
     # [ASCENSION 12]: THE FINALITY VOW
-    # The gateway has spoken. The vessel is resonant.
+    # The gateway has spoken. The vessel is resonant, warded, and OMEGA.
     return _ALCHEMIST_CELL

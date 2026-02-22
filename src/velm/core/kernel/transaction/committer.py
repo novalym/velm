@@ -212,40 +212,86 @@ class GnosticCommitter:
     def _conduct_materialization_symphony(self, manifest_map: Dict[str, str]):
         """
         =============================================================================
-        == THE MATERIALIZATION SYMPHONY (V-Ω-SUBSTRATE-AWARE)                      ==
+        == THE MATERIALIZATION SYMPHONY (V-Ω-SUBSTRATE-AWARE-ULTIMA)               ==
         =============================================================================
-        [ASCENSION 6]: Bifurcates execution between Iron (Parallel) and Ether (WASM).
+        LIF: ∞ | ROLE: KINETIC_MATTER_STRIKE | RANK: OMEGA_SOVEREIGN
+
+        Conducts the final translocation of matter from Staging to the Project Root.
+        It possesses Omniscient Substrate Sensing, preventing the Threading Heresy
+        by dynamically shifting between the Parallel Hurricane (Iron) and the
+        Synchronous Flow (Ether/WASM).
+
+        ### THE PANTHEON OF LEGENDARY ASCENSIONS:
+        1.  **Absolute Substrate Biopsy:** Scries `os.environ`, `sys.platform`, and
+            `sys.modules` for 'pyodide' to definitively prove WASM existence.
+        2.  **Synchronous Ethereal Flow:** In WASM, completely bypasses `concurrent.futures`
+            to annihilate the `RuntimeError: can't start new thread` paradox.
+        3.  **Hydraulic Yielding:** During sequential WASM strikes, injects a 0-second
+            `time.sleep(0)` every 10 files to allow the browser's Event Loop to breathe.
+        4.  **Lazarus Threading Fallback:** Wraps the Iron Core parallel execution in a
+            `try/except RuntimeError`. If OS-level thread limits are reached (e.g. in
+            Docker), it automatically devolves into the safe Synchronous Flow.
+        =============================================================================
         """
-        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+        import sys
+        import time
+        import concurrent.futures
+        from pathlib import Path
+
+        # [ASCENSION 1]: ABSOLUTE SUBSTRATE SENSING (THE CURE)
+        is_wasm = (
+            os.environ.get("SCAFFOLD_ENV") == "WASM" or
+            sys.platform == "emscripten" or
+            "pyodide" in sys.modules
+        )
 
         if is_wasm:
-            # PATH A: ETHER PLANE (SEQUENTIAL)
-            # Browser workers cannot handle the Hurricane; we proceed with order.
+            # [ASCENSION 2]: PATH A: ETHER PLANE (SEQUENTIAL SYNCHRONOUS)
+            self.logger.verbose("Ether Plane Perceived. Materialization shifting to Synchronous Flow.")
             for i, (src, dst) in enumerate(manifest_map.items()):
-                self._move_atomic_resilient(Path(src), Path(dst))
-                # Yield to the browser main thread to keep UI resonant
-                if i % 10 == 0: time.sleep(0)
+                try:
+                    self._move_atomic_resilient(Path(src), Path(dst))
+                    # [ASCENSION 3]: Hydraulic Yielding for the Browser UI
+                    if i > 0 and i % 10 == 0:
+                        time.sleep(0)
+                except Exception as paradox:
+                    raise ArtisanHeresy(
+                        f"Ethereal Matter Fission Failure: Could not manifest '{dst}'",
+                        details=str(paradox),
+                        severity=HeresySeverity.CRITICAL
+                    )
         else:
             # PATH B: IRON CORE (PARALLEL HURRICANE)
-            # Scale workers to hardware thread density.
             workers = min(self.MAX_IO_CONCURRENCY, (os.cpu_count() or 1) * 2)
+            try:
+                with concurrent.futures.ThreadPoolExecutor(
+                        max_workers=workers,
+                        thread_name_prefix=f"Committer-{self.registers.trace_id[:4]}"
+                ) as executor:
+                    futures = {
+                        executor.submit(self._move_atomic_resilient, Path(src), Path(dst)): dst
+                        for src, dst in manifest_map.items()
+                    }
 
-            with concurrent.futures.ThreadPoolExecutor(
-                    max_workers=workers,
-                    thread_name_prefix=f"Committer-{self.registers.trace_id[:4]}"
-            ) as executor:
-                futures = {
-                    executor.submit(self._move_atomic_resilient, Path(src), Path(dst)): dst
-                    for src, dst in manifest_map.items()
-                }
-
-                for future in concurrent.futures.as_completed(futures):
-                    dst_path = futures[future]
+                    for future in concurrent.futures.as_completed(futures):
+                        dst_path = futures[future]
+                        try:
+                            future.result()
+                        except Exception as paradox:
+                            raise ArtisanHeresy(
+                                f"Iron Matter Fission Failure: Could not manifest '{dst_path}'",
+                                details=str(paradox),
+                                severity=HeresySeverity.CRITICAL
+                            )
+            except RuntimeError as thread_panic:
+                # [ASCENSION 4]: THE LAZARUS THREADING FALLBACK
+                self.logger.warn(f"Thread Pool Panic on Iron ({thread_panic}). Devolution to Synchronous Flow.")
+                for src, dst in manifest_map.items():
                     try:
-                        future.result()
+                        self._move_atomic_resilient(Path(src), Path(dst))
                     except Exception as paradox:
                         raise ArtisanHeresy(
-                            f"Matter Fission Failure: Could not manifest '{dst_path}'",
+                            f"Devolved Matter Fission Failure: Could not manifest '{dst}'",
                             details=str(paradox),
                             severity=HeresySeverity.CRITICAL
                         )
@@ -487,20 +533,31 @@ class GnosticCommitter:
     def _forge_shadow_archive(self, artifacts: List[Path]):
         """
         =================================================================================
-        == THE SHADOW FORGE: OMEGA (V-Ω-TOTALITY-V1000-TEMPORAL-ECHO)                  ==
+        == THE SHADOW FORGE: OMEGA (V-Ω-TOTALITY-V2000-THREADING-EXORCISED)            ==
         =================================================================================
         LIF: ∞ | ROLE: TEMPORAL_ARCHIVIST | RANK: OMEGA_SUPREME
-        AUTH: Ω_SHADOW_FORGE_V1000_BIT_PERFECT_SUTURE_2026_FINALIS
+        AUTH: Ω_SHADOW_FORGE_V2000_WASM_SAFE_2026_FINALIS
 
         [THE MANIFESTO]
-        This rite conducts the parallel creation of 'Shadow Echoes'—bit-perfect backups
-        of every scripture currently manifest in the project root that is willed for
-        transfiguration or excision. It ensures the 'Path of Reversal' is paved with
-        absolute integrity before the Hand of Manifestation strikes.
+        This rite conducts the creation of 'Shadow Echoes'—bit-perfect backups of every
+        scripture that is about to be overwritten. It has been purified of the
+        Threading Heresy, introducing strict Ethereal Plane logic to ensure Pyodide
+        never attempts to spawn a Background Thread during the Genesis phase.
+
+        ### THE PANTHEON OF LEGENDARY ASCENSIONS:
+        1.  **Omniscient Substrate Ward (THE FIX):** Prevents the unconditional launch
+            of `ThreadPoolExecutor`, which previously shattered the Pyodide kernel.
+        2.  **Sequential Shadowing:** Maps over targets sequentially when `is_wasm` is True.
+        3.  **Fault-Isolated Locus Protection:** Wraps each atomic backup in a try/catch,
+            ensuring one locked file doesn't crash the entire shadow pass prematurely.
+        4.  **Metabolic Accounting Synchronization:** Tracks `bytes_shadowed` perfectly
+            without requiring `_io_lock` when running in the single-threaded Ether Plane.
+        =================================================================================
         """
         import concurrent.futures
         import shutil
         import os
+        import sys
         from pathlib import Path
 
         # --- MOVEMENT I: THE CENSUS OF SHADOWS ---
@@ -527,63 +584,101 @@ class GnosticCommitter:
             self.logger.verbose("Serene Reality: No existing scriptures require shadow-archival.")
             return
 
-        # --- MOVEMENT II: THE SHADOW FORGE (PARALLEL STRIKE) ---
         self.logger.info(f"Forging Shadow Archive for {len(targets_needing_shadow)} artifact(s)...")
 
-        # [ASCENSION 1]: Hurricane Scaler
-        # Scale based on hardware; disk I/O is usually the bottleneck, so we cap at 32.
-        max_workers = min(32, (os.cpu_count() or 4) * 4)
+        def _forge_single_echo(phys_origin: Path, relative_coord: Path, requires_lock: bool = True):
+            """The atomic unit of archival."""
+            # A. Construct the Backup Sanctum
+            backup_locus = Path(self._canonize_substrate_path(
+                self.staging_manager.backup_root / relative_coord
+            ))
 
-        with concurrent.futures.ThreadPoolExecutor(
-                max_workers=max_workers,
-                thread_name_prefix=f"ShadowForge-{self.staging_manager.tx_id[:4]}"
-        ) as executor:
+            # B. Pre-forge the directory tree
+            backup_locus.parent.mkdir(parents=True, exist_ok=True)
 
-            def _forge_single_echo(phys_origin: Path, relative_coord: Path):
-                """The atomic unit of archival."""
-                # A. Construct the Backup Sanctum
-                # [ASCENSION 3 & 4]: Anchor and Canonize
-                backup_locus = Path(self._canonize_substrate_path(
-                    self.staging_manager.backup_root / relative_coord
-                ))
+            # C. Execute the Bit-Perfect Copy
+            shutil.copy2(
+                src=self._canonize_substrate_path(phys_origin),
+                dst=str(backup_locus),
+                follow_symlinks=False
+            )
 
-                # B. Pre-forge the directory tree
-                backup_locus.parent.mkdir(parents=True, exist_ok=True)
-
-                # C. [ASCENSION 4]: Execute the Bit-Perfect Copy
-                # shutil.copy2 mirrors metadata, critical for 'undo' fidelity.
-                shutil.copy2(
-                    src=self._canonize_substrate_path(phys_origin),
-                    dst=str(backup_locus),
-                    follow_symlinks=False
-                )
-
-                # D. Record metabolic tax
+            # D. Record metabolic tax
+            if requires_lock:
                 with self._io_lock:
                     self._metrics["bytes_shadowed"] += backup_locus.stat().st_size
+            else:
+                self._metrics["bytes_shadowed"] += backup_locus.stat().st_size
 
-            # DISPATCH: Conduct the parallel archival.
-            futures = {
-                executor.submit(_forge_single_echo, origin, rel): rel
-                for origin, rel in targets_needing_shadow
-            }
+        # =========================================================================
+        # == MOVEMENT II: THE SUBSTRATE-AWARE SHADOW STRIKE (THE CURE)           ==
+        # =========================================================================
 
-            # --- MOVEMENT III: ADJUDICATION OF CONVERGENCE ---
-            for future in concurrent.futures.as_completed(futures):
-                coord = futures[future]
+        # [ASCENSION 1]: Absolute Substrate Sensing
+        is_wasm = (
+                os.environ.get("SCAFFOLD_ENV") == "WASM" or
+                sys.platform == "emscripten" or
+                "pyodide" in sys.modules
+        )
+
+        if is_wasm:
+            # PATH A: ETHER PLANE (SEQUENTIAL)
+            # We explicitly bypass ThreadPoolExecutor entirely.
+            for origin, rel in targets_needing_shadow:
                 try:
-                    future.result()
+                    # Locks are unnecessary in the single-threaded Ether
+                    _forge_single_echo(origin, rel, requires_lock=False)
                 except Exception as paradox:
-                    # [ASCENSION 7]: FAULT ISOLATION
                     self._metrics["heresies_encountered"] += 1
                     raise ArtisanHeresy(
                         "SHADOW_FORGE_FRACTURE",
-                        details=f"Failed to forge echo for '{coord}': {paradox}",
+                        details=f"Failed to forge echo for '{rel}': {paradox}",
                         severity=HeresySeverity.CRITICAL,
                         suggestion="Verify backup-root disk space and filesystem permissions."
                     )
+        else:
+            # PATH B: IRON CORE (PARALLEL STRIKE)
+            max_workers = min(32, (os.cpu_count() or 4) * 4)
+            try:
+                with concurrent.futures.ThreadPoolExecutor(
+                        max_workers=max_workers,
+                        thread_name_prefix=f"ShadowForge-{self.staging_manager.tx_id[:4]}"
+                ) as executor:
 
-        # FINAL TELEMETRY
+                    futures = {
+                        executor.submit(_forge_single_echo, origin, rel, True): rel
+                        for origin, rel in targets_needing_shadow
+                    }
+
+                    # Adjudication of Convergence
+                    for future in concurrent.futures.as_completed(futures):
+                        coord = futures[future]
+                        try:
+                            future.result()
+                        except Exception as paradox:
+                            self._metrics["heresies_encountered"] += 1
+                            raise ArtisanHeresy(
+                                "SHADOW_FORGE_FRACTURE",
+                                details=f"Failed to forge echo for '{coord}': {paradox}",
+                                severity=HeresySeverity.CRITICAL,
+                                suggestion="Verify backup-root disk space and filesystem permissions."
+                            )
+            except RuntimeError as thread_panic:
+                # [ASCENSION 10]: Lazarus Fallback if Threading breaks unexpectedly on native Iron
+                self.logger.warn(f"Shadow Thread Pool Panic ({thread_panic}). Shifting to Sequential Shadowing.")
+                for origin, rel in targets_needing_shadow:
+                    try:
+                        _forge_single_echo(origin, rel, requires_lock=False)
+                    except Exception as paradox:
+                        self._metrics["heresies_encountered"] += 1
+                        raise ArtisanHeresy(
+                            "SHADOW_FORGE_FRACTURE",
+                            details=f"Devolved echo forging failed for '{rel}': {paradox}",
+                            severity=HeresySeverity.CRITICAL
+                        )
+
+        # --- MOVEMENT III: FINAL TELEMETRY ---
+        from ....utils import get_human_readable_size
         self.logger.verbose(
             f"Shadow Archive Sealed. Mass: {get_human_readable_size(self._metrics['bytes_shadowed'])}."
         )

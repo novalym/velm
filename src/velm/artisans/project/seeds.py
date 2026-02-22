@@ -266,13 +266,16 @@ class ArchetypeOracle:
         }
 
     def _scry_header(self, path: Path) -> Dict[str, Any]:
-        """[FACULTY 2] Fast-Gaze Metadata Extraction."""
+        """[FACULTY 2] Fast-Gaze Metadata Extraction (Void-Protected)."""
+        # [THE CURE]: If stem is empty (dotfiles), fallback to the full name.
+        safe_name = path.stem if path.stem else path.name
+
         meta = {
-            "name": path.stem.replace("-", " ").title().replace("Api", "API"),
+            "name": safe_name.replace("-", " ").title().replace("Api", "API"),
             "description": "Architectural Pattern Shard.",
             "category": "Generic",
             "difficulty": "Adept",
-            "tags": []
+            "tags": ["archetype"]
         }
 
         try:
@@ -292,11 +295,12 @@ class ArchetypeOracle:
             for key, pattern in mapping.items():
                 match = re.search(pattern, header, re.IGNORECASE)
                 if match:
-                    if key == "tags":
-                        meta["tags"] = [t.strip().lower() for t in match.group(1).split(",")]
-                    else:
-                        meta[key] = match.group(1).strip()
-        except:
+                    val = match.group(1).strip()
+                    if key == "tags" and val:
+                        meta["tags"] = [t.strip().lower() for t in val.split(",") if t.strip()]
+                    elif val:  # [THE CURE]: Ensure we don't overwrite with empty strings
+                        meta[key] = val
+        except Exception:
             pass
 
         return meta

@@ -47,6 +47,7 @@ class OVHProvider(ComputeProvider):
     }
 
     def __init__(self, config: Dict[str, str]):
+        self.Logger = Logger
         self.endpoint = config.get("OVH_ENDPOINT", "ovh-eu")
         self.app_key = config.get("OVH_APPLICATION_KEY")
         self.app_secret = config.get("OVH_APPLICATION_SECRET")
@@ -178,12 +179,42 @@ class OVHProvider(ComputeProvider):
             raise ArtisanHeresy(f"OVH API Fracture: {e}")
 
     def get_status(self, instance_id: str) -> VMInstance:
-        if not self.client: self.authenticate()
+        """
+        =============================================================================
+        == THE STATUS SCRYER (V-Ω-TOTALITY-V300-AUTH-WARDED)                       ==
+        =============================================================================
+        [THE FIX]: Detects the 'auth_handshake_trigger' and allows the
+        authentication rite to proceed without triggering an Infrastructure Fracture.
+        """
+        if not self.client:
+            self.authenticate()
+
+        # [ASCENSION 1]: THE AUTHENTICATION SHIELD
+        if instance_id == "auth_handshake_trigger":
+            # We return a 'Mock Resonant' node to satisfy the Conductor
+            return VMInstance(
+                id=instance_id,
+                name="AUTH_PROBE",
+                provider_id="ovh",
+                region="universal",
+                state=NodeState.PENDING,
+                metadata={"note": "Authentication Handshake in progress."}
+            )
+
         try:
             data = self.client.get(f'/cloud/project/{self.project_id}/instance/{instance_id}')
             return self._map_to_schema(data)
-        except Exception:
-            return VMInstance(id=instance_id, name="UNKNOWN", provider_id="ovh", region="", state=NodeState.FRACTURED)
+        except Exception as e:
+            # [ASCENSION 11]: SILENT ERROR RECOVERY
+            # Instead of crashing, we return a FRACTURED state for the UI to handle.
+            self.Logger.warn(f"Substrate scry failed for {instance_id}: {e}")
+            return VMInstance(
+                id=instance_id,
+                name="UNKNOWN",
+                provider_id="ovh",
+                region="unknown",
+                state=NodeState.FRACTURED
+            )
 
     def terminate(self, instance_id: str) -> bool:
         if not self.client: self.authenticate()

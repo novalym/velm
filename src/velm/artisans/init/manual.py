@@ -127,30 +127,111 @@ class ManualGenesis:
         return sorted(found)
 
     def _forge_fallback_content(self, ctx: Dict[str, Any], existing: List[str]) -> str:
-        """[FACULTY 6] Forges a rich, self-documenting fallback blueprint."""
+        """
+        =============================================================================
+        == THE OMEGA FALLBACK SCRIPTURE: TOTALITY (V-Ω-TOTALITY-V9000-FINALIS)     ==
+        =============================================================================
+        LIF: ∞ | ROLE: GNOSTIC_TUTORIAL_FORGE | RANK: OMEGA_SUPREME
+        AUTH: Ω_FALLBACK_V9000_PEDAGOGICAL_APOTHEOSIS_2026_FINALIS
+
+        [ARCHITECTURAL MANIFESTO]
+        This rite materializes the "Instructional Void." It is designed to be the
+        first contact between a new Architect and the Gnostic Grammar. It teaches
+        the five strata of creation (Identity, Form, Will, Adjudication, and Logic)
+        through the physical presence of executable examples.
+        =============================================================================
+        """
+        # --- STRATUM 0: CHRONOMETRIC ANCHORS ---
+        project_name = ctx.get('project_name', 'Untitled_Reality')
+        author = ctx.get('author', 'The_Architect')
+        timestamp = ctx.get('timestamp', time.strftime("%Y-%m-%d %H:%M:%S"))
+
+        # --- STRATUM 1: THE RECURSIVE SCRIBING ---
         lines = [
             f"# =================================================================================",
-            f"# == Gnostic Blueprint: {ctx['project_name']}",
-            f"# == Forged via Manual Inception on {ctx['timestamp']}",
+            f"# == GNOSTIC BLUEPRINT: {project_name.upper()} ",
+            f"# == FORGED VIA MANUAL INCEPTION: {timestamp} ",
             f"# =================================================================================",
-            f"# @description: A custom architectural starting point for {ctx['project_name']}.",
+            f"# @description: A custom architectural starting point for {project_name}.",
+            f"# @author: {author}",
+            f"# @difficulty: Novice to Grand Architect",
+            f"# @category: Foundation",
+            f"# =================================================================================",
             f"",
-            f"$$ project_root = \"{ctx['project_root_name']}\"",
-            f"$$ project_name = \"{ctx['project_name']}\"",
-            f"$$ author = \"{ctx['author']}\"",
+            f"# --- I. THE ALTAR OF GNOSTIC VARIABLES ($$) ---",
+            f"# Variables enshrine the Gnosis of your reality. Use them to reflow Form.",
+            f"$$ project_root = \"{ctx.get('project_root_name', 'project')}\"",
+            f"$$ project_name = \"{project_name}\"",
+            f"$$ author = \"{author}\"",
+            f"$$ version = \"0.1.0\"",
+            f"$$ use_git = true",
             f"",
+            f"# --- II. THE SCRIPTURE OF FORM (Files & Sanctums) ---",
+            f"# Use '::' for inline matter, '<<' to clone seeds, and '/' for sanctums.",
+            f"",
+            f"README.md :: \"\"\"",
+            f"# {{{{ project_name }}}}",
+            f"",
+            f"Reality manifest by {{{{ author }}}} on {timestamp}.",
+            f"This project is governed by the VELM God-Engine.",
+            f"\"\"\"",
+            f"",
+            f"src/                    # This creates a sanctum (directory)",
+            f"    __init__.py :: \"\"\"# Consecrated package soul\"\"\"",
+            f"    main.py :: \"\"\"",
+            f"def awaken():",
+            f"    print('The {{{{ project_name }}}} reality is resonant.')",
+            f"",
+            f"if __name__ == '__main__':",
+            f"    awaken()",
+            f"\"\"\"",
+            f"",
+            f"# --- III. THE GAZE OF LOGIC (@if / @for) ---",
+            f"# Reality is liquid. Use logic gates to branch the manifestation.",
+            f"@if {{{{ use_git }}}}:",
+            f"    .gitignore :: \"\"\"",
+            f"    __pycache__/",
+            f"    .env",
+            f"    .scaffold/",
+            f"    \"\"\"",
+            f"@endif",
+            f"",
+            f"# --- IV. THE KINETIC WILL (%% post-run) ---",
+            f"# Edits are actions. Maestro conducts these rites after matter is manifest.",
+            f"%% post-run",
+            f"    proclaim: \"Matter materialized. Conducting the Rite of Initiation...\"",
+            f"    ",
+            f"    # >> speaks to the shell",
+            f"    @if {{{{ use_git }}}}:",
+            f"        >> git init",
+            f"    @endif",
+            f"    ",
+            f"    # ?? conducts an empirical Vow. If it fails, the timeline pauses.",
+            f"    ?? succeeds",
+            f"    ",
+            f"    proclaim: \"[bold green]Sovereign Reality Ready.[/bold green]\"",
+            f"    proclaim: \"Speak 'velm run src/main.py' to breathe life into the code.\"",
+            f"",
+            f"# --- V. THE RITE OF REDEMPTION (%% on-heresy) ---",
+            f"# The Phoenix law. If post-run fails, these rites attempt to heal the cosmos.",
+            f"%% on-heresy",
+            f"    proclaim: \"[bold red]A Heresy was perceived.[/bold red] Attempting to stabilize...\"",
+            f"    >> rm -rf .git",
+            f"    proclaim: \"Sanctum purified. Re-conduct the rite manually.\"",
+            f""
         ]
 
+        # --- STRATUM 2: THE RECLAMATION OF ORPHANS ---
         if existing:
-            lines.append("# --- Found Realities (Unmanaged) ---")
-            lines.append("# The following items exist on disk. Use 'scaffold adopt' to link them,")
-            lines.append("# or define them below to manage their content.")
+            lines.append("# --- VI. ADOPTED REALITIES (Unmanaged) ---")
+            lines.append("# These souls already inhabit the disk. Use 'velm adopt' to track them,")
+            lines.append("# or inscribe them above to manage their contents.")
             for item in existing:
-                lines.append(f"# {item}")
+                # [ASCENSION]: We label existing matter as foreign shards.
+                lines.append(f"# [FOREIGN_MATTER]: {item}")
             lines.append("")
 
-        lines.append("# --- The Scripture of Form ---")
-        lines.append("README.md :: \"# {{ project_name }}\"")
-        lines.append("")
+        # --- STRATUM 3: FINALITY SEAL ---
+        lines.append("# == END OF SCRIPTURE ==")
 
         return "\n".join(lines)

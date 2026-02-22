@@ -41,6 +41,7 @@ from typing import Tuple, Optional, List, Dict, Type, Union, Any, Final
 # --- DIVINE SUMMONS ---
 from .contracts import MaestroContext, KineticVessel
 from .context import ContextForge
+from .handlers import BaseRiteHandler
 
 from ..alchemist import DivineAlchemist, get_alchemist
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
@@ -139,7 +140,7 @@ class MaestroConductor:
 
         # --- MOVEMENT I: SOVEREIGN ORGAN BINDING ---
 
-        self.alchemist = alchemist or get_alchemist()
+        self.alchemist = alchemist or get_alchemist(engine=self.engine)
 
         # [ASCENSION 4]: POLYMORPHIC REGISTER INCEPTION
         # We ensure the Mind is warded against 'NoneType' or raw dictionary inputs.

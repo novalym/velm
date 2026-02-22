@@ -118,30 +118,32 @@ class InitArtisan(BaseArtisan[InitRequest]):
     def execute(self, request: InitRequest) -> ScaffoldResult:
         """
         =================================================================================
-        == THE SOVEREIGN GATEWAY (V-Ω-TOTALITY-V35000-IDENTITY-GRAFT-FINALIS)           ==
+        == THE SOVEREIGN GATEWAY (V-Ω-TOTALITY-V35005-TABULA-RASA-FINALIS)             ==
         =================================================================================
         LIF: ∞ | ROLE: INCEPTION_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_EXECUTE_V35000_PROVIDER_AWARE
+        AUTH: Ω_EXECUTE_V35005_VOID_RESONANCE
 
         The supreme, titanium-grade conductor of the inception rite. It has been
         ascended to its final form, implementing the **Rite of Direct Identity Injection**
-        to allow atomic, non-interactive instantiation of complex realities.
+        and the **Tabula Rasa Interceptor**.
 
         ### THE PANTHEON OF ASCENSIONS:
-        1.  **Deep Identity Grafting:** Surgically extracts `--name`, `--desc`, and
+        1.  **Tabula Rasa Interceptor (THE CURE):** Explicitly detects the 'blank' profile
+            and short-circuits the template logic to force a Manual Genesis (Void State).
+        2.  **Deep Identity Grafting:** Surgically extracts `--name`, `--desc`, and
             `--provider` from the Request vessel and injects them into the Gnostic Variables.
-        2.  **Substrate Awareness:** If `provider` is detected, it pre-configures the
+        3.  **Substrate Awareness:** If `provider` is detected, it pre-configures the
             blueprint for that specific cloud reality (e.g., injecting OVH-specific TF vars).
-        3.  **WASM-Hardened Sentinel:** Bypasses draconian permission checks in the
+        4.  **WASM-Hardened Sentinel:** Bypasses draconian permission checks in the
             Ethereal Plane to prevent 'Sanctum Locked' heresies.
-        4.  **Progenitor Resonance:** Automatically detects the `progenitor` archetype
+        5.  **Progenitor Resonance:** Automatically detects the `progenitor` archetype
             and injects system-level override flags.
-        5.  **Atomic Path Creation:** Ensures the Sanctum exists physically before
+        6.  **Atomic Path Creation:** Ensures the Sanctum exists physically before
             the logical mind attempts to inhabit it.
-        6.  **The Achronal Sieve:** Purifies the intent variables to remove hallucinations.
-        7.  **The Lazarus Hydrator:** Resurrects the Crystal Mind if the Lockfile exists.
-        8.  **Telemetric Pulse:** Radiates the `INIT_START` signal to the Ocular HUD.
-        9.  **The Finality Vow:** A mathematical guarantee of a valid return vessel.
+        7.  **The Achronal Sieve:** Purifies the intent variables to remove hallucinations.
+        8.  **The Lazarus Hydrator:** Resurrects the Crystal Mind if the Lockfile exists.
+        9.  **Telemetric Pulse:** Radiates the `INIT_START` signal to the Ocular HUD.
+        10. **The Finality Vow:** A mathematical guarantee of a valid return vessel.
         =================================================================================
         """
         # [ASCENSION 1]: NANO-SCALE CHRONOMETRY
@@ -275,6 +277,17 @@ class InitArtisan(BaseArtisan[InitRequest]):
         # --- MOVEMENT V: PROFILE RECONCILIATION ---
         profile_name = request.profile or getattr(request, 'profile_flag', None)
 
+        # =========================================================================
+        # == [THE CURE]: THE TABULA RASA INTERCEPT                               ==
+        # =========================================================================
+        # If the Architect explicitly wills 'blank', we bypass all external
+        # grimoires and forcefully invoke the Manual Genesis rite.
+        if profile_name == "blank":
+            self.logger.info("The Void is Willed. Bypassing Grimoire to forge Tabula Rasa.")
+            request.manual = True
+            profile_name = None  # Clear it so the GenesisEngine doesn't try to download it
+
+        # If not manually intercepted, attempt to divine the profile from DNA or User Input
         if not profile_name and not request.manual and not request.distill:
             profile_name = self._scry_existing_dna(root_path)
 
@@ -301,7 +314,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
             self.guarded_execution([master_blueprint], request, context="init_overwrite")
 
         # --- MOVEMENT VII: THE BIFURCATION OF PATHS (DISPATCH) ---
-        self.logger.info(f"Dispatching Inception via path: [cyan]{profile_name or 'custom'}[/cyan]")
+        self.logger.info(f"Dispatching Inception via path: [cyan]{'tabula_rasa' if request.manual else (profile_name or 'custom')}[/cyan]")
 
         # [ASCENSION 9]: METABOLIC PRE-LUSTRATION
         gc.collect()
@@ -315,7 +328,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
             if request.launch_pad_with_path:
                 return self._launch_genesis_pad(request)
 
-            # PATH C: THE PURIST SCRIBE (MANUAL INCEPTION)
+            # PATH C: THE PURIST SCRIBE (MANUAL INCEPTION / TABULA RASA)
             if request.manual:
                 return self._conduct_manual_rite(request, root_path, master_blueprint)
 
@@ -820,14 +833,83 @@ class InitArtisan(BaseArtisan[InitRequest]):
         if choice == "distill": request.distill = True
         return choice != "abort"
 
-    def _conduct_manual_rite(self, request, root, bp):
-        """[FACULTY 8] Manual Inception Rite."""
-        manual_creator = ManualGenesis(self.project_root, self.engine)
-        with GnosticTransaction(root, "Manual Inception", use_lock=True) as tx:
+    def _conduct_manual_rite(self, request: InitRequest, root: Path, bp: Path) -> ScaffoldResult:
+        """
+        =============================================================================
+        == THE RITE OF TABULA RASA (V-Ω-TOTALITY-V500.1-VOID-FORGE)               ==
+        =============================================================================
+        LIF: ∞ | ROLE: PRIMORDIAL_MANIFESTATION
+
+        Forges the absolute minimum soul for a project (scaffold.scaffold).
+        It bypasses the Celestial Grimoire to create a clean slate for the
+        Sovereign Architect.
+
+        ### THE ASCENSIONS:
+        1.  **Transactional Atomicity:** Wraps the file creation in a Gnostic Transaction
+            to ensure the 'scaffold.lock' and 'scaffold.scaffold' are born in unison.
+        2.  **Contextual Hydration:** If the Architect provided no variables, it
+            prophesies them from the Git environment and injects them into the result.
+        3.  **Isomorphic Return Schema:** Returns a data structure identical to the
+            standard 'Genesis' rite, ensuring the UI Wizard displays the correct
+            'Victory' state and 'Next Steps' animation.
+        4.  **Haptic Bloom:** Injects UI hints to trigger the 'Genesis Complete' visual
+            effects in the Ocular Membrane.
+        =============================================================================
+        """
+        # Lazy imports to prevent circular gravity during boot
+        from ...core.kernel.transaction import GnosticTransaction
+        from .manual import ManualGenesis
+
+        start_ns = time.perf_counter_ns()
+
+        # [ASCENSION 1]: The Silver Cord (Trace ID)
+        trace_id = getattr(request, 'trace_id', f"tr-{uuid.uuid4().hex[:8].upper()}")
+
+        manual_creator = ManualGenesis(root, self.engine)
+
+        # [ASCENSION 2]: The Transactional Womb
+        with GnosticTransaction(root, "Tabula Rasa Inception", use_lock=True) as tx:
+
+            # 1. Forge the Blueprint
+            # This writes the instructional scaffold.scaffold file
             artifact = manual_creator.conduct(request, tx)
+
+            # 2. Sync Gnostic Variables (Context Hydration)
+            # If the user didn't provide vars (via --set), we scry the environment.
             if not request.variables:
                 tx.context.update(prophesy_initial_gnosis(root))
-        return self.success(f"Manual Genesis complete.", artifacts=[artifact])
+            else:
+                tx.context.update(request.variables)
+
+            # Stamp the trace for forensic audit
+            tx.context['trace_id'] = trace_id
+
+        # [ASCENSION 3]: Chronometric Finality
+        duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+
+        # [ASCENSION 4]: The Isomorphic Revelation
+        # We return a schema that matches the GenesisEngine's output.
+        # This tricks the UI into treating this simple file creation as a Grand Event.
+        return self.success(
+            message=f"Tabula Rasa manifest in [cyan]{root.name}[/cyan]. The Void awaits your command.",
+            artifacts=[artifact],
+            data={
+                "profile": "blank",
+                "project_name": tx.context.get("project_name", root.name),
+                "duration_ms": duration_ms,
+                "variables": tx.context,
+                "next_steps": [
+                    "Open `scaffold.scaffold` to define your architecture.",
+                    "Define your strata using `src/ :: \"...\"` syntax.",
+                    "Speak `velm transmute` to make your will manifest."
+                ]
+            },
+            ui_hints={
+                "vfx": "bloom",
+                "sound": "genesis_complete",
+                "priority": "SUCCESS"
+            }
+        )
 
     def _conduct_profile_selection(self, just_list=False):
         """[THE RITE OF CHOICE]"""
