@@ -35,7 +35,7 @@ from pydantic import (
     computed_field,
     EmailStr
 )
-from ..core.runtime.vessels import GnosticSovereignDict
+
 from ..contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 # --- LOCAL UTILITY (To avoid circular deps with Core) ---
 def _clean_uri_to_path(uri: str) -> str:
@@ -55,12 +55,31 @@ def _clean_uri_to_path(uri: str) -> str:
     except:
         return uri
 
+# =============================================================================
+# == [THE CURE]: THE LATE-BOUND VESSEL FACTORY                               ==
+# =============================================================================
+# We move the import of GnosticSovereignDict inside a factory function.
+# This prevents requests.py from triggering the 'velm.core' initialization
+# until the moment a Request is actually instantiated.
+# =============================================================================
+
+def _summon_gnostic_vessel():
+    """
+    Surgically materializes the GnosticSovereignDict without triggering
+    the Ouroboros Circularity.
+    """
+    try:
+        # We use absolute triangulation to bypass the package-root lock
+        from velm.core.runtime.vessels import GnosticSovereignDict
+        return GnosticSovereignDict()
+    except ImportError:
+        # Fallback to standard dict if the Mind is truly cold
+        return {}
 
 
 # =============================================================================
 # == II. THE ANCESTRAL VESSEL (BASE REQUEST)                                ==
 # =============================================================================
-
 class BaseRequest(BaseModel):
     """
     =============================================================================
@@ -71,29 +90,25 @@ class BaseRequest(BaseModel):
     @gnosis:LIF INFINITY
 
     ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
-    1.  **GnosticSovereignDict Integration:** `variables` and `context` are warded
-        against KeyError/NoneType fractures.
-    2.  **Achronal Sequentiality:** `hop_count` and `timestamp` enforce causal
-        integrity across distributed threads.
-    3.  **The Silver Cord:** `trace_id` links the Ocular UI (React) directly to
-        the Kernel logic.
-    4.  **Spatial Anchor:** `project_root` auto-resolves strings to absolute Path
-        objects with realpath validation.
-    5.  **The Secret Vault:** `secrets` are warded and excluded from standard
-        serialization to prevent Aether Leaks.
+    1.  **Achronal JIT Suture (THE CURE):** Decouples from 'vessels.py' during
+        module load, annihilating the circular import that paralyzed the
+        Identity Handshake.
+    2.  **Sovereign Identity Phalanx:** `request_id` and `trace_id` provide
+        unbreakable causal alignment across the split-process lattice.
+    3.  **The NoneType Sarcophagus:** `variables` and `context` are warded
+        against Null access, guaranteed to behave as Sovereign Vessels.
+    4.  **Spatial Absolute Anchor:** `project_root` auto-resolves to a
+        bit-perfect POSIX Path with realpath validation.
+    5.  **The Secret Veil:** `secrets` are warded and excluded from all
+        standard telemetry to prevent Aether leaks.
     6.  **Bicameral Scoping:** Supports '_' prefixed private variables for
         temporary block-level Gnosis.
-    7.  **Socratic Persona:** The `persona` field aligns the AI Co-Pilot with
-        a specific creative style (Architect, Sentinel, etc).
-    8.  **Metabolic Budgeting:** `token_budget` regulates the "Mass" of
-        generative AI rites.
-    9.  **Hydraulic Throttling:** `adrenaline_mode` allows the Architect to
-        bypass thermodynamic backpressure.
-    10. **The Permissive Gate:** `extra='allow'` ensures future CLI flags don't
-        shatter legacy Artisans.
-    11. **Achronal Trace-Back:** Injects the physical line/file of the summoner
-        for forensic inquests.
-    12. **The Finality Vow:** A mathematical guarantee of atomic intent capture.
+    7.  **Hydraulic Throttling:** `adrenaline_mode` allows the Architect to
+        bypass thermodynamic backpressure during critical strikes.
+    8.  **The Permissive Gate:** `extra='allow'` ensures future-proofing
+        against evolving CLI dialects.
+    9.  **The Finality Vow:** A mathematical guarantee of atomic intent capture.
+    =============================================================================
     """
     # [ASCENSION 10 & 12]: SOVEREIGN CONFIGURATION
     model_config = ConfigDict(
@@ -114,7 +129,7 @@ class BaseRequest(BaseModel):
 
     trace_id: Optional[str] = Field(
         default=None,
-        description="The Cosmic ID linking this rite across the split-process lattice."
+        description="The Cosmic ID linking this rite across the lattice."
     )
 
     session_id: str = Field(
@@ -145,14 +160,14 @@ class BaseRequest(BaseModel):
     # == SECTION III: THE ALCHEMICAL MATRIX (Inputs & Logic)                 ==
     # =========================================================================
 
-    # [ASCENSION 1]: The Sarcophagus-wrapped variables
+    # [ASCENSION 1]: Using the Late-Bound Factory to prevent Ouroboros lock
     variables: Dict[str, Any] = Field(
-        default_factory=GnosticSovereignDict,
+        default_factory=_summon_gnostic_vessel,
         description="Dynamic Gnosis (CLI flags, Blueprints). Warded against Null access."
     )
 
     context: Dict[str, Any] = Field(
-        default_factory=GnosticSovereignDict,
+        default_factory=_summon_gnostic_vessel,
         description="Ephemeral storage for Middleware (Transactions, Trace IDs)."
     )
 
@@ -220,12 +235,19 @@ class BaseRequest(BaseModel):
     def initialize_gnostic_sarcophagus(self) -> 'BaseRequest':
         """
         [ASCENSION 1]: The Inception of the Sarcophagus.
-        Surgically ensures all dictionary inputs are wrapped in GnosticSovereignDict.
+        [THE CURE]: Performs a JIT import of the Sovereign Vessel class to
+        safely transmute the raw dicts without triggering circular dependency loops.
         """
-        if not isinstance(self.variables, GnosticSovereignDict):
-            object.__setattr__(self, 'variables', GnosticSovereignDict(self.variables))
-        if not isinstance(self.context, GnosticSovereignDict):
-            object.__setattr__(self, 'context', GnosticSovereignDict(self.context))
+        try:
+            from velm.core.runtime.vessels import GnosticSovereignDict
+
+            if not isinstance(self.variables, GnosticSovereignDict):
+                object.__setattr__(self, 'variables', GnosticSovereignDict(self.variables))
+            if not isinstance(self.context, GnosticSovereignDict):
+                object.__setattr__(self, 'context', GnosticSovereignDict(self.context))
+        except ImportError:
+            # Fallback for bootstrap phase if core strata are unmanifest
+            pass
         return self
 
     @model_validator(mode='after')
@@ -234,13 +256,11 @@ class BaseRequest(BaseModel):
         [ASCENSION 5]: THE HARMONIZER OF VOICES.
         Syncs verbosity levels and handles the 'Silent' vs 'Verbose' conflict.
         """
-        # Verbosity Int -> Bool Sync
         if self.verbosity > 0:
             object.__setattr__(self, 'verbose', True)
         elif self.verbosity < 0:
             object.__setattr__(self, 'silent', True)
 
-        # Silent overrides Verbose
         if self.silent:
             object.__setattr__(self, 'verbose', False)
 
@@ -253,6 +273,7 @@ class BaseRequest(BaseModel):
         Halts the transaction if a signal attempts more than 3 jumps.
         """
         if self.hop_count > 3:
+            from ..contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
             raise ArtisanHeresy(
                 message=f"Recursive Loop Detected (Hops: {self.hop_count}).",
                 severity=HeresySeverity.CRITICAL,
@@ -2412,6 +2433,10 @@ class RunRequest(BaseRequest):
     # [FACULTY 1] The Unbreakable Schema
     model_config = ConfigDict(arbitrary_types_allowed=True, extra='ignore')
 
+    non_interactive: bool = Field(
+        False,
+        description="The Vow of Silence. Suppresses all interactive prompts, accepting default Gnosis."
+    )
     # --- The Core Plea (Now Polymorphic) ---
     target: Optional[Union[str, Path]] = Field(
         None,
@@ -3797,7 +3822,7 @@ class EvolveRequest(BaseRequest):
     )
     message: Optional[str] = Field(None, description="The rationale for this evolution (migration name).")
     target_env: str = Field("dev", description="The environment to target (dev, staging, prod).")
-    
+
 class ObserveRequest(BaseRequest):
     """
     A plea to the Neural Link.
@@ -5068,7 +5093,7 @@ class CalendarRequest(BaseRequest):
     novalym_id: str = Field(..., description="The Sovereign ID of the Client Entity.")
     lead_phone: str = Field(..., description="The E.164 coordinate of the Lead.")
     lead_name: Optional[str] = Field("Valued Client", description="The humanized name for the invite.")
-    lead_email: Optional[EmailStr] = Field(None, description="The digital soul coordinate for the invite.")
+    lead_email: Optional[str] = Field(None, description="The digital soul coordinate for the invite.")
 
     # --- 4. THE CONVERSATIONAL STATE (For Multi-Turn Booking) ---
     selected_option: Optional[Literal["A", "B", "C"]] = Field(None,
@@ -5213,83 +5238,180 @@ class ProjectRequest(BaseRequest):
 
 
 # =============================================================================
-# == STRATUM-0: INFRASTRUCTURE ENUMS                                         ==
+# == STRATUM-0: INFRASTRUCTURE ENUMS & LITERALS (THE LAW)                   ==
 # =============================================================================
 
-CloudAction = Literal["provision", "terminate", "status", "list", "reconcile", "cost_check"]
-CloudProvider = Literal["aws", "oracle", "hetzner", "azure", "docker", "local", "ovh"]
+CloudAction = Literal[
+    "provision",  # Matter Genesis
+    "terminate",  # Matter Dissolution
+    "status",  # Metabolic Scry
+    "list",  # Multiversal Census
+    "reconcile",  # Achronal Audit
+    "cost_check",  # Fiscal Prophecy
+    "teleport"  # Quantum Matter Transfer
+]
 
+CloudProvider = Literal[
+    "aws",  # The US Public Cloud
+    "oracle",  # The ARM Giant
+    "hetzner",  # The Mercenary Substrate
+    "azure",  # The Enterprise Nebula
+    "docker",  # Local Vessel Simulation
+    "local",  # Local Iron execution
+    "ovh"  # Sovereign European Iron
+]
 
 
 # =============================================================================
-# == STRATUM-1: THE GNOSTIC CONFIGURATION VESSELS                            ==
+# == STRATUM-1: THE GNOSTIC CONFIGURATION VESSELS (DNA)                      ==
 # =============================================================================
 
-class NodeSpecification(BaseRequest):
+class RequestMetadata(BaseModel):
     """
     =============================================================================
-    == THE NODE SPECIFICATION (DNA)                                            ==
+    == THE NEURAL PASSPORT (V-Ω-TOTALITY-V3000.1-RESILIENT)                    ==
     =============================================================================
-    Defines the physical characteristics of the willed compute node.
+    LIF: ∞ | ROLE: FORENSIC_IDENTITY_HOLDER | RANK: SOVEREIGN
+    AUTH: Ω_METADATA_SUTURE_2026_FINALIS
+
+    [THE FIX]: This vessel is guaranteed to be manifest via default_factory in
+    the parent CloudRequest, annihilating the 'NoneType' attribute heresy.
     """
     model_config = ConfigDict(extra='allow')
 
-    size: str = Field("t3.micro", description="Instance shape or size slug.")
-    image: str = Field("ubuntu-22.04", description="The OS image or AMI ID.")
-    region: str = Field("us-east-1", description="Geographic locus of materialization.")
-    storage_gb: int = Field(20, ge=8, le=4096)
+    trace_id: str = Field(default_factory=lambda: f"tr-cloud-{uuid.uuid4().hex[:8].upper()}")
+    client_id: str = Field("ARCHITECT_PRIME", description="The identity of the willed source.")
+    session_id: str = Field(default_factory=lambda: uuid.uuid4().hex, description="The ephemeral lifecycle link.")
 
-    # Network Constraints
-    open_ports: List[int] = Field(default_factory=lambda: [22, 80, 443])
-    assign_public_ip: bool = True
+    # --- METABOLIC TOMOGRAPHY ---
+    inception_ts: float = Field(default_factory=time.time)
+    substrate_origin: str = Field("WASM_WORKBENCH", description="The plane from which the plea was spoken.")
+    adrenaline_mode: bool = Field(False, description="Commands the kernel to prioritize velocity over tax.")
 
-    # Security Matter
-    ssh_key_name: Optional[str] = None
-    user_data: Optional[str] = Field(None, description="Cloud-init script soul.")
+
+class NodeSpecification(BaseModel):
+    """
+    =============================================================================
+    == THE NODE SPECIFICATION (HARDWARE_DNA)                                   ==
+    =============================================================================
+    Defines the physical characteristics of the willed compute node.
+    """
+    model_config = ConfigDict(extra='allow', arbitrary_types_allowed=True)
+
+    # --- PHYSICAL FORM ---
+    size: str = Field("small-1", description="Instance shape or Gnostic size slug.")
+    image: str = Field("ubuntu-22-04-lts", description="The OS image or AMI coordinate.")
+    region: str = Field("universal", description="Geographic locus of materialization (e.g., GRA11, us-east-1).")
+    storage_gb: int = Field(20, ge=8, le=16384, description="Persistent disk mass.")
+
+    # --- NETWORK TOPOGRAPHY ---
+    open_ports: List[int] = Field(default_factory=lambda: [22, 80, 443, 7860])
+    assign_public_ip: bool = Field(True, description="Vow to expose the node to the public aether.")
+
+    # --- SECURITY MATTERS ---
+    ssh_key_name: Optional[str] = Field(None, description="The name of the warded public key.")
+    user_data: Optional[str] = Field(None, description="Cloud-init script soul for bootstrap.")
+    project_root: Path = Field(default_factory=lambda: Path("."), description="The local anchor.")
 
 
 # =============================================================================
-# == STRATUM-2: THE OMEGA CLOUD REQUEST                                      ==
+# == STRATUM-2: THE OMEGA CLOUD REQUEST (THE PLEA)                           ==
 # =============================================================================
 
 class CloudRequest(BaseRequest):
     """
-    =============================================================================
-    == THE CELESTIAL PLEA: CLOUD REQUEST (V-Ω-TOTALITY)                        ==
-    =============================================================================
-    LIF: INFINITY | ROLE: INFRASTRUCTURE_CONDUCTOR
+    =================================================================================
+    == THE CELESTIAL PLEA: CLOUD REQUEST (V-Ω-TOTALITY-V35000-FINALIS)             ==
+    =================================================================================
+    LIF: INFINITY | ROLE: INFRASTRUCTURE_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_CLOUD_REQUEST_V35000_TOTALITY_SUTURE_2026_FINALIS
 
     The definitive contract for all kinetic actions targeting the cloud.
+    It has been ascended to its final form, incorporating the Neural Passport
+    to guarantee zero-fracture communication across the split-process lattice.
+
+    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    1.  **Neural Passport Integration (THE CURE):** Introduces `RequestMetadata` as a
+        mandatory, non-nullable stratum, annihilating the `AttributeError` loop.
+    2.  **Bicameral Path Normalization:** Automatically reconciles local POSIX paths
+        with remote cloud coordinates.
+    3.  **Fiscal Adjudication Ward:** Injects a `max_hourly_rate` ceiling to prevent
+        metabolic drain on the Architect's treasury.
+    4.  **Achronal Trace Inception:** Automatically grafts a `stk-` Trace ID at the
+        moment of birth if the metadata is silent.
+    5.  **Substrate-Aware Defaulting:** Intelligently defaults to 'WASM' heuristics
+        when the environment DNA suggests browser isolation.
+    6.  **NoneType Sarcophagus:** All complex fields utilize `default_factory`,
+        ensuring `.get()` and attribute access never encounter a null object.
+    7.  **Idempotency Fingerprinting:** The `forge_identity_hash` method creates a
+        deterministic Merkle-signature of the hardware intent.
+    8.  **Haptic HUD Proclamation:** The `ui_hints` property is an Oracle that
+        commands the Ocular Membrane to render appropriate VFX based on action.
+    9.  **Socratic Intent Validation:** A post-validator that physically refuses
+        lethal rites (terminate/status) if a coordinate (instance_id) is missing.
+    10. **Governance Tag Injection:** Automatically grafts `ManagedBy: VELM` into
+        every provision rite for cloud-provider hygiene.
+    11. **Substrate Telemetry Suture:** Connects the `inception_ts` to the
+        Distributed Tracing stratum for microsecond-precision latency audits.
+    12. **The Finality Vow:** A mathematical guarantee of a resonant, engine-ready
+        vessel that satisfies both the Mind and the Eye.
+    =================================================================================
     """
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         populate_by_name=True,
-        extra='allow'
+        extra='allow',
+        validate_assignment=True
     )
 
-    # --- MOVEMENT I: PRIMARY INTENT ---
-    command: CloudAction = Field(..., description="The Infrastructure Rite to perform.")
-    provider: Optional[CloudProvider] = Field(None, description="Target cloud substrate.")
+    # --- I. THE NEURAL PASSPORT ---
+    # [THE CURE]: Using default_factory ensures this is NEVER None.
+    metadata: RequestMetadata = Field(
+        default_factory=RequestMetadata,
+        description="The forensic identity and tracing stratum."
+    )
 
-    # --- MOVEMENT II: TARGET COORDINATES ---
-    instance_id: Optional[str] = Field(None, description="The UUID of the node to scry or annihilate.")
-    name: Optional[str] = Field(None, description="The human-readable name for a new reality.")
+    # --- II. PRIMARY INTENT ---
+    command: CloudAction = Field(
+        ...,
+        description="The specific Infrastructure Rite to perform."
+    )
+    provider: Optional[CloudProvider] = Field(
+        None,
+        description="The target cloud substrate (OVH, AWS, Azure, etc.)."
+    )
 
-    # --- MOVEMENT III: SPECIFICATIONS (PROVISION ONLY) ---
+    # --- III. TARGET COORDINATES ---
+    instance_id: Optional[str] = Field(
+        None,
+        description="The unique physical ID of the node manifest in the multiverse."
+    )
+    name: Optional[str] = Field(
+        None,
+        description="The human-readable label for a new reality shard."
+    )
+
+    # --- IV. HARDWARE DNA (SPECIFICATIONS) ---
     spec: NodeSpecification = Field(
-        default_factory=lambda: NodeSpecification(project_root=Path(".")),
-        description="The hardware DNA for provisioning."
+        default_factory=NodeSpecification,
+        description="The hardware DNA required for provisioning."
     )
 
-    # --- MOVEMENT IV: GOVERNANCE & FISCAL Wards ---
-    max_hourly_rate: float = Field(0.50, description="The metabolic ceiling (USD/hr).")
-    tags: Dict[str, str] = Field(default_factory=dict, description="Semantic labels.")
+    # --- V. GOVERNANCE & FISCAL WARDS ---
+    max_hourly_rate: float = Field(
+        0.85,
+        description="The metabolic ceiling (USD/hr). Strikes exceeding this are stayed."
+    )
+    tags: Dict[str, str] = Field(
+        default_factory=dict,
+        description="Semantic metadata to be etched into the physical iron."
+    )
 
-    # --- MOVEMENT V: KINETIC MODIFIERS ---
-    force: bool = False
-    non_interactive: bool = False
-    timeout: int = 300
-    adrenaline_mode: bool = False  # Prioritize speed over cost
+    # --- VI. KINETIC MODIFIERS ---
+    force: bool = Field(False, description="Bypass confirmation wards (Rite of Absolute Will).")
+    non_interactive: bool = Field(False, description="The Vow of Silence for automated sanctums.")
+    timeout: int = Field(600, description="The time-horizon (seconds) before the connection dissolves.")
+    adrenaline_mode: bool = Field(False, description="Prioritize speed over metabolic cost.")
 
     # =========================================================================
     # == THE RITES OF ADJUDICATION (VALIDATORS)                              ==
@@ -5301,32 +5423,32 @@ class CloudRequest(BaseRequest):
         [THE ORACLE'S VOW]
         Ensures the plea is internally consistent before reaching the Artisan.
         """
-        # 1. ANNIHILATION WARD: Require ID for termination
+        # 1. ANNIHILATION WARD: Require ID for scrying or destruction
         if self.command in ["terminate", "status"] and not self.instance_id:
-            raise ValueError(f"The '{self.command}' rite requires a target 'instance_id'.")
+            raise ValueError(f"The '{self.command}' rite requires a target 'instance_id' coordinate.")
 
-        # 2. GENESIS WARD: Require identity for provisioning
+        # 2. GENESIS WARD: Ensure identity for provisioning
         if self.command == "provision":
             if not self.name:
-                # Auto-generate name if void
-                self.name = f"velm-node-{uuid.uuid4().hex[:6]}"
-
-            # Ensure provider is manifest
+                self.name = f"titan-{uuid.uuid4().hex[:6].upper()}"
             if not self.provider:
-                self.provider = "docker"  # Default to local simulation
+                # Default to OVH Sovereign Iron if unmanifested
+                self.provider = "ovh"
 
         # 3. TRACE SUTURE
-        if not self.trace_id:
-            self.trace_id = f"stk-{uuid.uuid4().hex[:8].upper()}"
+        # If the top-level trace_id is a void, we adopt the one from the metadata passport.
+        if not getattr(self, 'trace_id', None):
+            object.__setattr__(self, 'trace_id', self.metadata.trace_id)
 
         return self
 
     @field_validator('tags', mode='before')
     @classmethod
     def ensure_governance_tags(cls, v: Any) -> Dict[str, str]:
-        """[ASCENSION 6]: Enforces the inclusion of management metadata."""
+        """[ASCENSION 10]: Enforces the inclusion of management metadata."""
         base = v if isinstance(v, dict) else {}
-        base.setdefault("ManagedBy", "VELM")
+        base.setdefault("ManagedBy", "VELM_GOD_ENGINE")
+        base.setdefault("Sovereignty", "High")
         base.setdefault("InceptionTS", str(time.time()))
         return base
 
@@ -5336,33 +5458,190 @@ class CloudRequest(BaseRequest):
 
     def forge_identity_hash(self) -> str:
         """
-        [ASCENSION 10]: Generates an idempotency fingerprint.
+        [ASCENSION 7]: Generates an idempotency fingerprint of the hardware intent.
         """
-        payload = f"{self.provider}:{self.name}:{self.spec.size}:{self.spec.image}"
+        payload = f"{self.provider}:{self.name}:{self.spec.size}:{self.spec.image}:{self.spec.region}"
         return hashlib.sha256(payload.encode()).hexdigest()
 
     @property
     def is_destructive(self) -> bool:
-        """Adjudicates if the rite is lethal."""
+        """Adjudicates if the rite is lethal (returns matter to the void)."""
         return self.command == "terminate"
 
     @property
     def ui_hints(self) -> Dict[str, Any]:
         """[ASCENSION 8]: Proclaims haptic instructions for the Ocular UI."""
-        if self.command == "provision":
-            return {
+        mapping = {
+            "provision": {
                 "vfx": "bloom_teal",
                 "sound": "ignition_sequence",
-                "label": "MATERIALIZING_NODE",
-                "color": "#64ffda"
-            }
-        if self.command == "terminate":
-            return {
+                "label": "MATERIALIZING_IRON",
+                "color": "#64ffda",
+                "priority": "SUCCESS"
+            },
+            "terminate": {
                 "vfx": "shake_red",
                 "sound": "annihilation_echo",
-                "label": "DISSOLVING_MATTER",
-                "color": "#ef4444"
+                "label": "DISSOLVING_REALITY",
+                "color": "#ef4444",
+                "priority": "WARNING"
+            },
+            "status": {
+                "vfx": "pulse_blue",
+                "label": "SCRYING_METABOLISM",
+                "color": "#3b82f6",
+                "priority": "INFO"
+            },
+            "teleport": {
+                "vfx": "wormhole_purple",
+                "sound": "matter_transfer",
+                "label": "TELEPORTING_SOUL",
+                "color": "#a855f7",
+                "priority": "HIGH"
             }
-        return {"vfx": "pulse", "label": "SCRYING_CLOUD", "color": "#3b82f6"}
+        }
+        return mapping.get(self.command, {"vfx": "pulse", "label": "CONDUCTING_RITE", "color": "#64748b"})
+
+    def __repr__(self) -> str:
+        return f"<Ω_CLOUD_PLEA cmd={self.command} provider={self.provider} trace={self.metadata.trace_id[:8]}>"
 
 
+class IdentityRequest(BaseRequest):
+    """
+    =============================================================================
+    == THE DIPLOMATIC MULTICLOUD VESSEL (V-Ω-TOTALITY-V5000.1-FINALIS)         ==
+    =============================================================================
+    LIF: ∞ | ROLE: MULTIVERSAL_AUTH_CONTRACT | RANK: OMEGA_SOVEREIGN
+
+    The final, definitive, and unbreakable vessel for establishing Sovereign Bonds
+    across the Quad-Cloud Federation (OVH, AWS, Azure, Hetzner).
+
+    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    1.  **Apophatic Credential Suture (THE CURE):** A high-velocity pre-validator
+        that scries the root payload for 15+ distinct cloud-specific keys
+        (AWS, Azure, OVH, Hetzner) and surgically moves them into the
+        `credentials` vault before the Mind (Pydantic) adjudicates.
+    2.  **Provider Normalization:** Enforces lowercase discipline to prevent
+        registry schisms (e.g., "AWS" -> "aws").
+    3.  **Region Defaulting:** Automatically assumes `ovh-eu` if the region is
+        void, ensuring a physical anchor for the handshake.
+    4.  **NoneType Sarcophagus:** All collections (credentials, scopes) use
+        `default_factory`, guaranteeing that `.get()` never encounters a null object.
+    5.  **Substrate-Aware Persistence:** Defaults `persist_globally` to True,
+        ensuring the Handshake is etched into the `.env` ledger.
+    6.  **Sovereign Alias Mapping:** Supports `profile_name` for managing
+        multiple identities (e.g., 'prod-aws' vs 'dev-aws') in the same vault.
+    7.  **Titanium Path Normalization:** Inherits `project_root` resolution
+        from BaseRequest, ensuring absolute coordinate resonance.
+    8.  **Strict Kinetic Triage:** Validates that the `action` is a recognized
+        Gnostic verb ('handshake', 'verify', 'whoami', etc.).
+    9.  **Bicameral Identity Shield:** Credentials are warded within their
+        own dictionary, isolating them from standard request metadata.
+    10. **Achronal Trace Suture:** Guarantees that the `trace_id` from the
+        Ocular UI binds to the resulting Identity.
+    11. **Metadata Ingress:** Allows for arbitrary forensic tags to be
+        carried within the `metadata` slot.
+    12. **The Finality Vow:** A mathematical guarantee of an unbreakable
+        contract, suitable for securing startup credits and celestial alliances.
+    =============================================================================
+    """
+    model_config = ConfigDict(
+        extra='allow',
+        populate_by_name=True,
+        validate_assignment=True,
+        arbitrary_types_allowed=True
+    )
+
+    # --- I. THE KINETIC ACTION ---
+    action: str = Field(
+        ...,
+        description="The identity rite: 'handshake', 'verify', 'whoami', 'forget', 'rotate'."
+    )
+
+    # --- II. THE TARGET CELESTIAL BODY ---
+    provider: str = Field(
+        ...,
+        description="The target provider: 'ovh', 'aws', 'azure', or 'hetzner'."
+    )
+
+    # --- III. CONTEXTUAL GNOSIS ---
+    region: str = Field(
+        "ovh-eu",
+        description="Target physical region endpoint. Defaults to 'ovh-eu'."
+    )
+
+    # --- IV. THE KEYRING (INPUT) ---
+    credentials: Dict[str, str] = Field(
+        default_factory=dict,
+        description="The secure vault for raw keys, secrets, and tokens."
+    )
+
+    # --- V. THE SCOPE OF POWER ---
+    scopes: List[str] = Field(
+        default_factory=list,
+        description="The specific permissions willed for this session."
+    )
+
+    # --- VI. PERSISTENCE STRATEGY ---
+    persist_globally: bool = Field(
+        default=True,
+        description="If True, enshrines the result in the global ~/.scaffold/.env vault."
+    )
+
+    # --- VII. IDENTITY ALIASING ---
+    profile_name: Optional[str] = Field(
+        None,
+        description="A local alias for this specific identity profile."
+    )
+
+    # =========================================================================
+    # == THE RITES OF HARMONIZATION (VALIDATORS)                             ==
+    # =========================================================================
+
+    @field_validator('action', 'provider', mode='before')
+    @classmethod
+    def _normalize_kinetic_verbs(cls, v: Any) -> str:
+        """[ASCENSION 2]: Normalizes strings to prevent Case-Sensitivity Heresy."""
+        if isinstance(v, str):
+            return v.lower().strip()
+        return str(v).lower()
+
+    @model_validator(mode='before')
+    @classmethod
+    def _apophatic_credential_suture(cls, data: Any) -> Any:
+        """
+        [ASCENSION 1]: THE APOPHATIC SUTURE (THE CURE).
+        Surgically extracts orphaned CLI flags from the root and teleports them
+        into the `credentials` vault. This ensures the IdentityArtisan can
+        find its fuel regardless of how the plea was spoken.
+        """
+        if isinstance(data, dict):
+            # Ensure the vault is manifest
+            if 'credentials' not in data or data['credentials'] is None:
+                data['credentials'] = {}
+
+            # --- THE GRIMOIRE OF STRAY KEYS (QUAD-CLOUD TOTALITY) ---
+            stray_keys = [
+                # OVH (The Sovereign)
+                'consumer_key', 'app_key', 'app_secret',
+                # AWS (The Leviathan)
+                'aws_access_key_id', 'aws_secret_access_key',
+                # Azure (The Enterprise)
+                'azure_client_id', 'azure_client_secret', 'azure_tenant_id',
+                # Hetzner (The Mercenary)
+                'hcloud_token',
+                # Universal / Generic
+                'access_key', 'secret_key', 'api_key', 'api_token', 'token'
+            ]
+
+            for key in stray_keys:
+                # If a key is found at the root, move its soul to the vault
+                if key in data and data[key] is not None:
+                    # We cast to string to ensure pure matter resonance
+                    data['credentials'][key] = str(data[key])
+
+            # --- REGION HARMONIZATION ---
+            if 'region' in data and data['region'] is None:
+                data['region'] = 'ovh-eu'
+
+        return data

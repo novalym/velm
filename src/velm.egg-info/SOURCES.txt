@@ -184,7 +184,9 @@ src/velm/artisans/with_secrets.py
 src/velm/artisans/__pycache__/__init__.cpython-313.pyc
 src/velm/artisans/__pycache__/harvest.cpython-313.pyc
 src/velm/artisans/__pycache__/help.cpython-313.pyc
+src/velm/artisans/__pycache__/runtimes.cpython-313.pyc
 src/velm/artisans/__pycache__/transfigure.cpython-313.pyc
+src/velm/artisans/__pycache__/tree.cpython-313.pyc
 src/velm/artisans/aether/__init__.py
 src/velm/artisans/aether/analyzer.py
 src/velm/artisans/aether/artisan.py
@@ -419,6 +421,12 @@ src/velm/artisans/distill/core/forensics/detectives.py
 src/velm/artisans/distill/core/forensics/engine.py
 src/velm/artisans/distill/core/forensics/filters.py
 src/velm/artisans/distill/core/forensics/grimoire.py
+src/velm/artisans/distill/core/forensics/__pycache__/__init__.cpython-313.pyc
+src/velm/artisans/distill/core/forensics/__pycache__/contracts.cpython-313.pyc
+src/velm/artisans/distill/core/forensics/__pycache__/detectives.cpython-313.pyc
+src/velm/artisans/distill/core/forensics/__pycache__/engine.cpython-313.pyc
+src/velm/artisans/distill/core/forensics/__pycache__/filters.cpython-313.pyc
+src/velm/artisans/distill/core/forensics/__pycache__/grimoire.cpython-313.pyc
 src/velm/artisans/distill/core/governance/__init__.py
 src/velm/artisans/distill/core/governance/contracts.py
 src/velm/artisans/distill/core/governance/engine.py
@@ -594,6 +602,9 @@ src/velm/artisans/hover/hover_mentor/__init__.py
 src/velm/artisans/hover/hover_mentor/grimoire.py
 src/velm/artisans/hover/hover_mentor/inquisitor.py
 src/velm/artisans/hover/hover_mentor/warden.py
+src/velm/artisans/identity/__init__.py
+src/velm/artisans/identity/artisan.py
+src/velm/artisans/identity/contracts.py
 src/velm/artisans/ignore/artisan.py
 src/velm/artisans/indexer/__init__.py
 src/velm/artisans/indexer/artisan.py
@@ -745,6 +756,12 @@ src/velm/artisans/run/conductor.py
 src/velm/artisans/run/polyglot_bridge.py
 src/velm/artisans/run/scribe.py
 src/velm/artisans/run/vigil.py
+src/velm/artisans/run/__pycache__/__init__.cpython-313.pyc
+src/velm/artisans/run/__pycache__/bridge.cpython-313.pyc
+src/velm/artisans/run/__pycache__/conductor.cpython-313.pyc
+src/velm/artisans/run/__pycache__/polyglot_bridge.cpython-313.pyc
+src/velm/artisans/run/__pycache__/scribe.cpython-313.pyc
+src/velm/artisans/run/__pycache__/vigil.cpython-313.pyc
 src/velm/artisans/run/prophet/__init__.py
 src/velm/artisans/run/prophet/conductor.py
 src/velm/artisans/run/prophet/contracts.py
@@ -752,6 +769,12 @@ src/velm/artisans/run/prophet/grimoire.py
 src/velm/artisans/run/prophet/language_oracle.py
 src/velm/artisans/run/prophet/rite_adjudicator.py
 src/velm/artisans/run/prophet/sanctum_seer.py
+src/velm/artisans/run/prophet/__pycache__/__init__.cpython-313.pyc
+src/velm/artisans/run/prophet/__pycache__/conductor.cpython-313.pyc
+src/velm/artisans/run/prophet/__pycache__/grimoire.cpython-313.pyc
+src/velm/artisans/run/prophet/__pycache__/language_oracle.cpython-313.pyc
+src/velm/artisans/run/prophet/__pycache__/rite_adjudicator.cpython-313.pyc
+src/velm/artisans/run/prophet/__pycache__/sanctum_seer.cpython-313.pyc
 src/velm/artisans/schema/__init__.py
 src/velm/artisans/schema/artisan.py
 src/velm/artisans/schema/engine.py
@@ -1261,6 +1284,7 @@ src/velm/core/cli/grimoire/_evolution_rites.py
 src/velm/core/cli/grimoire/_governance_rites.py
 src/velm/core/cli/grimoire/_guild_rites.py
 src/velm/core/cli/grimoire/_history_rites.py
+src/velm/core/cli/grimoire/_identity_rites.py
 src/velm/core/cli/grimoire/_mimic_rites.py
 src/velm/core/cli/grimoire/_perception_rites.py
 src/velm/core/cli/grimoire/_security_rites.py
@@ -1277,6 +1301,7 @@ src/velm/core/cli/grimoire/__pycache__/_evolution_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_governance_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_guild_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_history_rites.cpython-313.pyc
+src/velm/core/cli/grimoire/__pycache__/_identity_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_mimic_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_perception_rites.cpython-313.pyc
 src/velm/core/cli/grimoire/__pycache__/_security_rites.cpython-313.pyc
@@ -2226,6 +2251,12 @@ src/velm/core/semantics/engine.py
 src/velm/core/semantics/intent.py
 src/velm/core/semantics/reranker.py
 src/velm/core/semantics/retriever.py
+src/velm/core/semantics/__pycache__/__init__.cpython-313.pyc
+src/velm/core/semantics/__pycache__/contracts.cpython-313.pyc
+src/velm/core/semantics/__pycache__/engine.cpython-313.pyc
+src/velm/core/semantics/__pycache__/intent.cpython-313.pyc
+src/velm/core/semantics/__pycache__/reranker.cpython-313.pyc
+src/velm/core/semantics/__pycache__/retriever.cpython-313.pyc
 src/velm/core/simulation/__init__.py
 src/velm/core/simulation/prophecy.py
 src/velm/core/simulation/scribe.py
@@ -2750,6 +2781,9 @@ src/velm/rendering/text_renderer/__pycache__/tree_weaver.cpython-313.pyc
 src/velm/runtime_manager/__Init__.py
 src/velm/runtime_manager/codex.py
 src/velm/runtime_manager/manager.py
+src/velm/runtime_manager/__pycache__/__init__.cpython-313.pyc
+src/velm/runtime_manager/__pycache__/codex.cpython-313.pyc
+src/velm/runtime_manager/__pycache__/manager.cpython-313.pyc
 src/velm/semantic_injection/__init__.py
 src/velm/semantic_injection/contract.py
 src/velm/semantic_injection/injector.py
@@ -3017,6 +3051,7 @@ src/velm/symphony/build.symphony
 src/velm/symphony/docs_generator.symphony
 src/velm/symphony/release.symphony
 src/velm/symphony/swarm.py
+src/velm/symphony/__pycache__/__init__.cpython-313.pyc
 src/velm/symphony/conductor/__init__.py
 src/velm/symphony/conductor/events.py
 src/velm/symphony/conductor/orchestrator.py
@@ -3093,6 +3128,9 @@ src/velm/symphony/polyglot/__init__.py
 src/velm/symphony/polyglot/adjudicators.py
 src/velm/symphony/polyglot/artisan.py
 src/velm/symphony/polyglot/grimoire.py
+src/velm/symphony/polyglot/__pycache__/__init__.cpython-313.pyc
+src/velm/symphony/polyglot/__pycache__/artisan.cpython-313.pyc
+src/velm/symphony/polyglot/__pycache__/grimoire.cpython-313.pyc
 src/velm/symphony/polyglot/wards/__init__.py
 src/velm/symphony/polyglot/wards/go_ward.py
 src/velm/symphony/polyglot/wards/java_ward.py

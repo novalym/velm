@@ -27,6 +27,12 @@ class InfrastructureFactory:
     # [STRATUM-0]: THE REGISTRY OF SOVEREIGNTY
     # Mapping of semantic slugs to their module and class coordinates.
     _GRIMOIRE: Final[Dict[str, Dict[str, str]]] = {
+        "ovh": {
+            "module": ".providers.ovh",
+            "class": "OVHProvider",
+            "sdk": "ovh",
+            "alias": ["sovereign", "europe-core"]
+        },
         "aws": {
             "module": ".providers.aws",
             "class": "AWSProvider",

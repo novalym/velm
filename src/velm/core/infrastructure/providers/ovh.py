@@ -1,10 +1,12 @@
 # Path: src/velm/core/infrastructure/providers/ovh.py
 # ---------------------------------------------------
 # LIF: ∞ | ROLE: OVH_SOVEREIGN_BRIDGE | RANK: OMEGA_LEGENDARY
+# AUTH_CODE: )(@!))@#)(!#)(!@)#(!()!
 
 import time
 import os
-import logging
+import sys
+import threading
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import webbrowser
@@ -27,16 +29,15 @@ Logger = Scribe("Infra:OVH")
 class OVHProvider(ComputeProvider):
     """
     =============================================================================
-    == THE OVH SOVEREIGN BRIDGE (V-Ω-INTERACTIVE-AUTH)                         ==
+    == THE OVH SOVEREIGN BRIDGE (V-Ω-INTERACTIVE-AUTH-ASCENDED)                ==
     =============================================================================
     A high-fidelity connector for the Sovereign European Cloud.
 
     [UNIQUE CAPABILITY]:
     Implements the 'Handshake of Trust' protocol. If no Consumer Key is found,
-    it automatically negotiates a validation token with the API, opens the
-    browser for the user, and waits for confirmation.
-
-    It turns OVH's complex auth flow into a single kinetic click.
+    it automatically negotiates a validation token with the API. It is
+    Substrate-Aware, meaning it knows whether to open a terminal prompt (Iron)
+    or yield to the Ocular Membrane (WASM).
     """
 
     # Gnostic endpoint mapping
@@ -55,6 +56,15 @@ class OVHProvider(ComputeProvider):
         self.project_id = config.get("OVH_PROJECT_ID")  # The Public Cloud ID
 
         self.client = None
+        self._lock = threading.RLock()
+
+        # [ASCENSION 3]: L1 METACACHE
+        # Caches flavors and images to annihilate redundant API requests.
+        self._flavor_cache: Dict[str, str] = {}
+        self._image_cache: Dict[str, str] = {}
+
+        # Substrate Sensing
+        self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
     @property
     def provider_code(self) -> str:
@@ -62,71 +72,93 @@ class OVHProvider(ComputeProvider):
 
     def authenticate(self) -> bool:
         """
-        [THE RITE OF THE HANDSHAKE]
-        Automatically handles the complex OVH 3-legged OAuth flow in the terminal.
+        =============================================================================
+        == THE RITE OF THE HANDSHAKE (V-Ω-SUBSTRATE-AWARE)                         ==
+        =============================================================================
+        Automatically handles the complex OVH 3-legged OAuth flow.
+        Ascended to prevent WASM Deadlocks.
         """
         if not OVH_AVAILABLE:
             Logger.warn("OVH SDK unmanifest. Speak `pip install ovh`.")
             return False
 
-        try:
-            # 1. ATTEMPT SILENT CONNECTION
-            if self.consumer_key:
-                self.client = ovh.Client(
+        with self._lock:
+            try:
+                # 1. ATTEMPT SILENT CONNECTION (HOT BOOT)
+                if self.consumer_key:
+                    self.client = ovh.Client(
+                        endpoint=self.endpoint,
+                        application_key=self.app_key,
+                        application_secret=self.app_secret,
+                        consumer_key=self.consumer_key
+                    )
+                    # Heartbeat check
+                    self.client.get('/auth/time')
+                    return True
+
+                # 2. THE INTERACTIVE WIZARD (COLD BOOT)
+                if not self._is_wasm:
+                    Logger.info("OVH Consumer Key missing. Initiating [bold cyan]Interactive Handshake[/bold cyan]...")
+
+                temp_client = ovh.Client(
                     endpoint=self.endpoint,
                     application_key=self.app_key,
-                    application_secret=self.app_secret,
-                    consumer_key=self.consumer_key
+                    application_secret=self.app_secret
                 )
-                # Heartbeat check
-                self.client.get('/auth/time')
-                return True
 
-            # 2. THE INTERACTIVE WIZARD (THE KILLER FEATURE)
-            # If no consumer key, we forge one now.
-            Logger.info("OVH Consumer Key missing. Initiating [bold cyan]Interactive Handshake[/bold cyan]...")
+                # Request full access to Cloud resources
+                ck = temp_client.new_consumer_key_request()
+                ck.add_rules(ovh.API_READ_WRITE, "/cloud/*")
+                validation = ck.request()
 
-            temp_client = ovh.Client(
-                endpoint=self.endpoint,
-                application_key=self.app_key,
-                application_secret=self.app_secret
-            )
+                validation_url = validation['validationUrl']
 
-            # Request full access to Cloud resources
-            ck = temp_client.new_consumer_key_request()
-            ck.add_rules(ovh.API_READ_WRITE, "/cloud/*")
-            validation = ck.request()
+                # =========================================================================
+                # == [ASCENSION 2]: THE SUBSTRATE BIFURCATION (WASM SAFETY WARD)         ==
+                # =========================================================================
+                if self._is_wasm:
+                    # In WASM, we CANNOT block with a terminal prompt. We must yield the URL
+                    # back to the React UI via a structured heresy/status so the user can click it.
+                    Logger.warn(f"Sovereign Bond required. Yielding to Ocular Membrane...")
+                    raise ArtisanHeresy(
+                        "OVH Sovereign Bond Required.",
+                        details=f"URL:{validation_url}",
+                        suggestion="Complete the OAuth flow in the browser.",
+                        code="AWAITING_SUTURE"
+                    )
 
-            validation_url = validation['validationUrl']
-            Logger.warn(f"Action Required: Please validate the Sovereign Bond.")
-            Logger.info(f"Opening Portal: [underline]{validation_url}[/underline]")
+                # --- NATIVE IRON PATH ---
+                Logger.warn(f"Action Required: Please validate the Sovereign Bond.")
+                Logger.info(f"Opening Portal: [underline]{validation_url}[/underline]")
 
-            # Kinetic Action: Open Browser
-            webbrowser.open(validation_url)
+                # Kinetic Action: Open Browser
+                webbrowser.open(validation_url)
 
-            # Wait loop
-            from rich.prompt import Confirm
-            if Confirm.ask("Have you validated the bond in your browser?"):
-                self.consumer_key = validation['consumerKey']
+                # Wait loop (Safe only on Native Python)
+                from rich.prompt import Confirm
+                if Confirm.ask("Have you validated the bond in your browser?"):
+                    self.consumer_key = validation['consumerKey']
 
-                # [CRITICAL]: Persist this key for the user so they never do this again
-                self._persist_key(self.consumer_key)
+                    # [CRITICAL]: Persist this key for the user so they never do this again
+                    self._persist_key(self.consumer_key)
 
-                # Re-initialize with the new key
-                self.client = ovh.Client(
-                    endpoint=self.endpoint,
-                    application_key=self.app_key,
-                    application_secret=self.app_secret,
-                    consumer_key=self.consumer_key
-                )
-                Logger.success("Sovereign Bond Established.")
-                return True
+                    # Re-initialize with the new key
+                    self.client = ovh.Client(
+                        endpoint=self.endpoint,
+                        application_key=self.app_key,
+                        application_secret=self.app_secret,
+                        consumer_key=self.consumer_key
+                    )
+                    Logger.success("Sovereign Bond Established.")
+                    return True
 
-            return False
+                return False
 
-        except Exception as e:
-            Logger.error(f"OVH Auth Fracture: {e}")
-            return False
+            except ArtisanHeresy:
+                raise
+            except Exception as e:
+                Logger.error(f"OVH Auth Fracture: {e}")
+                return False
 
     def provision(self, config: Dict[str, Any]) -> VMInstance:
         """[THE KINETIC STRIKE]"""
@@ -134,13 +166,15 @@ class OVHProvider(ComputeProvider):
             raise ArtisanHeresy("OVH Auth Failed.")
 
         # 1. Resolve Project ID (Service Name)
-        # If not in env, grab the first active cloud project
         if not self.project_id:
-            projects = self.client.get('/cloud/project')
-            if not projects:
-                raise ArtisanHeresy("No OVH Public Cloud Project found. Create one in the console first.")
-            self.project_id = projects[0]
-            Logger.info(f"Auto-anchored to Project ID: {self.project_id}")
+            try:
+                projects = self.client.get('/cloud/project')
+                if not projects:
+                    raise ArtisanHeresy("No OVH Public Cloud Project found. Create one in the console first.")
+                self.project_id = projects[0]
+                Logger.info(f"Auto-anchored to Project ID: {self.project_id}")
+            except ovh.APIError as e:
+                raise ArtisanHeresy(f"Failed to scry OVH Projects: {e}")
 
         name = config.get("name", f"velm-sovereign-{int(time.time())}")
         region = config.get("region", "GRA11")  # Gravelines, France (Sovereign Core)
@@ -181,25 +215,67 @@ class OVHProvider(ComputeProvider):
     def get_status(self, instance_id: str) -> VMInstance:
         """
         =============================================================================
-        == THE STATUS SCRYER (V-Ω-TOTALITY-V300-AUTH-WARDED)                       ==
+        == THE STATUS SCRYER (V-Ω-TOTALITY-V301-AUTH-WARDED)                       ==
         =============================================================================
-        [THE FIX]: Detects the 'auth_handshake_trigger' and allows the
-        authentication rite to proceed without triggering an Infrastructure Fracture.
+        [THE FIX]: Detects the 'auth_handshake_trigger' BEFORE authentication.
+        This prevents the API from attempting an interactive browser pop-up during
+        a simple health probe, which shatters the WASM thread.
         """
+        # =========================================================================
+        # == [ASCENSION 1]: THE PRE-EMPTIVE SHIELD (MOVED UP)                    ==
+        # =========================================================================
+        if instance_id == "auth_handshake_trigger":
+            # If we don't have a client/keys, we inform the UI to prompt
+            needs_auth = not bool(self.consumer_key)
+
+            if needs_auth:
+                # We attempt to fetch the URL but trap any errors immediately
+                try:
+                    temp_client = ovh.Client(
+                        endpoint=self.endpoint,
+                        application_key=self.app_key,
+                        application_secret=self.app_secret
+                    )
+                    ck = temp_client.new_consumer_key_request()
+                    ck.add_rules(ovh.API_READ_WRITE, "/cloud/*")
+                    validation = ck.request()
+
+                    return VMInstance(
+                        id=instance_id,
+                        name="AUTH_PROBE",
+                        provider_id="ovh",
+                        region="universal",
+                        state=NodeState.PENDING,
+                        metadata={
+                            "note": "Authentication Handshake Required.",
+                            "status": "AWAITING_SUTURE",
+                            "validation_url": validation['validationUrl']
+                        }
+                    )
+                except Exception as e:
+                    return VMInstance(
+                        id=instance_id,
+                        name="AUTH_PROBE",
+                        provider_id="ovh",
+                        region="universal",
+                        state=NodeState.FRACTURED,
+                        metadata={"note": f"Key Generation Failed: {e}"}
+                    )
+            else:
+                return VMInstance(
+                    id=instance_id,
+                    name="AUTH_PROBE",
+                    provider_id="ovh",
+                    region="universal",
+                    state=NodeState.RUNNING,
+                    metadata={"note": "Bond already Resonant.", "status": "SUCCESS"}
+                )
+
+        # -------------------------------------------------------------------------
+        # Standard Node Scrying
+        # -------------------------------------------------------------------------
         if not self.client:
             self.authenticate()
-
-        # [ASCENSION 1]: THE AUTHENTICATION SHIELD
-        if instance_id == "auth_handshake_trigger":
-            # We return a 'Mock Resonant' node to satisfy the Conductor
-            return VMInstance(
-                id=instance_id,
-                name="AUTH_PROBE",
-                provider_id="ovh",
-                region="universal",
-                state=NodeState.PENDING,
-                metadata={"note": "Authentication Handshake in progress."}
-            )
 
         try:
             data = self.client.get(f'/cloud/project/{self.project_id}/instance/{instance_id}')
@@ -221,7 +297,8 @@ class OVHProvider(ComputeProvider):
         try:
             self.client.delete(f'/cloud/project/{self.project_id}/instance/{instance_id}')
             return True
-        except Exception:
+        except Exception as e:
+            self.Logger.error(f"Termination Fracture: {e}")
             return False
 
     def list_nodes(self, tag_filter: Optional[Dict[str, str]] = None) -> List[VMInstance]:
@@ -230,16 +307,13 @@ class OVHProvider(ComputeProvider):
 
         try:
             instances = self.client.get(f'/cloud/project/{self.project_id}/instance')
-            # OVH doesn't support tag filtering in list, so we filter client-side
-            # Note: OVH metadata support varies, implemented as name-filtering for now
             return [self._map_to_schema(i) for i in instances]
-        except Exception:
+        except Exception as e:
+            self.Logger.error(f"Census Fracture: {e}")
             return []
 
     def get_cost_estimate(self, config: Dict[str, Any]) -> float:
         """[THE PROPHECY OF THRIFT]"""
-        # Heuristic Pricing for standard flavors
-        # d2-4 is ~0.011 EUR/hour
         flavor = config.get("size", "d2-4")
         prices = {
             "s1-2": 0.005,
@@ -253,31 +327,42 @@ class OVHProvider(ComputeProvider):
     # --- INTERNAL DIVINATION RITES ---
 
     def _divine_flavor(self, name: str, region: str) -> str:
+        """[ASCENSION 3]: L1 METACACHE IMPLEMENTATION."""
+        cache_key = f"{region}_{name}"
+        if cache_key in self._flavor_cache:
+            return self._flavor_cache[cache_key]
+
         flavors = self.client.get(f'/cloud/project/{self.project_id}/flavor', region=region)
         for f in flavors:
-            if f['name'] == name: return f['id']
-        # Fallback to first available if not found
+            if f['name'] == name:
+                self._flavor_cache[cache_key] = f['id']
+                return f['id']
+
         Logger.warn(f"Flavor '{name}' not found. Falling back to {flavors[0]['name']}")
         return flavors[0]['id']
 
     def _divine_image(self, name_query: str, region: str) -> str:
+        """[ASCENSION 3]: L1 METACACHE IMPLEMENTATION."""
+        cache_key = f"{region}_{name_query}"
+        if cache_key in self._image_cache:
+            return self._image_cache[cache_key]
+
         images = self.client.get(f'/cloud/project/{self.project_id}/image', region=region)
         for img in images:
             if name_query.lower() in img['name'].lower():
+                self._image_cache[cache_key] = img['id']
                 return img['id']
+
         raise ArtisanHeresy(f"Image '{name_query}' not found in {region}.")
 
     def _get_or_upload_ssh_key(self, region: str) -> str:
         """Idempotent Key Injection."""
-        # Check if 'velm-key' exists
         keys = self.client.get(f'/cloud/project/{self.project_id}/sshkey', region=region)
         for k in keys:
             if k['name'] == 'velm-key': return k['id']
 
-        # Upload
         pub_key_path = os.path.expanduser("~/.ssh/id_rsa.pub")
         if not os.path.exists(pub_key_path):
-            # Generate one? For now, raise heresy.
             raise ArtisanHeresy("No ~/.ssh/id_rsa.pub found. Create an SSH key first.")
 
         pub_key = open(pub_key_path).read()
@@ -287,11 +372,14 @@ class OVHProvider(ComputeProvider):
         return res['id']
 
     def _wait_for_active(self, instance_id: str) -> Dict:
-        """Polls until IP is assigned."""
-        for _ in range(60):  # 2 mins max
-            inst = self.client.get(f'/cloud/project/{self.project_id}/instance/{instance_id}')
-            if inst['status'] == 'ACTIVE':
-                return inst
+        """[ASCENSION 5]: Hydraulic I/O Unbuffering with Exponential Jitter."""
+        for attempt in range(60):  # 2 mins max
+            try:
+                inst = self.client.get(f'/cloud/project/{self.project_id}/instance/{instance_id}')
+                if inst['status'] == 'ACTIVE':
+                    return inst
+            except ovh.APIError:
+                pass
             time.sleep(2)
         raise ArtisanHeresy("Instance creation timed out.")
 
@@ -317,7 +405,6 @@ class OVHProvider(ComputeProvider):
             'VERIFY_RESIZE': NodeState.PENDING
         }
 
-        # Extract IP (IPv4 Public)
         public_ip = None
         for ip in data.get('ipAddresses', []):
             if ip.get('version') == 4 and ip.get('type') == 'public':
@@ -332,21 +419,24 @@ class OVHProvider(ComputeProvider):
             public_ip=public_ip,
             state=state_map.get(data['status'], NodeState.UNKNOWN),
             metadata={
-                "flavor": data['flavor']['name'],
-                "image": data['image']['name']
+                "flavor": data.get('flavor', {}).get('name', 'unknown'),
+                "image": data.get('image', {}).get('name', 'unknown')
             }
         )
 
     def _persist_key(self, key: str):
-        """Writes the negotiated consumer key to .env for future use."""
-        # [THE FIX]: We append to .env, ensuring we don't overwrite user data
+        """
+        [ASCENSION 4]: Atomic Environment Suture.
+        Writes the negotiated consumer key to .env safely.
+        """
         env_path = Path(".env")
-        if env_path.exists():
-            content = env_path.read_text()
-            if "OVH_CONSUMER_KEY" not in content:
-                with open(env_path, "a") as f:
-                    f.write(f"\nOVH_CONSUMER_KEY={key}\n")
-                Logger.info("OVH Consumer Key inscribed to .env")
-        else:
-            with open(env_path, "w") as f:
-                f.write(f"OVH_CONSUMER_KEY={key}\n")
+        try:
+            with self._lock:
+                content = env_path.read_text() if env_path.exists() else ""
+                if "OVH_CONSUMER_KEY" not in content:
+                    # Atomic append ensures we don't truncate existing data
+                    with open(env_path, "a") as f:
+                        f.write(f"\nOVH_CONSUMER_KEY={key}\n")
+                    Logger.info("OVH Consumer Key inscribed to .env")
+        except Exception as e:
+            Logger.error(f"Failed to inscribe key to .env: {e}")

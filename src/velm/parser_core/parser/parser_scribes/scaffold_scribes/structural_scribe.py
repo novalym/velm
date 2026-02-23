@@ -32,61 +32,72 @@ Logger = Scribe("StructuralScribe")
 class StructuralScribe(ScaffoldBaseScribe):
     """
     =================================================================================
-    == THE GEOMETRIC CITADEL (V-Ω-TOTALITY-V900.6-MATHEMATICALLY-CERTAIN)          ==
+    == THE GEOMETRIC CITADEL (V-Ω-TOTALITY-V10000-MATHEMATICALLY-CERTAIN)          ==
     =================================================================================
     @gnosis:title The Geometric Citadel
     @gnosis:summary The final, unbreakable fortress of structural perception.
     @gnosis:LIF INFINITY
-    @gnosis:auth_code Ω_STRUCTURE_V900_INDEX_HEALED
+    @gnosis:auth_code Ω_STRUCTURE_V10000_SOVEREIGN_NAME_FINALIS
 
     This artisan adjudicates the boundary between **Topography** (Sanctums/Scriptures)
-    and **Matter** (Content). It has been Ascended to enforce the **Law of Extension
-    Sovereignty**, annihilating the "Phantom Directory" heresy.
+    and **Matter** (Content). It has been Infinitely Ascended to enforce the **Law of
+    Pure Naming**, entirely ignoring the profane `raw_scripture` and relying solely
+    on the `vessel.name` purified by the Deconstructor.
 
-    ### THE PANTHEON OF 25 LEGENDARY ASCENSIONS:
+    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
 
-    1.  **The Colon-Cleansing Gaze (THE FIX):** Surgically strips trailing colons (`:`)
-        from path tokens *before* adjudicating Extension Sovereignty. This prevents
-        `config.py:` from being misclassified as a directory due to the regex anchor `$`.
-    2.  **Extension Sovereignty (THE LAW):** If a path ends in a known matter extension
-        (.py, .md, .json, etc.), it is **LOCKED** as a File. It can NEVER be a directory.
-    3.  **Implicit Content Fusion:** If a Sovereign File is followed by indented text,
-        that text is consumed as **Body**, not Children.
-    4.  **The Matter-Anchor Lock:** `::`, `<<`, `+=` sigils instantly force File identity.
-    5.  **The Anti-Matter Phalanx V9:** A hyper-aggressive regex grid that detects Code,
-        Markdown, and Config junk masquerading as filenames.
-    6.  **The Trailing Slash Decree:** A trailing `/` is the only way to force a
-        named directory that mimics a file (e.g. `package.json.dir/`).
-    7.  **Name Normalization:** Strips trailing colons from the final proclaimed item
-        name to ensure clean file paths on disk.
-    8.  **Achronal Path Normalization:** Forces NFC Unicode and POSIX slash discipline.
-    9.  **The Bracket Balance Inquisitor:** Detects unclosed `{` or `(` in paths, flagging
-        them as Parser Leaks.
-    10. **The Traversal Sentinel:** Pre-empts `../` attacks at the parsing layer.
-    11. **The Binary Oracle:** Scans for `| base64` filters to toggle binary storage modes.
-    12. **The Permissions Alchemist:** Transmutes `%% executable` into `0o755`.
-    13. **The Ontological Consistency Guard:** Prevents a path from being defined as
+    1.  **Pure Naming Sovereignty (THE CORE CURE):** The Scribe no longer gazes upon the
+        `raw_stripped` line to make structural decisions. It relies 100% on the `vessel.name`,
+        which has been stripped of comments, emojis, and box-drawing noise by the Deconstructor.
+    2.  **Comment-Immune Directory Adjudication:** Because it uses `vessel.name`, lines like
+        `apps/  # DEPLOYABLE APPS` are flawlessly perceived as `apps/`, instantly achieving
+        Directory Sovereignty.
+    3.  **The Colon-Cleansing Gaze:** Surgically strips trailing colons (`:`) from path
+        tokens *before* checking for file extensions, ensuring `config.py:` is recognized
+        as a File, not a Directory.
+    4.  **Absolute Extension Sovereignty (THE LAW):** If `vessel.name` ends with a known
+        matter extension (.py, .md, .json), it is LOCKED as a File, regardless of indentation.
+    5.  **Implicit Content Fusion:** If a Sovereign File is followed by indented text,
+        that text is consumed as Body Matter, not Children.
+    6.  **The Matter-Anchor Lock:** `::`, `<<`, `+=` sigils instantly force File identity,
+        bypassing all other heuristic checks.
+    7.  **The Anti-Matter Phalanx V10:** Re-calibrated to act as a *secondary* shield,
+        only evaluating `vessel.name` to detect code/markdown masquerading as paths.
+    8.  **The Trailing Slash Decree:** A trailing `/` on the purified name guarantees
+        Directory classification instantly.
+    9.  **Achronal Path Normalization:** Forces NFC Unicode and POSIX slash discipline on
+        the final path, obliterating Windows pathing heresies.
+    10. **The Bracket Balance Inquisitor:** Detects unclosed `{` or `(` in paths, flagging
+        them as Parser Leaks before they corrupt the disk.
+    11. **The Traversal Sentinel:** Pre-empts `../` directory escape attacks at the
+        parsing layer, guaranteeing virtual sandbox integrity.
+    12. **The Binary Oracle:** Scans content for `| base64` filters to toggle binary
+        storage modes automatically.
+    13. **The Permissions Alchemist:** Transmutes `%% executable` into `0o755`.
+    14. **The Ontological Consistency Guard:** Prevents a path from being defined as
         a File on line 10 and a Directory on line 50.
-    14. **The Symlink Diviner:** Parses `->` notation for symbolic linking.
-    15. **The Hash Anchor:** Parses `@hash(...)` integrity checks.
-    16. **The Indentation Lookahead:** Peeks into the future to determine block scope.
-    17. **The Quote Stripper:** Surgically removes wrapping quotes from paths.
-    18. **The Variable Injector:** Detects `{{var}}` in paths (though resolution is deferred).
-    19. **The Trait Router:** Delegates `%% trait` lines to the Trait Subsystem.
-    20. **The Seed Extractor:** Parses `<< path` for external content injection.
-    21. **The Mutation Operator:** Captures `+=` (Append) vs `::` (Overwrite).
-    22. **The Semantic Selector:** Parses `@inside(...)` modifiers.
-    23. **The Void Guard:** Safely handles empty lines without state corruption.
-    24. **The Index Healer (THE CURE):** Correctly passes the *current* line index
-        to the BlockConsumer, preventing the "First Line Vanishing" heresy.
-    25. **The Finality Vow:** Guaranteed valid return index, preventing infinite loops.
+    15. **The Symlink Diviner:** Native handling of `->` definitions from the vessel.
+    16. **The Hash Anchor:** Native handling of `@hash(...)` integrity checks.
+    17. **The Gnostic Indentation Lookahead:** Flawless detection of implicit children
+        by peering into the future of the token stream.
+    18. **The Pure Quote Stripper:** Advanced regex to peel quotes while preserving
+        inner string integrity for complex filenames.
+    19. **Alchemical Variable Passthrough:** Safely handles `{{var}}/` directories
+        without premature rendering panics.
+    20. **The Seed Extractor:** Safely channels `<< path` requests for external content.
+    21. **The Mutation Operator Logic:** Applies `+=` (Append) vs `::` (Overwrite).
+    22. **The Semantic Selector Matrix:** Parses `@inside(...)` modifiers.
+    23. **The Index Healer:** Correctly passes the *current* line index to the BlockConsumer,
+        preventing the "First Line Vanishing" paradox.
+    24. **The Finality Vow:** Absolute mathematical guarantee of returning a valid
+        state index, eliminating infinite loop conditions.
     =================================================================================
     """
 
-    # [FACULTY 3]: THE ANTI-MATTER PHALANX V9
+    # [FACULTY 7]: THE ANTI-MATTER PHALANX V10
     # An omniscient regex array identifying code/markdown masquerading as paths.
+    # Evaluated against the purified name to avoid false positives.
     ANTI_MATTER_SIGNATURES: Final[List[re.Pattern]] = [
-        # --- PROSE & DOCUMENTATION (THE CURE) ---
         re.compile(r'^\s*#+\s+'),  # Markdown Headers
         re.compile(r'^\s*>\s+'),  # Markdown Quotes
         re.compile(r'^\s*[\*\-\+]\s+'),  # Markdown Lists
@@ -94,8 +105,6 @@ class StructuralScribe(ScaffoldBaseScribe):
         re.compile(r'^\s*!\[.*\]\(.*\)\s*$'),  # Images
         re.compile(r'^\s*\[.*\]\(.*\)\s*$'),  # Links
         re.compile(r'^\s*---\s*$'),  # Horizontal Rules
-
-        # --- WEB & CODE (ST-3) ---
         re.compile(r'^\s*<[a-zA-Z!/].*>'),  # HTML/XML Tags
         re.compile(r'^\s*import\s+.*from\s+[\'"]'),  # ES6 / TS Imports
         re.compile(r'^\s*export\s+(const|let|var|class|function|default|interface|type)'),
@@ -103,8 +112,6 @@ class StructuralScribe(ScaffoldBaseScribe):
         re.compile(r'^\s*interface\s+\w+'),  # TS/Java/C# interfaces
         re.compile(r'^\s*type\s+\w+\s*='),  # TS Type Aliases
         re.compile(r'^\s*@[\w.]+\s*\('),  # Decorators
-
-        # --- LOGIC & FUNCTIONS (ST-2) ---
         re.compile(r'^\s*def\s+\w+\s*\('),  # Python Functions
         re.compile(r'^\s*fn\s+\w+'),  # Rust/Zig
         re.compile(r'^\s*func\s+\w+'),  # Go/Swift
@@ -113,8 +120,6 @@ class StructuralScribe(ScaffoldBaseScribe):
         re.compile(r'^\s*if\s+.*:?\s*$'),  # If-statements
         re.compile(r'^\s*for\s+.*in\s+.*'),  # For-loops
         re.compile(r'^\s*while\s+\(.*\)\s*'),  # While-loops
-
-        # --- ASSIGNMENTS & OPERATORS ---
         re.compile(r'^\s*const\s+\w+\s*='),  # Constants
         re.compile(r'^\s*let\s+\w+\s*='),  # Variables
         re.compile(r'^\s*var\s+\w+\s*[;=]'),  # Legacy JS/C#/Go
@@ -130,15 +135,12 @@ class StructuralScribe(ScaffoldBaseScribe):
         "readonly": "444", "secret": "600", "private": "600", "public": "644"
     }
 
-    # [FACULTY 1]: THE EXTENSION SOVEREIGNTY ORACLE
-    # If a path ends with one of these, it is a FILE. Period.
-    # Note: We anchor to the end of the string to prevent false positives.
+    # [FACULTY 4]: THE EXTENSION SOVEREIGNTY ORACLE
     FILE_EXTENSION_REGEX: Final[re.Pattern] = re.compile(
         r'\.(py|js|ts|tsx|jsx|css|scss|less|html|htm|json|md|markdown|yaml|yml|toml|ini|cfg|conf|sh|bash|zsh|fish|go|rs|c|cpp|h|hpp|java|kt|kts|rb|php|pl|lua|zig|arch|symphony|scaffold|lock|env|env\..*|txt|xml|svg|png|jpg|jpeg|gif|ico|pdf|zip|gz|tar|rar|7z|sql|dockerignore|gitignore|editorconfig|eslintrc|prettierrc|dockerfile|makefile|gemfile|rakefile|vagrantfile)$',
         re.IGNORECASE
     )
 
-    # [FACULTY 3]: THE EXPLICIT LOCK SIGILS
     RAW_BLOCK_START_REGEX: Final[re.Pattern] = re.compile(
         r'(::|:?\s*=|\+=|\^=|~=|<<)\s*("""|\'\'\')'
     )
@@ -146,10 +148,9 @@ class StructuralScribe(ScaffoldBaseScribe):
     def __init__(self, parser: 'ApotheosisParser'):
         """[THE RITE OF INCEPTION]"""
         super().__init__(parser, "StructuralScribe")
-        # Ensure trait registry exists in parser memory
         if not hasattr(self.parser, 'traits'):
             self.parser.traits = {}
-        # [FACULTY 11]: Identity Registry (Path -> IsDir)
+        # [FACULTY 14]: Identity Registry (Path -> IsDir)
         self._identity_registry: Dict[str, bool] = {}
 
     # =========================================================================
@@ -159,24 +160,24 @@ class StructuralScribe(ScaffoldBaseScribe):
     def conduct(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
         """
         =================================================================================
-        == THE SOVEREIGN CONDUCTOR (V-Ω-TOTALITY-V900.0-SINGULARITY)                   ==
+        == THE SOVEREIGN CONDUCTOR (V-Ω-TOTALITY-V10000.0-SINGULARITY)                 ==
         =================================================================================
         LIF: ∞ | ROLE: TOPOGRAPHICAL_ADJUDICATOR | RANK: OMEGA_SUPREME
-        AUTH: Ω_STRUCTURAL_SCRIBE_V900_TOTALITY_FINALIS_2026
         """
         start_ts = time.perf_counter()
         line_num = vessel.line_num
-        raw_line = vessel.raw_scripture
-        raw_stripped = raw_line.strip()
 
-        # [FACULTY 25]: Safe Default Return (The Finality Vow)
+        # [FACULTY 24]: Safe Default Return (The Finality Vow)
         next_index = i + 1
         classification_reason = "Triage: Default Fallback"
 
         try:
             # --- MOVEMENT 0: THE VOID GUARD ---
-            if not raw_stripped:
+            # [ASCENSION 1]: We operate EXCLUSIVELY on the purified vessel name.
+            if not vessel.name or vessel.line_type == GnosticLineType.VOID:
                 return next_index
+
+            pure_name = vessel.name.strip()
 
             # --- MOVEMENT I: THE META-GAZE (TRAITS) ---
             if vessel.line_type == GnosticLineType.TRAIT_DEF:
@@ -185,33 +186,29 @@ class StructuralScribe(ScaffoldBaseScribe):
                 return self._conduct_trait_usage(lines, i, vessel)
 
             # --- MOVEMENT II: THE MATTER-ANCHOR LOCK (EXPLICIT) ---
-            # [FACULTY 4]: Checks for explicit content sigils (::, <<, """) which force File Identity.
+            # [FACULTY 6]: Checks for explicit content sigils (::, <<, """) which force File Identity.
             is_explicit_file_locked = False
 
-            # Check A: Pre-parsed content delimiter
             if vessel.content in ('"""', "'''") or (vessel.mutation_op and '"""' in vessel.mutation_op):
                 is_explicit_file_locked = True
                 classification_reason = "Lock: Delimiter Token Detected"
 
-            # Check B: Raw Regex (Failsafe for tokenizer misses)
-            elif self.RAW_BLOCK_START_REGEX.search(raw_stripped):
-                if '"""' in raw_stripped:
+            elif self.RAW_BLOCK_START_REGEX.search(vessel.raw_scripture):
+                if '"""' in vessel.raw_scripture:
                     vessel.content = '"""'
-                elif "'''" in raw_stripped:
+                elif "'''" in vessel.raw_scripture:
                     vessel.content = "'''"
                 is_explicit_file_locked = True
                 classification_reason = "Lock: Raw Regex Scry Pattern Match"
 
-            # Check C: Inline Sigils (::, <<)
-            elif '::' in raw_stripped or '<<' in raw_stripped:
+            elif vessel.content or vessel.seed_path or vessel.mutation_op:
                 is_explicit_file_locked = True
-                classification_reason = "Lock: Inline Content Sigil Perceived"
+                classification_reason = "Lock: Inline Content/Seed Sigil Perceived"
 
             if is_explicit_file_locked:
                 vessel.is_dir = False
-                self.Logger.verbose(f"L{vessel.line_num}: Content Sanctuary Locked. Path: '{vessel.name}'")
+                self.Logger.verbose(f"L{vessel.line_num}: Content Sanctuary Locked. Path: '{pure_name}'")
 
-                # Route to Explicit Block Consumer if needed
                 if vessel.content in ('"""', "'''"):
                     return self._conduct_explicit_block_rite(lines, i, vessel)
                 else:
@@ -219,65 +216,57 @@ class StructuralScribe(ScaffoldBaseScribe):
                     return i + 1
 
             # --- MOVEMENT III: THE ANTI-MATTER SIEVE (LEAK DETECTION) ---
-            # [FACULTY 5]: If the line looks like code/markdown and IS NOT locked, it is a leak.
-            # We ignore it to prevent it becoming a directory.
+            # [FACULTY 7]: Apply the regex shield against the purified name.
             for pattern in self.ANTI_MATTER_SIGNATURES:
-                if pattern.search(raw_stripped):
-                    self.Logger.verbose(f"L{vessel.line_num}: Anti-Matter Leak Rejected: '{raw_stripped[:20]}...'")
+                if pattern.search(pure_name):
+                    self.Logger.verbose(f"L{vessel.line_num}: Anti-Matter Leak Rejected: '{pure_name[:30]}...'")
                     return next_index
 
             # --- MOVEMENT IV: THE HEURISTIC TRIAGE (IDENTITY ADJUDICATION) ---
+            # [ASCENSION 1 & 2]: PURE NAMING SOVEREIGNTY
 
-            # 1. Explicit Directory (Trailing Slash)
-            has_explicit_dir_slash = raw_stripped.endswith(('/', '\\'))
+            # 1. Strip the implicit block colon for pure extension checking [FACULTY 3]
+            test_name = pure_name[:-1].strip() if pure_name.endswith(':') else pure_name
+            # Also strip quotes for the extension test
+            test_name = test_name.strip('"\'')
 
-            # 2. Implicit Directory (Indented Children)
-            # [FACULTY 16]: We look ahead to see if the structure implies nesting.
+            # 2. Adjudicate Attributes
+            has_file_extension = bool(self.FILE_EXTENSION_REGEX.search(test_name))
+            has_explicit_dir_slash = pure_name.endswith(('/', '\\'))
             has_indented_disciples = self._is_followed_by_indented_children(lines, i)
 
-            # 3. Explicit File (Extension) - [FACULTY 1 & 2]
-            # [THE COLON-CLEANSING GAZE]
-            # We strip the trailing colon from the path token BEFORE checking the extension.
-            # This handles `config.py:` -> `config.py` which matches the regex.
-            path_token = raw_stripped.split()[0].rstrip(':').strip('"\'')
-            has_file_extension = bool(self.FILE_EXTENSION_REGEX.search(path_token))
+            # --- MOVEMENT V: THE IDENTITY DECREE (THE LAW) ---
 
-            # --- MOVEMENT V: THE IDENTITY DECREE ---
-
-            if has_explicit_dir_slash:
+            if vessel.is_dir:
+                # The Emoji Oracle in Deconstructor already proved it's a directory
+                classification_reason = "Triage: Emoji Oracle Pre-Ordained"
+            elif has_explicit_dir_slash:
                 vessel.is_dir = True
                 classification_reason = "Triage: Trailing Slash Decree"
-
             elif has_file_extension:
-                # [THE CORE FIX]: EXTENSION SOVEREIGNTY IS ABSOLUTE.
-                # Even if it has indented children, it is a FILE.
+                # [FACULTY 4]: EXTENSION SOVEREIGNTY IS ABSOLUTE.
                 vessel.is_dir = False
                 classification_reason = "Triage: Matter Extension Sovereignty"
-
             elif has_indented_disciples:
                 # Only promote to directory if it lacks a file extension
                 vessel.is_dir = True
                 classification_reason = "Triage: Indented Disciples Found"
-
             else:
                 # Default atomic form is File (Leaf Node)
                 vessel.is_dir = False
                 classification_reason = "Triage: Default Atomic Form"
 
             # --- MOVEMENT VI: GEOMETRIC ROUTING (IMPLICIT CONTENT) ---
-
             should_consume_implicit_block = False
 
             # Case A: Explicit Block Starter (Trailing Colon on a File)
-            if (raw_stripped.endswith(':') and not vessel.is_dir):
+            if pure_name.endswith(':') and not vessel.is_dir:
                 should_consume_implicit_block = True
                 classification_reason += " -> Implicit Content Block (:)"
 
             # Case B: The Extension Anomaly (File with Children)
-            # [FACULTY 3]: Implicit Content Fusion
-            # If it's a file (due to extension sovereignty) but has children,
-            # those children are CONTENT, not sub-files.
-            elif (not vessel.is_dir and has_indented_disciples):
+            # [FACULTY 5]: Implicit Content Fusion
+            elif not vessel.is_dir and has_indented_disciples:
                 should_consume_implicit_block = True
                 classification_reason += " -> Implicit Content Block (Indented Text)"
 
@@ -296,8 +285,6 @@ class StructuralScribe(ScaffoldBaseScribe):
             return next_index
 
         except Exception as catastrophic_paradox:
-            # [FACULTY 25]: THE FINALITY VOW
-            # We catch all fractures to ensure the parser does not halt.
             self.parser._proclaim_heresy(
                 "META_HERESY_STRUCTURAL_SCRIBE_FRACTURED",
                 vessel,
@@ -312,7 +299,7 @@ class StructuralScribe(ScaffoldBaseScribe):
 
     def _is_followed_by_indented_children(self, lines: List[str], current_idx: int) -> bool:
         """
-        [FACULTY 16]: THE GAZE OF THE FUTURE.
+        [FACULTY 17]: THE GAZE OF THE FUTURE.
         Perceives if the next manifest soul is indented deeper than the current one.
         Ignores blanks and comments.
         """
@@ -321,7 +308,6 @@ class StructuralScribe(ScaffoldBaseScribe):
 
         parent_indent = self.parser._calculate_original_indent(lines[current_idx])
 
-        # Scan ahead for the next non-void, non-comment scripture
         for next_idx in range(current_idx + 1, len(lines)):
             line = lines[next_idx]
             if not line.strip() or line.strip().startswith(('#', '//')):
@@ -334,25 +320,19 @@ class StructuralScribe(ScaffoldBaseScribe):
 
     def _conduct_indented_block_rite(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
         """
-        [FACULTY 3]: IMPLICIT CONTENT CONSUMPTION.
+        [FACULTY 5]: IMPLICIT CONTENT CONSUMPTION.
         Delegates to the GnosticBlockConsumer to eat indented lines as text content.
         This handles the "README text leaking as directories" case.
         """
         consumer = GnosticBlockConsumer(lines)
         parent_indent = self.parser._calculate_original_indent(lines[i])
 
-        # Determine where the block content starts (next line)
         content_lines, end_index = consumer.consume_indented_block(i + 1, parent_indent)
 
         if content_lines:
-            # Dedent the block relative to the parent
-            # But the BlockConsumer returns raw lines. We must dedent them properly.
             try:
-                # Find first valid line to determine visual indent baseline
                 first_valid = next((l for l in content_lines if l.strip()), None)
                 if first_valid:
-                    # We strip only the parent's indentation + standard offset?
-                    # No, textwrap.dedent handles common leading whitespace.
                     vessel.content = dedent("\n".join(content_lines)).rstrip()
                 else:
                     vessel.content = ""
@@ -366,12 +346,11 @@ class StructuralScribe(ScaffoldBaseScribe):
 
     def _conduct_explicit_block_rite(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
         """
-        [FACULTY 4]: EXPLICIT BLOCK CONSUMPTION.
+        [FACULTY 6]: EXPLICIT BLOCK CONSUMPTION.
         Uses GnosticBlockConsumer to consume content between quotes.
         """
         consumer = GnosticBlockConsumer(lines)
 
-        # Normalize delimiters
         delimiter = '"""'
         if "'''" in vessel.content or "'''" in vessel.raw_scripture:
             delimiter = "'''"
@@ -379,14 +358,11 @@ class StructuralScribe(ScaffoldBaseScribe):
             delimiter = '"""'
 
         # Hand off to the Block Consumer
-        # [ASCENSION 24 - THE CURE]: WE PASS 'i', NOT 'i+1'.
-        # The Consumer expects the index of the header line to initialize its search
-        # for atomic/single-line blocks, or to begin the loop correctly at i+1.
-        # Passing i+1 causes it to start at i+2, skipping the first content line.
+        # [ASCENSION 23]: WE PASS 'i', NOT 'i+1'.
         content_lines, end_index = consumer.consume_explicit_block(i, vessel.raw_scripture)
         pure_content = dedent("\n".join(content_lines)).strip()
 
-        # [FACULTY 17]: Quote Stripping & Backslash Healing
+        # [FACULTY 18]: Quote Stripping & Backslash Healing
         if delimiter == '"""':
             pure_content = re.sub(r'\\"{3}', '"""', pure_content)
         elif delimiter == "'''":
@@ -465,9 +441,10 @@ class StructuralScribe(ScaffoldBaseScribe):
         [THE FINAL SEAL]
         Transmutes the GnosticVessel into the final ScaffoldItem.
         """
-        # [FACULTY 8]: Unicode & Slash Normalization
+        # [FACULTY 9]: Unicode & Slash Normalization
         name = unicodedata.normalize('NFC', vessel.name).replace('\\', '/')
-        # [FACULTY 17]: Quote Stripping from Path
+
+        # [FACULTY 18]: Quote Stripping from Path
         name = name.strip('"\'')
 
         # [FACULTY 7]: NAME NORMALIZATION (THE CURE)
@@ -475,11 +452,11 @@ class StructuralScribe(ScaffoldBaseScribe):
         if name.endswith(':'):
             name = name[:-1]
 
-        # Ensure Directory Slash if needed
+        # [FACULTY 8]: Ensure Directory Slash if needed
         if vessel.is_dir and name and not name.endswith('/'):
             name += '/'
 
-        # [FACULTY 13]: ONTOLOGICAL CONSISTENCY GUARD
+        # [FACULTY 14]: ONTOLOGICAL CONSISTENCY GUARD
         path_key = name.lower().rstrip('/')
         if path_key in self._identity_registry:
             original_is_dir = self._identity_registry[path_key]
@@ -499,20 +476,20 @@ class StructuralScribe(ScaffoldBaseScribe):
 
         self._identity_registry[path_key] = vessel.is_dir
 
-        # [FACULTY 12]: Permission Alchemy
+        # [FACULTY 13]: Permission Alchemy
         final_permissions = self.PERMISSION_MAP.get(vessel.permissions, vessel.permissions)
         if self.parser.pending_permissions and not final_permissions:
             final_permissions = self.parser.pending_permissions
             self.parser.pending_permissions = None
 
-        # [FACULTY 11]: Binary Divination
+        # [FACULTY 12]: Binary Divination
         is_binary = bool(vessel.content and ("| base64" in vessel.content or "| binary" in vessel.content))
 
-        # [FACULTY 9]: Bracket Check (Path Validity)
+        # [FACULTY 10]: Bracket Check (Path Validity)
         if re.search(r'[\[\]\{\}\(\)]', name) and not ('{{' in name):
             self.Logger.warn(f"Path '{name}' contains brackets. Possible Parser Leak.")
 
-        # [FACULTY 10]: Traversal Guard
+        # [FACULTY 11]: Traversal Guard
         if '../' in name or '..\\' in name:
             self.parser._proclaim_heresy("TRAVERSAL_HERESY", vessel, details="Parent directory traversal prohibited.")
             return
@@ -544,4 +521,4 @@ class StructuralScribe(ScaffoldBaseScribe):
         self.parser.raw_items.append(item)
 
     def __repr__(self) -> str:
-        return f"<Ω_STRUCTURAL_SCRIBE_V900 status=OMNISCIENT version=900.6-HEALED>"
+        return f"<Ω_STRUCTURAL_SCRIBE_V10000 status=OMNISCIENT version=10000.0-HEALED>"

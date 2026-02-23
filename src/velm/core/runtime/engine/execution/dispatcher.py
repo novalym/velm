@@ -1,7 +1,6 @@
 # Path: src/velm/core/runtime/engine/execution/dispatcher.py
 # ----------------------------------------------------------
 
-
 import os
 import sys
 import time
@@ -38,15 +37,21 @@ except ImportError:
 class QuantumDispatcher:
     """
     =================================================================================
-    == THE QUANTUM DISPATCHER (V-Ω-MULTICAST-PRISM-ILLUMINATED-ASCENDED)           ==
+    == THE QUANTUM DISPATCHER (V-Ω-MULTICAST-PRISM-ILLUMINATED-ASCENDED-VMAX)      ==
     =================================================================================
-    LIF: ∞ | ROLE: SOVEREIGN_ROUTER | RANK: OMEGA_SOVEREIGN
+    LIF: 10,000,000,000,000,000,000,000 | ROLE: SOVEREIGN_ROUTER | RANK: OMEGA_PRIME
 
     The central routing authority of the God-Engine. It stands between the
     Architect's Intent and the Artisan's Hand.
 
     It is the Unbreakable Hub where all requests—from CLI, LSP, or AI—converge,
     are purified, executed, and chronicled.
+
+    [LEGENDARY ASCENSIONS]:
+    - Dynamic Payload Resurrection: Defeats Pydantic's 'extra=ignore' vaporization.
+    - NoneType Sarcophagus: Prevents Null-Root panics from Lobby invocations.
+    - Transfer Cell Suture: Guarantees a JSON response to JS even during a Kernel Panic.
+    =================================================================================
     """
 
     # [ASCENSION 3]: RECURSION LIMIT
@@ -63,7 +68,7 @@ class QuantumDispatcher:
 
         # [ASCENSION 2]: Depth Tracking (TraceID -> Depth)
         self._recursion_depths: Dict[str, int] = {}
-        self._recursion_lock = threading.Lock()
+        self._recursion_lock = threading.RLock()
 
     def _trace(self, msg: str):
         if self._trace_enabled:
@@ -138,10 +143,10 @@ class QuantumDispatcher:
                  **kwargs) -> ScaffoldResult:
         """
         =================================================================================
-        == THE OMNISCIENT DISPATCH RITE: TOTALITY (V-Ω-V3000-LOCK-GATED-FINALIS)       ==
+        == THE OMNISCIENT DISPATCH RITE: TOTALITY (V-Ω-VMAX-LOCK-GATED-FINALIS)        ==
         =================================================================================
-        LIF: ∞ | ROLE: SOVEREIGN_TRAFFIC_CONDUCTOR | RANK: OMEGA_SUPREME
-        AUTH: Ω_DISPATCH_V3000_TITANIUM_STABILITY_2026_FINALIS
+        LIF: 10^24 | ROLE: SOVEREIGN_TRAFFIC_CONDUCTOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_DISPATCH_VMAX_TITANIUM_STABILITY_2026_FINALIS
 
         [THE MANIFESTO]
         The absolute entry point of the God-Engine. It implements the Achronal Lock
@@ -191,9 +196,42 @@ class QuantumDispatcher:
 
                 if not command:
                     return self.engine.failure("Void Intent: Request missing 'command' anchor.")
+
+                # Materialize the initial vessel
                 request_obj = self._resolve_request_vessel(command, payload)
+
+                # =========================================================================
+                # == [THE CURE]: DYNAMIC PAYLOAD RESURRECTION (THE ORPHAN HEALER)        ==
+                # =========================================================================
+                # Pydantic's `extra='ignore'` is a black hole for dynamic sub-command arguments
+                # (e.g., 'instance_id' in CloudRequest). We surgically re-inject the orphaned
+                # raw payload data back into the instantiated object, bypassing the strictness
+                # barrier but preserving the Gnostic Intent.
+                if isinstance(payload, dict):
+                    for key, val in payload.items():
+                        if not hasattr(request_obj, key):
+                            try:
+                                object.__setattr__(request_obj, key, val)
+                            except (AttributeError, TypeError):
+                                pass
+
             else:
                 request_obj = request
+
+            # =========================================================================
+            # == [THE CURE 2]: THE NONETYPE ROOT SARCOPHAGUS (LOBBY GUARD)           ==
+            # =========================================================================
+            # If the rite is willed from the Lobby, `project_root` may be a pure void.
+            # This triggers fatal crashes in the InfrastructureManager. We construct an
+            # unbreakable geometric anchor to prevent the fracture.
+            current_root = getattr(request_obj, 'project_root', None)
+            if current_root is None or str(current_root) == "None":
+                try:
+                    fallback_root = getattr(self.engine, 'project_root', None) or Path.cwd()
+                    object.__setattr__(request_obj, 'project_root', fallback_root)
+                    self._trace(f"Sarcophagus Anchor Applied: Root set to {fallback_root}")
+                except (AttributeError, TypeError):
+                    pass
 
             request_type = type(request_obj)
             rite_name = request_type.__name__
@@ -363,13 +401,33 @@ class QuantumDispatcher:
             self._conduct_forensic_dump(catastrophic_paradox, rite_name, trace_id)
 
             fail_duration = time.perf_counter() - start_time
+
+            # Retrieve the failure vessel from the Healer
             if request_obj:
-                return self.engine.healer.handle_panic(catastrophic_paradox, request_obj, fail_duration)
+                fail_res = self.engine.healer.handle_panic(catastrophic_paradox, request_obj, fail_duration)
             else:
-                return ScaffoldResult.forge_failure(
+                fail_res = ScaffoldResult.forge_failure(
                     message=f"Dispatch Collapse: {catastrophic_paradox}",
                     traceback=tb_scribe.format_exc()
                 )
+
+            # =========================================================================
+            # == [THE CURE 3]: THE TRANSFER CELL SUTURE (WASM SAFETY)                ==
+            # =========================================================================
+            # If the kernel completely panics in the Ether, the JS Promise will hang
+            # waiting for `__GNOSTIC_TRANSFER_CELL__` to populate. We forcefully
+            # inject the failure artifact here as an absolute guarantee of resolution.
+            if os.environ.get("SCAFFOLD_ENV") == "WASM":
+                try:
+                    import sys, json
+                    from ....daemon.serializer import gnostic_serializer
+                    payload = fail_res.model_dump(mode='json')
+                    sys.modules['__main__'].__dict__['__GNOSTIC_TRANSFER_CELL__'] = json.dumps(payload,
+                                                                                               default=gnostic_serializer)
+                except Exception as cell_err:
+                    sys.stderr.write(f"[DISPATCH_PANIC] Transfer Cell Suture Failed: {cell_err}\n")
+
+            return fail_res
 
         finally:
             # [ASCENSION 2 & 10]: RECURSIVE DEPTH DE-ESCALATION
