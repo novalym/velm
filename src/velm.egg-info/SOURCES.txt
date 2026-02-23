@@ -1086,6 +1086,11 @@ src/velm/artisans/tutorial/__init__.py
 src/velm/artisans/tutorial/artisans.py
 src/velm/artisans/tutorial/engine.py
 src/velm/artisans/tutorial/quest_giver.py
+src/velm/artisans/ui/README.md
+src/velm/artisans/ui/__init__.py
+src/velm/artisans/ui/artisan.py
+src/velm/artisans/ui/contracts.py
+src/velm/artisans/ui/gateway.py
 src/velm/artisans/undo/__init__.py
 src/velm/artisans/undo/artisan.py
 src/velm/artisans/undo/reverser.py
@@ -1289,6 +1294,7 @@ src/velm/core/cli/grimoire/_mimic_rites.py
 src/velm/core/cli/grimoire/_perception_rites.py
 src/velm/core/cli/grimoire/_security_rites.py
 src/velm/core/cli/grimoire/_service_rites.py
+src/velm/core/cli/grimoire/_ui_bridge_rites.py
 src/velm/core/cli/grimoire/_ui_rites.py
 src/velm/core/cli/grimoire/_utility_rites.py
 src/velm/core/cli/grimoire/_workspace_rites.py

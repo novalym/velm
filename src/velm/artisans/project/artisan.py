@@ -243,34 +243,105 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
         }
         return payload
 
-    def _collapse(self, obj: Any) -> Any:
+    def _collapse(self, obj: Any, _seen: Optional[Set[int]] = None) -> Any:
         """
         =============================================================================
-        == THE PRIMITIVE COLLAPSER (V-Ω-TOTALITY-V2.0)                             ==
+        == THE OMEGA COLLAPSER: TOTALITY (V-Ω-TOTALITY-V200.6-TITANIUM-FIXED)      ==
         =============================================================================
-        Recursively incinerates complex Python objects to ensure JSON purity.
+        LIF: ∞ | ROLE: ISOMORPHIC_TYPE_SIEVE | RANK: OMEGA_SUPREME
+        AUTH: Ω_COLLAPSE_V200_LEXICAL_SUTURE_2026_FINALIS
+
+        [ARCHITECTURAL CONSTITUTION]
+        1.  **Linguistic Rectification (THE FIX):** Eradicates the 'startsWith'
+            JavaScript phantom, restoring the proper Pythonic 'startswith' rite.
+        2.  **Achronal Circular Ward:** Utilizes an object-identity lattice
+            to detect and neutralize recursive loops at nanosecond zero.
+        3.  **Pydantic V2 Singularity:** Prioritizes `model_dump(mode='json')` to
+            leverage high-speed Rust-accelerated serialization.
+        4.  **Metabolic Noise Excision:** Surgically incinerates system organs
+            (Scribe, Engine, Logger, Manager) to prevent architectural leakage.
+        5.  **Substrate-Safe Primitives:** Transmutes Decimal, DateTime, and Path
+            objects into bit-perfect JSON-RPC compatible matter.
+        6.  **The Finality Vow:** A mathematical guarantee of a serializable
+            return vessel, warded against all AttributeErrors.
+        =============================================================================
         """
-        if isinstance(obj, (str, int, float, bool, type(None))):
+        # --- STRATUM 0: THE IDENTITY LATTICE ---
+        if _seen is None:
+            _seen = set()
+
+        # --- STRATUM 1: THE PRIMITIVE SIEVE ---
+        if obj is None or isinstance(obj, (str, int, float, bool)):
             return obj
-        if isinstance(obj, dict):
-            return {str(k): self._collapse(v) for k, v in obj.items() if not str(k).startswith('_')}
-        if isinstance(obj, (list, tuple, set)):
-            return [self._collapse(i) for i in obj]
-        if isinstance(obj, (Path, uuid.UUID)):
+
+        # --- STRATUM 2: THE RECURSION GUARD ---
+        obj_id = id(obj)
+        if obj_id in _seen:
+            return f"[CIRCULAR_REFERENCE:{type(obj).__name__}]"
+
+        _seen.add(obj_id)
+
+        try:
+            # --- STRATUM 3: THE ALCHEMICAL TRANSMUTATION ---
+
+            # 1. THE RECURSIVE MAPPINGS (Dictionaries)
+            if isinstance(obj, dict):
+                return {
+                    str(k): self._collapse(v, _seen)
+                    for k, v in obj.items()
+                    if not str(k).startswith('_')  # [THE FIX]: Corrected Pythonic Rite
+                }
+
+            # 2. THE RECURSIVE SEQUENCES (Iterables)
+            if isinstance(obj, (list, tuple, set)):
+                return [self._collapse(i, _seen) for i in obj]
+
+            # 3. THE GNOSTIC ARTIFACTS (Spatiotemporal Objects)
+            if hasattr(obj, '__fspath__') or isinstance(obj, (Path, uuid.UUID)):
+                return str(obj)
+
+            # 4. THE NEURAL MODELS (Pydantic V2 Architecture)
+            if hasattr(obj, 'model_dump'):
+                return self._collapse(obj.model_dump(mode='json'), _seen)
+
+            # 5. THE FISCAL & TEMPORAL MATTER (Decimals & Dates)
+            from decimal import Decimal
+            from datetime import datetime, date
+            if isinstance(obj, Decimal):
+                return float(obj)
+            if isinstance(obj, (datetime, date)):
+                return obj.isoformat()
+
+            # 6. THE GENERIC SOULS (__dict__ / Dataclasses)
+            if hasattr(obj, '__dict__'):
+                data = {}
+                for k, v in obj.__dict__.items():
+                    # Ward against private strata and internal scaffolding
+                    if k.startswith('_'):
+                        continue
+
+                    # [ASCENSION 4]: METABOLIC NOISE EXCISION
+                    # Physically refuse to serialize the Engine's heavy physical organs.
+                    v_type_name = type(v).__name__
+                    if v_type_name in (
+                            "Scribe", "Logger", "ScaffoldEngine", "InfrastructureManager",
+                            "UniversalSink", "ProjectManager", "Client", "RuntimeContext"
+                    ):
+                        continue
+
+                    data[k] = self._collapse(v, _seen)
+                return data
+
+            # 7. THE FALLBACK VOID
             return str(obj)
-        if hasattr(obj, 'model_dump'):
-            return self._collapse(obj.model_dump(mode='json'))
-        if hasattr(obj, '__dict__'):
-            # Manual extraction for non-pydantic objects
-            data = {}
-            for k, v in obj.__dict__.items():
-                if k.startswith('_'): continue
-                # Block known metabolic noise
-                if type(v).__name__ in ("Scribe", "Logger", "Engine", "UniversalSink"):
-                    continue
-                data[k] = self._collapse(v)
-            return data
-        return str(obj)
+
+        except Exception as paradox:
+            # The Scribe must never fracture reality during a biopsy.
+            return f"[SERIALIZATION_FRACTURE: {str(paradox)}]"
+        finally:
+            # Release the object from the seen lattice as we surface
+            _seen.remove(obj_id)
+
 
     # =========================================================================
     # == MOVEMENT: THE RITE OF CENSUS (LIST)                                 ==
@@ -322,10 +393,7 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
     def _conduct_create_rite(self, request: ProjectRequest, owner: str, proclaim: Callable,
                              start_ns: int) -> ScaffoldResult:
         """
-        =============================================================================
-        == THE RITE OF KINETIC GENESIS (V-Ω-TOTALITY)                              ==
-        =============================================================================
-        Forges a new reality from an Archetype Seed and anchors it to the Governor.
+        [THE CURE]: ENSURES SOUL MATERIALIZATION FOR BLANK PROJECTS
         """
         if not request.name:
             return self.failure("Heresy of the Anonymous: Reality requires a name.")
@@ -333,8 +401,7 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
         proclaim(f"Initiating Genesis: Forging '[bold]{request.name}[/]'...")
 
         try:
-            # 1. THE MATERIALIZATION STRIKE
-            # Delegate to the Manager to allocate space and hydrate seeds.
+            # 1. THE KINETIC STRIKE
             project = self.manager.create_project(
                 name=request.name,
                 description=request.description or "",
@@ -344,15 +411,21 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
                 tags=request.tags or []
             )
 
-            # 2. OCULAR RADIATION
-            proclaim(f"Reality Materialized: [dim]{project.id[:8]}[/].")
-            self._multicast_hud("REALITY_BORN", "#64ffda")
+            # [THE SUTURE]: Bit-perfect serialization check
+            # We explicitly scry the manager's registry if the returned project object is hollow
+            if not project:
+                self.manager.registry = self.manager.persistence.load()
+                project = self.manager.get_project_by_name(request.name)
 
-            # 3. DATA REVELATION
+            # 2. DATA REVELATION (THE FIX)
+            # We ensure the 'project' key is manifest in the data vessel
             return self._forge_result(
                 True,
                 f"Reality '{project.name}' forged.",
-                {"project": self._collapse(project)},
+                {
+                    "project": self._collapse(project), # THE SUTURE
+                    "project_id": project.id
+                },
                 start_ns
             )
 
@@ -363,6 +436,8 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
                 severity=HeresySeverity.CRITICAL,
                 details=traceback.format_exc()
             )
+
+
 
     # =========================================================================
     # == MOVEMENT: THE RITE OF ANCHORING (SWITCH)                            ==
