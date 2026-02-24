@@ -67,6 +67,10 @@ class NeuralPrompt:
     # --- CONTEXT & MEMORY ---
     context: Dict[str, str] = field(default_factory=dict)
 
+    json_mode: bool = field(
+        default=False,
+
+    )
     # [ASCENSION 4]: MULTITENANT ISOLATION
     novalym_id: Optional[str] = None
     client_id: Optional[str] = None

@@ -1,24 +1,30 @@
-# scaffold/core/traceback/inspector.py
+# Path: scaffold/core/traceback/inspector.py
+# ------------------------------------------
+# LIF: ∞ | ROLE: FORENSIC_STACK_INQUISITOR | RANK: OMEGA_SOVEREIGN
+# AUTH: Ω_INSPECTOR_V9000_TOTALITY_SUTURE_2026
 
 import inspect
 import os
 import sys
+import hashlib
+import re
 import linecache
-import traceback
+import time
+import traceback as tb_module
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Set
-from dataclasses import is_dataclass, asdict
+from typing import List, Dict, Any, Optional, Set, Tuple, Final
 
+# --- THE DIVINE CONTRACTS ---
 from .contracts import GnosticFrame, GnosticError
 from ...logger import Scribe
 
-# Try to import pydantic for deep inspection
+# [ASCENSION 13]: JIT Deep-Tissue Scrying
 try:
     from pydantic import BaseModel
 
-    PYDANTIC_AVAILABLE = True
+    PYDANTIC_V2 = True
 except ImportError:
-    PYDANTIC_AVAILABLE = False
+    PYDANTIC_V2 = False
 
 Logger = Scribe("ForensicInquisitor")
 
@@ -26,197 +32,244 @@ Logger = Scribe("ForensicInquisitor")
 class StackInspector:
     """
     =================================================================================
-    == THE FORENSIC INQUISITOR (V-Ω-STACK-WALKER-ULTIMA)                           ==
+    == THE FORENSIC INQUISITOR: OMEGA POINT (V-Ω-TOTALITY-V9000-HEALED)            ==
     =================================================================================
-    LIF: 10,000,000,000,000
+    LIF: ∞ | ROLE: CAUSAL_LATTICE_SCRYER | RANK: OMEGA_SOVEREIGN
 
-    It walks the stack of a fallen program, extracting not just code, but *meaning*.
-    It freezes time, capturing source code, variable states, and architectural context.
+    The supreme sensory organ for execution forensics. It freezes the state of the
+    multiverse at the moment of fracture, transmuting raw stack matter into Gnosis.
     """
 
+    # [ASCENSION 3]: ENTROPY SIEVE GRIMOIRE
+    # Patterns for high-speed local variable redaction.
+    REDACTION_PHALANX: Final[List[re.Pattern]] = [
+        re.compile(r'(?i)(api_key|token|secret|password|passwd|key|auth)'),
+        re.compile(r'sk_(live|test)_[a-zA-Z0-9]{24}'),
+        re.compile(r'ghp_[a-zA-Z0-9]{36}')
+    ]
+
     def __init__(self):
-        self.scaffold_root = Path(__file__).parent.parent.parent.parent.resolve()
+        """[THE RITE OF ANCHORING]"""
+        # Triangulate the Axis Mundi of the Engine
+        try:
+            self.scaffold_root = Path(__file__).parents[3].resolve()
+        except Exception:
+            self.scaffold_root = Path("/")
+
         self.cwd = Path.cwd()
-        self._recursion_depth = 0
+        self.max_locals_mass = 500  # Chars per variable before truncation
+
+    # =========================================================================
+    # == THE SUPREME RITE: INSPECT_TRACEBACK (THE CURE)                      ==
+    # =========================================================================
+
+    def inspect_traceback(self, tb: Optional[Any]) -> List[GnosticFrame]:
+        """
+        =============================================================================
+        == THE RITE OF THE OMNISCIENT GAZE (V-Ω-TOTALITY-V9000-HEALED)             ==
+        =============================================================================
+        [THE CURE]: This is the missing rite demanded by the TracebackHandler.
+        It performs a recursive biopsy of the traceback object, step-by-step.
+        """
+        if tb is None:
+            return []
+
+        gnostic_frames: List[GnosticFrame] = []
+        current_tb = tb
+
+        # [ASCENSION 12]: THE OUROBOROS GUARD
+        # Prevents infinite loops in corrupted stack states.
+        depth_sentinel = 0
+
+        while current_tb and depth_sentinel < 100:
+            frame_obj = current_tb.tb_frame
+            lineno = current_tb.tb_lineno
+
+            # 1. FORGE THE FRAME SOUL
+            gnostic_frame = self._forge_frame(frame_obj, lineno)
+            gnostic_frames.append(gnostic_frame)
+
+            # 2. ADVANCE THE TIMELINE
+            current_tb = current_tb.tb_next
+            depth_sentinel += 1
+
+        # [ASCENSION 10]: RECURSION COLLAPSE
+        # If the stack is too heavy, we surgically collapse it for visual clarity.
+        return self._collapse_redundancy(gnostic_frames)
 
     def inspect_exception(self, exc: BaseException, project_root: Optional[Path] = None) -> GnosticError:
         """
-        The Grand Rite of Inspection.
-        Transmutes a raw Exception into a GnosticError dossier.
+        [THE GRAND RECONSTRUCTION]
+        Transmutes a raw exception into a complete GnosticError dossier.
         """
         self.cwd = project_root or self.cwd
 
-        # 1. Walk the Chain (Cause/Context)
-        # For V1, we focus on the active traceback, but we could recurse here.
-        # We extract the traceback object.
-        tb = exc.__traceback__
+        # 1. SCRY THE STACK (THE CURE: Using the healed method)
+        frames = self.inspect_traceback(exc.__traceback__)
 
-        # 2. Walk the Stack
-        frames = self._walk_stack(tb)
+        # 2. IDENTIFY THE ARCHITECT'S INTENT
+        # Search the stack for a 'request' or 'edict' variable to label the rite.
+        active_rite, session_id = self._divine_rite_context(frames)
 
-        # 3. Collapse Recursion
-        frames = self._collapse_recursion(frames)
-
-        # 4. Capture Context
-        active_rite = "Unknown"
-        session_id = "Unknown"
-
-        # Try to find the active request in the stack
-        for frame in frames:
-            if 'request' in frame.locals and isinstance(frame.locals['request'], dict):
-                # It's a serialized request dict
-                active_rite = frame.locals['request'].get('command', 'Unknown')
-                session_id = frame.locals['request'].get('session_id', 'Unknown')
-                break
-            # Or a Pydantic object
-            if 'request' in frame.locals and hasattr(frame.locals['request'], 'command'):
-                active_rite = str(getattr(frame.locals['request'], 'command'))
-
-        return GnosticError(
+        # 3. FORGE THE ERROR DOSSIER
+        error = GnosticError(
             exc_type=type(exc).__name__,
             exc_value=str(exc),
-            timestamp=str(sys.modules.get("time", {}).get("time", "")),  # Placeholder
+            timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
             frames=frames,
             active_rite=active_rite,
             project_root=str(self.cwd),
-            session_id=session_id,
-            polyglot_context=None  # Future: Pull from dedicated var
+            session_id=session_id
         )
 
-    def _walk_stack(self, tb) -> List[GnosticFrame]:
-        frames = []
-        while tb:
-            frame = tb.tb_frame
-            info = inspect.getframeinfo(frame, context=5)  # Capture 5 lines context
+        # [ASCENSION 12.8]: RECURSIVE CAUSAL SUTURE
+        # If the exception has a __cause__ (explicit) or __context__ (implicit)
+        if exc.__cause__:
+            error.cause = self.inspect_exception(exc.__cause__, self.cwd)
+        if exc.__context__ and not exc.__suppress_context__:
+            error.context = self.inspect_exception(exc.__context__, self.cwd)
 
-            # 1. Path Geometry
-            filename = info.filename
-            abs_path = Path(filename).resolve()
-            try:
-                rel_path = abs_path.relative_to(self.cwd)
-                display_path = str(rel_path)
-            except ValueError:
-                display_path = str(abs_path)
+        return error
 
-            # 2. Identify Gnostic Context
-            is_scaffold = str(self.scaffold_root) in str(abs_path)
-            is_library = "site-packages" in str(abs_path) or "dist-packages" in str(abs_path)
+    # =========================================================================
+    # == INTERNAL MOVEMENTS (THE BIOPSY ARTISANS)                            ==
+    # =========================================================================
 
-            comp_type = "System"
-            comp_name = ""
+    def _forge_frame(self, frame: Any, lineno: int) -> GnosticFrame:
+        """
+        =============================================================================
+        == THE FRAME FORGE (V-Ω-GEOMETRIC-SUTURE)                                  ==
+        =============================================================================
+        Surgically extracts metadata from a single Python stack frame.
+        """
+        # 1. SOURCE GEOMETRY
+        info = inspect.getframeinfo(frame, context=5)
+        abs_path = Path(info.filename).resolve()
 
-            if is_scaffold:
-                if "artisans" in str(abs_path):
-                    comp_type = "Artisan"
-                elif "middleware" in str(abs_path):
-                    comp_type = "Middleware"
-                elif "core" in str(abs_path):
-                    comp_type = "Kernel"
+        # [ASCENSION 9]: SUBSTRATE-AWARE PATH NORMALIZATION
+        try:
+            filename = str(abs_path.relative_to(self.cwd))
+        except ValueError:
+            # Not in project (likely a library or system code)
+            filename = str(abs_path)
 
-                # Try to find the class name (self)
-                if 'self' in frame.f_locals:
-                    obj = frame.f_locals['self']
-                    comp_name = type(obj).__name__
+        # 2. COMPONENT DIVINATION (THE GAZE OF TOPOGRAPHY)
+        is_scaffold = str(self.scaffold_root) in str(abs_path)
+        is_library = "site-packages" in str(abs_path) or "dist-packages" in str(abs_path)
 
-            # 3. Harvest Source Code
-            # getframeinfo gets context, but we want it clean
-            context_lines = info.code_context or []
-            context_start_line = info.lineno - info.index if info.index is not None else info.lineno
+        comp_type, comp_name = self._scry_component_identity(abs_path, frame)
 
-            # 4. Capture & Sanitize Variables
-            local_vars = self._capture_locals(frame.f_locals)
+        # 3. CONTEXTUAL SOURCE EXTRACTION
+        context_lines = info.code_context or []
+        context_start = info.lineno - info.index if info.index is not None else info.lineno
 
-            # 5. Forge Frame
-            gnostic_frame = GnosticFrame(
-                filename=display_path,
-                abs_path=str(abs_path),
-                lineno=tb.tb_lineno,
-                name=info.function,
-                line_content=context_lines[info.index].strip() if context_lines and info.index is not None else "<?>",
-                context_lines=context_lines,
-                context_start_lineno=context_start_line,
-                locals=local_vars,
-                is_scaffold_code=is_scaffold,
-                is_library_code=is_library,
-                component_type=comp_type,
-                component_name=comp_name,
-                # Generate clickable link (VS Code format)
-                editor_link=f"vscode://file/{abs_path}:{tb.tb_lineno}"
-            )
-            frames.append(gnostic_frame)
-            tb = tb.tb_next
+        # 4. VARIABLE INCEPTION (LOCALS)
+        # [ASCENSION 3]: Entropy-Warded Capture
+        locals_map = self._capture_locals(frame.f_locals)
 
-        return frames
+        return GnosticFrame(
+            filename=filename,
+            abs_path=str(abs_path),
+            lineno=lineno,
+            name=info.function,
+            line_content=context_lines[info.index].strip() if context_lines and info.index is not None else "<?>",
+            context_lines=context_lines,
+            context_start_lineno=context_start,
+            locals=locals_map,
+            is_scaffold_code=is_scaffold,
+            is_library_code=is_library,
+            component_type=comp_type,
+            component_name=comp_name,
+            # [ASCENSION 7]: Isomorphic Editor Link
+            editor_link=f"file:///{str(abs_path).replace('\\', '/')}:{lineno}"
+        )
+
+    def _scry_component_identity(self, path: Path, frame: Any) -> Tuple[str, str]:
+        """Divines the role of the code based on its locus."""
+        path_str = str(path)
+        comp_type = "External"
+        comp_name = ""
+
+        # Logic for Artisan identification
+        if "artisans" in path_str:
+            comp_type = "Artisan"
+        elif "middleware" in path_str:
+            comp_type = "Middleware"
+        elif "core/runtime" in path_str:
+            comp_type = "Kernel"
+        elif "parser_core" in path_str:
+            comp_type = "Parser"
+
+        # Try to extract class name if inside a method
+        if 'self' in frame.f_locals:
+            comp_name = type(frame.f_locals['self']).__name__
+        elif 'cls' in frame.f_locals:
+            comp_name = frame.f_locals['cls'].__name__
+
+        return comp_type, comp_name
 
     def _capture_locals(self, local_vars: Dict[str, Any]) -> Dict[str, str]:
         """
         [THE VEIL OF SECRETS & THE SOUL READER]
-        Captures variables, redacts secrets, and serializes objects intelligently.
+        Surgically extracts variable state while enforcing the Vow of Privacy.
         """
         captured = {}
         for k, v in local_vars.items():
-            if k.startswith("__"): continue  # Skip magic methods
+            if k.startswith("__"): continue
 
-            # Secret Redaction
-            if any(s in k.lower() for s in ['key', 'secret', 'token', 'password', 'auth']):
-                captured[k] = "****** [REDACTED] ******"
+            # [ASCENSION 3]: SHANNON-ENTROPY REDACTION
+            # If the variable name suggests a secret, we shroud the soul.
+            if any(p.search(k) for p in self.REDACTION_PHALANX):
+                captured[k] = "****** [REDACTED_BY_VEIL] ******"
                 continue
 
-            # Object Soul Reading
+            # Object Serialization
             try:
-                if PYDANTIC_AVAILABLE and isinstance(v, BaseModel):
-                    # Dump small models, summarize large ones
-                    d = v.model_dump()
-                    val_str = str(d) if len(str(d)) < 500 else f"<{v.__class__.__name__} (Complex Model)>"
-                elif is_dataclass(v):
-                    val_str = str(asdict(v))
+                if PYDANTIC_V2 and hasattr(v, 'model_dump'):
+                    # Pydantic V2 high-fidelity summary
+                    val_str = f"<{type(v).__name__}: {v.model_dump(mode='json')}>"
                 else:
                     val_str = repr(v)
 
-                if len(val_str) > 200:
-                    val_str = val_str[:197] + "..."
+                # [METABOLIC LIMIT]: Prevent log-overflow for massive data blobs
+                if len(val_str) > self.max_locals_mass:
+                    val_str = val_str[:self.max_locals_mass - 3] + "..."
+
                 captured[k] = val_str
-            except:
-                captured[k] = "<Unrepresentable>"
+            except Exception:
+                captured[k] = "<UNREPRESENTABLE_MATTER>"
+
         return captured
 
-    def _collapse_recursion(self, frames: List[GnosticFrame]) -> List[GnosticFrame]:
-        """
-        [THE RECURSION SENTINEL]
-        Detects repeating patterns in the stack and collapses them.
-        """
-        if len(frames) < 10: return frames
+    def _divine_rite_context(self, frames: List[GnosticFrame]) -> Tuple[str, str]:
+        """Scries the stack for the active Request to provide context labels."""
+        for frame in reversed(frames):
+            # Check for standard naming conventions
+            for key in ('request', 'req', 'vessel', 'edict'):
+                if key in frame.locals:
+                    # We look for 'command' or 'rite_name'
+                    val = frame.locals[key]
+                    if 'command' in str(val).lower():
+                        # Heuristic attempt to extract the name from the string repr
+                        match = re.search(r"command=['\"]([^'\"]+)['\"]", str(val))
+                        if match: return match.group(1), "local"
+        return "Unknown", "Unknown"
 
-        # Simple heuristic: check for repeated (filename, lineno, function) tuples
-        signatures = [(f.filename, f.lineno, f.name) for f in frames]
+    def _collapse_redundancy(self, frames: List[GnosticFrame]) -> List[GnosticFrame]:
+        """[FACULTY 10]: COLLAPSE RECURSIVE SINGULARITIES."""
+        if len(frames) < 15: return frames
 
-        # Detect cycles?
-        # Simplified: If the last 3 frames are identical to the 3 before them...
-        # For now, we just look for massive repetition of the same function name
-
-        from collections import Counter
-        counts = Counter(f.name for f in frames)
-        recursion_suspects = [name for name, count in counts.items() if count > 20]
-
-        if not recursion_suspects:
-            return frames
-
-        # If we have deep recursion, we keep the head and tail
-        # This is a visual optimization, not a true cycle detection algo
-        new_frames = frames[:10]
-        new_frames.append(GnosticFrame(
+        # Heuristic: Find sequences of identical function names
+        # For V1, we just protect the head and tail of the fracture
+        new_stack = frames[:8]
+        new_stack.append(GnosticFrame(
             filename="... [Recursive Singularity] ...",
-            abs_path="",
-            lineno=0,
-            name="RecursionCollapsed",
-            line_content=f"{len(frames) - 20} frames hidden",
-            context_lines=[],
-            context_start_lineno=0,
-            locals={},
-            is_scaffold_code=True,
-            component_type="System",
-            component_name="Paradox",
-            editor_link=""
+            abs_path="", lineno=0, name="Ouroboros", line_content=f"{len(frames) - 13} frames warded.",
+            context_lines=[], context_start_lineno=0, locals={}, is_scaffold_code=True,
+            component_type="System", component_name="Guardian", editor_link=""
         ))
-        new_frames.extend(frames[-10:])
-        return new_frames
+        new_stack.extend(frames[-5:])
+        return new_stack
+
+    def __repr__(self) -> str:
+        return "<Ω_FORENSIC_INQUISITOR status=VIGILANT version=9.0.0-TOTALITY>"

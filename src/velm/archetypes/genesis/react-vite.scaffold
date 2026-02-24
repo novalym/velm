@@ -1,7 +1,9 @@
 # =================================================================================
-# == GNOSTIC ARCHETYPE: REACT-VITE OCULAR REACTOR (V-Ω-TOTALITY)                 ==
+# == GNOSTIC ARCHETYPE: REACT-VITE OCULAR REACTOR (V-Ω-TOTALITY-V2)              ==
 # =================================================================================
-# @description: Materializes a professional, high-performance React 19 Ocular Membrane. Features Vite 6 orchestration, Tailwind v4 styling, Zustand state synchronization, Biome purification, and a multi-stage Nginx production vessel.
+# @description: Materializes a professional, high-performance React 19 Ocular Membrane. 
+# Features Vite 6 orchestration, Tailwind v4 styling, Zustand state synchronization, 
+# Biome purification, and a multi-stage Nginx production vessel.
 # @category: Frontend
 # @tags: react, vite, typescript, tailwind-v4, zustand, zod, vitest, biome, docker
 # @difficulty: Adept
@@ -51,7 +53,6 @@ $$ package_name = {{ project_name | snake }}
     """
 
     # [2] THE DEPENDENCY MATRIX (package.json)
-    # Orchestrating the latest Gnostic toolchain.
     package.json :: """
     {
       "name": "{{ project_slug }}",
@@ -241,6 +242,7 @@ $$ package_name = {{ project_name | snake }}
 
     src/
         main.tsx :: """
+
         import React from 'react';
         import ReactDOM from 'react-dom/client';
         import App from './App.tsx';

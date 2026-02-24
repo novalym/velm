@@ -1,10 +1,10 @@
-# Path: src/velm/core/maestro/conductor.py
+# Path: core/maestro/conductor.py
 # ----------------------------------------
 # =========================================================================================
-# == THE OMNISCIENT CONDUCTOR (V-Ω-TOTALITY-V600.0-UNBREAKABLE)                          ==
+# == THE OMNISCIENT CONDUCTOR (V-Ω-TOTALITY-V1000.0-UNBREAKABLE)                         ==
 # =========================================================================================
 # LIF: INFINITY | ROLE: KINETIC_ORCHESTRATOR | RANK: OMEGA_SUPREME
-# AUTH: Ω_MAESTRO_V600_TOTALITY_FLUSH_HARDENED_2026
+# AUTH: Ω_MAESTRO_V1000_TOTALITY_FLUSH_HARDENED_2026
 #
 # [ARCHITECTURAL MANIFESTO]
 # This is the High Priest of Kinetic Will. It stands between the Gnostic Logic (The Plan)
@@ -12,15 +12,19 @@
 # observable execution of all commands.
 #
 # [ASCENSION FEATURES]:
-# 1.  **The Kinetic Flush Protocol:** Forces `sys.stdout` and `sys.stderr` flushing before
+# 1.  **Absolute Geometric Resonance (THE CURE):** `_resolve_true_sanctum` now calculates
+#     the Shadow Volume offset against the `transaction.project_root` (the true Axis Mundi)
+#     rather than the localized `maestro.project_anchor`. This annihilates the "Mirage
+#     of the Makefile" permanently.
+# 2.  **The Kinetic Flush Protocol:** Forces `sys.stdout` and `sys.stderr` flushing before
 #     and after every atomic strike to ensure the WASM bridge never hangs.
-# 2.  **The Venv Suture:** Dynamically reconstructs the `PATH` to prioritize the active
+# 3.  **The Venv Suture:** Dynamically reconstructs the `PATH` to prioritize the active
 #     virtual environment, preventing "Command Not Found" heresies.
-# 3.  **The Sandbox Ward:** A fully implemented, OS-aware jailer that wraps commands in
+# 4.  **The Sandbox Ward:** A fully implemented, OS-aware jailer that wraps commands in
 #     `bwrap` or `unshare` containers when high-security is demanded.
-# 4.  **The Vitality Sentinel:** A background daemon that monitors the metabolic cost
+# 5.  **The Vitality Sentinel:** A background daemon that monitors the metabolic cost
 #     (RAM/CPU) of every child process in real-time.
-# 5.  **The Recursive Redemption:** Automatically executes `on-heresy` blocks if a
+# 6.  **The Recursive Redemption:** Automatically executes `on-heresy` blocks if a
 #     primary command fractures, maintaining the chain of causality.
 # =========================================================================================
 
@@ -47,7 +51,7 @@ from ..alchemist import DivineAlchemist, get_alchemist
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ...creator.registers import QuantumRegisters
 from ...core.sanctum.local import LocalSanctum
-from ...core.state.contracts import LedgerEntry
+from ...core.state.contracts import LedgerEntry, LedgerOperation, InverseOp
 from ...logger import Scribe
 
 # [ASCENSION 1]: SURGICAL PSUTIL IMPORT
@@ -94,42 +98,15 @@ class MaestroConductor:
     ):
         """
         =================================================================================
-        == THE SOVEREIGN CONDUCTOR: OMEGA POINT (V-Ω-TOTALITY-V700.15-RESILIENT)       ==
+        == THE SOVEREIGN CONDUCTOR: OMEGA POINT (V-Ω-TOTALITY-V1000.15-RESILIENT)      ==
         =================================================================================
         LIF: ∞ | ROLE: KINETIC_ORCHESTRATOR | RANK: OMEGA_SUPREME
-        AUTH: Ω_MAESTRO_INIT_V700_SPATIAL_SUTURE_2026_FINALIS
+        AUTH: Ω_MAESTRO_INIT_V1000_SPATIAL_SUTURE_2026_FINALIS
 
         [ARCHITECTURAL CONSTITUTION]
         This rite materializes the Conductor's consciousness, anchoring it to the
         physical project root willed by the Creator. It annihilates the 'Anchor Fracture'
         by enforcing bit-perfect spatial parity between Will and Matter.
-
-        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-        1.  **Axis Mundi Suture (THE CURE):** Prioritizes `registers.project_root` to
-            anchor the `ContextForge` inside the forged slug (e.g., sentinel_api).
-        2.  **Engine-Organ Suture:** Binds the Master Engine for real-time vital
-            sensing and multi-modal telemetry radiation.
-        3.  **JIT Alchemical Synthesis:** Links the Divine Alchemist for nanosecond
-            variable expansion during kinetic strikes.
-        4.  **Polymorphic Registry Inception:** Transmutes raw dict contexts into
-            high-status Proxy Registers, preventing 'NoneType' heresies.
-        5.  **Substrate-Aware Sandboxing:** Proactively scries for 'bwrap' or 'unshare'
-            to enforce the Law of Perimeter Containment.
-        6.  **Achronal Traceability:** Inherits the `trace_id` silver-cord, ensuring
-            absolute causal alignment across the split-process lattice.
-        7.  **Isomorphic Identity Projection:** Captures Session and Machine DNA
-            to stamp the Gnostic Chronicle with forensic provenance.
-        8.  **Geometric Path Normalization:** (Prophecy) Normalizes the CWD to POSIX
-            standards regardless of the underlying hardware volume.
-        9.  **Handler Dispatch Singularity:** Materializes the seven specialist
-            artisans (Shell, Vault, Tunnel, etc.) into an O(1) lookup matrix.
-        10. **Metabolic Heat Tomography:** Connects to the System Watchdog to
-            pacing edicts during metabolic fever spikes (>90% CPU).
-        11. **The Silence Vow Compliance:** Surgically mutes boot logs if the
-            'silent' flag is manifest, keeping pipe streams pure.
-        12. **The Finality Vow:** A mathematical guarantee of an unbreakable,
-            anchored, and warded execution environment.
-        =================================================================================
         """
         import shutil
         from pathlib import Path
@@ -139,7 +116,6 @@ class MaestroConductor:
         self.Logger = Logger
 
         # --- MOVEMENT I: SOVEREIGN ORGAN BINDING ---
-
         self.alchemist = alchemist or get_alchemist(engine=self.engine)
 
         # [ASCENSION 4]: POLYMORPHIC REGISTER INCEPTION
@@ -162,13 +138,10 @@ class MaestroConductor:
             self.Logger.info(f"Maestro anchored to Axis Mundi: [cyan]{self.project_anchor}[/cyan]")
 
         # [ASCENSION 5]: CONTEXT FORGE ALIGNMENT
-        # The ContextForge is born with the spatial gnosis of the project anchor.
-        # It will now correctly calculate CWD as [Sanctum]/[Project_Root].
         self.context_forge = ContextForge(self.regs, self.alchemist)
         # =========================================================================
 
         # --- MOVEMENT II: THE HANDLER PANTHEON ---
-        # The registry of specialist artisans who conduct the Maestro's will.
         from .handlers import (
             ProclaimHandler, ShellHandler, TunnelHandler,
             RawHandler, BrowserHandler, HostsHandler, VaultHandler, PolyglotHandler
@@ -186,17 +159,13 @@ class MaestroConductor:
         }
 
         # --- MOVEMENT III: CAUSAL IDENTITY ---
-        # Inherit the silver cord from the registers for distributed tracing.
         self.trace_id = getattr(self.regs, 'trace_id', f"tr-maes-{uuid.uuid4().hex[:4].upper()}")
         self.session_id = getattr(self.regs, 'session_id', 'SCAF-CORE')
 
         # --- MOVEMENT IV: HARDWARE SCRYING ---
-        # Cache the presence of sandboxing tools for high-security strikes.
         self._bwrap_path = shutil.which("bwrap")
         self._unshare_path = shutil.which("unshare")
 
-        # [ASCENSION 12]: THE FINALITY VOW
-        # The Conductor is manifest, anchored, and ready to strike.
         self.Logger.verbose(f"Maestro Conductor resonant. Trace: {self.trace_id} | Anchor: {self.project_anchor}")
 
 
@@ -210,19 +179,56 @@ class MaestroConductor:
             verbose=getattr(context_manager, 'verbose', False) if hasattr(context_manager, 'verbose') else False
         )
 
+    def _resolve_true_sanctum(self, requested_cwd: Path) -> Path:
+        """
+        =================================================================================
+        == THE VOLUMETRIC COORDINATE RESOLVER (V-Ω-TOTALITY-V1000-SHADOW-AWARE)        ==
+        =================================================================================
+        LIF: ∞ | ROLE: TOPOGRAPHICAL_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_SCRY_SANCTUM_V1000_SHADOW_REDIRECT_2026_FINALIS
+
+        [THE CURE FOR THE MIRAGE OF THE MAKEFILE]
+        This rite scries the active transaction for a willed VolumeShifter.
+        If a Shadow Volume (Green) is manifest and resonant, it surgically translocates
+        the CWD from the Physical Floor to the Shadow Substrate.
+
+        CRITICAL FIX: It calculates the offset against `tx.project_root` (the actual
+        origin of the shadow volume), not `self.project_anchor` (which might be a sub-dir).
+        =================================================================================
+        """
+        tx = getattr(self.regs, 'transaction', None)
+
+        if tx and hasattr(tx, 'volume_shifter'):
+            shifter = tx.volume_shifter
+            # We only redirect if the Shifter is in 'RESONANT' state (Matter is staged)
+            if getattr(shifter, 'state', None) == "RESONANT" and shifter.shadow_root:
+                try:
+                    # 1. GEOMETRIC TRIANGULATION (THE CURE)
+                    # Determine the relative offset of the request from the *Transaction Root*.
+                    tx_root = tx.project_root.resolve()
+                    rel_path = requested_cwd.relative_to(tx_root)
+
+                    # 2. THE REDIRECT
+                    # Map the relative path onto the Shadow Volume root.
+                    shadow_cwd = (shifter.shadow_root / rel_path).resolve()
+
+                    self.Logger.debug(f"Volumetric Redirection: [cyan]{rel_path}[/] -> [Shadow_Volume]")
+                    return shadow_cwd
+                except (ValueError, AttributeError) as e:
+                    # Path is outside the project lattice (e.g. C:/Windows); return as-is.
+                    self.Logger.debug(f"Volumetric redirection bypassed for {requested_cwd.name}: {e}")
+                    pass
+
+        return requested_cwd
+
+
     def execute(self, instruction: Tuple, env: Optional[Dict] = None):
         """
         =============================================================================
-        == THE GRAND SYMPHONY OF EXECUTION: OMEGA (V-Ω-V6.5-POLYGLOT-SUTURE)       ==
+        == THE GRAND SYMPHONY OF EXECUTION: OMEGA (V-Ω-V1000-POLYGLOT-SUTURE)      ==
         =============================================================================
         LIF: INFINITY | ROLE: KINETIC_DISPATCH_ORCHESTRATOR | RANK: OMEGA_SUPREME
-        AUTH: Ω_EXECUTE_V650_POLYGLOT_SUTURE_2026_FINALIS
-
-        [THE MANIFESTO]
-        This implementation resolves the 'Substrate Schism'. It enables the Maestro
-        to speak multiple tongues (Python, JS, Shell) in a single unified breath.
-        It is the absolute hand of the God-Engine.
-        =============================================================================
+        AUTH: Ω_EXECUTE_V1000_POLYGLOT_SUTURE_2026_FINALIS
         """
         import inspect
         import sys
@@ -230,14 +236,12 @@ class MaestroConductor:
         import os
 
         # --- MOVEMENT I: ATOMIC DECONSTRUCTION (THE QUATERNITY) ---
-        # [ASCENSION 3]: Handle the Sacred Quaternity (Cmd, Line, Undo, Heresy)
         if len(instruction) == 4:
             raw_command, line_num, explicit_undo, heresy_block = instruction
         elif len(instruction) == 3:
             raw_command, line_num, explicit_undo = instruction
             heresy_block = None
         else:
-            # Fallback for legacy 2-tuples or raw commands
             raw_command = instruction[0] if isinstance(instruction, (tuple, list)) else instruction
             line_num = 0
             explicit_undo = None
@@ -247,27 +251,22 @@ class MaestroConductor:
             return
 
         # --- MOVEMENT II: THE ALCHEMICAL RESOLUTION ---
-        # Expand {{ variables }} within the command scripture using the active Gnosis.
         transmuted_cmd = self.alchemist.transmute(raw_command, self.regs.gnosis)
         stripped_cmd = transmuted_cmd.strip()
 
         # --- MOVEMENT III: ENVIRONMENT DNA FUSION ---
-        # [ASCENSION 10]: Isomorphic Suture. Inject project state into the OS DNA.
         active_env = (env or os.environ).copy()
         if self.regs.gnosis:
             for k, v in self.regs.gnosis.items():
                 if isinstance(v, (str, int, bool)):
                     active_env[f"SC_VAR_{k.upper()}"] = str(v)
 
-        # Inject the Trace ID for distributed observability
         active_env["SCAFFOLD_TRACE_ID"] = getattr(self.regs, 'trace_id', 'tr-maestro')
 
         # --- MOVEMENT IV: SEMANTIC POLYGLOT ROUTING (THE FIX) ---
-        # [ASCENSION 1 & 8]: We scry the command to determine its logical tongue.
         rite_key = "shell"
         final_command_body = transmuted_cmd
 
-        # 1. Check for multi-line polyglot headers (V3.5+ Scribe compatible)
         lines = stripped_cmd.split('\n')
         first_line = lines[0].strip().lower()
 
@@ -275,7 +274,7 @@ class MaestroConductor:
             rite_key = "proclaim"
         elif first_line in ("py:", "python:"):
             rite_key = "polyglot"
-            final_command_body = "\n".join(lines[1:])  # Decapitate the header
+            final_command_body = "\n".join(lines[1:])
             active_env["SCAFFOLD_LANG"] = "python"
         elif first_line in ("js:", "node:"):
             rite_key = "polyglot"
@@ -293,22 +292,32 @@ class MaestroConductor:
             rite_key = "hosts"
 
         # --- MOVEMENT V: HANDLER MATERIALIZATION & SUTURE ---
-        # [ASCENSION 9]: Bicameral Identity Check.
         HandlerClass = self.RITE_HANDLERS.get(rite_key, self.RITE_HANDLERS["shell"])
-        context = self.context_forge.forge(line_num, explicit_undo)
-        handler = HandlerClass(self.regs, self.alchemist, context)
 
-        # Inject conductor reference to allow the handler to trigger sub-rites or redemption
+        # [THE CURE FOR GEOMETRY]: Forge Context with Maestro's specific Anchor Override
+        context = self.context_forge.forge(
+            line_num,
+            explicit_undo,
+            cwd_override=getattr(self, 'project_anchor', None)
+        )
+
+        # [BESTOW VOLUMETRIC SIGHT]: Redirect CWD to Shadow Volume if active
+        shadow_cwd = self._resolve_true_sanctum(context.cwd)
+        if shadow_cwd != context.cwd:
+            self.Logger.debug(f"Achronal Redirect Applied: L{line_num} -> [Shadow_Volume]")
+            context = context.model_copy(update={'cwd': shadow_cwd})
+
+        # [STRIKE]: THE SOVEREIGN LINK IS FORGED.
+        handler = HandlerClass(self, self.regs, self.alchemist, context)
+
         if hasattr(handler, 'conductor'):
             object.__setattr__(handler, 'conductor', self)
 
         # --- MOVEMENT VI: THE KINETIC STRIKE (THE OMEGA PULSE) ---
         try:
-            # [ASCENSION 1]: HYDRAULIC FLUSH (Pre-Strike)
             sys.stdout.flush()
             sys.stderr.flush()
 
-            # [ASCENSION 11]: HUD TELEMETRY MULTICAST
             if self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
                 self.engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
@@ -321,36 +330,24 @@ class MaestroConductor:
                     }
                 })
 
-            # =========================================================================
-            # == [THE CURE]: THE POLYMORPHIC CALL GATE                               ==
-            # =========================================================================
-            # We intelligently probe the handler's conduct faculty.
             sig = inspect.signature(handler.conduct)
 
             if 'env' in sig.parameters:
-                # [STRIKE]: Modern, context-aware execution (supports Polyglot/Shell).
                 handler.conduct(final_command_body, env=active_env)
             else:
-                # [FALLBACK]: Legacy or specialized execution.
                 handler.conduct(final_command_body)
-            # =========================================================================
 
-            # [ASCENSION 1]: HYDRAULIC FLUSH (Post-Strike)
             sys.stdout.flush()
             sys.stderr.flush()
 
         except Exception as fracture:
-            # [ASCENSION 1]: EMERGENCY FLUSH
             sys.stdout.flush()
             sys.stderr.flush()
 
             # --- MOVEMENT VII: THE RITE OF CASCADING REDEMPTION ---
-            # [ASCENSION 7]: Recursive Redemption Sequence.
-            # If the primary strike fractures, we conduct the willed redemption block.
             if heresy_block:
                 self.Logger.warn(f"L{line_num}: Edict fractured. Initiating Redemption Rites.")
 
-                # Project distress to HUD
                 if self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
                     self.engine.akashic.broadcast({
                         "method": "novalym/hud_pulse",
@@ -358,12 +355,10 @@ class MaestroConductor:
                     })
 
                 for h_cmd in heresy_block:
-                    # [RECURSION]: We pass the active_env to maintain Gnostic continuity.
-                    # This ensures redemption logic sees the same variables as the failure.
                     self.execute((h_cmd, line_num, None), env=active_env)
 
-            # Re-raise to let the High Priest of Resilience enshrine the forensic dossier.
             raise fracture
+
 
     def _adjudicate_shell_safety(self, command: str):
         """[ASCENSION 9]: Checks for prohibited patterns."""
@@ -401,10 +396,10 @@ class MaestroConductor:
     ) -> KineticVessel:
         """
         =================================================================================
-        == THE APOTHEOSIS OF KINETIC WILL (V-Ω-TOTALITY-V600-FORGE-SOVEREIGN)          ==
+        == THE APOTHEOSIS OF KINETIC WILL (V-Ω-TOTALITY-V1000-FORGE-SOVEREIGN)         ==
         =================================================================================
         LIF: INFINITY | ROLE: ATOMIC_PROCESS_FORGE | RANK: OMEGA_SOVEREIGN
-        AUTH_CODE: Ω_CONDUCT_RAW_V600_TITANIUM_FLUSH_2026
+        AUTH_CODE: Ω_CONDUCT_RAW_V1000_TITANIUM_FLUSH_2026
         """
         start_time = time.monotonic()
         trace_id = os.environ.get("GNOSTIC_REQUEST_ID", "tr-void")
@@ -416,20 +411,29 @@ class MaestroConductor:
         if self.regs.transaction and not self.regs.is_simulation:
             self.regs.transaction.materialize()
 
-        # 3. Environment Forging (Venv Suture)
-        context = self.context_forge.forge(line_num=0, explicit_undo=None)
+        # 3. Environment Forging (Venv Suture & Absolute Alignment)
+        context = self.context_forge.forge(
+            line_num=0,
+            explicit_undo=None,
+            cwd_override=getattr(self, 'project_anchor', None)
+        )
+
+        # [ASCENSION 14]: Immutability-aware redirection for raw strikes.
+        shadow_cwd = self._resolve_true_sanctum(context.cwd)
+        if shadow_cwd != context.cwd:
+            context = context.model_copy(update={'cwd': shadow_cwd})
+
         final_env = context.env.copy()
+
         if env_overrides:
             final_env.update(env_overrides)
 
-        # [ASCENSION 3]: Unbuffered Output Vow & Trace Injection
         final_env["X_TITAN_TRACE"] = trace_id
         final_env["SCAFFOLD_NON_INTERACTIVE"] = "1"
         final_env["PYTHONUNBUFFERED"] = "1"
 
         # 4. Artisan Presence Check (Pre-flight Scry)
         binary = shlex.split(command)[0]
-        # [ASCENSION 6]: Pre-flight Artisan Scry
         resolved_bin = shutil.which(binary, path=final_env.get("PATH"))
         if not resolved_bin:
             raise ArtisanHeresy(
@@ -442,12 +446,10 @@ class MaestroConductor:
         self.Logger.verbose(f"[{trace_id}] Forging process strike: {safe_display_command}")
 
         # [ASCENSION 1]: KINETIC FLUSH (PRE-SPAWN)
-        # Critical for WASM: Ensure previous logs are sent before the process loop begins
         sys.stdout.flush()
         sys.stderr.flush()
 
         # [ASCENSION 13]: THE SANDBOX WARD CHECK
-        # If permissions imply a need for containment, we wrap the command.
         if permissions and (not permissions.get("network") or permissions.get("ro_paths")):
             final_command, method = self._apply_sandbox_ward(command, context.cwd, permissions)
             if method != "none":
@@ -468,7 +470,6 @@ class MaestroConductor:
                 "stdin": subprocess.PIPE
             }
 
-            # [ASCENSION 5]: Process Group Isolation (For clean kills)
             if os.name == 'nt':
                 popen_kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
             else:
@@ -500,19 +501,12 @@ class MaestroConductor:
         output_queue = Queue()
 
         def stream_reader(stream, stream_type):
-            """
-            [ASCENSION 4]: THE BINARY MATTER SIEVE.
-            Reads lines and filters out binary garbage that would crash the UI.
-            """
             try:
-                # Iterate line by line using iterator protocol to handle buffering correctly
                 for line_bytes in stream:
-                    # [ASCENSION 4]: Null Byte Detection
                     if b'\x00' in line_bytes[:512]:
-                        output_queue.put((stream_type, "[BINARY_DATA_SUPPRESSED]"))
+                        output_queue.put((stream_type, "\x1b[31m[METABOLIC_RECOIL: BINARY_MATTER_REDACTED]\x1b[0m"))
                         break
 
-                    # Graceful decoding with replacement
                     line_str = line_bytes.decode('utf-8', errors='replace').rstrip()
                     output_queue.put((stream_type, line_str))
             except (ValueError, OSError):
@@ -538,11 +532,6 @@ class MaestroConductor:
         )
 
     def _monitor_vitals(self, pid: int):
-        """
-        [ASCENSION 4]: THE VITALITY SENTINEL.
-        Monitors the child process for metabolic fever (High RAM/CPU).
-        Logs warnings if thresholds are breached, but does not kill (that is for the Circuit Breaker).
-        """
         try:
             proc = psutil.Process(pid)
             max_mem_mb = 0
@@ -555,7 +544,6 @@ class MaestroConductor:
                     if rss_mb > max_mem_mb:
                         max_mem_mb = rss_mb
 
-                    # Hard Threshold: 1.5GB for a single subprocess implies a leak or bomb
                     if rss_mb > 1500:
                         self.Logger.warn(f"Metabolic Fever: Subprocess {pid} is consuming {rss_mb:.0f}MB RAM.")
 
@@ -563,12 +551,10 @@ class MaestroConductor:
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     break
 
-            # Record peak memory if significant
             if max_mem_mb > 100:
                 self.Logger.verbose(f"Subprocess {pid} Peak Memory: {max_mem_mb:.0f}MB")
 
         except Exception:
-            # The Sentinel must not crash the Engine
             pass
 
     def _apply_sandbox_ward(self, command: str, cwd: Path, permissions: Dict[str, Any]) -> Tuple[str, str]:
@@ -580,52 +566,39 @@ class MaestroConductor:
         @gnosis:summary The divine, sentient guardian that forges an unbreakable OS-level
                          jail around a Maestro's Edict.
         @gnosis:LIF 1,000,000,000,000,000
-
-        Constructs a `bwrap` or `unshare` command to isolate the execution.
         """
-        # [7] Polyglot Graceful Degradation
         if sys.platform != "linux":
             return command, "none"
 
-        # [5] Ouroboros Ward
         if os.getenv("BWRAP_PID"):
             self.Logger.verbose("Sandbox inception detected. Proceeding un-sandboxed.")
             return command, "nested"
 
         try:
-            # [2] Gaze of Intent
             allow_network = permissions.get("network", True)
             ro_paths = permissions.get("ro_paths", [])
             rw_paths = permissions.get("rw_paths", [])
 
-            # [11] Guardian of the Root
             if "/" in [str(p) for p in rw_paths] or Path("/") in rw_paths:
                 self.Logger.error(
                     "CRITICAL HERESY: A rite attempted to make the root filesystem writable. The Guardian has stayed its hand.")
                 return f"echo 'SECURITY VIOLATION: Root FS cannot be writable'; exit 126;", "blocked"
 
-            # [1] Gnostic Triage
             bwrap = self._bwrap_path
 
-            # --- Bubblewrap Strategy (The Strongest Ward) ---
             if bwrap:
                 bwrap_cmd = [bwrap]
 
-                # [4] The Etheric Ward
                 if not allow_network:
                     bwrap_cmd.append("--unshare-net")
 
-                # [3] Sanctum of Controlled Matter
-                bwrap_cmd.extend(["--dev-bind", "/", "/"])  # Mount essential devices
-                bwrap_cmd.extend(["--ro-bind", "/usr", "/usr"])  # Read-only system libs
-                bwrap_cmd.extend(["--proc", "/proc", "--dev", "/dev"])  # Essential kernel interfaces
+                bwrap_cmd.extend(["--dev-bind", "/", "/"])
+                bwrap_cmd.extend(["--ro-bind", "/usr", "/usr"])
+                bwrap_cmd.extend(["--proc", "/proc", "--dev", "/dev"])
 
-                # Bind CWD as read-write
-                # [8] Path Canonicalizer
                 abs_cwd = cwd.resolve()
                 bwrap_cmd.extend(["--bind", str(abs_cwd), str(abs_cwd)])
 
-                # Bind additional paths
                 for p_str in ro_paths:
                     p_abs = Path(p_str).resolve()
                     bwrap_cmd.extend(["--ro-bind", str(p_abs), str(p_abs)])
@@ -634,17 +607,11 @@ class MaestroConductor:
                     bwrap_cmd.extend(["--bind", str(p_abs), str(p_abs)])
 
                 bwrap_cmd.append("--")
-                # The command is passed as a single arg to `sh -c` implicitly by Popen shell=True
-                # But bwrap expects [cmd, arg1, arg2].
-                # Since we use shell=True in Popen, we need to wrap the whole bwrap invocation in a string.
-                # However, complex commands are safer passed as `bwrap ... -- sh -c 'command'`
                 bwrap_cmd.extend(["sh", "-c", command])
 
-                # [6] The Luminous Scribe
                 self.Logger.verbose(f"   -> Forged bwrap jail with network={allow_network}, rw_paths={len(rw_paths)}")
                 return " ".join(shlex.quote(str(p)) for p in bwrap_cmd), "bwrap"
 
-            # --- Unshare Strategy (The Weaker Ward) ---
             unshare = self._unshare_path
 
             if unshare:
@@ -661,6 +628,5 @@ class MaestroConductor:
             return command, "none"
 
         except Exception as e:
-            # [12] Unbreakable Ward
             self.Logger.error(f"Sandbox Forge shattered by paradox: {e}. Executing unjailed.")
             return command, "failed_open"

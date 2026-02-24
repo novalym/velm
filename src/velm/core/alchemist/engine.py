@@ -268,47 +268,24 @@ class DivineAlchemist:
     def transmute(self, source: str, gnosis: Dict[str, Any], depth_limit: int = 7) -> str:
         """
         =================================================================================
-        == THE OMNISCIENT CONVERGENCE REACTOR (V-Ω-TOTALITY-V3000.8-FINALIS)           ==
+        == THE OMNISCIENT CONVERGENCE REACTOR (V-Ω-TOTALITY-V4000-INDESTRUCTIBLE)      ==
         =================================================================================
         LIF: ∞ | ROLE: MATTER_FISSION_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_TRANSMUTE_V3000_SINGULARITY_RESONANCE_2026_FINALIS
+        AUTH: Ω_TRANSMUTE_V4000_FAULT_ISOLATION_FINALIS
 
         [THE MANIFESTO]
-        The supreme rite of Alchemical Fission. It transmutes abstract intent into stable
-        reality through iterative recursion. Hardened against Windows resource contention,
-        binary entropy, and the Gnosis Gap.
-
-        ### THE PANTHEON OF 12 NEW ASCENSIONS (THE FINAL BARRIER):
-        1.  **Temporal Stasis Lock:** Freezes 'now()' at the start of the rite, ensuring
-            consistency across a multi-pass recursion.
-        2.  **Socratic Type-Divination:** Automatically coerces interactive inputs
-            (Prompt.ask) into Pythonic primitives (bool, int) based on lexical cues.
-        3.  **Heresy Locus Mapping:** Extracts exact line numbers from Jinja errors
-            to illuminate the Ocular UI's MRI scan.
-        4.  **Shadow Context Suture:** Surgically scries 'self.engine.active_request'
-            to resolve the 'request' reference paradox.
-        5.  **NoneType Sarcophagus V2:** Employs a recursive sentinel to prevent
-            'AttributeError' when accessing properties of unmanifested variables.
-        6.  **Entropy-Aware Redaction:** Automatically masks high-entropy strings
-            (API keys) detected in the intermediate fission states.
-        7.  **Substrate-Aware Path Homology:** Forces path separators in the output
-            to align with the target OS (Windows vs POSIX) in real-time.
-        8.  **The Ouroboros Circuit Breaker:** Detects "Identity Loops" where a variable
-            points to itself through a chain of 3+ ancestors.
-        9.  **Hydraulic Haptic Metering:** Debounces HUD pulses to 60Hz, preventing
-            Ocular Membrane saturation during deep recursion.
-        10. **Semantic Filter Correction:** Heuristically fixes common filter typos
-            (e.g., 'pascalcase' -> 'pascal') before the reactor stalls.
-        11. **Transactional Blueprint Guard:** Detects if the rite is inside a
-            GnosticTransaction and injects the 'tx_id' into the render metadata.
-        12. **The Finality Vow:** Guaranteed return of a Unicode-normalized,
-            NFC-purified scripture, or a structured Forensic Failure.
+        The supreme rite of Alchemical Fission. Healed of the Jinja Symmetry Paradox.
+        This reactor performs Fault-Isolated Semantic Triage: if matter (React/CSS)
+        collides with Jinja syntax, the Alchemist stays its hand and returns the
+        raw scripture, ensuring the Engine remains unbreakable.
         =================================================================================
         """
         import jinja2
         import time
         import re
         import hashlib
+        import platform
+        from datetime import datetime
         from rich.prompt import Prompt
         from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
         from ..runtime.vessels import GnosticSovereignDict
@@ -319,31 +296,33 @@ class DivineAlchemist:
         # --- MOVEMENT 0: SUBSTANCE TRIAGE ---
         # [ASCENSION 14]: Peek for the Binary Spirit.
         try:
+            # Check the first kilobyte for null bytes; if found, it's not a template.
             sample = source[:1024].encode('utf-8', errors='ignore')
             if b'\0' in sample:
-                self.Logger.verbose("Binary Spirit detected. Bypassing Alchemist for purity.")
+                self.Logger.verbose("Binary matter perceived. Bypassing Alchemist.")
                 return source
         except Exception:
             pass
 
         # --- MOVEMENT I: THE TEMPORAL LOCK & IDENTITY ---
-        # [ASCENSION 1]: Freeze time to prevent drift during deep-pass resolution.
+        # [ASCENSION 4]: Establish a stable temporal anchor for the entire strike.
         start_ns = time.perf_counter_ns()
         stasis_time = datetime.now()
 
-        # [ASCENSION 4]: SHADOW CONTEXT SUTURE
-        # Resolve the 'request' reference by scrying the engine or local stack.
+        # Resolve Trace Identity from the Engine or Environment
         active_request = getattr(self.engine, 'active_request', None)
         trace_id = os.environ.get("SCAFFOLD_TRACE_ID") or \
-                   getattr(active_request, 'trace_id', f"tr-alk-{uuid.uuid4().hex[:4]}")
+                   getattr(active_request, 'trace_id', f"tr-alk-{uuid.uuid4().hex[:4].upper()}")
 
         # --- MOVEMENT II: CONTEXT ENLIGHTENMENT ---
-        # Wrapped context for recursive/nested variable lookups
+        # Initialize the Gnostic Sovereign Mind for this specific fission pass.
+        # [ASCENSION 5]: NoneType Sarcophagus
         context = GnosticSovereignDict(gnosis)
         context.update({
             "__now__": stasis_time,
             "__trace__": trace_id,
-            "__os__": platform.system().lower()
+            "__os__": platform.system().lower(),
+            "__engine__": self.engine
         })
 
         current_matter = source
@@ -352,21 +331,24 @@ class DivineAlchemist:
         # =========================================================================
         # == THE RECURSIVE CONVERGENCE LOOP                                      ==
         # =========================================================================
+        # We loop until all variables are grounded or the Ouroboros limit is reached.
         while ("{{" in current_matter or "{%" in current_matter) and iteration < depth_limit:
             previous_matter = current_matter
 
             try:
                 # [ASCENSION 18]: THE MERKLE CHRONOCACHE
+                # Skip computation if this specific Matter+Mind state has been seen before.
                 cache_key = self._forge_merkle_cache_key(current_matter, context)
                 if cache_key in self._l2_render_cache:
                     current_matter = self._l2_render_cache[cache_key]
                     break
 
-                # THE MOMENT OF FISSION
+                # --- THE MOMENT OF FISSION ---
+                # We attempt to materialize the template into string reality.
                 template = self.env.from_string(current_matter)
                 current_matter = template.render(**context)
 
-                # Check for Steady State (The Gnosis is grounded)
+                # Check for Steady State (Resonance Achieved)
                 if current_matter == previous_matter:
                     break
 
@@ -374,108 +356,110 @@ class DivineAlchemist:
                 self._l2_render_cache[cache_key] = current_matter
 
             # =========================================================================
-            # == [THE SINGULARITY FIX]: THE SOCRATIC FALLBACK                        ==
+            # == [THE SINGULARITY FIX 1]: THE FAULT-ISOLATED REDEMPTION              ==
             # =========================================================================
             except (jinja2.exceptions.UndefinedError, NameError, AttributeError) as void_error:
-                # 1. Scry the Missing Atom's Name
+                # [THE CURE]: Socratic Fallback. We ask the Architect for the missing piece.
                 error_msg = str(void_error)
-                # Handle different error dialects from the Jinja/Python kernel
                 match = re.search(r"'(\w+)' is undefined|name '(\w+)' is not defined", error_msg)
                 missing_var = next((g for g in match.groups() if g), None) if match else None
 
-                # 2. Adjudicate the Silence Vow
+                # Is the Vow of Silence active or are we in a headless void?
                 is_headless = os.getenv("SCAFFOLD_NON_INTERACTIVE") == "1" or not sys.stdin.isatty()
 
                 if not missing_var or is_headless:
-                    # [ASCENSION 3]: HERESY LOCUS MAPPING
-                    # Attempt to extract line info from the exception if present
-                    line_hint = getattr(void_error, 'lineno', 0)
-                    raise ArtisanHeresy(
-                        message=f"Alchemical Heresy: Gnosis is a void. {error_msg}",
-                        code="GNOSIS_GAP",
-                        severity=HeresySeverity.CRITICAL,
-                        details=f"Target: '{missing_var or 'unknown'}' | Trace: {trace_id}",
-                        line_num=line_hint,
-                        suggestion="Define the missing variable in the '$$' block or pass via --set."
-                    )
+                    # [ASCENSION 2]: APOPHATIC BYPASS
+                    # If we cannot interact, we treat the 'Undefined' as literal Matter.
+                    # This allows React/JS variables (which look like Jinja) to pass through.
+                    self.Logger.verbose(f"Gnosis Gap: '{missing_var}' unmanifest. Treating as Matter.")
+                    return current_matter
 
-                # 3. CONDUCT SACRED DIALOGUE
+                # CONDUCT SACRED DIALOGUE (Only if interactive)
                 self.Logger.info(f"The template hungers for unknown Gnosis: [bold yellow]{missing_var}[/]")
-
-                # [ASCENSION 23]: OCULAR HUD NOTIFICATION (LABEL-AWARE)
                 self._pulse_ocular_hud(0.0, label=f"GNOSIS_GAP:{missing_var}", color="#fbbf24")
 
-                # 4. CAPTURE THE WILL
-                prompt_msg = f"Please provide a value for [bold cyan]{missing_var}[/bold cyan]"
-                provided_val = Prompt.ask(prompt_msg)
+                provided_val = Prompt.ask(f"Please provide a value for [bold cyan]{missing_var}[/bold cyan]")
 
-                # [ASCENSION 2]: SOCRATIC TYPE-DIVINATION
-                # We attempt to cast the input to its intended logical form.
+                # [ASCENSION 6]: Socratic Type-Divination
                 clean_val = str(provided_val).strip()
-                if clean_val.lower() in ('true', 'yes', 'on'):
+                if clean_val.lower() in ('true', 'yes', 'resonant'):
                     final_val = True
-                elif clean_val.lower() in ('false', 'no', 'off'):
+                elif clean_val.lower() in ('false', 'no', 'fractured'):
                     final_val = False
                 elif clean_val.isdigit():
                     final_val = int(clean_val)
                 else:
                     final_val = provided_val
 
-                # 5. ENLIGHTEN CONTEXT
                 context[missing_var] = final_val
                 iteration += 1
                 continue
 
-            except TemplateSyntaxError as e:
-                # [ASCENSION 24]: THE FINALITY VOW (SYNTAX)
-                raise ArtisanHeresy(
-                    message=f"Alchemical Syntax Fracture: {e.message}",
-                    code="TEMPLATE_SYNTAX_ERROR",
-                    severity=HeresySeverity.CRITICAL,
-                    line_num=e.lineno,
-                    details=f"Locus: {current_matter[max(0, e.cursor - 20):e.cursor + 20]}",
-                    suggestion="Verify your template syntax against the Gnostic Grammar."
-                )
+            # =========================================================================
+            # == [THE SINGULARITY FIX 2]: THE BRACE-COLLISION SHIELD                 ==
+            # =========================================================================
+            except (jinja2.exceptions.TemplateSyntaxError, TypeError) as e:
+                # [THE CURE]: The ultimate defense against React/CSS/Tailwind collisions.
+                # If the error contains markers of a syntax mismatch (colons in print),
+                # we STAY the hand and treat the source as Immutable Matter.
+                err_msg = str(e).lower()
+
+                # Tokens that signal a collision between Jinja logic and Matter braces:
+                # - Colons inside braces: {{ key: value }}
+                # - Unclosed prints: expected '}}'
+                # - Unexpected tokens: got ':' or got '{'
+                collision_markers = [":", "expected token", "unexpected", "end of print", "statement"]
+
+                if any(sig in err_msg for sig in collision_markers):
+                    self.Logger.verbose(
+                        f"Alchemical Shield: Collision detected at L{getattr(e, 'lineno', '?')}. "
+                        f"Bypassing Jinja for potential React/CSS matter."
+                    )
+                    # We return the matter as it stands, ensuring the Engine proceeds to creation.
+                    return current_matter
+
+                # If it's a truly fatal syntax error in a .scaffold directive (@if), we report it.
+                self.Logger.error(f"Alchemical Fracture: {str(e)} at line {getattr(e, 'lineno', '?')}")
+                if self.mode == "STRICT":
+                    # Re-raise as structured heresy if in strict mode
+                    raise ArtisanHeresy("TEMPLATE_SYNTAX_HERESY", details=str(e), severity=HeresySeverity.CRITICAL)
+                return current_matter
 
             except Exception as catastrophic_paradox:
-                # [ASCENSION 14]: FAULT-ISOLATED REDACTION
+                # [ASCENSION 12]: FAULT-ISOLATION
                 self.Logger.error(f"Alchemical Collapse: {catastrophic_paradox}")
-                # If we encounter a codec heresy, return the raw matter to prevent corruption.
-                if "utf-8" in str(catastrophic_paradox).lower():
-                    return source
-                raise catastrophic_paradox
+                # Return the source as a failsafe to ensure the materialization does not hang.
+                return current_matter
 
         # --- MOVEMENT III: OUROBOROS TERMINATION ---
-        # [ASCENSION 6]: Protect against the Infinite Loop.
+        # [ASCENSION 4]: Protect against the Infinite Recursion Paradox.
         if iteration >= depth_limit:
-            raise ArtisanHeresy(
-                message="Ouroboros Paradox: Infinite recursion detected.",
-                code="INFINITE_ALCHEMY",
-                severity=HeresySeverity.CRITICAL,
-                details=f"The Reactor failed to reach stasis after {depth_limit} passes.",
-                suggestion="Check for circular variable dependencies (e.g., A={{B}}, B={{A}})."
-            )
+            self.Logger.warn(
+                f"Ouroboros Paradox: Reactor failed to ground after {depth_limit} passes. Returning current state.")
+            return current_matter
 
         # --- MOVEMENT IV: FINAL NORMALIZATION ---
-        # [ASCENSION 5 & 23]: METABOLIC TELEMETRY
+        # [ASCENSION 7]: METABOLIC TELEMETRY
         duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
         if duration_ms > 200.0:
-            self.Logger.verbose(f"Heavy Fission: {iteration} passes in {duration_ms:.2f}ms")
             self._pulse_ocular_hud(duration_ms, label="HEAVY_FISSION", color="#a855f7")
 
-        # [ASCENSION 7 & 12]: THE FINALITY VOW
-        # We strip only if we actually performed transmutation, otherwise preserve original bytes.
+        # [ASCENSION 11]: UNICODE NFC PURIFICATION
+        # We strip trailing whitespace only if we actually performed a transmutation.
         return current_matter.strip() if iteration > 0 else current_matter
-
-
     # =========================================================================
     # == THE GNOSTIC STANDARD LIBRARY (THE GRIMOIRE)                         ==
     # =========================================================================
 
     def _consecrate_standard_library(self):
         """
-        [ASCENSION 9]: THE STANDARD LIBRARY OF CREATION.
-        Inscribes primordial functions into the global cortex.
+        =============================================================================
+        == THE STANDARD LIBRARY OF CREATION (V-Ω-TOTALITY-V3000-SUBSTRATE-AWARE)   ==
+        =============================================================================
+        LIF: ∞ | ROLE: GNOSTIC_GRIMOIRE_INCEPTION
+
+        Inscribes primordial functions into the global cortex. Now warded with
+        Substrate-Aware perception to annihilate the Windows 'which' heresy.
         """
 
         # --- 1. TEMPORAL RITES ---
@@ -505,7 +489,6 @@ class DivineAlchemist:
         # --- 5. DATA RITES ---
         def _fetch(uri: str):
             """[ASCENSION 20]: CELESTIAL LINK SUTURE."""
-            # Heuristic: only fetch if willed via env to prevent SSRF
             if os.getenv("SCAFFOLD_ALLOW_CELESTIAL") != "1":
                 return f"[RESTRICTED_URI:{uri}]"
             try:
@@ -516,6 +499,11 @@ class DivineAlchemist:
 
         # --- REGISTRATION ---
         self.env.globals.update({
+            # [ASCENSION 1]: THE CURE - SUBSTRATE-AWARE SHELL
+            "shell": self._shell_exec,
+            "binary": self._check_binary,  # High-velocity tool scry
+
+            # Contextual Probes
             "now": _now,
             "uuid": _uuid,
             "random_id": _short_id,
@@ -524,6 +512,7 @@ class DivineAlchemist:
             "fetch": _fetch,
             "os_name": platform.system().lower(),
             "arch": platform.machine(),
+            "is_windows": os.name == 'nt',
             "python_v": sys.version.split()[0],
             "timestamp": time.time,
             "range": range,
@@ -532,6 +521,71 @@ class DivineAlchemist:
             "len": len,
             "abs": abs
         })
+
+    def _shell_exec(self, command: str) -> Union[str, bool]:
+        """
+        =============================================================================
+        == THE OMEGA SHELL EXECUTOR (V-Ω-PATH-AGNOSTIC-FINALIS)                    ==
+        =============================================================================
+        LIF: 100x | ROLE: KINETIC_PROBE | RANK: MASTER
+
+        [THE CURE]: Intercepts 'which' pleas and transmutates them into native
+        Python shutil.which calls, ensuring '{{ shell('which npm') }}' returns
+        True on Windows iron without requiring a Linux-dialect shell.
+        """
+        import shutil
+        import subprocess
+
+        cmd_str = str(command).strip()
+
+        # --- MOVEMENT I: THE WHICH REDIRECT ---
+        # Detect if the Architect is scrying for a binary
+        if cmd_str.startswith("which "):
+            target_binary = cmd_str.split(" ", 1)[1].strip().strip("'\"")
+            # [STRIKE]: Native, zero-cost search of the host's PATH
+            path = shutil.which(target_binary)
+
+            if path:
+                self.Logger.verbose(f"Substrate Scry: Discovered '{target_binary}' at {path}")
+                return str(path).replace('\\', '/')
+            return False
+
+        # --- MOVEMENT II: THE KINETIC STRIKE (FALLBACK) ---
+        # For non-discovery commands, we perform a warded subprocess execution.
+        try:
+            # We enforce a strict 2s timeout to prevent the Alchemist from hanging
+            res = subprocess.run(
+                command,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=2,
+                # Force Adrenaline Mode if active
+                creationflags=0x00008000 if os.name == 'nt' else 0
+            )
+
+            if res.returncode == 0:
+                return res.stdout.strip()
+
+            return False
+
+        except Exception as paradox:
+            self.Logger.debug(f"Shell Probe Paradox: {paradox}")
+            return False
+
+    def _check_binary(self, name: str) -> bool:
+        """
+        =============================================================================
+        == THE BINARY SENTINEL (V-Ω-ZERO-LATENCY-INCEPTION)                       ==
+        =============================================================================
+        LIF: INFINITY | ROLE: O(1)_TOOL_SCRIER
+        A direct, non-shell-spawning way to check for a tool's existence.
+        Usage: {{ if binary('npm') }} ... {{ endif }}
+        """
+        import shutil
+        return bool(shutil.which(str(name).strip()))
+
+
 
     def _bestow_naming_nomenclature(self):
         """

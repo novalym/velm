@@ -1,6 +1,3 @@
-# Path: src/velm/core/structure_sentinel/strategies/python_strategy/structural/engine.py
-# --------------------------------------------------------------------------------------
-
 from __future__ import annotations
 import time
 import threading
@@ -10,6 +7,7 @@ from typing import Optional, Set, TYPE_CHECKING, Dict, Any, Union, Final
 # --- THE DIVINE UPLINKS ---
 from ..base_faculty import BaseFaculty
 from ......utils.core_utils import atomic_write
+
 if TYPE_CHECKING:
     from ..contracts import SharedContext
     from ......core.kernel.transaction import GnosticTransaction
@@ -20,16 +18,16 @@ if TYPE_CHECKING:
 class StructuralFaculty(BaseFaculty):
     """
     =================================================================================
-    == THE SOVEREIGN OF PYTHONIC GEOMETRY (V-Ω-TOTALITY-V8000-TRANSACTION-SHARDED) ==
+    == THE SOVEREIGN OF PYTHONIC GEOMETRY (V-Ω-TOTALITY-V8000.1-MARKER-FORCE)      ==
     =================================================================================
     LIF: ∞ | ROLE: RECURSIVE_ANCESTRAL_ARCHITECT | RANK: OMEGA_SOVEREIGN
-    AUTH_CODE: Ω_STRUCTURAL_V8000_SHARDED_MEMORY_FINALIS
+    AUTH: Ω_STRUCTURAL_V8000_MARKER_FORCE_FINALIS
 
     The Divine Artisan that orchestrates the consecration of directories into
     Python packages. It is the **Mason of the Hive-Mind**, ensuring the fortress
     of code is structurally sound and perfectly navigable.
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS (V8000):
+    ### THE PANTHEON OF 13 LEGENDARY ASCENSIONS (V8000.1):
 
     1.  **Transactional Sharding (THE CURE):** It no longer uses a global cache.
         The `_init_cache` and `_py_typed_cache` are now sharded by Transaction ID.
@@ -55,8 +53,9 @@ class StructuralFaculty(BaseFaculty):
     6.  **The Namespace Sentinel (PEP 420):** Consults the `LayoutGeometer` to
         identify Namespace Packages, staying its hand to respect the Gnostic Void.
 
-    7.  **The Marker Forge:** Automatically inscribes `py.typed` markers in the
-        root package, signaling strict typing compliance (PEP 561).
+    7.  **The Marker Forge (ASCENDED):** Automatically inscribes `py.typed` markers.
+        Crucially, it now **forcefully materializes the parent directory** in the
+        Staging Realm if it is missing, preventing the 'Void Write' heresy.
 
     8.  **The Boundary Wall:** Enforces a hard stop at the `project_root`. It
         cannot be tricked into ascending beyond the sacred project boundary.
@@ -125,11 +124,11 @@ class StructuralFaculty(BaseFaculty):
             if self.geometer.is_abyss(current_ancestor):
                 break
 
-                # [FACULTY 6]: Namespace Sentinel
+            # [FACULTY 6]: Namespace Sentinel
             if not self.geometer.is_namespace_package(current_ancestor):
                 self._forge_init_if_needed(current_ancestor, context, gnosis)
 
-            # [FACULTY 7]: Typing Marker
+            # [FACULTY 7]: Typing Marker (THE CURE)
             if self.geometer.should_be_typed(current_ancestor, abs_project_root):
                 self._forge_marker(current_ancestor / "py.typed", context)
 
@@ -190,7 +189,11 @@ class StructuralFaculty(BaseFaculty):
         shard.add(path_key)
 
     def _forge_marker(self, path: Path, context: "SharedContext"):
-        """Inscribes the py.typed marker using Transaction-Sharded Memory."""
+        """
+        [ASCENSION 13]: FORCEFUL MARKER INSCRIPTION.
+        Ensures 'py.typed' is manifest. If the parent directory is missing in Staging,
+        it forcefully creates it to prevent the 'Void Write' heresy.
+        """
         path_key = str(path)
         shard = self._get_tx_shard(context, self._py_typed_shards)
         if path_key in shard: return
@@ -198,6 +201,16 @@ class StructuralFaculty(BaseFaculty):
         if not self._exists(path, context):
             content = self.scribe.forge_marker()
             self.logger.verbose(f"   -> Marking type sovereignty: {path.name}")
+
+            # [THE CURE]: Ensure parent exists in staging before writing
+            if context.transaction:
+                try:
+                    rel_parent = path.parent.relative_to(context.project_root)
+                    staging_parent = context.transaction.get_staging_path(rel_parent)
+                    staging_parent.mkdir(parents=True, exist_ok=True)
+                except Exception:
+                    pass
+
             self._write_sutured(path, content, context)
 
         shard.add(path_key)
@@ -244,4 +257,4 @@ class StructuralFaculty(BaseFaculty):
             self.logger.error(f"   -> Geometric Inscription Heresy for {path.name}: {e}")
 
     def __repr__(self) -> str:
-        return f"<Ω_STRUCTURAL_FACULTY status=RESONANT mode=TRANSACTION_SHARDED version=8000.0>"
+        return f"<Ω_STRUCTURAL_FACULTY status=RESONANT mode=TRANSACTION_SHARDED version=8000.1>"

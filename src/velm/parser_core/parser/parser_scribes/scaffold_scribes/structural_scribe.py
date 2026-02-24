@@ -1,6 +1,5 @@
-# Path: src/velm/parser_core/parser/parser_scribes/scaffold_scribes/structural_scribe.py
-# --------------------------------------------------------------------------------------
-
+# Path: parser_core/parser/parser_scribes/scaffold_scribes/structural_scribe.py
+# -----------------------------------------------------------------------------
 
 import re
 import shlex
@@ -32,71 +31,26 @@ Logger = Scribe("StructuralScribe")
 class StructuralScribe(ScaffoldBaseScribe):
     """
     =================================================================================
-    == THE GEOMETRIC CITADEL (V-Ω-TOTALITY-V10000-MATHEMATICALLY-CERTAIN)          ==
+    == THE GEOMETRIC CITADEL (V-Ω-TOTALITY-V15000-JINJA-AWARE-DIAMOND)             ==
     =================================================================================
     @gnosis:title The Geometric Citadel
     @gnosis:summary The final, unbreakable fortress of structural perception.
     @gnosis:LIF INFINITY
-    @gnosis:auth_code Ω_STRUCTURE_V10000_SOVEREIGN_NAME_FINALIS
+    @gnosis:auth_code Ω_STRUCTURE_V15000_JINJA_SAFE_FINALIS
 
     This artisan adjudicates the boundary between **Topography** (Sanctums/Scriptures)
     and **Matter** (Content). It has been Infinitely Ascended to enforce the **Law of
-    Pure Naming**, entirely ignoring the profane `raw_scripture` and relying solely
-    on the `vessel.name` purified by the Deconstructor.
+    Pure Naming**, while simultaneously understanding the **Duality of Templates**.
 
-    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
-
-    1.  **Pure Naming Sovereignty (THE CORE CURE):** The Scribe no longer gazes upon the
-        `raw_stripped` line to make structural decisions. It relies 100% on the `vessel.name`,
-        which has been stripped of comments, emojis, and box-drawing noise by the Deconstructor.
-    2.  **Comment-Immune Directory Adjudication:** Because it uses `vessel.name`, lines like
-        `apps/  # DEPLOYABLE APPS` are flawlessly perceived as `apps/`, instantly achieving
-        Directory Sovereignty.
-    3.  **The Colon-Cleansing Gaze:** Surgically strips trailing colons (`:`) from path
-        tokens *before* checking for file extensions, ensuring `config.py:` is recognized
-        as a File, not a Directory.
-    4.  **Absolute Extension Sovereignty (THE LAW):** If `vessel.name` ends with a known
-        matter extension (.py, .md, .json), it is LOCKED as a File, regardless of indentation.
-    5.  **Implicit Content Fusion:** If a Sovereign File is followed by indented text,
-        that text is consumed as Body Matter, not Children.
-    6.  **The Matter-Anchor Lock:** `::`, `<<`, `+=` sigils instantly force File identity,
-        bypassing all other heuristic checks.
-    7.  **The Anti-Matter Phalanx V10:** Re-calibrated to act as a *secondary* shield,
-        only evaluating `vessel.name` to detect code/markdown masquerading as paths.
-    8.  **The Trailing Slash Decree:** A trailing `/` on the purified name guarantees
-        Directory classification instantly.
-    9.  **Achronal Path Normalization:** Forces NFC Unicode and POSIX slash discipline on
-        the final path, obliterating Windows pathing heresies.
-    10. **The Bracket Balance Inquisitor:** Detects unclosed `{` or `(` in paths, flagging
-        them as Parser Leaks before they corrupt the disk.
-    11. **The Traversal Sentinel:** Pre-empts `../` directory escape attacks at the
-        parsing layer, guaranteeing virtual sandbox integrity.
-    12. **The Binary Oracle:** Scans content for `| base64` filters to toggle binary
-        storage modes automatically.
-    13. **The Permissions Alchemist:** Transmutes `%% executable` into `0o755`.
-    14. **The Ontological Consistency Guard:** Prevents a path from being defined as
-        a File on line 10 and a Directory on line 50.
-    15. **The Symlink Diviner:** Native handling of `->` definitions from the vessel.
-    16. **The Hash Anchor:** Native handling of `@hash(...)` integrity checks.
-    17. **The Gnostic Indentation Lookahead:** Flawless detection of implicit children
-        by peering into the future of the token stream.
-    18. **The Pure Quote Stripper:** Advanced regex to peel quotes while preserving
-        inner string integrity for complex filenames.
-    19. **Alchemical Variable Passthrough:** Safely handles `{{var}}/` directories
-        without premature rendering panics.
-    20. **The Seed Extractor:** Safely channels `<< path` requests for external content.
-    21. **The Mutation Operator Logic:** Applies `+=` (Append) vs `::` (Overwrite).
-    22. **The Semantic Selector Matrix:** Parses `@inside(...)` modifiers.
-    23. **The Index Healer:** Correctly passes the *current* line index to the BlockConsumer,
-        preventing the "First Line Vanishing" paradox.
-    24. **The Finality Vow:** Absolute mathematical guarantee of returning a valid
-        state index, eliminating infinite loop conditions.
+    It knows that `{{ project_slug }}` is a valid path component, even though `{` and `}`
+    are technically special characters. It employs a **Phantom Sanitizer** to validate
+    structure without choking on syntax.
     =================================================================================
     """
 
-    # [FACULTY 7]: THE ANTI-MATTER PHALANX V10
+    # [FACULTY 7]: THE ANTI-MATTER PHALANX V12 (JINJA-SAFE)
     # An omniscient regex array identifying code/markdown masquerading as paths.
-    # Evaluated against the purified name to avoid false positives.
+    # We carefully avoid flagging template syntax as invalid.
     ANTI_MATTER_SIGNATURES: Final[List[re.Pattern]] = [
         re.compile(r'^\s*#+\s+'),  # Markdown Headers
         re.compile(r'^\s*>\s+'),  # Markdown Quotes
@@ -125,7 +79,10 @@ class StructuralScribe(ScaffoldBaseScribe):
         re.compile(r'^\s*var\s+\w+\s*[;=]'),  # Legacy JS/C#/Go
         re.compile(r'.*=>\s*\{?'),  # Arrow Functions
         re.compile(r'^\s*#!\s*/'),  # Shebangs
-        re.compile(r'^\s*[\{\}\[\]\(\)]\s*$'),  # Stray Brackets
+        # [ASCENSION 26]: JINJA-AWARE BRACKET CHECK
+        # We only flag brackets if they look like JSON or Code Arrays, NOT if they look like templates.
+        # This regex avoids matching `{{...}}` but catches `{"key":...}` or `[item]`
+        re.compile(r'^\s*(?!{{).*[\{\}\[\]\(\)].*(?!}})\s*$'),
         re.compile(r'^\s*".*":\s*'),  # JSON Keys
         re.compile(r'^\s*\w+:\s*'),  # YAML Keys
     ]
@@ -145,6 +102,9 @@ class StructuralScribe(ScaffoldBaseScribe):
         r'(::|:?\s*=|\+=|\^=|~=|<<)\s*("""|\'\'\')'
     )
 
+    # [ASCENSION 26]: THE JINJA VARIABLE REPLACEMENT
+    JINJA_VAR_REGEX: Final[re.Pattern] = re.compile(r'\{\{.*?\}\}')
+
     def __init__(self, parser: 'ApotheosisParser'):
         """[THE RITE OF INCEPTION]"""
         super().__init__(parser, "StructuralScribe")
@@ -160,14 +120,14 @@ class StructuralScribe(ScaffoldBaseScribe):
     def conduct(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
         """
         =================================================================================
-        == THE SOVEREIGN CONDUCTOR (V-Ω-TOTALITY-V10000.0-SINGULARITY)                 ==
+        == THE SOVEREIGN CONDUCTOR (V-Ω-TOTALITY-V15000.0-SINGULARITY)                 ==
         =================================================================================
         LIF: ∞ | ROLE: TOPOGRAPHICAL_ADJUDICATOR | RANK: OMEGA_SUPREME
         """
         start_ts = time.perf_counter()
         line_num = vessel.line_num
 
-        # [FACULTY 24]: Safe Default Return (The Finality Vow)
+        # [FACULTY 26]: Safe Default Return (The Finality Vow)
         next_index = i + 1
         classification_reason = "Triage: Default Fallback"
 
@@ -230,8 +190,12 @@ class StructuralScribe(ScaffoldBaseScribe):
             # Also strip quotes for the extension test
             test_name = test_name.strip('"\'')
 
-            # 2. Adjudicate Attributes
-            has_file_extension = bool(self.FILE_EXTENSION_REGEX.search(test_name))
+            # [THE CURE]: PURIFY JINJA VARIABLES BEFORE HEURISTICS
+            # We temporarily replace {{ var }} with "variable" to check extensions/validity
+            # without the braces confusing the logic.
+            phantom_name = self.JINJA_VAR_REGEX.sub('variable', test_name)
+
+            has_file_extension = bool(self.FILE_EXTENSION_REGEX.search(phantom_name))
             has_explicit_dir_slash = pure_name.endswith(('/', '\\'))
             has_indented_disciples = self._is_followed_by_indented_children(lines, i)
 
@@ -358,14 +322,24 @@ class StructuralScribe(ScaffoldBaseScribe):
             delimiter = '"""'
 
         # Hand off to the Block Consumer
-        # [ASCENSION 23]: WE PASS 'i', NOT 'i+1'.
+        # [ASCENSION 24]: WE PASS 'i', NOT 'i+1'.
         content_lines, end_index = consumer.consume_explicit_block(i, vessel.raw_scripture)
         pure_content = dedent("\n".join(content_lines)).strip()
 
         # [FACULTY 18]: Quote Stripping & Backslash Healing
         if delimiter == '"""':
+            # [ASCENSION 3]: THE LITERAL ESCAPE SUTURE (THE CURE)
+            # We explicitly replace the literal escaped triple quote `\"\"\"` with the actual `"""`.
+            pure_content = pure_content.replace(r'\"\"\"', '"""')
+
+            # Now handle standard escaped quotes
             pure_content = re.sub(r'\\"{3}', '"""', pure_content)
+
         elif delimiter == "'''":
+            # [ASCENSION 3]: THE LITERAL ESCAPE SUTURE (SINGLE QUOTE VARIANT)
+            pure_content = pure_content.replace(r"\'\'\'", "'''")
+
+            # Now handle standard escaped quotes
             pure_content = re.sub(r"\\'{3}", "'''", pure_content)
 
         vessel.content = pure_content
@@ -443,12 +417,9 @@ class StructuralScribe(ScaffoldBaseScribe):
         """
         # [FACULTY 9]: Unicode & Slash Normalization
         name = unicodedata.normalize('NFC', vessel.name).replace('\\', '/')
-
-        # [FACULTY 18]: Quote Stripping from Path
         name = name.strip('"\'')
 
-        # [FACULTY 7]: NAME NORMALIZATION (THE CURE)
-        # Strip trailing colon if present (e.g. "README.md:" -> "README.md")
+        # [FACULTY 7]: NAME NORMALIZATION
         if name.endswith(':'):
             name = name[:-1]
 
@@ -461,35 +432,34 @@ class StructuralScribe(ScaffoldBaseScribe):
         if path_key in self._identity_registry:
             original_is_dir = self._identity_registry[path_key]
             if original_is_dir != vessel.is_dir:
-                # Collision!
                 if not original_is_dir and vessel.is_dir:
-                    # If we are trying to make a file a dir, and it was previously a file, we force file.
-                    # This happens when indented content is misinterpreted as children.
                     self.Logger.warn(f"Identity Collision: '{name}' forced to File state by precedence.")
                     vessel.is_dir = False
                     if name.endswith('/'): name = name[:-1]
                 else:
-                    # Critical Heresy: Directory becoming File or vice versa
                     self.parser._proclaim_heresy("ONTOLOGICAL_SCHISM", vessel,
                                                  details=f"Path '{name}' has conflicting identities.")
                     return
 
         self._identity_registry[path_key] = vessel.is_dir
 
-        # [FACULTY 13]: Permission Alchemy
         final_permissions = self.PERMISSION_MAP.get(vessel.permissions, vessel.permissions)
         if self.parser.pending_permissions and not final_permissions:
             final_permissions = self.parser.pending_permissions
             self.parser.pending_permissions = None
 
-        # [FACULTY 12]: Binary Divination
         is_binary = bool(vessel.content and ("| base64" in vessel.content or "| binary" in vessel.content))
 
-        # [FACULTY 10]: Bracket Check (Path Validity)
-        if re.search(r'[\[\]\{\}\(\)]', name) and not ('{{' in name):
-            self.Logger.warn(f"Path '{name}' contains brackets. Possible Parser Leak.")
+        # [ASCENSION 26]: JINJA-AWARE PATH VALIDATION (THE CURE)
+        # We perform safety checks on the PHANTOM NAME (stripped of variables).
+        # This prevents `{{ project_slug }}` from triggering "Illegal Char" errors.
+        phantom_name = self.JINJA_VAR_REGEX.sub('variable', name)
 
-        # [FACULTY 11]: Traversal Guard
+        # Check for brackets in the phantom name only.
+        # This allows {{ var }} but flags `[profane_dir]`
+        if re.search(r'[\[\]\(\)]', phantom_name):
+            self.Logger.warn(f"Path '{name}' contains brackets outside of Jinja variables.")
+
         if '../' in name or '..\\' in name:
             self.parser._proclaim_heresy("TRAVERSAL_HERESY", vessel, details="Parent directory traversal prohibited.")
             return
@@ -521,4 +491,4 @@ class StructuralScribe(ScaffoldBaseScribe):
         self.parser.raw_items.append(item)
 
     def __repr__(self) -> str:
-        return f"<Ω_STRUCTURAL_SCRIBE_V10000 status=OMNISCIENT version=10000.0-HEALED>"
+        return f"<Ω_STRUCTURAL_SCRIBE_V15000 status=OMNISCIENT version=15000.1-JINJA-SAFE>"

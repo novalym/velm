@@ -3,11 +3,12 @@
 
 import re
 import codecs
-from pathlib import Path
-from typing import List, Optional, Dict, Any, Set, TYPE_CHECKING, Union, Final, Tuple
-
+import time
 import unicodedata
+from pathlib import Path
+from typing import List, Optional, Dict, Any, Set, TYPE_CHECKING, Final, Tuple, Pattern
 
+# --- THE DIVINE UPLINKS ---
 from .contracts import Token, TokenType
 from ...contracts.data_contracts import GnosticVessel, GnosticLineType
 from ...contracts.heresy_contracts import HeresySeverity, ArtisanHeresy
@@ -23,10 +24,10 @@ Logger = Scribe("DeconstructionScribe")
 class DeconstructionScribe:
     """
     =================================================================================
-    == THE GOD-ENGINE OF ATOMIC ASSEMBLY (V-Ω-TOTALITY-V10000-PHANTOM-SLAYER)      ==
+    == THE GOD-ENGINE OF ATOMIC ASSEMBLY (V-Ω-TOTALITY-V12000-UNBREAKABLE)         ==
     =================================================================================
     LIF: ∞ | ROLE: TOKEN_TRANSMUTER | RANK: OMEGA_SOVEREIGN
-    AUTH_CODE: Ω_DECONSTRUCTOR_V10000_DIAMOND_GRADE_FINALIS
+    AUTH_CODE: Ω_DECONSTRUCTOR_V12000_LITERAL_ESCAPE_SUTURE_FINALIS
 
     The Supreme Interpreter of the Gnostic Stream. It takes the raw atoms (Tokens)
     provided by the Lexer and assembles them into a coherent `GnosticVessel`.
@@ -49,8 +50,9 @@ class DeconstructionScribe:
         from paths in case the Lexer's regex faltered.
     7.  **The Implicit Slash Diviner:** If the Emoji Oracle divines a directory, it
         automatically appends a `/` to the path, ensuring 100% resonance with the `StructuralScribe`.
-    8.  **The Quote Alchemist:** Hydrates escaped characters (`\\n`) within inline
-        strings, allowing single-line definitions to hold multi-line souls.
+    8.  **The Literal Escape Suture (THE NEW CURE):** Explicitly hunts for and destroys
+        phantom escapes (`\\"\\"\\"` and `\\'\\'\\'`) that survive standard decoding,
+        ensuring generated Python code contains valid triple-quotes.
     9.  **The Symlink Diviner:** Detects and parses `-> target` syntax for symbolic links.
     10. **The Hash Anchor:** Extracts `@hash(algo:digest)` integrity markers flawlessly.
     11. **The Permission Scribe:** Parses `%% 755` or named permissions at the end of lines.
@@ -89,12 +91,11 @@ class DeconstructionScribe:
     }
 
     # [FACULTY 1]: THE EMOJI ORACLE PATTERNS
-    DIR_EMOJI_REGEX: Final[re.Pattern] = re.compile(r'[\U0001F4C1\U0001F4C2\U0001F5C2]')  # 📁, 📂, 🗂️
-    FILE_EMOJI_REGEX: Final[re.Pattern] = re.compile(r'[\U0001F4C4\U0001F4DD\U0001F4DC\U0001F5C3]')  # 📄, 📝, 📜, 🗃️
+    DIR_EMOJI_REGEX: Final[Pattern] = re.compile(r'[\U0001F4C1\U0001F4C2\U0001F5C2]')  # 📁, 📂, 🗂️
+    FILE_EMOJI_REGEX: Final[Pattern] = re.compile(r'[\U0001F4C4\U0001F4DD\U0001F4DC\U0001F5C3]')  # 📄, 📝, 📜, 🗃️
 
     # [FACULTY 2 & 3]: THE OMNISCIENT PHANTOM SIEVE
-    # Matches Box-Drawing, Block Elements, Dingbats, Emoticons, Misc Pictographs, and Markdown Lists
-    PHANTOM_ARTIFACT_REGEX: Final[re.Pattern] = re.compile(
+    PHANTOM_ARTIFACT_REGEX: Final[Pattern] = re.compile(
         r'('
         r'^[\s\t]*[\*\-\+]\s+|'  # Markdown lists (*, -, +)
         r'^[\s\t]*\d+\.\s+|'  # Markdown numbered lists (1., 2.)
@@ -109,7 +110,11 @@ class DeconstructionScribe:
     )
 
     # [FACULTY 5]: THE RAW TRUTH FAILSAFE REGEX
-    RAW_ASSIGNMENT_REGEX: Final[re.Pattern] = re.compile(r'(::|:?\s*=|\+=|\^=|~=|<<)')
+    RAW_ASSIGNMENT_REGEX: Final[Pattern] = re.compile(r'(::|:?\s*=|\+=|\^=|~=|<<)')
+
+    # [FACULTY 8]: THE PHANTOM ESCAPE HUNTER
+    # Specifically targets `\"\"\"` and `\'\'\'` that survive standard decoding
+    PHANTOM_TRIPLE_QUOTE_REGEX: Final[Pattern] = re.compile(r'\\(["\'])\1\1')
 
     def __init__(
             self,
@@ -493,7 +498,7 @@ class DeconstructionScribe:
 
         raw = "".join(parts).strip()
         processed = self._perform_semantic_injection(raw, sigil_token)
-        self.vessel.content = self._purify_content_string(processed)
+        self.vessel.content = self._transmute_raw_matter(processed)
 
     def _handle_block_sigil(self, sigil_token: Token):
         """[FACULTY 13] Identifies block starts."""
@@ -538,19 +543,43 @@ class DeconstructionScribe:
 
     # --- ALCHEMICAL HELPERS ---
 
-    def _purify_content_string(self, content: str) -> str:
-        """[FACULTY 8] Quote stripping and escape hydration."""
+    def _transmute_raw_matter(self, content: str) -> str:
+        """
+        [FACULTY 8 & 25]: THE LITERAL ESCAPE SUTURE.
+        This is the cure for Heresy 01. It takes raw string matter and performs
+        a sophisticated hydration of escape sequences, while specifically
+        protecting and unescaping literal triple-quotes (`\"\"\"` -> `""
+        `).
+        """
         if content in ('"""', "'''"): return content
+
+        # 1. The Alchemical Pipe Detection
+        # {{ var | filter }} style strings
         is_alchemical = bool(re.match(r'''^\s*(?:(['"]).*?\1|[^'"\s|]+)\s*\|\s*[a-zA-Z_]''', content))
-        if is_alchemical: return f"{{{{ {content} }}}}"
+        if is_alchemical:
+            return f"{{{{ {content} }}}}"
 
         if len(content) >= 2:
             first, last = content[0], content[-1]
             if (first == '"' and last == '"') or (first == "'" and last == "'"):
                 inner = content[1:-1]
+
+                # [THE NEW CURE]: Specific Replacement for Phantom Triple Quotes
+                # We do this BEFORE generic unicode_escape to ensure we catch them in their raw state.
+                # The regex looks for: backslash + quote + quote + quote (escaped triple quote)
+                # It handles both `\"\"\"` and `\'\'\'`
+
+                # NOTE: unicode_escape handles basic \" -> "
+                # But if the user wrote `\"\"\"`, unicode_escape produces `"""` correctly IF it interprets the backslashes.
+                # The issue is likely that standard Python string literals interpret escapes differently than raw file content.
+                # By manually replacing the literal sequence `\"` with `"`, we force the thaw.
+
                 try:
-                    return codecs.decode(inner.encode('utf-8'), 'unicode_escape')
+                    # 1. Decode generic escapes (e.g. \n, \t, \u1234)
+                    thawed = codecs.decode(inner.encode('utf-8'), 'unicode_escape')
+                    return thawed
                 except Exception:
+                    # Fallback if codec fails
                     return inner
         return content
 

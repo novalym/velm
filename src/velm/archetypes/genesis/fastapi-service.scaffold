@@ -155,7 +155,7 @@ DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/{{ package_n
 
 # --- SECURITY STRATUM ---
 # Use 'velm tool hash' or 'openssl rand -base64 32'
-SECRET_KEY={{ secret('hex', 32) }}
+SECRET_KEY="{{ random_id(32) }}"
 ALGORITHM="HS256"
 """
 

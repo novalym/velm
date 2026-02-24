@@ -1,7 +1,6 @@
 # Path: src/velm/parser_core/lexer_core/inquisitor.py
 # ---------------------------------------------------
-
-
+import os
 import re
 import traceback
 from pathlib import Path
@@ -189,15 +188,83 @@ class GnosticLineInquisitor:
             return self.vessel
 
     def _conduct_scaffold_rite(self):
-        """The mind of the Gnostic Parser, utilizing the declarative Grimoire."""
+        """
+        =============================================================================
+        == THE SUPREME CONDUCTOR: TOTALITY (V-Ω-TOTALITY-V150000.0-NAKED-WARDED)   ==
+        =============================================================================
+        LIF: ∞ | ROLE: TOPOLOGICAL_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_CONDUCT_SCAFFOLD_RITE_V150K_MULTIVERSAL_RECURSION_FINALIS
+
+        [ARCHITECTURAL CONSTITUTION]
+        1.  **The Naked Directive Ward (ASCENSION 13):** Intercepts '@' directives
+            (import, include, from, if) at nanosecond zero. This preserves the
+            unquoted purity of multiversal coordinates (e.g., core.laws.security),
+            annihilating the "Word-Breakdown Heresy" where the Lexer would otherwise
+            shatter the path into disconnected atoms.
+        2.  **Apophatic Identity Preservation:** Directives are promoted to
+            GnosticLineType.LOGIC instantly, shielding them from the "Parser Leak"
+            logic that misidentifies unquoted strings as File Paths (FORM).
+        3.  **Lexical Suture Integration:** Merges high-fidelity gnosis from the
+            DeconstructionScribe, including Symlinks, Trait DNA, and Merkle hashes.
+        4.  **Ontological Triage:** Walks the PERCEPTION_GRIMOIRE to classify
+            Comments, Variables, and Edicts with O(1) deterministic speed.
+        5.  **Trait & Logic Promotion:** Automatically elevates TRAIT_DEF, TRAIT_USE,
+            and RECURSIVE_IMPORT lines to the shared registry to enable
+            cross-script resonance and fractal project growth.
+        6.  **NoneType Sarcophagus:** Hard-wards against empty token streams,
+            transmuting voids into structured VOID line types to preserve
+            the integrity of the Gnostic Tree.
+        =============================================================================
+        """
+        # --- STRATUM 0: THE SENSORY PROBE ---
+        # We capture the line's raw soul and its stripped form for triage.
+        raw_line_content = self.raw_line.strip()
         l_stripped_line = self.raw_line.lstrip()
 
-        # 1. The Gnostic Triage (The Filter of Intent)
-        for detector, line_type, name in self.PERCEPTION_GRIMOIRE:
+        # =========================================================================
+        # == MOVEMENT I: [THE CURE] - THE NAKED DIRECTIVE WARD (ASCENSION 13)    ==
+        # =========================================================================
+        # [THE MANIFESTO]: Directives starting with '@' are the "Commandments of
+        # Composition." Because they often carry naked multiversal coordinates
+        # (e.g., @from std.sec import auth_algo), we must stay the hand of the
+        # Tokenizer. We capture the arguments as a singular, warded pulse.
+        if l_stripped_line.startswith('@'):
+            # 1. Divine the Directive Verb (import, include, from, if, etc.)
+            # We use an non-greedy scry to separate the @verb from its Arguments.
+            match = re.match(r'^@(?P<verb>\w+)\s*(?P<args>.*)', l_stripped_line)
+            if match:
+                verb = match.group('verb').lower()
+                naked_args = match.group('args').strip()
+
+                # 2. Consecrate the Vessel as a LOGIC node
+                # This promotion ensures the Hierophant treats the arguments as
+                # a Coordinate/Condition rather than a physical file name.
+                self.vessel.line_type = GnosticLineType.LOGIC
+                self.vessel.directive_type = verb
+
+                # 3. Geometric Suture
+                # We store the naked arguments in the 'name' slot. This is the fix
+                # for the 'word word word' breakdown, keeping 'std.math.pi' whole.
+                self.vessel.name = naked_args
+
+                # [DIAGNOSTIC]: Proclaim the Ward resonance
+                if os.environ.get("SCAFFOLD_DEBUG_BOOT") == "1":
+                    self.Logger.verbose(f"L{self.line_num}: Naked Ward engaged for @{verb} -> '{naked_args}'")
+
+                # EXIT: The Intent is warded. The DirectiveScribe will realize the logic.
+                return
+
+        # =========================================================================
+        # == MOVEMENT II: THE GNOSTIC TRIAGE (THE CENSUS)                        ==
+        # =========================================================================
+        # For simple strata (Comments, Variables, Edicts), we bypass the heavy
+        # Lexer. We walk the Declarative Grimoire with O(1) efficiency.
+        for detector, line_type, semantic_label in self.PERCEPTION_GRIMOIRE:
             if detector(l_stripped_line):
                 self.vessel.line_type = line_type
 
-                # For simple types, we set the name to the raw line immediately
+                # [ASCENSION]: Immediate Identity Bestowal
+                # For high-status simple types, the raw scripture is the name.
                 if line_type in (
                         GnosticLineType.COMMENT,
                         GnosticLineType.JINJA_CONSTRUCT,
@@ -209,35 +276,47 @@ class GnosticLineInquisitor:
                         GnosticLineType.TRAIT_USE,
                         GnosticLineType.ON_HERESY,
                         GnosticLineType.ON_UNDO,
-                        GnosticLineType.VOW  # <--- The Suture: Catches >> commands here
+                        GnosticLineType.VOW
                 ):
-                    self.vessel.name = self.raw_line.strip()
+                    self.vessel.name = raw_line_content
 
+                    # Specialized Suture for Alchemical Logic (Jinja2)
                     if line_type == GnosticLineType.JINJA_CONSTRUCT:
                         self.vessel.is_jinja_construct = True
-                        self.vessel.jinja_expression = self.raw_line.strip()
+                        self.vessel.jinja_expression = raw_line_content
 
-                    # [THE FIX]: If it's a VOW/ACTION/STATE, we ensure it is handled correctly.
-                    # In 'scaffold' grammar, these are technically orphans if not in blocks,
-                    # but identifying them as VOW prevents them from becoming FORM (Files).
+                    # Specialized Suture for Kinetic Vows (Symphony-in-Scaffold)
+                    if line_type == GnosticLineType.VOW:
+                        # Ensures '>>' edicts are warded against becoming file paths
+                        pass
 
+                # EXIT: Triage successful. The line's soul is classified.
                 return
 
-        # 2. Default to FORM (Structure)
-        # This is the dangerous fall-through. If the line wasn't caught above,
-        # it is assumed to be a file path. The Lexical Suture in the Grimoire (Step 9)
-        # ensures that '>>' lines never reach this point.
+        # =========================================================================
+        # == MOVEMENT III: THE DEEP INQUEST (LEXICAL ATOMIZATION)                ==
+        # =========================================================================
+        # If the line escaped the triage, it is definitively complex FORM (Matter).
+        # We summon the Lexer to shatter the line into its constituent atoms.
         self.vessel.line_type = GnosticLineType.FORM
 
-        # 3. Summon the Lexer for Deep Analysis
+        from ..lexer_core.lexer import GnosticLexer
+        from ..lexer_core.deconstructor import DeconstructionScribe
+
         lexer = GnosticLexer(grammar_key="scaffold")
         tokens = lexer.tokenize(self.raw_line)
 
+        # [ASCENSION]: THE NONE-TYPE SARCOPHAGUS
+        # If the Lexer returns a void, the line is spiritually empty.
         if not tokens:
             self.vessel.line_type = GnosticLineType.VOID
             return
 
-        # 4. Summon the Deconstructor
+        # =========================================================================
+        # == MOVEMENT IV: THE RITE OF DECONSTRUCTION (ASSEMBLY)                  ==
+        # =========================================================================
+        # We summon the DeconstructionScribe to assemble the atoms into a Vessel.
+        # This is where backslashes are thawed and complex paths are purified.
         scribe = DeconstructionScribe(
             raw_scripture=self.raw_line,
             line_num=self.line_num,
@@ -249,7 +328,11 @@ class GnosticLineInquisitor:
         )
         deconstructed_vessel = scribe.inquire()
 
-        # 5. Merge Deconstructed Gnosis
+        # =========================================================================
+        # == MOVEMENT V: THE GNOSTIC SUTURE (MERGE)                              ==
+        # =========================================================================
+        # We graft the deconstructed gnosis onto our primary vessel,
+        # completing the transformation from Token Stream to Unified Soul.
         self.vessel.name = deconstructed_vessel.name
         self.vessel.path = deconstructed_vessel.path
         self.vessel.is_dir = deconstructed_vessel.is_dir
@@ -260,7 +343,8 @@ class GnosticLineInquisitor:
         self.vessel.mutation_op = deconstructed_vessel.mutation_op
         self.vessel.semantic_selector = deconstructed_vessel.semantic_selector
 
-        # [NEW] Expansion V-Ω Fields
+        # [V-Ω EXPANSION]: RE-INCEPTING ADVANCED GEOMETRY
+        # We ensure that Symlinks, Hashes, and Traits are manifest for the AST Weaver.
         self.vessel.is_symlink = deconstructed_vessel.is_symlink
         self.vessel.symlink_target = deconstructed_vessel.symlink_target
         self.vessel.expected_hash = deconstructed_vessel.expected_hash
@@ -268,9 +352,17 @@ class GnosticLineInquisitor:
         self.vessel.trait_path = deconstructed_vessel.trait_path
         self.vessel.trait_args = deconstructed_vessel.trait_args
 
-        # 6. Type Promotion (Traits)
+        # =========================================================================
+        # == MOVEMENT VI: TYPE PROMOTION (FINAL ADJUDICATION)                    ==
+        # =========================================================================
+        # [THE CURE]: Even after deep deconstruction, we ensure the 'Trait'
+        # classification takes precedence over 'Form', enabling the Multiversal
+        # trait registry to capture the definition correctly.
         if deconstructed_vessel.line_type in (GnosticLineType.TRAIT_DEF, GnosticLineType.TRAIT_USE):
             self.vessel.line_type = deconstructed_vessel.line_type
+
+        # The Rite of Perception is concluded. The Matter is ready for the Hierarchy.
+
 
     def _conduct_symphony_rite(self):
         """The High Inquisitor of Will, now with the Anointed Soul."""

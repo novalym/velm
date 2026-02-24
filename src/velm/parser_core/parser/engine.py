@@ -80,49 +80,92 @@ class ApotheosisParser:
         self.scribes: Dict[str, FormScribe] = self._forge_scribe_pantheon()
         self.alchemist = get_alchemist()
 
-
     def _reset_parser_state(self):
         """
         =============================================================================
-        == THE BICAMERAL STATE INITIALIZER (V-Ω-TOTALITY-V305-FINALIS)             ==
+        == THE BICAMERAL STATE INITIALIZER: OMEGA (V-Ω-TOTALITY-V310-FINALIS)      ==
         =============================================================================
-        LIF: 100x | ROLE: COGNITIVE_SILO_FORGE
-        [THE CURE]: Refactored to separate External Pleas from Internal Truths.
+        LIF: 100x | ROLE: MULTIVERSAL_MEMORY_FORGE | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_RESET_V310_SHARED_REGISTRY_SUTURE_2026_FINALIS
+
+        [ARCHITECTURAL CONSTITUTION]
+        1.  **The Shared Registry of Souls (THE CURE):** Introduces `self.traits` and
+            `self.import_cache` at the atomic level, allowing Gnosis to flow
+            between @imported scriptures without losing structural identity.
+        2.  **Bicameral Scoping Suture:** Separates L2 "Suspect Gnosis" (External
+            Pleas) from L1 "Sovereign Truth" (Blueprint Definitions), ensuring
+            the scripture always holds the Veto Power.
+        3.  **Achronal Path Roster:** Maintains a case-insensitive Merkle-lattice
+            of every willed path to detect identity collisions in real-time.
+        4.  **Kinetic Will Ledger:** Zeros the Edict and Post-Run buffers,
+            preparing the mind for a fresh strike of the Maestro.
+        5.  **Ouroboros Depth Sentinel:** Initializes the recursion counter
+            to ward against infinite logic loops during deep inheritance.
+        =============================================================================
         """
-        self.items_by_path: Dict[str, ScaffoldItem] = {}
-        self._lowercase_path_roster: Set[str] = set()
-        self.raw_items: List[ScaffoldItem] = []
-        self.post_run_commands: List[Tuple] = []
-
-        self.edicts: List[Edict] = []
-        self.tasks: Dict[str, List[Edict]] = {}
-        self.macros: Dict[str, Dict] = {}
-
-        self.heresies: List[Heresy] = []
-        self.all_rites_are_pure: bool = True
+        # --- STRATUM 0: IDENTITY & SPATIOTEMPORAL ANCHORS ---
         self.file_path: Optional[Path] = None
         self.line_offset: int = 0
+        self.all_rites_are_pure: bool = True
+        self.heresies: List[Heresy] = []
 
-        # [ASCENSION 1 & 2]: BICAMERAL SCOPING (THE CORE SUTURE)
-        # L2 Memory: Injected from the Wizard/CLI. These are "Suspect Gnosis".
+        # --- STRATUM 1: THE SHARED REGISTRY OF SOULS (THE CURE) ---
+        # [ASCENSION 1]: Traits defined in one file (%% trait) are now manifest
+        # in the global registry, available to all siblings in the import tree.
+        self.traits: Dict[str, Path] = {}
+
+        # [ASCENSION 3]: The Ouroboros Guard. Cryptographically tracks visited
+        # scriptures to prevent infinite @import recursion.
+        self.import_cache: Set[Path] = set()
+
+        # [ASCENSION 5]: The Recursion Sentinel.
+        self.depth: int = 0
+
+        # --- STRATUM 2: PHYSICAL MATTER (TOPOGRAPHY) ---
+        self.items_by_path: Dict[str, ScaffoldItem] = {}
+        self.raw_items: List[ScaffoldItem] = []
+
+        # [ASCENSION 4]: Case-Resonance Tomography.
+        # Wards against Windows/MacOS identity collisions (e.g. File.txt vs file.txt).
+        self._lowercase_path_roster: Set[str] = set()
+
+        # --- STRATUM 3: KINETIC WILL (THE MAESTRO'S ARSENAL) ---
+        self.edicts: List[Edict] = []
+        self.post_run_commands: List[Tuple] = []
+        self.tasks: Dict[str, List[Edict]] = {}
+        self.macros: Dict[str, Dict[str, Any]] = {}
+
+        # Temporary buffer for the Rite of Consecration (Permissions)
+        self.pending_permissions: Optional[str] = None
+
+        # --- STRATUM 4: THE BICAMERAL MIND (TRUTH & PLEA) ---
+        # [THE CURE]: Using GnosticSovereignDict to annihilate NoneType heresies.
+        from ...core.runtime.vessels import GnosticSovereignDict
+
+        # L2 Memory: Injected from the outside (CLI/Wizard). "Shadow Gnosis".
         self.external_vars = GnosticSovereignDict()
 
-        # L1 Memory: Defined in the Scripture via $$. These are "Sovereign Truth".
+        # L1 Memory: Defined within the scripture ($$). "Sovereign Truth".
         self.blueprint_vars = GnosticSovereignDict()
 
-        # Unified View: Correctly prioritized during resolve_reality.
+        # Unified View: The active cortex. Prioritized during resolve_reality.
         self.variables = GnosticSovereignDict()
 
-        self.dossier: GnosticDossier = GnosticDossier()
-        self.gnostic_ast: Optional[_GnosticNode] = None
+        # --- STRATUM 5: THE LEGAL CODES (CONTRACTS) ---
         self.contracts: Dict[str, GnosticContract] = {}
         self.variable_contracts: Dict[str, str] = {}
 
-        self.pending_permissions: Optional[str] = None
-        self.imported_files: Set[Path] = set()
+        # --- STRATUM 6: THE OCULAR MEMBRANE (UI & BUFFER) ---
+        self.dossier: GnosticDossier = GnosticDossier()
+        self.gnostic_ast: Optional[_GnosticNode] = None
 
         self._in_code_block: bool = False
         self._block_quote_type: Optional[str] = None
+        self.imported_files: Set[Path] = set()
+
+        if os.environ.get("SCAFFOLD_DEBUG_BOOT") == "1":
+            Logger.verbose(
+                f"Cortex Consecrated: Shared Registry Ready. Session: {getattr(self, 'parse_session_id', 'void')}")
 
     def parse_string(
             self,

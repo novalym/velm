@@ -1,12 +1,21 @@
-# Path: src/velm/core/kernel/transaction/engine.py
-# --------------------------------------------------------------------------------------
+# Path: src/velm/core/kernel/transaction/facade.py
+# ------------------------------------------------
+
 from __future__ import annotations
 
+import gc
+import os
 import time
 import uuid
 import threading
+import hashlib
+import weakref
+import shutil
+import traceback
+from enum import Enum, auto
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple, Union, Final, Set
+from collections import deque
 
 # --- THE DIVINE UPLINKS ---
 from .locking import GnosticLock
@@ -14,69 +23,57 @@ from .staging import StagingManager
 from .committer import GnosticCommitter
 from .rollback import RollbackChronomancer
 from .chronicle_bridge import ChronicleBridge
-from .contracts import TransactionalGnosis
-from ....contracts.data_contracts import GnosticWriteResult
+from .contracts import TransactionalGnosis, SubstrateDNA, RiteCategory
+from .volume_shifter.contracts import VolumeState
+from ....contracts.data_contracts import GnosticWriteResult, InscriptionAction
 from ....contracts.heresy_contracts import Heresy, ArtisanHeresy, HeresySeverity
 from ....logger import Scribe
 
-# [ASCENSION 1]: NANOSECOND PRECISION
-# We anchor the timeline at the precise moment of inception for sub-millisecond forensics.
 _EPOCH_START = time.perf_counter_ns()
 
 Logger = Scribe("GnosticTransaction")
 
 
+class TransactionState(Enum):
+    """
+    =============================================================================
+    == THE QUANTUM STATE AUTOMATON (V-Ω-LIFECYCLE-STATES)                      ==
+    =============================================================================
+    Defines the absolute, unbreakable stages of the transaction's existence.
+    """
+    VOID = auto()  # Unmanifest
+    INCEPTED = auto()  # Lock acquired, ready to stage
+    STAGING = auto()  # Accumulating matter in the ephemeral realm
+    LUSTRATING = auto()  # Flushing to the Shadow Volume
+    RESONANT = auto()  # Matter is fully prepared for the flip
+    FLIPPING = auto()  # The critical microsecond of reality swapping
+    SEALED = auto()  # Triumph. Chronicle written.
+    LIMINAL = auto()  # Suspended state attempting auto-recovery
+    FRACTURED = auto()  # Rolled back.
+
+
 class GnosticTransaction:
     """
     =================================================================================
-    == THE QUANTUM CRUCIBLE: TOTALITY (V-Ω-TOTALITY-V1000-ITERATIVE-MANIFEST)      ==
+    == THE QUANTUM CRUCIBLE: OMEGA POINT (V-Ω-TOTALITY-V3000-RE-OPENING-RITE)      ==
     =================================================================================
-    LIF: ∞ | ROLE: REALITY_STABILIZER | RANK: OMEGA_SUPREME
-    AUTH: Ω_TX_V1000_ITERATIVE_LUSTRATION_2026_FINALIS
+    LIF: ∞ | ROLE: REALITY_STABILIZER | RANK: OMEGA_SINGULARITY
 
-    The supreme orchestrator of physical and logical consistency. This vessel guards
-    the threshold between the Ephemeral Realm (Staging) and the Mortal Realm (Disk).
-    It has been ascended to support **Iterative Manifestation**, allowing structural
-    matter forged in the "Twilight of the Rite" to be transactionally committed.
+    The sovereign engine of Spacetime and Causality. It provides true Database-Grade
+    ACID compliance for the filesystem, incorporating Event-Sourced Ledgering,
+    Predictive Liminal Healing, and Dynamic Barycentric Re-Anchoring.
 
-    ### THE PANTHEON OF 12+ LEGENDARY ASCENSIONS:
-
-    1.  **Iterative Manifestation (THE CURE):** Replaces the binary 'materialized' guard
-        with a Differential Lustration engine. It tracks the Delta between Staged
-        and Manifested matter, allowing infinite commit passes as logic evolves.
-    2.  **Sovereign Identity Suture:** Each transaction is forged with a UUIDv7-style
-        coordinate, linking physical inodes to the Gnostic timeline with nanosecond
-        precision.
-    3.  **Bicameral Memory Lattice:** Maintains a dual-pass 'Write Dossier'. It scries
-        the future state to heal the dependency graph BEFORE the first byte hits
-        the physical substrate.
-    4.  **Apeiron Concurrency Shield:** Implements a re-entrant, hardware-aware locking
-        mechanism to prevent multi-threaded reality collisions.
-    5.  **Forensic Chronomancer Link:** In the event of a fracture, it forges a
-        bit-perfect 'Black Box' dump of the staging area, allowing for perfect
-        post-mortem reconstruction of the paradox.
-    6.  **Simulation Immunity Ward:** The 'Simulate' vow is absolute. In this state,
-        the Committer is hermetically sealed; it can scry the future but never
-        profane the disk.
-    7.  **Isomorphic Path Normalization:** Every path entering the Crucible is
-        instantly anchored to the Axis Mundi (project_root) and POSIX-normalized.
-    8.  **Atomic Rollback Handshake:** Guarantees that if one shard fails to manifest,
-        every preceding shard is returned to the void or its previous state instantly.
-    9.  **Gnostic Context Hot-Swapping:** Allows the Architect to inject new
-        variables mid-transaction, which are instantly radiated to all staged files.
-    10. **The Luminous Telemetry Multicast:** Radiates transactional heartbeat pulses
-        directly to the Ocular HUD via the Akashic silver-cord.
-    11. **Metabolic Heat Tomography:** Monitors disk I/O pressure and injects
-        micro-yields to the host OS during heavy materialization phases.
-    12. **The Finality Vow:** A mathematical guarantee that after `__exit__`,
-        reality is either 100% manifest or 100% restored. There is no middle ground.
+    [ASCENSION CURE]: Implements the "Re-Opening Rite". If late-stage matter (like
+    the finalized scaffold.scaffold blueprint) arrives after the primary Lustration,
+    the Crucible seamlessly unseals from RESONANT back to STAGING, enabling infinite
+    multi-pass materialization.
     =================================================================================
     """
 
-    # [ASCENSION 5]: THE METABOLIC CONSTANTS
-    # Limits to prevent the "Ouroboros Attack" (Infinite self-triggering writes)
+    # [PHYSICS CONSTANTS]
     MAX_LUSTRATION_PASSES: Final[int] = 5
     IO_THROTTLE_THRESHOLD_MS: Final[float] = 100.0
+    LIMINAL_HEALING_RETRIES: Final[int] = 2
 
     def __init__(
             self,
@@ -88,47 +85,74 @@ class GnosticTransaction:
             simulate: bool = False,
             **kwargs: Any
     ):
-        """[THE RITE OF CRUCIBLE INCEPTION]"""
+        """
+        =============================================================================
+        == THE RITE OF INCEPTION (V-Ω-TOTALITY-V2000-SUTURED)                      ==
+        =============================================================================
+        LIF: ∞ | ROLE: TRANSACTION_CONSTRUCTOR | RANK: OMEGA_SUPREME
+        """
         self.logger = Logger
-        self.project_root = project_root.resolve()
+
+        self._state = TransactionState.VOID
+        self._state_lock = threading.RLock()
+
+        self._flip_conducted = False
+        self._manifest_count = 0
+        self._committed_paths: Set[Path] = set()
+        self._dossier_enriched = False
+
+        # --- I. THE GEOMETRIC ANCHORS ---
+        self.base_path = project_root.resolve()
+        self.project_root = self.base_path
+
         self.rite_name = rite_name
         self.blueprint_path = blueprint_path or Path(f"manual/{rite_name.replace(' ', '_')}")
 
-        # --- I. SOVEREIGN IDENTITY ---
+        # --- II. IDENTITY & CAUSALITY ---
         self.tx_id = uuid.uuid4().hex
+        self.trace_id = (
+                kwargs.get('trace_id') or
+                os.environ.get("SCAFFOLD_TRACE_ID") or
+                f"tr-{self.tx_id[:8].upper()}"
+        )
         self.use_lock = use_lock
         self.simulate = simulate
         self._boot_ns = time.perf_counter_ns()
 
-        # --- II. VITALITY FLAGS ---
-        self.active = False
-        self._manifest_count = 0  # Number of times materialize() has successfully fired
-        self._committed_paths: Set[Path] = set()  # Tracks what has already crossed the threshold
-        self._dossier_enriched = False
+        self._merkle_accumulator = hashlib.sha256(self.tx_id.encode())
+        self._event_stream: deque = deque()
 
-        # --- III. ORGAN MATERIALIZATION ---
+        # --- III. GNOSTIC MEMORY LATTICE ---
+        self.write_dossier: Dict[Path, GnosticWriteResult] = {}
+        self.edicts_executed: List[str] = []
+        self.heresies_perceived: List[Heresy] = []
 
-        # 1. THE STAGING REALM (The Shadow Sanctum)
-        self.staging_manager = StagingManager(self.project_root, self.tx_id)
+        from ...runtime.vessels import GnosticSovereignDict
+        self.context = GnosticSovereignDict(kwargs.get('context', {}))
 
-        # 2. THE APEIRON LOCK (Spacetime Guard)
+        # --- IV. ORGAN MATERIALIZATION ---
+        self.staging_manager = StagingManager(self.base_path, self.tx_id)
+
+        from .volume_shifter.facade import VolumeShifter
+        self.volume_shifter = VolumeShifter(self.project_root, self.tx_id, base_path=self.base_path)
+
+        from ...runtime.engine.execution.simulacrum import GnosticSimulacrum
+        self.simulacrum = GnosticSimulacrum(self.base_path, self.trace_id)
+
         self.lock = GnosticLock(
             self.staging_manager.scaffold_dir / "transaction.lock",
             self.rite_name
         )
 
-        # 3. [THE SUTURE]: REGISTER AND COMMUION BINDING
-        # We ensure the Committer is born with the power of the Registers.
         provided_regs = kwargs.get('registers')
         if not provided_regs:
             from ....creator.registers import QuantumRegisters
             provided_regs = QuantumRegisters(
                 sanctum=None,
                 project_root=self.project_root,
-                transaction=self,  # Direct Suture
+                transaction=self,
                 silent=kwargs.get('silent', False)
             )
-            # Link to engine if available in kwargs
             if 'engine' in kwargs:
                 provided_regs.akashic = getattr(kwargs['engine'], 'akashic', None)
 
@@ -139,207 +163,486 @@ class GnosticTransaction:
             registers=provided_regs
         )
 
-        # 4. THE CHRONOMANCER & BRIDGE
         self.chronomancer = RollbackChronomancer(
             self.staging_manager,
             self.project_root,
             self.logger
         )
-        self.chronicle_bridge = ChronicleBridge(self)
+        self._bridge: Optional[ChronicleBridge] = None
 
-        # --- IV. GNOSTIC MEMORY LATTICE ---
-        self.write_dossier: Dict[Path, GnosticWriteResult] = {}
-        self.edicts_executed: List[str] = []
-        self.heresies_perceived: List[Heresy] = []
+        self._finalizer = weakref.finalize(
+            self, self._emergency_cleanup, self.staging_manager,
+            self.volume_shifter, self.use_lock, self.lock
+        )
 
-        # [ASCENSION 9]: DYNAMIC CONTEXT
-        self.context: Dict[str, Any] = kwargs.get('context', {})
+        self.logger.debug(f"Crucible [soul]{self.tx_id[:8]}[/] manifest for [cyan]{self.rite_name}[/].")
 
-        self.logger.debug(f"Crucible [soul]{self.tx_id[:8]}[/] anchored for [cyan]{self.rite_name}[/].")
+    @property
+    def chronicle_bridge(self) -> ChronicleBridge:
+        if self._bridge is None:
+            self._bridge = ChronicleBridge(self)
+        return self._bridge
+
+    @property
+    def active(self) -> bool:
+        return self._state.value >= TransactionState.INCEPTED.value and self._state.value < TransactionState.SEALED.value
+
+    def is_file_in_staging(self, logical_path: Union[str, Path]) -> bool:
+        p_obj = Path(logical_path)
+        if p_obj in self.write_dossier:
+            return True
+        staging_path = self.get_staging_path(p_obj)
+        return staging_path.exists() and staging_path.is_file()
+
+    @staticmethod
+    def _emergency_cleanup(staging: StagingManager, shifter: Any, use_lock: bool, lock: GnosticLock):
+        try:
+            staging.cleanup()
+            if hasattr(shifter, 'cleanup'):
+                shifter.cleanup()
+            if use_lock and lock:
+                lock.release()
+        except Exception:
+            pass
+
+    def re_anchor(self, new_root: Path):
+        with self._state_lock:
+            if self._state.value > TransactionState.STAGING.value and self._state != TransactionState.RESONANT:
+                self.logger.warn("Re-anchoring stayed: Lustration actively manifest. Spatial drift warded.")
+                return
+
+            self.project_root = new_root.resolve()
+
+            self.committer.project_root = self.project_root
+            if hasattr(self, 'volume_shifter'):
+                self.volume_shifter.root = self.project_root
+                self.volume_shifter.sanctum = self.base_path / ".scaffold" / "volumes" / self.tx_id
+
+            self._event_stream.append({
+                "event": "RE_ANCHOR",
+                "target": str(self.project_root),
+                "ts": time.time_ns(),
+                "trace_id": self.trace_id
+            })
+
+            self.logger.verbose(f"Transaction re-anchored to Axis Mundi: [cyan]{self.project_root}[/cyan]")
 
     def __enter__(self) -> GnosticTransaction:
-        """Awakens the Ephemeral Realm."""
+        _inception_start = time.perf_counter_ns()
+
         if self.use_lock:
-            self.lock.acquire()
+            try:
+                self.lock.acquire()
+            except Exception as lock_paradox:
+                self.logger.critical(f"Lattice Lock Fracture: {lock_paradox}")
+                raise lock_paradox
 
-        self.staging_manager.initialize_sanctums()
+        try:
+            with self._state_lock:
+                self._state = TransactionState.INCEPTED
+                self.staging_manager.initialize_sanctums()
 
-        self.active = True
-        self.logger.verbose(f"Transaction '{self.rite_name}' (ID: {self.tx_id[:8]}) has entered the temporal stream.")
-        return self
+                akashic = getattr(self.committer.registers, 'akashic', None)
+                if akashic:
+                    try:
+                        akashic.broadcast({
+                            "method": "novalym/hud_pulse",
+                            "params": {
+                                "type": "TX_INCEPTION",
+                                "label": "TRANSACTION_ACTIVE",
+                                "color": "#a855f7",
+                                "trace": self.trace_id,
+                                "is_simulation": self.simulate,
+                                "meta": {"tx_id": self.tx_id, "rite": self.rite_name}
+                            }
+                        })
+                    except Exception:
+                        pass
+
+                self._state = TransactionState.STAGING
+
+                self._event_stream.append({
+                    "event": "INCEPTION",
+                    "ts": time.time_ns(),
+                    "status": "RESONANT",
+                    "trace_id": self.trace_id
+                })
+
+            _duration_ms = (time.perf_counter_ns() - _inception_start) / 1_000_000
+            self.logger.verbose(
+                f"Transaction '{self.rite_name}' (ID: {self.tx_id[:8]}) "
+                f"initialized in {_duration_ms:.2f}ms. Resonance: TITANIUM."
+            )
+
+            return self
+
+        except Exception as catastrophic_paradox:
+            self._transition_to_fractured(catastrophic_paradox)
+            raise catastrophic_paradox
+
+    # =========================================================================
+    # == MOVEMENT III: THE LEDGER OF WILL (RECORDING)                        ==
+    # =========================================================================
 
     def record(self, result: GnosticWriteResult):
         """
         =============================================================================
         == THE RITE OF INSCRIPTION (RECORD)                                        ==
         =============================================================================
-        Inscribes a unit of matter into the Crucible's memory.
         """
-        if not self.active:
-            raise RuntimeError("Heresy: Attempted to record matter to an inactive Crucible.")
+        with self._state_lock:
+            # =========================================================================
+            # == [THE CURE]: THE RE-OPENING RITE                                     ==
+            # =========================================================================
+            # If the Crucible is RESONANT, it means an earlier lustration pass finished.
+            # But late-stage matter (like scaffold.scaffold) needs to be added.
+            # We automatically unseal the Crucible and return to STAGING.
+            if self._state == TransactionState.RESONANT:
+                self._state = TransactionState.STAGING
+                self.logger.verbose(f"Crucible unsealed. Re-entering STAGING for late inscription: {result.path.name}")
 
-        # [ASCENSION 7]: GEOMETRIC TRIANGULATION
-        # Transmutes the physical staging path back to a logical project path.
-        logical_path = self.staging_manager.triangulate_relative_path(result.path)
+            # [ASCENSION 20]: SEALED CRUCIBLE GUARD
+            if self._state.value >= TransactionState.FLIPPING.value:
+                raise RuntimeError(
+                    f"Heresy: Attempted to record '{result.path.name}' to a sealed Crucible (State: {self._state.name})."
+                )
 
-        # Inscribe the model copy to ensure immutability
-        self.write_dossier[logical_path] = result.model_copy(update={"path": logical_path})
+            logical_path = self.staging_manager.triangulate_relative_path(result.path)
+            model_copy = result.model_copy(update={"path": logical_path})
 
-        # [THE CURE]: Reset enrichment if new souls arrive
-        self._dossier_enriched = False
+            self.write_dossier[logical_path] = model_copy
+            self._dossier_enriched = False
 
-    def get_staging_path(self, logical_path: Union[str, Path]) -> Path:
-        """Perceives the coordinate of a soul within the Ephemeral Realm."""
-        return self.staging_manager.get_staging_path(logical_path)
+            self._merkle_accumulator.update(str(logical_path).encode())
+            if result.gnostic_fingerprint:
+                self._merkle_accumulator.update(result.gnostic_fingerprint.encode())
+
+            self._event_stream.append({
+                "event": "RECORD_MATTER",
+                "path": str(logical_path),
+                "action": result.action_taken.value,
+                "ts": time.time_ns(),
+                "trace_id": self.trace_id
+            })
 
     def record_edict(self, command: str):
-        """Records a Maestro's Edict for the eternal chronicle."""
-        if not self.active: return
+        with self._state_lock:
+            if self._state == TransactionState.RESONANT:
+                self._state = TransactionState.STAGING
+            if self._state.value >= TransactionState.FLIPPING.value:
+                return
+
         self.edicts_executed.append(command)
+        self._event_stream.append({
+            "event": "RECORD_EDICT",
+            "cmd": str(command)[:100],
+            "ts": time.time_ns(),
+            "trace_id": self.trace_id
+        })
 
     def record_heresy(self, heresy: Heresy):
-        """[FACULTY 10] Chronicles a non-critical anomaly perceived during the rite."""
-        if not self.active: return
+        with self._state_lock:
+            if self._state == TransactionState.RESONANT:
+                self._state = TransactionState.STAGING
+            if self._state.value >= TransactionState.FLIPPING.value:
+                return
+
         self.heresies_perceived.append(heresy)
+        self._event_stream.append({
+            "event": "RECORD_HERESY",
+            "code": heresy.code,
+            "ts": time.time_ns(),
+            "trace_id": self.trace_id
+        })
+
+    # =========================================================================
+    # == MOVEMENT IV: THE KINETIC PHASES (MATERIALIZE & FLIP)                ==
+    # =========================================================================
 
     def materialize(self):
         """
         =============================================================================
-        == THE RITE OF KINETIC LUSTRATION (THE CURE)                               ==
+        == THE RITE OF KINETIC LUSTRATION (V-Ω-TOTALITY-V2000-LAZY-SHADOW)         ==
         =============================================================================
-        LIF: ∞ | ROLE: MATTER_FISSION_CONDUCTOR
-
-        Forces the commitment of the staged reality. Unlike previous incarnations,
-        this method is ITERATIVE. It identifies new matter shards (like __init__.py)
-        that were born after the last lustration and sutures them to reality.
         """
-        if not self.active or self.simulate:
-            return
+        with self._state_lock:
+            if self._state == TransactionState.LUSTRATING:
+                return
 
-        # 1. THE DELTA GAZE
-        # We identify if new matter has been inscribed in the dossier since the last pulse.
+            if self._state == TransactionState.FRACTURED or self.simulate:
+                return
+
+            self._state = TransactionState.LUSTRATING
+            self._event_stream.append({
+                "event": "LUSTRATION_START",
+                "ts": time.time_ns(),
+                "trace_id": self.trace_id
+            })
+
+        # --- MOVEMENT I: THE LAZY SHADOW FORGE (THE CURE) ---
+        if hasattr(self, 'volume_shifter') and self.volume_shifter.state.name == "VOID":
+            strategy = self.context.get("flip_strategy") or (
+                "SYMLINK" if os.environ.get("SCAFFOLD_ENV") == "DOCKER" else "RENAME"
+            )
+            try:
+                self.logger.verbose(f"Forging Shadow Volume [Green] via strategy: {strategy}")
+                self.volume_shifter.prepare(strategy=strategy)
+
+                if hasattr(self.volume_shifter, 'merkle_root'):
+                    self.context["_initial_merkle_root"] = self.volume_shifter.merkle_root
+
+            except Exception as shadow_fracture:
+                self.logger.warn(f"Shadow Volume Forge fractured: {shadow_fracture}. Falling back to standard staging.")
+                self.volume_shifter.state = VolumeState.FRACTURED
+
+        # --- MOVEMENT II: THE DELTA GAZE ---
         current_shards = set(self.write_dossier.keys())
         new_shards = current_shards - self._committed_paths
 
         if not new_shards and self._manifest_count > 0:
-            # No new matter has been willed; stay the hand to preserve metabolism.
+            with self._state_lock:
+                self._state = TransactionState.RESONANT
             return
 
-        # [ASCENSION 5]: RECURSION GUARD
         if self._manifest_count >= self.MAX_LUSTRATION_PASSES:
-            self.logger.warn("Metabolic Limit: Lustration capped at 5 passes. Ignoring further drift.")
+            self.logger.warn(
+                f"Metabolic Limit: Lustration capped at {self.MAX_LUSTRATION_PASSES} passes. Ignoring further drift.")
+            with self._state_lock:
+                self._state = TransactionState.RESONANT
             return
 
         self.logger.info(f"Lustration Movement #{self._manifest_count + 1}: Committing structural bonds...")
 
-        # 2. THE RITE OF ENRICHMENT
-        # Scry the AST of the new shards to heal the dependency graph.
         self._enrich_if_needed()
 
-        # 3. THE KINETIC STRIKE
-        # The Committer translocates matter from Staging to the Project Root.
         try:
-            # [THE FIX]: We pass the entire dossier, but the committer is
-            # now idempotent. It will only strike if hashes mismatch or
-            # files are missing.
             self.committer.commit()
 
-            # 4. CHRONICLE THE CONQUEST
             self._committed_paths.update(new_shards)
             self._manifest_count += 1
+            self._event_stream.append({
+                "event": "MATERIALIZE_PASS",
+                "count": self._manifest_count,
+                "shards": len(new_shards),
+                "ts": time.time_ns(),
+                "trace_id": self.trace_id
+            })
 
-            # [ASCENSION 10]: HUD MULTICAST
             self._project_hud_pulse("LUSTRATION_SUCCESS", "#64ffda")
 
+            with self._state_lock:
+                self._state = TransactionState.RESONANT
+
         except Exception as lustration_paradox:
-            self.logger.error(f"Lustration fractured: {lustration_paradox}")
-            # We do not rollback yet; __exit__ will handle the final adjudication.
-            raise
+            if not self._liminal_healing_rite(lustration_paradox, "materialize"):
+                self.logger.error(f"Lustration fractured: {lustration_paradox}")
+                raise lustration_paradox
+            else:
+                self.materialize()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
         =============================================================================
-        == THE GRAND SYMPHONY OF FINALIZATION (V-Ω-TOTALITY-V1000.5)               ==
+        == THE OMEGA EXIT RITE: TOTALITY (V-Ω-TOTALITY-V2100-UNBREAKABLE-FINALIS)  ==
         =============================================================================
-        The Final Adjudicator. Ensures that the timeline is either perfectly
-        manifested or perfectly restored.
         """
-        self.active = False
+        death_ts_ns = time.perf_counter_ns()
+        self.active_death_ns = death_ts_ns
+
+        self.logger.verbose(f"[{self.tx_id[:8]}] Concluding Rite: {self.rite_name}")
+
+        was_healed = False
+        final_exception = exc_val
 
         try:
-            if exc_type:
+            if exc_type or self._state == TransactionState.FRACTURED:
                 # --- BRANCH A: THE PATH OF PARADOX (ROLLBACK) ---
-                self.logger.warn(f"Transaction '{self.rite_name}' aborted by paradox: {exc_val}")
+                with self._state_lock:
+                    self._state = TransactionState.FRACTURED
+
+                self.logger.warn(f"Transaction '{self.rite_name}' aborted by paradox: {exc_val or 'Internal Fracture'}")
                 self._project_hud_pulse("TX_FRACTURE", "#ef4444")
 
-                # [ASCENSION 8]: ATOMIC ROLLBACK HANDSHAKE
-                self.chronomancer.perform_emergency_rollback()
-                self._archive_failed_rite(exc_type, exc_val, exc_tb)
-            else:
+                if exc_type:
+                    try:
+                        if self._liminal_healing_rite(exc_val, "exit"):
+                            was_healed = True
+                            self.logger.success("Liminal Healing Resonated. Reality Stabilized.")
+                    except Exception as secondary_heresy:
+                        self.logger.error(f"Liminal Healing itself fractured: {secondary_heresy}")
+
+                if not was_healed:
+                    self._event_stream.append({
+                        "event": "ROLLBACK_INITIATED",
+                        "reason": str(exc_val),
+                        "ts": time.time_ns(),
+                        "trace_id": self.trace_id
+                    })
+                    try:
+                        self.chronomancer.perform_emergency_rollback()
+                    except Exception as rollback_fracture:
+                        self.logger.critical(f"CHRONOMANTIC REVERSAL FAILED: {rollback_fracture}")
+
+                    self._archive_failed_rite(exc_type, exc_val, exc_tb)
+
+            # If no exception, or if it was healed, we proceed to commit.
+            if not exc_type or was_healed:
                 # --- BRANCH B: THE PATH OF APOTHEOSIS (COMMIT) ---
 
-                # 1. FINAL LUSTRATION (THE FIX)
-                # One last gaze to catch structural bonds (Sentinel matter).
+                # 1. FINAL LUSTRATION (Seal all secondary matter)
                 self.materialize()
 
-                # 2. SIMULATION CHECK
+                # 2. THE ACHRONAL FLIP
                 if not self.simulate:
-                    # 3. SEAL THE CHRONICLE
-                    # We only seal if matter was willed or edicts were struck.
+                    with self._state_lock:
+                        self._state = TransactionState.FLIPPING
+
+                    try:
+                        shifter_state = getattr(self.volume_shifter, 'state', None)
+                        if not shifter_state or (shifter_state.name != "RESONANT" and shifter_state.name != "ACTIVE"):
+                            raise ArtisanHeresy("Volumetric Schism: Shadow Volume is not resonant for Flip.")
+
+                        # [STRIKE]: The absolute pointer swap
+                        self.volume_shifter.flip(target_dir=self.project_root)
+                        self._flip_conducted = True
+
+                        self._event_stream.append(
+                            {"event": "ACHRONAL_FLIP_COMPLETE", "ts": time.time_ns(), "trace_id": self.trace_id})
+                        self._project_hud_pulse("ACHRONAL_FLIP_SUCCESS", "#64ffda")
+
+                    except Exception as flip_paradox:
+                        self.logger.critical(f"Achronal Flip Paradox: {flip_paradox}")
+                        with self._state_lock:
+                            self._state = TransactionState.FRACTURED
+                        final_exception = flip_paradox
+                        raise flip_paradox
+
+                # 3. SEAL THE CHRONICLE
+                if not self.simulate and self._state != TransactionState.FRACTURED:
                     if self.write_dossier or self.edicts_executed:
-                        self.logger.verbose("Sealing the Gnostic Chronicle...")
-                        self.chronicle_bridge.seal_chronicle()
-                        self._project_hud_pulse("TX_SEALED", "#a855f7")
-                else:
-                    self.logger.verbose("Commitment and Chronicle sealing stayed (Simulation Mode).")
+                        try:
+                            self.logger.verbose("Sealing the Gnostic Chronicle...")
+                            self.chronicle_bridge.seal_chronicle()
+                            self._project_hud_pulse("TX_SEALED", "#a855f7")
+                        except Exception as bridge_fracture:
+                            self.logger.warn(
+                                f"Chronicle Bridge fractured: {bridge_fracture}. Reality preserved, metadata delayed.")
+
+                with self._state_lock:
+                    self._state = TransactionState.SEALED
+                    self._event_stream.append({"event": "SEALED", "ts": time.time_ns(), "trace_id": self.trace_id})
 
         except Exception as final_heresy:
-            # [ASCENSION 12]: THE FINALITY VOW
-            self.logger.error("A catastrophic paradox occurred during the Seal phase. Reversing time.", exc_info=True)
-            self.chronomancer.perform_emergency_rollback()
-            self._archive_failed_rite(type(final_heresy), final_heresy, final_heresy.__traceback__)
+            final_exception = final_heresy
+            self.logger.error(f"Catastrophic paradox during Seal: {final_heresy}", exc_info=True)
 
-            raise ArtisanHeresy(
-                "COMMIT_FRACTURE: Reality could not be stabilized.",
-                child_heresy=final_heresy,
-                severity=HeresySeverity.CRITICAL
-            ) from final_heresy
+        # =========================================================================
+        # == MOVEMENT II: THE UNBREAKABLE PURIFICATION (CLEANUP PHALANX)        ==
+        # =========================================================================
 
-        finally:
-            # --- THE PURIFICATION ---
+        # 1. STAGING PURIFICATION
+        try:
+            self.logger.verbose(f"[{self.tx_id[:8]}] Purging Ephemeral Sanctums...")
             self.staging_manager.cleanup()
+        except Exception as e:
+            self.logger.debug(f"Staging cleanup deferred: {e}")
 
-            if self.use_lock:
+        # 2. VOLUME OBLIVION
+        if self._flip_conducted or final_exception or self._state == TransactionState.FRACTURED:
+            try:
+                self.volume_shifter.cleanup()
+            except Exception as e:
+                self.logger.debug(f"Volume cleanup deferred: {e}")
+
+        # 3. ADRENALINE LUSTRATION
+        if os.environ.get("SCAFFOLD_ADRENALINE") == "1":
+            try:
+                os.environ.pop("SCAFFOLD_ADRENALINE", None)
+                import gc
+                gc.enable()
+                gc.collect(1)
+            except Exception:
+                pass
+
+        # 4. APEIRON LOCK RELEASE
+        if self.use_lock:
+            try:
                 self.lock.release()
+            except Exception as e:
+                self.logger.error(f"Lock release fractured: {e}")
 
-            latency_ms = (time.perf_counter_ns() - self._boot_ns) / 1_000_000
-            self.logger.verbose(f"Transaction '{self.rite_name}' concluded in {latency_ms:.2f}ms.")
+        # 5. METABOLIC FINALITY LOG
+        latency_ms = (time.perf_counter_ns() - self._boot_ns) / 1_000_000
+        self.logger.verbose(
+            f"Transaction '{self.rite_name}' concluded in {latency_ms:.2f}ms. "
+            f"Final State: [bold cyan]{self._state.name}[/bold cyan]"
+        )
+
+        # --- THE FINAL ADJUDICATION ---
+        if was_healed and not final_exception:
+            return True
+
+        return False
+
+    def _liminal_healing_rite(self, exception: Exception, phase: str) -> bool:
+        with self._state_lock:
+            original_state = self._state
+            self._state = TransactionState.LIMINAL
+
+        self.logger.warn(
+            f"[{self.tx_id[:8]}] Entering LIMINAL STATE to attempt auto-healing of: {type(exception).__name__}")
+
+        healed = False
+        error_str = str(exception).lower()
+
+        if isinstance(exception,
+                      PermissionError) or "access is denied" in error_str or "being used by another process" in error_str:
+            self.logger.verbose("Liminal Diagnosis: Transient OS File Lock suspected.")
+            for attempt in range(self.LIMINAL_HEALING_RETRIES):
+                time.sleep(0.5 * (attempt + 1))
+                self.logger.verbose(f"Liminal Probe {attempt + 1}: Re-attempting physical access...")
+                pass
+
+        elif isinstance(exception, MemoryError):
+            self.logger.verbose("Liminal Diagnosis: Heap Saturation. Invoking tiered lustration.")
+            gc.collect(2)
+
+        with self._state_lock:
+            self._state = original_state if healed else TransactionState.FRACTURED
+        return healed
+
+    def _transition_to_fractured(self, reason: Exception):
+        with self._state_lock:
+            if self._state == TransactionState.FRACTURED: return
+            self._state = TransactionState.FRACTURED
+
+        self.chronomancer.perform_emergency_rollback()
+        self.volume_shifter.cleanup()
+        self.simulacrum.purge_session()
+
+        self._event_stream.append({
+            "event": "FRACTURED",
+            "reason": str(reason),
+            "ts": time.time_ns(),
+            "trace_id": self.trace_id
+        })
 
     def _enrich_if_needed(self):
-        """Performs dependency analysis on staged matter."""
         if self._dossier_enriched or self.simulate:
             return
-
-        # self.logger.verbose("Conducting pre-commit Gnostic enrichment...")
         enriched_results = self.chronicle_bridge._enrich_dossier()
-
         for result in enriched_results:
             self.write_dossier[result.path] = result
-
         self._dossier_enriched = True
 
     def cancel(self):
-        """Explicitly commands the Crucible to reverse time and dissolve."""
-        if not self.active: return
-        self.logger.warn(f"Rite '{self.rite_name}' was explicitly cancelled. Initiating Chronometric Reversal...")
-        self.chronomancer.perform_emergency_rollback()
-        # Annihilate memory to prevent __exit__ from attempting commitment
-        self.write_dossier.clear()
-        self.edicts_executed.clear()
+        with self._state_lock:
+            if self._state == TransactionState.VOID or self._state == TransactionState.FRACTURED:
+                return
+            self.logger.warn(f"Rite '{self.rite_name}' was explicitly cancelled.")
+            self._transition_to_fractured(Exception("Architect Explicit Cancel"))
 
     def _project_hud_pulse(self, type_label: str, color: str):
-        """Broadcasts a visual signal to the Ocular HUD."""
-        # Registers/Engine sutured during __init__
         regs = self.committer.registers
         if regs and hasattr(regs, 'akashic') and regs.akashic:
             try:
@@ -356,19 +659,23 @@ class GnosticTransaction:
                 pass
 
     def _archive_failed_rite(self, exc_type, exc_val, exc_tb):
-        """Forges a bit-perfect forensic archive of the failure."""
         gnosis = TransactionalGnosis(
-            rite_name=self.rite_name,
+            trace_id=self.trace_id,
             tx_id=self.tx_id,
-            context=self.context,
+            rite_name=self.rite_name,
+            context=dict(self.context),
             dossier_count=len(self.write_dossier),
             edict_count=len(self.edicts_executed),
             heresy_count=len(self.heresies_perceived),
-            is_simulation=self.simulate
+            is_simulation=self.simulate,
+            event_stream=list(self._event_stream),
+            birth_ns=self._boot_ns,
+            death_ns=getattr(self, 'active_death_ns', time.perf_counter_ns())
         )
         self.chronomancer.archive_failed_rite(gnosis, exc_type, exc_val, exc_tb)
 
-    @property
-    def duration_ns(self) -> int:
-        """Total metabolic age in nanoseconds."""
-        return time.perf_counter_ns() - self._boot_ns
+    def __repr__(self) -> str:
+        return f"<Ω_GNOSTIC_TRANSACTION state={self._state.name} id={self.tx_id[:8]}>"
+
+    def get_staging_path(self, logical_path: Union[str, Path]) -> Path:
+        return self.staging_manager.get_staging_path(logical_path)

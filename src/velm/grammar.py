@@ -70,9 +70,47 @@ SCAFFOLD_ATOMS = [
     # Matches the full directive to capture the algorithm and digest.
     ('HASH_ANCHOR', r'@hash\([a-zA-Z0-9]+:[a-fA-F0-9]+\)'),
 
-    # Generic Directives: @inside, @after, @before
-    ('SIGIL_DIRECTIVE', r'@\w+'),
+    # -----------------------------------------------------------------------------------------
+    # [1] SIGIL_DIRECTIVE: THE HIGH RITUALS OF GOVERNANCE
+    # -----------------------------------------------------------------------------------------
+    # These are the "Sovereign Verbs". They represent standalone actions of the Engine.
+    # They control Composition (@import, @include), Logic (@if), and Reusability (@macro).
+    # STRATEGY: We explicitly list these to ensure they receive "Naked Ward" priority.
+    # To add a new command to the language, simply append the verb here and wire its
+    # Scribe in the SCRIBE_PANTHEON.
+    # -----------------------------------------------------------------------------------------
+    ('SIGIL_DIRECTIVE', r'@(import|from|include|macro|call|session|manifested|if|elif|else|endif|for|endfor|task|endtask|try|catch|finally|endtry|scry|audit|herald|proclaim)\b'),
+    # -----------------------------------------------------------------------------------------
+    # [2] SIGIL_MODIFIER: THE LAWS OF PROPERTY & AD-HOC ASCENSION
+    # -----------------------------------------------------------------------------------------
+    # These are the "Spectral Adjectives". Unlike Directives, they attach to Matter (Paths).
+    # e.g., "src/auth.py @encrypt @readonly".
+    #
+    # ### THE AD-HOC STRATEGY (WHAT THIS OPENS UP):
+    # 1. ATOMIC EXPANSION: This architecture allows us to add new "Middleware Traits" to
+    #    files without refactoring. By adding '@hidden' here, we instantly enable the
+    #    VFS to scry that property and hide the file from the Ocular UI.
+    # 2. ASPECT-ORIENTED ARCHITECTURE:
+    #    - @inside(sanctum): Forces a file to exist only within a specific virtual container.
+    #    - @after(rite): Delays manifestation until a specific kinetic strike concludes.
+    #    - @patch(path): Flags a file as a surgical mutation rather than a creation.
+    #    - @warded(auth): Enforces Identity Handshakes before the file can be read.
+    # 3. FUTURE-PROOFING: To add a new property (e.g. '@distributed'), you only add the
+    #    word to this regex. The DeconstructionScribe automatically extracts it into the
+    #    'semantic_selector' dict on the ScaffoldItem, where any Artisan can scry it.
+    # -----------------------------------------------------------------------------------------
+    ('SIGIL_MODIFIER', r'@(inside|after|before|patch|warded|hidden|volatile|ephemeral|readonly|executable|signature|encrypt|trace|audit)\b'),
 
+    # -----------------------------------------------------------------------------------------
+    # [3] OPERATOR_KEYWORD: THE LOGICAL SUTURE (CONJUNCTIONS)
+    # -----------------------------------------------------------------------------------------
+    # These are the "Particles of Resonance". They provide the glue for complex directives.
+    # Essential for the '@from <path> import <item> as <alias>' Python-parity syntax.
+    # STRATEGY: By defining these as keywords, we prevent the Lexer from misidentifying
+    # the word "import" as a "file path" when it appears inside a @directive line.
+    # -----------------------------------------------------------------------------------------
+    ('OPERATOR_KEYWORD', r'\b(import|as|in|from|where|using|trait|use|of|by|with|on|to)\b'),
+    
     # Arguments for directives: (key="value", ...)
     ('SIGIL_LPAREN', r'\('),
     ('SIGIL_RPAREN', r'\)'),

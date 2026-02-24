@@ -317,7 +317,10 @@ class GenesisRequest(BaseRequest):
         default=".",
         description="The Gnostic Anchor: Path to the .scaffold file, Celestial URL, or Archetype Name."
     )
-
+    non_interactive: bool = Field(
+        False,
+        description="The Vow of Silence. Suppresses all interactive prompts, accepting default Gnosis."
+    )
     # --- II. THE ALCHEMICAL INJECTIONS ---
     profile: Optional[str] = Field(
         default=None,
@@ -5645,3 +5648,70 @@ class IdentityRequest(BaseRequest):
                 data['region'] = 'ovh-eu'
 
         return data
+
+
+
+class PublishRequest(BaseRequest):
+    """
+    =============================================================================
+    == THE PUBLISH PLEA (V-Ω-HUB-CONSECRATION-CONTRACT)                        ==
+    =============================================================================
+    Defines the parameters for elevating local matter to the Celestial Hub.
+    """
+    model_config = ConfigDict(extra='allow')
+
+    # --- I. THE TARGET ---
+    target_path: str = Field(".", description="The local directory to publish.")
+
+    # --- II. IDENTITY ---
+    namespace: str = Field(..., description="The Hub namespace (e.g. 'hub.novalym.ui').")
+    shard_name: str = Field(..., description="The unique name of the shard.")
+
+    # --- III. WARDS & SECURITY ---
+    is_private: bool = Field(False, description="If true, the shard is encrypted for organization use only.")
+    org_id: Optional[str] = Field(None, description="The organization ID for private wards.")
+
+    # --- IV. METADATA ---
+    tags: List[str] = Field(default_factory=list, description="Search keywords for the Vector Cortex.")
+    lif_index: int = Field(1, description="The Logarithmic Impact Factor willed by the Architect.")
+
+    # --- V. KINETIC MODIFIERS ---
+    dry_run: bool = False  # Prophesy the publication without striking the Hub
+    force: bool = False  # Overwrite existing records (Requires High Status)
+
+
+class ProtocolType(str, Enum):
+    VCARD = "vcard"
+    ICAL = "ical"
+
+
+class ProtocolRequest(BaseRequest):
+    """
+    =============================================================================
+    == THE PROTOCOL PLEA (V-Ω-IDENTITY-FORGE)                                  ==
+    =============================================================================
+    LIF: ∞ | ROLE: FORMAT_TRANSMUTER
+
+    A plea to forge standard communication artifacts (vCards, Calendar Invites).
+    """
+    protocol: ProtocolType = Field(..., description="The target format (vcard, ical).")
+
+    # --- Identity Fields (vCard) ---
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    organization: Optional[str] = None
+    title: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    url: Optional[str] = None
+    note: Optional[str] = None
+
+    # --- Temporal Fields (iCal) ---
+    event_start: Optional[datetime] = None
+    event_end: Optional[datetime] = None
+    event_summary: Optional[str] = None
+    location: Optional[str] = None
+
+    # --- Output ---
+    output_path: Optional[str] = Field(None, description="Where to save the artifact. Defaults to artifacts/identity.")
+    return_content: bool = Field(False, description="Return the raw string content in the result data.")
