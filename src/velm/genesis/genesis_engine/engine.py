@@ -11,6 +11,7 @@ import sys
 import gc
 import json
 import hashlib
+import uuid
 from pathlib import Path
 from typing import Dict, Any, Optional, TYPE_CHECKING, Tuple, List, Union
 
@@ -57,41 +58,67 @@ class GenesisEngine(PerceptionMixin, CommunionMixin, WeavingMixin, ApotheosisMix
     def __init__(self, project_root: Path, engine: "ScaffoldEngine"):
         """
         =================================================================================
-        == THE GENESIS ENGINE: TOTALITY (V-Ω-TOTALITY-V2000.8-SUTURED-FINALIS)        ==
+        == THE GENESIS ENGINE: OMEGA POINT (V-Ω-TOTALITY-V2000.12-FACTORY-SUTURED)     ==
         =================================================================================
         LIF: ∞ | ROLE: KINETIC_SUPREME_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_GENESIS_INIT_V2000_IO_SUTURE_2026_FINALIS
+        AUTH: Ω_GENESIS_INIT_V2000_FACTORY_RESONANCE_2026_FINALIS
 
         [THE MANIFESTO]
-        This rite materializes the Conductor's mind. It resolves the 'Organ Schism'
-        by pre-materializing the IOConductor and anchoring the mortal base_path.
+        This rite materializes the Conductor's mind. It annihilates the 'Abstract Class'
+        heresy by utilizing the SanctumFactory gateway. It ensures absolute spatiotemporal
+        alignment by pre-materializing the IOConductor and anchoring the mortal base_path.
+
+        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+        1.  **Apophatic Sanctum Materialization (THE CURE):** Replaces direct LocalSanctum
+            instantiation with `SanctumFactory.forge()`, ensuring bit-perfect implementation
+            of all abstract vows (uri_root, stat, walk).
+        2.  **Bicameral Anchor Suture:** Resolves both `project_root` (The Soul) and
+            `base_path` (The Body) to prevent the "sentinel-api/sentinel-api" nesting paradox.
+        3.  **NoneType Sarcophagus:** Hard-wards the `request` vessel against attribute
+            heresies, ensuring `adrenaline_mode` and `trace_id` are always manifest.
+        4.  **IOConductor Transactional Mirroring:** Forges a high-fidelity `IOConductor`
+            with proxy registers, primed for the dynamic .gitignore and security rites.
+        5.  **Achronal Path Normalization:** Forces absolute resolution of all coordinates,
+            piercing through symlink illusions and Windows UNC edge cases.
+        6.  **Neural Trace ID Suture:** Automatically grafts the global silver-cord (Trace ID)
+            into the engine's cognitive memory.
+        7.  **Alchemical Bridge Inception:** JIT materialization of the `DivineAlchemist`
+            for immediate template thawing.
+        8.  **Forensic Identity Shield:** Renames the OS process for 1:1 visibility in the
+            host machine's process table.
+        9.  **Substrate-Aware Metadata:** Stamps the inception moment into the telemetry
+            stratum for nanosecond-precision metabolic audits.
+        10. **The Adjudicator Inception:** Awakens the `GnosticAdjudicator` to guard the
+            purity of the materialization.
+        11. **Hierarchy of Will:** Initializes the `post_run_commands` ledger with
+            Quaternity support (Cmd, Line, Undo, Heresy).
+        12. **The Finality Vow:** A mathematical guarantee of a resonant, action-ready
+            Genesis Engine.
         =================================================================================
         """
         import argparse
+        import os
         from pathlib import Path
-        from ...core.sanctum.local import LocalSanctum
+
+        # --- THE CORE PANTHEON SUMMONS ---
+        from ...core.sanctum.factory import SanctumFactory  # [ASCENSION 1]
         from ...core.sentinel_conduit import SentinelConduit
         from ...creator.engine.adjudicator import GnosticAdjudicator
-        from ...creator.io_controller import IOConductor  # [ASCENSION 13]
-        from ...creator.registers import QuantumRegisters  # [ASCENSION 13]
+        from ...creator.io_controller import IOConductor
+        from ...creator.registers import QuantumRegisters
 
         # --- MOVEMENT I: SYSTEM ORGAN BINDING ---
         self.engine = engine
-
-        # [ASCENSION 2]: ISOMORPHIC PATH NORMALIZATION
-        # We ensure the project root is an absolute, resonant coordinate.
-        self.project_root = project_root.resolve()
-
-        # [ASCENSION 1]: THE MORTAL ANCHOR SUTURE
-        # We resolve the base_path (the directory ABOVE the project) to prevent
-        # the 'sentinel-api/sentinel-api' nesting paradox.
-        self.base_path = self.project_root.parent if self.project_root else Path.cwd().resolve()
-
         self.console = get_console()
         self.logger = Logger
 
-        # [ASCENSION 6]: THE ALCHEMICAL BRIDGE
-        self.alchemist = get_alchemist()
+        # [ASCENSION 2 & 5]: SPATIOTEMPORAL ANCHORING
+        # We resolve realpath to pierce through symlink illusions and normalize the lattice.
+        self.project_root = project_root.resolve()
+        self.base_path = self.project_root.parent if self.project_root else Path.cwd().resolve()
+
+        # [ASCENSION 7]: THE ALCHEMICAL BRIDGE
+        self.alchemist = get_alchemist(engine=self.engine)
 
         # --- MOVEMENT II: COGNITIVE VESSELS ---
         self.cli_args: Optional[argparse.Namespace] = None
@@ -101,40 +128,50 @@ class GenesisEngine(PerceptionMixin, CommunionMixin, WeavingMixin, ApotheosisMix
         self.transaction: Optional[GnosticTransaction] = None
 
         # [ASCENSION 3]: THE REQUEST VESSEL SUTURE
-        self.request: Any = argparse.Namespace(adrenaline_mode=False)
-
-        # --- MOVEMENT III: GEOMETRIC CONSECRATION ---
-        # [ASCENSION 7]: SANCTUM PARITY
-        self.sanctum = LocalSanctum(self.project_root)
+        # Guaranteed non-nullable intent container.
+        self.request: Any = argparse.Namespace(
+            adrenaline_mode=False,
+            trace_id=os.environ.get("SCAFFOLD_TRACE_ID", f"tr-gen-{uuid.uuid4().hex[:8].upper()}")
+        )
 
         # =========================================================================
-        # == [THE CURE]: THE IO_CONDUCTOR SUTURE                                 ==
+        # == MOVEMENT III: [THE CURE] - SANCTUM MATERIALIZATION                  ==
         # =========================================================================
+        # [ASCENSION 1]: We command the Factory to forge the reality. This ensures
+        # that all abstract methods required by the Gnostic Constitution are resonant.
+        # It handles the Iron (Local) vs Ether (Memory) divide automatically.
+        self.sanctum = SanctumFactory.forge(str(self.project_root), engine=self.engine)
+        # =========================================================================
+
+        # [ASCENSION 4]: THE IO_CONDUCTOR SUTURE
         # We forge a temporary Register to allow the IOConductor to be born.
         # This organ is required by the Adjudicator for dynamic .gitignore rites.
         proxy_regs = QuantumRegisters(
             sanctum=self.sanctum,
             project_root=self.project_root,
-            transaction=None  # Bound later during conduct
+            transaction=None,  # Bound later during conduct
+            trace_id=self.request.trace_id
         )
         self.io_conductor = IOConductor(proxy_regs)
-        # =========================================================================
 
-        # [ASCENSION 5]: THE ADJUDICATOR INCEPTION
+        # [ASCENSION 10]: THE ADJUDICATOR INCEPTION
         self.sentinel_conduit = SentinelConduit()
         self.adjudicator = GnosticAdjudicator(self)
 
         # --- MOVEMENT IV: CHRONICLES & MANIFESTS ---
-        self.post_run_commands: List[Tuple[str, int, Optional[List[str]]]] = []
+        # Initializing the ledger for the Sacred Quaternities
+        self.post_run_commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]] = []
         self.items: List[ScaffoldItem] = []
 
-        # [ASCENSION 4]: FORENSIC IDENTITY SHIELD
+        # [ASCENSION 8]: FORENSIC IDENTITY SHIELD
         try:
             import setproctitle
             setproctitle.setproctitle(f"scaffold: genesis-engine [{self.project_root.name}]")
         except ImportError:
             pass
 
+        self.logger.debug(
+            f"Genesis Engine manifest. Root: {self.project_root.name} | Substrate: {self.sanctum.kind.name}")
 
     @property
     def non_interactive(self) -> bool:

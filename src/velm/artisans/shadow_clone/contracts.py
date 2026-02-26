@@ -1,14 +1,16 @@
-# Path: scaffold/artisans/shadow_clone/contracts.py
+# Path: artisans/shadow_clone/contracts.py
 # -----------------------------------------------
 # LIF: INFINITY // AUTH_CODE: #!@RECLAMATION_V15.5_CONTRACT_SINGULARITY
 # PEP 8 Adherence: STRICT // Gnostic Alignment: TOTAL
-# -----------------------------------------------
+# =================================================================================
+# == THE DIMENSIONAL CONTRACTS (V-Ω-TOTALITY-V25000-BICAMERAL)                   ==
+# =================================================================================
 
 import time
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Dict, List, Any, Union
-from pydantic import BaseModel, Field, ConfigDict, computed_field
+from typing import Optional, Dict, List, Any, Union, Final
+from pydantic import BaseModel, Field, ConfigDict, computed_field, field_validator
 
 
 class ShadowStatus(str, Enum):
@@ -26,76 +28,126 @@ class ShadowStatus(str, Enum):
     VANISHED = "VANISHED"  # Returned to the void
 
 
+class ShadowMode(str, Enum):
+    """
+    =============================================================================
+    == THE BICAMERAL MODES                                                     ==
+    =============================================================================
+    Distinguishes between ephemeral preview and high-status experimentation.
+    """
+    RUN = "run"  # Ephemeral execution (Cockpit Previews)
+    LAB = "lab"  # High-risk refactoring / AI Laboratory
+
+
+class SubstrateType(str, Enum):
+    """The physical plane where the dimension manifests."""
+    IRON = "iron_native"
+    ETHER = "ether_wasm"
+
+
 class ShadowEntity(BaseModel):
     """
     =================================================================================
-    == THE SOVEREIGN SHADOW ENTITY (V-Ω-PYDANTIC-TOTALITY-V15.5)                   ==
+    == THE SOVEREIGN SHADOW ENTITY (V-Ω-TOTALITY-V25000-HEALED)                    ==
     =================================================================================
     @gnosis:title The Genetic Map of Reality
-    @gnosis:summary The definitive data contract for a Materialized Shadow Reality.
+    @gnosis:summary The definitive, unbreakable contract for a Materialized Shadow.
     @gnosis:LIF INFINITY
-    @gnosis:auth_code: #!@RECLAMATION_CONTRACT_V15.5
+    @gnosis:auth_code: #!@RECLAMATION_CONTRACT_V25000_FINALIS
 
-    [THE CURE]: This model now contains the 'aura' attribute and self-healing
-    defaults to annihilate the AttributeError and close the Circuit Breaker.
+    [THE CURE]: This model has been ascended to include 'mode' and 'trace_id',
+    annihilating the 'unexpected argument' heresy and closing the Causal Loop.
     =================================================================================
     """
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         use_enum_values=True,
         extra='allow',  # [ASCENSION 11]: Absorb future matter without fracture
-        frozen=False  # Mutable for internal state updates
+        frozen=False,  # Mutable for internal vitality updates
+        populate_by_name=True
     )
 
-    # --- I. CORE IDENTITY (THE NAME) ---
+    # --- I. CORE IDENTITY & CAUSALITY (THE SOUL) ---
     id: str = Field(..., description="Unique UUID/Hash for this parallel dimension.")
     label: str = Field(..., description="Human-readable tag (e.g., project name).")
-    target_ref: str = Field("HEAD", description="The Git reference / Rite ID from which matter was cloned.")
-    parent_rite_id: Optional[str] = Field(None, description="The specific rite that birthed this fission.")
 
-    # --- II. SPATIAL ANCHORS (THE PLACE) ---
-    root_path: str = Field(..., description="Absolute physical path on the mortal filesystem.")
+    # [THE CURE]: Mode Suture
+    mode: ShadowMode = Field(
+        default=ShadowMode.RUN,
+        description="The operational directive: RUN vs LAB."
+    )
 
-    # --- [ASCENSION 1]: THE AURA DIVINATION (THE 404 FIX) ---
+    # [THE CURE]: Causal Trace Suture
+    trace_id: str = Field(
+        default="tr-void",
+        description="The Silver Cord linking this thought to the Prime timeline."
+    )
+
+    target_ref: str = Field("HEAD", description="The Git reference / Rite ID origin.")
+    parent_rite_id: Optional[str] = Field(None, description="The birth-rite anchor.")
+
+    # --- II. SPATIAL GEOMETRY (THE PLACE) ---
+    root_path: str = Field(..., description="Absolute physical POSIX path coordinate.")
+    substrate: SubstrateType = Field(default=SubstrateType.IRON)
+
+    # --- III. OCULAR AURA (THE APPEARANCE) ---
     aura: str = Field(
         default="static",
         description="The perceived soul of the server: 'static', 'vite', 'fastapi', etc."
     )
 
-    # --- III. NETWORK PHYSICS (THE FREQUENCY) ---
-    port: int = Field(..., description="Primary web server resonance port.")
-    debug_port: Optional[int] = Field(None, description="Debugpy/Node Inspector port.")
-    host: str = Field("127.0.0.1", description="The local interface binding.")
+    # --- IV. NETWORK PHYSICS (THE FREQUENCY) ---
+    port: int = Field(..., description="Primary resonance port.")
+    debug_port: Optional[int] = Field(None, description="Inquisitor/Debugger port.")
+    host: str = Field("127.0.0.1", description="Interface binding.")
     is_tunnel_active: bool = Field(False, description="True if a public wormhole is open.")
-    tunnel_url: Optional[str] = Field(None, description="The public celestial URI.")
+    tunnel_url: Optional[str] = Field(None, description="Public celestial URI.")
 
-    # --- IV. KINETIC ANCHORS (THE LIFE) ---
+    # --- V. KINETIC ANCHORS (THE LIFE) ---
     pid: Optional[int] = Field(None, description="OS Process ID of the breathing reality.")
     status: ShadowStatus = Field(default=ShadowStatus.INITIALIZING)
 
-    # --- V. TELEMETRY PATHS (THE SENSES) ---
+    # --- VI. TELEMETRY & CHRONICLES (THE SENSES) ---
     stdout_log_path: Optional[str] = Field(None, description="Path to standard output stream.")
     stderr_log_path: Optional[str] = Field(None, description="Path to standard error stream.")
 
-    # --- VI. INTEGRITY & DRIFT (THE TRUTH) ---
-    # [ASCENSION 14]: Merkle Guard
-    merkle_hash: Optional[str] = Field(
-        default=None,
-        description="SHA-256 fingerprint of the directory structure to detect drift."
+    # --- VII. INTEGRITY & DRIFT (THE TRUTH) ---
+    merkle_hash: str = Field(
+        default="0xVOID",
+        description="SHA-256 fingerprint of the directory structure."
     )
 
-    # --- VII. TEMPORAL GOVERNANCE (THE CLOCK) ---
+    # --- VIII. METABOLIC DATA (THE ENERGY) ---
+    peak_cpu_percent: float = Field(0.0)
+    peak_memory_mb: float = Field(0.0)
+    injected_variables: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Gnostic DNA willed during fission."
+    )
+
+    # --- IX. TEMPORAL GOVERNANCE (THE CLOCK) ---
     created_at: float = Field(default_factory=time.time)
     last_accessed: float = Field(default_factory=time.time)
-    ttl_seconds: int = Field(3600, description="Time-to-live before dimension recycling.")
+    ttl_seconds: int = Field(3600, description="Seconds before entropy reclamation.")
 
-    # --- VIII. RESOURCE CONTAINMENT (THE CAGE) ---
-    cpu_limit_percent: float = Field(50.0, description="CPU containment field cap.")
-    memory_limit_mb: float = Field(1024.0, description="RAM matter-state limit.")
-
-    # --- IX. AI METADATA (THE CONTEXT) ---
+    # --- X. AI METADATA & REASONING (THE CONTEXT) ---
     owner: str = Field("architect", description="The identity of the manifestor.")
+    reasoning: str = Field(
+        default="Architect willed dimensional fission.",
+        description="Socratic explanation of purpose."
+    )
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Extension vessel.")
+
+    # =============================================================================
+    # == THE RITES OF HARMONIZATION (VALIDATORS)                                 ==
+    # =============================================================================
+
+    @field_validator('root_path', mode='before')
+    @classmethod
+    def _canonize_path(cls, v: Any) -> str:
+        """[ASCENSION 10]: Absolute POSIX Path Normalization."""
+        if not v: return ""
+        return str(Path(str(v)).resolve()).replace('\\', '/')
 
     # =============================================================================
     # == COMPUTED REALITIES (V-Ω)                                                ==
@@ -104,14 +156,20 @@ class ShadowEntity(BaseModel):
     @computed_field
     @property
     def url(self) -> str:
-        """[ASCENSION 9]: The primary Gnostic coordinate for the Ocular frame."""
+        """The primary Gnostic coordinate for the Ocular frame."""
         return f"http://{self.host}:{self.port}"
 
     @computed_field
     @property
     def is_expired(self) -> bool:
-        """[ASCENSION 3]: Determines if entropy has reclaimed this reality."""
+        """Determines if the dimension has reached its thermal death."""
         return time.time() > (self.created_at + self.ttl_seconds)
+
+    @computed_field
+    @property
+    def time_remaining(self) -> float:
+        """Nanoseconds until entropy reclamation."""
+        return max(0.0, (self.created_at + self.ttl_seconds) - time.time())
 
     def to_dict(self) -> Dict[str, Any]:
         """Transmutes the vessel into a serializable dictionary."""
@@ -119,12 +177,16 @@ class ShadowEntity(BaseModel):
 
 
 class StateCloningResult(BaseModel):
-    """The result of the Database Fission rite."""
+    """
+    =============================================================================
+    == THE DATABASE FISSION RESULT (V-Ω-TOTALITY)                              ==
+    =============================================================================
+    The chronicle of a successful state replication rite.
+    """
     success: bool
     db_url: Optional[str] = None
     container_id: Optional[str] = None
     host_port: Optional[int] = None
     error: Optional[str] = None
     duration_ms: float = 0.0
-
-# == END OF SCRIPTURE ==
+    trace_id: Optional[str] = None

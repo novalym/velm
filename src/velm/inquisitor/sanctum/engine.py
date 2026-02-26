@@ -127,7 +127,7 @@ class UniversalParser:
             path=Path(file_path), is_dir=False, content=code,
             raw_scripture=code.splitlines()[0] if code else "",
             # This is a prophecy for a future ascension to remove this dependency.
-            blueprint_context=[dummy_parser]
+            #blueprint_context=[dummy_parser]
         )
 
         # The Divine Summons

@@ -445,6 +445,7 @@ $$ package_name = {{ project_name | snake }}
     proclaim: "Summoning the Node Artisans... (npm install)"
     @if {{ shell('which npm') }} 
         -> >> npm install
+        !! rm -rf node_modules package-lock.json
     @else 
         -> proclaim: "[bold red]HERESY:[/bold red] 'npm' not detected. Please install Node.js."
     

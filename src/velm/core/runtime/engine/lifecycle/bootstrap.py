@@ -21,7 +21,8 @@ import gc
 import traceback
 import concurrent.futures
 from pathlib import Path
-from typing import Any, Type, List, Dict, Optional, Tuple, Final, Union, Set, Callable
+from typing import Any, Type, List, Dict, Optional, Tuple, Final, Union, Set, Callable, TYPE_CHECKING
+
 
 # --- THE DIVINE UPLINKS (INTERNAL STRATA) ---
 # We use absolute triangulation for these imports to ensure stability during JIT materialization.
@@ -40,6 +41,9 @@ except ImportError as e:
     sys.stderr.write(f"FATAL: Primordial import fracture: {e}\n")
     sys.exit(1)
 
+if TYPE_CHECKING:
+    from .... import ScaffoldEngine
+    from ...middleware import MiddlewarePipeline
 Logger = Scribe("EngineBootstrap")
 
 
@@ -205,15 +209,16 @@ class EngineBootstrap:
             # We ensure that the Engine is NEVER born into a void.
             try:
                 # Late-bound import to prevent circularity in the kernel
-                from ....artisans.project.manager import ProjectManager
+                from .....artisans.project.manager import ProjectManager
 
                 self.logger.verbose("Anchoring Reality: Scrying Multiverse Registry...")
                 governor = ProjectManager()
 
-                # If /vault is empty, forge the Progenitor Law and switch to it.
-                # If /vault is populated, ensure the /vault/project symlink is resonant.
-                # [ASCENSION 20]: Progenitor Resonance
-                governor.bootstrap_multiverse()
+                # COMMENTED OUT, NO LONGER NEEDED
+                # # If /vault is empty, forge the Progenitor Law and switch to it.
+                # # If /vault is populated, ensure the /vault/project symlink is resonant.
+                # # [ASCENSION 20]: Progenitor Resonance
+                # governor.bootstrap_multiverse()
 
                 # Mirror the Governor's anchor in the Engine's primary context.
                 if governor.registry.active_project_id:
@@ -468,96 +473,146 @@ class EngineBootstrap:
 
     def synchronize_consciousness(self):
         """
-        =============================================================================
-        == THE RITE OF ACHRONAL RECONCILIATION (V-Ω-TOTALITY)                      ==
-        =============================================================================
-        LIF: 1000x | ROLE: TEMPORAL_ALCHEMIST
+        =================================================================================
+        == THE OMEGA ACHRONAL RECONCILER (V-Ω-TOTALITY-V20000.12-HEALED-FINALIS)       ==
+        =================================================================================
+        LIF: ∞ | ROLE: TEMPORAL_ALCHEMIST | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_RECONCILE_V20000_MERKLE_SUTURE_2026_FINALIS
 
-        [THE CURE]: Annihilates the 'Crystal Mind Schism'.
-        Ensures the SQLite Database is a bit-perfect mirror of the filesystem history.
-        This is critical for Lightning AI sessions where the DB might be cold.
+        [THE MANIFESTO]
+        This is the supreme rite of cognitive alignment. It annihilates the 'Crystal
+        Mind Schism' by performing a Merkle-lattice biopsy between the JSON Scroll
+        and the SQLite Mind at nanosecond zero. It ensures the AI Co-Pilot scries
+        the Truth of the present, not a ghost of the past.
+        =================================================================================
         """
+        import json
+        import time
+        import os
+        import hashlib
+        from pathlib import Path
+        from .....core.state.gnostic_db import GnosticDatabase, SQL_AVAILABLE
+        from .....utils import get_git_commit
+
+        # --- MOVEMENT 0: SUBSTRATE ADJUDICATION ---
         if not SQL_AVAILABLE:
-            self.logger.warn("Crystal Mind (SQLAlchemy) unmanifest. Operating in Pure Scroll mode.")
+            self.logger.warn(
+                "Crystal Mind (SQLAlchemy) unmanifest. Operating in Pure Scroll mode (Limited Intelligence).")
             return
 
-        # 1. THE ANCHOR VERIFICATION
-        # Safely retrieve the project root from the engine's mind
-        if not self.engine.context:
-            return
-
-        root = self.engine.context.project_root
+        # [ASCENSION 4]: NONE-TYPE SARCOPHAGUS
+        # We ensure the Engine possesses a physical anchor before attempting the scry.
+        root = getattr(self.engine.context, 'project_root', None)
         if not root or not root.exists():
             return
 
         lock_path = root / "scaffold.lock"
         db_path = root / ".scaffold" / "gnosis.db"
 
-        # If no history exists, there is no schism to heal.
+        # [ASCENSION 2]: APOPHATIC TRIAGE
+        # If the project is a void, there is no consciousness to synchronize.
         if not lock_path.exists():
+            self.logger.verbose("Primordial Void: No Gnostic Scroll found. Skipping reconciliation.")
             return
 
-        if not self.engine._silent:
-            self.logger.verbose("Conducting Achronal Reconciliation Inquest...")
+        start_ns = time.perf_counter_ns()
+        self.logger.verbose("Conducting Achronal Reconciliation Inquest...")
 
         try:
-            # 2. SUMMON THE CRYSTAL MIND
+            # --- MOVEMENT I: PERCEPTION OF THE SCROLL (THE TRUTH) ---
+            # [ASCENSION 1]: MERKLE-LATTICE VERIFICATION
+            # We read the fingerprint of the entire project state from the Scroll.
+            with open(lock_path, 'r', encoding='utf-8') as f:
+                scroll_data = json.load(f)
+
+            scroll_merkle = scroll_data.get("integrity", {}).get("project_merkle_root", "0xVOID")
+            scroll_ver = scroll_data.get("chronicle_version", "unknown")
+
+            # --- MOVEMENT II: PERCEPTION OF THE MIND (THE MEMORY) ---
+            # [ASCENSION 9]: HYDRAULIC LOCK WARD
+            # We summon the Crystal Mind and attempt to scry its internal anchors.
             db = GnosticDatabase(root)
 
-            # 3. HARVEST TEMPORAL GNOSIS (THE GAZE)
-            # We scry the Git HEAD and the physical modification times.
+            # [ASCENSION 3 & 6]: BIPHASIC DRIFT DETECTION
+            # We scry for Machine ID drift and Git Context drift.
+            mind_merkle = db._get_meta_gnosis("last_sync_merkle") or "0xEMPTY"
+            mind_machine = db._get_meta_gnosis("last_sync_machine") or "0xVOID"
+            mind_git_head = db._get_meta_gnosis("git_head_anchor") or "0xVOID"
+
             current_git_head = get_git_commit(root) or "VOID_REALITY"
-            lock_mtime = lock_path.stat().st_mtime
-            db_mtime = db_path.stat().st_mtime if db_path.exists() else 0
+            current_machine = self._machine_id  # Inherited from Bootstrap instance
 
-            # 4. CONSULT THE CRYSTAL MEMORY (THE RECALL)
-            # We read the meta-Gnosis stored in the DB during the last transaction.
-            db_anchor = db._get_meta_gnosis("git_head_anchor") or "NONE"
-            db_machine = db._get_meta_gnosis("last_sync_machine") or "NONE"
-
-            # 5. ADJUDICATE THE SCHISM
-            # We determine if the Mind must be resurrected from the Scroll.
+            # --- MOVEMENT III: ADJUDICATION OF THE SCHISM ---
             needs_resurrection = False
             reason = ""
 
-            if not db_path.exists():
+            if not db_path.exists() or db_path.stat().st_size == 0:
                 needs_resurrection = True
-                reason = "Primordial Void: Crystal Mind unmanifest."
-            elif db_machine != self._machine_id:
+                reason = "Mind Unmanifested (Cold Boot)."
+            elif scroll_merkle != mind_merkle:
                 needs_resurrection = True
-                reason = f"Physical Relocation: Last sync on '{db_machine}', now on '{self._machine_id}'."
-            elif db_anchor != current_git_head:
+                reason = f"Merkle Drift: Scroll ({scroll_merkle[:8]}) != Mind ({mind_merkle[:8]})."
+            elif mind_machine != current_machine:
                 needs_resurrection = True
-                reason = f"Temporal Drift: Git context shifted ({db_anchor[:7]} -> {current_git_head[:7]})."
-            elif lock_mtime > db_mtime + 1.0:
+                reason = f"Spatial Relocation: Mind born on '{mind_machine}', now on '{current_machine}'."
+            elif mind_git_head != current_git_head:
                 needs_resurrection = True
-                reason = "Achronal Drift: Scroll has evolved beyond the Crystal."
+                reason = f"Temporal Drift: Git context shifted ({mind_git_head[:7]} -> {current_git_head[:7]})."
 
-            # 6. THE RITE OF RESURRECTION
+            # --- MOVEMENT IV: THE RITE OF RESURRECTION (THE CURE) ---
             if needs_resurrection:
                 self.logger.warn(f"Causal Schism Detected: {reason}")
 
                 if not self.engine._silent:
-                    self.console.print(f"[bold yellow]🌀 Re-aligning Crystal Mind with the Eternal Scroll...[/]")
+                    self.console.print(f"[bold yellow]🌀 Re-aligning Crystal Mind with the Gnostic Scroll...[/]")
 
-                # Atomic Re-Hydration: Ingesting the JSON manifest into SQL.
-                start_sync = time.perf_counter()
+                # [ASCENSION 5]: ATOMIC RE-HYDRATION SUTURE
+                # We forcefully re-inscribe the JSON manifest into the SQL lattice.
+                # This makes the AI 'Hot' immediately upon boot.
+                sync_start = time.perf_counter()
+
                 db.hydrate_from_lockfile()
 
-                # Update the Mind's internal anchors
+                # [ASCENSION 11]: SEALING THE TIMELINE
+                # Update the Mind's internal anchors to prevent future desync.
+                db._set_meta_gnosis("last_sync_merkle", scroll_merkle)
+                db._set_meta_gnosis("last_sync_machine", current_machine)
                 db._set_meta_gnosis("git_head_anchor", current_git_head)
-                db._set_meta_gnosis("last_sync_machine", self._machine_id)
                 db._set_meta_gnosis("last_sync_ts", str(time.time()))
 
-                sync_ms = (time.perf_counter() - start_sync) * 1000
-                self.logger.success(f"Consciousness unified in {sync_ms:.1f}ms.")
-            else:
-                self.logger.verbose("Crystal Mind and Scroll are in perfect resonance.")
+                sync_ms = (time.perf_counter() - sync_start) * 1000
+                self.logger.success(f"Consciousness unified with bit-perfect causal alignment in {sync_ms:.1f}ms.")
 
-        except Exception as e:
+                # [ASCENSION 8]: HUD RADIATION
+                if self.engine.akashic:
+                    try:
+                        self.engine.akashic.broadcast({
+                            "method": "novalym/hud_pulse",
+                            "params": {
+                                "type": "MIND_SYNC_SUCCESS",
+                                "label": "GNOSTIC_RECONCILIATION",
+                                "color": "#64ffda",
+                                "trace": getattr(self, "boot_id", "void")
+                            }
+                        })
+                    except:
+                        pass
+            else:
+                self.logger.verbose("Crystal Mind and Scroll are in perfect resonance. Logic is hot.")
+
+        except Exception as catastrophic_paradox:
             # [ASCENSION 12]: THE FINALITY VOW
-            # A reconciliation failure is non-critical to boot, but we chronicle the heresy.
-            self.logger.error(f"Reconciliation Paradox: {e}. Mental drift possible.")
+            # Reconciliation must never be the cause of a boot failure.
+            # We log the heresy and allow the Engine to run in Degraded Mode (JSON only).
+            self.logger.error(f"Reconciliation Paradox: {catastrophic_paradox}. Subsystem failing open.")
+            if self.logger.is_verbose:
+                import traceback
+                self.logger.debug(traceback.format_exc())
+
+        finally:
+            # Record Metabolic Tax
+            total_tax_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+            self.logger.verbose(f"Reconciler concluded in {total_tax_ms:.2f}ms.")
 
     # =========================================================================
     # == SECTION IV: MOVEMENT IV - THE FORGING OF THE SPINE                 ==

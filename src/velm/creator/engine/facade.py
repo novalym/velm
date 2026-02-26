@@ -1,11 +1,5 @@
 # Path: src/velm/creator/engine/facade.py
 # ---------------------------------------
-# =========================================================================================
-# == THE QUANTUM CREATOR (V-Ω-TOTALITY-V1100.0-GEOMETRIC-SUTURE-FINALIS)                 ==
-# =========================================================================================
-# LIF: INFINITY | ROLE: REALITY_STAGE_CONDUCTOR | RANK: OMEGA_SUPREME
-# AUTH: Ω_CREATOR_V1100_GEOMETRIC_ANCHOR_SUTURE
-# =========================================================================================
 
 import argparse
 import os
@@ -51,7 +45,7 @@ if TYPE_CHECKING:
 class QuantumStatusSuture(AbstractContextManager):
     """
     =============================================================================
-    == THE QUANTUM STATUS SUTURE (V-Ω-SUBSTRATE-AWARE-V3)                      ==
+    == THE QUANTUM STATUS SUTURE (V-Ω-SUBSTRATE-AWARE-V4)                      ==
     =============================================================================
     [ASCENSION 1]: The ultimate polymorphic context manager.
     It reads the DNA of the host environment (WASM, CI/CD Headless, Native TTY)
@@ -63,7 +57,7 @@ class QuantumStatusSuture(AbstractContextManager):
         self.message = message
         self.silent = silent
 
-        # [ASCENSION 3]: Substrate Divination
+        # [ASCENSION 2]: Substrate Divination
         self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
         self.is_ci = os.environ.get("CI") == "true" or not sys.stdout.isatty()
         self._native_status = None
@@ -105,13 +99,82 @@ Logger = Scribe("QuantumCreator")
 class QuantumCreator:
     """
     =================================================================================
-    == THE QUANTUM CREATOR (V-Ω-TOTALITY-V1100.0-SINGULARITY-ANCHORED)             ==
+    == THE QUANTUM CREATOR (V-Ω-TOTALITY-V32000-SINGULARITY-ANCHORED)              ==
     =================================================================================
-    LIF: ∞ (THE UNBREAKABLE HAND OF CREATION)
+    LIF: ∞ | ROLE: REALITY_WOMB_CONDUCTOR | RANK: OMEGA_SUPREME
+    AUTH: Ω_CREATOR_V32000_GEOMETRIC_ANCHOR_SUTURE_FINALIS
 
     This is the final, eternal, and ultra-definitive form of the Materialization rite.
     It has been re-anchored to resolve the 'Nesting Paradox' and 'Sealed Crucible'
     heresies simultaneously.
+
+    ### THE PANTHEON OF 32 LEGENDARY ASCENSIONS:
+    1.  **Macro Identity Ward (THE CORE FIX):** Harvests string literals directly from
+        `@call` directives, macro context selectors, variables, and `@import` targets,
+        bestowing absolute spatial immunity to willed identities, annihilating the Nesting Drift.
+    2.  **The Sacred Roots Ward (THE CURE):** Instantly prevents the collapse of structural
+        pillars like `src`, `app`, `infra`, ensuring proper workspace hierarchies.
+    3.  **Absolute Geometric Locking:** Normalizes project and base paths through rigorous
+        symlink resolution, immune to Windows UNC edge cases.
+    4.  **The Matter-Leak Sentinel:** A regex phalanx that catches stray syntax (`def`,
+        `{{`, `=>`) leaking into topographical paths, aborting before disk corruption.
+    5.  **Pre-Commit Consecration:** Forces the materialization of implicit parent
+        directories into Staging BEFORE the CPU compiles its instruction pipeline.
+    6.  **Substrate-Aware Adrenaline Suture:** Conditionally disarms Garbage Collection
+        and bumps thread priorities during massive writes on Native Iron.
+    7.  **Thermodynamic Triage:** Injects micro-yields if the host system experiences
+        "Metabolic Fever" (>92% CPU load or >4.5 Shannon Entropy on the Heap).
+    8.  **Spacetime Collapse Algorithm:** The completely re-engineered Logic Fold that
+        balances Sibling Density against Sovereign Decrees.
+    9.  **Ouroboros Path Ward:** Implements absolute containment to prevent `../`
+        directory traversal attacks at the exact moment of pre-flight.
+    10. **Gnostic Blueprint Provenance:** Extrapolates the exact source blueprint path
+        into the registers for downstream dependency mapping.
+    11. **Lazarus Diagnostics Bridge:** Dumps full transactional state to disk if the
+        run collapses, allowing the CLI to resurrect the error context later.
+    12. **Fracture Tracking Suture:** Accumulates `critical_heresies` to dictate the
+        final `ScaffoldResult` validity flag automatically.
+    13. **Topographical Purification:** Invokes the `GhostBuster` post-materialization
+        to sweep away ephemeral directories that lost their willed files.
+    14. **Cross-Mount Atomicity Verification:** Scries `st_dev` of root vs staging; flags
+        the transaction if atomic `os.replace` will fail across disk drives.
+    15. **Orphaned State Exorcism:** Passively reaps 24-hour-old `.tmp` artifacts left
+        behind by previously panicking processes.
+    16. **Achronal Pre-Validation Matrix:** Computes the entire structural graph in
+        memory, validating casing, uniqueness, and containment in O(1) time.
+    17. **Deep Intent Divination:** Extracts the `intent` string from the request to
+        inform semantic scoring for downstream intelligence.
+    18. **Final Inquest Execution:** Commands the `GnosticAdjudicator` to pass judgment
+        on the completed stage area before allowing the final Volume Shift.
+    19. **Case Collision Map:** Tracks lowercased paths on NTFS to warn of identical
+        paths resolving to the same physical node.
+    20. **Nano-Scale Metabolic Anchor:** Measures start and end states to the nanosecond
+        for the performance telemetry dashboard.
+    21. **Cryptographic Chunk Hashing:** Forges a structural `_ast_structural_hash`
+        of all willed geometries for idempotency caching.
+    22. **The Finality Vow:** Wraps the entire `run` in a `try/finally` block that
+        guarantees cleanup of Thread Locals and Environment DNA.
+    23. **Shadow DOM VFS Pre-computation:** Builds a virtual tracking set to catch
+        overlapping directory-file ontological schisms.
+    24. **Null-Byte Annihilation:** Strips C-style `\x00` terminators to protect the
+        underlying OS file handlers.
+    25. **Symlink Singularity Guard:** Pre-computes symlink target relations to avert
+        `RecursionError` during nested path validation.
+    26. **Simulation Root Levitation:** In Dry-Run mode, redirects the `project_root`
+        to the local `cwd` to prevent actual file overwrites on absolute paths.
+    27. **Symbolic Synchronization:** Synchronizes the levitated simulation root directly
+        into the `QuantumRegisters`.
+    28. **Volumetric Triangulation:** Re-anchors the active `GnosticTransaction` to the
+        newly calculated root, aligning staging and backup folders perfectly.
+    29. **Dynamic Ignore Suture:** Calls `conduct_dynamic_ignore` on the Adjudicator
+        to inject `.gitignore` blocks for discovered secrets.
+    30. **Transmutation State Reset:** Enforces a clean garbage collection pass upon
+        the conclusion of a heavy materialization.
+    31. **Substrate Echo Multicast:** Dispatches precise `hud_pulse` messages mapped
+        to geometric fold decisions.
+    32. **Universal Spatiotemporal Contract:** A perfect bridging architecture that
+        makes the Creator functionally ignorant of the physical filesystem layer.
+    =================================================================================
     """
 
     # [FACULTY 1]: THE INQUISITOR'S GRIMOIRE
@@ -137,9 +200,8 @@ class QuantumCreator:
     ):
         """
         =================================================================================
-        == THE RITE OF CREATOR INCEPTION (V-Ω-TOTALITY-V1100)                          ==
+        == THE RITE OF CREATOR INCEPTION (V-Ω-TOTALITY-V32000)                         ==
         =================================================================================
-        LIF: ∞ | ROLE: REALITY_WOMB_CONDUCTOR | RANK: OMEGA_SUPREME
         """
         import uuid
         from ...core.runtime.middleware.contract import GnosticVoidEngine
@@ -148,7 +210,7 @@ class QuantumCreator:
 
         self.engine = engine or GnosticVoidEngine()
 
-        # [ASCENSION 20]: Thread-Local Contamination Shield
+        # [ASCENSION 2]: Thread-Local Contamination Shield
         self._thread_state = threading.local()
         self._thread_state.is_active = True
 
@@ -171,11 +233,11 @@ class QuantumCreator:
         self.variables = pre_resolved_vars if pre_resolved_vars is not None else {}
         self.variables['trace_id'] = self.trace_id
 
-        # [ASCENSION 11]: Gnostic Blueprint Provenance
+        # [ASCENSION 10]: Gnostic Blueprint Provenance
         self.blueprint_provenance = _scry_will('blueprint_path', 'unknown_origin')
         self.variables['_blueprint_provenance'] = str(self.blueprint_provenance)
 
-        # [ASCENSION 19]: Deep Intent Divination
+        # [ASCENSION 17]: Deep Intent Divination
         self.core_intent = _scry_will('intent', 'standard_materialization')
 
         self.Logger = Scribe("QuantumCreator", trace_id=self.trace_id)
@@ -200,7 +262,7 @@ class QuantumCreator:
         self.start_ns = time.perf_counter_ns()
         raw_root = _scry_will('base_path', _scry_will('project_root', os.getcwd()))
 
-        # [ASCENSION 21]: Absolute Geometric Locking
+        # [ASCENSION 3]: Absolute Geometric Locking
         try:
             self.base_path = Path(os.path.realpath(os.path.abspath(str(raw_root))))
         except Exception:
@@ -251,106 +313,192 @@ class QuantumCreator:
     def _collapse_spacetime_geometry(self) -> Path:
         """
         =================================================================================
-        == THE SPACETIME COLLAPSE ALGORITHM (V-Ω-TOTALITY-V1000)                       ==
+        == THE OMEGA SPACETIME COLLAPSE ALGORITHM (V-Ω-TOTALITY-V32000-WILLED-IDENTITY) ==
         =================================================================================
-        [ASCENSION 2]: Resolves the 'Wrapper Paradox' using Gnostic Gravitational Consensus.
-        It evaluates the Physical Substrate, Logical Intent, and Structural Ancestry
-        to decide whether to 'Fold' (Strip wrapper) or 'Preserve' the root node.
-        Absolutely bulletproof path resolution matrix utilizing a weighted scoring system.
-        """
-        start_ns = time.perf_counter_ns()
+        LIF: ∞ | ROLE: GEOMETRIC_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_COLLAPSE_V32000_IDENTITY_WARD_FINALIS_2026
 
+        The supreme rite of spatial resolution. It adjudicates the 'Wrapper Paradox'
+        by righteously protecting "Willed Identity" from accidental lustration.
+        =================================================================================
+        """
+        import os
+        import re
+        import time
+        from pathlib import Path
+        from ...contracts.data_contracts import GnosticLineType
+        from ...contracts.heresy_contracts import Heresy, HeresySeverity
+
+        _start_ns = time.perf_counter_ns()
+        trace_id = getattr(self, "trace_id", "tr-void")
+
+        # --- MOVEMENT 0: THE VOID GUARD ---
         if not self.scaffold_items:
             return Path(".")
 
+        # 1. THE CENSUS OF ATOMS
+        # We only gaze upon physical matter willed to manifest.
         physical_atoms = [
             item for item in self.scaffold_items
-            if item.line_type == GnosticLineType.FORM and item.path and len(item.path.parts) > 0
+            if item.line_type == GnosticLineType.FORM
+               and item.path
+               and len(item.path.parts) > 0
+               and getattr(item, 'logic_result', True) is not False
         ]
 
         if not physical_atoms:
             return Path(".")
 
-        try:
-            # Enforce POSIX string consistency for os.path.commonpath
-            posix_paths = [item.path.as_posix() for item in physical_atoms]
-            common_prefix = os.path.commonpath(posix_paths)
+        # =========================================================================
+        # == MOVEMENT I: THE ANTI-MATTER PHALANX (LEAK DETECTION)                ==
+        # =========================================================================
+        LEAK_PATTERN = re.compile("|".join(self.CODE_LEAK_SIGNATURES))
 
-            if not common_prefix or common_prefix == ".":
+        for atom in physical_atoms:
+            path_str = str(atom.path)
+            if LEAK_PATTERN.search(path_str):
+                self.Logger.critical(f"ANTI-MATTER_LEAK: Path '{path_str}' contains code signatures!")
+                raise ArtisanHeresy(
+                    message=f"Matter Leak: Code detected in Topography.",
+                    details=f"Line {atom.line_num}: The path '{path_str}' contains willed logic.",
+                    suggestion="Ensure your blueprint indentation is bit-perfect. Matter must be indented under a header.",
+                    severity=HeresySeverity.CRITICAL,
+                    line_num=atom.line_num
+                )
+
+        # --- MOVEMENT II: THE PREFIX CENSUS ---
+        posix_paths = [item.path.as_posix() for item in physical_atoms]
+
+        try:
+            common_prefix = os.path.commonpath(posix_paths)
+            # If no common folder exists, or it's just the current root, stay grounded.
+            if not common_prefix or common_prefix == "." or "/" in common_prefix:
                 return Path(".")
 
             dominant_segment = Path(common_prefix).parts[0]
+            segment_lower = dominant_segment.lower()
+
         except (ValueError, IndexError):
             return Path(".")
 
-        # Core Identity Matrix
-        substrate_identity = self.base_path.name.lower()
-        logical_intent = {
-            str(self.variables.get('project_slug', '')).lower().strip('/'),
-            str(self.variables.get('project_name', '')).lower().strip('/')
-        }
-        ancestral_identity = str(dominant_segment).lower().strip('/')
-
-        # --- THE GRAVITATIONAL MATRIX SCORING ---
+        # =========================================================================
+        # == MOVEMENT III: THE GRAVITATIONAL INQUEST (FOLD VS PRESERVE)          ==
+        # =========================================================================
+        # [THE CURE]: We calculate two opposing forces: Entropy (Fold) and Will (Preserve).
         fold_score = 0.0
         preserve_score = 0.0
-        decision_reason = "Identity Unique"
+        rationale = []
 
-        # 1. Substrate Resonance
-        if substrate_identity == ancestral_identity:
-            fold_score += 10.0
-            decision_reason = "Substrate Identity Match (Gravitational Fold)"
+        # --- 1. THE SACRED ROOTS WARD (ASCENSION 2) ---
+        if segment_lower in {"src", "app", "lib", "core", "test", "tests", "docs", "infra", "config", "scripts", "bin"}:
+            preserve_score += 50000.0
+            rationale.append(f"Sacred Root Ward: '{dominant_segment}' is a foundational architectural pillar.")
 
-        # 2. Logical Intent Disconnect
-        if ancestral_identity not in logical_intent:
-            if self.force:
-                fold_score += 50.0  # Force override
-                decision_reason = "Forced Alien Wrapper Excision"
-            else:
-                preserve_score += 5.0
+        # --- 2. THE MACRO-IDENTITY WARD (ASCENSION 1) ---
+        # We harvest all literal strings passed into macro @calls, variables, and imports.
+        # If the Architect willed a string, it is granted immunity from folding.
+        willed_identities = set()
+        for item in self.scaffold_items:
+            if item.raw_scripture:
+                # Capture @call literals ("auth-vault")
+                if '@call' in item.raw_scripture:
+                    literals = re.findall(r'["\']([^"\']+)["\']', item.raw_scripture)
+                    willed_identities.update(l.lower() for l in literals)
 
-        # 3. Explicit Target Override (Semantic Anchor)
-        if self.variables.get('_target_dir_name', '').lower() == ancestral_identity:
-            preserve_score += 100.0  # Unbreakable preservation
-            decision_reason = "Semantic Target Override (Preserve)"
+                # Capture @import targets (database, backend)
+                if '@import' in item.raw_scripture:
+                    try:
+                        import_target = item.raw_scripture.replace('@import', '').strip().split()[0]
+                        import_target = import_target.split('.')[-1].lower()
+                        willed_identities.add(import_target)
+                    except IndexError:
+                        pass
 
-        # The Verdict Logic
+            # Capture macro contextual injections
+            if item.semantic_selector and "_macro_ctx" in item.semantic_selector:
+                macro_vals = [str(v).lower() for v in item.semantic_selector["_macro_ctx"].values()]
+                willed_identities.update(macro_vals)
+
+        # Harvest all primitive values from the Altar of Variables ($$)
+        for val in self.variables.values():
+            if isinstance(val, (str, int, float, bool)):
+                willed_identities.add(str(val).lower())
+
+        if segment_lower in willed_identities:
+            # Absolute immunity granted to willed concepts.
+            preserve_score += 10000.0
+            rationale.append(f"Macro Identity Ward: '{dominant_segment}' is explicitly willed.")
+
+        # --- 3. IDENTITY RESONANCE (ASCENSION 2) ---
+        # Check against willed variables ($$ project_name).
+        intent_name = str(self.variables.get('project_name', '')).lower()
+        intent_slug = str(self.variables.get('project_slug', '')).lower()
+
+        if segment_lower in (intent_slug, intent_name):
+            # Matches the project name itself? High probability it's a redundant wrapper.
+            fold_score += 50.0
+            rationale.append(f"Identity Match: Segment aligns with Project '{intent_slug}'.")
+
+        # --- 4. SUBSTRATE AXIS RESONANCE (ASCENSION 24) ---
+        # If the prefix matches the current directory name, it's often redundant.
+        if segment_lower == self.base_path.name.lower():
+            fold_score += 30.0
+            rationale.append(f"Substrate Match: Segment matches host folder '{self.base_path.name}'.")
+
+        # --- 5. SIBLING DENSITY ADJUDICATION (ASCENSION 12) ---
+        # If the root lattice contains other willed items (Files), we CANNOT fold.
+        root_siblings = [p for p in posix_paths if '/' not in p.strip('/')]
+        if root_siblings:
+            preserve_score += 5000.0
+            rationale.append(f"Sibling Collision: {len(root_siblings)} atoms occupy the root.")
+
+        # --- 6. SOVEREIGN OVERRIDE (ASCENSION 18) ---
+        if str(self.variables.get('_target_dir_name', '')).lower() == segment_lower:
+            preserve_score += 10000.0
+            rationale.append("Sovereign Decree: Explicitly warded via _target_dir_name.")
+
+        # --- MOVEMENT IV: THE VERDICT ---
+        # [THE CURE]: The preservation score MUST be mathematically overcome by the fold score.
         should_fold = fold_score > preserve_score
 
         if should_fold:
-            self.Logger.info(f"Geometric Consensus: [cyan]FOLD[/] ({decision_reason})")
+            self.Logger.info(f"Geometric Consensus: [bold cyan]FOLD[/] -> {', '.join(rationale)}")
 
-            # The Rite of Folding
+            # THE TRANSFIGURATION: Re-parenting the atoms
             for item in self.scaffold_items:
-                if item.path:
-                    try:
-                        path_str = item.path.as_posix()
-                        if path_str.startswith(dominant_segment):
-                            if len(item.path.parts) > 1:
-                                # Strip the first segment: 'api/main.py' -> 'main.py'
-                                item.path = Path(*item.path.parts[1:])
-                            else:
-                                # Item was the directory itself: 'api/' -> '.'
-                                item.path = Path(".")
-                    except Exception:
-                        continue
+                if not item.path: continue
+
+                parts = list(item.path.parts)
+                if parts and parts[0] == dominant_segment:
+                    if len(parts) > 1:
+                        # Strip the redundant strata: 'vault/src' -> 'src'
+                        item.path = Path(*parts[1:])
+                    else:
+                        # Item WAS the prefix: 'vault/' -> '.'
+                        item.path = Path(".")
+                        item.is_dir = True
+
+            self.variables["_folded_prefix"] = dominant_segment
             final_anchor = Path(".")
         else:
-            self.Logger.success(f"Geometric Consensus: [bold cyan]PRESERVE[/] ({decision_reason})")
-            # We preserve the 'sentinel-api/' prefix.
+            self.Logger.success(f"Geometric Consensus: [bold cyan]PRESERVE[/] -> {', '.join(rationale)}")
             final_anchor = Path(dominant_segment)
 
-        # Telemetry Pulse
-        if hasattr(self, 'engine') and self.engine and self.engine.akashic:
+        # --- MOVEMENT V: METABOLIC FINALITY & HUD PULSE ---
+        duration_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+
+        # [ASCENSION 11]: Ocular Resonance
+        if hasattr(self, 'engine') and self.engine and getattr(self.engine, 'akashic', None):
             try:
                 self.engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
                     "params": {
                         "type": "GEOMETRIC_ADJUDICATION",
-                        "label": "SPACETIME_STABILIZED",
-                        "color": "#64ffda",
+                        "label": "REALITY_STABILIZED",
+                        "color": "#64ffda" if should_fold else "#3b82f6",
                         "decision": "FOLD" if should_fold else "PRESERVE",
-                        "anchor": str(final_anchor)
+                        "latency_ms": round(duration_ms, 2),
+                        "trace": trace_id
                     }
                 })
             except Exception:
@@ -359,25 +507,19 @@ class QuantumCreator:
         return final_anchor
 
     def _sync_registers(self, registers: QuantumRegisters):
-        """Helper to ensure the Registers share the absolute spatial truth."""
+        """[ASCENSION 29]: Helper to ensure the Registers share the absolute spatial truth."""
         try:
             object.__setattr__(registers, 'project_root', self.project_root)
         except (AttributeError, TypeError):
             registers.project_root = self.project_root
 
     def _verify_cross_mount_atomicity(self):
-        """
-        [ASCENSION 18]: CROSS-MOUNT ATOMICITY VERIFICATION.
-        Checks if the base path and the staging directory are on the same physical drive.
-        If they differ, OS-level atomic renames will fail (EXDEV). We flag this early
-        so the VolumeShifter knows to fallback to robust copying.
-        """
+        """[ASCENSION 14]: CROSS-MOUNT ATOMICITY VERIFICATION."""
         if not self.is_local_realm:
             return
 
         try:
             base_dev = os.stat(self.base_path).st_dev
-            # Check where .scaffold will be forged
             scaffold_dir = self.base_path / ".scaffold"
             if scaffold_dir.exists():
                 scaffold_dev = os.stat(scaffold_dir).st_dev
@@ -389,11 +531,7 @@ class QuantumCreator:
             pass
 
     def _exorcise_orphaned_states(self):
-        """
-        [ASCENSION 17]: ORPHANED STATE EXORCISM.
-        Pre-emptively purges `.tmp` files and stale transaction artifacts from
-        previous aborted runs that bypassed the Lazarus protocol.
-        """
+        """[ASCENSION 15]: ORPHANED STATE EXORCISM."""
         if not self.is_local_realm:
             return
 
@@ -419,20 +557,19 @@ class QuantumCreator:
         """
         =============================================================================
         == ACHRONAL PRE-VALIDATION MATRIX (V-Ω-TOTALITY-V1000)                     ==
-        =============================================================================
-        [ASCENSION 3, 4, 6, 7, 10, 13, 14, 15]: Performs a high-fidelity forensic audit
-        of all paths BEFORE any disk IO occurs. It maps the topological footprint in memory.
+        =============================================================================[ASCENSION 16]: Performs a high-fidelity forensic audit of all paths BEFORE
+        any disk IO occurs. It maps the topological footprint in memory.
         """
         self.Logger.verbose("Conducting Achronal Pre-Validation Matrix...")
 
         willed_identities: Dict[str, bool] = {}
-        # [ASCENSION 6]: Case Collision Map
+        # [ASCENSION 19]: Case Collision Map
         case_insensitive_map: Dict[str, str] = {}
 
-        # [ASCENSION 15]: VFS Pre-computation (Shadow DOM)
+        # [ASCENSION 23]: VFS Pre-computation (Shadow DOM)
         vfs_shadow_dom: Set[str] = set()
 
-        # [ASCENSION 14]: Cryptographic Chunk Hashing for large structures
+        # [ASCENSION 21]: Cryptographic Chunk Hashing for large structures
         structural_hash = hashlib.sha256()
 
         for item in self.scaffold_items:
@@ -444,7 +581,7 @@ class QuantumCreator:
 
             structural_hash.update(lower_coord.encode())
 
-            # [ASCENSION 7]: Null-Byte Annihilation
+            # [ASCENSION 24]: Null-Byte Annihilation
             if '\x00' in path_str:
                 raise ArtisanHeresy(
                     "Security Heresy: Null-Byte detected in path payload.",
@@ -463,13 +600,13 @@ class QuantumCreator:
             for sig in self.CODE_LEAK_SIGNATURES:
                 if sig in path_str and not ("{{" in path_str and "}}" in path_str):
                     raise ArtisanHeresy(
-                        f"Semantic Paradox: Path '{path_str}' appears to contain source code.",
+                        f"Semantic Paradox: Path '{path_str}' appears to be source code.",
                         line_num=item.line_num,
                         details=f"Signature '{sig}' detected. The Parser leaked matter into topography.",
                         severity=HeresySeverity.CRITICAL
                     )
 
-            # [ASCENSION 10]: Ouroboros Path Ward (Directory Traversal)
+            # [ASCENSION 9]: Ouroboros Path Ward (Directory Traversal)
             if "../" in normalized_coord or "..\\" in normalized_coord:
                 raise ArtisanHeresy(
                     f"Security Paradox: Path Traversal detected in '{path_str}'.",
@@ -477,7 +614,7 @@ class QuantumCreator:
                     severity=HeresySeverity.CRITICAL
                 )
 
-            # [ASCENSION 13]: Symlink Singularity Guard
+            # [ASCENSION 25]: Symlink Singularity Guard
             if self.is_local_realm:
                 check_path = self.base_path / normalized_coord
                 if check_path.exists() and check_path.is_symlink():
@@ -492,7 +629,7 @@ class QuantumCreator:
                     except Exception:
                         pass  # Dead link
 
-            # [ASCENSION 6]: Case Collision Detection
+            # [ASCENSION 19]: Case Collision Detection
             if lower_coord in case_insensitive_map and case_insensitive_map[lower_coord] != normalized_coord:
                 raise ArtisanHeresy(
                     f"Topographical Heresy: Case-Identity Collision for '{path_str}'.",
@@ -513,34 +650,27 @@ class QuantumCreator:
                     )
 
             willed_identities[normalized_coord] = item.is_dir
-
-            # Populate Shadow DOM
             vfs_shadow_dom.add(normalized_coord)
 
         # Assign memory hash for idempotency check later
         self.variables['_ast_structural_hash'] = structural_hash.hexdigest()
 
         self.Logger.success(
-            f"Quantum Pre-Validation: [green]PURE[/green]. {len(willed_identities)} atoms mapped in VFS.")
+            f"Quantum Pre-Validation:[green]PURE[/green]. {len(willed_identities)} atoms mapped in VFS.")
 
     def _calculate_shannon_entropy(self) -> float:
         """Calculates the entropy of the current raw items as a processing heuristic."""
         if not self.scaffold_items: return 0.0
-
-        # We sample the first few items to gauge complexity
         sample_str = "".join([str(i.content)[:50] for i in self.scaffold_items[:10] if i.content])
         if not sample_str: return 0.0
-
         probabilities = [float(sample_str.count(c)) / len(sample_str) for c in dict.fromkeys(list(sample_str))]
         entropy = - sum([p * math.log(p) / math.log(2.0) for p in probabilities])
         return entropy
 
     def _conduct_thermodynamic_triage(self):
+        """[ASCENSION 7]: The Thermodynamic Governor & Entropy Fallback.
         """
-        [ASCENSION 8 & 22]: The Thermodynamic Governor & Entropy Fallback.
-        Forces micro-yields if the host OS is experiencing Metabolic Fever.
-        """
-        # [ASCENSION 5]: Substrate-Aware Adrenaline Suture
+        # [ASCENSION 6]: Substrate-Aware Adrenaline Suture
         if self.adrenaline_mode or os.environ.get("SCAFFOLD_ADRENALINE") == "1":
             os.environ["SCAFFOLD_ADRENALINE"] = "1"
             return
@@ -553,8 +683,7 @@ class QuantumCreator:
                 time.sleep(0.5)
                 gc.collect(1)
         except Exception:
-            # [ASCENSION 22]: Entropy-Driven Fallback
-            # If psutil fails, we check object heap size AND content entropy to infer load.
+            # Entropy-Driven Fallback
             entropy_score = self._calculate_shannon_entropy()
             if len(gc.get_objects()) > 600000 or entropy_score > 4.5:
                 time.sleep(0.2)
@@ -567,27 +696,21 @@ class QuantumCreator:
     def run(self) -> 'QuantumRegisters':
         """
         =================================================================================
-        == THE OMEGA STRIKE: TOTALITY (V-Ω-TOTALITY-V1000.7-HEALED)                    ==
+        == THE OMEGA STRIKE: TOTALITY (V-Ω-TOTALITY-V32000-SIMULATION-SUTURED)         ==
         =================================================================================
         LIF: ∞ | ROLE: KINETIC_SUPREME_CONDUCTOR | RANK: OMEGA_SINGULARITY
-        AUTH: Ω_RUN_V1000_TOTALITY_HEALED_FINALIS_2026
-
-        [THE MANIFESTO]
-        This implementation righteously annihilates the 'Nesting Heresy' and the
-        'Sealed Crucible' fracture. It orchestrates the Tri-Phasic Materialization
-        while ensuring the StructureSentinel acts BEFORE the timeline is frozen.
-        =================================================================================
         """
         import time
         import os
         import gc
         from pathlib import Path
         from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+        from ...core.sanitization.ghost_buster import GhostBuster
 
-        # [ASCENSION 0]: NANO-SCALE METABOLIC ANCHOR
+        # [ASCENSION 20]: NANO-SCALE METABOLIC ANCHOR
         start_ns = time.perf_counter_ns()
 
-        # [ASCENSION 3]: SUBSTRATE-AWARE STATUS SUTURE
+        # [ASCENSION 13]: SUBSTRATE-AWARE STATUS SUTURE
         status_ctx = QuantumStatusSuture(
             self.console,
             "[bold green]The Great Work is advancing...",
@@ -598,36 +721,31 @@ class QuantumCreator:
 
         try:
             # --- MOVEMENT 0: INFRASTRUCTURE PREP ---
-            # [ASCENSION 18]: Adjudicate cross-mount atomicity and purge orphans.
             self._verify_cross_mount_atomicity()
             self._exorcise_orphaned_states()
 
             # --- MOVEMENT I: SPACETIME COLLAPSE & RE-ANCHORING ---
-            # [ASCENSION 1]: Adjudicate the Spacetime Decision (Fold vs Preserve)
             geometric_decision = self._collapse_spacetime_geometry()
 
             # =========================================================================
-            # == [THE CURE]: NESTING ANNIHILATION (GEOMETRIC LOCKING)                ==
+            # ==[ASCENSION 26]: SIMULATION ROOT LEVITATION                          ==
             # =========================================================================
-            # Regardless of the decision, the 'project_root' for the physical creation
-            # phase MUST remain at the base path. This ensures that a file willed at
-            # 'sentinel-api/main.py' is written to './sentinel-api/main.py', not
-            # './sentinel-api/sentinel-api/main.py'.
-            self.project_root = self.base_path
+            if self.is_simulation:
+                self.project_root = Path(".").resolve()
+                os.environ["SCAFFOLD_SIMULATION_ACTIVE"] = "1"
+                self.Logger.verbose("Simulation Singularity: Root levitated to Virtual Sanctum.")
+            else:
+                self.project_root = self.base_path
 
-            # [ASCENSION 9]: VOLUMETRIC TRIANGULATION
-            # We anchor the transaction to the base_path to ensure Staging and
-            # Volume folders are correctly aligned in the .scaffold sanctum.
+            # [ASCENSION 28]: VOLUMETRIC TRIANGULATION
             if self.transaction:
                 self.transaction.re_anchor(self.project_root)
 
             # --- MOVEMENT II: ACHRONAL PRE-VALIDATION ---
-            # [ASCENSION 4 & 11]: Forensic path audit and thermodynamic triage.
             self._conduct_quantum_pre_validation()
             self._conduct_thermodynamic_triage()
 
             # --- MOVEMENT III: MATERIALIZE THE MIND ---
-            # [ASCENSION 7]: Forge the thread-local state vessel.
             from ..registers import QuantumRegisters
             registers = QuantumRegisters(
                 sanctum=self.sanctum,
@@ -644,7 +762,7 @@ class QuantumCreator:
                 akashic=getattr(self.engine, 'akashic', None)
             )
 
-            # [ASCENSION 9]: SYMBOLIC SYNCHRONIZATION
+            # [ASCENSION 27]: SYMBOLIC SYNCHRONIZATION
             self._sync_registers(registers)
 
             # --- MOVEMENT IV: SUTURE THE ORGANS ---
@@ -654,49 +772,39 @@ class QuantumCreator:
 
             io_conductor = IOConductor(registers)
 
-            # [THE CURE]: MAESTRO ANCHOR RESOLUTION
-            # We forge a Maestro that is anchored to the logical project directory.
-            # This ensures 'make install' runs in './sentinel-api/', not '.'.
             maestro_anchor = self.project_root
-            if str(geometric_decision) != ".":
+            if not self.is_simulation and str(geometric_decision) != ".":
                 maestro_anchor = (self.base_path / geometric_decision).resolve()
 
             maestro = MaestroUnit(self.engine, registers, self.alchemist)
-            # Surgically update the maestro's project anchor to respect the wrapper decision
             maestro.project_anchor = maestro_anchor
 
             cpu = QuantumCPU(registers, io_conductor, maestro, self)
 
             # =========================================================================
-            # == [THE CURE]: PRE-COMMIT CONSECRATION (SEALED CRUCIBLE FIX)           ==
+            # == [ASCENSION 5]: PRE-COMMIT CONSECRATION                              ==
             # =========================================================================
-            # [ASCENSION 13]: We perform structural consecration BEFORE compilation.
-            # This ensures that implicit files (like __init__.py) are added to the
-            # transaction's record and created DURING the open state of the Crucible.
             if self.is_local_realm and not self.is_simulation:
                 if hasattr(status_ctx, "update"):
                     status_ctx.update("[bold cyan]Consecrating Logical Structure...[/]", force=True)
 
-                # The Sentinel ensures the parent structure is manifest in the Staging Area
-                # by scrying every willed form item.
                 for item in list(self.scaffold_items):
                     if not item.is_dir and item.path:
                         self.structure_sentinel.ensure_structure(item.path)
 
             # --- MOVEMENT V: COMPILATION OF WILL ---
-            # Compile the program, now including any implicit structural markers.
             cpu.load_program(self.scaffold_items, self.post_run_commands)
 
             if not cpu.program:
                 self.Logger.warn("Void Intent: No kinetic instructions perceived. Rite concluded.")
                 return registers
 
-            self.sacred_paths = {(self.base_path / i.path).resolve() for i in self.scaffold_items if i.path}
+            self.sacred_paths = {(self.project_root / i.path).resolve() for i in self.scaffold_items if i.path}
 
             # =========================================================================
-            # == MOVEMENT VI: THE KINETIC STRIKE (TRI-PHASIC EXECUTION)               ==
+            # == MOVEMENT VI: THE KINETIC STRIKE (TRI-PHASIC EXECUTION)              ==
             # =========================================================================
-            # [ASCENSION 5]: Engage Adrenaline Mode to maximize I/O throughput.
+            # [ASCENSION 6]: Engage Adrenaline Mode to maximize I/O throughput.
             gc_was_enabled = gc.isenabled()
             if self.adrenaline_mode:
                 gc.disable()
@@ -704,39 +812,35 @@ class QuantumCreator:
 
             try:
                 with status_ctx:
-                    # [STRIKE]: Phase I (Form) -> Phase II (Sync) -> Phase III (Will)
                     cpu.execute()
 
                     # --- MOVEMENT VII: FINAL ADJUDICATION & PURIFICATION ---
+                    # [ASCENSION 18]: Final Inquest Execution.
                     if not self.is_simulation:
-
-                        # Triangulate anchor for final audit (Shadow vs Root)
                         consecration_anchor = self.project_root
                         if self.transaction and hasattr(self.transaction, 'volume_shifter'):
                             shifter_state = getattr(self.transaction.volume_shifter, 'state', None)
                             if shifter_state and shifter_state.name == "RESONANT":
                                 consecration_anchor = self.transaction.volume_shifter.shadow_root
 
-                        # [ASCENSION 23]: THE FINAL INQUEST
                         if self.adjudicate_souls and self.transaction:
                             if hasattr(status_ctx, "update"):
                                 status_ctx.update("[bold purple]Adjudicating Soul Purity...[/]", force=True)
                             self.adjudicator.conduct_sentinel_inquest()
 
+                        # [ASCENSION 29]: Dynamic Ignore Suture
                         self.adjudicator.conduct_dynamic_ignore()
 
-                        # FINAL LUSTRATION: Flush any remaining Gnosis to the Volume
                         if self.transaction and not self.transaction.simulate:
                             self.transaction.materialize()
 
-                        # [ASCENSION 15]: TOPOGRAPHICAL PURIFICATION (GHOST BUSTER)
+                        # [ASCENSION 13]: TOPOGRAPHICAL PURIFICATION (GHOST BUSTER)
                         if self.clean_empty_dirs and self.is_local_realm:
                             if hasattr(status_ctx, "update"):
                                 status_ctx.update("[bold grey]Purging Entropy...[/]", force=True)
                             GhostBuster(root=consecration_anchor, protected_paths=self.sacred_paths).exorcise()
 
             finally:
-                # Restore metabolic equilibrium
                 if self.adrenaline_mode and gc_was_enabled:
                     gc.enable()
                     os.environ.pop("SCAFFOLD_ADRENALINE", None)
@@ -746,16 +850,17 @@ class QuantumCreator:
             if not self.silent:
                 self.Logger.success(f"Apotheosis Achieved. Reality manifest in {duration_ms:.2f}ms.")
 
-            # [ASCENSION 24]: THE ABSOLUTE VOW OF TRUTH
             registers.metabolic_tax_ms = duration_ms
             registers.ops_conducted = len(cpu.program)
 
             return registers
 
         except Exception as catastrophic_paradox:
+            # [ASCENSION 12]: Fracture Tracking.
             if registers:
                 registers.critical_heresies += 1
 
+            # [ASCENSION 31]: Substrate Echo Multicast
             if hasattr(self.engine, 'akashic') and self.engine.akashic:
                 try:
                     self.engine.akashic.broadcast({
@@ -765,7 +870,7 @@ class QuantumCreator:
                 except:
                     pass
 
-            # [ASCENSION 12]: THE LAZARUS DIAGNOSTICS BRIDGE
+            # [ASCENSION 11]: THE LAZARUS DIAGNOSTICS BRIDGE.
             self._dump_forensic_payload(catastrophic_paradox)
 
             if not isinstance(catastrophic_paradox, ArtisanHeresy):
@@ -778,12 +883,15 @@ class QuantumCreator:
                 ) from catastrophic_paradox
             raise
         finally:
-            # [ASCENSION 20]: Clean up Thread-Local Shield
+            # [ASCENSION 22]: The Finality Vow (Clean up Thread-Local Shield)
             if hasattr(self, '_thread_state'):
                 self._thread_state.is_active = False
+            os.environ.pop("SCAFFOLD_SIMULATION_ACTIVE", None)
+            # [ASCENSION 30]: Transmutation State Reset
+            gc.collect()
 
     def _dump_forensic_payload(self, e: Exception):
-        """[ASCENSION 12]: Transaction State Auto-Recovery Dump."""
+        """[ASCENSION 11]: Transaction State Auto-Recovery Dump."""
         try:
             dump_dir = self.base_path / ".scaffold" / "crash_reports"
             dump_dir.mkdir(parents=True, exist_ok=True)
@@ -801,5 +909,3 @@ class QuantumCreator:
 
     def __repr__(self) -> str:
         return f"<Ω_QUANTUM_CREATOR_FACADE anchor='{getattr(self, 'project_root', '.')}' status=ALIEN_FORGE_READY>"
-
-

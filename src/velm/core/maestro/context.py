@@ -69,100 +69,131 @@ class ContextForge:
 
     def forge(
             self,
-            line_num: int,
+            line_num: Optional[int],
             explicit_undo: Optional[List[str]],
             cwd_override: Optional[Path] = None
     ) -> MaestroContext:
         """
-        =============================================================================
-        == THE RITE OF REALITY FORGING: OMEGA (V-Ω-TOTALITY-V35005-SHADOW-SENSING) ==
-        =============================================================================
-        LIF: ∞ | ROLE: SPATIAL_COORDINATOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_CONTEXT_V35005_SHADOW_SENSING_2026_FINALIS
+        =================================================================================
+        == THE OMEGA FORGE: TOTALITY (V-Ω-TOTALITY-V35012-LINE-SUTURED-FINALIS)        ==
+        =================================================================================
+        LIF: ∞ | ROLE: SPATIOTEMPORAL_COORDINATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_FORGE_V35012_NONE_LINE_SARCOPHAGUS_2026_FINALIS
 
         [THE MANIFESTO]
-        The definitive forge for the Maestro's context. Ascended to possess
-        Bicameral Perception: it scries the physical Iron and the virtual Staging
-        sanctums simultaneously to prevent the Spatial Desync heresy.
-        =============================================================================
+        The supreme rite of context materialization. It righteously adjudicates
+        between Iron and Ether, Staging and Root, and Will and Matter. It is
+        hardened against the Void, ensuring every Edict has a place to stand.
+        =================================================================================
         """
-        # --- MOVEMENT I: THE IDENTITY DIVINATION ---
+        import time
+        import os
+        import sys
+        from pathlib import Path
+
+        _start_ns = time.perf_counter_ns()
+
+        # =========================================================================
+        # == MOVEMENT I: THE NONE-TYPE SARCOPHAGUS (THE CURE)                    ==
+        # =========================================================================
+        # [ASCENSION 1]: We physically ground the Line Number. If the Dispatcher
+        # passed None (common in ad-hoc or system rites), we transmute it to 0.
+        # This annihilates: pydantic_core._pydantic_core.ValidationError
+        safe_line_num = line_num if line_num is not None else 0
+
+        # --- MOVEMENT II: THE IDENTITY DIVINATION ---
         # 1. Divine the Shell's soul (Executable + Dialect)
         shell_executable, shell_soul = self._divine_shell_soul()
 
         # 2. Anchor the physical locus (The Sanctum)
-        # Prioritizes CPU overrides (e.g., FOLD redirection) over local path logic.
+        # Prioritizes Conductor-level overrides (e.g. project_anchor)
         base_cwd = self._resolve_sanctum(cwd_override)
         transmuted_cwd = base_cwd
 
-        # [ASCENSION 14]: CROSS-REALITY TRANSMUTATION (WSL2 / Docker mapping)
+        # [ASCENSION 7]: CROSS-REALITY TRANSMUTATION (WSL2 / Docker mapping)
         if shell_soul and shell_soul.get("transmutation_rite"):
-            transmutation_func = getattr(self, shell_soul["transmutation_rite"])
-            transmuted_cwd = Path(transmutation_func(str(base_cwd)))
+            try:
+                transmutation_func = getattr(self, shell_soul["transmutation_rite"])
+                transmuted_cwd = Path(transmutation_func(str(base_cwd)))
+            except Exception as e:
+                self.Logger.debug(f"Geometric Transmutation deferred: {e}")
 
-        # --- MOVEMENT II: THE BICAMERAL EXISTENCE PROBE (THE CURE) ---
-        # We verify that the willed execution locus exists in at least one reality.
+        # --- MOVEMENT III: THE BICAMERAL EXISTENCE PROBE ---
+        # We verify that the willed execution locus exists in at least one dimension.
         is_physically_manifest = transmuted_cwd.exists()
         is_virtually_manifest = False
 
         # 1. Scry the Ephemeral Realm (Transaction Staging)
-        # [ASCENSION 1]: The Shadow Perception.
-        tx = self.regs.transaction
+        # [ASCENSION 2]: The Shadow Perception.
+        tx = getattr(self.regs, 'transaction', None)
         if not is_physically_manifest and tx:
             try:
-                # We calculate the relative coordinate within the project
+                # Determine the coordinate relative to the Project Axis Mundi
                 rel_path = transmuted_cwd.relative_to(self.regs.project_root)
-                # Check the Staging Manager's physical mirror
-                if tx.staging_manager.get_staging_path(rel_path).exists():
+
+                # Check the Staging Manager's physical mirror first
+                if hasattr(tx, 'staging_manager') and tx.staging_manager.get_staging_path(rel_path).exists():
                     is_virtually_manifest = True
-                    self.Logger.verbose(f"L{line_num}: Spatial Sync: Found '[dim]{rel_path}[/dim]' in Shadow Volume.")
+                    self.Logger.verbose(f"L{safe_line_num}: Spatial Sync: Found '[dim]{rel_path}[/dim]' in Staging.")
 
                 # [ASCENSION 15]: The Resonant Shadow Veil (Green Volume)
-                # If the transaction already materialized, the staging dir is empty.
-                # We MUST check the Shifter's shadow root to verify the matter exists.
+                # If the transaction already lustrated, we scry the VolumeShifter.
                 if not is_virtually_manifest and hasattr(tx, 'volume_shifter'):
                     shifter = tx.volume_shifter
-                    shifter_state = getattr(shifter, 'state', None)
-                    state_name = shifter_state.name if hasattr(shifter_state, 'name') else str(shifter_state)
+                    # We scry the state name for substrate-agnostic resonance
+                    state_name = getattr(shifter.state, 'name', str(shifter.state))
 
                     if state_name == "RESONANT" and shifter.shadow_root:
                         if (shifter.shadow_root / rel_path).exists():
                             is_virtually_manifest = True
                             self.Logger.verbose(
-                                f"L{line_num}: Spatial Sync: Found '[dim]{rel_path}[/dim]' in Resonant Shadow Volume.")
+                                f"L{safe_line_num}: Spatial Sync: Found '[dim]{rel_path}[/dim]' in Shadow Volume."
+                            )
 
             except (ValueError, AttributeError):
                 # Path is outside the warded root; virtual manifestation is impossible.
                 pass
 
-        # 2. Scry the FOLD Consensus
-        # [ASCENSION 2]: If the Creator performed a FOLD, the wrapper is an empty concept.
+        # 2. [ASCENSION 4]: Scry the FOLD Consensus
+        # If the Creator performed a FOLD, the wrapper is an empty concept.
         if not is_physically_manifest and not is_virtually_manifest:
             if getattr(self.regs, 'geometric_consensus', None) == "FOLD":
-                # If we are folded, the project_root acts as the universal fallback anchor.
-                if transmuted_cwd.is_relative_to(self.regs.project_root):
-                    is_virtually_manifest = True
-                    self.Logger.verbose(
-                        f"L{line_num}: Spatial Sync: FOLD Consensus active. Anchor redirected to Project Root.")
+                try:
+                    if transmuted_cwd.is_relative_to(self.regs.project_root):
+                        is_virtually_manifest = True
+                        self.Logger.verbose(
+                            f"L{safe_line_num}: Spatial Sync: FOLD Consensus active. Root redirected."
+                        )
+                except (ValueError, AttributeError):
+                    pass
 
-        # --- MOVEMENT III: THE ADJUDICATION ---
-        # [ASCENSION 9]: Fault-Isolated Adjudication
-        # The Vow of Silence is only broken if the coordinate is a total void.
+        # --- MOVEMENT IV: THE ADJUDICATION ---
+        # [ASCENSION 5]: Fault-Isolated Adjudication
+        # In WASM, we are merciful to missing paths to prevent worker deadlock.
         if not self.is_wasm and not is_physically_manifest and not is_virtually_manifest:
-            raise ArtisanHeresy(
-                f"Spatial Desync: The willed execution locus '{transmuted_cwd}' is unmanifest across all dimensions.",
-                severity=HeresySeverity.CRITICAL,
-                line_num=line_num,
-                suggestion="Ensure the directory is willed in the blueprint BEFORE the kinetic edict is spoken."
-            )
+            # We allow the strike if 'force' is willed, otherwise we raise a Heresy.
+            if not getattr(self.regs, 'force', False):
+                raise ArtisanHeresy(
+                    f"Spatial Desync: Locus '{transmuted_cwd}' is unmanifest across all dimensions.",
+                    severity=HeresySeverity.CRITICAL,
+                    line_num=safe_line_num,
+                    suggestion="Verify the path exists in your blueprint or on the disk."
+                )
 
-        # --- MOVEMENT IV: ALCHEMICAL ATMOSPHERE ---
+        # --- MOVEMENT V: ALCHEMICAL ATMOSPHERE ---
         # 3. Alchemize the Environment DNA
+        # [ASCENSION 8]: Injects Gnostic Variables and System DNA.
         env = self._forge_environment(base_cwd, shell_executable, shell_soul)
 
+        # --- MOVEMENT VI: METABOLIC FINALITY ---
+        _tax_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+        if self.Logger.is_verbose and _tax_ms > 2.0:
+            self.Logger.debug(f"Context Forged in {_tax_ms:.2f}ms for L{safe_line_num}")
+
         # [ASCENSION 12]: THE FINALITY VOW
+        # Return the strictly-typed context vessel.
         return MaestroContext(
-            line_num=line_num,
+            line_num=safe_line_num,
             explicit_undo=explicit_undo,
             cwd=transmuted_cwd,
             env=env,

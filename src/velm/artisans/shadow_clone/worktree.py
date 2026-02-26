@@ -64,6 +64,7 @@ class WorktreeManager:
     }
 
     def __init__(self, project_root: Path):
+        self.logger = Logger
         self.root = project_root.resolve()
         self.git_root = self._find_git_root(self.root)
 
@@ -189,6 +190,36 @@ class WorktreeManager:
 
         if count > 0:
             Logger.verbose(f"Grafted {count} configuration shards to Shadow Realm.")
+
+    def _suture_path_DNA(self, shadow_root: Path):
+        """
+        =============================================================================
+        == THE LATTICE PATH HEALER (V-Ω-SECURITY-SUTURE)                          ==
+        =============================================================================
+        [THE CURE]: Scans symlinked bin folders and replaces absolute Prime paths
+        with relative or Shadow paths, preventing environment leakage.
+        """
+        bin_dir = shadow_root / "node_modules" / ".bin"
+        if not bin_dir.exists(): return
+
+        self.logger.verbose("PathHealer: Suturing binary DNA in shadow...")
+
+        prime_root_str = str(self.root).replace('\\', '/')
+        shadow_root_str = str(shadow_root).replace('\\', '/')
+
+        for binary in bin_dir.iterdir():
+            if binary.is_file() and not binary.is_symlink():
+                try:
+                    content = binary.read_text(encoding='utf-8', errors='ignore')
+                    # If the binary contains a shebang pointing to the PRIME root
+                    if prime_root_str in content:
+                        # [STRIKE]: Perform the alchemical substitution
+                        new_content = content.replace(prime_root_str, shadow_root_str)
+                        binary.write_text(new_content, encoding='utf-8')
+                        self.logger.debug(f"   -> Suture applied to: {binary.name}")
+                except:
+                    continue
+
 
     def destroy(self, path: Path):
         """

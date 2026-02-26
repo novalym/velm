@@ -97,66 +97,123 @@ RITES = {
         "module_path": "artisans.shadow_clone",
         "artisan_class_name": "ShadowCloneArtisan",
         "request_class_name": "ShadowCloneRequest",
-        "help": "The Shadow Clone. Materializes stateful parallel realities.",
+        "help": "The Shadow Engine. Conduct Reality Fission (Spawn) and Fusion (Merge).",
+        "description": (
+            "===============================================================================\n"
+            "== THE SHADOW ENGINE: BICAMERAL REALITY GOVERNOR (V-Ω-TOTALITY)              ==\n"
+            "===============================================================================\n"
+            "The `shadow` artisan is the gateway to parallel development. It allows you to\n"
+            "spawn isolated copies of your project to test risky changes or AI experiments.\n\n"
+            "Use '--mode lab' for silent refactoring environments, and 'merge' to bring\n"
+            "luminous shards of code back to the Prime Timeline with absolute safety."
+        ),
         "flags": [add_common_flags],
         "subparsers": {
+            # =========================================================================
+            # == RITE I: SPAWN (REALITY FISSION)                                     ==
+            # =========================================================================
             "spawn": {
-                "help": "Materialize a new Shadow Clone (Reality Fission).",
+                "help": "Materialize a new parallel dimension (Reality Fission).",
                 "args": [
-                    ("--ref", {
-                        "dest": "target_ref",
-                        "default": "HEAD",
-                        "help": "Git reference or Rite ID to clone (Ignored in physical_copy mode)."
+                    ("--mode", {
+                        "choices": ["run", "lab"],
+                        "default": "run",
+                        "help": "Dimension purpose: 'run' (Preview + HMR) or 'lab' (Silent Experiment)."
                     }),
                     ("--label", {
                         "default": "experiment",
-                        "help": "Tag for this shadow instance (e.g. 'feature-x')."
+                        "help": "Human-readable identity for this dimension."
+                    }),
+                    ("--ref", {
+                        "dest": "target_ref",
+                        "default": "HEAD",
+                        "help": "Git reference or Rite ID to clone from."
                     }),
                     ("--strategy", {
                         "dest": "strategy",
                         "choices": ["git_worktree", "physical_copy", "hybrid"],
                         "default": "hybrid",
-                        "help": "The materialization method. 'hybrid' tries git first, then falls back to physical copy."
+                        "help": "Materialization method. 'hybrid' is the path of least resistance."
                     }),
                     ("--port", {
                         "type": int,
                         "default": 0,
-                        "help": "Port to bind (0 = auto-divine free port)."
+                        "help": "Resonance port. 0 = Automated Network Scry."
                     }),
-                    ("--isolate-db", {
-                        "action": "store_true",
-                        "help": "Spin up a dedicated, ephemeral database container for this reality."
-                    }),
-                    ("--copy-state", {
-                        "action": "store_true",
-                        "help": "Snapshot current DB state into the new shadow clone."
-                    }),
-                    ("--expose", {
-                        "action": "store_true",
-                        "help": "Open a public tunnel (Wormhole) to the clone."
-                    }),
-                    ("--ttl", {
-                        "type": int,
-                        "dest": "ttl_seconds",
-                        "default": 3600,
-                        "help": "Life expectancy in seconds before auto-annihilation."
+                    ("--no-provision", {
+                        "action": "store_false",
+                        "dest": "auto_provision",
+                        "help": "Disable dependency lung-transplantation (node_modules/venv)."
                     }),
                     ("--owner", {
                         "default": "architect",
-                        "help": "Associated identity for the Gnostic Ledger."
+                        "help": "The identity responsible for this reality."
                     })
                 ]
             },
+            # =========================================================================
+            # == RITE II: MERGE (REALITY FUSION)                                     ==
+            # =========================================================================
+            "merge": {
+                "help": "Fuse luminous shards from a shadow back into the Prime Timeline.",
+                "args": [
+                    ("--label", {
+                        "help": "The identity of the shadow to fuse from."
+                    }),
+                    ("--id", {
+                        "dest": "target_id",
+                        "help": "Specific UUID of the shadow to target."
+                    }),
+                    ("--no-cleanup", {
+                        "action": "store_true",
+                        "help": "The Vow of Persistence. Keep the shadow alive after fusion."
+                    })
+                ]
+            },
+            # =========================================================================
+            # == RITE III: VANISH (REALITY DISSOLUTION)                              ==
+            # =========================================================================
             "vanish": {
-                "help": "Annihilate a Shadow Clone and return its matter to the void.",
-                "args": [("target_id", {"help": "ID or Label of the shadow to destroy."})]
+                "help": "Annihilate a shadow dimension and return its matter to the void.",
+                "args": [
+                    ("--label", {"help": "Vanish all shadows matching this label."}),
+                    ("--id", {"dest": "target_id", "help": "Surgically vanish a specific UUID."})
+                ]
             },
-            "hibernate": {
-                "help": "Suspend a Shadow Clone (Save state to disk and kill process).",
-                "args": [("target_id", {"help": "ID of the shadow to freeze."})]
+            # =========================================================================
+            # == RITE IV: STATUS (VITALITY SCRY)                                     ==
+            # =========================================================================
+            "status": {
+                "help": "Scry the metabolic health and coordinates of a dimension.",
+                "args": [
+                    ("--label", {"help": "Target label."}),
+                    ("--id", {"dest": "target_id", "help": "Target UUID."})
+                ]
             },
+            # =========================================================================
+            # == RITE V: LOGS (CHRONICLE RECALL)                                     ==
+            # =========================================================================
+            "logs": {
+                "help": "Commune with a shadow to hear its thoughts (stdout/stderr).",
+                "args": [
+                    ("--label", {"help": "Target label."}),
+                    ("--id", {"dest": "target_id", "help": "Target UUID."})
+                ]
+            },
+            # =========================================================================
+            # == RITE VI: LIST (PANOPTIC CENSUS)                                     ==
+            # =========================================================================
             "list": {
-                "help": "Proclaim the census of all active Shadow Clones in the cosmos."
+                "help": "Proclaim the census of all active parallel dimensions."
+            },
+            # =========================================================================
+            # == RITE VII: HIBERNATE (STATE FREEZE)                                  ==
+            # =========================================================================
+            "hibernate": {
+                "help": "Suspend a shadow dimension (Freeze state and kill process).",
+                "args": [
+                    ("--id", {"dest": "target_id", "help": "UUID to freeze."})
+                ]
             }
         }
     },

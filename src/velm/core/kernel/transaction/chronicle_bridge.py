@@ -163,11 +163,26 @@ class ChronicleBridge:
                         self._symbol_to_path[f"{module_path}.{name}"] = path_posix
 
                 # [ASCENSION 1 & 9]: ENRICH METRICS
+                # [THE CURE]: Safe access to 'start_point' using .get() to prevent KeyError
                 metrics = gnosis.get("metrics", {})
-                # Embed structural souls for future DB hydration
-                metrics["functions"] = [{"n": f['name'], "l": f['start_point'][0] + 1} for f in
-                                        gnosis.get("functions", [])]
-                metrics["classes"] = [{"n": c['name'], "l": c['start_point'][0] + 1} for c in gnosis.get("classes", [])]
+
+                # Safe Function Extraction
+                safe_funcs = []
+                for f in gnosis.get("functions", []):
+                    start = f.get('start_point', (0, 0))
+                    # Handle tuple or list return from TS
+                    line = start[0] + 1 if isinstance(start, (list, tuple)) else 1
+                    safe_funcs.append({"n": f.get('name', '?'), "l": line})
+
+                # Safe Class Extraction
+                safe_classes = []
+                for c in gnosis.get("classes", []):
+                    start = c.get('start_point', (0, 0))
+                    line = start[0] + 1 if isinstance(start, (list, tuple)) else 1
+                    safe_classes.append({"n": c.get('name', '?'), "l": line})
+
+                metrics["functions"] = safe_funcs
+                metrics["classes"] = safe_classes
                 result.metrics = metrics
 
             except Exception as e:
@@ -185,7 +200,11 @@ class ChronicleBridge:
 
             # [FACULTY 11]: The Forensic Scribe
             # Extract symbols willed for import
-            imports = gnosis.get("dependencies", {}).get("imported_symbols", [])
+            dependencies = gnosis.get("dependencies", {})
+            # Defensive check if dependencies is None
+            if not dependencies: dependencies = {}
+
+            imports = dependencies.get("imported_symbols", [])
             resolved_paths: Set[str] = set()
 
             for imp in imports:
@@ -290,5 +309,3 @@ class ChronicleBridge:
 
     def __repr__(self) -> str:
         return f"<Ω_CHRONICLE_BRIDGE transaction={self.tx.tx_id[:8]} status=RESONANT>"
-
-# == SCRIPTURE SEALED: THE CAUSAL LATTICE IS OMNISCIENT ==

@@ -141,7 +141,7 @@ def handle_pad_launch(args: argparse.Namespace):
     except ImportError as e:
         raise ArtisanHeresy(
             "The Gnostic Pad requires its divine allies to be manifest.",
-            suggestion=f"Speak the sacred plea: `pip install \"scaffold-cli[studio]\"` or `pip install {e.name}`",
+            suggestion=f"Speak the sacred plea: `pip install \"velm[studio]\"` or `pip install {e.name}`",
             details=f"Missing artisan: {e.name}\n{traceback.format_exc()}"
         ) from e
     except Exception as e:

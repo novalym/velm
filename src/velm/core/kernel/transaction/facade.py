@@ -87,9 +87,16 @@ class GnosticTransaction:
     ):
         """
         =============================================================================
-        == THE RITE OF INCEPTION (V-Ω-TOTALITY-V2000-SUTURED)                      ==
+        == THE RITE OF INCEPTION: OMEGA (V-Ω-TOTALITY-V2000-SUTURED-FINALIS)       ==
         =============================================================================
         LIF: ∞ | ROLE: TRANSACTION_CONSTRUCTOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_INIT_TX_V2000_ORGAN_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
+        The supreme constructor of the Quantum Crucible. It has been ascended to
+        annihilate the 'StagingManager TypeError' by righteously scrying for the
+        Engine soul and bestowing it upon the metabolic organs at birth.
+        =============================================================================
         """
         self.logger = Logger
 
@@ -119,19 +126,36 @@ class GnosticTransaction:
         self.simulate = simulate
         self._boot_ns = time.perf_counter_ns()
 
+        # =========================================================================
+        # == [THE CURE]: SOVEREIGN ENGINE DISCOVERY                              ==
+        # =========================================================================
+        # We scry the incoming kwargs for the Engine, or fallback to the global
+        # main module to ensure the StagingManager receives its required soul.
+        self.engine = kwargs.get('engine')
+        if not self.engine:
+            import sys
+            main_mod = sys.modules.get('__main__')
+            self.engine = getattr(main_mod, 'engine', None)
+        # =========================================================================
+
         self._merkle_accumulator = hashlib.sha256(self.tx_id.encode())
         self._event_stream: deque = deque()
 
         # --- III. GNOSTIC MEMORY LATTICE ---
+        from ...runtime.vessels import GnosticSovereignDict
         self.write_dossier: Dict[Path, GnosticWriteResult] = {}
         self.edicts_executed: List[str] = []
         self.heresies_perceived: List[Heresy] = []
-
-        from ...runtime.vessels import GnosticSovereignDict
         self.context = GnosticSovereignDict(kwargs.get('context', {}))
 
-        # --- IV. ORGAN MATERIALIZATION ---
-        self.staging_manager = StagingManager(self.base_path, self.tx_id)
+        # --- IV. ORGAN MATERIALIZATION (THE TITANIUM SUTURE) ---
+        # [ASCENSION 1]: Birth the StagingManager with its required dependencies.
+        self.staging_manager = StagingManager(
+            self.base_path,
+            self.tx_id,
+            engine=self.engine,
+            logger=self.logger
+        )
 
         from .volume_shifter.facade import VolumeShifter
         self.volume_shifter = VolumeShifter(self.project_root, self.tx_id, base_path=self.base_path)
@@ -153,8 +177,9 @@ class GnosticTransaction:
                 transaction=self,
                 silent=kwargs.get('silent', False)
             )
-            if 'engine' in kwargs:
-                provided_regs.akashic = getattr(kwargs['engine'], 'akashic', None)
+            # Link the Registers to the Engine's Akashic link for HUD radiation
+            if self.engine:
+                provided_regs.akashic = getattr(self.engine, 'akashic', None)
 
         self.committer = GnosticCommitter(
             self.project_root,

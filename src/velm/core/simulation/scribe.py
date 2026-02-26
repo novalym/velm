@@ -1,4 +1,6 @@
-# scaffold/core/simulation/scribe.py
+# src/velm/core/simulation/scribe.py
+# ----------------------------------------
+
 
 from rich.console import Group
 from rich.markup import escape
@@ -48,7 +50,7 @@ class ProphecyScribe:
         dossier_items = []
 
         # --- MOVEMENT I: THE GAZE OF PURITY ---
-        # If nothing happened, we must still speak, lest the Architect thinks we are dead.
+        # If nothing happened AND no heresies, we proclaim Serenity.
         is_empty_run = (
                 not self.prophecy.diffs and
                 not self.prophecy.heresies and
@@ -200,12 +202,23 @@ class ProphecyScribe:
                 border_style="blue"
             ))
 
-        # --- MOVEMENT V: THE HERESY LOG ---
+        # --- MOVEMENT V: THE HERESY LOG (THE REVELATION) ---
         if self.prophecy.heresies:
             heresy_group = []
             for h in self.prophecy.heresies:
+                # [ASCENSION 1]: Detailed Heresy Rendering
+                # We render the message, details, and traceback if available.
+                content = Text()
+                content.append(h.message, style="bold red")
+
+                if h.details:
+                    content.append(f"\n\n{h.details}", style="dim")
+
+                if h.suggestion:
+                    content.append(f"\n\n💡 Suggestion: {h.suggestion}", style="bold yellow")
+
                 heresy_group.append(Panel(
-                    f"[bold red]{h.message}[/bold red]\n[dim]{h.details or ''}[/dim]",
+                    content,
                     title=f"[red]Simulated Heresy ({h.severity.name})[/red]",
                     border_style="red"
                 ))

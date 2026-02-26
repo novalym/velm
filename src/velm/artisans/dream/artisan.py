@@ -445,7 +445,15 @@ if __name__ == "__main__":
                 pass
 
     def _assert_neural_capacity(self):
-        """[FACULTY 16]: Neural Readiness check."""
+        """
+        [ASCENSION 16]: Neural Readiness check.
+        [THE CURE]: Grants absolute amnesty to the WASM substrate.
+        """
+        # [THE FIX]: Substrate Sensing
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+        if is_wasm:
+            return # The Ether Mind is always considered resonant for the demo.
+
         from ...core.ai.engine import AIEngine
         ai = AIEngine.get_instance()
         if not ai.config.enabled or not ai.active_provider or not ai.active_provider.is_available():

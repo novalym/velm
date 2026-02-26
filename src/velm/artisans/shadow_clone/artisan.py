@@ -1,656 +1,584 @@
 # Path: artisans/shadow_clone/artisan.py
 # --------------------------------------
-# LIF: INFINITY | AUTH_CODE: Ω_SHADOW_ARTISAN_V100_TARGET_LOCKED
-# SYSTEM: REALITY_FISSION | ROLE: CLONING_ORCHESTRATOR
-# =================================================================================
-# == THE SHADOW CLONE ARTISAN (V-Ω-TOTALITY-ASCENDED)                            ==
-# =================================================================================
-#
-# [THE 12 LEGENDARY ASCENSIONS]:
-# 1.  [TARGET_LOCKED_ANCHORING]: Strictly uses `req.project_root` as the source of truth,
-#     preventing Recursive Dogfooding (Daemon cloning itself).
-# 2.  [LAZY_CATALOG_BINDING]: Instantiates the `ShadowCatalog` relative to the *target*
-#     project on every request, ensuring state is stored in the correct `.scaffold` folder.
-# 3.  [LUNG_TRANSPLANTATION]: Detects `node_modules` in the source and grafts them (Junction/Symlink)
-#     into the Shadow, reducing disk usage by 99% and boot time by 90%.
-# 4.  [ATOMIC_MUTEX_LOCK]: Wraps the Fission Rite in a kernel-level lock (if available) to
-#     prevent race conditions during rapid "Ignite" clicks.
-# 5.  [ZOMBIE_REAPER]: Scans the registry for PIDs that no longer exist and purges their
-#     records and matter before spawning new realities.
-# 6.  [HYBRID_STRATEGY_SELECTOR]: Automatically downgrades from `git_worktree` to `physical_copy`
-#     if the source is not a Git repository or is in a dirty state (configurable).
-# 7.  [PORT_EXORCISM]: proactively scans for a free port starting at 5173. If occupied,
-#     it hunts upwards until a frequency is found.
-# 8.  [CONSTITUTIONAL_INJECTION]: Injects `.vscode` configuration into the Shadow to ensure
-#     debuggers attach correctly to the ephemeral instance.
-# 9.  [ENVIRONMENTAL_DNA]: Injects `SHADOW_ID`, `PORT`, and `SCAFFOLD_ROOT` into the
-#     process environment, allowing the runtime to be self-aware.
-# 10. [ASYNC_JOB_PROJECTION]: returns `PENDING` immediately to the UI while the heavy
-#     cloning happens in a detached thread, preventing LSP timeouts.
-# 11. [FORENSIC_BROADCAST]: Streams granular progress updates ("Forging Worktree",
-#     "Transplanting Lungs", "Igniting") to the UI Notification center.
-# 12. [HARDENED_DISSOLUTION]: Uses a retry-loop with `chmod` handling to delete
-#     stubborn Windows directories (like locked `.git` files) during cleanup.
-
-import hashlib
-import os
-import sys
-import uuid
-import time
-import json
+import gc
 import shutil
 import stat
+import uuid
+import time
 import threading
-import subprocess
-import traceback
+import os
+import sys
+import json
+import hashlib
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any, Tuple, Final
 
+# --- THE DIVINE UPLINKS ---
 from ...core.artisan import BaseArtisan
-from ...interfaces.base import ScaffoldResult
+from ...core.ignition import IgnitionDiviner
+from ...interfaces.base import ScaffoldResult, Artifact
 from ...interfaces.requests import ShadowCloneRequest
 from ...help_registry import register_artisan
 from ...logger import Scribe
+from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
-# INTERNAL ENGINES
+# --- INTERNAL DIMENSIONAL ENGINES ---
 from .worktree import WorktreeManager
-from .config_injector import ConfigInjector
 from .network import NetworkBinder
 from .catalog import ShadowCatalog
-from .contracts import ShadowEntity, ShadowStatus
-from ...core.ignition import IgnitionDiviner
-
-# MODULAR SOVEREIGN RECEPTORS
+from .contracts import ShadowEntity, ShadowStatus, ShadowMode
 from .governor import RealityGovernor
 from .mirror import SynapticMirror
+from .config_injector import ConfigInjector
 
-Logger = Scribe("ShadowArtisan")
+Logger = Scribe("ShadowEngine")
 
 
 @register_artisan("shadow")
 class ShadowCloneArtisan(BaseArtisan[ShadowCloneRequest]):
     """
-    The High-Level Conductor of the Shadow Dimension.
-    Orchestrates the creation, maintenance, and destruction of parallel realities.
+    =================================================================================
+    == THE OMEGA SHADOW ENGINE (V-Ω-TOTALITY-V25000-BICAMERAL)                     ==
+    =================================================================================
+    LIF: ∞ | ROLE: REALITY_FISSION_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_SHADOW_V25000_KINETIC_FUSION_2026_FINALIS
+
+    The supreme orchestrator of parallel realities. It has been ascended to manage
+    the "Bicameral Lab"—cloning for both ephemeral preview (RUN) and high-risk
+    AI-driven refactoring (LAB), with atomic re-integration (MERGE).
+    =================================================================================
     """
 
-    def __init__(self, context_provider: Any):
+    def __init__(self, engine: Any):
         """
-        [THE RITE OF DUALITY]
-        Accepts either a Nexus (Daemon) or an Engine (CLI).
-        Resolves the true references immediately.
+        [THE RITE OF INCEPTION]
+        Binds the Shadow Engine to the God-Engine and initializes the
+        Dimensional Catalog.
         """
-        real_engine = None
-        incoming_nexus = None
-
-        # Case A: Input is the GnosticNexus (Has an engine attached)
-        if hasattr(context_provider, 'engine') and not hasattr(context_provider, 'dispatch'):
-            incoming_nexus = context_provider
-            real_engine = context_provider.engine
-
-        # Case B: Input is the ScaffoldEngine (Has dispatch method)
-        elif hasattr(context_provider, 'dispatch'):
-            real_engine = context_provider
-            # Attempt to back-link to Nexus if it was attached to the engine
-            incoming_nexus = getattr(real_engine, 'nexus', None)
-
-        # Case C: Fallback / Mock
-        else:
-            real_engine = context_provider
-
-        # 1. Initialize Base with the resolved Engine
+        # [ASCENSION 5]: NONETYPE SARCOPHAGUS
+        # We scry the context_provider for its true identity.
+        real_engine = getattr(engine, 'engine', engine)
         super().__init__(real_engine)
 
-        # 2. Store Nexus in PRIVATE backing field
-        self._nexus = incoming_nexus
-
-        # 3. Job Registry & Catalog
         self._active_jobs: Dict[str, threading.Thread] = {}
-
-        # [ASCENSION 2]: Catalog is initialized lazily per request to ensure correct anchor
-        self.catalog = None
-
-        Logger.debug(f"ShadowArtisan Initialized. Engine: {bool(self.engine)}, Nexus: {bool(self._nexus)}")
-
-    @property
-    def nexus(self):
-        """
-        [THE NEXUS SEEKER]
-        Dynamically resolves the GnosticNexus reference for broadcasting.
-        """
-        if self._nexus:
-            return self._nexus
-
-        if self.engine and hasattr(self.engine, 'nexus'):
-            return self.engine.nexus
-
-        return None
+        self.catalog: Optional[ShadowCatalog] = None
+        self.signature = "Ω_SHADOW_ENGINE_V25000"
 
     def execute(self, request: ShadowCloneRequest) -> ScaffoldResult:
         """
-        [THE GRAND ROUTER]
-        Dispatches the specific Shadow Rite based on the command.
+        =============================================================================
+        == THE GRAND ROUTER (V-Ω-TOTALITY)                                         ==
+        =============================================================================
+        LIF: 100x | ROLE: KINETIC_ORCHESTRATOR
         """
-        # [ASCENSION 1]: ANCHOR VALIDATION
-        if not request.project_root:
-            return self.failure("Shadow Rite requires a valid 'project_root' anchor.")
+        # --- MOVEMENT 0: SPATIAL ANCHORING ---
+        # [ASCENSION 10]: We anchor the Catalog to the Target Root
+        self.catalog = ShadowCatalog(self.project_root)
 
-        try:
-            # Resolve the Physical Anchor
-            target_root = Path(request.project_root).resolve()
-            if not target_root.exists():
-                return self.failure(f"Target Sanctum void: {target_root}")
-
-            # Initialize Catalog specific to the TARGET project
-            self.catalog = ShadowCatalog(target_root)
-
-            # [ASCENSION 5]: REGISTRY HYGIENE
-            self._prune_registry()
-
-        except Exception as e:
-            Logger.error(f"Shadow Initialization Fracture: {e}")
-            return self.failure(f"Reality Anchor Paradox: {e}")
+        # [ASCENSION 11]: REGISTRY HYGIENE
+        # Purge stale records before conducting new rites
+        self._gc_dead_shadows()
 
         command = request.shadow_command
+        self._trace_id = request.trace_id
 
-        # TRIAGE
+        self.logger.verbose(f"Shadow Engine: Conducting Rite '{command}' for [cyan]{request.label}[/cyan]")
+
+        # --- THE PANTHEON OF RITES ---
         if command == "spawn":
             return self._initiate_async_spawn(request)
+
+        elif command == "merge":
+            # [ASCENSION 3]: THE RITE OF RE-INTEGRATION (The Fusion)
+            return self._conduct_merge_rite(request)
+
         elif command == "vanish":
             return self._vanish(request)
+
         elif command == "list":
             return self._list()
+
         elif command == "status":
             return self._status(request)
+
         elif command == "logs":
             return self._logs(request)
-        elif command == "hibernate":
-            return self._hibernate(request)
 
         return self.failure(f"Unknown Shadow Rite: {command}")
 
     # =================================================================================
-    # == MOVEMENT I: FISSION (ASYNC SPAWN)                                           ==
+    # == MOVEMENT I: FISSION (SPAWN)                                                 ==
     # =================================================================================
 
     def _initiate_async_spawn(self, req: ShadowCloneRequest) -> ScaffoldResult:
         """
-        [THE CURE]: NON-BLOCKING INCEPTION.
-        Spawns a background thread to handle the heavy IO of Worktree/Docker.
-        Returns 'PENDING' immediately to satisfy the LSP Client.
+        =============================================================================
+        == THE RITE OF ASYNC FISSION (PENDING ACK)                                 ==
+        =============================================================================
+        [ASCENSION 3]: Returns a 'PENDING' status to the UI instantly.
+        The heavy matter replication happens in the background to prevent
+        LSP communication timeouts.
         """
-        job_id = f"job-shadow-{uuid.uuid4().hex[:8]}"
+        job_id = f"job-fission-{uuid.uuid4().hex[:8].upper()}"
 
-        Logger.info(f"[{job_id}] Initiating Async Fission for '{req.label}'...")
+        # [ASCENSION 7]: PROCLAMATION
+        self.progress("Igniting Reality Fission...", 5)
 
-        # 1. Spawn Daemon Thread
+        # 1. SPAWN THE BACKGROUND SOUL
         worker = threading.Thread(
             target=self._worker_spawn_logic,
             args=(job_id, req),
-            name=f"ShadowWorker-{job_id}",
+            name=f"ShadowFission-{job_id}",
             daemon=True
         )
         self._active_jobs[job_id] = worker
         worker.start()
 
-        # 2. Return Instant Acknowledgement
+        # 2. RETURN INSTANT PROPHECY
         return self.success(
-            "Ignition Sequence Initiated.",
+            f"Fission sequence for '{req.label}' initiated.",
             data={
                 "status": "PENDING",
                 "job_id": job_id,
                 "label": req.label,
-                "message": "The Gnostic Engine is forging the shadow in the background."
-            }
+                "mode": req.mode,
+                "message": "Forging parallel dimension in the background."
+            },
+            ui_hints={"vfx": "pulse_purple", "icon": "ghost"}
         )
+
+    # =================================================================================
+    # == MOVEMENT I.B: THE BACKGROUND FISSION (THE WORKER)                           ==
+    # =================================================================================
 
     def _worker_spawn_logic(self, job_id: str, req: ShadowCloneRequest):
         """
-        [THE HEAVY LIFTING]
-        Executed in the background. Performs the actual disk/network IO.
-        Broadcasts the result via the Nexus when complete.
+        =============================================================================
+        == THE RITE OF KINETIC FISSION (BACKGROUND EXECUTION)                      ==
+        =============================================================================
+        LIF: ∞ | ROLE: MATTER_REPLICATOR | RANK: OMEGA_SOVEREIGN
+
+        [THE MANIFESTO]
+        This is the heavy lifting of reality creation. It transmutes the Prime
+        Timeline into a parallel Shadow Stratum. It is warded against substrate
+        collisions and is fully transaction-aware.
         """
         try:
-            # [ASCENSION 1]: THE ABSOLUTE ANCHOR
-            # We trust the Request's project_root, NOT the Daemon's CWD.
-            project_base = Path(req.project_root).resolve()
+            # --- MOVEMENT I: GEOMETRIC ANCHORING ---
+            self.progress("Divining Dimensional Coordinates...", 10)
 
-            Logger.info(f"[{job_id}] Cloning Source Material: {project_base}")
+            session_uuid = uuid.uuid4().hex[:6].upper()
+            shadow_id = f"{req.label}-{session_uuid}"
 
-            # [ASCENSION 4]: KERNEL LOCK (Optional)
-            lock = getattr(self.engine, 'kernel_lock', None)
-            ctx = lock("shadow_fission_rite") if lock else self._null_context()
+            # [ASCENSION 1]: Anchor in the warded .scaffold/shadows sanctum
+            shadow_root = (self.project_root / ".scaffold" / "shadows" / shadow_id).resolve()
 
-            with ctx:
-                # Ensure catalog is bound to the correct root in this thread context
-                if not self.catalog:
-                    self.catalog = ShadowCatalog(project_base)
+            # --- MOVEMENT II: MATTER REPLICATION (THE SUTURE) ---
+            # [ASCENSION 13]: THE SOVEREIGN HAND
+            # We no longer use 'shutil'. we use the transaction-aware 'self.io'.
+            self.progress(f"Replicating Matter to {req.mode.upper()} Realm...", 25)
 
-                # Check for running instances
-                existing = self._find_active_shadow(req.label)
-                if existing:
-                    self._broadcast_completion(job_id, existing.to_dict())
-                    return
+            if req.strategy == "git_worktree" and (self.project_root / ".git").exists():
+                # [ASCENSION 6]: Temporal Worktree Strategy
+                wt = WorktreeManager(self.project_root)
+                wt.create(shadow_root, req.target_ref)
+            else:
+                # [ASCENSION 1]: HOLOGRAPHIC REPLICATION
+                # Uses self.io.copy() which respects Merkle Seals and ignore patterns.
+                self.io.copy(self.project_root, shadow_root)
 
-                # Clean up zombies
-                self._gc_dead_shadows(req.label)
+            # --- MOVEMENT III: LUNG TRANSPLANTATION (DEPENDENCY GRAFT) ---
+            # [ASCENSION 3 & 13]: We share the 'Lungs' (node_modules/venv)
+            # to prevent downloading 1GB of matter for every clone.
+            self.progress("Grafting Metabolic Lungs...", 45)
+            self._transplant_lungs(self.project_root, shadow_root)
 
-                # Forge Shadow Path
-                session_uuid = str(uuid.uuid4())[:8]
-                shadow_id = f"{req.label}-{session_uuid}"
-                shadow_root = (project_base / ".scaffold" / "shadows" / shadow_id).resolve()
+            # --- MOVEMENT IV: NETWORK BINDING & EXORCISM ---
+            # [ASCENSION 16]: Hunt for a free frequency for the Ocular Membrane.
+            self.progress("Hunting for Network Resonance...", 60)
+            app_port = req.port if req.port != 0 else 5173
+            if NetworkBinder.is_port_in_use(app_port):
+                app_port = NetworkBinder.find_free_port(start=app_port + 1)
 
-                # --- STEP 1: MATERIALIZATION ---
+            # --- MOVEMENT V: CONFIGURATION INJECTION (DNA) ---
+            # [ASCENSION 14]: Surgically inject identity into the shadow
+            self.progress("Injecting Environmental DNA...", 75)
+            ConfigInjector().inject(shadow_root, {
+                **req.variables,
+                "PORT": str(app_port),
+                "SCAFFOLD_SHADOW_ID": shadow_id,
+                "SCAFFOLD_MODE": req.mode.value,
+                "SCAFFOLD_ROOT": str(self.project_root).replace('\\', '/')
+            })
+
+            # --- MOVEMENT VI: THE BIFURCATION OF DESTINY ---
+            # [ASCENSION 21]: LABORATORY GATEWAY
+            if req.mode == ShadowMode.LAB:
+                # In LAB mode, the fission is complete once the matter exists.
+                # We do not ignite a server; we hand the keys to the AI/Architect.
+                entity = self._register_and_broadcast(job_id, shadow_id, shadow_root, app_port, req,
+                                                      ShadowStatus.INITIALIZING)
+                self.logger.success(f"Laboratory Dimension '{req.label}' manifest at [dim]{shadow_root}[/dim]")
+                return
+
+            # --- MOVEMENT VII: KINETIC IGNITION (RUN MODE) ---
+            # [ASCENSION 22]: Ignite the Ocular Preview and start the Mirror.
+            self.progress("Igniting Ocular Membrane...", 85)
+            self._ignite_running_reality(job_id, shadow_id, shadow_root, app_port, req)
+
+        except Exception as catastrophic_paradox:
+            # [ASCENSION 24]: THE FINALITY VOW
+            self.logger.error(f"Fission sequence fractured: {catastrophic_paradox}")
+            self._broadcast_failure(job_id, str(catastrophic_paradox))
+            # Emergency Dissolution of the tainted matter
+            if 'shadow_root' in locals():
+                self._dissolve_matter_hardened(shadow_root)
+
+    # =================================================================================
+    # == SECTION II: KINETIC UTILITIES (THE ORGANS)                                  ==
+    # =================================================================================
+
+    def _register_and_broadcast(self, job_id: str, sid: str, path: Path, port: int, req: ShadowCloneRequest,
+                                status: ShadowStatus) -> ShadowEntity:
+        """Forges the ShadowEntity and registers it in the Dimensional Catalog."""
+        entity = ShadowEntity(
+            id=sid,
+            label=req.label,
+            mode=req.mode,
+            target_ref=req.target_ref,
+            root_path=str(path).replace('\\', '/'),
+            port=port,
+            status=status,
+            owner=req.owner,
+            created_at=time.time(),
+            trace_id=self._trace_id
+        )
+
+        # [ASCENSION 19]: Inscribe in Catalog
+        self.catalog.register(entity)
+
+        # [ASCENSION 18]: THE MERKLE SEAL
+        # (Implicitly calculated by Catalog in V2)
+
+        self._broadcast_completion(job_id, entity.to_dict())
+        return entity
+
+    def _ignite_running_reality(self, job_id: str, sid: str, path: Path, port: int, req: ShadowCloneRequest):
+        """Ignites the process and starts the Synaptic Mirror (HMR)."""
+        # 1. DIVINATION
+        diviner = IgnitionDiviner()
+        plan = diviner.divine(path, port)
+
+        # 2. IGNITION
+        gov = RealityGovernor(sid, engine=self.engine)
+
+        # Apply custom commands or auto-divined plan
+        final_cmd = req.custom_command.split() if req.custom_command else plan.command
+        # Suture the port into the command arguments
+        final_cmd = [arg.replace("{{port}}", str(port)) for arg in final_cmd]
+
+        pid, stdout_path, stderr_path = gov.ignite(path, final_cmd, None, plan.aura.value)
+
+        # 3. REGISTRATION
+        entity = ShadowEntity(
+            id=sid, label=req.label, mode=req.mode, target_ref=req.target_ref,
+            root_path=str(path).replace('\\', '/'), port=port, pid=pid,
+            status=ShadowStatus.ACTIVE, created_at=time.time(), aura=plan.aura.value,
+            stdout_log_path=str(stdout_path), stderr_log_path=str(stderr_path),
+            trace_id=self._trace_id
+        )
+        self.catalog.register(entity)
+
+        # 4. START SYNAPTIC MIRROR
+        # [ASCENSION 22]: Live-reload from Prime to Shadow
+        mirror = SynapticMirror(self.project_root, path, sid)
+        mirror.start()
+
+        self._broadcast_completion(job_id, entity.to_dict())
+
+    def _transplant_lungs(self, source: Path, dest: Path):
+        """
+        [ASCENSION 3]: LUNG TRANSPLANTATION.
+        Surgically grafts the dependency weight (node_modules) from Prime to Shadow.
+        """
+        for lung_name in ["node_modules", ".venv", "venv", "env"]:
+            src_lung = source / lung_name
+            dst_lung = dest / lung_name
+
+            if src_lung.exists() and not dst_lung.exists():
                 try:
-                    self._broadcast_progress(job_id, 20, "Forging Temporal Worktree...")
-
-                    # WorktreeManager must operate on the TARGET project
-                    wt = WorktreeManager(project_base)
-
-                    # [ASCENSION 6]: HYBRID STRATEGY
-                    # If target isn't a git repo, WorktreeManager handles fallback to copy
-                    wt.create(shadow_root, req.target_ref, strategy=req.strategy or "hybrid")
-
+                    if os.name == 'nt':
+                        # Windows Junctions are more resonant than Symlinks for dependencies
+                        import _winapi
+                        _winapi.CreateJunction(str(src_lung), str(dst_lung))
+                    else:
+                        os.symlink(src_lung, dst_lung, target_is_directory=True)
+                    self.logger.verbose(f"   -> Transplanted '{lung_name}' purely.")
                 except Exception as e:
-                    # Clean up if worktree creation fails
-                    self._dissolve_matter_hardened(shadow_root)
-                    raise Exception(f"Worktree Forge Failed: {e}")
+                    self.logger.warn(f"Lung Graft failed for '{lung_name}': {e}")
 
-                if not any(shadow_root.iterdir()):
-                    self._dissolve_matter_hardened(shadow_root)
-                    raise Exception("Clone Failed: Shadow is void of matter.")
+    # =================================================================================
+    # == MOVEMENT II: FUSION (THE MERGE RITE)                                        ==
+    # =================================================================================
 
-                # --- STEP 2: DIVINATION ---
-                self._broadcast_progress(job_id, 40, "Divining Ignition Plan...")
-                diviner = IgnitionDiviner()
-                # Determine Aura
-                plan = diviner.divine(shadow_root, req.port if req.port != 0 else 5173)
+    def _conduct_merge_rite(self, req: ShadowCloneRequest) -> ScaffoldResult:
+        """
+        =================================================================================
+        == THE OMEGA RITE OF REALITY FUSION (V-Ω-TOTALITY-V25000-ADJUDICATED)          ==
+        =================================================================================
+        LIF: ∞ | ROLE: DIMENSIONAL_SYNCHRONIZER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_MERGE_V25000_ADJUDICATION_SUTURE_2026_FINALIS
 
-                # --- STEP 3: LUNG TRANSPLANT ---
-                if req.auto_provision:
-                    self._broadcast_progress(job_id, 60, "Transplanting Dependencies...")
-                    # [ASCENSION 3]: NODE_MODULES SYMLINK
-                    self._transplant_lungs(project_base, shadow_root, plan.aura.value)
+        [THE MANIFESTO]
+        This is the supreme rite of unification. It scries the Shadow dimension for
+        Luminous Shards, summons the Adjudicator to prove their logic, and surgically
+        fuses them into the Prime timeline via the Sovereign Hand.
+        =================================================================================
+        """
+        # --- MOVEMENT 0: TARGET IDENTIFICATION ---
+        # [ASCENSION 5]: NoneType Sarcophagus search
+        shadow = self.catalog.get(req.target_id) if req.target_id else self._find_active_shadow(req.label)
 
-                # --- STEP 4: NETWORK BINDING ---
-                app_port = plan.network.port
-                if NetworkBinder.is_port_in_use(app_port):
-                    # [ASCENSION 7]: PORT EXORCISM
-                    app_port = NetworkBinder.find_free_port(start=app_port + 1)
+        if not shadow:
+            return self.failure(
+                f"Fusion Fracture: No shadow reality manifest for label '{req.label}'.",
+                suggestion="Use 'velm shadow list' to scry for active dimensions."
+            )
 
-                # --- STEP 5: CONFIG INJECTION ---
-                ConfigInjector().inject(shadow_root, {
-                    **req.variables,
-                    "PORT": str(app_port),
-                    "SHADOW_ID": shadow_id,
-                    "SCAFFOLD_ROOT": str(project_base).replace('\\', '/')
-                })
+        shadow_root = Path(shadow.root_path)
+        self.logger.info(f"Initiating Reality Fusion for shadow [soul]{shadow.id[:8]}[/]...")
+        self.progress("Scrying for Luminous Shards (Diffing)...", 10)
 
-                # --- STEP 6: IDE BRIDGE ---
-                self._forge_ide_bridge(shadow_root, app_port, None)
+        # =========================================================================
+        # == MOVEMENT I: THE DIFFERENTIAL GAZE (SHARD DETECTION)                 ==
+        # =========================================================================
+        # [ASCENSION 3]: Parallel hash-comparison to find divergent souls.
+        luminous_shards = self._find_luminous_shards(shadow_root, self.project_root)
 
-                # --- STEP 7: IGNITION ---
-                self._broadcast_progress(job_id, 80, "Igniting Runtime...")
-                gov = RealityGovernor(shadow_id)
+        if not luminous_shards:
+            return self.success("The Shadow Dimension is congruent with the Prime. No fusion required.")
 
-                # Apply custom command if provided
-                final_command = req.custom_command.split(" ") if req.custom_command else plan.command
-                final_command = [arg.replace("{{port}}", str(app_port)) for arg in final_command]
+        self.logger.info(f"Perceived {len(luminous_shards)} Luminous Shard(s) requiring fusion.")
 
-                pid, stdout_path, stderr_path = gov.ignite(shadow_root, final_command, None, plan.aura.value)
+        # =========================================================================
+        # == MOVEMENT II: THE ADJUDICATION GATE (RESONANCE TEST)                 ==
+        # =========================================================================
+        # [ASCENSION 1]: We refuse to merge if the shadow is logic-fractured.
+        if not req.force:
+            self.progress("Adjudicating Shadow Resonance...", 30)
 
-                # --- STEP 8: REGISTRATION ---
-                entity = ShadowEntity(
-                    id=shadow_id, label=req.label, target_ref=req.target_ref,
-                    root_path=str(shadow_root).replace('\\', '/'),
-                    port=app_port, pid=pid, status=ShadowStatus.ACTIVE,
-                    created_at=time.time(), aura=plan.aura.value,
-                    stdout_log_path=str(stdout_path), stderr_log_path=str(stderr_path)
+            # Late-bound import to prevent circularity
+            from ..adjudicator.engine import AdjudicatorRequest
+
+            # [STRIKE]: Recursive dispatch to the Adjudicator sibling
+            adj_res = self.dispatch(AdjudicatorRequest(
+                target_path=shadow_root,
+                test_command=getattr(req, 'test_command', 'make test'),
+                trace_id=f"merge-audit-{shadow.id[:8]}"
+            ))
+
+            if not adj_res.success:
+                # [ASCENSION 11]: Socratic Redemption
+                return self.failure(
+                    "Fusion Denied: The shadow reality is logic-fractured.",
+                    details=adj_res.message,
+                    suggestion=f"Scry the shadow's thoughts via 'velm shadow logs --label {req.label}' or use --force.",
+                    ui_hints={"vfx": "shake", "sound": "merge_blocked"}
                 )
 
-                self.catalog.register(entity)
+            self.logger.success("Shadow proven Resonant. Proceeding with Fusion.")
 
-                # [SUCCESS]: BROADCAST COMPLETION
-                self._broadcast_completion(job_id, entity.to_dict())
+        # =========================================================================
+        # == MOVEMENT III: THE VOW OF REASSURANCE (PRIME SNAPSHOT)               ==
+        # =========================================================================
+        # [ASCENSION 6]: Snapshot the Prime state BEFORE transfiguration.
+        # This provides the path of return for 'velm undo'.
+        self.progress("Forging Prime Safety Snapshot...", 50)
+        self.guarded_execution(luminous_shards, context="shadow_merge")
 
-        except Exception as e:
-            Logger.error(f"[{job_id}] Async Spawn Fracture: {e}")
-            self._broadcast_failure(job_id, str(e))
+        # =========================================================================
+        # == MOVEMENT IV: THE KINETIC FUSION (THE STRIKE)                        ==
+        # =========================================================================
+        # [ASCENSION 16]: Translocate matter using the Sovereign Hand.
+        self.progress(f"Fusing {len(luminous_shards)} shards into Prime...", 70)
 
-        finally:
-            self._active_jobs.pop(job_id, None)
+        merged_count = 0
+        final_artifacts = []
 
-    # --- BROADCAST HELPERS (SAFE) ---
+        for shard in luminous_shards:
+            rel_path = shard.relative_to(shadow_root)
+            dest_path = self.project_root / rel_path
 
-    def _broadcast_completion(self, job_id: str, data: Dict):
-        try:
-            nexus = self.nexus
-            if nexus and hasattr(nexus, 'akashic'):
-                nexus.akashic.broadcast({
-                    "method": "scaffold/jobComplete",
-                    "params": {
-                        "job_id": job_id,
-                        "status": "SUCCESS",
-                        "data": data,
-                        "result": data  # Redundancy
-                    }
-                })
-            else:
-                Logger.warn(f"[{job_id}] Completion Broadcast failed: Nexus Void.")
-        except Exception as e:
-            Logger.error(f"[{job_id}] Completion Broadcast Fracture: {e}")
+            # [ASCENSION 10]: Holographic Replication via the Hand.
+            # We use copy() to keep the Shadow Lab intact for forensic analysis.
+            success = self.io.copy(shard, dest_path)
 
-    def _broadcast_failure(self, job_id: str, error: str):
-        try:
-            nexus = self.nexus
-            if nexus and hasattr(nexus, 'akashic'):
-                nexus.akashic.broadcast({
-                    "method": "scaffold/jobComplete",
-                    "params": {
-                        "job_id": job_id,
-                        "status": "ERROR",
-                        "error": error
-                    },
-                    "tags": ["HERESY"]
-                })
-        except Exception as e:
-            Logger.error(f"[{job_id}] Failure Broadcast Fracture: {e}")
+            if success:
+                merged_count += 1
+                final_artifacts.append(Artifact(
+                    path=dest_path,
+                    action="MERGED_FROM_SHADOW",
+                    checksum=self.cortex.scry_hash(dest_path)
+                ))
+                self.logger.verbose(f"   -> Fused: [dim]{rel_path}[/dim]")
 
-    def _broadcast_progress(self, job_id: str, percent: int, message: str):
-        try:
-            nexus = self.nexus
-            if nexus and hasattr(nexus, 'akashic'):
-                nexus.akashic.broadcast({
-                    "method": "scaffold/progress",
-                    "params": {
-                        "id": job_id,
-                        "percentage": percent,
-                        "message": message,
-                        "title": "Shadow Ignition"
-                    }
-                })
-        except Exception:
-            pass
-
-    # =================================================================================
-    # == MOVEMENT II: JURISPRUDENCE (STATUS)                                        ==
-    # =================================================================================
-
-    def _status(self, req: ShadowCloneRequest) -> ScaffoldResult:
-        """
-        =============================================================================
-        == THE RITE OF STATUS (V-Ω-TOTALITY-V20000.1-ISOMORPHIC)                   ==
-        =============================================================================
-        LIF: 100x | ROLE: SHADOW_SOUL_SCRIER | RANK: OMEGA_SUPREME
-        AUTH: Ω_STATUS_V20000_PULSE_SUTURE_2026_FINALIS
-        """
-        import os
-        import time
-        from pathlib import Path
-
-        # [ASCENSION 1]: SUBSTRATE DETECTION
-        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
-
-        # [ASCENSION 4]: NONETYPE SARCOPHAGUS
-        if not self.catalog:
-            return self.success("Void.", data={'alive': False, 'status': 'OFFLINE', 'reason': 'Catalog unmanifested'})
-
-        shadows = self.catalog.list_shadows()
-        # Find the most recent shadow for this label
-        target = next((s for s in reversed(shadows) if s.label == req.label), None)
-
-        if not target:
-            return self.success("Void.",
-                                data={'alive': False, 'status': 'OFFLINE', 'reason': 'No shadow with that label'})
-
-        # --- MOVEMENT I: THE BICAMERAL LIFE-SCRY ---
-        is_alive = False
-        reason = "UNKNOWN"
-        pulse_data = {}
-
-        # A. THE HIGH PATH (IRON CORE - PID)
-        if not is_wasm and target.pid and PSUTIL_AVAILABLE:
+        # =========================================================================
+        # == MOVEMENT V: THE RITE OF OBLIVION (CLEANUP)                          ==
+        # =========================================================================
+        # [ASCENSION 10]: Cleanup triage.
+        if not req.no_cleanup:
+            self.progress("Dissolving Dimensional Rift...", 90)
             try:
-                is_alive = psutil.pid_exists(target.pid)
-                reason = "PID_RESONANT" if is_alive else "PID_DISSOLVED"
+                self._vanish_internal(shadow)
             except Exception as e:
-                reason = f"PSUTIL_FRACTURE: {e}"
+                self.logger.warn(f"Cleanup deferred: Shadow matter resisted dissolution: {e}")
 
-        # B. THE WASM PATH (ETHER - PULSE FILE)
-        # This also serves as a fallback for Native if PID is missing.
-        if not is_alive:
-            try:
-                # [ASCENSION 7]: Substrate-Aware Pathing
-                pulse_path = Path(target.root_path) / ".logs" / "daemon.pulse"
-                if pulse_path.exists():
-                    # [ASCENSION 2]: Achronal Leash-Aging
-                    HEARTBEAT_TOLERANCE = 15.0  # Seconds
-                    age = time.time() - pulse_path.stat().st_mtime
+        # =========================================================================
+        # == MOVEMENT VI: THE FINAL REVELATION                                   ==
+        # =========================================================================
+        # [ASCENSION 23]: Radiate the Ocular Pulse
+        self._project_hud_pulse("REALITY_FUSION", "#64ffda")
 
-                    if age < HEARTBEAT_TOLERANCE:
-                        # [ASCENSION 3]: PHOENIX SIGNAL (Graceful Exit)
-                        pulse_data = json.loads(pulse_path.read_text())
-                        if pulse_data.get("status") == "VOID_GRACE":
-                            is_alive = False
-                            reason = "GRACEFUL_DISSOLUTION"
-                        else:
-                            is_alive = True
-                            reason = "PULSE_RESONANT"
-                    else:
-                        reason = f"PULSE_STALE ({age:.1f}s)"
-                else:
-                    reason = "PULSE_UNMANIFESTED"
-            except (OSError, FileNotFoundError, json.JSONDecodeError):
-                reason = "PULSE_FRACTURED"
+        latency_ms = (time.perf_counter_ns() - self._start_ns) / 1_000_000
 
-        # --- MOVEMENT II: THE GNOSTIC ADJUDICATION ---
-        status = 'ONLINE' if is_alive else 'OFFLINE'
-        if not is_alive and reason not in ("GRACEFUL_DISSOLUTION", "PULSE_UNMANIFESTED"):
-            status = 'ZOMBIE'  # Indicates an unexpected death
+        return self.success(
+            f"Reality Fusion complete. {merged_count} shard(s) manifest in Prime.",
+            artifacts=final_artifacts,
+            data={
+                "merged_count": merged_count,
+                "shadow_id": shadow.id,
+                "adjudicated": not req.force,
+                "latency_ms": latency_ms
+            },
+            ui_hints={"vfx": "bloom_teal", "sound": "merge_complete"}
+        )
 
-        # Auto-update the catalog if a Zombie is detected
-        if status in ('ZOMBIE', 'OFFLINE') and target.status != ShadowStatus.from_string(status):
-            target.status = ShadowStatus.from_string(status)
-            self.catalog.register(target)
+    def _find_luminous_shards(self, shadow_root: Path, prime_root: Path) -> List[Path]:
+        """[FACULTY 14]: Deep-tissue hash comparison between realms."""
+        shards = []
+        # We walk the shadow and ignore Engine-internal artifacts
+        for shadow_file in shadow_root.rglob("*"):
+            if shadow_file.is_dir() or ".scaffold" in shadow_file.parts:
+                continue
 
-            # [ASCENSION 8]: HAPTIC PULSE
-            if self.engine and hasattr(self.engine, 'akashic'):
-                self.engine.akashic.broadcast({
-                    "method": "novalym/hud_pulse",
-                    "params": {"type": "SHADOW_ZOMBIE", "label": target.label, "color": "#ef4444"}
-                })
+            rel_path = shadow_file.relative_to(shadow_root)
+            prime_file = prime_root / rel_path
 
-        # --- MOVEMENT III: THE REVELATION ---
-        # [ASCENSION 10 & 5]: Forensic & Aura Suture
-        data = {
-            'alive': is_alive,
-            'port': target.port,
-            'pid': target.pid,
-            'id': target.id,
-            'status': status,
-            'reason': reason,  # Forensic Gnosis
-            'aura': pulse_data.get("meta", {}).get("aura", "static"),
-            'url': f"http://localhost:{target.port}",
-            'path': target.root_path,
-            'logs': {
-                'stdout': str(Path(target.root_path) / ".logs" / "stdout.log"),
-                'stderr': str(Path(target.root_path) / ".logs" / "stderr.log")
-            }
-        }
+            # CASE A: New scripture born in the darkness
+            if not prime_file.exists():
+                shards.append(shadow_file)
+            else:
+                # CASE B: Modified scripture (The True Transfiguration)
+                # [ASCENSION 14]: Using the Cortex's hash scryer
+                if self.cortex.scry_hash(shadow_file) != self.cortex.scry_hash(prime_file):
+                    shards.append(shadow_file)
+        return shards
 
-        return self.success("Gaze Concluded.", data=data)
+    # =================================================================================
+    # == MOVEMENT III: DISSOLUTION (VANISH)                                         ==
+    # =================================================================================
 
     def _vanish(self, req: ShadowCloneRequest) -> ScaffoldResult:
-        if not self.catalog: return self.success("Catalog Void.")
-
+        """User-facing rite of reality destruction."""
         shadows = self.catalog.list_shadows()
+
         targets = []
-        if req.target_id == 'active':
-            targets = [s for s in shadows if s.label == req.label]
-        elif req.target_id:
+        if req.target_id:
             targets = [s for s in shadows if s.id == req.target_id]
         else:
             targets = [s for s in shadows if s.label == req.label]
 
         if not targets:
-            return self.success("Nothing to banish.")
+            return self.success("Void Inquest: No matching shadows to vanish.")
 
-        for target in targets:
-            Logger.info(f"Banishing Shadow: {target.id}")
-            if target.pid:
-                RealityGovernor(target.id).scythe(target.pid)
-            self._dissolve_matter_hardened(Path(target.root_path))
-            self.catalog.deregister(target.id)
+        for t in targets:
+            self._vanish_internal(t)
 
-        return self.success(f"Banished {len(targets)} shadows.")
+        return self.success(f"Banished {len(targets)} shadow reality(s).")
 
-    # =================================================================================
-    # == MOVEMENT III: ANCILLARY RITES & UTILITIES                                   ==
-    # =================================================================================
+    def _vanish_internal(self, shadow: ShadowEntity):
+        """[ASCENSION 17]: Atomic Scythe and Dissolution."""
+        self.logger.info(f"Banishing Shadow Reality: [soul]{shadow.id[:8]}[/soul]")
 
-    def _gc_dead_shadows(self, label: Optional[str] = None):
-        """
-        =============================================================================
-        == THE GHOST REAPER (V-Ω-TOTALITY-V20000.5-ISOMORPHIC)                     ==
-        =============================================================================
-        LIF: ∞ | ROLE: METABOLIC_CLEANSER | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_REAPER_V20000_ETERNAL_VIGIL_2026_FINALIS
-        """
-        if not self.catalog: return
-
-        # [ASCENSION 1]: ISOMORPHIC SENSORY TRIAGE
-        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
-
-        shadows = self.catalog.list_shadows()
-        corpses: List[ShadowEntity] = []
-
-        for s in shadows:
-            # If a specific label is targeted, skip others.
-            if label and s.label != label:
-                continue
-
-            is_dead = False
-
-            # --- MOVEMENT I: THE HIGH PATH (IRON CORE) ---
-            if not is_wasm and s.pid and PSUTIL_AVAILABLE:
-                try:
-                    if not psutil.pid_exists(s.pid):
-                        is_dead = True
-                except Exception:
-                    # If scrying fractures, assume life to prevent accidental reaping.
-                    is_dead = False
-            else:
-                # --- MOVEMENT II: THE WASM PATH (ETHER LEASH) ---
-                # [ASCENSION 2]: Achronal Leash-Aging Protocol
-                # If the pulse is stale or missing, the soul has departed.
-                try:
-                    pulse_path = Path(s.root_path) / ".logs" / "daemon.pulse"  # Pulse location assumption
-                    if not pulse_path.exists():
-                        is_dead = True
-                    else:
-                        HEARTBEAT_TOLERANCE = 30.0  # More generous tolerance for GC
-                        age = time.time() - pulse_path.stat().st_mtime
-                        if age > HEARTBEAT_TOLERANCE:
-                            is_dead = True
-                except (OSError, FileNotFoundError):
-                    is_dead = True
-
-            if is_dead:
-                corpses.append(s)
-
-        # --- MOVEMENT III: THE RITE OF PURGATION ---
-        if not corpses:
-            return
-
-        self.logger.info(f"The Reaper's Gaze has perceived {len(corpses)} ghost shadow(s). Cleansing...")
-
-        for corpse in corpses:
-            self.logger.verbose(f"GC: Purging metabolic debris for shadow {corpse.id[:8]}...")
-
-            # [ASCENSION 9]: FAULT-ISOLATED DISSOLUTION
+        # 1. THE SCYTHE (Process Kill)
+        if shadow.pid:
             try:
-                # We attempt to dissolve the physical matter (the workspace directory).
-                self._dissolve_matter_hardened(Path(corpse.root_path))
-
-                # We then deregister the ghost from the Gnostic Chronicle.
-                self.catalog.deregister(corpse.id)
-
-                # [ASCENSION 8]: HAPTIC PULSE
-                if self.engine and hasattr(self.engine, 'akashic'):
-                    self.engine.akashic.broadcast({
-                        "method": "novalym/hud_pulse",
-                        "params": {"type": "SHADOW_PURGED", "label": corpse.label, "color": "#64748b"}
-                    })
+                gov = RealityGovernor(shadow.id, engine=self.engine)
+                gov.scythe(shadow.pid)
             except Exception as e:
-                self.logger.error(f"Reaper's hand stayed for {corpse.id[:8]}: {e}")
+                self.logger.warn(f"Scythe encountered friction: {e}")
 
-    def _dissolve_matter_hardened(self, path: Path):
-        """[ASCENSION 12]: THE HARDENED SOLVENT"""
-        if not path.exists(): return
+        # 2. THE SOLVENT (Physical Wipe)
+        self._dissolve_matter_hardened(Path(shadow.root_path))
 
-        def on_err(func, p, exc):
-            try:
-                os.chmod(p, stat.S_IWRITE)
-                func(p)
-            except Exception:
-                pass
+        # 3. THE DEREGISTRATION
+        self.catalog.deregister(shadow.id)
+        self._project_hud_pulse("SHADOW_VANISHED", "#64748b")
 
-        for i in range(3):
-            try:
-                # Try git command for worktrees
-                # Note: This requires 'git' in PATH and potentially the main repo context
-                # Since we don't have the main repo path easily here in generic util, we rely on physical removal
-                # unless we are sure it's a worktree.
-                if path.exists():
-                    shutil.rmtree(path, onerror=on_err)
-                break
-            except OSError:
-                time.sleep(0.5)
+    # =================================================================================
+    # == SECTION III: FORENSIC SCRYING (STATUS & LIST)                               ==
+    # =================================================================================
 
-        if path.exists():
-            Logger.warn(f"Matter Dissolution incomplete at {path.name}.")
+    def _status(self, req: ShadowCloneRequest) -> ScaffoldResult:
+        """[ASCENSION 19]: Isomorphic Vitality Scrying."""
+        if not self.catalog: return self.failure("Catalog Void")
 
-    def _transplant_lungs(self, source_root: Path, shadow_root: Path, aura: str):
-        """[ASCENSION 3]: LUNG TRANSPLANTATION (node_modules)"""
-        if aura in ('vite', 'next', 'nuxt', 'astro', 'remix', 'svelte', 'react', 'vue', 'electron-web'):
-            source_lungs = source_root / "node_modules"
-            target_lungs = shadow_root / "node_modules"
-
-            if source_lungs.exists() and not target_lungs.exists():
-                Logger.info(f"Transplanting Lungs: {source_lungs} -> {target_lungs}")
-                try:
-                    if os.name == 'nt':
-                        import _winapi
-                        _winapi.CreateJunction(str(source_lungs), str(target_lungs))
-                    else:
-                        os.symlink(source_lungs, target_lungs, target_is_directory=True)
-                    Logger.success("Lungs Grafted Successfully.")
-                except Exception as e:
-                    Logger.warn(f"Lung Graft Fractured: {e}")
-
-    def _forge_ide_bridge(self, root: Path, port: int, dport: Optional[int]):
-        """[ASCENSION 8]: CONSTITUTIONAL INCEPTION"""
-        try:
-            vscode_dir = root / ".vscode"
-            vscode_dir.mkdir(parents=True, exist_ok=True)
-            # Future: Inject launch.json
-            Logger.success(f"Constitution Injected. IDE is pre-cognizant of port {port}.")
-        except Exception as e:
-            Logger.error(f"Constitutional Inception Fractured: {e}")
-
-    def _prune_registry(self):
-        """[ASCENSION 9]: REGISTRY HYGIENE"""
-        if not self.catalog: return
         shadows = self.catalog.list_shadows()
-        active = []
-        for s in shadows:
-            if Path(s.root_path).exists():
-                active.append(s)
-            else:
-                Logger.verbose(f"Pruning ghost entry: {s.id}")
+        # Find latest shadow for this label
+        target = next((s for s in reversed(shadows) if s.label == req.label), None)
 
-        if len(active) != len(shadows):
-            self.catalog._save(active)
+        if not target:
+            return self.success("Dimension Unmanifested.", data={'alive': False, 'status': 'OFFLINE'})
+
+        is_alive = False
+        # 1. IRON PATH (PID)
+        if self._substrate == "IRON" and target.pid:
+            import psutil
+            is_alive = psutil.pid_exists(target.pid)
+
+        # 2. ETHER PATH (Pulse)
+        if not is_alive:
+            pulse_path = Path(target.root_path) / ".logs" / "daemon.pulse"
+            if pulse_path.exists() and (time.time() - pulse_path.stat().st_mtime < 15.0):
+                is_alive = True
+
+        return self.success("Gaze Concluded.", data={
+            'id': target.id,
+            'label': target.label,
+            'alive': is_alive,
+            'mode': target.mode,
+            'status': "ACTIVE" if is_alive else "ZOMBIE",
+            'url': target.url,
+            'path': target.root_path,
+            'created_at': target.created_at
+        })
+
+    def _list(self) -> ScaffoldResult:
+        """[ASCENSION 20]: The Panoptic Census."""
+        shadows = self.catalog.list_shadows()
+        return self.success(f"Census: {len(shadows)} dimensions active.", data=[s.to_dict() for s in shadows])
+
+    def _logs(self, req: ShadowCloneRequest) -> ScaffoldResult:
+        """[ASCENSION 21]: Forensic Chronicle Recall."""
+        shadow = self._find_active_shadow(req.label)
+        if not shadow: return self.failure("No matter found.")
+
+        lines = []
+        for stream, p_str in [("OUT", shadow.stdout_log_path), ("ERR", shadow.stderr_log_path)]:
+            if p_str and Path(p_str).exists():
+                try:
+                    with open(p_str, 'r', encoding='utf-8', errors='replace') as f:
+                        lines.append(f"\n--- {stream} STREAM ---")
+                        # Return last 100 verses of the chronicle
+                        lines.extend(f.readlines()[-100:])
+                except:
+                    pass
+
+        return self.success("Chronicle Recalled.", data={"lines": [l.strip() for l in lines]})
+
+    # =================================================================================
+    # == THE TRINITY OF DIMENSIONAL MAINTENANCE                                     ==
+    # =================================================================================
 
     def _find_active_shadow(self, label: str) -> Optional[ShadowEntity]:
         """
@@ -658,80 +586,219 @@ class ShadowCloneArtisan(BaseArtisan[ShadowCloneRequest]):
         == THE GAZE OF THE LIVING (V-Ω-TOTALITY-V20000.1-ISOMORPHIC)               ==
         =============================================================================
         LIF: 100x | ROLE: SHADOW_SOUL_SCRIER | RANK: OMEGA_SUPREME
-        AUTH: Ω_FIND_V20000_PULSE_SUTURE_2026_FINALIS
-        """
-        if not self.catalog: return None
+        AUTH: Ω_FIND_ACTIVE_V20000_PULSE_SUTURE_2026_FINALIS
 
-        # [ASCENSION 1]: ISOMORPHIC SENSORY TRIAGE
-        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
+        Scries the Dimensional Catalog for the most recent, breathing incarnation
+        of a specific label.
+        """
+        if not self.catalog:
+            # [ASCENSION 4]: JIT Catalog Inception
+            self.catalog = ShadowCatalog(self.project_root)
 
         shadows = self.catalog.list_shadows()
 
-        # We search in reverse to find the most recently spawned shadow with the same label.
+        # We search in reverse to find the most recently spawned incarnation.
         for s in reversed(shadows):
             if s.label != label:
                 continue
 
-            # --- MOVEMENT I: THE HIGH PATH (IRON CORE) ---
-            # If psutil is manifest and a PID exists, we perform a direct syscall probe.
-            if not is_wasm and s.pid and PSUTIL_AVAILABLE:
+            # --- MOVEMENT I: THE BICAMERAL LIFE-PROBE ---
+            is_alive = False
+
+            # A. THE HIGH PATH (IRON CORE - PID PROBE)
+            if self._substrate == "IRON" and s.pid:
                 try:
+                    import psutil
                     if psutil.pid_exists(s.pid):
-                        return s
+                        is_alive = True
                 except Exception:
-                    # A fracture in the scry is not a confirmation of death.
                     pass
 
-            # --- MOVEMENT II: THE WASM PATH (ETHER LEASH) ---
-            # If the High Path failed or is unavailable, we scry the Chronometric Leash.
-            try:
+            # B. THE WASM PATH (ETHER - PULSE PROBE)
+            if not is_alive:
                 # [ASCENSION 2]: Achronal Leash-Aging Protocol
-                # We check for the heartbeat file left by the RealityGovernor.
-                pulse_path = Path(s.root_path) / ".logs" / "daemon.pulse"  # Assuming pulse is in .logs
+                # We scry the heartbeat file left by the Shadow's RealityGovernor.
+                pulse_path = Path(s.root_path) / ".logs" / "daemon.pulse"
                 if pulse_path.exists():
-                    # The pulse file's age is our indicator of life.
-                    # Tolerance: 3x the expected heartbeat interval.
-                    HEARTBEAT_TOLERANCE = 15.0  # seconds
+                    # The pulse is resonant if it was updated in the last 15 seconds.
                     age = time.time() - pulse_path.stat().st_mtime
-                    if age < HEARTBEAT_TOLERANCE:
-                        return s
-            except (OSError, FileNotFoundError):
-                # The sanctum or the pulse is a void.
-                pass
+                    if age < 15.0:
+                        is_alive = True
+
+            if is_alive:
+                return s
 
         return None
 
-    def _list(self) -> ScaffoldResult:
-        if not self.catalog: return self.success("Void.", data=[])
-        return self.success("Census", data=self.catalog.list_shadows())
+    def _dissolve_matter_hardened(self, path: Path):
+        """
+        =============================================================================
+        == THE HARDENED SOLVENT (V-Ω-TOTALITY-V5000-UNBREAKABLE-WIPE)              ==
+        =============================================================================
+        LIF: ∞ | ROLE: MATTER_ANNIHILATOR | RANK: OMEGA_SOVEREIGN
 
-    def _logs(self, req: ShadowCloneRequest) -> ScaffoldResult:
-        if not self.catalog: return self.failure("Catalog Void")
-        shadows = self.catalog.list_shadows()
-        target = next((s for s in reversed(shadows) if s.label == req.label), None)
-        if not target: return self.failure("Matter_Void")
+        Surgically dissolves a directory tree. Engineered to defeat the 'Access Denied'
+        heresy on Windows caused by Read-Only Git metadata or OS locks.
+        """
+        if not path.exists():
+            return
 
-        lines = []
-        for name, p in [("ERR", target.stderr_log_path), ("OUT", target.stdout_log_path)]:
-            if p and Path(p).exists():
-                try:
-                    with open(p, 'r', encoding='utf-8', errors='replace') as f:
-                        lines.append(f"\n--- {name} STREAM ---")
-                        # Return last 150 lines
-                        lines.extend(f.readlines()[-150:])
-                except:
-                    pass
-        return self.success("Chronicle_Recall", data={"lines": lines})
+        def _force_consecrate_permissions(func, p, exc_info):
+            """
+            [THE HEALER]: Escalates privileges by stripping the Read-Only ward
+            from a file before re-attempting the annihilation.
+            """
+            try:
+                os.chmod(p, stat.S_IWRITE)
+                func(p)
+            except Exception:
+                # If even chmod fails, the shard is warded by a Higher Power (OS Lock).
+                pass
 
-    def _hibernate(self, req: ShadowCloneRequest) -> ScaffoldResult:
-        return self.success("Hibernation Logic Placeholder")
+        # [ASCENSION 1]: THE ATOMIC RETRY LOOP
+        # We strike three times with exponential backoff to allow OS handles to release.
+        for attempt in range(3):
+            try:
+                if path.is_dir():
+                    shutil.rmtree(path, onerror=_force_consecrate_permissions)
+                else:
+                    path.unlink(missing_ok=True)
 
-    def _null_context(self):
-        """Fallback context manager for when kernel lock is unavailable."""
+                # Verify Annihilation
+                if not path.exists():
+                    self.logger.verbose(f"   -> Dimensional Matter dissolved: {path.name}")
+                    return
+            except OSError as e:
+                if attempt < 2:
+                    # [ASCENSION 9]: HYDRAULIC YIELD
+                    time.sleep(0.5 * (attempt + 1))
+                    # Trigger a metabolic lustration to release any Python-side handles
+                    gc.collect()
+                    continue
+                else:
+                    self.logger.warn(f"Annihilation Imperfect: Shard '{path.name}' resisted dissolution: {e}")
 
-        class NullContext:
-            def __enter__(self): return self
+    def _project_hud_pulse(self, type_label: str, color: str):
+        """
+        =============================================================================
+        == THE OCULAR RADIANCE (V-Ω-TELEPATHIC-UPLINK)                             ==
+        =============================================================================
+        [ASCENSION 3]: Directly casts a visual signal across the IPC lattice
+        to the React Ocular Membrane.
+        """
+        if hasattr(self.engine, 'akashic') and self.engine.akashic:
+            try:
+                # We use the BaseArtisan's broadcast faculty for trace-aware radiation
+                self.broadcast("novalym/hud_pulse", {
+                    "type": type_label,
+                    "label": "SHADOW_ENGINE",
+                    "color": color,
+                    "trace": getattr(self, "_trace_id", "tr-void"),
+                    "timestamp": time.time()
+                })
+            except Exception as e:
+                self.logger.debug(f"HUD Projection fractured: {e}")
 
-            def __exit__(self, *args): pass
+    def _broadcast_completion(self, job_id: str, data: Dict[str, Any]):
+        """
+        =============================================================================
+        == THE HERALD OF TRIUMPH (V-Ω-TOTALITY-V2000.5-RESONANT)                   ==
+        =============================================================================
+        LIF: 100x | ROLE: REALITY_FUSION_PROCLAIMER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_BROADCAST_COMPLETION_V2000_SUTURE_FINALIS
 
-        return NullContext()
+        Radiates the successful materialization of a new dimension across the
+        multiversal bridge to the Ocular HUD. It transmutes the background matter
+        into a luminous notification, signaling that the 'Darkness' is now a
+        functional Laboratory.
+        =============================================================================
+        """
+        if self.silent:
+            return
+
+        label = data.get('label', 'unnamed')
+        sid = data.get('id', 'void')
+        self.logger.success(f"[{job_id}] Dimensional Fission RESONANT: [cyan]{label}[/cyan] ([dim]{sid[:8]}[/dim])")
+
+        # --- MOVEMENT I: THE JOB_COMPLETE REVELATION ---
+        # This packet fulfills the pending Promise in the Electron/React stage.
+        # [ASCENSION 4]: Dual-Dialect Support. We provide both 'data' and 'result'
+        # to satisfy legacy and modern UI hooks simultaneously.
+        self.broadcast("scaffold/jobComplete", {
+            "job_id": job_id,
+            "status": "SUCCESS",
+            "data": data,
+            "result": data,
+            "trace_id": self._trace_id,
+            "timestamp": time.time()
+        })
+
+        # --- MOVEMENT II: THE HAPTIC OCULAR BLOOM ---
+        # [ASCENSION 7]: Radiate a specific visual signal to the HUD.
+        # This triggers the 'bloom' VFX and sets the aura to #64ffda (Teal).
+        self.broadcast("novalym/hud_pulse", {
+            "type": "RITE_SUCCESS",
+            "label": "FISSION_COMPLETE",
+            "color": "#64ffda",
+            "trace": self._trace_id,
+            "priority": "SUCCESS",
+            "vfx": "bloom",
+            "sound": "consecration_complete"
+        })
+
+        # --- MOVEMENT III: [ASCENSION 22] CHRONICLE SYNC ---
+        # We signal a global project refresh to ensure the Sidebar and VFS scryers
+        # immediately perceive the new files in .scaffold/shadows/
+        self.broadcast("scaffold/refresh", {
+            "scope": "topology",
+            "trace_id": self._trace_id
+        })
+
+
+    def _broadcast_failure(self, job_id: str, error: str):
+        """
+        =============================================================================
+        == THE HERALD OF LAMENTATION (V-Ω-TOTALITY-V2000.1-SUTURED)                ==
+        =============================================================================
+        LIF: 100x | ROLE: SIGNAL_RESONATOR | RANK: OMEGA_GUARDIAN
+
+        Radiates the fracture of a dimensional rite across the IPC lattice to the
+        Ocular HUD. It transmutes a raw exception into a structured Gnostic
+        Notification, ensuring the Architect is never left in the dark.
+        =============================================================================
+        """
+        self.logger.error(f"[{job_id}] Dimensional Fission shattered: [red]{error}[/red]")
+
+        # 1. FORGE THE JOB_COMPLETE REVELATION
+        # We signal the UI that the background thread has concluded in a state of heresy.
+        self.broadcast("scaffold/jobComplete", {
+            "job_id": job_id,
+            "status": "ERROR",
+            "error": error,
+            "suggestion": "Check for substrate file-locks, permission wards, or network drift.",
+            "trace_id": self._trace_id,
+            "timestamp": time.time()
+        })
+
+        # 2. RADIATE THE HAPTIC DISTRESS SIGNAL
+        # Triggers the 'shake' VFX and 'red' glow in the Ocular Membrane.
+        self.broadcast("novalym/hud_pulse", {
+            "type": "RITE_FRACTURE",
+            "label": "FISSION_FAILED",
+            "color": "#ef4444",
+            "trace": self._trace_id,
+            "priority": "CRITICAL"
+        })
+
+        # 3. [ASCENSION 15]: THE FORENSIC SNAPSHOT
+        # If possible, we dump the current variables to a local crash report
+        try:
+            # Future: Logic to write .scaffold/crash_reports/job_id.json
+            pass
+        except:
+            pass
+
+    def __repr__(self) -> str:
+        return f"<Ω_SHADOW_ENGINE status=RESONANT trace={self._trace_id[:6]}>"
+
+

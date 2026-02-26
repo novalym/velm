@@ -3681,91 +3681,148 @@ class CloneStrategy(str, Enum):
     HYBRID = "hybrid"  # Try Worktree, fallback to Copy
 
 
+class ShadowMode(str, Enum):
+    """
+    =============================================================================
+    == THE BICAMERAL MODES                                                     ==
+    =============================================================================
+    Defines the ontological purpose of the parallel reality.
+    """
+    RUN = "run"  # Optimized for: Preview, HMR, Execution.
+    LAB = "lab"  # Optimized for: AI Experiments, Large Refactors, State Fission.
+
+
+class ShadowCommand(str, Enum):
+    """
+    =============================================================================
+    == THE VERBS OF FISSION                                                    ==
+    =============================================================================
+    """
+    SPAWN = "spawn"  # Matter Fission (Create)
+    VANISH = "vanish"  # Matter Dissolution (Delete)
+    LIST = "list"  # Panoptic Census
+    STATUS = "status"  # Vitality Scry
+    LOGS = "logs"  # Chronicle Recall
+    HIBERNATE = "hibernate"  # State Freeze
+    MERGE = "merge"  # Reality Fusion (The Rite of Return)
+
+
+class CloneStrategy(str, Enum):
+    """The method of physical materialization."""
+    GIT_WORKTREE = "git_worktree"  # Lightweight pointer (Fast)
+    PHYSICAL_COPY = "physical_copy"  # Heavy atomic copy (Robust)
+    HYBRID = "hybrid"  # Path of least resistance
+
+
 class ShadowCloneRequest(BaseRequest):
     """
-    =============================================================================
-    == THE SHADOW REQUEST (V-Ω-CONTRACT-ASCENDED)                              ==
-    =============================================================================
-    LIF: 10,000,000,000 | The Immutable Law of Fission.
-    Defines exactly how a parallel reality should be forged.
-    """
-    model_config = ConfigDict(extra='ignore', arbitrary_types_allowed=True)
+    =================================================================================
+    == THE OMEGA SHADOW CONTRACT (V-Ω-TOTALITY-V25000-HEALED)                      ==
+    =================================================================================
+    @gnosis:title The Gnostic Plea for Reality Fission
+    @gnosis:summary The definitive contract for forging and fusing parallel dimensions.
+    @gnosis:LIF INFINITY
+    @gnosis:auth_code: #!@RECLAMATION_CONTRACT_V25000_FINALIS
 
-    # --- 1. THE VERB (INTENT) ---
-    shadow_command: ShadowCommand = Field(
-        ...,
-        description="The rite to perform on the Shadow Realm."
+    [THE MANIFESTO]:
+    This vessel carries the Architect's complete will for dimensional manipulation.
+    It has been ascended to support 'LAB' mode and 'MERGE' rites, closing the
+    loop between Experimentation and Prime manifestation.
+    =================================================================================
+    """
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        populate_by_name=True,
+        extra='allow',
+        validate_assignment=True
     )
 
-    # --- 2. THE ANCHOR (LOCATION) ---
-    # Inherited from BaseRequest, but we add a validator to handle 'cwd' alias
-    # project_root: str
+    # --- I. THE KINETIC COMMAND (THE WILL) ---
+    shadow_command: ShadowCommand = Field(
+        ...,
+        description="The specific Shadow Rite to perform."
+    )
 
-    # --- 3. THE IDENTITY (NAMING) ---
+    # --- II. IDENTITY & CAUSALITY (THE NAME) ---
     label: str = Field(
         default="experiment",
         pattern=r"^[a-zA-Z0-9_\-]+$",
-        description="Human-readable tag for this reality (e.g. 'feature-x')."
+        description="Human-readable identity tag for the reality."
     )
 
-    target_ref: str = Field(
-        default="HEAD",
-        description="Git reference (branch/hash) to clone from."
-    )
-
-    target_id: Optional[str] = Field(
-        default=None,
-        description="Specific Shadow ID to target for Vanish/Status rites."
+    mode: ShadowMode = Field(
+        default=ShadowMode.RUN,
+        description="The purpose of the dimension: 'run' (preview) vs 'lab' (refactor)."
     )
 
     owner: str = Field(
         default="architect",
-        description="The entity responsible for this reality."
+        description="The identity of the responsible manifestor."
     )
 
-    # --- 4. THE PHYSICS (CONFIGURATION) ---
+    target_ref: str = Field(
+        default="HEAD",
+        description="The Git reference or Rite ID anchor for cloning."
+    )
+
+    target_id: Optional[str] = Field(
+        default=None,
+        description="A specific Shadow UUID to target for fusion or dissolution."
+    )
+
+    # --- III. PHYSICS & GEOMETRY (THE PLACE) ---
     strategy: CloneStrategy = Field(
         default=CloneStrategy.HYBRID,
-        description="The method of materialization."
+        description="The materialization method (Worktree vs Physical Copy)."
     )
-
 
     port: int = Field(
         default=0,
         ge=0,
         le=65535,
-        description="The port to bind. 0 = Divine a free port automatically."
+        description="Resonance port. 0 = Automated Network Scry."
     )
 
-    # --- 5. THE SOUL (RUNTIME) ---
+    # --- IV. RUNTIME DNA (THE LIFE) ---
     custom_command: Optional[str] = Field(
         default=None,
-        description="Override the detected startup command (e.g., 'npm run dev')."
+        description="Override the auto-divined startup scripture."
     )
 
     variables: Dict[str, str] = Field(
         default_factory=dict,
-        description="Environment variables to inject into the Shadow's .env file."
+        description="Environment variables to be warded within the shadow's .env."
     )
 
-    # [ASCENSION 4]: AUTO_PROVISION
+    # --- V. GOVERNANCE & PURIFICATION (THE RULES) ---
     auto_provision: bool = Field(
         default=True,
-        description="If True, performs Lung Transplantation (node_modules linking)."
+        description="If True, performs dependency lung-transplantation (node_modules)."
     )
 
-    # --- VALIDATORS ---
+    no_cleanup: bool = Field(
+        default=False,
+        description="The Vow of Persistence. If True, stays the Hand of Oblivion after a successful merge."
+    )
+
+    force: bool = Field(
+        default=False,
+        description="The Rite of Absolute Will. Bypass confirmation guards."
+    )
+
+    # =============================================================================
+    # == THE RITES OF HARMONIZATION (VALIDATORS)                                 ==
+    # =============================================================================
 
     @field_validator('project_root', mode='before')
     @classmethod
     def canonize_root(cls, v: Any, info: Any) -> str:
         """
-        [ASCENSION 2]: PATH CANONIZATION
-        Resolves '~', normalizes slashes, and handles the 'cwd' alias.
+        [ASCENSION 5]: THE GEOMETRIC PURIFIER.
+        Resolves '~', normalizes slashes, and handles the 'cwd' alias from CLI.
         """
-        # Handle alias
+        # 1. Alias Resolution
         if v is None:
-            # Look for 'cwd' in the raw data if project_root is missing
             values = info.data if hasattr(info, 'data') else {}
             if 'cwd' in values:
                 v = values['cwd']
@@ -3773,37 +3830,47 @@ class ShadowCloneRequest(BaseRequest):
         if not v:
             return "."
 
-        # Expand and Normalize
+        # 2. Absolute Path Fission
         path_str = str(v)
         try:
+            # We resolve realpath to pierce through symlink illusions
             expanded = Path(path_str).expanduser().resolve()
-            return expanded.as_posix()
+            return str(expanded).replace('\\', '/')
         except Exception:
             return path_str.replace('\\', '/')
 
     @model_validator(mode='before')
     @classmethod
-    def alias_cwd_to_root(cls, data: Any) -> Any:
+    def alias_dialect_translation(cls, data: Any) -> Any:
         """
-        [ASCENSION 3]: DIALECT TRANSLATION
-        Maps 'cwd' -> 'project_root' for clients that use shell terminology.
+        [ASCENSION 4]: THE LEXICAL HARMONIZER.
+        Transmutes raw CLI and JS-Bridge matter into the strict Gnostic contract.
         """
         if isinstance(data, dict):
+            # 1. Coordinate Suture: cwd -> project_root
             if 'cwd' in data and 'project_root' not in data:
                 data['project_root'] = data['cwd']
 
-            # Map string command to Enum if possible
+            # 2. Command Triage: String -> Enum
             if 'shadow_command' in data and isinstance(data['shadow_command'], str):
                 try:
-                    # Normalize 'spawn' -> ShadowCommand.SPAWN
-                    data['shadow_command'] = ShadowCommand(data['shadow_command'].lower())
+                    # Normalize 'SPAWN' or 'merge' into their Enum souls
+                    data['shadow_command'] = ShadowCommand(data['shadow_command'].lower().strip())
                 except ValueError:
-                    pass  # Let Pydantic validation fail natively for clear errors
+                    # Let Pydantic provide a descriptive Error later
+                    pass
+
+            # 3. Mode Triage: String -> Enum
+            if 'mode' in data and isinstance(data['mode'], str):
+                try:
+                    data['mode'] = ShadowMode(data['mode'].lower().strip())
+                except ValueError:
+                    pass
 
         return data
 
 
-# == END OF SCRIPTURE ==
+
 
 class GardenRequest(BaseRequest):
     """
@@ -5715,3 +5782,107 @@ class ProtocolRequest(BaseRequest):
     # --- Output ---
     output_path: Optional[str] = Field(None, description="Where to save the artifact. Defaults to artifacts/identity.")
     return_content: bool = Field(False, description="Return the raw string content in the result data.")
+
+
+
+class LustrationIntensity(str, Enum):
+    """
+    =============================================================================
+    == THE LUSTRATION INTENSITY (V-Ω-METABOLIC-LEVELS)                         ==
+    =============================================================================
+    Defines the depth and aggression of the metabolic cleanup.
+    """
+    SOFT = "soft"         # Purge only volatile temporary shards.
+    HARD = "hard"         # Evaporate all caches and aged logs.
+    CRITICAL = "critical" # Emergency Venting: Prune backups and freeze non-essential logic.
+
+
+class LibrarianRequest(BaseRequest):
+    """
+    =================================================================================
+    == THE OMEGA LIBRARIAN CONTRACT (V-Ω-TOTALITY-V25000-AUTONOMIC)                ==
+    =================================================================================
+    @gnosis:title The Gnostic Plea for Lustration
+    @gnosis:summary The definitive contract for the Engine's Immune System.
+    @gnosis:LIF INFINITY
+    @gnosis:auth_code: #!@METABOLIC_GOVERNOR_V25000_FINALIS
+
+    [THE MANIFESTO]:
+    This vessel carries the intent for metabolic purification. It is warded by the
+    Vitality Monitor and executed by the LibrarianArtisan to ensure the God-Engine
+    retains its "Zen" state and never strikes the "Memory Wall."
+    =================================================================================
+    """
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        populate_by_name=True,
+        extra='allow',
+        validate_assignment=True
+    )
+
+    # --- I. THE KINETIC COMMAND ---
+    intensity: LustrationIntensity = Field(
+        default=LustrationIntensity.SOFT,
+        description="The aggression level of the lustration rite."
+    )
+
+    # --- II. TARGET DOMAINS (THE CENSUS) ---
+    target_domains: List[Literal["cache", "logs", "temp", "backups", "zombies"]] = Field(
+        default_factory=lambda: ["cache", "logs", "temp"],
+        description="The specific dimensions of waste to be reclaimed."
+    )
+
+    # --- III. METABOLIC CONSTRAINTS ---
+    min_reclamation_mb: float = Field(
+        default=50.0,
+        description="The metabolic floor. Skip lustration if predicted dividend is too low."
+    )
+
+    preserve_latest_count: int = Field(
+        default=3,
+        description="Number of most-recent snapshots/logs to protect from the Scythe."
+    )
+
+    # --- IV. GOVERNANCE & IDENTITY ---
+    is_autonomic: bool = Field(
+        default=False,
+        description="True if this was triggered by a System Reflex (Vitality Monitor)."
+    )
+
+    # --- V. KINETIC MODIFIERS ---
+    dry_run: bool = Field(False, description="Scry the waste without performing the Strike.")
+    force: bool = Field(False, description="Bypass the min_reclamation floor and retention laws.")
+    silent: bool = Field(True, description="Operate in shadows to avoid distracting the Architect.")
+
+    # =============================================================================
+    # == THE RITES OF HARMONIZATION (VALIDATORS)                                 ==
+    # =============================================================================
+
+    @model_validator(mode='before')
+    @classmethod
+    def _apophatic_trace_suture(cls, data: Any) -> Any:
+        """
+        [ASCENSION 7]: THE AUTO-HEAL TRACE SUTURE.
+        If the rite is autonomic, we ensure the trace_id reflects its origin.
+        """
+        if isinstance(data, dict):
+            if data.get("is_autonomic"):
+                if not data.get("trace_id"):
+                    data["trace_id"] = f"auto-librate-{int(time.time())}"
+                # Autonomic rites are always silent
+                data["silent"] = True
+        return data
+
+    @model_validator(mode='after')
+    def _adjudicate_critical_will(self) -> 'LibrarianRequest':
+        """
+        [THE ORACLE'S VOW]:
+        Ensures that 'CRITICAL' lustration automatically targets all domains.
+        """
+        if self.intensity == LustrationIntensity.CRITICAL:
+            object.__setattr__(self, 'target_domains', ["cache", "logs", "temp", "backups", "zombies"])
+            object.__setattr__(self, 'force', True)
+        return self
+
+    def __repr__(self) -> str:
+        return f"<Ω_LIBRARIAN_PLEA intensity={self.intensity.value} auto={self.is_autonomic}>"

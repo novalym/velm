@@ -46,6 +46,7 @@ from typing import Tuple, Optional, List, Dict, Type, Union, Any, Final
 from .contracts import MaestroContext, KineticVessel
 from .context import ContextForge
 from .handlers import BaseRiteHandler
+from .reverser import MaestroReverser
 
 from ..alchemist import DivineAlchemist, get_alchemist
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
@@ -114,6 +115,14 @@ class MaestroConductor:
 
         self.engine = engine
         self.Logger = Logger
+        # =========================================================================
+        # == [ASCENSION 7]: THE CHRONOMANTIC EYE SUTURE (THE FIX)                ==
+        # =========================================================================
+        # [THE CURE]: We materialize the Reverser organ. This annihilates the
+        # 'AttributeError: reverser' heresy and allows the Conductor to
+        # prophesy automated undos.
+        self.reverser = MaestroReverser()
+        # =========================================================================
 
         # --- MOVEMENT I: SOVEREIGN ORGAN BINDING ---
         self.alchemist = alchemist or get_alchemist(engine=self.engine)
@@ -221,40 +230,45 @@ class MaestroConductor:
 
         return requested_cwd
 
-
     def execute(self, instruction: Tuple, env: Optional[Dict] = None):
         """
-        =============================================================================
-        == THE GRAND SYMPHONY OF EXECUTION: OMEGA (V-Ω-V1000-POLYGLOT-SUTURE)      ==
-        =============================================================================
-        LIF: INFINITY | ROLE: KINETIC_DISPATCH_ORCHESTRATOR | RANK: OMEGA_SUPREME
-        AUTH: Ω_EXECUTE_V1000_POLYGLOT_SUTURE_2026_FINALIS
+        =================================================================================
+        == THE OMEGA SYMPHONY OF EXECUTION (V-Ω-TOTALITY-V1100.12-INVERSE-SUTURED)     ==
+        =================================================================================
+        LIF: ∞ | ROLE: KINETIC_DISPATCH_ORCHESTRATOR | RANK: OMEGA_SUPREME
+        AUTH: Ω_EXECUTE_V1100_INVERSE_WILL_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
+        The supreme conductor of kinetic will. It has been ascended to enforce the
+        **Law of Symmetric Causality**, ensuring that every 'Strike' (Action) willed
+        by the Architect is balanced by an 'Antidote' (Undo) in the Gnostic Ledger.
+        =================================================================================
         """
         import inspect
         import sys
         import time
         import os
+        from ...core.state import ActiveLedger
+        from ...core.state.contracts import LedgerEntry, LedgerOperation, InverseOp
 
         # --- MOVEMENT I: ATOMIC DECONSTRUCTION (THE QUATERNITY) ---
-        if len(instruction) == 4:
-            raw_command, line_num, explicit_undo, heresy_block = instruction
-        elif len(instruction) == 3:
-            raw_command, line_num, explicit_undo = instruction
-            heresy_block = None
-        else:
-            raw_command = instruction[0] if isinstance(instruction, (tuple, list)) else instruction
-            line_num = 0
-            explicit_undo = None
-            heresy_block = None
+        # [ASCENSION 5]: We robustly unpack the instruction dowry.
+        parts = list(instruction) if isinstance(instruction, (tuple, list)) else [instruction]
+        while len(parts) < 4:
+            parts.append(None)
+
+        raw_command, line_num, explicit_undo, heresy_block = parts[:4]
 
         if not raw_command:
             return
 
         # --- MOVEMENT II: THE ALCHEMICAL RESOLUTION ---
-        transmuted_cmd = self.alchemist.transmute(raw_command, self.regs.gnosis)
+        # Transmute the command soul using the living Gnostic Context.
+        transmuted_cmd = self.alchemist.transmute(str(raw_command), self.regs.gnosis)
         stripped_cmd = transmuted_cmd.strip()
 
         # --- MOVEMENT III: ENVIRONMENT DNA FUSION ---
+        # [ASCENSION 6]: Thread the silver cord (Trace ID) and Project DNA into the env.
         active_env = (env or os.environ).copy()
         if self.regs.gnosis:
             for k, v in self.regs.gnosis.items():
@@ -263,7 +277,36 @@ class MaestroConductor:
 
         active_env["SCAFFOLD_TRACE_ID"] = getattr(self.regs, 'trace_id', 'tr-maestro')
 
-        # --- MOVEMENT IV: SEMANTIC POLYGLOT ROUTING (THE FIX) ---
+        # --- MOVEMENT IV: THE INVERSE WILL SUTURE (THE CURE) ---
+        # [ASCENSION 1 & 3]: We adjudicate the Antidote.
+        # Priority: 1. Blueprint '!!' script -> 2. Reverser prophecy -> 3. Void.
+
+        final_undo_script = None
+        if explicit_undo:
+            # Alchemize the Antidote so variables are fixed at the moment of recording.
+            final_undo_script = self.alchemist.transmute(str(explicit_undo), self.regs.gnosis)
+        else:
+            # Consult the Oracle of Reversal for an automated prophecy.
+            # We pass the CWD from the upcoming context to ensure geometric accuracy.
+            predicted_undo = self.reverser.infer_undo(transmuted_cmd, Path.cwd())
+            if predicted_undo:
+                final_undo_script = "\n".join(predicted_undo)
+
+        # [ASCENSION 2]: BICAMERAL LEDGER INSCRIPTION
+        # We etch the Vow into the ActiveLedger BEFORE the strike.
+        ActiveLedger.record(LedgerEntry(
+            actor="Maestro",
+            operation=LedgerOperation.EXEC_SHELL,
+            forward_state={"command": transmuted_cmd, "line": line_num},
+            inverse_action=InverseOp(
+                op=LedgerOperation.EXEC_SHELL,
+                params={"command": final_undo_script}
+            ) if final_undo_script else None,
+            metadata={"trace_id": active_env["SCAFFOLD_TRACE_ID"]}
+        ))
+
+        # --- MOVEMENT V: SEMANTIC POLYGLOT ROUTING ---
+        # [ASCENSION 5]: Divines the specialized Artisan for the strike.
         rite_key = "shell"
         final_command_body = transmuted_cmd
 
@@ -291,17 +334,18 @@ class MaestroConductor:
         elif stripped_cmd.startswith("%% hosts:"):
             rite_key = "hosts"
 
-        # --- MOVEMENT V: HANDLER MATERIALIZATION & SUTURE ---
+        # --- MOVEMENT VI: HANDLER MATERIALIZATION & GEOMETRIC SUTURE ---
         HandlerClass = self.RITE_HANDLERS.get(rite_key, self.RITE_HANDLERS["shell"])
 
-        # [THE CURE FOR GEOMETRY]: Forge Context with Maestro's specific Anchor Override
+        # [THE CURE FOR GEOMETRY]: Forge Context with Maestro's specific Anchor.
         context = self.context_forge.forge(
             line_num,
-            explicit_undo,
+            [final_undo_script] if final_undo_script else None,
             cwd_override=getattr(self, 'project_anchor', None)
         )
 
-        # [BESTOW VOLUMETRIC SIGHT]: Redirect CWD to Shadow Volume if active
+        # [ASCENSION 4]: VOLUMETRIC REDIRECTION
+        # If a Shadow Volume is manifest, we levitate the strike to the Green Stratum.
         shadow_cwd = self._resolve_true_sanctum(context.cwd)
         if shadow_cwd != context.cwd:
             self.Logger.debug(f"Achronal Redirect Applied: L{line_num} -> [Shadow_Volume]")
@@ -310,28 +354,27 @@ class MaestroConductor:
         # [STRIKE]: THE SOVEREIGN LINK IS FORGED.
         handler = HandlerClass(self, self.regs, self.alchemist, context)
 
-        if hasattr(handler, 'conductor'):
-            object.__setattr__(handler, 'conductor', self)
-
-        # --- MOVEMENT VI: THE KINETIC STRIKE (THE OMEGA PULSE) ---
+        # --- MOVEMENT VII: KINETIC DISCHARGE (THE OMEGA PULSE) ---
         try:
+            # [ASCENSION 8]: HYDRAULIC FLUSH
             sys.stdout.flush()
             sys.stderr.flush()
 
+            # [ASCENSION 9]: HUD MULTICAST
             if self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
                 self.engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
                     "params": {
                         "type": "RITE_START",
                         "label": f"CONDUCTING_{rite_key.upper()}",
-                        "color": "#64ffda",
+                        "color": "#64ffda" if rite_key != "polyglot" else "#a855f7",
                         "line": line_num,
                         "trace": active_env["SCAFFOLD_TRACE_ID"]
                     }
                 })
 
+            # Check for env-aware conduct signature
             sig = inspect.signature(handler.conduct)
-
             if 'env' in sig.parameters:
                 handler.conduct(final_command_body, env=active_env)
             else:
@@ -341,22 +384,30 @@ class MaestroConductor:
             sys.stderr.flush()
 
         except Exception as fracture:
-            sys.stdout.flush()
-            sys.stderr.flush()
-
-            # --- MOVEMENT VII: THE RITE OF CASCADING REDEMPTION ---
+            # --- MOVEMENT VIII: THE RITE OF CASCADING REDEMPTION ---
+            # [ASCENSION 10]: Execute the fallback block if the edict shattered.
             if heresy_block:
-                self.Logger.warn(f"L{line_num}: Edict fractured. Initiating Redemption Rites.")
+                self.Logger.warn(f"L{line_num}: Edict fractured. Initiating Redemption Sequence...")
 
                 if self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
                     self.engine.akashic.broadcast({
                         "method": "novalym/hud_pulse",
-                        "params": {"type": "REDEMPTION_START", "color": "#fbbf24", "line": line_num}
+                        "params": {
+                            "type": "REDEMPTION_START",
+                            "label": "HEALING_SHARDS",
+                            "color": "#fbbf24",
+                            "line": line_num
+                        }
                     })
 
+                # Recursively execute heresy commands.
                 for h_cmd in heresy_block:
-                    self.execute((h_cmd, line_num, None), env=active_env)
+                    try:
+                        self.execute((h_cmd, line_num, None), env=active_env)
+                    except Exception as nested_fail:
+                        self.Logger.error(f"Redemption Fragment Failed: {nested_fail}")
 
+            # [ASCENSION 12]: THE FINALITY VOW
             raise fracture
 
 

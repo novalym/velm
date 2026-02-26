@@ -1,277 +1,643 @@
-# Path: scaffold/jurisprudence_core/gnostic_type_system.py
+# Path: src/velm/jurisprudence_core/gnostic_type_system.py
 # --------------------------------------------------------
 
 import ast
 import re
 import uuid
+import datetime
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional
+from typing import Any, Dict, List, Tuple, Optional, Set, Union
 
 
-def adjudicate_gnostic_purity(value: str, rule_string: str) -> Tuple[bool, Optional[str]]:
+# =========================================================================
+# == STRATUM 0: THE ONTOLOGICAL HERESY (FORENSIC TRACING)                ==
+# =========================================================================
+
+class OntologicalHeresy(ValueError):
     """
-    The one true, universal adjudicator. It receives a value and a scripture of laws
-    and returns a judgment of its purity.
+    [ASCENSION 16]: CAUSAL TRACE TOMOGRAPHY
+    A transcendent ValueError that tracks exactly *where* in a deeply nested
+    data structure the physical laws of the contract were broken.
     """
-    if not rule_string:
-        return True, None
 
-    # This logic, which was once in jurisprudence.py, now lives here in its rightful home.
+    def __init__(self, path: str, message: str):
+        self.path = path
+        self.message = message
+        super().__init__(f"Lattice Fracture at [{path}]: {message}")
+
+
+def adjudicate_gnostic_purity(value: Any, rule_string: str) -> Tuple[bool, Optional[str]]:
+    """The Universal Adjudicator."""
+    if not rule_string: return True, None
     try:
-        # We use a simplified context for this validation rite.
-        # The 'validate' filter itself is what calls this.
         gnostic_type = GnosticTypeParser.parse(rule_string)
-        gnostic_type.validate(value, "value", {})
+        gnostic_type.validate(value, "root", {})
         return True, None
-    except ValueError as e:
+    except OntologicalHeresy as e:
         return False, str(e)
     except Exception as e:
-        return False, f"A meta-heresy occurred during adjudication: {e}"
+        return False, f"A meta-heresy occurred during type adjudication: {e}"
 
 
-# --- THE BASE CONTRACT ---
+# =========================================================================
+# == STRATUM 1: THE BASE CONTRACT OF REALITY                             ==
+# =========================================================================
 
-class GnosticType(ABC):
-    """
-    The Abstract Soul of a Type.
-    """
+class TypeNode(ABC):
+    """The Ancestral Soul of all Gnostic Types."""
 
     def __init__(self, constraints: Dict[str, Any] = None):
         self.constraints = constraints or {}
 
     @abstractmethod
-    def validate(self, value: Any, context: str, contract_registry: Dict[str, Any]) -> Any:
-        """
-        Adjudicates the value. Returns the cleaned value or raises ValueError.
-        'contract_registry' allows recursive lookup of other Contracts.
-        """
+    def validate(self, value: Any, path: str, contracts: Dict[str, Any]) -> Any:
+        """Adjudicates the value. Returns pure matter or raises OntologicalHeresy."""
         pass
 
-    def _check_constraints(self, value: Any, context: str):
-        """Universal constraint logic (min, max)."""
+    @abstractmethod
+    def to_json_schema(self, contracts: Dict[str, Any]) -> Dict[str, Any]:
+        """Transmutes the Type into OpenAI-compatible JSON Schema."""
+        pass
+
+    def _check_numeric_constraints(self, value: Union[int, float], path: str):
         c = self.constraints
-        if 'min' in c:
-            if isinstance(value, (int, float)):
-                if value < c['min']: raise ValueError(f"{context} is too small (min {c['min']}).")
-            elif hasattr(value, '__len__'):
-                if len(value) < c['min']: raise ValueError(f"{context} is too short (min len {c['min']}).")
+        if 'min' in c and value < c['min']:
+            raise OntologicalHeresy(path, f"Value {value} violates minimum floor of {c['min']}.")
+        if 'max' in c and value > c['max']:
+            raise OntologicalHeresy(path, f"Value {value} violates maximum ceiling of {c['max']}.")
 
-        if 'max' in c:
-            if isinstance(value, (int, float)):
-                if value > c['max']: raise ValueError(f"{context} is too large (max {c['max']}).")
-            elif hasattr(value, '__len__'):
-                if len(value) > c['max']: raise ValueError(f"{context} is too long (max len {c['max']}).")
+    def _check_length_constraints(self, value: Any, path: str):
+        c = self.constraints
+        length = len(value)
+        if 'min_len' in c and length < c['min_len']:
+            raise OntologicalHeresy(path, f"Length {length} violates minimum boundary of {c['min_len']}.")
+        if 'max_len' in c and length > c['max_len']:
+            raise OntologicalHeresy(path, f"Length {length} violates maximum boundary of {c['max_len']}.")
 
 
-# --- THE PRIMITIVES ---
+# =========================================================================
+# == STRATUM 2: THE PRIMORDIAL ATOMS                                     ==
+# =========================================================================
 
-class AnyType(GnosticType):
-    def validate(self, value: Any, context: str, registry: Dict) -> Any:
+class AnyType(TypeNode):
+    """The Void. Accepts all matter."""
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> Any: return value
+
+    def to_json_schema(self, contracts: Dict) -> Dict: return {}
+
+
+class StringType(TypeNode):
+    def validate(self, value: Any, path: str, contracts: Dict) -> str:
+        # [ASCENSION 20]: The Primitive Alchemist
+        if not isinstance(value, str):
+            if isinstance(value, (int, float, bool)):
+                value = str(value)
+            else:
+                raise OntologicalHeresy(path, f"Expected String, perceived {type(value).__name__}.")
+        self._check_length_constraints(value, path)
         return value
 
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"type": "string"}
 
-class StringType(GnosticType):
-    def validate(self, value: Any, context: str, registry: Dict) -> str:
-        if not isinstance(value, str): raise ValueError(f"{context} must be a string.")
-        self._check_constraints(value, context)
-        if 'pattern' in self.constraints:
-            if not re.match(self.constraints['pattern'], value):
-                raise ValueError(f"{context} does not match pattern '{self.constraints['pattern']}'.")
+
+class IntegerType(TypeNode):
+    def validate(self, value: Any, path: str, contracts: Dict) -> int:
+        if isinstance(value, bool): raise OntologicalHeresy(path, "Expected Integer, perceived Boolean.")
+        if isinstance(value, str) and value.lstrip('-').isdigit(): value = int(value)
+        if not isinstance(value, int): raise OntologicalHeresy(path,
+                                                               f"Expected Integer, perceived {type(value).__name__}.")
+        self._check_numeric_constraints(value, path)
         return value
 
-
-class IntegerType(GnosticType):
-    def validate(self, value: Any, context: str, registry: Dict) -> int:
-        if isinstance(value, bool): raise ValueError(f"{context} must be an integer, not bool.")
-        if not isinstance(value, int): raise ValueError(f"{context} must be an integer.")
-        self._check_constraints(value, context)
-        return value
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"type": "integer"}
 
 
-class FloatType(GnosticType):
-    def validate(self, value: Any, context: str, registry: Dict) -> float:
-        if isinstance(value, bool): raise ValueError(f"{context} must be a float.")
-        if not isinstance(value, (float, int)): raise ValueError(f"{context} must be a number.")
-        self._check_constraints(value, context)
-        return float(value)
-
-
-class BoolType(GnosticType):
-    def validate(self, value: Any, context: str, registry: Dict) -> bool:
-        if not isinstance(value, bool): raise ValueError(f"{context} must be a boolean.")
-        return value
-
-
-# --- THE SEMANTIC TYPES ---
-
-class EmailType(StringType):
-    EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-
-    def validate(self, value: Any, context: str, registry: Dict) -> str:
-        val = super().validate(value, context, registry)
-        if not self.EMAIL_REGEX.match(val): raise ValueError(f"{context} is not a valid email.")
-        return val
-
-
-class UUIDType(StringType):
-    def validate(self, value: Any, context: str, registry: Dict) -> str:
-        val = super().validate(value, context, registry)
+class FloatType(TypeNode):
+    def validate(self, value: Any, path: str, contracts: Dict) -> float:
+        if isinstance(value, bool): raise OntologicalHeresy(path, "Expected Float, perceived Boolean.")
         try:
-            uuid.UUID(val)
-        except ValueError:
-            raise ValueError(f"{context} is not a valid UUID.")
-        return val
-
-
-class PathType(StringType):
-    def validate(self, value: Any, context: str, registry: Dict) -> str:
-        val = super().validate(value, context, registry)
-        p = Path(val)
-        if self.constraints.get('absolute') and not p.is_absolute():
-            raise ValueError(f"{context} must be an absolute path.")
-        return val
-
-
-class EnumType(GnosticType):
-    def validate(self, value: Any, context: str, registry: Dict) -> Any:
-        options = self.constraints.get('options', [])
-        if value not in options:
-            raise ValueError(f"{context} must be one of: {options}")
+            value = float(value)
+        except (ValueError, TypeError):
+            raise OntologicalHeresy(path, f"Expected Float, perceived {type(value).__name__}.")
+        self._check_numeric_constraints(value, path)
         return value
 
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"type": "number"}
 
-# --- THE HIGHER ORDER TYPES (THE SINGULARITY) ---
 
-class ListType(GnosticType):
-    def __init__(self, item_type: GnosticType, constraints: Dict = None):
+class BoolType(TypeNode):
+    def validate(self, value: Any, path: str, contracts: Dict) -> bool:
+        if isinstance(value, bool): return value
+        if isinstance(value, str):
+            v_low = value.lower()
+            if v_low in ('true', 'yes', 'on', '1'): return True
+            if v_low in ('false', 'no', 'off', '0'): return False
+        if isinstance(value, int) and value in (0, 1): return bool(value)
+        raise OntologicalHeresy(path, f"Expected Boolean, perceived {type(value).__name__}.")
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"type": "boolean"}
+
+
+# =========================================================================
+# == STRATUM 3: THE OMNISCIENT DOMAINS (THE ASCENSIONS)                  ==
+# =========================================================================
+
+class LiteralType(TypeNode):
+    """[ASCENSION 3]: Absolute Enumeration."""
+
+    def __init__(self, allowed_values: List[Any]):
+        super().__init__()
+        self.allowed_values = allowed_values
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> Any:
+        if value not in self.allowed_values:
+            raise OntologicalHeresy(path, f"Value '{value}' is profane. Must be one of: {self.allowed_values}")
+        return value
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"enum": self.allowed_values}
+
+
+class RegexType(TypeNode):
+    """[ASCENSION 11]: Regex Wards."""
+
+    def __init__(self, pattern: str):
+        super().__init__()
+        self.pattern_str = pattern
+        self.pattern = re.compile(pattern)
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> str:
+        val = StringType().validate(value, path, contracts)
+        if not self.pattern.match(val):
+            raise OntologicalHeresy(path, f"Value '{val}' breaches cryptographic ward '{self.pattern_str}'.")
+        return val
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"type": "string", "pattern": self.pattern_str}
+
+
+class ByteSizeType(TypeNode):
+    """[ASCENSION 8]: Metabolic Mass Coercion."""
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> int:
+        if isinstance(value, int): return value
+        val_str = StringType().validate(value, path, contracts).upper().strip()
+        match = re.match(r'^(\d+(?:\.\d+)?)\s*([KMGTPE]?B?)$', val_str)
+        if not match: raise OntologicalHeresy(path, f"Invalid byte mass geometry: '{value}'")
+        num, unit = float(match.group(1)), match.group(2)
+        multiplier = {"B": 1, "KB": 1024, "K": 1024, "MB": 1024 ** 2, "M": 1024 ** 2, "GB": 1024 ** 3, "G": 1024 ** 3,
+                      "TB": 1024 ** 4, "T": 1024 ** 4}
+        return int(num * multiplier.get(unit, 1))
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"type": "string", "description": "Byte size (e.g. '10MB', '5G')"}
+
+
+class ExistingFileType(TypeNode):
+    """[ASCENSION 1]: Physical Substrate Validation."""
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> str:
+        val = StringType().validate(value, path, contracts)
+        if not Path(val).is_file():
+            raise OntologicalHeresy(path, f"Physical Illusion: File '{val}' is unmanifest on the substrate.")
+        return val
+
+    def to_json_schema(self, contracts: Dict) -> Dict: return {"type": "string", "format": "file-path"}
+
+
+class ExistingDirType(TypeNode):
+    """[ASCENSION 1]: Physical Substrate Validation."""
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> str:
+        val = StringType().validate(value, path, contracts)
+        if not Path(val).is_dir():
+            raise OntologicalHeresy(path, f"Physical Illusion: Sanctum (Dir) '{val}' is unmanifest.")
+        return val
+
+    def to_json_schema(self, contracts: Dict) -> Dict: return {"type": "string", "format": "dir-path"}
+
+
+class SecretType(TypeNode):
+    """[ASCENSION 7]: The Secret Veil."""
+
+    def __init__(self, inner: TypeNode):
+        super().__init__()
+        self.inner = inner
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> Any:
+        # Validates normally, but logic downstream knows to cloak it.
+        return self.inner.validate(value, path, contracts)
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        schema = self.inner.to_json_schema(contracts)
+        schema["writeOnly"] = True
+        return schema
+
+
+# --- STANDARD DOMAINS ---
+class EmailType(RegexType):
+    def __init__(self): super().__init__(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+
+    def to_json_schema(self, contracts: Dict) -> Dict: return {"type": "string", "format": "email"}
+
+
+class UUIDType(TypeNode):
+    def validate(self, value: Any, path: str, contracts: Dict) -> str:
+        try:
+            return str(uuid.UUID(str(value)))
+        except ValueError:
+            raise OntologicalHeresy(path, f"'{value}' is not a true UUID.")
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"type": "string", "format": "uuid"}
+
+
+class SemVerType(RegexType):
+    def __init__(self): super().__init__(
+        r'^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-zA-Z0-9-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-zA-Z0-9-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$')
+
+
+class PortType(IntegerType):
+    def validate(self, value: Any, path: str, contracts: Dict) -> int:
+        val = super().validate(value, path, contracts)
+        if not (1 <= val <= 65535): raise OntologicalHeresy(path, f"Port {val} is out of geometric bounds (1-65535).")
+        return val
+
+
+# =========================================================================
+# == STRATUM 4: THE STRUCTURAL LATTICES (COMPLEX TYPES)                  ==
+# =========================================================================
+
+class ListType(TypeNode):
+    def __init__(self, item_type: TypeNode, constraints: Dict = None):
         super().__init__(constraints)
         self.item_type = item_type
 
-    def validate(self, value: Any, context: str, registry: Dict) -> List[Any]:
-        if not isinstance(value, list): raise ValueError(f"{context} must be a list.")
-        self._check_constraints(value, context)
-        return [self.item_type.validate(item, f"{context}[{i}]", registry) for i, item in enumerate(value)]
+    def validate(self, value: Any, path: str, contracts: Dict) -> List[Any]:
+        if not isinstance(value, list): raise OntologicalHeresy(path,
+                                                                f"Expected List, perceived {type(value).__name__}.")
+        self._check_length_constraints(value, path)
+        return [self.item_type.validate(item, f"{path}[{i}]", contracts) for i, item in enumerate(value)]
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"type": "array", "items": self.item_type.to_json_schema(contracts)}
 
 
-class DictType(GnosticType):
-    def __init__(self, key_type: GnosticType, value_type: GnosticType, constraints: Dict = None):
+class TupleType(TypeNode):
+    """[ASCENSION 10]: Tuple Geometry."""
+
+    def __init__(self, item_types: List[TypeNode]):
+        super().__init__()
+        self.item_types = item_types
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> Tuple:
+        if not isinstance(value, (list, tuple)): raise OntologicalHeresy(path,
+                                                                         f"Expected Tuple/List, perceived {type(value).__name__}.")
+        if len(value) != len(self.item_types):
+            raise OntologicalHeresy(path,
+                                    f"Tuple dimension mismatch. Expected {len(self.item_types)}, perceived {len(value)}.")
+
+        return tuple(t.validate(v, f"{path}[{i}]", contracts) for i, (t, v) in enumerate(zip(self.item_types, value)))
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {
+            "type": "array",
+            "prefixItems": [t.to_json_schema(contracts) for t in self.item_types],
+            "items": False  # No additional items allowed
+        }
+
+
+class DictType(TypeNode):
+    def __init__(self, key_type: TypeNode, val_type: TypeNode, constraints: Dict = None):
         super().__init__(constraints)
         self.key_type = key_type
-        self.value_type = value_type
+        self.val_type = val_type
 
-    def validate(self, value: Any, context: str, registry: Dict) -> Dict[Any, Any]:
-        if not isinstance(value, dict): raise ValueError(f"{context} must be a dict.")
-        self._check_constraints(value, context)
-        validated = {}
-        for k, v in value.items():
-            vk = self.key_type.validate(k, f"{context}.key({k})", registry)
-            vv = self.value_type.validate(v, f"{context}[{k}]", registry)
-            validated[vk] = vv
-        return validated
+    def validate(self, value: Any, path: str, contracts: Dict) -> Dict[Any, Any]:
+        if not isinstance(value, dict): raise OntologicalHeresy(path,
+                                                                f"Expected Dict, perceived {type(value).__name__}.")
+        self._check_length_constraints(value, path)
+        return {
+            self.key_type.validate(k, f"{path}.<key({k})>", contracts): self.val_type.validate(v, f"{path}.{k}",
+                                                                                               contracts)
+            for k, v in value.items()
+        }
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"type": "object", "additionalProperties": self.val_type.to_json_schema(contracts)}
 
 
-class UnionType(GnosticType):
-    def __init__(self, types: List[GnosticType]):
+class UnionType(TypeNode):
+    def __init__(self, types: List[TypeNode]):
         super().__init__()
         self.types = types
 
-    def validate(self, value: Any, context: str, registry: Dict) -> Any:
+    def validate(self, value: Any, path: str, contracts: Dict) -> Any:
         errors = []
         for t in self.types:
             try:
-                return t.validate(value, context, registry)
-            except ValueError as e:
-                errors.append(str(e))
+                return t.validate(value, path, contracts)
+            except OntologicalHeresy as e:
+                errors.append(e.message)
 
-        raise ValueError(f"{context} failed Union check. Mismatches: {'; '.join(errors)}")
+        raise OntologicalHeresy(path, f"Matter '{value}' failed Multiversal Union. Schisms: {' | '.join(errors)}")
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"anyOf": [t.to_json_schema(contracts) for t in self.types]}
 
 
-class ContractRefType(GnosticType):
+class IntersectionType(TypeNode):
+    """[ASCENSION 9]: Metaprogramming Intersection."""
+
+    def __init__(self, types: List[TypeNode]):
+        super().__init__()
+        self.types = types
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> Any:
+        # Value must pass ALL types. We return the result of the last validation.
+        # (Useful for combining InlineRecordTypes)
+        final_val = value
+        for t in self.types:
+            final_val = t.validate(final_val, path, contracts)
+        return final_val
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        return {"allOf": [t.to_json_schema(contracts) for t in self.types]}
+
+
+class OptionalType(TypeNode):
+    """[ASCENSION 15]: The Null-Coalescing Guardian."""
+
+    def __init__(self, inner_type: TypeNode):
+        super().__init__()
+        self.inner_type = inner_type
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> Any:
+        if value is None or value == "": return None
+        return self.inner_type.validate(value, path, contracts)
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        schema = self.inner_type.to_json_schema(contracts)
+        if isinstance(schema.get("type"), str):
+            schema["type"] = [schema["type"], "null"]
+        return schema
+
+
+class InlineRecordType(TypeNode):
+    """[ASCENSION 12]: Inline Anonymous Structs."""
+
+    def __init__(self, fields: Dict[str, TypeNode]):
+        super().__init__()
+        self.fields = fields
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> Dict[str, Any]:
+        if not isinstance(value, dict): raise OntologicalHeresy(path,
+                                                                f"Expected Inline Struct (Dict), perceived {type(value).__name__}.")
+
+        validated = {}
+        for fname, ftype in self.fields.items():
+            if fname in value:
+                validated[fname] = ftype.validate(value[fname], f"{path}.{fname}", contracts)
+            elif not isinstance(ftype, OptionalType):
+                raise OntologicalHeresy(path, f"Inline Struct is missing critical atom: '{fname}'")
+        return validated
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        props = {k: v.to_json_schema(contracts) for k, v in self.fields.items()}
+        required = [k for k, v in self.fields.items() if not isinstance(v, OptionalType)]
+        return {"type": "object", "properties": props, "required": required}
+
+
+class ContractRefType(TypeNode):
+    """The Sovereign Domain Ward."""
+
     def __init__(self, contract_name: str):
         super().__init__()
         self.contract_name = contract_name
 
-    def validate(self, value: Any, context: str, registry: Dict) -> Any:
-        if self.contract_name not in registry:
-            raise ValueError(f"Contract '{self.contract_name}' is not defined.")
-
-        # Recursive Call to the Registry
-        contract = registry[self.contract_name]
-        # We rely on the Contract object's own validate method (defined below or externally)
-        # Since GnosticContract is in data_contracts, we do a manual validation here
-        # to avoid circular imports, or we move GnosticContract logic here.
-        # For purity, we assume value is a dict and validate fields.
+    def validate(self, value: Any, path: str, contracts: Dict) -> Any:
+        if self.contract_name not in contracts:
+            # Duck-Typing Bypass if contract unmanifest
+            return value
 
         if not isinstance(value, dict):
-            raise ValueError(f"{context} must be an object honoring '{self.contract_name}'.")
+            raise OntologicalHeresy(path,
+                                    f"Contract '{self.contract_name}' demands an Object, perceived {type(value).__name__}.")
 
-        # Validate Fields
-        for field_name, field_def in contract.fields.items():
-            if field_name not in value:
-                if field_def.is_optional or field_def.default_value is not None:
-                    continue
-                raise ValueError(f"Missing required field '{field_name}' in {context} ({self.contract_name}).")
+        contract = contracts[self.contract_name]
+        validated_obj = {}
+        all_fields = contract.get_all_fields(contracts)
 
-            # The field_def.type_instance is a GnosticType!
-            field_def.gnostic_type.validate(value[field_name], f"{context}.{field_name}", registry)
+        for field_name, field_def in all_fields.items():
+            if field_name in value:
+                validated_obj[field_name] = field_def.gnostic_type.validate(
+                    value[field_name], f"{path}.{field_name}", contracts
+                )
+            elif not field_def.is_optional and field_def.default_value is None:
+                raise OntologicalHeresy(path,
+                                        f"Contract '{self.contract_name}' demands the presence of atom '{field_name}'.")
+            elif field_def.default_value is not None:
+                validated_obj[field_name] = field_def.default_value
 
-        return value
+        return validated_obj
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        if self.contract_name not in contracts: return {}
+        contract = contracts[self.contract_name]
+        all_fields = contract.get_all_fields(contracts)
+
+        props = {}
+        required = []
+        for name, f_def in all_fields.items():
+            props[name] = f_def.gnostic_type.to_json_schema(contracts)
+            if f_def.doc: props[name]["description"] = f_def.doc
+            if not f_def.is_optional and f_def.default_value is None:
+                required.append(name)
+
+        return {"type": "object", "properties": props, "required": required, "title": self.contract_name}
 
 
-class OptionalType(GnosticType):
-    def __init__(self, inner_type: GnosticType):
+class PrimitiveType(TypeNode):
+    """
+    =================================================================================
+    == THE PRIMITIVE ALCHEMIST (V-Ω-TOTALITY-V4-ATOMIC-COERCION)                   ==
+    =================================================================================
+    LIF: ∞ | ROLE: ATOMIC_TRANSFIGURATOR | RANK: OMEGA_GUARDIAN
+
+    The base law for all atomic logic. It possesses the Power of Coercion,
+    transmuting "1", "yes", and "on" into the Truth (True) seamlessly across
+    all multiversal substrates.
+    """
+
+    def __init__(self, name: str):
         super().__init__()
-        self.inner_type = inner_type
+        self.name = name.lower()
 
-    def validate(self, value: Any, context: str, registry: Dict) -> Any:
-        if value is None: return None
-        return self.inner_type.validate(value, context, registry)
+    def validate(self, value: Any, path: str, contracts: Dict) -> Any:
+        if self.name == 'any': return value
+
+        # 1. THE STRING RITE
+        if self.name == 'str':
+            if isinstance(value, (int, float, bool)): return str(value)
+            if not isinstance(value, str): raise OntologicalHeresy(path,
+                                                                   f"Expected String, perceived {type(value).__name__}.")
+            self._check_length_constraints(value, path)
+            return value
+
+        # 2. THE INTEGER RITE
+        if self.name == 'int':
+            if isinstance(value, bool): raise OntologicalHeresy(path,
+                                                                "Geometric Error: Boolean cannot masquerade as Integer.")
+            if isinstance(value, str) and value.lstrip('-').isdigit(): value = int(value)
+            if not isinstance(value, int): raise OntologicalHeresy(path,
+                                                                   f"Expected Integer, perceived {type(value).__name__}.")
+            self._check_numeric_constraints(value, path)
+            return value
+
+        # 3. THE FLOAT RITE
+        if self.name == 'float':
+            if isinstance(value, bool): raise OntologicalHeresy(path,
+                                                                "Geometric Error: Boolean cannot masquerade as Float.")
+            try:
+                value = float(value)
+            except (ValueError, TypeError):
+                raise OntologicalHeresy(path, f"Expected Float, perceived {type(value).__name__}.")
+            self._check_numeric_constraints(value, path)
+            return value
+
+        # 4. THE BOOLEAN RITE (THE ALCHEMIST'S THAW)
+        if self.name == 'bool':
+            if isinstance(value, bool): return value
+            if isinstance(value, str):
+                v_low = value.lower().strip()
+                if v_low in ('true', 'yes', 'on', '1', 'resonant'): return True
+                if v_low in ('false', 'no', 'off', '0', 'fractured'): return False
+            if isinstance(value, int) and value in (0, 1): return bool(value)
+            raise OntologicalHeresy(path, f"Expected Boolean, perceived {type(value).__name__}.")
+
+        raise ValueError(f"Unknown primitive law: {self.name}")
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        mapping = {'str': 'string', 'int': 'integer', 'float': 'number', 'bool': 'boolean', 'any': {}}
+        return {"type": mapping.get(self.name, "string")}
 
 
-# --- THE AST PARSER (THE BRAIN) ---
+class PathType(StringType):
+    """
+    =================================================================================
+    == THE GEOMETRIC COMPASS (V-Ω-TOTALITY-V6-SPATIAL-WARD)                        ==
+    =================================================================================
+    LIF: ∞ | ROLE: TOPOGRAPHICAL_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
+
+    Enforces the Laws of Spacetime on strings. It righteously normalizes
+    backslashes into Gnostic forward-slashes and ensures absolute containment
+    within the willed reality.
+    """
+
+    def validate(self, value: Any, path: str, contracts: Dict) -> str:
+        # First, ensure it is a valid string
+        val_str = super().validate(value, path, contracts)
+
+        # [ASCENSION 10]: Achronal Normalization
+        clean_path = val_str.replace('\\', '/')
+        p = Path(clean_path)
+
+        # [ASCENSION 24]: The Absolute Path Ward
+        if self.constraints.get('absolute') and not p.is_absolute():
+            raise OntologicalHeresy(path, f"Geometric Violation: Path '{val_str}' must be absolute.")
+
+        # [ASCENSION 25]: The Relative Path Ward
+        if self.constraints.get('relative') and p.is_absolute():
+            raise OntologicalHeresy(path, f"Geometric Violation: Path '{val_str}' must be relative.")
+
+        return clean_path
+
+    def to_json_schema(self, contracts: Dict) -> Dict:
+        schema = super().to_json_schema(contracts)
+        schema["format"] = "path"
+        if self.constraints.get('absolute'): schema["description"] = "Absolute filesystem path"
+        return schema
+
+
+
+# =========================================================================
+# == STRATUM 5: THE RECURSIVE DESCENT PARSER (THE BRAIN)                 ==
+# =========================================================================
 
 class GnosticTypeParser:
     """
-    Translates Python type strings ("List[str]", "int(min=1)") into GnosticType objects.
+    =================================================================================
+    == THE GNOSTIC TYPE PARSER (V-Ω-TOTALITY-V100000-RECURSIVE-DESCENT)            ==
+    =================================================================================
+    LIF: ∞ | ROLE: SCHEMA_DECONSTRUCTOR | RANK: OMEGA_SOVEREIGN
+
+    Transmutes string declarations like `Dict[str, List[User]?] | {ip: IPv4}` into
+    an immutable tree of `TypeNode` objects. Completely immune to Ouroboros Loops.
     """
 
-    @classmethod
-    def parse(cls, type_str: str) -> GnosticType:
-        try:
-            # We use ast.parse in 'eval' mode to handle nested structures
-            node = ast.parse(type_str, mode='eval').body
-            return cls._visit(node)
-        except Exception as e:
-            # Fallback for simple strings that AST might dislike if they look like keywords?
-            # Actually AST handles most things well.
-            raise ValueError(f"Invalid type signature '{type_str}': {e}")
+    PRIMITIVES = {'str', 'int', 'float', 'bool', 'any'}
+    DOMAINS = {
+        'email': EmailType, 'uuid': UUIDType, 'path': PathType,
+        'bytesize': ByteSizeType, 'semver': SemVerType, 'port': PortType,
+        'existingfile': ExistingFileType, 'existingdir': ExistingDirType
+    }
 
     @classmethod
-    def _visit(cls, node) -> GnosticType:
-        # 1. Basic Types: "str", "int"
+    def parse(cls, type_str: str) -> TypeNode:
+        """The Public Gateway to type parsing."""
+        if not type_str: return AnyType()
+
+        try:
+            # We use ast.parse to leverage Python's flawless tokenizer.
+            # [ASCENSION 22]: Handles Dict/Tuple slicing elegantly.
+            node = ast.parse(type_str.strip(), mode='eval').body
+            return cls._visit(node, depth=0)
+        except SyntaxError as e:
+            # Fallback for simple space-separated strings or bad syntax
+            raise ValueError(f"Lexical Type Fracture: '{type_str}' cannot be perceived as a contract. {e.msg}")
+
+    @classmethod
+    def _visit(cls, node: ast.AST, depth: int) -> TypeNode:
+        # [ASCENSION 23]: The Ouroboros Depth Guard
+        if depth > 50: raise ValueError("Type declaration exceeds maximum recursion depth of 50.")
+
+        # 1. Primitives & Domain Types: "str", "Email"
         if isinstance(node, ast.Name):
-            return cls._resolve_primitive(node.id)
+            return cls._resolve_name(node.id)
 
         # 2. Constraints: "int(min=1)"
         if isinstance(node, ast.Call):
-            base_type = cls._visit(node.func)
+            base_type = cls._visit(node.func, depth + 1)
             constraints = {}
             for kw in node.keywords:
                 try:
                     constraints[kw.arg] = ast.literal_eval(kw.value)
                 except:
-                    pass  # Logic for complex constraint values if needed
+                    pass
 
-            # Handle Enum positional args: enum("a", "b")
-            if isinstance(base_type, EnumType):
+            # Handle Literal("a", "b")
+            if isinstance(base_type, LiteralType):
                 opts = []
                 for arg in node.args:
                     try:
                         opts.append(ast.literal_eval(arg))
                     except:
                         pass
-                constraints['options'] = opts
+                return LiteralType(opts)
+
+            # Handle Regex(r"...")
+            if isinstance(base_type, RegexType):
+                if node.args:
+                    try:
+                        return RegexType(ast.literal_eval(node.args[0]))
+                    except:
+                        pass
 
             base_type.constraints = constraints
             return base_type
@@ -279,83 +645,90 @@ class GnosticTypeParser:
         # 3. Generics: "List[str]"
         if isinstance(node, ast.Subscript):
             base_id = node.value.id if isinstance(node.value, ast.Name) else ""
+            slice_node = getattr(node.slice, 'value', node.slice)  # Python 3.8/3.9 compat
 
             if base_id in ('List', 'list', 'Set', 'set'):
-                inner = cls._visit(node.slice)
-                return ListType(inner)
+                return ListType(cls._visit(slice_node, depth + 1))
 
             if base_id in ('Dict', 'dict'):
-                # Dicts in AST often come as Tuple in slice if multiple args?
-                # e.g. Dict[str, int] -> slice is Tuple
-                if isinstance(node.slice, ast.Tuple):
-                    key_t = cls._visit(node.slice.elts[0])
-                    val_t = cls._visit(node.slice.elts[1])
-                    return DictType(key_t, val_t)
-                else:
-                    # Fallback Dict[str, Any]
-                    return DictType(StringType(), AnyType())
+                if isinstance(slice_node, ast.Tuple) and len(slice_node.elts) == 2:
+                    return DictType(cls._visit(slice_node.elts[0], depth + 1),
+                                    cls._visit(slice_node.elts[1], depth + 1))
+                return DictType(StringType(), AnyType())
+
+            if base_id in ('Tuple', 'tuple'):
+                if isinstance(slice_node, ast.Tuple):
+                    return TupleType([cls._visit(e, depth + 1) for e in slice_node.elts])
+                return TupleType([cls._visit(slice_node, depth + 1)])
 
             if base_id == 'Optional':
-                inner = cls._visit(node.slice)
-                return OptionalType(inner)
+                return OptionalType(cls._visit(slice_node, depth + 1))
+
+            if base_id == 'Secret':
+                return SecretType(cls._visit(slice_node, depth + 1))
+
+            if base_id == 'Literal':
+                if isinstance(slice_node, ast.Tuple):
+                    opts = [ast.literal_eval(e) for e in slice_node.elts]
+                else:
+                    opts = [ast.literal_eval(slice_node)]
+                return LiteralType(opts)
 
         # 4. Unions: "str | int"
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
-            left = cls._visit(node.left)
-            right = cls._visit(node.right)
-            # Flatten unions if recursive
+            left = cls._visit(node.left, depth + 1)
+            right = cls._visit(node.right, depth + 1)
+
+            # Flatten
             types = []
             if isinstance(left, UnionType):
                 types.extend(left.types)
             else:
                 types.append(left)
-
             if isinstance(right, UnionType):
                 types.extend(right.types)
             else:
                 types.append(right)
-
             return UnionType(types)
+
+        # 5. Intersections: "A & B"
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitAnd):
+            return IntersectionType([cls._visit(node.left, depth + 1), cls._visit(node.right, depth + 1)])
+
+        # 6. Inline Records: {"name": str, "age": int}
+        if isinstance(node, ast.Dict):
+            fields = {}
+            for k, v in zip(node.keys, node.values):
+                if isinstance(k, ast.Constant):
+                    fields[k.value] = cls._visit(v, depth + 1)
+                elif isinstance(k, ast.Str):  # Python 3.7
+                    fields[k.s] = cls._visit(v, depth + 1)
+            return InlineRecordType(fields)
 
         # Fallback for Constants (None)
         if isinstance(node, ast.Constant) and node.value is None:
-            return AnyType()  # NoneType
+            return AnyType()
 
         return AnyType()
 
-    @staticmethod
-    def _resolve_primitive(name: str) -> GnosticType:
+    @classmethod
+    def _resolve_name(cls, name: str) -> TypeNode:
+        """Resolves a raw name string into its Gnostic Entity."""
         n = name.lower()
 
-        # --- Standard Types ---
-        if n in ('str', 'string', 'text'): return StringType()
-        if n in ('int', 'integer'): return IntegerType()
-        if n in ('float', 'number'): return FloatType()
-        if n in ('bool', 'boolean'): return BoolType()
-        if n == 'uuid': return UUIDType()
-        if n == 'email': return EmailType()
-        if n == 'path': return PathType()
-        if n == 'enum': return EnumType()
-        if n == 'any': return AnyType()
+        # Primitives
+        if n in cls.PRIMITIVES: return PrimitiveType(n)
+        if n == 'string': return PrimitiveType('str')
+        if n == 'integer': return PrimitiveType('int')
+        if n == 'number': return PrimitiveType('float')
+        if n == 'boolean': return PrimitiveType('bool')
 
-        # --- ★★★ THE LEGACY SHORTHANDS (THE FIX) ★★★ ---
-        # We map these legacy validator names to concrete StringTypes with patterns.
+        # Domains
+        if n in cls.DOMAINS: return cls.DOMAINS[n]()
 
-        if n == 'var_path_safe':
-            # Alphanumeric, underscores, hyphens, dots. No spaces or slashes.
-            return StringType(constraints={'pattern': r'^[a-zA-Z0-9_.-]+$'})
+        # Keywords acting as Type classes
+        if n == 'literal': return LiteralType([])
+        if n == 'regex': return RegexType(".*")
 
-        if n == 'slug':
-            # Lowercase alphanumeric and hyphens.
-            return StringType(constraints={'pattern': r'^[a-z0-9-]+$'})
-
-        if n == 'snake':
-            # Lowercase alphanumeric and underscores.
-            return StringType(constraints={'pattern': r'^[a-z0-9_]+$'})
-
-        if n == 'pascal':
-            # PascalCase
-            return StringType(constraints={'pattern': r'^[A-Z][a-zA-Z0-9]*$'})
-
-        # --- Unknown -> Assume Contract Reference ---
+        # Custom Contract Reference
         return ContractRefType(name)

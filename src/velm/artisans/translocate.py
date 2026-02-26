@@ -165,8 +165,10 @@ class TranslocateArtisan(BaseArtisan[TranslocateRequest]):
                 project_root=self.project_root,
                 preview=True,
                 cortex=cortex,
-                transaction=tx
+                transaction=tx,
+                io_conductor=self.io  # <<< SUTURE: Bestow the prophetic hand
             )
+
             prophecy_conductor.perceive_will(
                 direct_moves=moves,
                 script_path=request.script,
@@ -199,8 +201,10 @@ class TranslocateArtisan(BaseArtisan[TranslocateRequest]):
                 preview=False,
                 backup_path=final_backup_path,
                 cortex=cortex,
-                transaction=tx  # <<< THIS IS THE CRITICAL BESTOWAL OF GNOSIS
+                transaction=tx,
+                io_conductor=self.io  # <<< USE THE PROPERTY: This triggers the Lazy Forge
             )
+
             live_conductor.translocation_map = prophecy_conductor.translocation_map
             live_conductor.conduct()
 
@@ -209,9 +213,10 @@ class TranslocateArtisan(BaseArtisan[TranslocateRequest]):
                 final_artifacts.append(Artifact(
                     path=res.path,
                     type="directory" if (tx.project_root / res.path).is_dir() else "file",
-                    action=res.action_taken.value,
+                    action=res.action_taken.value,  # Correctly picks up "TRANSLOCATED" or "CREATED"
                     size_bytes=res.bytes_written,
-                    checksum=res.gnostic_fingerprint
+                    checksum=res.gnostic_fingerprint,
+                    metadata=res.security_notes if res.security_notes else {}
                 ))
 
             # We must also account for the moved files themselves as artifacts
@@ -259,7 +264,7 @@ class TranslocateArtisan(BaseArtisan[TranslocateRequest]):
         from rich.console import Group
         from rich.syntax import Syntax
         from rich.box import ROUNDED
-        from ....utils import get_human_readable_size
+        from ..utils import get_human_readable_size
         import time
 
         heresy_dossiers = []

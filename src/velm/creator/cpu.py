@@ -483,22 +483,95 @@ class QuantumCPU:
                 time.sleep(METABOLIC_YIELD_MS * (attempt + 2))
 
     def _handle_write(self, instr: Instruction):
-        path = Path(instr.target)
-        payload = instr.payload
+        """
+        =================================================================================
+        == THE OMEGA INSCRIPTION RITE (V-Ω-TOTALITY-V20000-SIM-RESONANT)               ==
+        =================================================================================
+        LIF: ∞ | ROLE: MATTER_MATERIALIZER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_WRITE_V20000_SIM_RESONANCE_FINALIS_2026
+
+        [THE MANIFESTO]
+        The supreme implementation of the WRITE opcode. It transmutes Gnostic Intent
+        into physical or virtual Matter. It resolves the 'Simulation Void' by ensuring
+        the Gnostic Transaction is the absolute source of truth for the Ocular HUD.
+        =================================================================================
+        """
+        import time
+        from pathlib import Path
+        from ..contracts.data_contracts import InscriptionAction
+        from ..contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+
+        _start_ns = time.perf_counter_ns()
+
+        # --- MOVEMENT I: GEOMETRIC NORMALIZATION ---
+        # [ASCENSION 10]: We force POSIX discipline on the target coordinate.
+        logical_path = Path(str(instr.target).replace('\\', '/'))
+
+        # --- MOVEMENT II: THE PREFETCH SUTURE (THE CURE) ---
+        # [ASCENSION 1]: Extract the soul of the content.
+        # Priority: Prefetch Buffer (L1) > Instruction Payload > Void.
+        payload = instr.payload or ""
         seed_path = instr.metadata.get('seed')
+
         if seed_path and str(seed_path) in self._prefetch_buffer:
+            # self.logger.debug(f"Prefetch Suture: Resurrecting matter for '{logical_path.name}' from IPB.")
             payload = self._prefetch_buffer[str(seed_path)]
 
-        result = self.io.write(path, payload, instr.metadata)
+        # =========================================================================
+        # == MOVEMENT III: THE KINETIC STRIKE (PHYSICAL OR VIRTUAL)              ==
+        # =========================================================================
+        # [ASCENSION 3]: The IOConductor righteously adjudicates between Reality
+        # and Simulation. In Dry-Run mode, it performs the 'Virtual Write'
+        # and returns an InscriptionAction.DRY_RUN_CREATED result.
+        try:
+            result = self.io.write(logical_path, payload, instr.metadata)
+        except Exception as strike_fracture:
+            # [ASCENSION 11]: Fault Isolation
+            raise ArtisanHeresy(
+                f"Matter Fission Failure: Could not inscribe '{logical_path.name}'.",
+                details=str(strike_fracture),
+                line_num=instr.line_num,
+                severity=HeresySeverity.CRITICAL
+            )
 
+        # --- MOVEMENT IV: METABOLIC ACCOUNTING ---
         if result.success:
             with self._io_lock:
+                # 1. Byte-Mass Accumulation
                 self.regs.bytes_written += result.bytes_written
-                if result.action_taken == InscriptionAction.CREATED:
+
+                # 2. [ASCENSION 2]: ISOMORPHIC TRIAGE
+                # We count both physical births and virtual prophecies.
+                # This ensures the HUD shows '5 Atoms' in both modes.
+                if result.action_taken in (InscriptionAction.CREATED, InscriptionAction.DRY_RUN_CREATED):
                     self.regs.files_forged += 1
 
+                # 3. [ASCENSION 8]: MERKLE INTEGRITY
+                # We update the running hash to detect dimensional drift.
+                self.regs.record_mutation(logical_path, result.bytes_written)
+
+        # =========================================================================
+        # == MOVEMENT V: THE TRANSACTIONAL SUTURE (THE FINAL CURE)               ==
+        # =========================================================================
+        # [ASCENSION 3]: This is the one true fix for the 'Ghost Matter' heresy.
+        # We MUST record the result in the transaction dossier. This dossier is
+        # what the SimulationOrchestrator scries to build the final report.
         if self.regs.transaction:
             self.regs.transaction.record(result)
+
+        # [ASCENSION 6]: VIRTUAL FS MIRRORING
+        # For AI-Co-Pilot context, we track the 'Dreamed' topography.
+        if self.regs.is_simulation:
+            self.regs.virtual_fs.append(logical_path)
+
+        # --- MOVEMENT VI: OCULAR RESONANCE ---
+        # [ASCENSION 7]: Haptic HUD Multicast (Throttled)
+        if self.regs.ops_executed % 5 == 0:
+            self.regs.pulse_hud("pulse", "#64ffda")
+
+        # METABOLIC FINALITY
+        _tax_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+        # self.logger.verbose(f"L{instr.line_num}: Inscribed '{logical_path.name}' [{_tax_ms:.2f}ms]")
 
     def _handle_chmod(self, instr: Instruction):
         self.io.chmod(Path(instr.target), instr.payload)

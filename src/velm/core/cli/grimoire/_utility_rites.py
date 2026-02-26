@@ -180,4 +180,25 @@ RITES = {
         ]
     },
 
+    "luminate": {
+            "module_path": "artisans.librarian",
+            "artisan_class_name": "LibrarianArtisan",
+            "request_class_name": "LibrarianRequest",
+            "help": "The Rite of Lustration. Purify the Engine's metabolism and cool the hardware.",
+            "description": (
+                "===============================================================================\n"
+                "== THE RITE OF LUMINATION: METABOLIC PURITY (V-Ω-TOTALITY)                  ==\n"
+                "===============================================================================\n"
+                "The `luminate` command summons the Self-Healing Librarian to evaporate \n"
+                "metabolic waste (caches, stale logs, orphans). It is mathematically warded \n"
+                "to NEVER touch your source code. Use this when the machine feels 'heavy'."
+            ),
+            "flags": [
+                add_common_flags,
+                lambda p: p.add_argument('--intensity', choices=['soft', 'hard', 'critical'], default='soft',
+                                         help='The aggression of the lustration.'),
+                lambda p: p.add_argument('--force', action='store_true', help='Bypass retention laws to reclaim maximum mass.')
+            ]
+        },
+
 }

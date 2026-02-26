@@ -1,5 +1,5 @@
-# Path: parser_core/lexer_core/deconstructor.py
-# ---------------------------------------------
+# Path: src/velm/parser_core/lexer_core/deconstructor.py
+# ------------------------------------------------------
 
 import re
 import codecs
@@ -71,8 +71,8 @@ class DeconstructionScribe:
     22. **The Logic Validator:** Ensures `@if` has a condition and `@macro` has a name.
     23. **The Alchemical Injection:** Supports variable expansion `{{ var }}` within
         inline content strings.
-    24. **The Finality Vow:** Guaranteed return of a `GnosticVessel` object, populated
-        with as much truth as could be mathematically divined.
+    24. **The Code Sentinel (THE ABSOLUTE CURE):** A high-priority regex phalanx that
+        detects if a line is actually code (`import ...`, `def ...`) masquerading as a path.
     =================================================================================
     """
 
@@ -106,6 +106,24 @@ class DeconstructionScribe:
         r'[\u2700-\u27BF]+|'  # Dingbats
         r'[\U0001F300-\U0001FAFF]+|'  # Vast Emoji/Pictograph range
         r'[\ufeff\u200b\u200c\u200d]+'  # Zero-width / BOM noise
+        r')'
+    )
+
+    # [FACULTY 24]: THE CODE SENTINEL REGEX (THE ABSOLUTE CURE)
+    # Aggressively matches lines that are clearly code, not paths.
+    # Used to reject "import React from 'react'" as a filename.
+    CODE_SENTINEL_REGEX: Final[Pattern] = re.compile(
+        r'^\s*('
+        r'import\s+.*|from\s+.*import|'  # Python/JS Imports
+        r'export\s+.*|'  # JS Exports
+        r'def\s+\w+|class\s+\w+|'  # Definitions
+        r'function\s+\w+|const\s+|let\s+|var\s+|'  # JS Declarations
+        r'<[a-zA-Z]+.*>|'  # HTML/XML Tags
+        r'console\.log|print\(|'  # Logging
+        r'return\s+|'  # Control Flow
+        r'package\s+|' # Go/Java
+        r'func\s+|' # Go
+        r'use\s+.*::.*' # Rust/PHP
         r')'
     )
 
@@ -155,6 +173,18 @@ class DeconstructionScribe:
         """
         # 1. [FACULTY 21] The Gaze of the Void
         if not self.tokens:
+            self.vessel.line_type = GnosticLineType.VOID
+            return self.vessel
+
+        # [FACULTY 24]: THE CODE SENTINEL CHECK (THE CURE)
+        # We check the RAW scripture first. If it looks like code, we reject it as FORM.
+        # This prevents `import React from 'react';` from becoming a file path.
+        # Exception: We allow it if it has an explicit sigil like `::` which implies
+        # the user wants to write code into a file on the same line (rare but possible).
+        if self.CODE_SENTINEL_REGEX.match(self.raw_scripture) and not self.RAW_ASSIGNMENT_REGEX.search(self.raw_scripture):
+            # We classify it as VOID or CONTENT leak, not FORM.
+            # We log it verbosely to help debugging, but we do NOT return a path.
+            self.Logger.verbose(f"L{self.line_num}: Code Sentinel detected mental matter. Suppressing physical form.")
             self.vessel.line_type = GnosticLineType.VOID
             return self.vessel
 
@@ -247,6 +277,10 @@ class DeconstructionScribe:
                     self.vessel.path = Path(self.vessel.name)
             else:
                 self.vessel.is_dir = False
+        else:
+             # If purification left nothing (e.g. just a comment), mark as void
+             self.vessel.line_type = GnosticLineType.VOID
+             return
 
         # 2. [FACULTY 9]: CHECK FOR SYMLINK (->)
         if self._current() and self._current().type == TokenType.SIGIL_SYMLINK:
@@ -568,11 +602,6 @@ class DeconstructionScribe:
                 # We do this BEFORE generic unicode_escape to ensure we catch them in their raw state.
                 # The regex looks for: backslash + quote + quote + quote (escaped triple quote)
                 # It handles both `\"\"\"` and `\'\'\'`
-
-                # NOTE: unicode_escape handles basic \" -> "
-                # But if the user wrote `\"\"\"`, unicode_escape produces `"""` correctly IF it interprets the backslashes.
-                # The issue is likely that standard Python string literals interpret escapes differently than raw file content.
-                # By manually replacing the literal sequence `\"` with `"`, we force the thaw.
 
                 try:
                     # 1. Decode generic escapes (e.g. \n, \t, \u1234)

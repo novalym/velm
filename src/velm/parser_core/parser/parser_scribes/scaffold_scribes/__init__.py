@@ -3,7 +3,7 @@ from .comment_scribe import CommentScribe
 from .variable_scribe import VariableScribe
 from .jinja_scribe import JinjaScribe
 from .makefile_scribe import MakefileScribe
-from .directive_scribe import DirectiveScribe
+from .directive_scribe import ScaffoldDirectiveScribe
 from .post_run_scribe import PostRunScribe
 from .structural_scribe import StructuralScribe
 from .scaffold_base_scribe import ScaffoldBaseScribe

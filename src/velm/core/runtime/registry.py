@@ -12,6 +12,7 @@ import inspect
 import hashlib
 import json
 import traceback
+import uuid
 import weakref
 import difflib
 import collections
@@ -43,47 +44,164 @@ Logger = Scribe("ArtisanRegistry")
 # =============================================================================
 # == SECTION I: THE GNOSTIC VITALITY CONTRACTS (DATA VESSELS)                ==
 # =============================================================================
-
 @dataclass
 class SkillVitality:
     """
     =============================================================================
-    == THE SKILL VITALITY (V-Ω-TOTALITY-V600)                                  ==
+    == THE SKILL VITALITY (V-Ω-TOTALITY-V25000-HEALED-TOMOGRAPHIC)             ==
     =============================================================================
-    The absolute diagnostic snapshot of an Artisan's soul status.
-    It tracks the metabolic cost of every skill to detect heavy or dying limbs.
-    """
-    is_manifest: bool = False  # Is the soul currently in memory (L1)?
-    is_vulnerable: bool = False  # Is the physical source file missing?
-    is_quarantined: bool = False  # Has the healer locked this skill?
-    last_probe: float = 0.0  # Timestamp of the last physical biopsy
-    fingerprint: str = "0xVOID"  # Merkle hash (SHA-256) of the physical code
-    metabolic_tax: float = 0.0  # Cumulative latency/compute cost in ms
-    invocation_count: int = 0  # How many times has this skill been summoned?
-    os_compatibility: str = "all"  # The platform this soul is warded for
+    @gnosis:title Metabolic Health Record
+    @gnosis:summary The absolute diagnostic snapshot of an Artisan's soul.
+    LIF: ∞ | ROLE: VITALITY_LEDGER | RANK: OMEGA_SOVEREIGN
 
+    [THE MANIFESTO]
+    This is the internal tomogram of a kinetic limb. It records the cost of
+    existence across the Iron/Ether divide, ensuring the Engine can detect
+    'Metabolic Fever' before it shatters the substrate.
+    =============================================================================
+    """
+    # --- I. MATERIALITY (STATE) ---
+    is_manifest: bool = False  # True if the soul (Class) is in L1 RAM
+    is_vulnerable: bool = False  # True if the physical scripture is missing
+    is_quarantined: bool = False  # True if the Healer has warded this skill
+
+    # --- II. METABOLISM (THE TAX) ---
+    # [THE FIX]: Explicitly manifest metabolic_tax for Registry resonance.
+    metabolic_tax: float = 0.0  # Cumulative latency/compute tax in ms
+    peak_tax_ms: float = 0.0  # The most expensive individual strike
+    invocation_count: int = 0  # Total summoning count
+    failure_count: int = 0  # Count of paradoxical collapses
+
+    # --- III. CHRONOMETRY (TIME) ---
+    # [THE FIX]: Explicitly manifest last_probe for Achronal alignment.
+    last_probe: float = field(default_factory=time.time)
+    last_summoned: float = 0.0
+    birth_epoch: float = field(default_factory=time.time)
+
+    # --- IV. INTEGRITY (THE SOUL) ---
+    # [THE FIX]: Explicitly manifest fingerprint for bit-perfect validation.
+    fingerprint: str = "0xVOID"  # SHA-256 Merkle hash of the physical code
+    os_compatibility: str = "all"  # The warded substrate (win32, linux, etc.)
+
+    # --- V. OCULAR PROJECTION (UI) ---
+    health_score: float = 1.0  # 1.0 (Pure) -> 0.0 (Fractured)
+    aura_tint: str = "#64ffda"  # Teal (Zen), Amber (Fever), Red (Fracture)
+
+    # --- VI. SHADOW METADATA ---
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def record_strike(self, latency_ms: float, success: bool = True):
+        """[THE RITE OF ACCOUNTING]: Updates the tomogram after a kinetic strike."""
+        self.invocation_count += 1
+        self.metabolic_tax += latency_ms
+        self.last_summoned = time.time()
+        self.last_probe = self.last_summoned
+
+        if latency_ms > self.peak_tax_ms:
+            self.peak_tax_ms = latency_ms
+
+        if not success:
+            self.failure_count += 1
+            self.health_score = max(0.0, self.health_score - 0.2)
+            self.aura_tint = "#ef4444"  # Shift to Red on failure
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Transmutes the vitality record into a JSON-safe oracle."""
+        return {
+            "is_manifest": self.is_manifest,
+            "is_quarantined": self.is_quarantined,
+            "metabolic_tax": self.metabolic_tax,
+            "invocations": self.invocation_count,
+            "last_probe": self.last_probe,
+            "fingerprint": self.fingerprint,
+            "health_score": self.health_score,
+            "aura": self.aura_tint
+        }
 
 @dataclass
 class RegistrationProvenance:
     """
     =============================================================================
-    == THE REGISTRATION PROVENANCE (FORENSIC DNA)                              ==
+    == THE REGISTRATION PROVENANCE (V-Ω-TOTALITY-V25000-SUTURED-FINALIS)       ==
     =============================================================================
-    The biometric trail of a skill's consecration.
-    Ensures that no code executes without a known origin.
-    """
-    identity: str  # The stringified soul of the artisan (Class/Tuple)
-    origin: str  # The human-readable physical locus (File:Line)
-    timestamp: float  # Precise temporal epoch of the registration rite
-    origin_file: str  # Name of the scripture that spoke the command
-    origin_line: int  # Specific verse (line number) where birth occurred
-    user_id: str  # OS-level identity of the biological registrant
-    machine_id: str  # Hardware-locked coordinate of the host node
-    version: str  # Semantic version (SemVer) of the manifest soul
-    merkle_leaf: str  # 12-char SHA-256 fingerprint for logic-integrity
-    is_system_born: bool  # A Vow of Authority proclaiming the Engine as source
-    intent_vector: List[str]  # Semantic keywords extracted from the soul
+    @gnosis:title Biometric Birth Scroll
+    @gnosis:summary The definitive forensic DNA of a skill's inception.
+    LIF: ∞ | ROLE: IDENTITY_ANCHOR | RANK: OMEGA_SUPREME
 
+    [THE MANIFESTO]
+    This is the unbreakable record of an Artisan's birth. It has been surgically
+    re-aligned to match the Registry's call-site, ensuring that 'identity',
+    'origin', and 'is_system_born' are manifest and warded.
+    =============================================================================
+    """
+    # --- I. THE IDENTITY CORE (THE "WHO") ---
+    # [THE FIX]: Explicitly named 'identity' to resonate with the Registry's strike.
+    identity: str = "UnknownArtisan"  # Dotted path or class name
+    rite_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str = "architect-in-the-void"  # Registrant OS Identity
+    machine_id: str = "UNKNOWN-IRON"  # Hardware Fingerprint
+    novalym_id: Optional[str] = None  # Distributed tenant identity
+
+    # --- II. THE SPATIAL ORIGIN (THE "WHERE") ---
+    # [THE FIX]: Explicitly named 'origin' to satisfy the __init__ contract.
+    origin: str = "void:0"  # Human-readable locus (File:Line)
+    origin_file: str = "unknown"  # Absolute path to birth scripture
+    origin_line: int = 0
+    substrate: str = "IRON"  # The plane of birth (Native vs WASM)
+
+    # --- III. THE GNOSTIC VOWS (THE "WHAT") ---
+    # [THE FIX]: Explicitly named 'is_system_born' for constructor resonance.
+    is_system_born: bool = False  # Vow of Authority: Born from the God-Engine heart
+    is_plugin: bool = True  # True if born from a third-party shard
+    version: str = "1.0.0"  # Semantic version of the logic
+
+    # --- IV. THE TEMPORAL ANCHOR (THE "WHEN") ---
+    timestamp: float = field(default_factory=time.time)
+    epoch_ns: int = field(default_factory=time.perf_counter_ns)
+
+    # --- V. THE SEMANTIC SOUL (THE "WHY") ---
+    intent_vector: List[str] = field(default_factory=list)  # Keywords for the Intoracle
+    merkle_leaf: str = "0xVOID"  # 12-char fingerprint for logic-integrity
+
+    # --- VI. SHADOW METADATA ---
+    shadow_meta: Dict[str, Any] = field(default_factory=dict)  # Extension pocket
+
+    # =========================================================================
+    # == [ASCENSION 13]: THE ALIAS SUTURE (THE CURE)                         ==
+    # =========================================================================
+    @property
+    def system_vow(self) -> bool:
+        """
+        [THE CURE]: An internal alias that transmutes 'is_system_born' into
+        'system_vow'. This annihilates the AttributeError in older Registry
+        strata that scry for the legacy attribute name.
+        """
+        return self.is_system_born
+
+    def __post_init__(self):
+        """[THE RITE OF NORMALIZATION]"""
+        # Force POSIX standards on birth records
+        if self.origin_file:
+            self.origin_file = self.origin_file.replace('\\', '/')
+        self.user_id = self.user_id.lower().strip()
+        self.machine_id = self.machine_id.upper().strip()
+
+    def scry_origin(self) -> str:
+        """Proclaims the human-readable source of the skill."""
+        auth_tag = "[bold cyan]SYSTEM[/]" if self.is_system_born else "[bold yellow]PLUGIN[/]"
+        return f"{auth_tag} born at {self.origin} by {self.user_id} @ {self.machine_id}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Transmutes the scroll into a JSON-safe oracle."""
+        return {
+            "identity": self.identity,
+            "origin": self.origin,
+            "is_system_born": self.is_system_born,
+            "version": self.version,
+            "user": self.user_id,
+            "machine": self.machine_id,
+            "timestamp": self.timestamp
+        }
 
 # Type definition for the Alchemical References
 # Can be a Class (Living), an Instance (Awakened), or a Ghost Tuple ("module.path", "ClassName")
@@ -305,39 +423,121 @@ class ArtisanRegistry:
             enable_forensics=True
         )
 
-    def fast_register(self,
-                      request_type: Type,
-                      artisan: ArtisanReference,
-                      aliases: Optional[List[str]] = None,
-                      platform_restrict: str = "universal",
-                      system_vow: bool = False):
+    def fast_register(
+            self,
+            request_type: Type,
+            artisan: ArtisanReference,
+            aliases: Optional[List[str]] = None,
+            platform_restrict: str = "universal",
+            system_vow: bool = False
+    ):
         """
-        =============================================================================
-        == THE RITE OF APOPHATIC CONSECRATION (V-Ω-TOTALITY-V7000-ZERO-LATENCY)    ==
-        =============================================================================
-        [ASCENSION 1]: The Bootloader's Path.
-        Registers a skill without performing the expensive `inspect.stack()` or
-        fingerprinting rites. Used exclusively during system bootstrap to ensure
-        < 5s ignition.
-        """
-        self._register_internal(
-            request_type, artisan, aliases, platform_restrict, system_vow,
-            enable_forensics=False
-        )
+        =================================================================================
+        == THE FAST-PATH CONSECRATOR (V-Ω-TOTALITY-V25000-HEALED-STRICT-SILENT)        ==
+        =================================================================================
+        LIF: ∞ | ROLE: BOOTLOADER_CONSECRATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_FAST_REGISTER_V25000_SILENT_GUARD_FINALIS
 
-    def _register_internal(self,
-                           request_type: Type,
-                           artisan: ArtisanReference,
-                           aliases: Optional[List[str]],
-                           platform_restrict: str,
-                           system_vow: bool,
-                           enable_forensics: bool):
+        [THE MANIFESTO]
+        A high-velocity registration rite for system bootstrap. Ascended to possess
+        the 'Apophatic Silent Guard', righteously and silently incinerating Primitives
+        and Metaclasses BEFORE they can enter the memory lattice.
+        =================================================================================
         """
-        The Core Registration Logic. Handles both Slow (Forensic) and Fast (Apophatic) paths.
-        """
+        import inspect
+        import builtins
+
+        # --- MOVEMENT 0: THE APOPHATIC SILENT GUARD (THE CURE) ---
+        # [ASCENSION 1]: We physically and silently block the registration of ghosts.
+        # This prevents 'ABCMeta' and 'tuple' from masquerading as Artisans.
+        if isinstance(artisan, type):
+            # 1. Banish Abstract Souls & Metaclasses
+            # [THE FIX]: We include 'type' and 'object' to prevent fundamental recursion.
+            if inspect.isabstract(artisan) or getattr(artisan, '__name__', '') in ('ABCMeta', 'type', 'object'):
+                return
+
+            # 2. Banish Primitive Husks (Builtins)
+            # This prevents 'TypeError: ScaffoldEngine object is not iterable'.
+            if getattr(artisan, '__module__', '') == 'builtins' or hasattr(builtins, getattr(artisan, '__name__', '')):
+                return
+
+        # --- MOVEMENT I: THE ATOMIC INSCRIPTION ---
         with self._lock:
-            name = request_type.__name__.replace("Request", "").lower()
-            platform_key = platform_restrict.lower()
+            # 1. Identity Divination
+            try:
+                name = request_type.__name__.replace("Request", "").lower().strip()
+            except AttributeError:
+                name = str(request_type).lower().strip()
+
+            platform_key = platform_restrict.lower().strip() or "universal"
+
+            # [ASCENSION 3]: Authority Adjudication
+            # If the name is already warded by a Sovereign System Law, we protect it.
+            if name in self._name_to_request and name in self._l0_system_rites and not system_vow:
+                return
+
+            # 2. Inscribe in the Grimoires
+            self._request_to_artisan[request_type][platform_key] = artisan
+            self._name_to_request[name] = request_type
+
+            # 3. Fast-path Semantic Indexing
+            if name not in self._intent_trie:
+                self._intent_trie[name].append((name, 2.0))
+
+            if aliases:
+                for alias in aliases:
+                    self._aliases[alias.lower().strip()] = name
+
+            # --- MOVEMENT II: STATE EVOLUTION ---
+            self._evolve_state_hash(name)
+
+    def _register_internal(
+            self,
+            request_type: Type,
+            artisan: ArtisanReference,
+            aliases: Optional[List[str]],
+            platform_restrict: str,
+            system_vow: bool,
+            enable_forensics: bool
+    ):
+        """
+        =================================================================================
+        == THE OMEGA REGISTRATION RITE (V-Ω-TOTALITY-V9500-SILENT-WARDED)              ==
+        =================================================================================
+        LIF: ∞ | ROLE: PANOPTIC_CONSECRATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_REGISTER_V9500_SILENT_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
+        This is the supreme entry point for Artisan Consecration. It performs a
+        multi-pass metabolic biopsy to ensure that only concrete, functional,
+        and authorized souls are permitted to enter the Pantheon.
+        =================================================================================
+        """
+        import inspect
+        import builtins
+        import time
+        from pathlib import Path
+
+        _start_ns = time.perf_counter_ns()
+
+        # --- MOVEMENT 0: THE APOPHATIC SILENT GUARD (THE CURE) ---
+        # [ASCENSION 1]: We physically and silently block the registration of ghosts.
+        if isinstance(artisan, type):
+            if inspect.isabstract(artisan) or getattr(artisan, '__name__', '') in ('ABCMeta', 'type', 'object'):
+                return
+
+            if getattr(artisan, '__module__', '') == 'builtins' or hasattr(builtins, getattr(artisan, '__name__', '')):
+                return
+
+        with self._lock:
+            # --- MOVEMENT I: IDENTITY DIVINATION ---
+            # [ASCENSION 6]: NoneType Sarcophagus for Request identification
+            try:
+                name = request_type.__name__.replace("Request", "").lower().strip()
+            except AttributeError:
+                name = str(request_type).lower().strip()
+
+            platform_key = platform_restrict.lower().strip() or "universal"
 
             # [THE FIX]: Define art_repr immediately to prevent UnboundLocalError
             if isinstance(artisan, tuple):
@@ -345,10 +545,10 @@ class ArtisanRegistry:
             elif isinstance(artisan, type):
                 art_repr = f"Class({artisan.__name__})"
             else:
-                art_repr = str(artisan)
+                art_repr = f"Instance({type(artisan).__name__})"
 
-            # --- MOVEMENT I: THE AUTHORITY ADJUDICATION ---
-            # Check if this rite is already claimed in the Identity Map
+            # --- MOVEMENT II: THE AUTHORITY ADJUDICATION ---
+            # [ASCENSION 3]: Check if this rite is already claimed
             if name in self._name_to_request:
                 existing_req = self._name_to_request[name]
                 existing_refs = self._request_to_artisan.get(existing_req, {})
@@ -357,35 +557,34 @@ class ArtisanRegistry:
                 is_ghost_realization = False
                 is_subversion_attempt = False
 
-                # CASE A: Existing entry is a Ghost Tuple (The Prophecy)
+                # CASE A: Realizing a Prophecy (Ghost -> Class)
                 if isinstance(existing_ref, tuple):
                     ghost_mod, ghost_cls = existing_ref
 
                     if isinstance(artisan, type):
-                        # [THE CURE]: Fuzzy Module Matching
+                        # [ASCENSION 4]: Bicameral Identity Resonance
+                        # We recognize the soul regardless of import path drift.
                         name_match = (artisan.__name__ == ghost_cls)
+
                         ghost_core = ghost_mod.split('.')[-1]
                         artisan_core = artisan.__module__.split('.')[-1]
 
                         mod_match = (ghost_mod == artisan.__module__) or \
                                     (ghost_mod in artisan.__module__) or \
-                                    (artisan.__module__ in ghost_mod) or \
                                     (ghost_core == artisan_core)
 
                         if name_match and mod_match:
                             is_ghost_realization = True
-                            # Inherit System Vow from Ghost
                             if existing_req in self._inception_chronicle:
-                                system_vow = system_vow or self._inception_chronicle[existing_req].is_system_born
+                                # Inherit System Vow status
+                                system_vow = system_vow or self._inception_chronicle[existing_req].system_vow
                         else:
                             is_subversion_attempt = True
 
-                    elif isinstance(artisan, tuple):
-                        if artisan == existing_ref:
-                            return  # Idempotent
-                        is_subversion_attempt = True
+                    elif isinstance(artisan, tuple) and artisan == existing_ref:
+                        return  # Idempotent
 
-                # CASE B: Existing entry is Living
+                # CASE B: Physical Conflict (Living vs Living)
                 elif existing_ref is not None:
                     if artisan == existing_ref:
                         return  # Idempotent
@@ -395,34 +594,26 @@ class ArtisanRegistry:
                 if is_subversion_attempt and not is_ghost_realization:
                     if name in self._l0_system_rites and not system_vow:
                         if self._logger.is_verbose:
-                            self.console.print(
-                                f"\n[bold red]🚫 SUBVERSION STAYED: Lexical Hijack Prevented[/bold red]\n"
-                                f"   [bold]Attempted Rite:[/]  [magenta]{name}[/]\n"
-                                f"   [bold]Masquerader:[/]     {art_repr}\n"
-                            )
+                            self._logger.debug(f"Subversion Stayed: '{name}' is a Sovereign Law.")
                         return
 
-            # --- MOVEMENT II: THE CHRONICLING OF BIRTH ---
+            # --- MOVEMENT III: THE CHRONICLING OF BIRTH ---
+            # [ASCENSION 5]: Forensic Biometry
             provenance = None
             if enable_forensics:
-                # [ASCENSION]: Expensive introspection only runs if willed
                 try:
                     stack = inspect.stack()
-                    caller = stack[3] if len(stack) > 3 else stack[2]  # Adjust depth for _register_internal
+                    caller = stack[min(len(stack) - 1, 3)]
                     caller_origin = f"{Path(caller.filename).name}:{caller.lineno}"
-                    origin_file = str(Path(caller.filename).absolute())
-                    origin_line = caller.lineno
                 except Exception:
-                    caller_origin = "void:0"
-                    origin_file = "unknown"
-                    origin_line = 0
+                    caller_origin = "kernel:boot"
 
                 provenance = RegistrationProvenance(
                     identity=art_repr,
                     origin=caller_origin,
                     timestamp=time.time(),
-                    origin_file=origin_file,
-                    origin_line=origin_line,
+                    origin_file=str(Path(caller.filename).absolute()) if 'caller' in locals() else "unknown",
+                    origin_line=caller.lineno if 'caller' in locals() else 0,
                     user_id=self._scry_architect_identity(),
                     machine_id=self._machine_id,
                     version=getattr(artisan, '__velm_version__', "1.0.0"),
@@ -431,49 +622,40 @@ class ArtisanRegistry:
                     intent_vector=self._mine_semantic_intent_keywords(name, artisan)
                 )
             else:
-                # [ASCENSION 1]: Apophatic Provenance (The Void Record)
-                # We forge a minimal record for speed
+                # [ASCENSION 1]: Fast-Path Apophatic Record
                 provenance = RegistrationProvenance(
-                    identity=art_repr,
-                    origin="kernel:boot",
-                    timestamp=time.time(),
-                    origin_file="bootstrap.py",
-                    origin_line=0,
-                    user_id="system",
-                    machine_id=self._machine_id,
-                    version="1.0.0",
-                    merkle_leaf="0xFAST",
-                    is_system_born=system_vow,
-                    intent_vector=[name]
+                    identity=art_repr, origin="kernel:boot", timestamp=time.time(),
+                    origin_file="bootstrap.py", origin_line=0, user_id="system",
+                    machine_id=self._machine_id, version="1.0.0", merkle_leaf="0xFAST",
+                    is_system_born=system_vow, intent_vector=[name]
                 )
 
+            # --- MOVEMENT IV: THE LATTICE INSCRIPTION ---
             self._inception_chronicle[request_type] = provenance
-
-            # --- MOVEMENT III: THE LATTICE INSCRIPTION ---
             self._request_to_artisan[request_type][platform_key] = artisan
             self._name_to_request[name] = request_type
 
-            # Only index intent if forensics enabled (save CPU on boot)
+            # [ASCENSION 7]: Intent Indexing
             if enable_forensics:
                 self._index_intent(name, provenance.intent_vector)
             else:
-                # Minimal intent indexing for fast lookup
                 self._intent_trie[name].append((name, 2.0))
 
             if aliases:
                 for alias in aliases:
                     self._aliases[alias.lower().strip()] = name
+
             if name == "run": self._aliases["execute"] = "run"
 
-            # --- MOVEMENT IV: STATE EVOLUTION ---
-            # Lightweight hash update
+            # --- MOVEMENT V: STATE EVOLUTION & PURIFICATION ---
             self._evolve_state_hash(name)
             self._l1_hot_cache.pop(request_type, None)
 
-            # --- MOVEMENT V: LUMINOUS PROCLAMATION ---
-            if enable_forensics and self._logger.is_verbose:
+            # --- MOVEMENT VI: LUMINOUS PROCLAMATION ---
+            _duration_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+            if self._logger.is_verbose and _duration_ms > 10.0:
                 auth_tag = "SYSTEM" if system_vow else "PLUGIN"
-                self._logger.debug(f"Consecrated {name} [{auth_tag}] -> {art_repr}")
+                self._logger.debug(f"Consecrated {name} [{auth_tag}] in {_duration_ms:.2f}ms -> {art_repr}")
 
     def _generate_artisan_fingerprint(self, artisan: Any) -> str:
         """[ASCENSION 7] Forges a SHA-256 fingerprint of the artisan's source."""
@@ -519,51 +701,29 @@ class ArtisanRegistry:
 
     def get(self, request_type: Any) -> Optional[Any]:
         """
-        =============================================================================
-        == THE ORACLE OF RETRIEVAL: OMEGA TOTALITY (V-Ω-PATH-AGNOSTIC-V2000.8)     ==
-        =============================================================================
-        LIF: 100x | ROLE: SEMANTIC_IDENTITY_RESONATOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_GET_V2000_IDENTITY_SUTURE_2026_FINALIS
+        =================================================================================
+        == THE OMEGA ORACLE OF RETRIEVAL (V-Ω-TOTALITY-V25000-HEALED-FINALIS)          ==
+        =================================================================================
+        LIF: INFINITY | ROLE: SEMANTIC_IDENTITY_RESONATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_GET_V25000_CONCRETE_SUTURE_2026_FINALIS
 
         [THE MANIFESTO]
-        Retrieves the living soul (Artisan Instance) for a given intent (Request).
-        This version implements the **Rite of Semantic Identity**, bridging the
-        schism caused by import-path drift and duplicate class materialization.
-
-        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-        1.  **L1 Thermal Probe (Hot Cache):** Instant O(1) recall for repeat intents.
-        2.  **Intent Normalization:** Automatically extracts the class from instances.
-        3.  **Semantic Identity Suture (THE CURE):** Resolves handlers by __name__
-            instead of memory address, annihilating the 'Path Schism' heresy.
-        4.  **Hydraulic Lock Grid:** Prevents materialization race conditions via
-            granular, request-specific mutexes.
-        5.  **Achronal Platform Triangulation:** Injects the current OS context
-            (IRON vs ETHER) into the resolution logic.
-        6.  **Socratic Identity Rescue:** Logs a diagnostic proclamation when a
-            name-match rescues a failed object-match.
-        7.  **JIT Materialization (Ghost -> Soul):** Recursively awakens Artisans
-            from their Ghost Tuple prophecies.
-        8.  **Deep Dependency Injection:** Sutures the Engine, Scribe, and Akasha
-            organs into the newly birthed Artisan.
-        9.  **Metabolic Tomography:** Records the precise nanosecond tax of the
-            materialization rite.
-        10. **The Quarantine Ward:** Automatically diverts fractured souls to the
-            Vault for forensic autopsy.
-        11. **Heresy Detection:** Validates the presence of the 'execute' faculty
-            at the moment of materialization.
-        12. **The Finality Vow:** A mathematical guarantee of a resonant executable
-            or a structured failure—never a NoneType void.
-        =============================================================================
+        The supreme gateway for mapping Architectural Intent to Kinetic Action. It has
+        been ascended to possess 'Concrete Sight', righteously annihilating the
+        ABCMeta and Builtin heresies by validating the soul before materialization.
+        =================================================================================
         """
         import time
         import sys
+        import inspect
+        import builtins
 
-        # --- TIER 0: THE VOID GUARD ---
+        # --- MOVEMENT 0: THE VOID GUARD ---
         if request_type is None:
             return None
 
-        # --- TIER 1: L1 THERMAL PROBE (HOT CACHE) ---
-        # We first scry the L1 memory cell for immediate resonance.
+        # --- MOVEMENT I: L1 RESONANCE PROBE (HOT CACHE) ---
+        # [ASCENSION 6]: We scry the L1 memory cell for immediate, O(1) resonance.
         try:
             if request_type in self._l1_hot_cache:
                 self._update_metrics(request_type, cache_hit=True)
@@ -571,22 +731,20 @@ class ArtisanRegistry:
         except (TypeError, KeyError):
             pass
 
-        # --- TIER 2: INTENT NORMALIZATION ---
-        # Ensure we are scrying the Class soul, not a living instance.
+        # --- MOVEMENT II: SEMANTIC IDENTITY RESOLUTION (THE CURE) ---
+        # [ASCENSION 3]: We perform an Achronal Scan of the Identity Registry.
+        # This bridges the schism between identical classes from disparate import paths.
         target_class = request_type if isinstance(request_type, type) else type(request_type)
         target_name = target_class.__name__
 
-        # --- TIER 3: SEMANTIC IDENTITY RESOLUTION (THE CURE) ---
-        # We perform an Achronal Scan of the Registry Keys.
-        # This allows us to find 'CloudRequest' regardless of its import origin.
         matched_req_type = None
 
-        # 1. Primary Direct Scry (Fast Path)
+        # 1. Primary Physical Scry
         if target_class in self._request_to_artisan:
             matched_req_type = target_class
         else:
-            # 2. Semantic Identity Resonance (The Identity Suture)
-            # We search the registry for a name-match, healing import-path drift.
+            # 2. Secondary Semantic Resonance
+            # Search for a name-match to heal import-path drift.
             with self._lock:
                 for registered_type in self._request_to_artisan.keys():
                     if registered_type.__name__ == target_name:
@@ -595,13 +753,13 @@ class ArtisanRegistry:
                             self._logger.debug(f"Identity Suture: Rescued {target_name} via name-resonance.")
                         break
 
-        # If the name itself is unmanifest in our Grimoire, the intent is void.
+        # If the name is unmanifest in the Grimoire, the intent is void.
         if not matched_req_type:
             self._cache_misses += 1
             return None
 
-        # --- TIER 4: TRIBAL ADJUDICATION (LOCKING & PLATFORM) ---
-        # We engage the specific Lock for this request type to ensure atomic materialization.
+        # --- MOVEMENT III: TRIBAL ADJUDICATION (LOCK GATING) ---
+        # [ASCENSION 4]: Granular mutex ensures atomic materialization per intent.
         with self._materialization_locks[matched_req_type]:
             # Double-check L1 after acquiring lock to prevent redundant materialization.
             if matched_req_type in self._l1_hot_cache:
@@ -609,56 +767,86 @@ class ArtisanRegistry:
 
             with self._lock:
                 refs = self._request_to_artisan.get(matched_req_type)
-                if not refs:
-                    return None
+                if not refs: return None
 
-                # [ASCENSION 4]: Achronal Platform Triangulation
-                # Resolve the correct implementation based on the active substrate.
+                # [ASCENSION 9]: Substrate Triage
+                # Resolve the correct implementation based on the active physics.
                 art_ref = (refs.get(self._current_os) or
                            refs.get("posix" if self._current_os in ("linux", "darwin") else None) or
                            refs.get("universal"))
 
-                if not art_ref:
-                    return None
+                if not art_ref: return None
 
-            # --- TIER 5: THE RITE OF MATERIALIZATION (GHOST -> SOUL) ---
+            # --- MOVEMENT IV: GHOST MATERIALIZATION (GHOST -> SOUL) ---
+            # [ASCENSION 2]: THE APOPHATIC SUTURE (THE FIX)
+            # If the reference is a Tuple, we must materialize the class soul.
             if isinstance(art_ref, tuple):
                 module_path, class_name = art_ref
                 try:
-                    # [ASCENSION 7]: Wake the Ghost into a living Class.
+                    # [STRIKE]: The awakening.
+                    # We surgically update the pointer with the living class.
                     art_ref = self._materialize_ghost(matched_req_type, module_path, class_name)
-                except Exception as e:
-                    # If the soul cannot be summoned, we quarantine the request type.
-                    self._quarantine_soul(matched_req_type, module_path, class_name, e)
+
+                    # Update the master registry so future calls bypass ghost-logic.
+                    with self._lock:
+                        platform_key = "universal" if "universal" in refs else self._current_os
+                        self._request_to_artisan[matched_req_type][platform_key] = art_ref
+
+                except Exception as paradox:
+                    # If the soul cannot be summoned, we quarantine the intent.
+                    self._quarantine_soul(matched_req_type, module_path, class_name, paradox)
                     return None
 
-            # --- TIER 6: APOTHEOSIS (INSTANTIATION & INJECTION) ---
+            # --- MOVEMENT V: CONCRETE SOUL VALIDATION (THE FIX) ---
+            # [ASCENSION 1]: This is the absolute defense against ABCMeta and Not Iterable heresies.
+            if isinstance(art_ref, type):
+                # 1. The Abstract Guard
+                if inspect.isabstract(art_ref):
+                    self._logger.critical(
+                        f"RECOIL: '{art_ref.__name__}' is an Abstract Soul (ABC). Instantiation stayed.")
+                    self._quarantine_soul(matched_req_type, art_ref.__module__, art_ref.__name__,
+                                          TypeError("Attempted to instantiate an Abstract Class."))
+                    return None
+
+                # 2. The Primitive Guard
+                # Prevents 'tuple(engine)' or 'list(engine)' fractures.
+                if art_ref.__module__ == 'builtins' or hasattr(builtins, art_ref.__name__):
+                    self._logger.critical(f"RECOIL: '{art_ref.__name__}' is a Primitive Husk. Consecration stayed.")
+                    return None
+
+            # --- MOVEMENT VI: THE FORGE OF APOTHEOSIS (INSTANTIATION) ---
+            # [ASCENSION 12]: THE FINALITY VOW.
             if isinstance(art_ref, type):
                 try:
                     start_ns = time.perf_counter_ns()
 
-                    # 1. Forge the living instance
+                    # 1. The Inception
+                    # The Forge strikes. The Artisan is born and sutured to the Engine.
                     instance = self._forge_living_instance(art_ref)
 
-                    # 2. Telemetry Inscription
+                    # 2. Metabolic Tomography
                     tax_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
                     self._update_metrics(matched_req_type, cache_hit=False)
 
-                    # 3. Enshrine in Hot Cache
-                    # We index by both the original request_type and the matched one
-                    # to ensure future L1 hits regardless of import path.
+                    if self._logger.is_verbose and tax_ms > 10.0:
+                        self._logger.verbose(f"   -> Materialization Tax: {tax_ms:.2f}ms for '{art_ref.__name__}'")
+
+                    # 3. CONSECRATION: Enshrine in L1 Hot Cache
+                    # We index by both keys to ensure absolute resonance for future calls.
                     self._l1_hot_cache[request_type] = instance
                     self._l1_hot_cache[matched_req_type] = instance
 
                     return instance
 
-                except Exception as e:
-                    self._logger.error(f"INCEPTION_FRACTURE: Failed to birth {art_ref.__name__}: {e}")
-                    # Provide forensic trace to stderr immediately
+                except Exception as catastrophic_paradox:
+                    self._logger.error(
+                        f"INCEPTION_FRACTURE: Failed to birth '{art_ref.__name__}': {catastrophic_paradox}")
+                    # Provide forensic trace to stderr immediately to bypass potential log-locking
                     import traceback
                     traceback.print_exc(file=sys.stderr)
                     return None
 
+            # If it's already an instance, return it directly.
             return art_ref
 
     def _update_metrics(self, request_type: Any, cache_hit: bool):
@@ -688,36 +876,101 @@ class ArtisanRegistry:
             pass
 
     def _materialize_ghost(self, request_type: Any, module_path: str, class_name: str) -> Type:
-        """[ASCENSION 10]: The Unbreakable Materialization Rite."""
-        start_ns = time.perf_counter_ns()
+        """
+        =================================================================================
+        == THE GHOST MATERIALIZER (V-Ω-TOTALITY-V25000-HEALED-STRICT)                  ==
+        =================================================================================
+        LIF: ∞ | ROLE: SOUL_RESURRECTOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_MATERIALIZE_V25000_CONCRETE_SUTURE_FINALIS
 
+        [THE MANIFESTO]
+        The supreme rite of waking. Transmutes a Ghost Tuple into a living Concrete
+        Class. It is hardened to verify the soul's faculty and update the
+        Registry's memory, ensuring the transition is permanent and warded.
+        =================================================================================
+        """
+        import importlib
+        import inspect
+        import time
+        import sys
+
+        _start_ns = time.perf_counter_ns()
+
+        # --- MOVEMENT I: THE RITE OF OBLIVION (HOT-SWAP) ---
         if os.environ.get("SCAFFOLD_HOT_SWAP") == "1":
-            for m in list(sys.modules.keys()):
-                if m.startswith(module_path): sys.modules.pop(m, None)
+            with self._lock:
+                to_purge = [m for m in sys.modules if m.startswith(module_path)]
+                for m in to_purge:
+                    sys.modules.pop(m, None)
 
         try:
+            # --- MOVEMENT II: THE SUMMONS ---
+            # Wake the module and extract the willed class soul.
             module = importlib.import_module(module_path)
-            MaterializedClass = getattr(module, class_name)
+            MaterializedClass = getattr(module, class_name, None)
 
+            # --- MOVEMENT III: THE ADJUDICATION (THE CURE) ---
+            # [ASCENSION 11]: Verify that the waked soul is a CONCRETE CLASS.
+            if not MaterializedClass or not inspect.isclass(MaterializedClass):
+                raise ArtisanHeresy(
+                    f"Materialization Void: '{class_name}' is not a valid Class soul.",
+                    details=f"Retrieved matter: {type(MaterializedClass)}",
+                    severity=HeresySeverity.CRITICAL
+                )
+
+            # [ASCENSION 1]: SECONDARY ABSTRACT GUARD
+            if inspect.isabstract(MaterializedClass) or getattr(MaterializedClass, '__name__', '') == 'ABCMeta':
+                raise ArtisanHeresy(
+                    f"Materialization Fracture: '{class_name}' is an Abstract Soul or Metaclass.",
+                    severity=HeresySeverity.CRITICAL,
+                    suggestion="Implement all willed @abstractmethod rites before materialization."
+                )
+
+            # [ASCENSION 11]: Faculty Verification
             if not hasattr(MaterializedClass, 'execute'):
-                raise ArtisanHeresy(f"Artisan '{class_name}' lacks 'execute' faculty.")
+                raise ArtisanHeresy(
+                    f"Mute Artisan Heresy: '{class_name}' lacks the 'execute' faculty.",
+                    severity=HeresySeverity.CRITICAL
+                )
 
-            tax_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
-            r_name = request_type.__name__.replace("Request", "").lower()
+            # --- MOVEMENT IV: METABOLIC TOMOGRAPHY ---
+            _tax_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+            try:
+                r_name = request_type.__name__.replace("Request", "").lower().strip()
+            except AttributeError:
+                r_name = str(request_type).lower().strip()
 
-            # Lazy init vitality ledger if not present (was skipped in fast_register)
+            # [ASCENSION 6]: Inscribe Vitality
             if r_name not in self._vitality_ledger:
                 self._vitality_ledger[r_name] = SkillVitality()
 
-            self._vitality_ledger[r_name].is_manifest = True
-            self._vitality_ledger[r_name].metabolic_tax = tax_ms
-            self._vitality_ledger[r_name].last_probe = time.time()
+            vitality = self._vitality_ledger[r_name]
+            vitality.is_manifest = True
+            vitality.metabolic_tax += _tax_ms
+            vitality.last_probe = time.time()
+            vitality.logic_fingerprint = self._generate_artisan_fingerprint(MaterializedClass)
 
+            # =========================================================================
+            # == [THE CURE]: THE REALITY SUTURE                                      ==
+            # =========================================================================
+            # We surgically update the Registry's internal map so future strikes
+            # use the living Class directly, bypassing the ghost-logic entirely.
+            with self._lock:
+                if request_type in self._request_to_artisan:
+                    for platform_key in self._request_to_artisan[request_type].keys():
+                        self._request_to_artisan[request_type][platform_key] = MaterializedClass
+
+            # [ASCENSION 12]: THE FINALITY VOW
             return MaterializedClass
 
         except ImportError as e:
+            # [ASCENSION 12]: THE SOCRATIC MEDIC
             self._handle_import_fracture(class_name, e)
             raise e
+        except Exception as e:
+            if isinstance(e, ArtisanHeresy): raise
+            raise ArtisanHeresy(f"Materialization Paradox in '{class_name}': {e}", severity=HeresySeverity.CRITICAL)
+
 
     def _handle_import_fracture(self, name: str, error: ImportError):
         """Divines the missing library and suggests the Path to Redemption."""
@@ -731,36 +984,101 @@ class ArtisanRegistry:
             if self.console:
                 self.console.print(f"   -> [bold green]Cure:[/] {install_cmd}")
 
-    def _forge_living_instance(self, artisan_class: Type) -> Any:
-        """[ASCENSION 14]: Deep Dependency Injection."""
-        instance = artisan_class(self.engine)
+    def _forge_living_instance(self, artisan_candidate: Any) -> Any:
+        """
+        =================================================================================
+        == THE TITANIUM BIRTHING FORGE (V-Ω-TOTALITY-V25000-HEALED-FINALIS)            ==
+        =================================================================================
+        LIF: ∞ | ROLE: KINETIC_SOUL_INCEPTOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_FORGE_INSTANCE_V25000_SUTURE_2026_FINALIS
 
+        [THE MANIFESTO]
+        The supreme rite of Artisan materialization. It transmutes a Concrete Class
+        into a living, breathing limb of the God-Engine. It righteously handles
+        dependency injection across all Gnostic Strata, warded against ABCMeta
+        and NoneType heresies.
+        =================================================================================
+        """
+        import inspect
+        import time
+        from pathlib import Path
+        from ...logger import Scribe
+
+        _start_ns = time.perf_counter_ns()
+
+        # --- MOVEMENT I: SOUL ADJUDICATION (THE CURE) ---
+        # [ASCENSION 1 & 3]: We distinguish between a Prophecy (Class) and an Entity (Instance).
+        # This prevents the 'TypeError: ScaffoldEngine is not iterable' caused by calling tuple(engine).
+        instance = None
+
+        if isinstance(artisan_candidate, type):
+            # [ASCENSION 2]: THE CONCRETE SENTINEL
+            if inspect.isabstract(artisan_candidate) or getattr(artisan_candidate, '__name__', '') == 'ABCMeta':
+                raise ArtisanHeresy(
+                    f"Inception Fracture: '{getattr(artisan_candidate, '__name__', 'Ghost')}' is Abstract.",
+                    severity=HeresySeverity.CRITICAL
+                )
+
+            # [STRIKE]: THE BIRTH RITE
+            try:
+                instance = artisan_candidate(self.engine)
+            except TypeError as te:
+                # Catch arity mismatches or builtin instantiation attempts
+                raise ArtisanHeresy(
+                    f"Birthing Paradox in '{getattr(artisan_candidate, '__name__', 'Ghost')}': {str(te)}",
+                    severity=HeresySeverity.CRITICAL
+                )
+        else:
+            # The soul is already living (Instance). We bypass the birth but proceed to Consecration.
+            instance = artisan_candidate
+
+        # --- MOVEMENT II: THE CONSECRATION (ORGAN SUTURE) ---
+        # [ASCENSION 3]: We surgically graft the Engine's organs into the new limb.
+
+        # Divination of Organ Coordinates
         console_ref = getattr(self.engine, 'console', self.console)
         akashic_ref = getattr(self.engine, 'akashic', None)
         alchemist_ref = getattr(self.engine, 'alchemist', None)
         cortex_ref = getattr(self.engine, 'cortex', None)
         vitality_ref = getattr(self.engine, 'vitality', None)
+        transaction_ref = getattr(self.engine, 'transactions', None)
 
         organs = {
             'engine': self.engine,
-            'logger': Scribe(artisan_class.__name__),
+            'logger': Scribe(type(instance).__name__),
             'console': console_ref,
             'akashic': akashic_ref,
             'alchemist': alchemist_ref,
             'cortex': cortex_ref,
-            'vitality': vitality_ref
+            'vitality': vitality_ref,
+            'transactions': transaction_ref,
+            'project_root': getattr(self.engine, 'project_root', Path.cwd()),
+            '_substrate': "ETHER" if os.environ.get("SCAFFOLD_ENV") == "WASM" else "IRON"
         }
 
-        for attr, val in organs.items():
-            if not hasattr(instance, attr) or getattr(instance, attr) is None:
+        # THE ATOMIC SUTURE
+        # [ASCENSION 4 & 5]: Pierce through immutability wards.
+        for attr_name, organ_soul in organs.items():
+            if not hasattr(instance, attr_name) or getattr(instance, attr_name) is None:
                 try:
-                    object.__setattr__(instance, attr, val)
+                    # We use object.__setattr__ to bypass Pydantic/Dataclass protections.
+                    object.__setattr__(instance, attr_name, organ_soul)
                 except (AttributeError, TypeError):
-                    setattr(instance, attr, val)
+                    setattr(instance, attr_name, organ_soul)
 
-        if hasattr(instance, 'on_awake'):
-            instance.on_awake()
+        # --- MOVEMENT III: THE AWAKENING RITE ---
+        if hasattr(instance, 'on_awake') and callable(instance.on_awake):
+            try:
+                instance.on_awake()
+            except Exception as awake_fracture:
+                self._logger.warn(f"Awakening deferred for '{type(instance).__name__}': {awake_fracture}")
 
+        # --- MOVEMENT IV: METABOLIC FINALITY ---
+        _tax_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+        if self._logger.is_verbose and _tax_ms > 5.0:
+            self._logger.debug(f"Titanium Inception: '{type(instance).__name__}' manifest in {_tax_ms:.2f}ms.")
+
+        # [ASCENSION 12]: THE FINALITY VOW
         return instance
 
     def _quarantine_soul(self, request_type: Any, mod: str, cls: str, err: Exception):

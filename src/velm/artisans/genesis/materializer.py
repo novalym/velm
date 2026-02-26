@@ -26,7 +26,7 @@ from ...creator import create_structure, QuantumRegisters
 from ...creator.reports import GenesisReport
 from ...interfaces.base import ScaffoldResult, Artifact
 from ...interfaces.requests import GenesisRequest
-from ...logger import Scribe
+from ...logger import Scribe, get_console
 from ...parser_core.parser import ApotheosisParser
 from ...utils import atomic_write, get_git_branch, get_git_commit
 # --- THE ASCENDED SCRIBE ---
@@ -63,7 +63,7 @@ class GenesisMaterializer:
         self.parser, self.items, self.commands, self.final_vars, self.dossier = gnostic_dowry
         self.collisions = collisions
         self.logger = Logger
-        self.console = engine.console
+        self.console = get_console()
         self.project_root = request.project_root or Path.cwd()
         self.start_time = time.monotonic()
 

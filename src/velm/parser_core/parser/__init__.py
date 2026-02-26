@@ -9,7 +9,7 @@ It is a testament to the Gnostic law of pure encapsulation.
 =================================================================================
 """
 from .gateway import parse_structure
-from .engine import ApotheosisParser
+from .engine import ApotheosisParser, get_parser
 
 # The Divine Proclamation
-__all__ = ["parse_structure","ApotheosisParser"]
+__all__ = ["parse_structure","get_parser","ApotheosisParser"]

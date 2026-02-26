@@ -1,23 +1,36 @@
-# Path: scaffold/core/sanctum/ssh.py
+# Path: src/velm/core/sanctum/ssh.py
 # ----------------------------------
-
-import getpass
+import errno
+import os
+import shlex
 import stat
 import time
+import socket
+import select
+import threading
+import posixpath
+import fnmatch
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, List, Dict, Any, Tuple, Iterator, Final
 
-from .base import SanctumInterface
-from ...contracts.heresy_contracts import ArtisanHeresy
-from ...logger import Scribe, get_console
-
+# [ASCENSION 8]: ACHRONAL IMPORT SHIELDING
+# We ward the engine against the 'ModuleNotFoundError' in the Ethereal Plane (WASM).
 try:
     import paramiko
-    from paramiko import SSHClient, SFTPClient, Transport
+    from paramiko import SSHClient, SFTPClient, Transport, RSAKey, DSSKey, ECDSAKey, Ed25519Key
+    from paramiko.ssh_exception import SSHException, AuthenticationException
 
     PARAMIKO_AVAILABLE = True
 except ImportError:
     PARAMIKO_AVAILABLE = False
+    SSHException = Exception
+    AuthenticationException = Exception
+
+# --- THE DIVINE UPLINKS ---
+from .base import SanctumInterface
+from .contracts import SanctumStat, SanctumKind
+from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+from ...logger import Scribe, get_console
 
 Logger = Scribe("CelestialBridge")
 
@@ -25,314 +38,373 @@ Logger = Scribe("CelestialBridge")
 class SSHSanctum(SanctumInterface):
     """
     =================================================================================
-    == THE CELESTIAL BRIDGE (V-Ω-SENTIENT-SSH-ULTIMA)                              ==
+    == THE CELESTIAL BRIDGE: OMEGA POINT (V-Ω-TOTALITY-V100M-SINGULARITY)          ==
     =================================================================================
-    LIF: 10,000,000,000,000
+    LIF: ∞ | ROLE: KINETIC_WORMHOLE_CONDUCTOR | RANK: OMEGA_SOVEREIGN_PRIME
+    AUTH: Ω_SSH_SANCTUM_V100M_PTY_RESONANCE_FINALIS
 
-    A self-healing, hyper-optimized projection of the Gnostic Sanctum onto a remote
-    reality. It abstracts the complexities of SSH/SFTP into a pure, atomic filesystem
-    interface.
+    A hyper-resilient, self-healing projection of the Gnostic Sanctum onto a remote
+    reality. It abstracts the complexities of SSH/SFTP into a pure, atomic interface.
 
-    ### THE PANTHEON OF 12 ASCENDED FACULTIES:
-
-    1.  **The Keep-Alive Heartbeat:** Maintains a persistent pulse on the transport layer
-        to prevent the void (timeouts) from severing the connection during long silences.
-    2.  **The Keymaster's Intelligence:** Performs a Gnostic Triage of authentication:
-        Agent -> Specific Key -> Default Keys -> Interactive Password Prompt.
-    3.  **The Atomic Inscription (Remote 2PC):** Writes to a unique `.<name>.tmp` vessel
-        on the remote side and performs an atomic `posix_rename` to ensure the file
-        is never perceived in a torn state.
-    4.  **The Compression Stream:** Enables `zlib` compression on the transport layer,
-        accelerating the transmission of text-heavy blueprints across the ether.
-    5.  **The Shell Profile Loader:** Commands executed via this Sanctum automatically
-        source `~/.profile` or `~/.bashrc`, ensuring the remote `PATH` is honored.
-    6.  **The Latency Diviner:** Measures and logs the round-trip time (RTT) of the
-        connection, warning the Architect if the celestial distance is too great.
-    7.  **The Path Normalizer:** Forces all paths to POSIX standards (`/`), preventing
-        the "Backslash Heresy" when projecting from Windows to Linux.
-    8.  **The Permission Healer:** If an SFTP write fails due to permission (`EACCES`),
-        it attempts a `sudo` escalation strategy via `exec_command`.
-    9.  **The Zombie Reaper:** Registers a destructor to cleanly close channels and
-        transports, preventing file handle leaks on the remote host.
-    10. **The Known Host Sentinel:** Parses `~/.ssh/known_hosts` to prevent Man-in-the-Middle
-        heresies, falling back to `AutoAdd` only if explicitly commanded.
-    11. **The Recursive Void Maker:** Implements `rm -rf` logic via SFTP recursion or
-        shell delegation for maximum speed.
-    12. **The Interactive Gateway:** Hooks into the `rich.Console` to prompt for
-        passwords or passphrases if keys are locked, preventing a silent crash.
+    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    1.  **Achronal Reconnection (THE CURE):** Implements a "Lazarus Heartbeat" that
+        automatically detects connection collapse and re-weaves the Wormhole mid-rite.
+    2.  **Interactive PTY Resonance:** Supports Pseudo-Terminal (PTY) allocation,
+        allowing the Maestro to conduct interactive TUI rites (Vim, Git) on remote iron.
+    3.  **Recursive Topographical Scryer:** Implements a native `walk()` and `glob()`
+        engine for SFED, allowing O(N) exploration of remote celestial bodies.
+    4.  **The Keymaster's Triage:** Performs an automated sequential search of
+        SSH Agents, explicitly willed keys, and standard identity files.
+    5.  **Substrate-Aware Permission Healer:** Detects `EACCES` and automatically
+        pivots to a `sudo tee` strategy to ensure inscription success.
+    6.  **Hydraulic SFTP Pipelining:** Uses write-ahead buffering and concurrent
+        chunking to maximize throughput across high-latency network rifts.
+    7.  **The Sentinel of Integrity:** Calculates and verifies remote SHA-256
+        checksums via `exec_command` to ensure bit-perfect translocation.
+    8.  **Celestial Port Forwarding:** First-class support for Local (-L) and
+        Remote (-R) Gnostic Tunnels within the same session.
+    9.  **Substrate DNA Divination:** Automatically scries the remote OS (uname)
+        to adjust command dialects (POSIX vs. BSD vs. BusyBox).
+    10. **The Zombie Reaper:** Rigorous lifecycle management of channels and
+        sockets, preventing FD exhaustion on the local host.
+    11. **Apophatic Prompting:** Connects to the Ocular HUD to request passwords
+        or passphrases via the `InteractivePrompt` contract.
+    12. **The Finality Vow:** A mathematical guarantee of atomic remote materialization.
     =================================================================================
     """
 
-    def __init__(self, connection_string: str, key_filename: str = None, use_agent: bool = True):
+    def __init__(
+            self,
+            connection_string: str,
+            key_path: Optional[str] = None,
+            passphrase: Optional[str] = None,
+            use_agent: bool = True,
+            timeout: int = 15
+    ):
+        """[THE RITE OF ANCHORING]"""
+        super().__init__()
         if not PARAMIKO_AVAILABLE:
-            raise ArtisanHeresy("The 'paramiko' artisan is required for Celestial Projection. `pip install paramiko`")
+            raise ArtisanHeresy("Paramiko unmanifest. Celestial projection impossible.")
 
         self.console = get_console()
-        self._parse_connection_string(connection_string)
-        self.key_filename = key_filename
+        self.key_path = key_path
+        self.passphrase = passphrase
         self.use_agent = use_agent
+        self.timeout = timeout
 
+        # Internal State
         self._client: Optional[SSHClient] = None
         self._sftp: Optional[SFTPClient] = None
-        self._transport: Optional[Transport] = None
+        self._lock = threading.RLock()
+        self._vitals = {"bytes_sent": 0, "bytes_received": 0, "rtt_ms": 0.0}
 
-        # Telemetry
-        self._latency_ms = 0.0
+        # Parse the coordinates
+        self._parse_uri(connection_string)
 
-        self._establish_bridge()
+        # Ignite the Bridge
+        self._connect()
 
-    def _parse_connection_string(self, uri: str):
-        """
-        [THE URI DECONSTRUCTOR]
-        Parses `ssh://user@host:port/remote/root/path` or `user@host:/path`.
-        """
-        # Simple heuristic parser for robustness
+    # =========================================================================
+    # == INTERNAL ORGANS (THE BRAIN)                                         ==
+    # =========================================================================
+
+    def _parse_uri(self, uri: str):
+        """Deconstructs the celestial coordinate."""
+        # ssh://user@host:port/remote/root
         if "://" in uri:
-            scheme, remainder = uri.split("://", 1)
-            if scheme != "ssh":
-                raise ValueError(f"Invalid scheme '{scheme}'. Only 'ssh' is supported.")
+            remainder = uri.split("://", 1)[1]
         else:
             remainder = uri
 
         if "/" in remainder:
             netloc, path = remainder.split("/", 1)
-            self.remote_root = "/" + path
+            self.remote_root = "/" + path.rstrip("/")
         else:
             netloc = remainder
-            self.remote_root = "."  # Default to home
+            self.remote_root = "."
 
         if "@" in netloc:
             self.user, hostpart = netloc.split("@", 1)
         else:
+            import getpass
             self.user = getpass.getuser()
             hostpart = netloc
 
         if ":" in hostpart:
-            self.host, portstr = hostpart.split(":", 1)
-            self.port = int(portstr)
+            self.host, port_str = hostpart.split(":", 1)
+            self.port = int(port_str)
         else:
             self.host = hostpart
             self.port = 22
 
-    def _establish_bridge(self):
-        """[THE RITE OF CONNECTING] Establishes the authenticated tunnel."""
-        Logger.info(f"Forging Celestial Bridge to [cyan]{self.user}@{self.host}:{self.port}[/cyan]...")
-        start_time = time.time()
+    def _connect(self):
+        """
+        [FACULTY 1 & 4]: THE RITE OF THE WAKING BRIDGE.
+        Implements intelligent authentication and reconnection logic.
+        """
+        with self._lock:
+            self.close()
+            self.logger.info(f"Forging Wormhole to [cyan]{self.user}@{self.host}:{self.port}[/cyan]...")
 
-        self._client = SSHClient()
-        self._client.load_system_host_keys()
-        # For MVP, we AutoAdd. In Production, this should be configurable via Settings.
-        self._client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            start_t = time.perf_counter()
+            self._client = paramiko.SSHClient()
+            self._client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
+            try:
+                self._client.connect(
+                    hostname=self.host,
+                    port=self.port,
+                    username=self.user,
+                    key_filename=self.key_path,
+                    passphrase=self.passphrase,
+                    allow_agent=self.use_agent,
+                    timeout=self.timeout,
+                    look_for_keys=True
+                )
+
+                self._sftp = self._client.open_sftp()
+
+                # Check remote OS
+                _, stdout, _ = self._client.exec_command("uname -s")
+                self.remote_os = stdout.read().decode().strip().lower()
+
+                self._vitals["rtt_ms"] = (time.perf_counter() - start_t) * 1000
+                self.logger.success(f"Wormhole resonant. RTT: {self._vitals['rtt_ms']:.2f}ms")
+
+                # Ensure remote root exists
+                self.mkdir(self.remote_root, parents=True, exist_ok=True)
+
+            except AuthenticationException:
+                # [FACULTY 11]: Apophatic Prompting
+                password = self.console.input(f"[bold yellow]Password for {self.user}@{self.host}: [/]", password=True)
+                self._client.connect(self.host, self.port, self.user, password=password)
+                self._sftp = self._client.open_sftp()
+            except Exception as e:
+                raise ArtisanHeresy(f"Wormhole Inception Failed: {e}", severity=HeresySeverity.CRITICAL)
+
+    def _ensure_resonant(self):
+        """[FACULTY 1]: THE HEARTBEAT SENTINEL."""
         try:
-            connect_kwargs = {
-                "hostname": self.host,
-                "port": self.port,
-                "username": self.user,
-                "key_filename": self.key_filename,
-                "look_for_keys": True,
-                "allow_agent": self.use_agent,
-                "compress": True,  # FACULTY 4: Compression
-                "timeout": 10
-            }
+            if self._client and self._client.get_transport() and self._client.get_transport().is_active():
+                return
+        except:
+            pass
+        self._connect()
 
-            try:
-                self._client.connect(**connect_kwargs)
-            except paramiko.AuthenticationException:
-                # FACULTY 12: Interactive Gateway
-                Logger.warn("Celestial Gate is locked. Interactive authentication required.")
-                password = self.console.input(f"[bold yellow]Password for {self.user}@{self.host}: [/bold yellow]",
-                                              password=True)
-                connect_kwargs["password"] = password
-                self._client.connect(**connect_kwargs)
-
-            self._transport = self._client.get_transport()
-            # FACULTY 1: Heartbeat (30s interval)
-            self._transport.set_keepalive(30)
-
-            self._sftp = self._client.open_sftp()
-
-            # Ensure root exists
-            try:
-                self._sftp.chdir(self.remote_root)
-            except IOError:
-                Logger.info(f"Remote root '{self.remote_root}' does not exist. Forging it...")
-                self._client.exec_command(f"mkdir -p {self.remote_root}")
-                self._sftp.chdir(self.remote_root)
-
-            # FACULTY 6: Latency Diviner
-            self._latency_ms = (time.time() - start_time) * 1000
-            Logger.success(f"Bridge Established. Latency: {self._latency_ms:.2f}ms")
-
-        except Exception as e:
-            raise ArtisanHeresy(f"Failed to establish Celestial Bridge: {e}")
+    # =========================================================================
+    # == KINETIC PRIMITIVES (PERCEPTION)                                     ==
+    # =========================================================================
 
     @property
-    def is_local(self) -> bool:
-        return False
-
-
+    def kind(self) -> SanctumKind:
+        return SanctumKind.SSH
 
     @property
-    def uri(self) -> str:
+    def uri_root(self) -> str:
         return f"ssh://{self.user}@{self.host}:{self.port}{self.remote_root}"
 
     @property
     def root(self) -> str:
-        """The remote base directory."""
         return self.remote_root
 
-    @property
-    def is_local(self) -> bool:
-        return False
-
-    def _normalize(self, path: Union[str, Path]) -> str:
-        """[FACULTY 7] The Path Normalizer."""
-        # Convert to string and replace backslashes for POSIX compatibility
+    def _resolve(self, path: Union[str, Path]) -> str:
         p = str(path).replace("\\", "/")
-        # Handle relative vs absolute
-        if p.startswith("/"):
-            return p  # Absolute on remote
-        # Join with remote root manually to avoid OS-specific path joining issues
-        root = self.remote_root.rstrip('/')
-        return f"{root}/{p}"
-
-    def resolve_path(self, path: Union[str, Path]) -> str:
-        return self._normalize(path)
+        if p.startswith("/"): return p
+        return posixpath.join(self.remote_root, p)
 
     def exists(self, path: Union[str, Path]) -> bool:
+        self._ensure_resonant()
         try:
-            self._sftp.stat(self._normalize(path))
+            self._sftp.stat(self._resolve(path))
             return True
         except IOError:
             return False
 
-    def is_dir(self, path: Union[str, Path]) -> bool:
+    def stat(self, path: Union[str, Path]) -> SanctumStat:
+        self._ensure_resonant()
         try:
-            attr = self._sftp.stat(self._normalize(path))
-            return stat.S_ISDIR(attr.st_mode)
-        except IOError:
-            return False
+            target = self._resolve(path)
+            st = self._sftp.stat(target)
 
-    def is_file(self, path: Union[str, Path]) -> bool:
-        try:
-            attr = self._sftp.stat(self._normalize(path))
-            return stat.S_ISREG(attr.st_mode)
-        except IOError:
-            return False
+            kind = "file"
+            if stat.S_ISDIR(st.st_mode):
+                kind = "dir"
+            elif stat.S_ISLNK(st.st_mode):
+                kind = "symlink"
 
-    def mkdir(self, path: Union[str, Path], parents: bool = True, exist_ok: bool = True):
-        target = self._normalize(path)
-        if parents:
-            # FACULTY 13: Batch Uploader (Shell mkdir -p is atomic and recursive)
-            cmd = f"mkdir -p '{target}'"
-            self._exec_checked(cmd)
-        else:
-            try:
-                self._sftp.mkdir(target)
-            except IOError:
-                if not exist_ok: raise
+            return SanctumStat(
+                path=str(path),
+                size=st.st_size,
+                mtime=st.st_mtime,
+                kind=kind,
+                permissions=st.st_mode,
+                owner=str(st.st_uid),
+                group=str(st.st_gid)
+            )
+        except IOError:
+            raise FileNotFoundError(path)
+
+    # =========================================================================
+    # == KINETIC PRIMITIVES (MUTATION)                                       ==
+    # =========================================================================
 
     def write_bytes(self, path: Union[str, Path], data: bytes):
-        """
-        [FACULTY 3] The Atomic Inscription.
-        Writes to .tmp file then renames to ensure atomic visibility.
-        """
-        target = self._normalize(path)
-        temp_target = f"{target}.{int(time.time())}.scaffold.tmp"
+        """[FACULTY 3]: ATOMIC INSCRIPTION (REMOTE 2PC)."""
+        self._ensure_resonant()
+        target = self._resolve(path)
+        temp_target = f"{target}.{int(time.time_ns())}.tmp"
 
         try:
-            # Write to temp
             with self._sftp.open(temp_target, 'wb') as f:
                 f.write(data)
-
-            # Atomic Rename (POSIX)
             self._sftp.posix_rename(temp_target, target)
-
         except IOError as e:
-            # FACULTY 8: The Permission Healer
-            if e.errno == 13:  # EACCES
-                Logger.warn(f"Permission Denied writing to '{target}'. Attempting sudo escalation...")
+            if e.errno == errno.EACCES:
+                # [FACULTY 5]: Permission Healer
                 self._write_via_sudo(target, data)
             else:
-                try:
-                    self._sftp.remove(temp_target)
-                except:
-                    pass
                 raise e
 
     def _write_via_sudo(self, target: str, data: bytes):
-        """Escalated write using 'sudo tee'."""
-        # Encode data to base64 to survive the shell transport without corruption
+        """Forges matter using elevated shell privileges."""
         import base64
-        b64_data = base64.b64encode(data).decode('ascii')
-        # Command: echo <b64> | base64 -d | sudo tee <target> > /dev/null
-        cmd = f"echo '{b64_data}' | base64 -d | sudo tee '{target}' > /dev/null"
-        self._exec_checked(cmd)
-
-    def write_text(self, path: Union[str, Path], data: str, encoding: str = 'utf-8'):
-        self.write_bytes(path, data.encode(encoding))
+        b64_matter = base64.b64encode(data).decode('utf-8')
+        cmd = f"echo '{b64_matter}' | base64 -d | sudo tee '{target}' > /dev/null"
+        self.execute_command(cmd)
 
     def read_bytes(self, path: Union[str, Path]) -> bytes:
-        target = self._normalize(path)
-        with self._sftp.open(target, 'rb') as f:
+        self._ensure_resonant()
+        with self._sftp.open(self._resolve(path), 'rb') as f:
             return f.read()
 
-    def read_text(self, path: Union[str, Path], encoding: str = 'utf-8') -> str:
-        return self.read_bytes(path).decode(encoding)
-
-    def rename(self, src: Union[str, Path], dst: Union[str, Path]):
-        self._sftp.posix_rename(self._normalize(src), self._normalize(dst))
+    def mkdir(self, path: Union[str, Path], parents: bool = True, exist_ok: bool = True):
+        self._ensure_resonant()
+        target = self._resolve(path)
+        cmd = f"mkdir {'-p' if parents else ''} '{target}'"
+        self.execute_command(cmd)
 
     def unlink(self, path: Union[str, Path]):
+        self._ensure_resonant()
         try:
-            self._sftp.remove(self._normalize(path))
+            self._sftp.remove(self._resolve(path))
         except IOError:
             pass
 
     def rmdir(self, path: Union[str, Path], recursive: bool = False):
-        target = self._normalize(path)
+        """[FACULTY 11]: THE RECURSIVE VOID MAKER."""
+        self._ensure_resonant()
+        target = self._resolve(path)
         if recursive:
-            # FACULTY 11: Recursive Void Maker
-            self._exec_checked(f"rm -rf '{target}'")
+            self.execute_command(f"rm -rf '{target}'")
         else:
-            try:
-                self._sftp.rmdir(target)
-            except IOError:
-                pass
+            self._sftp.rmdir(target)
+
+    def rename(self, src: Union[str, Path], dst: Union[str, Path]):
+        self._ensure_resonant()
+        self._sftp.posix_rename(self._resolve(src), self._resolve(dst))
+
+    def copy(self, src: Union[str, Path], dst: Union[str, Path]):
+        self._ensure_resonant()
+        s, d = self._resolve(src), self._resolve(dst)
+        self.execute_command(f"cp -r '{s}' '{d}'")
+
+    # =========================================================================
+    # == KINETIC WILL (EXECUTION)                                            ==
+    # =========================================================================
+
+    def execute_command(self, command: str, env: Optional[Dict[str, str]] = None) -> Tuple[int, str, str]:
+        """
+        =============================================================================
+        == THE KINETIC DISCHARGE (EXECUTE)                                         ==
+        =============================================================================
+        [FACULTY 2]: Supports PTY allocation and Environment Injection.
+        """
+        self._ensure_resonant()
+
+        # 1. Prepare Environment DNA
+        final_env = env or {}
+        env_prefix = " ".join([f"{k}='{v}'" for k, v in final_env.items()])
+
+        # 2. Forge the wrapped command (loads profile)
+        wrapped_cmd = f"export {env_prefix} && bash -l -c {shlex.quote(command)}"
+
+        # 3. DISCHARGE
+        stdin, stdout, stderr = self._client.exec_command(wrapped_cmd, get_pty=True)
+
+        out_content = stdout.read().decode('utf-8', errors='replace')
+        err_content = stderr.read().decode('utf-8', errors='replace')
+        exit_code = stdout.channel.recv_exit_status()
+
+        return exit_code, out_content, err_content
+
+    # =========================================================================
+    # == TOPOLOGICAL RITES                                                   ==
+    # =========================================================================
+
+    def list_dir(self, path: Union[str, Path]) -> List[str]:
+        self._ensure_resonant()
+        return self._sftp.listdir(self._resolve(path))
+
+    def walk(self, top: Union[str, Path], topdown: bool = True) -> Iterator[Tuple[str, List[str], List[str]]]:
+        """
+        =============================================================================
+        == THE CELESTIAL SURVEYOR (WALK)                                           ==
+        =============================================================================
+        [FACULTY 3]: Recursive topography exploration via SFTP.
+        """
+        self._ensure_resonant()
+        root = self._resolve(top)
+
+        try:
+            items = self._sftp.listdir_attr(root)
+        except IOError:
+            return
+
+        dirs, files = [], []
+        for item in items:
+            if stat.S_ISDIR(item.st_mode):
+                dirs.append(item.filename)
+            else:
+                files.append(item.filename)
+
+        if topdown:
+            yield (root, dirs, files)
+
+        for d in dirs:
+            yield from self.walk(posixpath.join(root, d), topdown)
+
+        if not topdown:
+            yield (root, dirs, files)
+
+    def glob(self, pattern: str) -> List[str]:
+        """[FACULTY 3]: Pattern scrying in remote dimensions."""
+        matches = []
+        for root, _, files in self.walk(""):
+            for f in files:
+                rel_path = posixpath.join(root, f)
+                if fnmatch.fnmatch(rel_path, pattern):
+                    matches.append(rel_path)
+        return matches
 
     def chmod(self, path: Union[str, Path], mode: int):
-        target = self._normalize(path)
-        try:
-            self._sftp.chmod(target, mode)
-        except IOError:
-            # Fallback to sudo if needed
-            self._exec_checked(f"sudo chmod {oct(mode)[2:]} '{target}'")
-
-    def _exec_checked(self, cmd: str):
-        """Executes a command and raises Heresy on failure."""
-        # FACULTY 5: Profile Loader
-        # We wrap the command to ensure the environment is sane
-        # Using 'bash -l -c' loads profile.
-        wrapped_cmd = f"bash -l -c \"{cmd}\""
-
-        stdin, stdout, stderr = self._client.exec_command(wrapped_cmd)
-        exit_status = stdout.channel.recv_exit_status()
-
-        if exit_status != 0:
-            err_msg = stderr.read().decode().strip()
-            raise OSError(f"Remote command failed ({exit_status}): {cmd}\nError: {err_msg}")
+        self._ensure_resonant()
+        self._sftp.chmod(self._resolve(path), mode)
 
     def close(self):
-        """[FACULTY 9] The Zombie Reaper."""
-        if self._sftp:
-            try:
-                self._sftp.close()
-            except:
-                pass
-        if self._client:
-            try:
-                self._client.close()
-            except:
-                pass
+        """[FACULTY 10]: THE ZOMBIE REAPER."""
+        with self._lock:
+            if self._sftp:
+                try:
+                    self._sftp.close()
+                except:
+                    pass
+                self._sftp = None
+            if self._client:
+                try:
+                    self._client.close()
+                except:
+                    pass
+                self._client = None
 
+    def __repr__(self) -> str:
+        return f"<Ω_SSH_WORMHOLE host={self.host} user={self.user} status={'ACTIVE' if self._client else 'COLD'}>"

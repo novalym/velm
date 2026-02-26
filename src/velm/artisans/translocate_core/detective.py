@@ -154,7 +154,7 @@ class GnosticDetective:
             "new": [item["path"] for item in unmatched_after if
                     item["path"].resolve() not in transfigurations.values()],
             "unchanged": unchanged,
-            **void_dossier
+            "purges": void_dossier # void_dossier is already the list from _prophesy_empty_sanctums
         }
 
         Logger.success(f"Gnostic Detective has forged a plan with {len(final_moves)} total translocation(s).")
