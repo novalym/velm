@@ -21,7 +21,13 @@ from pathlib import Path
 from queue import Queue
 from typing import Dict, Any, Optional, Union, List, Tuple, Iterator, TYPE_CHECKING, Set
 
-import pathspec
+try:
+    PATHSPEC_AVAILABLE = True
+    import pathspec
+except ImportError as e:
+    PATHSPEC_AVAILABLE = False
+    print("Pathspec not available")
+
 import requests
 
 from ..contracts.data_contracts import GnosticVessel
@@ -2791,6 +2797,9 @@ def get_ignore_spec(project_root: Path, extra_patterns: Optional[List[str]] = No
     create a single, canonical law of what is profane and must be ignored.
     =================================================================================
     """
+    if not PATHSPEC_AVAILABLE:
+        print("Pathspec is not manifest in this reality. Returning")
+        return
     from ..constants import ORPHAN_ARCHIVE_DIR
     if not pathspec:
         Logger.warn("The 'pathspec' ally is not present in this reality. The Gaze of Aversion will be blind.")

@@ -355,23 +355,82 @@ class BaseArtisan(ABC, Generic[Req]):
             **kwargs
         )
 
-    def failure(self,
-                message: str,
-                suggestion: Optional[str] = None,
-                details: Optional[str] = None,
-                severity: HeresySeverity = HeresySeverity.CRITICAL,
-                **kwargs) -> ScaffoldResult:
-        """Forges a profane result vessel for the Architect's adjudication."""
-        return ScaffoldResult.forge_failure(
-            message=message,
-            suggestion=suggestion or "Verify the Gnostic blueprints and re-conduct the rite.",
-            details=details,
-            severity=severity,
-            source=self.name,
-            trace_id=self._trace_id,
-            **kwargs
+    def failure(
+        self,
+        message: str,
+        *, # [THE CURE]: FORCING KEYWORD-ONLY TO PREVENT PARAMETER OVERLAP
+        suggestion: Optional[str] = None,
+        details: Optional[str] = None,
+        severity: Any = None,
+        **kwargs
+    ) -> ScaffoldResult:
+        """
+        =============================================================================
+        == THE UNBREAKABLE FAILURE RITE (V-Ω-TOTALITY-V500.15-SUTURED)             ==
+        =============================================================================
+        LIF: ∞ | ROLE: PARADOX_PROCLAMATION_GATEWAY | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_ARTISAN_FAILURE_V500_FORENSIC_SUTURE_2026
+        """
+        import time
+        from ..interfaces.base import ScaffoldResult
+        from ..contracts.heresy_contracts import HeresySeverity
+
+        # --- MOVEMENT 0: IDENTITY & TRACE SUTURE ---
+        # [ASCENSION 2]: We prioritize the living Trace ID from the request vessel.
+        trace_id = (
+            getattr(self.request, 'trace_id', None) or
+            getattr(self, '_trace_id', None) or
+            kwargs.get('trace_id', "tr-void")
         )
 
+        # --- MOVEMENT I: THE ENTROPY SIEVE (THE FIX) ---
+        # [ASCENSION 1]: We surgically remove all explicit arguments from kwargs
+        # to prevent the 'TypeError: got multiple values' collision when
+        # calling the factory below.
+        sieve = ["message", "suggestion", "details", "severity", "trace_id", "source"]
+        for key in sieve:
+            kwargs.pop(key, None)
+
+        # --- MOVEMENT II: SEVERITY ADJUDICATION ---
+        # Normalizing the weight of the sin for the Inquisitor.
+        final_severity = severity or HeresySeverity.CRITICAL
+        if isinstance(final_severity, str):
+            try: final_severity = HeresySeverity[final_severity.upper()]
+            except: final_severity = HeresySeverity.CRITICAL
+
+        # --- MOVEMENT III: FORENSIC LOGGING ---
+        # [ASCENSION 5]: We etch the fracture into the Scribe's chronicle before
+        # materializing the result.
+        self.logger.error(f"[{trace_id}] Fracture in {self.name}: {message}")
+        if details:
+            self.logger.debug(f"[{trace_id}] Forensic Context: {details}")
+
+        # --- MOVEMENT IV: THE REDEMPTION PROPHECY ---
+        # [ASCENSION 8]: Providing high-status guidance if the Architect is silent.
+        final_suggestion = suggestion or kwargs.pop("cure", None)
+        if not final_suggestion:
+            if final_severity == HeresySeverity.CRITICAL:
+                final_suggestion = "The reality is unstable. Re-scry the Gnostic blueprints or conduct an 'undo' rite."
+            else:
+                final_suggestion = "A minor drift detected. Adjudicate the blueprint and re-conduct the rite."
+
+        # --- MOVEMENT V: THE MATERIALIZATION ---
+        # [ASCENSION 12]: THE FINALITY VOW
+        # We delegate to the Titanium Factory, bestowing the Artisan's identity.
+        return ScaffoldResult.forge_failure(
+            message=message,
+            suggestion=final_suggestion,
+            details=details,
+            severity=final_severity,
+            source=self.name,
+            trace_id=trace_id,
+            vitals={
+                "artisan": self.name,
+                "module": self.__class__.__module__,
+                "ts_ns": time.perf_counter_ns()
+            },
+            **kwargs
+        )
     # =========================================================================
     # == SECTION VI: THE KINETIC LIMBS (SOVEREIGN UTILITIES)                 ==
     # =========================================================================
@@ -511,7 +570,7 @@ class BaseArtisan(ABC, Generic[Req]):
         # --- MOVEMENT IV: THE ARCHIVAL RITE (SNAPSHOT) ---
         start_ns = time.perf_counter_ns()
         try:
-            from ..kernel.archivist import GnosticArchivist
+            from .kernel.archivist import GnosticArchivist
 
             # [ASCENSION 11]: DYNAMIC ANCHOR RESOLUTION
             # We anchor the archivist to the current project root.

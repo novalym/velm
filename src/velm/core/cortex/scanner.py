@@ -1,5 +1,5 @@
-# Path: core/cortex/scanner.py
-# ----------------------------
+# Path: src/velm/core/cortex/scanner.py
+# -------------------------------------
 # =========================================================================================
 # == THE PANOPTICON V3 (V-Ω-TOTALITY-V200.0-SYMLINK-SENTINEL)                          ==
 # =========================================================================================
@@ -169,7 +169,7 @@ class ProjectScanner:
 
         # 3. PARALLEL INTERROGATION
         if files_to_interrogate:
-            self._conduct_parallel_interrogation(files_to_interrogate, final_inventory)
+            self._conduct_dynamic_interrogation(files_to_interrogate, final_inventory)
 
         # [ASCENSION 3]: Forge Merkle Root
         self._compute_merkle_totality()
@@ -222,7 +222,55 @@ class ProjectScanner:
         time.sleep(0.01)  # Yield to OS scheduler
         self.metrics["throttled_ms"] += (time.perf_counter() - t_start) * 1000
 
-    def _conduct_parallel_interrogation(self, targets: List[Path], inventory: List[FileGnosis]):
+    def _conduct_dynamic_interrogation(self, targets: List[Path], inventory: List[FileGnosis]):
+        """[THE CURE]: Substrate-Aware Delegation."""
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+        interrogator = FileInterrogator(
+            self.root,
+            self.economist,
+            self.git_historian,
+            self.old_cache,
+            self.new_cache,
+            self.root
+        )
+
+        if is_wasm:
+            self._interrogate_serial(targets, inventory, interrogator)
+        else:
+            self._interrogate_parallel(targets, inventory, interrogator)
+
+    def _interrogate_serial(self, targets: List[Path], inventory: List[FileGnosis], interrogator: FileInterrogator):
+        """[ASCENSION]: Serial Execution for WASM environments."""
+        Logger.info(f"Initiating Serial Inquest: Scrying {len(targets)} scriptures...")
+        fresh_scans = 0
+        errors = 0
+
+        for i, path in enumerate(targets):
+            try:
+                result = interrogator.interrogate(path)
+                if not result: continue
+                gnosis, ast_dossier = result
+
+                if gnosis:
+                    inventory.append(gnosis)
+                    fresh_scans += 1
+                    path_key = str(gnosis.path).replace('\\', '/')
+                    if ast_dossier and "error" not in ast_dossier:
+                        self.project_gnosis[path_key] = ast_dossier
+            except Exception as e:
+                errors += 1
+                Logger.warn(f"Causal Fracture while scanning '{path.name}': {e}")
+
+            # Hydraulic Yield
+            if i % 10 == 0: time.sleep(0)
+            if i % 25 == 0 or i == len(targets) - 1:
+                self._broadcast_progress(i + 1, len(targets), path.name)
+
+        self.metrics["fresh_scans"] += fresh_scans
+        self.metrics["errors"] += errors
+        if fresh_scans > 50: self._multicast_hud("SCAN_SUCCESS", "#64ffda")
+
+    def _interrogate_parallel(self, targets: List[Path], inventory: List[FileGnosis], interrogator: FileInterrogator):
         """
         =============================================================================
         == THE OMEGA SWARM SCRIER (V-Ω-TOTALITY-V20000.11-ISOMORPHIC)              ==
@@ -230,43 +278,21 @@ class ProjectScanner:
         LIF: 100x | ROLE: PARALLEL_SOUL_INQUISITOR | RANK: OMEGA_SOVEREIGN
         AUTH: Ω_SCANNER_V20000_SWARM_SUTURE_2026_FINALIS
         """
-        import concurrent.futures
-        import threading
-        import time
         import gc
-        import os
 
         Logger.info(f"Initiating Parallel Swarm: Scrying {len(targets)} scriptures...")
-        start_ns = time.perf_counter_ns()
 
         # [ASCENSION 3]: ATOMIC PROTECTION LATTICE
         # We ensure that merging the parallel insights is a thread-safe rite.
         merge_lock = threading.RLock()
 
-        interrogator = FileInterrogator(
-            root=self.root,
-            economist=self.economist,
-            git_historian=self.git_historian,
-            cache=self.old_cache,
-            new_cache=self.new_cache,
-            workspace_root=self.root
-        )
-
         # =========================================================================
         # == MOVEMENT I: METABOLIC ADJUDICATION (SCALING)                        ==
         # =========================================================================
-        # [ASCENSION 1]: Differentiate between IRON (Native) and ETHER (WASM)
-        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
         cpu_count = os.cpu_count() or 1
 
-        # Calibration of the Worker Density
-        if is_wasm:
-            # Browser workers are single-threaded; we use a small pool to handle
-            # I/O yielding without overwhelming the single-thread Pyodide loop.
-            max_workers = 2
-        else:
-            # Native iron can handle a true hurricane
-            max_workers = cpu_count + 4
+        # Native iron can handle a true hurricane
+        max_workers = cpu_count + 4
 
         # [ASCENSION 2]: Memory-Aware Backpressure
         try:
@@ -275,9 +301,7 @@ class ProjectScanner:
             if mem_total_gb < 2.0:
                 max_workers = min(max_workers, 2)
         except (ImportError, AttributeError):
-            # WASM Fallback: Scry the Heap Object Density
-            if len(gc.get_objects()) > 500000:
-                max_workers = 1  # Throttle to serial mode if heap is heavy
+            pass
 
         # =========================================================================
         # == MOVEMENT II: THE PARALLEL STRIKE                                    ==
@@ -322,29 +346,17 @@ class ProjectScanner:
                     errors += 1
                     Logger.warn(f"Causal Fracture while scanning '{path.name}': {str(fracture)}")
 
-                # [ASCENSION 4]: HYDRAULIC YIELD
-                if is_wasm and processed_count % 10 == 0:
-                    # Relinquish control to the Browser so the HUD can render
-                    time.sleep(0)
-
         # --- MOVEMENT III: FINALITY TELEMETRY ---
         self.metrics["fresh_scans"] += fresh_scans
         self.metrics["errors"] += errors
-
-        duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
 
         # [ASCENSION 10]: HAPTIC BLOOM
         if fresh_scans > 50:
             self._multicast_hud("SCAN_SUCCESS", "#64ffda")
 
-        Logger.success(
-            f"Swarm Inquest complete. {fresh_scans} souls transfigured, "
-            f"{errors} heresies recorded in {duration_ms:.2f}ms."
-        )
-
     def _multicast_hud(self, type_label: str, color: str):
         """Broadcasts a visual heartbeat to the Ocular UI."""
-        if hasattr(self.engine, 'akashic') and self.engine.akashic:
+        if hasattr(self, 'engine') and self.engine and self.engine.akashic:
             try:
                 self.engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
@@ -419,7 +431,6 @@ class ProjectScanner:
         Logger.verbose(f"   -> Scanned {current}/{total} ({percent}%): {filename}")
 
         # 2. Akashic Bridge (If running inside Engine)
-        # (This uses the broadcast hook if the engine injected it)
         pass
 
     def _check_psutil(self) -> bool:
@@ -429,4 +440,3 @@ class ProjectScanner:
         except ImportError:
             return False
 
-# == SCRIPTURE SEALED: THE SCANNER HAS ACHIEVED OMEGA TOTALITY ==

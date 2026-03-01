@@ -195,25 +195,38 @@ class ScriptureSiphon:
     # =============================================================================
 
     def did_close(self, params: Any):
-        """Returns the scripture to the void."""
+        """
+        [THE RITE OF OBLIVION]
+        Returns the scripture to the void. Clears temporal memory to prevent logic-leaks.
+        """
         if isinstance(params, dict):
             params = DidCloseTextDocumentParams.model_validate(params)
 
         uri = str(params.text_document.uri)
         norm_uri = UriUtils.normalize_uri(uri)
 
+        # [ASCENSION 12]: ATOMIC PURGE
         with self._sync_lock:
-            # [ASCENSION 12]: ATOMIC PURGE
+            # 1. Purge from Librarian (Main Thread Memory)
             self.server.documents.close(uri)
-            self.server.inquest.clear_file(uri)
+
+            # 2. Purge from Inquest (The Fix): Use 'quarantine_purge'
+            # [THE CURE]: Method name aligned with inquest.py
+            self.server.inquest.quarantine_purge(uri)
+
+            # 3. Purge Local Registry state
             self._last_merkle_seal.pop(norm_uri, None)
             self._version_map.pop(norm_uri, None)
-            self._path_registry.pop(norm_uri, None)
+
+            # Resolve physical path for log tracking
+            fs_path = self._path_registry.pop(norm_uri, None)
+            path_name = fs_path.name if fs_path else norm_uri.split('/')[-1]
 
         # Banish markers from the UI
         self.server.diagnostics.clear(uri)
-        forensic_log(f"Oblivion: {norm_uri.split('/')[-1]} dissolved.", "INFO", "SYNC")
 
+        forensic_log(f"Oblivion: {path_name} dissolved from memory.", "INFO", "SYNC")
+        
     def clear(self):
         """Total purification of the synchronizer."""
         with self._sync_lock:

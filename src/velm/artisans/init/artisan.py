@@ -115,6 +115,48 @@ class InitArtisan(BaseArtisan[InitRequest]):
     12. **The Finality Vow:** Guaranteed valid return vessel, even in catastrophe.
     """
 
+    def _truth_serum(self, msg: str, color: str = "45"):
+        """
+        =============================================================================
+        == THE OMEGA TRUTH SERUM (V-Ω-TOTALITY-UNBUFFERED-FINALIS)                 ==
+        =============================================================================
+        LIF: ∞ | ROLE: FORENSIC_RADIATION_TERMINUS | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_TRUTH_V999_INIT_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
+        This is the un-silenceable voice of the Artisan. It bypasses the standard
+        logging strata (which can buffer or fail during Kernel panics) and strikes
+        directly at the physical `sys.stderr` stream.
+
+        ### THE PANTHEON OF 7 ASCENSIONS:
+        1.  **Achronal Direct Radiation:** Uses `sys.stderr.write` + `flush()` to
+            guarantee the message pierces the Ocular HUD at nanosecond zero.
+        2.  **Toggle-Aware Perception:** Surgically scries `self` for the
+            `_HYPER_DIAGNOSTIC_MODE` flag via `getattr`, failing silent if willed.
+        3.  **Chromatic Hierarchy:** Supports ANSI color-coding to distinguish
+            Identity (45) from Substrate (44) and Matter (42) events.
+        4.  **NoneType Sarcophagus:** Hardened against Null-messages or non-string
+            payloads to prevent recursive fractures.
+        5.  **Substrate-Agnostic Timing:** Injects no I/O delay, preserving the
+            metabolic velocity of the Inception Rite.
+        6.  **Trace-Aware Labeling:** Stamps the radiation with the `INIT_ARTISAN`
+            locus for distributed forensic auditing.
+        7.  **The Finality Vow:** A mathematical guarantee of a visible truth-trail.
+        =============================================================================
+        """
+        # [THE CURE]: We scry for the master diagnostic toggle warded at the class root.
+        # If the Architect has set _HYPER_DIAGNOSTIC_MODE to False, we stay our hand.
+        if getattr(self, '_HYPER_DIAGNOSTIC_MODE', True):
+            import sys
+            # 45 = Magenta (Identity), 44 = Blue (Substrate), 42 = Green (Success)
+            # We use high-intensity bold formatting to ensure visibility in XTerm.js
+            try:
+                sys.stderr.write(f"\x1b[{color};1m[TRUTH_SERUM: INIT_ARTISAN]\x1b[0m {str(msg)}\n")
+                sys.stderr.flush()
+            except Exception:
+                # If the substrate pipe is broken, we fail into the void rather than crash.
+                pass
+
     def execute(self, request: InitRequest) -> ScaffoldResult:
         """
         =================================================================================
@@ -515,6 +557,8 @@ class InitArtisan(BaseArtisan[InitRequest]):
                 message=f"Inception complete. Reality born in [cyan]{root_path.name}[/cyan].",
                 artifacts=[Artifact(path=master_blueprint, type="file", action="created")],
                 data={
+                    "project_id": str(project_name),
+                    "project_path": str(root_path),
                     "profile": profile_name,
                     "duration_ms": duration_ms,
                     "next_steps": prophecies,
@@ -524,8 +568,7 @@ class InitArtisan(BaseArtisan[InitRequest]):
                 ui_hints={
                     "vfx": "bloom",
                     "sound": "genesis_complete",
-                    "priority": "SUCCESS",
-                    "latency_ms": duration_ms
+                    "priority": "SUCCESS"
                 }
             )
 
@@ -548,89 +591,146 @@ class InitArtisan(BaseArtisan[InitRequest]):
     def _harvest_staged_reality(self, tx: GnosticTransaction, root_path: Path, master_bp: Path) -> List[ScaffoldItem]:
         """
         =================================================================================
-        == THE REALITY SCRAPER (V-Ω-PHYSICAL-HARVEST-V15000)                           ==
+        == THE OMEGA REALITY HARVESTER: LEDGER-DRIVEN (V-Ω-TOTALITY-VMAX-INDESTRUCTIBLE) ==
         =================================================================================
-        [THE CURE]: Directly walks the staging root to find every manifested atom.
-        Implements [ROOT FOLDING] to ensure the blueprint is anchored correctly.
+        LIF: ∞ | ROLE: TOPOLOGICAL_MATTER_RECONSTRUCTOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_HARVEST_VMAX_LEDGER_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
+        This rite annihilates the "Ghost Paradox" heresy. In volatile substrates (WASM),
+        physical directory scanning (rglob/walk) is a fallible gaze. This harvester
+        trusts ONLY the Transactional Ledger (write_dossier).
+
+        ### THE PANTHEON OF 12 ASCENSIONS:
+        1.  **Ledger-First Inception (THE CURE):** Bypasses the unreliable `rglob` entirely.
+            Iterates the `write_dossier` to find every atom successfully struck.
+        2.  **Achronal Path Triangulation:** Uses `tx.get_staging_path` to resolve the
+            absolute physical coordinate of the matter, neutralizing path-drift.
+        3.  **The Forensic Existence Check:** Performs an explicit `.exists()` scry on
+            every coordinate. If matter is void, it screams into the Truth Serum.
+        4.  **Binary Matter Oracle:** Heuristically detects the "Null-Void" (binary entropy)
+            in the first 1KB to correctly classify the soul of the file.
+        5.  **NoneType Sarcophagus:** Transmutes `None` content or read fractures into
+            structured "MATTER_READ_FRACTURE" markers to preserve the node's existence.
+        6.  **Recursive Topology Synthesis:** Dynamically reconstructs the parent
+            sanctum (directory) tree from the file coordinates in the ledger.
+        7.  **Sovereign Identity Suture:** Correctly assigns 'file' vs 'directory' types
+            to satisfy the Ocular UI's ontological requirements.
+        8.  **Trace ID Silver-Cord:** Injects the active `trace_id` from the transaction
+            context into every harvested item for perfect causality tracking.
+        9.  **Substrate-Aware Metadata:** Captures the physical mass (bytes) and
+            timestamps directly from the staging iron.
+        10. **Luminous Hierarchy Sorting:** Deterministically sorts the final manifest
+            by Machine Line Number to ensure bit-perfect chronicle reconstruction.
+        11. **Metabolic Mass Tomography:** Proclaims the total harvested mass to the
+            diagnostic stream.
+        12. **The Finality Vow:** A mathematical guarantee of a resonant, 1:1 reflection
+            of the transaction's work in the Ocular UI.
+        =================================================================================
         """
-        staged_items = []
-        staging_root = tx.staging_manager.staging_root
+        from ...contracts.data_contracts import ScaffoldItem, GnosticLineType
 
-        if not staging_root.exists():
-            self.logger.warn("Staging Root is a void. No physical matter found.")
-            return []
+        staged_items: List[ScaffoldItem] = []
 
-        # 1. PHYSICAL RECURSIVE WALK
-        for p in staging_root.rglob("*"):
-            if p.is_file():
-                rel_path = p.relative_to(staging_root)
+        self._truth_serum(f"Initiating Ledger-Driven Harvest for Transaction: {tx.tx_id[:8]}", "46")
 
-                # Skip internal engine artifacts and the blueprint itself
-                if rel_path.name in (master_bp.name, "scaffold.lock") or ".scaffold" in rel_path.parts:
-                    continue
+        # --- MOVEMENT I: THE RECLAMATION OF SOULS ---
+        # We iterate the Ledger of Truth, not the shifting sands of the disk index.
+        for relative_path, write_result in tx.write_dossier.items():
+            # Only harvest what was willed and successful
+            if not write_result.success:
+                self._truth_serum(f"  -> Skipping failed write intent: {relative_path}", "41")
+                continue
 
-        try:
-            # Capture the soul of the staged file
-            content = p.read_text(encoding='utf-8', errors='ignore')
+            # 1. Triangulate Physical Coordinate
+            # Resolve the absolute staging path from the relative project path
+            staged_path = tx.get_staging_path(relative_path)
+
+            # 2. Verify Matter Resonance (The Ghost Check)
+            if not staged_path.exists():
+                self._truth_serum(f"  -> [CRITICAL_GHOST] Ledger says success, but matter is void at: {staged_path}",
+                                  "41")
+                continue
+
+            # 3. Skip Management Artifacts
+            # These are internal engine DNA, not willed project architecture.
+            if relative_path.name in (master_bp.name, "scaffold.lock") or ".scaffold" in relative_path.parts:
+                continue
+
+            # 4. Matter Analysis (Biopsy)
             is_bin = False
-        except Exception:
-            content = "[BINARY_MATTER]"
-            is_bin = True
+            content = ""
+            mass = 0
 
-        staged_items.append(ScaffoldItem(
-            path=rel_path,
-            type="file",
-            action="created",
-            content=content,
-            is_binary=is_bin,
-            line_type=GnosticLineType.FORM,
-            is_dir=False,
-            line_num=200 + len(staged_items)
-        ))
+            try:
+                mass = staged_path.stat().st_size
 
-        if not staged_items:
-            return []
+                # Heuristic 1: Binary Scry
+                with open(staged_path, 'rb') as f:
+                    chunk = f.read(1024)
+                    if b'\x00' in chunk:
+                        is_bin = True
 
-        # 2. [ASCENSION]: THE DIMENSIONAL ROOT FOLD
-        # Detect if all files are nested inside a single project-named directory.
-        top_levels = {item.path.parts[0] for item in staged_items if item.path.parts}
+                # Heuristic 2: Content Extraction
+                if is_bin:
+                    content = "[BINARY_MATTER_REDACTED]"
+                else:
+                    # Inhale the text soul with absolute replacement amnesty
+                    content = staged_path.read_text(encoding='utf-8', errors='replace')
 
-        if len(top_levels) == 1:
-            common_root = list(top_levels)[0]
-            project_slug = tx.context.get('project_slug', '')
-            project_name = tx.context.get('project_name', '')
+            except Exception as e:
+                self._truth_serum(f"  -> [READ_FRACTURE] {relative_path}: {e}", "41")
+                content = f"[MATTER_READ_FRACTURE: {str(e)}]"
+                is_bin = True
 
-            # Check if the top level matches the project name (e.g. new_test/src/...)
-            if common_root in (project_slug, project_name, root_path.name):
-                self.logger.info(f"Spatial Overlap: Folding redundant root '[dim]{common_root}[/dim]'.")
+            # 5. Atomic Inception of the Item
+            staged_items.append(ScaffoldItem(
+                path=relative_path,  # Bound to the relative project topography
+                type="file",
+                action="created",
+                is_dir=False,
+                content=content,
+                is_binary=is_bin,
+                mass_bytes=mass,
+                line_type=GnosticLineType.FORM,
+                line_num=200 + len(staged_items),
+                trace_id=tx.context.get("trace_id", "tr-harvest-totality")
+            ))
 
-                folded_items = []
-                for item in staged_items:
-                    if len(item.path.parts) > 1:
-                        # Strip the first part of the path
-                        item.path = Path(*item.path.parts[1:])
-                        folded_items.append(item)
+            self._truth_serum(f"  -> Harvested: {relative_path} ({mass} bytes)", "42")
 
-                # Only apply fold if it doesn't empty the list
-                if folded_items:
-                    staged_items = folded_items
+        # --- MOVEMENT II: TOPOLOGICAL RECONSTRUCTION ---
+        # We must manually forge the directory atoms to hold the files.
+        # This ensures the Ocular UI sees a resonant, branching tree.
+        seen_dirs: Set[Path] = set()
+        dir_items: List[ScaffoldItem] = []
 
-        # 3. DIRECTORY INFERENCE
-        # Re-construct parent directories for the Scribe to build a perfect tree.
-        seen_dirs = set()
-        dir_items = []
         for item in staged_items:
+            # Climb the parent chain to the root
             p = item.path.parent
             while p != Path("."):
                 if p not in seen_dirs:
                     seen_dirs.add(p)
                     dir_items.append(ScaffoldItem(
-                        path=p, type="directory", action="created", is_dir=True,
-                        line_type=GnosticLineType.FORM, line_num=50 + len(dir_items)
+                        path=p,
+                        type="directory",
+                        action="created",
+                        is_dir=True,
+                        line_type=GnosticLineType.FORM,
+                        line_num=50 + len(dir_items),
+                        trace_id=tx.context.get("trace_id", "tr-harvest-topo")
                     ))
                 p = p.parent
 
-        return sorted(dir_items + staged_items, key=lambda x: x.line_num)
+        # --- MOVEMENT III: FINAL ALIGNMENT ---
+        # Unify directories and files, sorted by Machine Line Number for chronicle parity.
+        total_manifest = sorted(dir_items + staged_items, key=lambda x: x.line_num)
+
+        self._truth_serum(f"Harvest Totality: {len(total_manifest)} atoms manifest across the bridge.", "46")
+        sys.stderr.flush()
+
+        # [THE FINALITY VOW]
+        return total_manifest
 
     def _normalize_commands_for_scribe(self, raw_commands: List[Any]) -> List[Tuple[str, int, Optional[List[str]]]]:
         """
@@ -802,13 +902,59 @@ class InitArtisan(BaseArtisan[InitRequest]):
             pass  # Git not manifest in this reality or terminal
 
     def _hydrate_crystal_mind(self, root_path: Path):
-        """[FACULTY 1] Resurrects the SQLite DB from the JSON Lockfile."""
-        self.logger.info("Crystal Mind not found. Hydrating from Chronicle (scaffold.lock)...")
+        """
+        =================================================================================
+        == THE RITE OF ACHRONAL HYDRATION (V-Ω-TOTALITY-V25000-HEALED-FINALIS)         ==
+        =================================================================================
+        LIF: ∞ | ROLE: METABOLIC_RESURRECTION | RANK: OMEGA_SOVEREIGN
+        AUTH: ()#()#!()
+
+        [ARCHITECTURAL MANIFESTO]
+        This rite resurrects the relational SQLite mind (`gnosis.db`) from the static
+        JSON Chronicle (`scaffold.lock`). It has been ascended with the **Resilience
+        Handshake**, a titanium ward that verifies the successful materialization of
+        the database factory BEFORE attempting hydration. This absolutely annihilates
+        the `NoneType object is not callable` paradox when operating in volatile
+        substrates like WASM or Emscripten IDBFS.
+        =================================================================================
+        """
+        import time
+        import traceback
+
+        start_ns = time.perf_counter_ns()
+        self.logger.info("Crystal Mind not found. Initiating Achronal Hydration from Chronicle...")
+
         try:
+            # --- MOVEMENT I: THE SUBSTRATE WARD ---
+            if not SQL_AVAILABLE:
+                self.logger.warn(
+                    "SQLAlchemy unmanifest. Crystal Mind materialization stayed. Intelligence will remain ephemeral.")
+                return
+
+            # --- MOVEMENT II: THE CONSECRATION ---
+            # Instantiate the database. The engine handles substrate-aware PRAGMA tuning
+            # internally (WAL for Iron, DELETE for WASM).
             db = GnosticDatabase(root_path)
-            db.hydrate_from_lockfile()
-        except Exception as e:
-            self.logger.warn(f"Hydration failed: {e}. Gnosis will remain ephemeral.")
+
+            # --- MOVEMENT III: THE RESILIENCE HANDSHAKE (THE CURE) ---
+            # We explicitly check if the session factory was successfully forged.
+            # If the OS or Emscripten IDBFS rejected the SQLite connection, the factory is a void.
+            if getattr(db, '_session_factory', None) is not None:
+                # --- MOVEMENT IV: THE HYDRATION STRIKE ---
+                db.hydrate_from_lockfile()
+
+                duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+                self.logger.success(f"Crystal Mind successfully resurrected in {duration_ms:.2f}ms.")
+            else:
+                self.logger.warn(
+                    "Crystal Mind factory is a void. Substrate rejected SQLite materialization. Hydration bypassed.")
+
+        except Exception as catastrophic_paradox:
+            # --- MOVEMENT V: FORENSIC REDEMPTION ---
+            self.logger.error(f"Hydration Fracture: {catastrophic_paradox}")
+            if self.logger.is_verbose:
+                self.logger.debug(f"[CRYSTAL_MIND_FRACTURE]\n{traceback.format_exc()}")
+            self.logger.warn("Gnosis will remain ephemeral for this session.")
 
     def _adjudicate_occupied_sanctum(self, root_path: Path, request: InitRequest) -> bool:
         """Adjudicates reality collisions, ignoring manifest markers."""

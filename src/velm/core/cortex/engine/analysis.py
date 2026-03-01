@@ -1,10 +1,11 @@
-# Path: core/cortex/engine/analysis.py
-# ------------------------------------
-
+# Path: src/velm/core/cortex/engine/analysis.py
+# ---------------------------------------------
+import sys
 import time
 import os
+import collections
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any, Tuple, Set
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from ..contracts import CortexMemory
@@ -22,6 +23,43 @@ from ....artisans.translocate_core.resolvers import (
     RustImportResolver, RubyImportResolver, JavaImportResolver, CppImportResolver
 )
 
+# --- Feature Flags for Resolvers ---
+try:
+    from ....artisans.translocate_core.resolvers import PythonImportResolver
+    PYTHON_RESOLVER_AVAILABLE = True
+except ImportError:
+    PYTHON_RESOLVER_AVAILABLE = False
+
+try:
+    from ....artisans.translocate_core.resolvers import JavaScriptResolver
+    JS_RESOLVER_AVAILABLE = True
+except ImportError:
+    JS_RESOLVER_AVAILABLE = False
+
+try:
+    from ....artisans.translocate_core.resolvers import TypeScriptResolver
+    TS_RESOLVER_AVAILABLE = True
+except ImportError:
+    TS_RESOLVER_AVAILABLE = False
+
+try:
+    from ....artisans.translocate_core.resolvers import GoImportResolver
+    GO_RESOLVER_AVAILABLE = True
+except ImportError:
+    GO_RESOLVER_AVAILABLE = False
+
+try:
+    from ....artisans.translocate_core.resolvers import RustImportResolver
+    RUST_RESOLVER_AVAILABLE = True
+except ImportError:
+    RUST_RESOLVER_AVAILABLE = False
+
+try:
+    from ....artisans.translocate_core.resolvers import RubyImportResolver
+    RUBY_RESOLVER_AVAILABLE = True
+except ImportError:
+    RUBY_RESOLVER_AVAILABLE = False
+
 Logger = Scribe("AnalysisEngine")
 
 
@@ -34,6 +72,11 @@ class AnalysisEngine:
     def __init__(self, project_root: Path, memory: CortexMemory):
         self.root = project_root
         self.memory = memory
+        self.logger = Logger
+
+    def perceive(self) -> CortexMemory:
+        """Proxies access to the memory if needed by internal methods."""
+        return self.memory
 
     def query_centrality(self, language: str = "any", limit: int = 5) -> List[Tuple[Path, Dict]]:
         """Perceives the architectural center of gravity by summoning the SignificanceRanker."""
@@ -83,6 +126,8 @@ class AnalysisEngine:
             elif origin.is_dir():
                 for file_gnosis in memory.inventory:
                     try:
+                        # Check if file is inside the moved directory
+                        # resolve() handles symlinks and absolute paths
                         if file_gnosis.path.resolve().is_relative_to(origin.resolve()):
                             rel_path = file_gnosis.path.resolve().relative_to(origin.resolve())
                             new_full_path = dest.resolve() / rel_path
@@ -107,7 +152,7 @@ class AnalysisEngine:
 
         self.logger.verbose(f"Gaze of Causality: {len(patients)} unique scriptures require examination.")
 
-        files_by_lang: Dict[str, List[Path]] = defaultdict(list)
+        files_by_lang: Dict[str, List[Path]] = collections.defaultdict(list)
         for file_path in patients:
             suffix = file_path.suffix.lower()
             if suffix == '.py':
@@ -127,46 +172,73 @@ class AnalysisEngine:
             elif suffix in ('.cpp', '.c', '.h', '.hpp', '.cc', '.hh'):
                 files_by_lang['cpp'].append(file_path)
 
-        with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            future_to_lang: Dict[Any, str] = {}
+        # [THE CURE]: Substrate-Aware Execution
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
+        def _execute_healing(resolver, files):
+            """Executes healing logic for a language group."""
+            if not resolver: return {}
+            # Assume resolver has logic to generate plans.
+            # In translocate/resolvers, this is typically `resolve_batch` or similar.
+            # We'll assume a standard interface `resolve(files)`.
+            # Since the prompt implies `_conduct_healing_rite` was expected, we use that abstraction.
+            return self._conduct_healing_rite(resolver, files)
+
+        if is_wasm:
+            # Serial Mode
             if files_by_lang['python'] and PYTHON_RESOLVER_AVAILABLE:
-                resolver = PythonImportResolver(self.root, memory.symbol_map, expanded_moves)
-                future_to_lang[
-                    executor.submit(self._conduct_healing_rite, resolver, files_by_lang['python'])] = "Python"
-
+                all_healing_plans.update(_execute_healing(PythonImportResolver(self.root, memory.symbol_map, expanded_moves), files_by_lang['python']))
             if files_by_lang['javascript'] and JS_RESOLVER_AVAILABLE:
-                resolver = JavaScriptResolver(self.root, expanded_moves)
-                future_to_lang[
-                    executor.submit(self._conduct_healing_rite, resolver, files_by_lang['javascript'])] = "JavaScript"
-
+                all_healing_plans.update(_execute_healing(JavaScriptResolver(self.root, expanded_moves), files_by_lang['javascript']))
             if files_by_lang['typescript'] and TS_RESOLVER_AVAILABLE:
-                resolver = TypeScriptResolver(self.root, expanded_moves)
-                future_to_lang[
-                    executor.submit(self._conduct_healing_rite, resolver, files_by_lang['typescript'])] = "TypeScript"
-
+                all_healing_plans.update(_execute_healing(TypeScriptResolver(self.root, expanded_moves), files_by_lang['typescript']))
             if files_by_lang['go'] and GO_RESOLVER_AVAILABLE:
-                resolver = GoImportResolver(self.root, expanded_moves)
-                future_to_lang[executor.submit(self._conduct_healing_rite, resolver, files_by_lang['go'])] = "Go"
-
+                all_healing_plans.update(_execute_healing(GoImportResolver(self.root, expanded_moves), files_by_lang['go']))
             if files_by_lang['rust'] and RUST_RESOLVER_AVAILABLE:
-                resolver = RustImportResolver(self.root, expanded_moves)
-                future_to_lang[executor.submit(self._conduct_healing_rite, resolver, files_by_lang['rust'])] = "Rust"
-
+                all_healing_plans.update(_execute_healing(RustImportResolver(self.root, expanded_moves), files_by_lang['rust']))
             if files_by_lang['ruby'] and RUBY_RESOLVER_AVAILABLE:
-                resolver = RubyImportResolver(self.root, expanded_moves)
-                future_to_lang[executor.submit(self._conduct_healing_rite, resolver, files_by_lang['ruby'])] = "Ruby"
+                all_healing_plans.update(_execute_healing(RubyImportResolver(self.root, expanded_moves), files_by_lang['ruby']))
 
-            # (Add Java/CPP dispatch here if imported)
+        else:
+            # Parallel Mode
+            with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+                future_to_lang: Dict[Any, str] = {}
 
-            for future in as_completed(future_to_lang):
-                lang = future_to_lang[future]
-                try:
-                    lang_plan = future.result()
-                    if lang_plan:
-                        all_healing_plans.update(lang_plan)
-                except Exception as e:
-                    self.logger.error(f"A catastrophic paradox shattered the {lang} Healer's Gaze.", exc_info=e)
+                if files_by_lang['python'] and PYTHON_RESOLVER_AVAILABLE:
+                    resolver = PythonImportResolver(self.root, memory.symbol_map, expanded_moves)
+                    future_to_lang[
+                        executor.submit(self._conduct_healing_rite, resolver, files_by_lang['python'])] = "Python"
+
+                if files_by_lang['javascript'] and JS_RESOLVER_AVAILABLE:
+                    resolver = JavaScriptResolver(self.root, expanded_moves)
+                    future_to_lang[
+                        executor.submit(self._conduct_healing_rite, resolver, files_by_lang['javascript'])] = "JavaScript"
+
+                if files_by_lang['typescript'] and TS_RESOLVER_AVAILABLE:
+                    resolver = TypeScriptResolver(self.root, expanded_moves)
+                    future_to_lang[
+                        executor.submit(self._conduct_healing_rite, resolver, files_by_lang['typescript'])] = "TypeScript"
+
+                if files_by_lang['go'] and GO_RESOLVER_AVAILABLE:
+                    resolver = GoImportResolver(self.root, expanded_moves)
+                    future_to_lang[executor.submit(self._conduct_healing_rite, resolver, files_by_lang['go'])] = "Go"
+
+                if files_by_lang['rust'] and RUST_RESOLVER_AVAILABLE:
+                    resolver = RustImportResolver(self.root, expanded_moves)
+                    future_to_lang[executor.submit(self._conduct_healing_rite, resolver, files_by_lang['rust'])] = "Rust"
+
+                if files_by_lang['ruby'] and RUBY_RESOLVER_AVAILABLE:
+                    resolver = RubyImportResolver(self.root, expanded_moves)
+                    future_to_lang[executor.submit(self._conduct_healing_rite, resolver, files_by_lang['ruby'])] = "Ruby"
+
+                for future in as_completed(future_to_lang):
+                    lang = future_to_lang[future]
+                    try:
+                        lang_plan = future.result()
+                        if lang_plan:
+                            all_healing_plans.update(lang_plan)
+                    except Exception as e:
+                        self.logger.error(f"A catastrophic paradox shattered the {lang} Healer's Gaze.", exc_info=e)
 
         duration = (time.monotonic() - start_time) * 1000
         total_healed_files = len(all_healing_plans)
@@ -180,3 +252,18 @@ class AnalysisEngine:
 
         return all_healing_plans
 
+    def _conduct_healing_rite(self, resolver: Any, files: List[Path]) -> Dict[Path, List[Dict]]:
+        """Executes the resolve method on the given language resolver."""
+        try:
+            return resolver.resolve_batch(files)
+        except AttributeError:
+             # Fallback if resolve_batch isn't implemented, try loop
+            plans = {}
+            for f in files:
+                res = resolver.resolve(f)
+                if res:
+                    plans[f] = res
+            return plans
+        except Exception as e:
+            self.logger.error(f"Healing Rite fractured: {e}")
+            return {}

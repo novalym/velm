@@ -1,10 +1,14 @@
 # Path: src/velm/core/kernel/transaction/facade.py
 # ------------------------------------------------
+# LIF: INFINITY // ROLE: ACID_FILESYSTEM_TRANSACTION_MANAGER
+# AUTH: Ω_TX_FACADE_V3000_ENTERPRISE_GRADE_FINALIS
+# ------------------------------------------------
 
 from __future__ import annotations
 
 import gc
 import os
+import sys
 import time
 import uuid
 import threading
@@ -17,7 +21,7 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple, Union, Final, Set
 from collections import deque
 
-# --- THE DIVINE UPLINKS ---
+# --- Core System Interfaces ---
 from .locking import GnosticLock
 from .staging import StagingManager
 from .committer import GnosticCommitter
@@ -30,50 +34,49 @@ from ....contracts.heresy_contracts import Heresy, ArtisanHeresy, HeresySeverity
 from ....logger import Scribe
 
 _EPOCH_START = time.perf_counter_ns()
+Logger = Scribe("Transaction")
 
-Logger = Scribe("GnosticTransaction")
+# =========================================================================
+# == DIAGNOSTIC TELEMETRY GATE                                           ==
+# =========================================================================
+_DEBUG_MODE = os.environ.get("SCAFFOLD_DEBUG") == "1"
 
 
 class TransactionState(Enum):
     """
-    =============================================================================
-    == THE QUANTUM STATE AUTOMATON (V-Ω-LIFECYCLE-STATES)                      ==
-    =============================================================================
-    Defines the absolute, unbreakable stages of the transaction's existence.
+    Represents the deterministic lifecycle states of a filesystem transaction.
+    Strict state progression ensures atomic safety and prevents race conditions.
     """
-    VOID = auto()  # Unmanifest
-    INCEPTED = auto()  # Lock acquired, ready to stage
-    STAGING = auto()  # Accumulating matter in the ephemeral realm
-    LUSTRATING = auto()  # Flushing to the Shadow Volume
-    RESONANT = auto()  # Matter is fully prepared for the flip
-    FLIPPING = auto()  # The critical microsecond of reality swapping
-    SEALED = auto()  # Triumph. Chronicle written.
-    LIMINAL = auto()  # Suspended state attempting auto-recovery
-    FRACTURED = auto()  # Rolled back.
+    VOID = auto()  # Uninitialized or completely reset state.
+    INCEPTED = auto()  # Transaction lock acquired, context established.
+    STAGING = auto()  # Actively buffering file I/O operations into the staging environment.
+    LUSTRATING = auto()  # Committing staged files to the shadow volume.
+    RESONANT = auto()  # Staging matches intended reality, awaiting final atomic flip.
+    FLIPPING = auto()  # Critical section: Performing the atomic OS-level directory swap.
+    SEALED = auto()  # Operation concluded successfully, chronicle written.
+    LIMINAL = auto()  # Suspended state during automated fault-recovery (e.g., I/O retry).
+    FRACTURED = auto()  # Transaction failed and has been rolled back.
 
 
 class GnosticTransaction:
     """
-    =================================================================================
-    == THE QUANTUM CRUCIBLE: OMEGA POINT (V-Ω-TOTALITY-V3000-RE-OPENING-RITE)      ==
-    =================================================================================
-    LIF: ∞ | ROLE: REALITY_STABILIZER | RANK: OMEGA_SINGULARITY
+    Provides Database-Grade ACID compliance for raw filesystem operations.
 
-    The sovereign engine of Spacetime and Causality. It provides true Database-Grade
-    ACID compliance for the filesystem, incorporating Event-Sourced Ledgering,
-    Predictive Liminal Healing, and Dynamic Barycentric Re-Anchoring.
+    This class orchestrates a Two-Phase Commit architecture for file generation:
+    1. All file modifications are routed to a temporary `.scaffold/staging` directory.
+    2. A `VolumeShifter` prepares a shadow copy of the target directory.
+    3. If all operations succeed, the shadow volume is atomically swapped with the live directory.
+    4. If any operation fails, the shadow volume and staging area are purged, leaving the
+       original files completely untouched.
 
-    [ASCENSION CURE]: Implements the "Re-Opening Rite". If late-stage matter (like
-    the finalized scaffold.scaffold blueprint) arrives after the primary Lustration,
-    the Crucible seamlessly unseals from RESONANT back to STAGING, enabling infinite
-    multi-pass materialization.
-    =================================================================================
+    It features autonomous transient fault recovery (Liminal Healing) to handle transient
+    Windows file locks or Indexer conflicts, and dynamic re-anchoring to support nested workspaces.
     """
 
-    # [PHYSICS CONSTANTS]
-    MAX_LUSTRATION_PASSES: Final[int] = 5
+    # System Constraints
+    MAX_COMMIT_PASSES: Final[int] = 5
     IO_THROTTLE_THRESHOLD_MS: Final[float] = 100.0
-    LIMINAL_HEALING_RETRIES: Final[int] = 2
+    FAULT_RECOVERY_RETRIES: Final[int] = 2
 
     def __init__(
             self,
@@ -86,17 +89,7 @@ class GnosticTransaction:
             **kwargs: Any
     ):
         """
-        =============================================================================
-        == THE RITE OF INCEPTION: OMEGA (V-Ω-TOTALITY-V2000-SUTURED-FINALIS)       ==
-        =============================================================================
-        LIF: ∞ | ROLE: TRANSACTION_CONSTRUCTOR | RANK: OMEGA_SUPREME
-        AUTH: Ω_INIT_TX_V2000_ORGAN_SUTURE_2026_FINALIS
-
-        [THE MANIFESTO]
-        The supreme constructor of the Quantum Crucible. It has been ascended to
-        annihilate the 'StagingManager TypeError' by righteously scrying for the
-        Engine soul and bestowing it upon the metabolic organs at birth.
-        =============================================================================
+        Initializes the transaction boundary and binds the necessary IO subsystems.
         """
         self.logger = Logger
 
@@ -104,18 +97,20 @@ class GnosticTransaction:
         self._state_lock = threading.RLock()
 
         self._flip_conducted = False
-        self._manifest_count = 0
+        self._commit_pass_count = 0
         self._committed_paths: Set[Path] = set()
         self._dossier_enriched = False
+        self._faults: List[str] = []
+        self._perceived_paths: Set[str] = set()
 
-        # --- I. THE GEOMETRIC ANCHORS ---
+        # --- Spatial Anchors ---
         self.base_path = project_root.resolve()
         self.project_root = self.base_path
 
         self.rite_name = rite_name
         self.blueprint_path = blueprint_path or Path(f"manual/{rite_name.replace(' ', '_')}")
 
-        # --- II. IDENTITY & CAUSALITY ---
+        # --- Causality & Tracing ---
         self.tx_id = uuid.uuid4().hex
         self.trace_id = (
                 kwargs.get('trace_id') or
@@ -126,30 +121,24 @@ class GnosticTransaction:
         self.simulate = simulate
         self._boot_ns = time.perf_counter_ns()
 
-        # =========================================================================
-        # == [THE CURE]: SOVEREIGN ENGINE DISCOVERY                              ==
-        # =========================================================================
-        # We scry the incoming kwargs for the Engine, or fallback to the global
-        # main module to ensure the StagingManager receives its required soul.
+        # Secure the global engine reference if not explicitly provided
         self.engine = kwargs.get('engine')
         if not self.engine:
             import sys
             main_mod = sys.modules.get('__main__')
             self.engine = getattr(main_mod, 'engine', None)
-        # =========================================================================
 
         self._merkle_accumulator = hashlib.sha256(self.tx_id.encode())
         self._event_stream: deque = deque()
 
-        # --- III. GNOSTIC MEMORY LATTICE ---
+        # --- Internal Memory Lattice ---
         from ...runtime.vessels import GnosticSovereignDict
         self.write_dossier: Dict[Path, GnosticWriteResult] = {}
         self.edicts_executed: List[str] = []
         self.heresies_perceived: List[Heresy] = []
         self.context = GnosticSovereignDict(kwargs.get('context', {}))
 
-        # --- IV. ORGAN MATERIALIZATION (THE TITANIUM SUTURE) ---
-        # [ASCENSION 1]: Birth the StagingManager with its required dependencies.
+        # --- Subsystem Initialization ---
         self.staging_manager = StagingManager(
             self.base_path,
             self.tx_id,
@@ -177,7 +166,6 @@ class GnosticTransaction:
                 transaction=self,
                 silent=kwargs.get('silent', False)
             )
-            # Link the Registers to the Engine's Akashic link for HUD radiation
             if self.engine:
                 provided_regs.akashic = getattr(self.engine, 'akashic', None)
 
@@ -195,12 +183,19 @@ class GnosticTransaction:
         )
         self._bridge: Optional[ChronicleBridge] = None
 
+        # Guarantee cleanup of ephemeral staging resources upon object collection
         self._finalizer = weakref.finalize(
             self, self._emergency_cleanup, self.staging_manager,
             self.volume_shifter, self.use_lock, self.lock
         )
 
-        self.logger.debug(f"Crucible [soul]{self.tx_id[:8]}[/] manifest for [cyan]{self.rite_name}[/].")
+        self._sys_log(f"Transaction session [{self.tx_id[:8]}] initialized for operation: {self.rite_name}")
+
+    def _sys_log(self, msg: str, color: str = "36"):
+        """High-performance unbuffered debug output."""
+        if _DEBUG_MODE:
+            sys.stderr.write(f"\x1b[{color};1m[TX_MANAGER]\x1b[0m {msg}\n")
+            sys.stderr.flush()
 
     @property
     def chronicle_bridge(self) -> ChronicleBridge:
@@ -210,9 +205,21 @@ class GnosticTransaction:
 
     @property
     def active(self) -> bool:
-        return self._state.value >= TransactionState.INCEPTED.value and self._state.value < TransactionState.SEALED.value
+        """
+        Determines if the transaction is currently accepting I/O operations.
+        Includes the FLIPPING state to allow the ChronicleBridge to read the
+        final staging coordinates while the volume is being swapped.
+        """
+        return self._state in (
+            TransactionState.INCEPTED,
+            TransactionState.STAGING,
+            TransactionState.LUSTRATING,
+            TransactionState.RESONANT,
+            TransactionState.FLIPPING
+        )
 
     def is_file_in_staging(self, logical_path: Union[str, Path]) -> bool:
+        """Validates if a specific path is currently managed by the active staging area."""
         p_obj = Path(logical_path)
         if p_obj in self.write_dossier:
             return True
@@ -221,6 +228,7 @@ class GnosticTransaction:
 
     @staticmethod
     def _emergency_cleanup(staging: StagingManager, shifter: Any, use_lock: bool, lock: GnosticLock):
+        """Failsafe teardown method invoked by the garbage collector."""
         try:
             staging.cleanup()
             if hasattr(shifter, 'cleanup'):
@@ -231,14 +239,19 @@ class GnosticTransaction:
             pass
 
     def re_anchor(self, new_root: Path):
+        """
+        Dynamically adjusts the transaction's geometric anchor mid-flight.
+        Essential for correctly staging files when creating a project nested
+        inside a new subdirectory rather than the current working directory.
+        """
         with self._state_lock:
             if self._state.value > TransactionState.STAGING.value and self._state != TransactionState.RESONANT:
-                self.logger.warn("Re-anchoring stayed: Lustration actively manifest. Spatial drift warded.")
+                self.logger.warn("Re-anchor rejected: Transaction is currently committing to disk.")
                 return
 
             self.project_root = new_root.resolve()
-
             self.committer.project_root = self.project_root
+
             if hasattr(self, 'volume_shifter'):
                 self.volume_shifter.root = self.project_root
                 self.volume_shifter.sanctum = self.base_path / ".scaffold" / "volumes" / self.tx_id
@@ -250,16 +263,20 @@ class GnosticTransaction:
                 "trace_id": self.trace_id
             })
 
-            self.logger.verbose(f"Transaction re-anchored to Axis Mundi: [cyan]{self.project_root}[/cyan]")
+            self._sys_log(f"Transaction topology re-anchored to: {self.project_root}")
 
     def __enter__(self) -> GnosticTransaction:
+        """
+        Initiates the transaction boundary. Acquires file-based mutexes to prevent
+        parallel processes from clashing on the same workspace.
+        """
         _inception_start = time.perf_counter_ns()
 
         if self.use_lock:
             try:
                 self.lock.acquire()
             except Exception as lock_paradox:
-                self.logger.critical(f"Lattice Lock Fracture: {lock_paradox}")
+                self.logger.critical(f"Failed to acquire transaction lock: {lock_paradox}")
                 raise lock_paradox
 
         try:
@@ -275,7 +292,7 @@ class GnosticTransaction:
                             "params": {
                                 "type": "TX_INCEPTION",
                                 "label": "TRANSACTION_ACTIVE",
-                                "color": "#a855f7",
+                                "color": "#3b82f6",
                                 "trace": self.trace_id,
                                 "is_simulation": self.simulate,
                                 "meta": {"tx_id": self.tx_id, "rite": self.rite_name}
@@ -289,47 +306,39 @@ class GnosticTransaction:
                 self._event_stream.append({
                     "event": "INCEPTION",
                     "ts": time.time_ns(),
-                    "status": "RESONANT",
+                    "status": "ACTIVE",
                     "trace_id": self.trace_id
                 })
 
             _duration_ms = (time.perf_counter_ns() - _inception_start) / 1_000_000
-            self.logger.verbose(
-                f"Transaction '{self.rite_name}' (ID: {self.tx_id[:8]}) "
-                f"initialized in {_duration_ms:.2f}ms. Resonance: TITANIUM."
-            )
+            self._sys_log(f"Lock acquired in {_duration_ms:.2f}ms. State: STAGING.")
 
             return self
 
-        except Exception as catastrophic_paradox:
-            self._transition_to_fractured(catastrophic_paradox)
-            raise catastrophic_paradox
+        except Exception as startup_error:
+            self._transition_to_fractured(startup_error)
+            raise startup_error
 
     # =========================================================================
-    # == MOVEMENT III: THE LEDGER OF WILL (RECORDING)                        ==
+    # == TRANSACTION LEDGER (RECORDING)                                      ==
     # =========================================================================
 
     def record(self, result: GnosticWriteResult):
         """
-        =============================================================================
-        == THE RITE OF INSCRIPTION (RECORD)                                        ==
-        =============================================================================
+        Appends a successful I/O operation to the transaction ledger.
+        Automatically re-opens the transaction if late-stage files (like lockfiles)
+        are added after the primary commit pass.
         """
         with self._state_lock:
-            # =========================================================================
-            # == [THE CURE]: THE RE-OPENING RITE                                     ==
-            # =========================================================================
-            # If the Crucible is RESONANT, it means an earlier lustration pass finished.
-            # But late-stage matter (like scaffold.scaffold) needs to be added.
-            # We automatically unseal the Crucible and return to STAGING.
+            # Re-opening logic: If we hit RESONANT, we are waiting for the flip.
+            # If new files arrive, we must regress to STAGING to capture them.
             if self._state == TransactionState.RESONANT:
                 self._state = TransactionState.STAGING
-                self.logger.verbose(f"Crucible unsealed. Re-entering STAGING for late inscription: {result.path.name}")
+                self._sys_log(f"Re-opened transaction scope for late file inscription: {result.path.name}")
 
-            # [ASCENSION 20]: SEALED CRUCIBLE GUARD
             if self._state.value >= TransactionState.FLIPPING.value:
                 raise RuntimeError(
-                    f"Heresy: Attempted to record '{result.path.name}' to a sealed Crucible (State: {self._state.name})."
+                    f"Transaction Violation: Attempted to record '{result.path.name}' to a sealed transaction (State: {self._state.name})."
                 )
 
             logical_path = self.staging_manager.triangulate_relative_path(result.path)
@@ -351,6 +360,7 @@ class GnosticTransaction:
             })
 
     def record_edict(self, command: str):
+        """Records shell commands executed during the transaction for audit purposes."""
         with self._state_lock:
             if self._state == TransactionState.RESONANT:
                 self._state = TransactionState.STAGING
@@ -366,6 +376,7 @@ class GnosticTransaction:
         })
 
     def record_heresy(self, heresy: Heresy):
+        """Records non-fatal validation warnings or errors detected during staging."""
         with self._state_lock:
             if self._state == TransactionState.RESONANT:
                 self._state = TransactionState.STAGING
@@ -381,14 +392,14 @@ class GnosticTransaction:
         })
 
     # =========================================================================
-    # == MOVEMENT IV: THE KINETIC PHASES (MATERIALIZE & FLIP)                ==
+    # == COMMIT PHASES                                                       ==
     # =========================================================================
 
     def materialize(self):
         """
-        =============================================================================
-        == THE RITE OF KINETIC LUSTRATION (V-Ω-TOTALITY-V2000-LAZY-SHADOW)         ==
-        =============================================================================
+        Phase 1 of 2PC (Prepare):
+        Moves all staged files into the Volume Shifter's shadow directory and
+        prepares the environment for the final atomic swap.
         """
         with self._state_lock:
             if self._state == TransactionState.LUSTRATING:
@@ -404,97 +415,103 @@ class GnosticTransaction:
                 "trace_id": self.trace_id
             })
 
-        # --- MOVEMENT I: THE LAZY SHADOW FORGE (THE CURE) ---
+        # Initialize the shadow volume based on the target OS capabilities
         if hasattr(self, 'volume_shifter') and self.volume_shifter.state.name == "VOID":
             strategy = self.context.get("flip_strategy") or (
                 "SYMLINK" if os.environ.get("SCAFFOLD_ENV") == "DOCKER" else "RENAME"
             )
             try:
-                self.logger.verbose(f"Forging Shadow Volume [Green] via strategy: {strategy}")
+                self._sys_log(f"Preparing Shadow Volume. Strategy: {strategy}")
                 self.volume_shifter.prepare(strategy=strategy)
 
                 if hasattr(self.volume_shifter, 'merkle_root'):
                     self.context["_initial_merkle_root"] = self.volume_shifter.merkle_root
 
             except Exception as shadow_fracture:
-                self.logger.warn(f"Shadow Volume Forge fractured: {shadow_fracture}. Falling back to standard staging.")
+                self.logger.warn(
+                    f"Shadow Volume preparation failed: {shadow_fracture}. Falling back to standard staging.")
                 self.volume_shifter.state = VolumeState.FRACTURED
 
-        # --- MOVEMENT II: THE DELTA GAZE ---
+        # Delta Calculation: Only process files that haven't been committed yet
         current_shards = set(self.write_dossier.keys())
         new_shards = current_shards - self._committed_paths
 
-        if not new_shards and self._manifest_count > 0:
+        if not new_shards and self._commit_pass_count > 0:
             with self._state_lock:
                 self._state = TransactionState.RESONANT
             return
 
-        if self._manifest_count >= self.MAX_LUSTRATION_PASSES:
+        if self._commit_pass_count >= self.MAX_COMMIT_PASSES:
             self.logger.warn(
-                f"Metabolic Limit: Lustration capped at {self.MAX_LUSTRATION_PASSES} passes. Ignoring further drift.")
+                f"Transaction Warning: Maximum commit passes ({self.MAX_COMMIT_PASSES}) reached. Halting delta sync."
+            )
             with self._state_lock:
                 self._state = TransactionState.RESONANT
             return
 
-        self.logger.info(f"Lustration Movement #{self._manifest_count + 1}: Committing structural bonds...")
+        self._sys_log(f"Executing commit pass #{self._commit_pass_count + 1}...")
 
         self._enrich_if_needed()
 
         try:
+            # Pushes files from `.scaffold/staging` to the Shadow Volume
             self.committer.commit()
 
             self._committed_paths.update(new_shards)
-            self._manifest_count += 1
+            self._commit_pass_count += 1
+
             self._event_stream.append({
                 "event": "MATERIALIZE_PASS",
-                "count": self._manifest_count,
+                "count": self._commit_pass_count,
                 "shards": len(new_shards),
                 "ts": time.time_ns(),
                 "trace_id": self.trace_id
             })
 
-            self._project_hud_pulse("LUSTRATION_SUCCESS", "#64ffda")
-
             with self._state_lock:
                 self._state = TransactionState.RESONANT
 
-        except Exception as lustration_paradox:
-            if not self._liminal_healing_rite(lustration_paradox, "materialize"):
-                self.logger.error(f"Lustration fractured: {lustration_paradox}")
-                raise lustration_paradox
+        except Exception as lustration_error:
+            # Attempt autonomous recovery for transient disk access errors
+            if not self._recover_transient_fault(lustration_error, "materialize"):
+                self.logger.error(f"Commit Phase 1 Failed: {lustration_error}")
+                raise lustration_error
             else:
                 self.materialize()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
-        =============================================================================
-        == THE OMEGA EXIT RITE: TOTALITY (V-Ω-TOTALITY-V2100-UNBREAKABLE-FINALIS)  ==
-        =============================================================================
+        Phase 2 of 2PC (Commit/Rollback):
+        Evaluates the context closure. If successful, executes the atomic swap (Flip).
+        If an exception occurred during the block, triggers the RollbackChronomancer.
         """
         death_ts_ns = time.perf_counter_ns()
         self.active_death_ns = death_ts_ns
 
-        self.logger.verbose(f"[{self.tx_id[:8]}] Concluding Rite: {self.rite_name}")
+        self._sys_log(f"Concluding transaction scope [{self.tx_id[:8]}].")
 
         was_healed = False
         final_exception = exc_val
 
         try:
             if exc_type or self._state == TransactionState.FRACTURED:
-                # --- BRANCH A: THE PATH OF PARADOX (ROLLBACK) ---
+                # =========================================================================
+                # == BRANCH A: ROLLBACK                                                  ==
+                # =========================================================================
                 with self._state_lock:
                     self._state = TransactionState.FRACTURED
 
-                self.logger.warn(f"Transaction '{self.rite_name}' aborted by paradox: {exc_val or 'Internal Fracture'}")
+                self.logger.warn(f"Transaction '{self.rite_name}' aborted. Reason: {exc_val or 'Internal Error'}")
                 self._project_hud_pulse("TX_FRACTURE", "#ef4444")
 
                 if exc_type:
                     try:
-                        if self._liminal_healing_rite(exc_val, "exit"):
+                        # Final attempt to heal before tearing down reality
+                        if self._recover_transient_fault(exc_val, "exit"):
                             was_healed = True
-                            self.logger.success("Liminal Healing Resonated. Reality Stabilized.")
-                    except Exception as secondary_heresy:
-                        self.logger.error(f"Liminal Healing itself fractured: {secondary_heresy}")
+                            self.logger.info("Transient fault recovered successfully. Continuing commit.")
+                    except Exception as secondary_error:
+                        self.logger.error(f"Fault recovery sequence failed: {secondary_error}")
 
                 if not was_healed:
                     self._event_stream.append({
@@ -505,19 +522,21 @@ class GnosticTransaction:
                     })
                     try:
                         self.chronomancer.perform_emergency_rollback()
-                    except Exception as rollback_fracture:
-                        self.logger.critical(f"CHRONOMANTIC REVERSAL FAILED: {rollback_fracture}")
+                    except Exception as rollback_failure:
+                        self.logger.critical(
+                            f"FATAL: Rollback engine failed. Directory state may be inconsistent: {rollback_failure}")
 
                     self._archive_failed_rite(exc_type, exc_val, exc_tb)
 
-            # If no exception, or if it was healed, we proceed to commit.
             if not exc_type or was_healed:
-                # --- BRANCH B: THE PATH OF APOTHEOSIS (COMMIT) ---
+                # =========================================================================
+                # == BRANCH B: COMMIT                                                    ==
+                # =========================================================================
 
-                # 1. FINAL LUSTRATION (Seal all secondary matter)
+                # Final sweep to catch any files added right at the end of the block
                 self.materialize()
 
-                # 2. THE ACHRONAL FLIP
+                # Perform the OS-level atomic swap
                 if not self.simulate:
                     with self._state_lock:
                         self._state = TransactionState.FLIPPING
@@ -525,61 +544,57 @@ class GnosticTransaction:
                     try:
                         shifter_state = getattr(self.volume_shifter, 'state', None)
                         if not shifter_state or (shifter_state.name != "RESONANT" and shifter_state.name != "ACTIVE"):
-                            raise ArtisanHeresy("Volumetric Schism: Shadow Volume is not resonant for Flip.")
+                            raise ArtisanHeresy("Volume Swap aborted: Shadow Volume is missing or unstable.")
 
-                        # [STRIKE]: The absolute pointer swap
+                        # The Critical Section
                         self.volume_shifter.flip(target_dir=self.project_root)
                         self._flip_conducted = True
 
                         self._event_stream.append(
-                            {"event": "ACHRONAL_FLIP_COMPLETE", "ts": time.time_ns(), "trace_id": self.trace_id})
-                        self._project_hud_pulse("ACHRONAL_FLIP_SUCCESS", "#64ffda")
+                            {"event": "FLIP_COMPLETE", "ts": time.time_ns(), "trace_id": self.trace_id})
+                        self._project_hud_pulse("TX_SUCCESS", "#10b981")
 
-                    except Exception as flip_paradox:
-                        self.logger.critical(f"Achronal Flip Paradox: {flip_paradox}")
+                    except Exception as flip_error:
+                        self.logger.critical(f"Atomic Swap Failed: {flip_error}")
                         with self._state_lock:
                             self._state = TransactionState.FRACTURED
-                        final_exception = flip_paradox
-                        raise flip_paradox
+                        final_exception = flip_error
+                        raise flip_error
 
-                # 3. SEAL THE CHRONICLE
+                # Write execution history to disk for audit/undo capability
                 if not self.simulate and self._state != TransactionState.FRACTURED:
                     if self.write_dossier or self.edicts_executed:
                         try:
-                            self.logger.verbose("Sealing the Gnostic Chronicle...")
                             self.chronicle_bridge.seal_chronicle()
-                            self._project_hud_pulse("TX_SEALED", "#a855f7")
-                        except Exception as bridge_fracture:
-                            self.logger.warn(
-                                f"Chronicle Bridge fractured: {bridge_fracture}. Reality preserved, metadata delayed.")
+                        except Exception as bridge_error:
+                            self.logger.warn(f"Chronicle write failed: {bridge_error}. File operations succeeded.")
 
                 with self._state_lock:
                     self._state = TransactionState.SEALED
                     self._event_stream.append({"event": "SEALED", "ts": time.time_ns(), "trace_id": self.trace_id})
 
-        except Exception as final_heresy:
-            final_exception = final_heresy
-            self.logger.error(f"Catastrophic paradox during Seal: {final_heresy}", exc_info=True)
+        except Exception as final_error:
+            final_exception = final_error
+            self.logger.error(f"Catastrophic error during transaction closure: {final_error}", exc_info=True)
 
         # =========================================================================
-        # == MOVEMENT II: THE UNBREAKABLE PURIFICATION (CLEANUP PHALANX)        ==
+        # == RESOURCE CLEANUP                                                    ==
         # =========================================================================
 
-        # 1. STAGING PURIFICATION
+        # 1. Staging Purification
         try:
-            self.logger.verbose(f"[{self.tx_id[:8]}] Purging Ephemeral Sanctums...")
             self.staging_manager.cleanup()
         except Exception as e:
-            self.logger.debug(f"Staging cleanup deferred: {e}")
+            self._sys_log(f"Staging cleanup deferred: {e}", "33")
 
-        # 2. VOLUME OBLIVION
+        # 2. Volume Evaporation
         if self._flip_conducted or final_exception or self._state == TransactionState.FRACTURED:
             try:
                 self.volume_shifter.cleanup()
             except Exception as e:
-                self.logger.debug(f"Volume cleanup deferred: {e}")
+                self._sys_log(f"Volume cleanup deferred: {e}", "33")
 
-        # 3. ADRENALINE LUSTRATION
+        # 3. Adrenaline Lustration (Garbage Collection)
         if os.environ.get("SCAFFOLD_ADRENALINE") == "1":
             try:
                 os.environ.pop("SCAFFOLD_ADRENALINE", None)
@@ -589,54 +604,58 @@ class GnosticTransaction:
             except Exception:
                 pass
 
-        # 4. APEIRON LOCK RELEASE
+        # 4. Release Mutex
         if self.use_lock:
             try:
                 self.lock.release()
             except Exception as e:
-                self.logger.error(f"Lock release fractured: {e}")
+                self.logger.error(f"Lock release failed: {e}")
 
-        # 5. METABOLIC FINALITY LOG
+        # 5. Profiling
         latency_ms = (time.perf_counter_ns() - self._boot_ns) / 1_000_000
-        self.logger.verbose(
-            f"Transaction '{self.rite_name}' concluded in {latency_ms:.2f}ms. "
-            f"Final State: [bold cyan]{self._state.name}[/bold cyan]"
-        )
+        self._sys_log(f"Transaction finalized in {latency_ms:.2f}ms. State: {self._state.name}")
 
-        # --- THE FINAL ADJUDICATION ---
         if was_healed and not final_exception:
             return True
 
         return False
 
-    def _liminal_healing_rite(self, exception: Exception, phase: str) -> bool:
+    def _recover_transient_fault(self, exception: Exception, phase: str) -> bool:
+        """
+        Attempts to gracefully recover from transient operating system faults,
+        such as temporary file locks held by antivirus software or indexing services.
+        """
         with self._state_lock:
             original_state = self._state
             self._state = TransactionState.LIMINAL
 
-        self.logger.warn(
-            f"[{self.tx_id[:8]}] Entering LIMINAL STATE to attempt auto-healing of: {type(exception).__name__}")
+        self.logger.warn(f"[{self.tx_id[:8]}] Entering Fault Recovery Mode for: {type(exception).__name__}")
 
         healed = False
         error_str = str(exception).lower()
 
+        # Handle Windows 'Access Denied' or 'File in Use' errors by backing off and retrying
         if isinstance(exception,
-                      PermissionError) or "access is denied" in error_str or "being used by another process" in error_str:
-            self.logger.verbose("Liminal Diagnosis: Transient OS File Lock suspected.")
-            for attempt in range(self.LIMINAL_HEALING_RETRIES):
+                      PermissionError) or "access is denied" in error_str or "used by another process" in error_str:
+            self.logger.info("Diagnosis: Transient OS File Lock suspected.")
+            for attempt in range(self.FAULT_RECOVERY_RETRIES):
                 time.sleep(0.5 * (attempt + 1))
-                self.logger.verbose(f"Liminal Probe {attempt + 1}: Re-attempting physical access...")
-                pass
+                self.logger.info(f"Recovery attempt {attempt + 1}...")
+                pass  # The actual retry happens recursively in the calling method if this returns True
 
+        # Handle RAM starvation in WASM by forcing aggressive garbage collection
         elif isinstance(exception, MemoryError):
-            self.logger.verbose("Liminal Diagnosis: Heap Saturation. Invoking tiered lustration.")
+            self.logger.info("Diagnosis: Heap Exhaustion. Forcing aggressive garbage collection.")
             gc.collect(2)
+            healed = True
 
         with self._state_lock:
             self._state = original_state if healed else TransactionState.FRACTURED
+
         return healed
 
     def _transition_to_fractured(self, reason: Exception):
+        """Forces an immediate rollback and status update."""
         with self._state_lock:
             if self._state == TransactionState.FRACTURED: return
             self._state = TransactionState.FRACTURED
@@ -661,13 +680,15 @@ class GnosticTransaction:
         self._dossier_enriched = True
 
     def cancel(self):
+        """Allows external processes to explicitly abort the transaction."""
         with self._state_lock:
             if self._state == TransactionState.VOID or self._state == TransactionState.FRACTURED:
                 return
-            self.logger.warn(f"Rite '{self.rite_name}' was explicitly cancelled.")
-            self._transition_to_fractured(Exception("Architect Explicit Cancel"))
+            self.logger.warn(f"Transaction '{self.rite_name}' was explicitly cancelled.")
+            self._transition_to_fractured(Exception("Transaction cancelled by user or process."))
 
     def _project_hud_pulse(self, type_label: str, color: str):
+        """Dispatches progress metrics to the UI."""
         regs = self.committer.registers
         if regs and hasattr(regs, 'akashic') and regs.akashic:
             try:
@@ -684,6 +705,7 @@ class GnosticTransaction:
                 pass
 
     def _archive_failed_rite(self, exc_type, exc_val, exc_tb):
+        """Generates a structured forensic report after a catastrophic failure."""
         gnosis = TransactionalGnosis(
             trace_id=self.trace_id,
             tx_id=self.tx_id,
@@ -699,8 +721,87 @@ class GnosticTransaction:
         )
         self.chronomancer.archive_failed_rite(gnosis, exc_type, exc_val, exc_tb)
 
-    def __repr__(self) -> str:
-        return f"<Ω_GNOSTIC_TRANSACTION state={self._state.name} id={self.tx_id[:8]}>"
+    def _record_perception(self, logical_path: Union[str, Path]):
+        """Records file access for UI visualization."""
+        p_str = str(logical_path).replace('\\', '/')
+
+        if not hasattr(self, "_perceived_paths"):
+            object.__setattr__(self, "_perceived_paths", set())
+
+        if p_str not in self._perceived_paths:
+            self._perceived_paths.add(p_str)
+
+            akashic = getattr(self.engine, 'akashic', None)
+            if akashic:
+                try:
+                    akashic.broadcast({
+                        "method": "novalym/perception_pulse",
+                        "params": {"path": p_str, "tx_id": self.tx_id, "type": "SCRY"}
+                    })
+                except Exception:
+                    pass
 
     def get_staging_path(self, logical_path: Union[str, Path]) -> Path:
-        return self.staging_manager.get_staging_path(logical_path)
+        """
+        Translates a target project path into its corresponding temporary staging path.
+        This is the core redirect mechanism that protects the live filesystem during generation.
+        """
+        _start_ns = time.perf_counter_ns()
+
+        if not self.active:
+            state_label = getattr(self._state, 'name', 'VOID')
+            self._sys_log(f"[ERROR] Attempted path resolution outside valid transaction window (State: {state_label}).",
+                          "31")
+            raise ArtisanHeresy(
+                f"Transaction Boundary Error: Attempted to access staging while transaction is {state_label}.",
+                severity=HeresySeverity.CRITICAL,
+                details=f"Target: {logical_path} | ID: {self.tx_id}"
+            )
+
+        if logical_path is None:
+            self._sys_log("Warning: NoneType path received. Normalizing to root ('.').", "33")
+            logical_path = "."
+
+        clean_path = str(logical_path).replace('\\', '/')
+
+        try:
+            self._record_perception(clean_path)
+
+            # Delegate to the StagingManager singleton for actual path math
+            physical_coord = self.staging_manager.get_staging_path(clean_path)
+
+            if _DEBUG_MODE:
+                _duration = (time.perf_counter_ns() - _start_ns) / 1_000_000
+                self._sys_log(f"Resolved: '{clean_path}' -> {physical_coord.name} ({_duration:.3f}ms)")
+
+            return physical_coord
+
+        except Exception as routing_error:
+            tb_str = traceback.format_exc()
+            err_msg = f"Path Resolution Failed for '{clean_path}': {str(routing_error)}"
+            self._sys_log(f"[ERROR] {err_msg}", "31")
+
+            if hasattr(self, "_faults"):
+                self._faults.append({
+                    "msg": err_msg,
+                    "ts": time.time(),
+                    "state": self._state.name,
+                    "trace": self.trace_id
+                })
+
+            # If this fails during the commit phase, it's critical. Otherwise, it's a standard error.
+            severity = HeresySeverity.CRITICAL if self._state == TransactionState.FLIPPING else HeresySeverity.ERROR
+
+            raise ArtisanHeresy(
+                "STAGING_RESOLUTION_FAILURE",
+                details=f"{err_msg}\n\nTraceback:\n{tb_str}",
+                severity=severity,
+                metadata={
+                    "logical_path": clean_path,
+                    "tx_state": self._state.name,
+                    "trace_id": self.trace_id
+                }
+            )
+
+    def __repr__(self) -> str:
+        return f"<GnosticTransaction id={self.tx_id[:8]} state={self._state.name}>"

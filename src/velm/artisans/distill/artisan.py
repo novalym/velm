@@ -1,4 +1,4 @@
-# Path: scaffold/artisans/distill/artisan.py
+# Path: src/velm/artisans/distill/artisan.py
 # ------------------------------------------
 
 import tempfile
@@ -25,11 +25,12 @@ from ...core.artisan import BaseArtisan
 from ...interfaces.base import ScaffoldResult, Artifact
 from ...interfaces.requests import DistillRequest
 from ...utils import find_project_root, get_human_readable_size, atomic_write
-from ...contracts.heresy_contracts import ArtisanHeresy
+from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ...utils.dossier_scribe import proclaim_apotheosis_dossier
 from ...core.ai.engine import AIEngine
 from ...core.cortex.contracts import DistillationProfile
-from .scribes.dossier_scribe import DossierScribe # The new Holocron-style scribe
+from .scribes.dossier_scribe import DossierScribe  # The new Holocron-style scribe
+
 
 class DistillArtisan(BaseArtisan[DistillRequest]):
     """
@@ -45,32 +46,48 @@ class DistillArtisan(BaseArtisan[DistillRequest]):
     determining the absolute `project_root` and `source_path` before awakening the
     Oracle, thus annihilating the Gnostic Schism of Relativity for all time.
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
 
     1.  **The Gnostic Anchor (THE CORE FIX):** The `_anchor_reality` rite is the single
         source of truth for all paths, ensuring the Scanner's Gaze is always
         perfectly aligned with the project's true root.
     2.  **The Sovereign Conductor:** A pure orchestrator. It contains no Gnostic logic
         for distillation itself, delegating all intelligence to the `DistillationOracle`.
-    3.  **The AI Scribe (Pillar IV):** Implements the `--summarize-docs` vow, summoning
+    3.  **The Content Stream (THE CURE):** Directly injects the distilled scripture
+        into the `result.data.content` payload, allowing the Ocular UI to render
+        the Context Weaver without a secondary filesystem read.
+    4.  **The Virtual Anchor:** Supports `virtual_context` injection for drag-and-drop
+        operations from the browser, materializing ephemeral files in RAM/Temp.
+    5.  **The AI Scribe:** Implements the `--summarize-docs` vow, summoning
         the AI to transmute documentation into a singular `CONTEXT.md`.
-    4.  **The Phoenix Protocol (`--exec`):** Retains its self-healing ability to focus
+    6.  **The Phoenix Protocol (`--exec`):** Retains its self-healing ability to focus
         on runtime failures by automatically feeding `stderr` into the `problem_context`.
-    5.  **The AI Inquisitor (`--diagnose`):** If a `--problem` is provided, this artisan
+    7.  **The AI Inquisitor (`--diagnose`):** If a `--problem` is provided, this artisan
         can summon the `AIEngine` to perform a post-mortem analysis.
-    6.  **The Luminous Herald:** Summons the `proclaim_apotheosis_dossier` for a rich,
+    8.  **The Luminous Herald:** Summons the `proclaim_apotheosis_dossier` for a rich,
         cinematic summary of the completed rite.
-    7.  **The Unbreakable Ward of Paradox:** Its entire symphony is shielded. Any
+    9.  **The Unbreakable Ward of Paradox:** Its entire symphony is shielded. Any
         heresy from a subordinate artisan is caught and re-proclaimed with full context.
-    8.  **The Celestial Emissary:** Seamlessly handles remote Git repositories and URLs
+    10. **The Celestial Emissary:** Seamlessly handles remote Git repositories and URLs
         via the `CelestialMaterializer`, with unbreakable cleanup.
-    9.  **The Gnostic Triage:** Intelligently routes special pleas (`--pad`, `--summarize`)
+    11. **The Gnostic Triage:** Intelligently routes special pleas (`--pad`, `--summarize`)
         to their dedicated `ModeHandler` artisans.
-    10. **The Argument Alchemist:** Delegates the complex task of merging CLI arguments
+    12. **The Argument Alchemist:** Delegates the complex task of merging CLI arguments
         and profiles to the specialist `ArgumentResolver`.
-    11. **The Active Witness:** Manages the execution of `--exec` commands.
-    12. **The Final Word:** It is the one true, safe, and intelligent entry point to
+    13. **The Active Witness:** Manages the execution of `--exec` commands.
+    14. **The Finality Vow:** It is the one true, safe, and intelligent entry point to
         the entire Distillation Cosmos.
+    15. **Substrate Sensing:** Detects WASM vs Iron environments to optimize I/O paths.
+    16. **Auto-Format Divination:** Infers whether to produce a Blueprint or Dossier
+        based on the nature of the request.
+    17. **Silent Mode Compliance:** Respects the `--silent` flag for headless operations.
+    18. **Clipboard Teleportation:** Handles the system clipboard export locally.
+    19. **Metabolic Telemetry:** Captures and reports precise execution duration.
+    20. **Token Economy Reporting:** Reports exact token usage back to the UI.
+    21. **Ephemeral Sanctum Cleanup:** Guarantees removal of temporary Git clones.
+    22. **Focus Keyword Expansion:** Merges CLI focus args with Profile focus args.
+    23. **Problem Context Fusion:** Merges CLI problem descriptions with file-based logs.
+    24. **The Omni-Return:** Ensures `ScaffoldResult` is always populated, never Void.
     """
 
     def execute(self, request: DistillRequest) -> ScaffoldResult:
@@ -84,47 +101,62 @@ class DistillArtisan(BaseArtisan[DistillRequest]):
 
         try:
             # --- MOVEMENT I: THE ANCHORING OF REALITY (UNCHANGED) ---
+            # Resolves Virtual, Remote, or Local paths into a concrete Path object.
             project_root, source_path = self._anchor_reality(request)
-            source_display = source_path.name if project_root not in source_path.parents else source_path.relative_to(
-                project_root)
+
+            source_display = source_path.name
+            try:
+                if project_root in source_path.parents:
+                    source_display = str(source_path.relative_to(project_root))
+            except Exception:
+                pass
+
             self.logger.success(f"Gnostic Anchor established. Root: '{project_root.name}', Source: '{source_display}'")
 
             # --- MOVEMENTS II-IV: SPECIALIZED RITES (UNCHANGED) ---
             if getattr(request, 'summarize_docs', False):
                 return self._conduct_documentation_summarization(project_root)
+
             if request.exec_command:
                 execution_report, problem_context, perf_stats, regression_dossier = self._conduct_active_witness(
                     request, project_root, problem_context)
                 if "[EXECUTION FAILURE]" in execution_report and not request.problem:
                     self.logger.warn("Active Witness perceived a paradox. Adjusting Gaze to focus on the heresy...")
                     problem_context = execution_report
+
             if request.pad:
                 return ModeHandler.conduct_pad(self.engine, source_path, project_root)
 
             # --- MOVEMENTS V-VII: THE ORACLE'S SYMPHONY (UNCHANGED) ---
             profile = ArgumentResolver.forge_profile(request, request.output)
+
             if problem_context and not profile.problem_context:
                 profile.problem_context = problem_context
 
+            # Summon the Oracle to perceive the code
             oracle = DistillationOracle(
-                distill_path=source_path, profile=profile, project_root=project_root,
-                verbose=(request.verbosity > 0), silent=request.silent or request.non_interactive,
-                focus=request.focus, problem=problem_context, interactive=request.interactive,
+                distill_path=source_path,
+                profile=profile,
+                project_root=project_root,
+                verbose=(request.verbosity > 0),
+                silent=request.silent or request.non_interactive,
+                focus=request.focus,
+                intent=request.intent,
+                problem=problem_context,
+                interactive=request.interactive,
                 runtime_context={"diff_context": request.diff_context, "execution_report": execution_report},
-                regression_dossier=regression_dossier, perf_stats=perf_stats
+                regression_dossier=regression_dossier,
+                perf_stats=perf_stats
             )
+
             distillation_result = oracle.perceive_and_distill()
 
             # ★★★ THE DIVINE APOTHEOSIS: MOVEMENT VIII - THE GNOSTIC TRIAGE OF PROCLAMATION ★★★
-            # The Conductor now gazes upon the Architect's will for the final format.
             final_content = ""
-            # We safely perceive the format, defaulting to 'blueprint' for backward compatibility.
             scribe_to_summon = getattr(request, 'format', 'blueprint')
 
             if scribe_to_summon == 'dossier':
                 self.logger.info("Summoning the Dossier Scribe to forge a scripture of pure understanding...")
-                # The divine summons of the new scribe, only when needed.
-                from .scribes.dossier_scribe import DossierScribe
                 dossier_scribe = DossierScribe(distillation_result, profile)
                 final_content = dossier_scribe.inscribe()
             else:  # 'blueprint'
@@ -137,7 +169,6 @@ class DistillArtisan(BaseArtisan[DistillRequest]):
                 final_content = self._conduct_ai_inquest(final_content, problem_context)
 
             # --- MOVEMENT X: THE FINAL INSCRIPTION & PROCLAMATION (NOW FORMAT-AWARE) ---
-            # [FACULTY 6] The Polyglot File Namer
             output_ext = "md" if scribe_to_summon == "dossier" else "scaffold"
             output_name = request.output or (
                 f"{source_path.name}-context.{output_ext}" if not request.clipboard and not request.summarize and sys.stdout.isatty() else None)
@@ -149,14 +180,30 @@ class DistillArtisan(BaseArtisan[DistillRequest]):
 
             if request.summarize:
                 return ModeHandler.conduct_summary(final_content, project_root, output_name)
+
             if request.clipboard:
                 IOHandler.copy_to_clipboard(final_content)
 
             if not request.silent:
                 self._proclaim_final_dossier(start_time, written_path, final_content, profile, request, project_root)
 
-            return self.success("Distillation complete.",
-                                data={"telemetry": distillation_result.stats, "format": scribe_to_summon})
+            # =========================================================================
+            # == [THE CURE]: DIRECT CONTENT STREAMING                                ==
+            # =========================================================================
+            # We inject 'content' directly into the return payload.
+            # This enables the Context Weaver (Frontend) to display the result immediately
+            # without making a secondary network request to read the file we just wrote.
+            return self.success(
+                "Distillation complete.",
+                data={
+                    "telemetry": distillation_result.stats,
+                    "format": scribe_to_summon,
+                    "content": final_content,  # <--- THE KEY SUTURE
+                    "output_path": str(written_path) if written_path else None,
+                    "token_count": distillation_result.token_count,
+                    "file_count": distillation_result.file_count
+                }
+            )
 
         except Exception as e:
             if isinstance(e, ArtisanHeresy): raise e
@@ -169,18 +216,58 @@ class DistillArtisan(BaseArtisan[DistillRequest]):
         """
         [THE ONE TRUE RITE OF ANCHORING]
         Determines the absolute project root and the absolute source path for the Gaze.
+        Now Ascended to support Ephemeral Virtual Contexts injected directly from the UI.
         """
-        source_str = request.source_path or "."
+        source_str = getattr(request, 'source_path', ".") or "."
 
-        # A. Celestial Gaze (Remote Sources)
+        # =========================================================================
+        # == A. THE VIRTUAL WEAVER SUTURE (UI INGESTION)                         ==
+        # =========================================================================
+        # If the UI sends a 'virtual_context' map (filename -> content), we materialize
+        # it into a temporary directory so the Oracle can gaze upon it physically.
+        virtual_context = getattr(request, 'virtual_context', None)
+        if virtual_context and isinstance(virtual_context, dict):
+            self.logger.info(
+                f"Materializing virtual context ({len(virtual_context)} atoms) into an ephemeral sanctum...")
+
+            # Create a temporary directory physically on the OS (or IDBFS in WASM)
+            self._ephemeral_sanctum = tempfile.TemporaryDirectory(prefix="scaffold_virtual_")
+            root_path = Path(self._ephemeral_sanctum.name).resolve()
+
+            for rel_path_str, content in virtual_context.items():
+                target_file = root_path / rel_path_str
+
+                # Security Ward: Prevent directory traversal from malicious payloads
+                try:
+                    if not target_file.resolve().is_relative_to(root_path):
+                        continue
+                except ValueError:
+                    continue
+
+                target_file.parent.mkdir(parents=True, exist_ok=True)
+
+                # Inscribe the soul into the ephemeral matter
+                try:
+                    target_file.write_text(content, encoding='utf-8', errors='replace')
+                except Exception as e:
+                    self.logger.debug(f"Failed to inscribe virtual atom '{rel_path_str}': {e}")
+
+            # The source path is the root of the ephemeral sanctum
+            return root_path, root_path
+
+        # =========================================================================
+        # == B. CELESTIAL GAZE (REMOTE SOURCES)                                  ==
+        # =========================================================================
         if source_str.startswith(('http://', 'https://', 'git@', 'gh:')):
             self.logger.info(f"Summoning Celestial Scripture from {source_str}...")
             self._ephemeral_sanctum = tempfile.TemporaryDirectory(prefix="scaffold_celestial_")
             source_path = CelestialMaterializer.materialize(source_str, Path(self._ephemeral_sanctum.name))
             return source_path, source_path
 
-        # B. Mortal Gaze (Local Sources)
-        explicit_root = request.project_root
+        # =========================================================================
+        # == C. MORTAL GAZE (LOCAL SOURCES)                                      ==
+        # =========================================================================
+        explicit_root = getattr(request, 'project_root', None)
 
         # Resolve the source path relative to the current working directory first.
         raw_path = Path(source_str).resolve()
@@ -188,7 +275,7 @@ class DistillArtisan(BaseArtisan[DistillRequest]):
             raise ArtisanHeresy(f"Source path is a void: {raw_path}")
 
         if explicit_root:
-            project_root = explicit_root.resolve()
+            project_root = Path(explicit_root).resolve()
         else:
             # The find_project_root Gaze is the single source of truth.
             search_start = raw_path if raw_path.is_dir() else raw_path.parent
@@ -250,7 +337,7 @@ class DistillArtisan(BaseArtisan[DistillRequest]):
         target = project_root / "CONTEXT.md"
         atomic_write(target, summary, self.logger, project_root, force=True)
 
-        return self.success(f"Documentation distilled into [cyan]{target.name}[/cyan].")
+        return self.success(f"Documentation distilled into [cyan]{target.name}[/cyan].", data={"content": summary})
 
     def _conduct_ai_inquest(self, blueprint_content: str, problem_description: str) -> str:
         """
@@ -372,7 +459,7 @@ class DistillArtisan(BaseArtisan[DistillRequest]):
         proclaim_apotheosis_dossier(
             telemetry_source=registers,
             gnosis=gnosis_context,
-            project_root=project_root,  # <<< THE CRITICAL FIX
+            project_root=project_root,
             next_steps=[
                 f"Gaze upon the scripture: [bold]code {written_path.name}[/bold]" if written_path else "Paste context into your AI."],
             title="✨ Gnostic Distillation Complete ✨",

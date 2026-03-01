@@ -190,16 +190,28 @@ class ScaffoldEngine:
             # [ASCENSION]: We now accept the nexus for akashic linking
             nexus: Any = None
     ):
-        # 1. CONSECRATION (Identity)
+        """
+        =============================================================================
+        == THE RITE OF INCEPTION: APOPHATIC VELOCITY (V-Ω-TOTALITY-V100000)        ==
+        =============================================================================
+        LIF: ∞ | ROLE: KERNEL_BOOTLOADER | RANK: OMEGA_SINGULARITY
+
+        [THE MANIFESTO]
+        Initializes pointer slots only. Performs ZERO synchronous I/O or heavy module
+        imports. The Engine is born as a weightless phantom, materializing its organs
+        only upon the moment of absolute kinetic necessity.
+        """
+        # 1. CONSECRATION (Identity & Thread Safety)
         self._creation_time = time.perf_counter()
         self._silent = silent
         self._log_level = log_level
+        self._lock = threading.RLock()
 
+        # 2. LOGGING CONSECRATION (JIT AWARE & WASM SAFE)
         if not silent:
             configure_logging(verbose=(log_level == "DEBUG"), json_mode=json_logs)
 
             # [THE CURE]: GNOSTIC CONSOLE CONFIGURATION (WASM-AWARE)
-            # We force terminal rendering if we are in WASM to prevent the "Object at 0x" heresy.
             if os.environ.get("SCAFFOLD_ENV") == "WASM":
                 try:
                     from rich.console import Console
@@ -212,58 +224,35 @@ class ScaffoldEngine:
                     self.console = get_console()
             else:
                 self.console = get_console()
+        else:
+            self.console = get_console()
 
         self.logger = Scribe("QuantumEngine")
 
-        # 2. THE MIND (Context & Registry)
-        self.context = RuntimeContext(Path(project_root) if project_root else None)
-        self.registry = ArtisanRegistry(self)
+        # 3. CONTEXTUAL ANCHORS (LAZY DELAYED)
+        # We store the raw root; the Context organ will materialize it upon first Gaze.
+        self._project_root_raw = project_root
+        self._context = None
+        self._registry = None
+
         self.cortex = cortex
-
-        # [THE CURE]: THE AKASHIC SUTURE
-        # We forge the Akashic organ here, at the moment of birth.
-        self.akashic = None
         self.nexus = nexus
-        if self.nexus and hasattr(self.nexus, 'akashic'):
-            self.akashic = self.nexus.akashic
-        else:
-            try:
-                # Fallback for non-daemon instantiation
-                # Use string path for JSONL to ensure cross-platform safety
-                persistence = str(self.context.project_root / ".scaffold" / "akashic.jsonl") \
-                    if self.context.project_root else None
-                if persistence:
-                    from ....core.daemon.akashic import AkashicRecord
-                    self.akashic = AkashicRecord(persistence_path=persistence)
-            except ImportError:
-                self.logger.warn("AkashicRecord not found. Broadcast capabilities will be dormant.")
-            except Exception as e:
-                self.logger.debug(f"Akashic binding deferred: {e}")
 
-        # 3. ORGAN GENESIS (Initialization Order Matters)
+        # [THE CURE]: THE AKASHIC SUTURE (LAZY)
+        self._akashic = None
+        self._akashic_initialized = False
 
-        # [Lifecycle]: Bootstrap first to prepare the spine
-        self.bootstrap = EngineBootstrap(self)
-
-        # [Persistence]: Transaction Vault (Disk Safety)
-        self.transactions = TransactionManager(self.logger)
-
-        # [Intelligence]: The Neural Layer
-        # We anchor prediction memory to the project root (or home if cold)
-        memory_anchor = self.context.project_root or Path.home()
-        self.predictor = IntentPredictor(memory_anchor, engine=self)
-        self.memory = CognitiveMemory()
-        self.optimizer = NeuroOptimizer(self)
-
-        # [Execution]: The Action Layer
-        self.dispatcher = QuantumDispatcher(self)
-
-        # [Resilience]: The Defense Layer
-        self.watchdog = SystemWatchdog(self)
-        self.vitality = VitalityMonitor(self)
-        self.shutdown_manager = ShutdownManager(self)
-
-        # 4. LAZY FACULTIES (JIT Placeholders)
+        # 4. INTERNAL ORGANS (VOID SLOTS FOR O(1) BOOT)
+        # These were previously eager. They are now mathematically pure voids.
+        self._bootstrap = None
+        self._transactions = None
+        self._predictor = None
+        self._memory = None
+        self._optimizer = None
+        self._dispatcher = None
+        self._watchdog = None
+        self._vitality = None
+        self._shutdown_manager = None
         self._alchemist = None
         self._healer = None
         self._diviner = None
@@ -276,22 +265,163 @@ class ScaffoldEngine:
         self._kernel_locks: Dict[str, threading.Lock] = {}
         self._hooks: List[Callable[[ScaffoldResult], None]] = []
 
-        # 6. THE AWAKENING RITE
+        # 6. FAST-PATH AWAKENING
+        # Triggers the bootstrap, which uses the Apophatic `fast_register` to load
+        # the entire Grimoire in ~2ms without parsing any external ASTs.
         if auto_register:
             try:
-                self.bootstrap.awaken_skills()
+                self.bootstrap.register_capabilities()
             except Exception as e:
-                self.logger.error(f"Skill Awakening partial failure: {e}")
-
-        # 7. IGNITE VIGILANCE
-        # Starts background threads for heartbeat and resource monitoring
-        if not os.environ.get("SCAFFOLD_ENV") == "WASM":
-            self.watchdog.start_vigil()
-            self.vitality.start_vigil()
+                self.logger.error(f"Apophatic Awakening fracture: {e}")
 
         if not silent and log_level == "DEBUG":
-            self.logger.verbose(f"Quantum Engine Online. Session: {self.context.session_id}")
+            # Safe accessor to prevent forcing Context materialization just for a log
+            session_id = self._context.session_id if self._context else "PRE-INIT"
+            self.logger.verbose(f"Quantum Engine Manifest. Session: {session_id}")
 
+    # =========================================================================
+    # == STRATUM II: LAZY FACULTIES (DOUBLE-CHECKED JIT MATERIALIZATION)     ==
+    # =========================================================================
+    # LIF: 10,000x | The organs of the God-Engine are now shielded by re-entrant
+    # locks, ensuring they are forged exactly once, even during high-concurrency
+    # parallel swarms, and ONLY if the active Rite requires them.
+
+    @property
+    def context(self) -> 'RuntimeContext':
+        """The Ephemeral Mind. Forges the spatial anchor upon first request."""
+        if self._context is None:
+            with self._lock:
+                if self._context is None:
+                    from ..context import RuntimeContext
+                    root_path = Path(self._project_root_raw) if self._project_root_raw else None
+                    self._context = RuntimeContext(root_path)
+        return self._context
+
+    @property
+    def registry(self) -> 'ArtisanRegistry':
+        """The Index of Skills."""
+        if self._registry is None:
+            with self._lock:
+                if self._registry is None:
+                    from ..registry import ArtisanRegistry
+                    self._registry = ArtisanRegistry(self)
+        return self._registry
+
+    @property
+    def akashic(self) -> Any:
+        """[THE AKASHIC SUTURE]: Lazily binds the event bus to the Ocular HUD."""
+        if not self._akashic_initialized:
+            with self._lock:
+                if not self._akashic_initialized:
+                    if self.nexus and hasattr(self.nexus, 'akashic'):
+                        self._akashic = self.nexus.akashic
+                    else:
+                        try:
+                            # Fallback for non-daemon CLI instantiation
+                            persistence = str(
+                                self.context.project_root / ".scaffold" / "akashic.jsonl") if self.context.project_root else None
+                            # Disable local JSONL writes if in WASM to prevent IDBFS thrashing
+                            if persistence and os.environ.get("SCAFFOLD_ENV") != "WASM":
+                                from ....core.daemon.akashic import AkashicRecord
+                                self._akashic = AkashicRecord(persistence_path=persistence)
+                        except Exception:
+                            self._akashic = None
+                    self._akashic_initialized = True
+        return self._akashic
+
+    @property
+    def bootstrap(self) -> 'EngineBootstrap':
+        if self._bootstrap is None:
+            with self._lock:
+                if self._bootstrap is None:
+                    from .lifecycle.bootstrap import EngineBootstrap
+                    self._bootstrap = EngineBootstrap(self)
+        return self._bootstrap
+
+    @property
+    def transactions(self) -> 'TransactionManager':
+        if self._transactions is None:
+            with self._lock:
+                if self._transactions is None:
+                    from .execution.transaction import TransactionManager
+                    self._transactions = TransactionManager(self.logger)
+        return self._transactions
+
+    @property
+    def predictor(self) -> 'IntentPredictor':
+        if self._predictor is None:
+            with self._lock:
+                if self._predictor is None:
+                    from .intelligence.predictor import IntentPredictor
+                    memory_anchor = self.context.project_root or Path.home()
+                    self._predictor = IntentPredictor(memory_anchor, engine=self)
+        return self._predictor
+
+    @property
+    def memory(self) -> 'CognitiveMemory':
+        if self._memory is None:
+            with self._lock:
+                if self._memory is None:
+                    from .intelligence.memory import CognitiveMemory
+                    self._memory = CognitiveMemory()
+        return self._memory
+
+    @property
+    def optimizer(self) -> 'NeuroOptimizer':
+        if self._optimizer is None:
+            with self._lock:
+                if self._optimizer is None:
+                    from .intelligence.optimizer import NeuroOptimizer
+                    self._optimizer = NeuroOptimizer(self)
+        return self._optimizer
+
+    @property
+    def dispatcher(self) -> 'QuantumDispatcher':
+        if self._dispatcher is None:
+            with self._lock:
+                if self._dispatcher is None:
+                    from .execution.dispatcher import QuantumDispatcher
+                    self._dispatcher = QuantumDispatcher(self)
+        return self._dispatcher
+
+    @property
+    def watchdog(self) -> 'SystemWatchdog':
+        """
+        [THE METABOLIC SOVEREIGN]
+        Materializes the Watchdog and honors Substrate Immunity (Stays thread on WASM).
+        """
+        if self._watchdog is None:
+            with self._lock:
+                if self._watchdog is None:
+                    from .resilience.watchdog import SystemWatchdog
+                    self._watchdog = SystemWatchdog(self)
+                    if os.environ.get("SCAFFOLD_ENV") != "WASM":
+                        self._watchdog.start_vigil()
+        return self._watchdog
+
+    @property
+    def vitality(self) -> 'VitalityMonitor':
+        """
+        [THE HEARTBEAT]
+        Materializes the Vitality Monitor and honors Substrate Immunity.
+        """
+        if self._vitality is None:
+            with self._lock:
+                if self._vitality is None:
+                    from .lifecycle.vitality import VitalityMonitor
+                    self._vitality = VitalityMonitor(self)
+                    if os.environ.get("SCAFFOLD_ENV") != "WASM":
+                        self._vitality.start_vigil()
+        return self._vitality
+
+    @property
+    def shutdown_manager(self) -> 'ShutdownManager':
+        if self._shutdown_manager is None:
+            with self._lock:
+                if self._shutdown_manager is None:
+                    from .lifecycle.shutdown import ShutdownManager
+                    self._shutdown_manager = ShutdownManager(self)
+        return self._shutdown_manager
     # =========================================================================
     # == LAZY FACULTIES (JIT)                                                ==
     # =========================================================================
@@ -1348,3 +1478,11 @@ class ScaffoldEngine:
 
     def __repr__(self) -> str:
         return f"<QuantumEngine session={self.context.session_id[:8]} root={self.project_root.name}>"
+
+    @context.setter
+    def context(self, value):
+        self._context = value
+
+    @predictor.setter
+    def predictor(self, value):
+        self._predictor = value

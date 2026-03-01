@@ -197,25 +197,45 @@ class GnosticContract(BaseModel):
 class ScaffoldItem(BaseModel):
     """
     =================================================================================
-    == THE ATOMIC UNIT OF CREATION (V-Ω-TOTALITY-V5000.1-RESILIENT-FINALIS)        ==
+    == THE ATOMIC UNIT OF CREATION (V-Ω-TOTALITY-V100000-INDESTRUCTIBLE)           ==
     =================================================================================
-    LIF: ∞ | ROLE: ARCHITECTURAL_DNA | RANK: OMEGA_SOVEREIGN
-    AUTH_CODE: Ω_ITEM_V5000_RESILIENT_SUTURE_2026
+    LIF: ∞ | ROLE: ARCHITECTURAL_DNA_VESSEL | RANK: OMEGA_SOVEREIGN
+    AUTH_CODE: Ω_ITEM_V100K_PYDANTIC_SCHISM_ANNIHILATOR_FINALIS
 
     This is the supreme data structure of the cosmos. It represents a single,
-    transactional intent to manifest reality. It carries Form and Will across
-    the five strata of the Engine.
+    transactional intent to manifest reality.
+
+    [THE LEGENDARY CURE]:
+    1. The Ontological Harmonizer operates in `mode='before'`, mutating the
+       primordial dictionary to annihilate recursion.
+    2. `action` defaults to "create", ensuring the Quantum Creator never
+       ignores a valid file definition.
     """
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
         populate_by_name=True,
-        extra='allow',  # [ASCENSION]: Absorb unknown future Gnosis without fracture
+        extra='allow',  # Absorb unknown future Gnosis without fracture
         validate_assignment=True
     )
 
-    # --- I. THE CORE GNOSTIC IDENTITY (WHO/WHERE) ---
+    # --- I. THE CORE GNOSTIC IDENTITY (WHO/WHERE/WHAT) ---
     path: Optional[Path] = Field(None, description="The scripture's intended place in reality.")
-    is_dir: bool = Field(False, description="True if this represents a sanctum (directory).")
+
+    # [ASCENSION: THE FIX] The Ontological Classification
+    type: str = Field(
+        default="file",
+        description="The nature of the matter: 'file', 'directory', 'symlink', 'edict', 'ghost'."
+    )
+
+    # [ASCENSION: THE CURE FOR KINETIC SILENCE]
+    # By defaulting to 'create', we ensure the QuantumCreator does not skip this atom.
+    action: str = Field(
+        default="create",
+        description="The kinetic state: 'create', 'created', 'transfigured', 'deleted', 'skipped', 'fractured'."
+    )
+
+    is_dir: bool = Field(False,
+                         description="Legacy/Convenience toggle. Synchronized with `type` via the Alchemist Validator.")
     line_num: int = Field(default=0, description="The line number in the source blueprint.")
     raw_scripture: str = Field(default="", description="The raw, untransmuted scripture from the file.")
     original_indent: int = Field(default=0, description="The visual indentation depth (hierarchy).")
@@ -230,30 +250,45 @@ class ScaffoldItem(BaseModel):
     # --- III. THE SENTINEL OF LINKS & INTEGRITY ---
     is_symlink: bool = Field(False, description="True if this item represents a symbolic link.")
     symlink_target: Optional[str] = Field(None, description="The target path the link points to.")
-    expected_hash: Optional[str] = Field(None, description="The cryptographic anchor for integrity.")
+    expected_hash: Optional[str] = Field(None, description="The pre-calculated cryptographic anchor.")
     is_binary: bool = Field(False, description="True if content should be treated as raw bytes.")
 
-    # --- IV. THE GNOSTIC TRAITS (MIXINS) ---
+    # [ASCENSION: FUTURE-PROOFING INTEGRITY]
+    merkle_hash: Optional[str] = Field(None,
+                                       description="The post-transmutation SHA-256 hash of the materialized soul.")
+    ast_fingerprint: Optional[str] = Field(None,
+                                           description="A structural hash ignoring whitespace/formatting for semantic parity tracking.")
+
+    # --- IV. THE GNOSTIC TRAITS & CAUSALITY (MIXINS & GRAPH) ---
     trait_name: Optional[str] = Field(None, description="The name of the trait being defined or used.")
     trait_args: Optional[str] = Field(None, description="Arguments passed to the trait.")
     trait_path: Optional[Path] = Field(None, description="The file path to the trait definition.")
 
+    # [ASCENSION: GRAPH RESOLUTION]
+    dependencies: List[str] = Field(default_factory=list,
+                                    description="Paths of other atoms this scripture requires to resonate before it can manifest.")
+    rollback_path: Optional[Path] = Field(None,
+                                          description="The physical coordinate of its temporal echo (backup) during transactions.")
+
     # --- V. THE MUTATION INTENT (TRANSFIGURATION) ---
     mutation_op: Optional[str] = Field(None, description="The glyph of mutation (+=, -=, ~=, ^=).")
-
-    # [THE CURE]: Changed to Dict[str, Any] to allow Lists/Ints from PostRun/OnHeresy
     semantic_selector: Optional[Dict[str, Any]] = Field(
         default_factory=dict,
         description="Targeting and redemption data for Semantic Surgery."
     )
 
-    # --- VI. THE GNOSTIC PROVENANCE & CAUSALITY ---
+    # --- VI. THE GNOSTIC PROVENANCE & LOGIC ---
     blueprint_origin: Optional[Path] = Field(None, description="The blueprint file that birthed this item.")
     condition: Optional[str] = Field(None, description="The logic gate expression.")
     condition_type: Optional[str] = Field(None, description="if, elif, else, for.")
     logic_result: Optional[bool] = Field(None, description="The outcome of logic evaluation.")
 
     # --- VII. RUNTIME STATE & METADATA (EPHEMERAL) ---
+    lifecycle_state: str = Field(default="WAKING",
+                                 description="The existential phase: WAKING -> STAGED -> MANIFEST -> ETERNAL (or FRACTURED).")
+    error_trace: Optional[str] = Field(None,
+                                       description="If the atom fractures during materialization, the Heresy is sealed here, isolated from the rest of the cosmos.")
+
     trace_id: str = Field(default="tr-void", description="The causal silver cord.")
     session_id: Optional[str] = Field(None, description="The multi-tenant session anchor.")
     edict_type: Optional[Any] = None  # EdictType Enum
@@ -265,6 +300,65 @@ class ScaffoldItem(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
     mass_bytes: int = Field(default=0)
     inception_ts: float = Field(default_factory=time.time)
+
+    # =========================================================================
+    # == THE RITES OF HARMONIZATION (THE PYDANTIC CURE)                      ==
+    # =========================================================================
+
+    @model_validator(mode='before')
+    @classmethod
+    def _harmonize_ontological_state(cls, data: Any) -> Any:
+        """
+        =============================================================================
+        == THE ONTOLOGICAL HARMONIZER (V-Ω-BEFORE-MODE-STRIKE)                     ==
+        =============================================================================
+        [THE CURE]: By executing in `mode='before'`, we surgically alter the raw
+        dictionary *before* Pydantic engages its `__setattr__` validation matrix.
+        This mathematically annihilates the `is_valid_field_name` recursion heresy.
+        """
+        if not isinstance(data, dict):
+            try:
+                # Attempt to transmute object to dict if possible
+                data = dict(data)
+            except (TypeError, ValueError):
+                return data
+
+        # Extract primordial values safely
+        t = data.get('type')
+        is_dir = data.get('is_dir')
+        is_symlink = data.get('is_symlink')
+        edict_type = data.get('edict_type')
+        action = data.get('action')
+
+        # 1. Suture Directory State
+        # If 'is_dir' is explicitly True, force type to 'directory'
+        if is_dir is True and t not in ("directory", "dir"):
+            data['type'] = "directory"
+        # If type is 'directory', force is_dir to True
+        elif t in ("directory", "dir"):
+            data['is_dir'] = True
+
+        # 2. Suture Symlink State
+        if is_symlink is True and t != "symlink":
+            data['type'] = "symlink"
+        elif t == "symlink":
+            data['is_symlink'] = True
+
+        # 3. Suture Edict State
+        if edict_type is not None and t != "edict":
+            data['type'] = "edict"
+
+        # 4. Enforce Fallback Type (The Void Filter)
+        if 'type' not in data or not data['type']:
+            data['type'] = 'file'
+
+        # 5. [CRITICAL] THE KINETIC AWAKENING
+        # If action is missing or void, we compel it to 'create'.
+        # This ensures the Creator sees the file as actionable matter.
+        if not action or action == "pending":
+            data['action'] = "create"
+
+        return data
 
     # =========================================================================
     # == THE LAZY ADJUDICATORS (PROPERTIES)                                  ==
@@ -282,13 +376,18 @@ class ScaffoldItem(BaseModel):
         """
         [ASCENSION]: SUBSTRATE SENSING.
         True if the atom exists only in the WASM memory space.
-        Moved to a lazy property to prevent 'Proactive Initialization' issues.
         """
         return os.environ.get("SCAFFOLD_ENV") == "WASM"
 
-    def __repr__(self) -> str:
-        return f"<Ω_ITEM path='{self.path}' type={self.line_type} trace={self.trace_id[:8]}>"
+    @property
+    def is_fractured(self) -> bool:
+        """Convenience property to quickly check if this atom failed to manifest."""
+        return self.action == "fractured" or self.error_trace is not None
 
+    def __repr__(self) -> str:
+        status_flag = "❌" if self.is_fractured else ("✅" if self.action in ("created", "transfigured") else "⏳")
+        path_str = str(self.path) if self.path else "VOID"
+        return f"<Ω_ITEM {status_flag} path='{path_str}' type={self.type} action={self.action} trace={self.trace_id[:8]}>"
 # =============================================================================
 # == IV. THE VESSELS OF RESULT (THE OUTPUTS)                                 ==
 # =============================================================================
@@ -848,6 +947,8 @@ class ManifestAST(BaseModel):
     form_items: List[FormGnosis] = Field(default_factory=list)
     form_commands: List[str] = Field(default_factory=list)
     variables: Dict[str, Any] = Field(default_factory=dict)
+
+
 class GnosticArgs(BaseModel):
     """
     =================================================================================
@@ -1011,14 +1112,14 @@ class GnosticArgs(BaseModel):
     # =============================================================================
 
     @classmethod
-    def from_namespace(cls, args: argparse.Namespace) -> 'GnosticArgs':
+    def from_namespace(cls, args: Union[argparse.Namespace, Any]) -> 'GnosticArgs':
         """
         =============================================================================
         == THE BRIDGE OF TRANSMUTATION (V-Ω-TOTALITY-V8000-HARVESTER)              ==
         =============================================================================
         LIF: ∞ | ROLE: ARGUMENT_CRYSTALLIZER
 
-        The Unbreakable Bridge from the Profane (argparse) to the Sacred (GnosticArgs).
+        The Unbreakable Bridge from the Profane (argparse/Pydantic) to the Sacred (GnosticArgs).
         It performs Deep Harvesting of all flags, merging Environment DNA with
         Explicit Will to ensure no intent is lost in the transition.
 
@@ -1026,6 +1127,11 @@ class GnosticArgs(BaseModel):
         """
         import os
         import sys
+
+        # [THE CURE]: POLYMORPHIC ADAPTER
+        # If 'args' is already a Pydantic model (like GenesisRequest), we treat it as a namespace.
+        # If it's a dict, we wrap it.
+        # This allows us to ingest `self.request` directly from the Artisan.
 
         try:
             # 1. Identify known fields to avoid duplication in extra_args
@@ -1082,14 +1188,24 @@ class GnosticArgs(BaseModel):
             # 3. HARVEST THE UNKNOWN (Extra Args)
             # [ASCENSION 10]: The Unknown Harvester
             # We sweep up any flag that isn't explicitly mapped in the constructor_args
-            # but exists on the namespace, preserving plugin compatibility.
-            ignored_keys = {'command', 'handler', 'herald', 'root', 'project_root', 'set'}
+            # but exists on the namespace/object, preserving plugin compatibility.
+            ignored_keys = {'command', 'handler', 'herald', 'root', 'project_root', 'set', 'variables'}
+
+            source_dict = vars(args) if hasattr(args, '__dict__') else (
+                args.model_dump() if hasattr(args, 'model_dump') else {})
+
             extras = {}
-            for k, v in vars(args).items():
+            for k, v in source_dict.items():
                 if k not in constructor_args and k not in ignored_keys:
                     extras[k] = v
 
             constructor_args['extra_args'] = extras
+
+            # [ASCENSION 13]: VARIABLES PASS-THROUGH
+            # If the source object has 'variables', we pass them to 'pre_resolved_vars'
+            # to ensure they are available for the Creator.
+            if hasattr(args, 'variables') and args.variables:
+                constructor_args['pre_resolved_vars'] = args.variables
 
             # 4. FORGE THE VESSEL
             return cls(**constructor_args)

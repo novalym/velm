@@ -147,7 +147,11 @@ RITES = {
                     dest='profile_flag',
                     help="Summon a specific Archetype Profile (e.g., 'fastapi-service')."
                 ),
-
+                lambda p: p.add_argument(
+                    '--no-edicts', 
+                    action='store_true', 
+                    help="The Maestro's Silence. Stay the hand of post-run execution."
+                ),
                 # [ASCENSION 4]: THE CENSUS RADIATOR
                 lambda p: p.add_argument(
                     '--list',

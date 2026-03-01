@@ -225,26 +225,39 @@ def _handle_final_invocation_shim(
 ) -> Any:
     """
     =================================================================================
-    == THE SOVEREIGN CONDUIT (V-Ω-TOTALITY-V700.12-FINALIS)                        ==
+    == THE SOVEREIGN CONDUIT (V-Ω-TOTALITY-V700.15-TITANIUM-BULKHEAD)              ==
     =================================================================================
     LIF: ∞ | ROLE: KINETIC_DISPATCHER | RANK: OMEGA_SUPREME
-    AUTH: Ω_DISPATCH_V700_SUBSTRATE_AWARE_2026
+    AUTH: Ω_DISPATCH_V700_EXCEPTION_SUTURE_2026
 
     The supreme conductor. It performs the rite of invocation with lazy-loaded
-    dependencies and substrate-aware safety wards.
-
-    [THE CURE]: This rite is now warded against the Threading Heresy.
+    dependencies and substrate-aware safety wards. It serves as the Final Bulkhead
+    against all internal logic fractures.
     =================================================================================
     """
     import importlib
-    from ...contracts.heresy_contracts import ArtisanHeresy
+    import traceback
+    import sys
+    import os
+    from pathlib import Path
+    import secrets
+
+    # Late-bind to avoid circular gravity
+    try:
+        from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+    except ImportError:
+        # Emergency fallback for bootstrap scenarios
+        class ArtisanHeresy(Exception):
+            pass
+
+        class HeresySeverity:
+            CRITICAL = "CRITICAL"
+
     # [ASCENSION 18]: HIGH-PERFORMANCE TRACE ID
-    # Forged using secrets to ensure cryptographic uniqueness and zero-latency generation.
     trace_id = f"tr-{secrets.token_hex(4).upper()}"
 
     # [ASCENSION 24]: FALLBACK ROOT RESOLUTION
     # We resolve the project anchor without waking the full engine context.
-    # Prioritizes: 1. Explicit --root | 2. Engine Memory | 3. Physical CWD
     raw_root = getattr(args, 'root', None) or getattr(engine, 'project_root', None) or os.getcwd()
     project_root = Path(raw_root).resolve()
 
@@ -258,6 +271,7 @@ def _handle_final_invocation_shim(
         return _delegate_to_master(daemon_config, args, trace_id)
 
     # --- MOVEMENT II: THE SOVEREIGN PATHWAY ---
+    RequestClass = None
     try:
         # JIT loading of the Grimoire map to prevent memory bloat
         from .grimoire_data import LAZY_RITE_MAP
@@ -266,7 +280,6 @@ def _handle_final_invocation_shim(
             raise KeyError(f"Rite '{args.command}' is unmanifest in the Grimoire.")
 
         # [ROBUST IMPORT LATTICE]
-        # Handles different package structures between local dev and Pyodide environments.
         try:
             req_mod = importlib.import_module("velm.interfaces.requests")
         except ImportError:
@@ -276,61 +289,76 @@ def _handle_final_invocation_shim(
 
         # Materialize the Artisan from its module shard
         art_mod_path = f"velm.{mod_info[0]}" if not mod_info[0].startswith("velm.") else mod_info[0]
-        art_mod = importlib.import_module(art_mod_path)
+
+        # [ASCENSION]: SUBSTRATE IMPORT GUARD
+        try:
+            art_mod = importlib.import_module(art_mod_path)
+        except ImportError as ie:
+            # Fallback for flattened WASM structures
+            if "No module named" in str(ie) and "velm." in art_mod_path:
+                try:
+                    art_mod = importlib.import_module(art_mod_path.replace("velm.", ""))
+                except ImportError:
+                    raise ie
+            else:
+                raise ie
+
         ArtisanClass = getattr(art_mod, ArtisanClassName)
 
         # Consecrate the current reality: Bind the Request to the Artisan in the Engine's mind
         engine.register_artisan(RequestClass, ArtisanClass)
 
-    except (ImportError, AttributeError, KeyError) as e:
-        # [FORENSIC INQUEST]
+    except (ImportError, AttributeError, KeyError, Exception) as e:
+        # [FORENSIC INQUEST - ASCENDED]
+        tb_str = traceback.format_exc()
         Logger.error(f"Gnostic schism during {args.command} materialization: {e}")
-        raise ArtisanHeresy(f"Gnostic schism during {args.command} inception.", child_heresy=e)
+
+        # [THE CURE]: Direct Stderr Injection for Ocular Visibility
+        sys.stderr.write(f"\n\x1b[31m[CRITICAL_IMPORT_FRACTURE]\x1b[0m\n{tb_str}\n")
+
+        raise ArtisanHeresy(
+            f"Gnostic schism during {args.command} inception.",
+            child_heresy=e,
+            details=tb_str,
+            severity=HeresySeverity.CRITICAL
+        )
 
     # =========================================================================
     # == [STRATUM: THE CURE] - SUBSTRATE-AWARE KINETIC GATING                ==
     # =========================================================================
-    # [ASCENSION 6]: True threading is a heresy in the Ethereal Plane (WASM).
-    # We scry the substrate and stay the hand of all background Sentinels.
     is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
     if not is_wasm:
         # PATH A: IRON CORE (NATIVE)
-        # Background Sentinels are willed into existence.
         if hasattr(args, 'debug') and args.debug:
             _ignite_non_blocking_debugger()
-
-        # Fire-and-forget update scrying (Skip for genesis to maximize velocity)
         if "genesis" not in str(getattr(args, 'handler', '')) and not getattr(args, 'silent', False):
             _ignite_update_check()
     else:
         # PATH B: ETHER PLANE (WASM)
-        # We obey the Law of Single-Threaded Totality. Background tasks remain dormant.
         if getattr(args, 'verbose', False):
             Logger.debug("WASM Substrate perceived. Background Sentinels stayed.")
 
     # --- MOVEMENT III: VESSEL INCEPTION (CONTINUED FROM RITE 3) ---
+    req = None
     try:
         # Extract the raw dictionary of intent from the Argparse vessel
         req_data = vars(args).copy()
 
         # [ASCENSION 20]: SUB-COMMAND SEMANTIC BRIDGE
-        # Maps 'genesis_command' or 'init_command' to a single 'command' key.
         sub_command_key = f"{args.command}_command"
         if sub_command_key in req_data:
             req_data['command'] = req_data[sub_command_key]
 
-        # PURIFICATION: Remove non-logic keys that contaminate the Pydantic soul.
+        # PURIFICATION
         req_data.pop('handler', None)
         req_data.pop('herald', None)
         req_data['project_root'] = project_root
 
         # [ASCENSION 8]: GLOBAL PATH SANITIZATION
-        # Transmutes all machine-specific paths into relative Gnostic coordinates.
         req_data = _sanitize_paths(req_data, project_root)
 
         # [ASCENSION 7]: THE ALCHEMICAL SANITIZER (TYPE HEALING)
-        # Heals list fields that might arrive as single strings or NoneType voids.
         for list_field in ['needs', 'teach', 'paths', 'ignore', 'include', 'focus']:
             if list_field in req_data:
                 val = req_data[list_field]
@@ -340,18 +368,15 @@ def _handle_final_invocation_shim(
                     req_data[list_field] = [val]
 
         # [ASCENSION 5 & 21]: ALCHEMICAL VARIABLE COERCION & INHERITANCE
-        # Merges Environment DNA with explicit CLI Will.
         current_vars = req_data.get('variables', {}) or {}
 
         # 1. Environment DNA Inhalation
-        # Allows setting project variables via 'export SCAFFOLD_VAR_NAME=value'
         for k, v in os.environ.items():
             if k.startswith("SCAFFOLD_VAR_"):
                 var_key = k.replace("SCAFFOLD_VAR_", "").lower()
                 current_vars[var_key] = _parse_cli_value(v)
 
         # 2. CLI Alchemical Strike (--set)
-        # Transmutes 'key=val' strings into a structured Gnostic Map.
         if 'set' in req_data and isinstance(req_data['set'], list):
             for s in req_data['set']:
                 if '=' in s:
@@ -361,20 +386,53 @@ def _handle_final_invocation_shim(
         req_data['variables'] = current_vars
 
         # [ASCENSION 11]: TRANSACTIONAL TRACE SUTURE
-        # Injects the silver cord (trace_id) into the request metadata.
         req_data['metadata'] = {**req_data.get('metadata', {}), 'trace_id': trace_id}
 
-        # THE INCEPTION: Forge the strict Pydantic vessel from the purified data.
-        req = RequestClass.model_validate(req_data)
+        # THE INCEPTION: Forge the strict Pydantic vessel
+        if RequestClass:
+            req = RequestClass.model_validate(req_data)
 
     except Exception as e:
         # [FORENSIC FRACTURE]
+        tb_str = traceback.format_exc()
         Logger.error(f"Request Vessel Fracture: {e}")
-        raise ArtisanHeresy("Request Vessel Fracture", child_heresy=e)
+        # Return a Failure Result immediately rather than crashing the CLI
+        from ...interfaces.base import ScaffoldResult
+        return ScaffoldResult.forge_failure(
+            message=f"Request Vessel Fracture: {e}",
+            details=tb_str,
+            severity=HeresySeverity.CRITICAL
+        )
 
     # --- MOVEMENT IV: THE DISPATCH ---
-    # The Conductor bestows the purified Will upon the Engine for execution.
-    return engine.dispatch(req)
+    try:
+        # The Conductor bestows the purified Will upon the Engine for execution.
+        return engine.dispatch(req)
+    except TypeError as te:
+        # [THE SPECIFIC CURE FOR YOUR LOG]: 'severity' keyword collision
+        # This catches the specific recursion error happening inside the failure handlers
+        # when a Dict vs Object mismatch occurs deep in the stack.
+        tb_str = traceback.format_exc()
+        sys.stderr.write(f"\n\x1b[31m[CRITICAL_TYPE_COLLISION]\x1b[0m\n{te}\n{tb_str}\n")
+
+        # Manually construct a raw failure result to bypass the broken helper
+        from ...interfaces.base import ScaffoldResult
+        return ScaffoldResult(
+            success=False,
+            message="Internal Engine Type Collision (The Paradox of Severity)",
+            error="TYPE_COLLISION_FRACTURE",
+            traceback=tb_str
+        )
+    except Exception as e:
+        # Catch-all for any other runtime explosion
+        tb_str = traceback.format_exc()
+        from ...interfaces.base import ScaffoldResult
+        return ScaffoldResult(
+            success=False,
+            message=f"Unhandled Dispatch Fracture: {e}",
+            error="DISPATCH_FRACTURE",
+            traceback=tb_str
+        )
 
 
 # =========================================================================================

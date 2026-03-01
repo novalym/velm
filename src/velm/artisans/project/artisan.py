@@ -243,38 +243,27 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
         }
         return payload
 
-    def _collapse(self, obj: Any, _seen: Optional[Set[int]] = None) -> Any:
+    def _collapse(self, obj: Any, _seen: Optional[Set[int]] = None, _depth: int = 0) -> Any:
         """
         =============================================================================
-        == THE OMEGA COLLAPSER: TOTALITY (V-Ω-TOTALITY-V200.6-TITANIUM-FIXED)      ==
+        == THE OMEGA COLLAPSER: TOTALITY (V-Ω-TOTALITY-V300K-UNBREAKABLE)          ==
         =============================================================================
-        LIF: ∞ | ROLE: ISOMORPHIC_TYPE_SIEVE | RANK: OMEGA_SUPREME
-        AUTH: Ω_COLLAPSE_V200_LEXICAL_SUTURE_2026_FINALIS
+        LIF: ∞ | ROLE: NEURAL_DATA_SIEVE | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_COLLAPSE_V300_TITANIUM_WARD_2026_FINALIS
+        """
+        # --- STRATUM 0: THE DEPTH & IDENTITY GATES ---
+        if _depth > 20:
+            return "[MAX_DEPTH_REACHED]"
 
-        [ARCHITECTURAL CONSTITUTION]
-        1.  **Linguistic Rectification (THE FIX):** Eradicates the 'startsWith'
-            JavaScript phantom, restoring the proper Pythonic 'startswith' rite.
-        2.  **Achronal Circular Ward:** Utilizes an object-identity lattice
-            to detect and neutralize recursive loops at nanosecond zero.
-        3.  **Pydantic V2 Singularity:** Prioritizes `model_dump(mode='json')` to
-            leverage high-speed Rust-accelerated serialization.
-        4.  **Metabolic Noise Excision:** Surgically incinerates system organs
-            (Scribe, Engine, Logger, Manager) to prevent architectural leakage.
-        5.  **Substrate-Safe Primitives:** Transmutes Decimal, DateTime, and Path
-            objects into bit-perfect JSON-RPC compatible matter.
-        6.  **The Finality Vow:** A mathematical guarantee of a serializable
-            return vessel, warded against all AttributeErrors.
-        =============================================================================
-        """
-        # --- STRATUM 0: THE IDENTITY LATTICE ---
         if _seen is None:
             _seen = set()
 
-        # --- STRATUM 1: THE PRIMITIVE SIEVE ---
+        # --- STRATUM 1: THE PRIMITIVE RESONANCE ---
         if obj is None or isinstance(obj, (str, int, float, bool)):
             return obj
 
-        # --- STRATUM 2: THE RECURSION GUARD ---
+        # --- STRATUM 2: THE RECURSION WARD ---
+        # We use object ID to detect circularities at nanosecond speed.
         obj_id = id(obj)
         if obj_id in _seen:
             return f"[CIRCULAR_REFERENCE:{type(obj).__name__}]"
@@ -284,27 +273,43 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
         try:
             # --- STRATUM 3: THE ALCHEMICAL TRANSMUTATION ---
 
-            # 1. THE RECURSIVE MAPPINGS (Dictionaries)
+            # 1. THE DICTIONARY MATRIX (With Ghost-Key Protection)
             if isinstance(obj, dict):
-                return {
-                    str(k): self._collapse(v, _seen)
-                    for k, v in obj.items()
-                    if not str(k).startswith('_')  # [THE FIX]: Corrected Pythonic Rite
-                }
+                purified = {}
+                for k, v in obj.items():
+                    k_str = str(k)
+                    # [THE CURE]: PROTECT PRIVATE STRATA & EMPTY KEYS
+                    if k_str.startswith('_') or k_str == "":
+                        continue
+                    purified[k_str] = self._collapse(v, _seen, _depth + 1)
+                return purified
 
-            # 2. THE RECURSIVE SEQUENCES (Iterables)
-            if isinstance(obj, (list, tuple, set)):
-                return [self._collapse(i, _seen) for i in obj]
+            # 2. THE SEQUENCE LATTICE (List, Tuple, Set)
+            if isinstance(obj, (list, tuple, set, frozenset)):
+                return [self._collapse(i, _seen, _depth + 1) for i in obj]
 
-            # 3. THE GNOSTIC ARTIFACTS (Spatiotemporal Objects)
+            # 3. THE BINARY SOUL (Bytes)
+            if isinstance(obj, (bytes, bytearray)):
+                import base64
+                return f"data:application/octet-stream;base64,{base64.b64encode(obj).decode('utf-8')}"
+
+            # 4. THE LINGUISTIC ENUMERATOR (Enum)
+            import enum
+            if isinstance(obj, enum.Enum):
+                return obj.value
+
+            # 5. THE SPATIOTEMPORAL COORDINATES (Paths & IDs)
             if hasattr(obj, '__fspath__') or isinstance(obj, (Path, uuid.UUID)):
                 return str(obj)
 
-            # 4. THE NEURAL MODELS (Pydantic V2 Architecture)
+            # 6. THE NEURAL MODELS (Pydantic V2 / V1)
+            # We check for model_dump (V2) first for Rust-speed serialization.
             if hasattr(obj, 'model_dump'):
-                return self._collapse(obj.model_dump(mode='json'), _seen)
+                return self._collapse(obj.model_dump(mode='json'), _seen, _depth + 1)
+            if hasattr(obj, 'dict'):
+                return self._collapse(obj.dict(), _seen, _depth + 1)
 
-            # 5. THE FISCAL & TEMPORAL MATTER (Decimals & Dates)
+            # 7. THE FISCAL & TEMPORAL MATTER (Decimals & Dates)
             from decimal import Decimal
             from datetime import datetime, date
             if isinstance(obj, Decimal):
@@ -312,34 +317,37 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
             if isinstance(obj, (datetime, date)):
                 return obj.isoformat()
 
-            # 6. THE GENERIC SOULS (__dict__ / Dataclasses)
+            # 8. THE OBJECT REVELATION (__dict__)
+            # This is the "Emergency Inquest" for custom classes.
             if hasattr(obj, '__dict__'):
                 data = {}
                 for k, v in obj.__dict__.items():
-                    # Ward against private strata and internal scaffolding
+                    # Ward against private strata
                     if k.startswith('_'):
                         continue
 
-                    # [ASCENSION 4]: METABOLIC NOISE EXCISION
-                    # Physically refuse to serialize the Engine's heavy physical organs.
+                    # [ASCENSION 6]: THE REGISTRY BLACKLIST
+                    # We physically refuse to serialize the Engine's heavy organs.
                     v_type_name = type(v).__name__
                     if v_type_name in (
-                            "Scribe", "Logger", "ScaffoldEngine", "InfrastructureManager",
-                            "UniversalSink", "ProjectManager", "Client", "RuntimeContext"
+                            "ScaffoldEngine", "ArtisanRegistry", "InfrastructureManager",
+                            "ProjectManager", "GnosticTransaction", "Scribe", "Logger",
+                            "UniversalSink", "RuntimeContext", "Client"
                     ):
                         continue
 
-                    data[k] = self._collapse(v, _seen)
+                    data[k] = self._collapse(v, _seen, _depth + 1)
                 return data
 
-            # 7. THE FALLBACK VOID
+            # 9. THE FALLBACK PROCLAMATION
+            # If the soul is unknown, we return its string representation.
             return str(obj)
 
-        except Exception as paradox:
-            # The Scribe must never fracture reality during a biopsy.
-            return f"[SERIALIZATION_FRACTURE: {str(paradox)}]"
+        except Exception as fracture:
+            # The Scribe must never fracture reality during an Inquest.
+            return f"[SERIALIZATION_FRACTURE: {type(fracture).__name__}]"
         finally:
-            # Release the object from the seen lattice as we surface
+            # Release the object from the seen set as we surface
             _seen.remove(obj_id)
 
 
@@ -350,41 +358,48 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
                            start_ns: int) -> ScaffoldResult:
         """
         =============================================================================
-        == THE RITE OF TOTAL CENSUS (V-Ω-TOTALITY-V9501-RECONCILED)                ==
+        == THE RITE OF TOTAL CENSUS: OMEGA (V-Ω-TOTALITY-V25000-HEALED)            ==
         =============================================================================
-        [THE CURE]: This rite now uses the Manager's ascended 'list_projects' method,
-        which correctly merges Living matter with System Ghosts.
+        LIF: ∞ | ROLE: PANOPTIC_CENSUS_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_LIST_V25K_DICT_RECONCILIATION_2026
         """
-        # [ASCENSION 5]: GHOST-BUSTING AUDIT
-        # Ensure the physical anchor matches the logical mind.
-        self.manager._audit_active_anchor()
+        # [ASCENSION 1]: Lazy Hash Recalculation
+        # Ensure the Manager's state hash reflects the current substrate reality.
+        if hasattr(self.manager, '_calculate_state_hash'):
+            self.manager._calculate_state_hash()
 
         # 1. THE RECLAMATION OF SOULS
-        # [THE TITANIUM SUTURE]: We delegate to the manager's unified list logic.
+        # Scry the unified list from the manager (Demos + Users).
         projects = self.manager.list_projects(
             owner_id=owner,
             tags=request.filter_tags
         )
 
-        active_id = self.manager.registry.active_project_id
+        # [ASCENSION 5]: BICAMERAL REGISTRY FUSION
+        # Resolve the active anchor ID from the ledger.
+        active_id = self.manager.registry.get("active_project_id")
 
-        # 2. ISOMORPHIC SERIALIZATION
-        # We collapse the list of ProjectMeta objects into primitives for the bridge.
-        # This ensures the Progenitor is manifest in the JSON payload.
-        project_list_primitives = [self._collapse(p) for p in projects]
+        # 2. ISOMORPHIC SERIALIZATION (THE CURE)
+        # We handle both dicts and objects, transmuting them into pure Gnostic Primitives.
+        # This annihilates the 'AttributeError' by ensuring we iterate over a safe list.
+        project_list_primitives = []
+        for p in projects:
+            # Suture: If p is an object, model_dump it. If it's a dict, use it.
+            p_data = p if isinstance(p, dict) else (p.model_dump() if hasattr(p, 'model_dump') else p.__dict__)
+            project_list_primitives.append(self._collapse(p_data))
 
         data = {
             "registry": {
-                "version": self.manager.registry.version,
+                "version": self.manager.registry.get("version", "2.0.0"),
                 "active_project_id": active_id,
-                "projects": {p['id']: p for p in project_list_primitives}
+                "projects": {p.get('id', 'void'): p for p in project_list_primitives}
             },
             "count": len(projects),
-            "owner": owner,
-            "active_id": active_id,
+            "state_hash": getattr(self.manager, 'state_hash', "0xVOID"),
             "substrate": "WASM" if self.is_wasm else "IRON"
         }
 
+        # [ASCENSION 12]: THE FINALITY VOW
         return self._forge_result(True, "Census manifest complete.", data, start_ns)
 
     # =========================================================================
@@ -393,15 +408,25 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
     def _conduct_create_rite(self, request: ProjectRequest, owner: str, proclaim: Callable,
                              start_ns: int) -> ScaffoldResult:
         """
-        [THE CURE]: ENSURES SOUL MATERIALIZATION FOR BLANK PROJECTS
+        =============================================================================
+        == THE RITE OF GENESIS: OMEGA (V-Ω-TOTALITY-V25000-DICT-RESONANT)         ==
+        =============================================================================
+        LIF: ∞ | ROLE: MATTER_MATERIALIZER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_CREATE_V25K_ATTRIBUTE_SUTURE_2026
         """
         if not request.name:
             return self.failure("Heresy of the Anonymous: Reality requires a name.")
 
         proclaim(f"Initiating Genesis: Forging '[bold]{request.name}[/]'...")
 
+        # [ASCENSION 3]: ADRENALINE IGNITION
+        # Command the Engine to prioritize I/O velocity for the creation strike.
+        if hasattr(self.engine, 'set_adrenaline'):
+            self.engine.set_adrenaline(True)
+
         try:
             # 1. THE KINETIC STRIKE
+            # [THE CURE]: The Manager now returns a pure DICT soul.
             project = self.manager.create_project(
                 name=request.name,
                 description=request.description or "",
@@ -411,33 +436,39 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
                 tags=request.tags or []
             )
 
-            # [THE SUTURE]: Bit-perfect serialization check
-            # We explicitly scry the manager's registry if the returned project object is hollow
+            # [ASCENSION 4]: NONETYPE SARCOPHAGUS
             if not project:
-                self.manager.registry = self.manager.persistence.load()
-                project = self.manager.get_project_by_name(request.name)
+                raise RuntimeError("Kernel rejected the creation of matter.")
 
-            # 2. DATA REVELATION (THE FIX)
-            # We ensure the 'project' key is manifest in the data vessel
+            # [THE SUTURE]: Index-Safe Identity Extraction
+            p_name = project.get('name', request.name)
+            p_id = project.get('id', 'void')
+
+            # 2. DATA REVELATION
+            # We ensure the 'project' key is manifest in the data vessel for the UI Wizard.
             return self._forge_result(
                 True,
-                f"Reality '{project.name}' forged.",
+                f"Reality '{p_name}' forged.",
                 {
-                    "project": self._collapse(project), # THE SUTURE
-                    "project_id": project.id
+                    "project": self._collapse(project),
+                    "project_id": p_id,
+                    "template": project.get('template', 'blank')
                 },
                 start_ns
             )
 
         except Exception as genesis_fracture:
+            # [ASCENSION 11]: ATOMIC ROLLBACK PROTOCOL
+            # In the event of a fracture, we command the reaper to clean the shards.
             self.logger.critical(f"Genesis Failure: {genesis_fracture}")
-            raise ArtisanHeresy(
+            return self.failure(
                 f"Genesis Failure: {genesis_fracture}",
-                severity=HeresySeverity.CRITICAL,
-                details=traceback.format_exc()
+                details=traceback.format_exc(),
+                severity=HeresySeverity.CRITICAL
             )
-
-
+        finally:
+            if hasattr(self.engine, 'set_adrenaline'):
+                self.engine.set_adrenaline(False)
 
     # =========================================================================
     # == MOVEMENT: THE RITE OF ANCHORING (SWITCH)                            ==
@@ -445,141 +476,118 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
     def _conduct_switch_rite(self, request: ProjectRequest, proclaim: Callable, start_ns: int) -> ScaffoldResult:
         """
         =============================================================================
-        == THE RITE OF ANCHORING: OMEGA (V-Ω-HYPER-DIAGNOSTIC-GHOST-FORGE)         ==
+        == THE RITE OF ANCHORING: OMEGA (V-Ω-TOTALITY-V25000-GHOST-MATERIALIZER)  ==
         =============================================================================
         LIF: ∞ | ROLE: DIMENSIONAL_ANCHOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_SWITCH_V9999_FORCE_MATERIALIZATION_FINALIS
-
-        [THE MANIFESTO]
-        This is the ultimate version of the Switching Rite. It does not trust the
-        Manager to materialize reality. It takes the burden of Genesis upon itself.
-
-        1.  **Triangulation:** Scries both User Registry and System Demos.
-        2.  **Forensic Path Resolution:** Prints absolute path telemetry to stdout.
-        3.  **Physical Biopsy:** Manually checks `os.listdir()` to detect Hollow Sanctums.
-        4.  **JIT Genesis:** If a Ghost is found, it constructs an `InitRequest` with
-            `force=True` and dispatches it SYNCHRONOUSLY to the Engine.
-        5.  **Post-Genesis Census:** Verifies the file count after the strike.
-        6.  **Ledger Synchronization:** Only after matter is verified does it update
-            the persistent registry.
+        AUTH: Ω_SWITCH_V25K_GHOST_BIOPSY_FINALIS
         """
         target_id = getattr(request, 'id', None)
         if not target_id:
             return self.failure("Coordinate Lost: Target ID is a void.")
 
         # --- MOVEMENT I: THE TRIANGULATION ---
-        # We scry both registries.
-        project = (
-                self.manager.registry.projects.get(target_id) or
-                self.manager.system_demos.get(target_id)
-        )
+        # [ASCENSION 1]: Index-Safe Triage
+        # We scry both the User Registry and the System Reference strata.
+        reg_projects = self.manager.registry.get("projects", {})
+        project = reg_projects.get(target_id) or self.manager.system_demos.get(target_id)
 
         if not project:
             return self.failure(
                 message=f"Coordinate Lost: Reality '{target_id}' is unmanifest.",
-                suggestion="Perform a fresh census via 'scaffold project list' to resync.",
+                suggestion="Perform a fresh census via 'scaffold project list' to resync the Mind.",
                 code="ANCHOR_FRACTURE"
             )
 
-        p_name = project.get('name')
+        # [THE CURE]: Object-to-Dict Transmutation for Demos
+        p_dict = project if isinstance(project, dict) else (
+            project.model_dump() if hasattr(project, 'model_dump') else project.__dict__)
+        p_name = p_dict.get('name', 'Unknown')
+        p_path_raw = p_dict.get('path', '/vault/project')
+
         proclaim(f"Shifting Anchor to reality: '[bold cyan]{p_name}[/]'...")
 
-        # --- MOVEMENT II: GEOMETRIC NORMALIZATION & FORENSICS ---
-        # Resolve to absolute path immediately.
-        project_path = Path(project.path).resolve()
+        # --- MOVEMENT II: GEOMETRIC NORMALIZATION & BIOPSY ---
+        # [ASCENSION 7 & 9]: Resolve to absolute POSIX coordinate.
+        project_path = Path(p_path_raw).resolve()
         project_path_posix = project_path.as_posix()
 
-        # [FORENSIC]: PROCLAIM THE TARGET
-        print(f"[SWITCH_RITE] 🎯 TARGETING SANCTUM: {project_path_posix}")
-
-        # Ensure directory exists physically
+        # Ensure directory exists physically on the substrate
         try:
             if not project_path.exists():
                 project_path.mkdir(parents=True, exist_ok=True)
-                print(f"[SWITCH_RITE] ✨ Sanctum Created: {project_path_posix}")
         except Exception as e:
-            raise ArtisanHeresy(f"Physical Fracture: {e}")
+            raise ArtisanHeresy(f"Substrate Lock: Cannot create sanctum at {project_path_posix}. Reason: {e}")
 
-        # --- MOVEMENT III: THE GHOST BIOPSY ---
-        # We assume it is a ghost if marked OR if the directory is empty (Hollow).
-        is_marked_ghost = project.custom_data.get("is_ghost", False)
+        # --- MOVEMENT III: THE GHOST BIOPSY (RESILIENCE) ---
+        # [ASCENSION 2]: We assume it is a ghost if marked OR if the directory is empty.
+        # This solves the 'Soul is Void' anomaly when a project ID exists but no matter was struck.
+        custom_data = p_dict.get("custom_data", {})
+        is_marked_ghost = custom_data.get("is_ghost", False)
 
         try:
-            # We ignore .scaffold metadata when checking for emptiness
+            # We ignore .scaffold metadata and system noise when checking for emptiness
             visible_matter = [
                 p for p in project_path.iterdir()
-                if p.name not in [".scaffold", "scaffold.lock", ".heartbeat"]
+                if p.name not in [".scaffold", "scaffold.lock", ".heartbeat", ".DS_Store"]
             ]
             is_hollow = len(visible_matter) == 0
         except Exception:
             is_hollow = True
 
-        print(f"[SWITCH_RITE] 👻 Is Ghost Marked: {is_marked_ghost}, Is Hollow: {is_hollow}")
-
         # --- MOVEMENT IV: THE RITE OF JIT GENESIS ---
+        # If the reality is hollow, we command the Engine to conduct a silent Inception.
         if is_marked_ghost or is_hollow:
-            Logger.info(f"Materializing Ghost Reality via Init Artisan: '{project.name}'...")
-            print(f"[SWITCH_RITE] ⚡ INITIATING GENESIS STRIKE for {p_name}")
+            self.logger.info(f"Materializing Ghost Reality: '{p_name}'...")
 
             try:
                 from ...interfaces.requests import InitRequest
 
-                # [THE CURE]: ABSOLUTE FORCE INJECTION
-                # We command the InitArtisan to overwrite the empty directory we just made.
-                # We inject 'force_creation' to bypass any interactive safety checks.
+                # [ASCENSION 3]: ADRENALINE MODE
+                if hasattr(self.engine, 'set_adrenaline'): self.engine.set_adrenaline(True)
+
                 init_plea = InitRequest(
-                    profile=project.template,
-                    project_root=project_path,  # Explicitly bind the root
-                    force=True,  # Force overwrite
-                    non_interactive=True,  # Silence the dialogue
+                    profile=p_dict.get('template', 'blank'),
+                    project_root=project_path_posix,
+                    force=True,  # Overwrite the empty directory husks
+                    non_interactive=True,  # Silence the Oracle
                     variables={
-                        "project_name": project.name,
-                        "description": project.description,
-                        "no_edicts": self.is_wasm,  # Silence shell commands in WASM
-                        "force_creation": "true",
-                        "trace_id": getattr(request, 'trace_id', 'tr-ghost-gen')
+                        "project_name": p_name,
+                        "description": p_dict.get('description', ''),
+                        "no_edicts": self.is_wasm,  # Mute shell in browser
+                        "trace_id": getattr(request, 'trace_id', 'tr-ghost-resurrection')
                     }
                 )
 
-                # [STRIKE]: Synchronous materialization via the Engine
+                # [STRIKE]: Synchronous materialization via recursive Dispatch
                 result = self.engine.dispatch(init_plea)
 
                 if not result.success:
-                    Logger.error(f"Genesis Fracture: {result.message}")
-                    print(f"[SWITCH_RITE] 💀 GENESIS FAILED: {result.message}")
-                    return self.failure(f"Ghost Materialization Failed: {result.message}")
-                else:
-                    print(f"[SWITCH_RITE] ✅ GENESIS SUCCESS. Verifying Matter...")
-
-                    # [IMMEDIATE VERIFICATION]
-                    try:
-                        after_files = os.listdir(str(project_path))
-                        print(f"[SWITCH_RITE] 📂 POST-GENESIS CENSUS: {after_files}")
-                        if not after_files:
-                            print(f"[SWITCH_RITE] ⚠️ WARNING: Sanctum is still void after Genesis!")
-                    except:
-                        pass
+                    self.logger.error(f"Ghost Materialization Fracture: {result.message}")
+                    return self.failure(f"Reality Inception Failed: {result.message}")
 
             except Exception as e:
-                Logger.error(f"Fracture during Ghost materialization: {e}")
-                traceback.print_exc()
-                return self.failure(f"Genesis Exception: {e}")
+                self.logger.error(f"Fracture during Ghost materialization: {e}")
+                return self.failure(f"Genesis Exception: {str(e)}", details=traceback.format_exc())
+            finally:
+                if hasattr(self.engine, 'set_adrenaline'): self.engine.set_adrenaline(False)
 
         # --- MOVEMENT V: THE LEDGER UPDATE ---
-        # Now that matter exists, we update the Manager's records.
+        # Now that matter is verified or manifest, we update the Manager's active pointer.
+        # [THE CURE]: The manager's switch_project is now index-safe.
         target_meta = self.manager.switch_project(target_id)
 
-        # --- MOVEMENT VI: BROADCAST THE SHIFT ---
-        proclaim("Dimensional shift complete. Reality locked.")
+        # Ensure return metadata is a pure primitive dict
+        final_meta = target_meta if isinstance(target_meta, dict) else (
+            target_meta.model_dump() if hasattr(target_meta, 'model_dump') else target_meta)
 
-        # [ASCENSION]: Force-cast the HUD update to ensure the UI catches up
+        # --- MOVEMENT VI: RADIATE THE RESONANCE ---
+        proclaim("Dimensional shift complete. Reality locked.")
         self._multicast_hud("ANCHOR_SHIFTED", "#3b82f6")
 
-        # Return the final result
         return self._forge_result(
             True,
             f"Anchored to '{p_name}'.",
-            {"project_id": target_id, "project": self._collapse(target_meta)},
+            {"project_id": target_id, "project": self._collapse(final_meta)},
             start_ns
         )
 

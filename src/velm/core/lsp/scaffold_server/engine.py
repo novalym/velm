@@ -177,6 +177,21 @@ class ScaffoldLSPServer(BaseLSPServer):
         import inspect
 
         def decorator(func: Callable):
+            """
+            =============================================================================
+            == THE OMNI-VARIADIC IRON-CLAD DECORATOR (V-Ω-TOTALITY-V320-FINALIS)       ==
+            =============================================================================
+            LIF: INFINITY | ROLE: SOVEREIGN_WARDEN | RANK: DIAMOND_OMEGA
+            AUTH: Ω_DECORATOR_V320_TITANIUM_STABILITY_2026_FINALIS
+            """
+            import copy
+            import functools
+            import threading
+            import time
+            import uuid
+            import gc
+            import sys
+
             @functools.wraps(func)
             def wrapper(self, *args, **kwargs):
                 # --- MOVEMENT 0: METABOLIC GATING ---
@@ -195,7 +210,7 @@ class ScaffoldLSPServer(BaseLSPServer):
                 ctx = ctx or {}
 
                 # --- MOVEMENT II: CAUSAL ANCHORING ---
-                # Extract or forge the Silver Cord
+                # Extract or forge the Silver Cord (Trace ID)
                 trace_id = ctx.get('trace_id')
                 if not trace_id and hasattr(params, 'metadata'):
                     trace_id = getattr(params.metadata, 'trace_id', None)
@@ -204,9 +219,14 @@ class ScaffoldLSPServer(BaseLSPServer):
 
                 # Bind identity to the OS Thread for perfect forensic correlation
                 curr_thread = threading.current_thread()
-                # e.g., "Warden:textDocument/hover"
                 curr_thread.name = f"Warden:{method_name.split('/')[-1]}"
                 setattr(curr_thread, 'trace_id', trace_id)
+
+                # [THE FIX]: ACHRONAL ATTRIBUTE INCEPTION
+                # We initialize the stack depth at the absolute start of the thread life.
+                # This prevents the AttributeError during the 'finally' lustration.
+                if not hasattr(curr_thread, '_stack_depth'):
+                    curr_thread._stack_depth = 0
 
                 # --- MOVEMENT III: CIRCUIT BREAKER ADJUDICATION ---
                 # Prevent cascading failure if the method is unstable
@@ -218,27 +238,35 @@ class ScaffoldLSPServer(BaseLSPServer):
                         if hasattr(self, '_fracture_counts'):
                             self._fracture_counts[method_name] = 0
 
-                # --- MOVEMENT IV: THE MOMENT OF SINGULARITY ---
+                # --- MOVEMENT IV: THE VITALITY INQUEST ---
                 try:
-                    # 1. ISOMORPHIC MEMORY GUARD
-                    # Scry the substrate to determine if we need a lustration rite
+                    # 1. ISOMORPHIC MEMORY GUARD (THE CURE)
+                    # Scry the substrate. We use a guarded getattr pattern to prevent
+                    # comparisons against Mock objects (UniversalSink) which lack '>' support.
                     try:
                         mem_pressure = False
                         import psutil
-                        if psutil.Process().memory_info().rss > (1.2 * 1024 * 1024 * 1024):
-                            mem_pressure = True
-                    except (ImportError, AttributeError):
-                        # WASM Fallback: Scry object density
-                        if len(gc.get_objects()) > 800000:
-                            mem_pressure = True
+                        process_memory = psutil.Process().memory_info()
+                        # Scry for physical RSS mass
+                        rss = getattr(process_memory, 'rss', None)
+
+                        # [THE FIX]: Only compare if rss is a real numeric particle
+                        if isinstance(rss, (int, float)):
+                            if rss > (1.2 * 1024 * 1024 * 1024):  # 1.2GB Wall
+                                mem_pressure = True
+                    except (ImportError, AttributeError, TypeError):
+                        # WASM/Mock Fallback: Scry object density in the heap
+                        try:
+                            if len(gc.get_objects()) > 800000:
+                                mem_pressure = True
+                        except:
+                            pass
 
                     if mem_pressure:
-                        gc.collect(1)  # Perform soft lustration
+                        gc.collect(1)  # Perform soft lustration (Generation 1)
 
                     # 2. RECURSION DEPTH WARD
                     # Prevent deep AST scrying from melting the stack
-                    if not hasattr(curr_thread, '_stack_depth'):
-                        curr_thread._stack_depth = 0
                     curr_thread._stack_depth += 1
 
                     if curr_thread._stack_depth > 50:
@@ -255,10 +283,12 @@ class ScaffoldLSPServer(BaseLSPServer):
 
                     # 4. TELEMETRY & HUD FEEDBACK
                     if hasattr(self, 'metrics'):
-                        self.metrics.record(method_name, duration_ms, is_err=False)
+                        # [THE FIX]: RE-ALIGNED SIGNATURE
+                        # MetricAccumulator.record expects (bytes_rx, bytes_tx, is_err).
+                        # We pass (0, 0) as this is a logic rite, not a transport stream.
+                        self.metrics.record(0, 0, is_err=False)
 
-                    # [ASCENSION 6]: Haptic Reality Bloom
-                    # If the intelligence rite was fast, provide haptic confirmation
+                    # [ASCENSION]: Haptic Reality Bloom
                     if duration_ms < 50 and method_name.startswith('textDocument/'):
                         if hasattr(self, 'endpoint'):
                             self.endpoint.send_notification("gnostic/vfx", {
@@ -269,7 +299,7 @@ class ScaffoldLSPServer(BaseLSPServer):
                             })
 
                     # --- MOVEMENT V: RESULT TRANSMUTATION ---
-                    # [ASCENSION 7]: ENFORCE ALIAS PARITY
+                    # [ASCENSION]: ENFORCE ALIAS PARITY
                     # Transmute Pydantic results into JSON-safe camelCase for Monaco
                     if hasattr(result, 'model_dump'):
                         return result.model_dump(mode='json', by_alias=True, exclude_none=True)
@@ -279,18 +309,18 @@ class ScaffoldLSPServer(BaseLSPServer):
                 except Exception as fracture:
                     # --- MOVEMENT VI: CAUTERIZATION & FORENSICS ---
                     if hasattr(self, 'metrics'):
-                        self.metrics.record(method_name, 0, is_err=True)
+                        # [THE FIX]: RE-ALIGNED SIGNATURE
+                        self.metrics.record(0, 0, is_err=True)
 
                     if hasattr(self, '_fracture_counts'):
                         self._fracture_counts[method_name] = self._fracture_counts.get(method_name, 0) + 1
 
-                    # [ASCENSION 11]: Forensic Inscription
-                    # We utilize the Engine's Scribe if available
+                    # [ASCENSION]: Forensic Inscription
                     log_fn = getattr(self, 'logger', None)
                     if log_fn:
                         log_fn.error(f"FRACTURE in {method_name} [{trace_id}]: {str(fracture)}")
 
-                    # [ASCENSION 9]: Circuit Breaker Activation
+                    # [ASCENSION]: Circuit Breaker Activation
                     if hasattr(self, '_fracture_counts') and self._fracture_counts[method_name] > 5:
                         if hasattr(self, '_disabled_features'):
                             self._disabled_features[method_name] = time.time()
@@ -304,8 +334,10 @@ class ScaffoldLSPServer(BaseLSPServer):
                     return copy.deepcopy(default_return)
 
                 finally:
-                    # Decant the stack depth
-                    curr_thread._stack_depth -= 1
+                    # [THE FIX]: SAFE STACK DECANTING
+                    # We check for the attribute one last time to prevent the AttributeError.
+                    if hasattr(curr_thread, '_stack_depth'):
+                        curr_thread._stack_depth = max(0, curr_thread._stack_depth - 1)
 
             return wrapper
 
@@ -354,7 +386,7 @@ class ScaffoldLSPServer(BaseLSPServer):
         import importlib
         import sys
         import time
-        from ...base import forensic_log
+        from ..base import forensic_log
 
         start_time = time.perf_counter()
 
@@ -392,7 +424,7 @@ class ScaffoldLSPServer(BaseLSPServer):
             from ..scaffold_features.symbols.engine import ScaffoldSymbolEngine
             from ..scaffold_features.code_action.engine import ScaffoldCodeActionEngine
             from ..scaffold_features.references.engine import ScaffoldReferenceEngine
-            from ..scaffold_features.diagnostics.manager import DiagnosticManager
+            from ..base.features.diagnostics.manager import DiagnosticManager
             from ..scaffold_server.inquest import OcularInquest
             from ..scaffold_server.sync import ScriptureSiphon
 

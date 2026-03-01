@@ -1,11 +1,10 @@
 # Path: src/velm/core/alchemist/engine.py
 # -----------------------------------------------------------------------------------------
-# == THE DIVINE ALCHEMIST (V-Ω-TOTALITY-V3000.0-SINGULARITY-FINALIS)                    ==
-# =========================================================================================
-# LIF: ∞ | ROLE: SUPREME_TRANSMUTATION_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
-# AUTH: Ω_ALCHEMIST_V3000_TOTALITY_RESONANCE_2026_)(@)(!@#(#@)_FINALIS
-# =========================================================================================
-
+# SYSTEM: Recursive Templating Engine (Jinja2 Wrapper)
+# COMPONENT: DivineAlchemist
+# STABILITY: Critical / Production
+# -----------------------------------------------------------------------------------------
+import builtins
 import os
 import sys
 import time
@@ -19,40 +18,46 @@ import gc
 import threading
 import traceback
 import unicodedata
-import binascii
 import collections
-import concurrent.futures
 from datetime import datetime, timezone
 from typing import (
-    Set, Any, TYPE_CHECKING, Optional, Union, Dict, List,
-    Tuple, Callable, Final, Iterable, Mapping
+    Any, TYPE_CHECKING, Optional, Union, Dict, List,
+    Callable, Final, Set
 )
-from functools import lru_cache
 
-# --- JINJA2 SACRED GEOMETRY ---
+# --- Third-Party Dependencies ---
 import jinja2
-from jinja2 import meta, TemplateSyntaxError, Undefined, BaseLoader, Environment
+from jinja2 import meta, Undefined, BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
 
-# --- CORE SCAFFOLD UPLINKS ---
-from ...logger import Scribe, get_console
+# --- Internal Interfaces ---
+from ...logger import Scribe
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ..runtime.vessels import GnosticSovereignDict
 from ...utils import converters as conv
 
 if TYPE_CHECKING:
-    from ...utils.gnosis_discovery import OmegaInquisitor
+    from ...core import ScaffoldEngine
+
+# =========================================================================
+# == DEBUG TELEMETRY GATE                                                ==
+# =========================================================================
+# Enables deep tracing of the rendering pipeline.
+_DEBUG_MODE = os.environ.get("SCAFFOLD_DEBUG") == "1"
 
 
-# =========================================================================================
-# == I. THE ATOMS OF SILENCE (CUSTOM UNDEFINED)                                          ==
-# =========================================================================================
+# =========================================================================
+# == STRATUM I: FAULT-TOLERANT UNDEFINED                                 ==
+# =========================================================================
 
 class GnosticVoid(Undefined):
     """
-    [ASCENSION 4]: THE NULL-SAFE SARCOPHAGUS.
-    A resilient void that prevents 'NoneType' attribute crashes while still
-    honoring the Vow of Strictness during the final adjudication.
+    A resilient 'Undefined' object for Jinja2.
+
+    Instead of raising an error immediately upon access, this object allows
+    attribute chaining (e.g., `var.subprop`) to fail gracefully or return
+    empty strings during rendering, preventing template crashes due to
+    missing optional context.
     """
 
     def __getattr__(self, name):
@@ -70,18 +75,19 @@ class GnosticVoid(Undefined):
         return False
 
 
-# =========================================================================================
-# == II. THE PARANOID FINALIZER                                                          ==
-# =========================================================================================
+# =========================================================================
+# == STRATUM II: OUTPUT SANITIZATION                                     ==
+# =========================================================================
 
 def paranoid_finalizer(value: Any) -> Any:
     """
-    =================================================================================
-    == THE PARANOID FINALIZER (V-Ω-TOTALITY-V3000)                                 ==
-    =================================================================================
-    [ASCENSION 7]: SELECTIVE FINALIZATION.
-    Ensures that every particle of data exiting the reactor is sanitized,
-    Unicode-normalized, and safe for physical inscription.
+    Sanitizes and normalizes all output leaving the template engine.
+
+    Responsibilities:
+    1.  **Null Safety:** Converts None/Undefined to empty strings.
+    2.  **Serialization:** Automatically serializes Dicts/Lists to JSON.
+    3.  **Boolean Normalization:** Converts Python `True` to lowercase `true` (JSON/JS compatible).
+    4.  **Path Normalization:** Enforces OS-specific path separators and Unicode NFC normalization.
     """
     if value is None or isinstance(value, (Undefined, GnosticVoid)):
         return ""
@@ -90,12 +96,10 @@ def paranoid_finalizer(value: Any) -> Any:
         return str(value).lower()
 
     if isinstance(value, (dict, list, tuple)):
-        # [ASCENSION 10]: AUTOMATIC DATA SERIALIZATION
         return json.dumps(value, default=str)
 
     if isinstance(value, str):
-        # [ASCENSION 23]: STRUCTURAL HOMOLOGY NORMALIZATION
-        # Automatically fixes Windows/POSIX path separators in generated text.
+        # Normalize path separators based on OS to ensure cross-platform compatibility
         if "/" in value or "\\" in value:
             if platform.system() == "Windows":
                 value = value.replace("/", "\\")
@@ -106,46 +110,43 @@ def paranoid_finalizer(value: Any) -> Any:
     return value
 
 
-# =========================================================================================
-# == III. THE SOVEREIGN ALCHEMIST                                                        ==
-# =========================================================================================
+# =========================================================================
+# == STRATUM III: THE CORE ENGINE                                        ==
+# =========================================================================
 
 class DivineAlchemist:
     """
-    =================================================================================
-    == THE DIVINE ALCHEMIST (V-Ω-TOTALITY-V3000-CONVERGENCE-SINGULARITY)           ==
-    =================================================================================
-    LIF: ∞ | ROLE: MATTER_FISSION_CONDUCTOR | RANK: OMEGA_SOVEREIGN
+    The central orchestration engine for text transmutation and templating.
 
-    The God-Engine of Change. It transmutes abstract intent (Gnosis) into
-    physical reality (Matter).
+    This class wraps Jinja2 in a secure, recursive execution environment tailored
+    for code generation. It handles variable substitution, standard library injection,
+    and cross-language syntax protection.
 
-    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS (TOTALITY):
-    1.  **Hermetic Sandbox V3:** Zero-trust environment warded against OS exploits.
-    2.  **Recursive Convergence Reactor:** Multi-pass gaze for nested variables.
-    3.  **Bicameral Scoping:** Auto-annihilation of private '_' variables.
-    4.  **Strict Sovereign Adjudication:** Force-fails on missing Gnosis.
-    5.  **Achronal Telemetry:** Nanosecond-precision latency tomography.
-    6.  **Ouroboros Guard:** Detection and death-strike for infinite recursion.
-    7.  **Paranoid Finalizer:** Bit-perfect output sanitization.
-    8.  **Socratic Scribe:** Real-time extraction of undeclared dependencies.
-    9.  **Standard Library Inception:** Pre-loaded temporal and identity rites.
-    10. **Hydraulic Whitespace Control:** Geometric discipline for code formatting.
-    11. **Type-Preserving Alchemy:** Mid-template primitive transmutation.
-    12. **Merkle-State Invalidation:** [NEW] Cache keys tied to variable hashes.
-    13. **Substrate-Aware Localization:** [NEW] Dynamic OS-aware time/locale.
-    14. **Isomorphic Binary Triage:** [NEW] Protection against binary stream corruption.
-    15. **Alchemical Hot-Swapping:** [NEW] JIT filter/global registration.
-    16. **Reflective Dependency Mapping:** [NEW] Internal audit of accessed keys.
-    17. **Shadow-Logic Simulation:** [NEW] Non-destructive macro probing.
-    18. **Metabolic Memory Compression:** [NEW] LRU-warded render cache.
-    19. **Constraint Jurisprudence:** [NEW] Schema validation for variable inputs.
-    20. **Celestial Link Suture:** [NEW] Remote resource fetching via URIs.
-    21. **Entropy-Safe Redaction:** [NEW] Auto-masking of high-entropy secrets.
-    22. **Structural Path Homology:** [NEW] Cross-OS path string normalization.
-    23. **Haptic Ocular Pulse:** [NEW] HUD signals for successful transmutations.
-    24. **The Finality Vow:** Mathematical guarantee of deterministic truth.
-    =================================================================================
+    Architecture:
+    1.  **Hermetic Sandboxing:** Execution occurs in a restricted environment barring OS access.
+    2.  **Recursive Convergence:** Templates are rendered in multiple passes to resolve nested variables.
+    3.  **Scope Isolation:** Internal variables (prefixed with `_`) are excluded from context.
+    4.  **Strict/Lenient Modes:** Configurable error handling for missing variables.
+    5.  **Performance Metrics:** Internal timing of render operations.
+    6.  **Recursion Guard:** Depth limiting prevents infinite template loops.
+    7.  **Output Sanitization:** Automated JSON serialization and path normalization.
+    8.  **Interactive Fallback:** Prompts user for missing variables if running interactively.
+    9.  **Standard Library:** Injects helper functions (`now`, `uuid`, `env`) into every context.
+    10. **Whitespace Control:** Strict whitespace stripping for clean code generation.
+    11. **Type-Preservation:** Handles non-string return values where applicable.
+    12. **Merkle Caching:** Caches render results based on content hash to speed up repetitive operations.
+    13. **OS-Awareness:** Dynamic adjustment of pathing logic based on host OS.
+    14. **Binary Protection:** Fast-fail detection for binary files to prevent encoding errors.
+    15. **Singleton Pattern:** Thread-safe instance management.
+    16. **Dependency Auditing:** Tracks accessed variables for dependency graph generation.
+    17. **Syntax Collision Shield:** Heuristics to distinguish Jinja `{{ }}` from React/Latex `{{ }}`.
+    18. **LRU Caching:** High-performance memory management for compiled templates.
+    19. **Constraint Checking:** (Prepared) Schema validation for inputs.
+    20. **Remote Fetching:** `fetch()` helper for retrieving external content.
+    21. **Secret Redaction:** Prevents logging of high-entropy values.
+    22. **Path Homology:** Cross-platform slash normalization.
+    23. **Telemetry Hooks:** Integration points for UI status updates.
+    24. **Deterministic Output:** Guaranteed stable ordering for serialized data.
     """
 
     Logger = Scribe("DivineAlchemist")
@@ -161,39 +162,26 @@ class DivineAlchemist:
 
     def __init__(self, engine: Optional[Any] = None, strict: bool = True):
         """
-        =============================================================================
-        == THE RITE OF CONSECRATION (V-Ω-TOTALITY-V300.9-BULLETPROOF)              ==
-        =============================================================================
-        LIF: ∞ | ROLE: ORGAN_MATERIALIZATION | RANK: OMEGA_SUPREME
-        AUTH: Ω_ALCHEMIST_INIT_V300_ENGINE_SUTURE_2026_FINALIS
+        Initializes the templating engine.
 
-        [THE MANIFESTO]
-        This rite materializes the Alchemist's mind. It has been ascended to annihilate
-        the 'AttributeError' heresy by ensuring the engine slot is warded against
-        the void even during singleton re-entry.
+        Args:
+            engine: Reference to the parent ScaffoldEngine (for context access).
+            strict: If True, raises errors on undefined variables. If False, returns empty strings.
         """
-        # --- MOVEMENT 0: PRIMORDIAL SLOTTING ---
-        # [ASCENSION 1]: We define the slot immediately to prevent 'no attribute' panic
-        if not hasattr(self, 'engine'):
-            self.engine = None
-
-        # --- MOVEMENT I: RE-ENTRY ADJUDICATION ---
+        # --- Re-entry Guard ---
+        # Ensure engine binding even if singleton already exists
         if hasattr(self, '_initialized') and self._initialized:
-            # [ASCENSION 25]: LATE-BOUND SUTURE (THE CURE)
-            # If the singleton was born in a void, we anchor the heart now.
-            if engine and self.engine is None:
+            if engine and getattr(self, 'engine', None) is None:
                 self.engine = engine
-                self.Logger.verbose(f"Divine Alchemist [{self.instance_id}] sutured to Engine post-inception.")
             return
 
-        # --- MOVEMENT II: ORGAN MATERIALIZATION ---
-        with threading.RLock(): # Use local lock before self._lock is manifest
+        with threading.RLock():
             self._lock = threading.RLock()
             self.instance_id = uuid.uuid4().hex[:8].upper()
             self.boot_time = time.perf_counter_ns()
             self.engine = engine
 
-            # [ASCENSION 1 & 10]: HERMETIC WHITESPACE WARD
+            # --- Jinja2 Environment Configuration ---
             self.env = SandboxedEnvironment(
                 loader=BaseLoader(),
                 undefined=jinja2.StrictUndefined if strict else GnosticVoid,
@@ -206,44 +194,35 @@ class DivineAlchemist:
                 comment_end_string='#>'
             )
 
-            # Internal Setup
+            # --- Subsystem Initialization ---
             self._arm_hermetic_wards()
             self._consecrate_standard_library()
             self._bestow_naming_nomenclature()
             self._ignite_metabolic_cache()
 
-            # --- MOVEMENT III: TELEMETRY ANCHORS ---
             self._resolution_history: Dict[str, Dict] = {}
             self._initialized = True
 
-        # Proclaim Resonance
-        engine_silent = getattr(self.engine, '_silent', False) if self.engine else False
-        if not engine_silent:
-            self.Logger.success(
-                f"Divine Alchemist [{self.instance_id}] manifest. "
-                f"Mode: {'STRICT' if strict else 'LENIENT'}"
-            )
+        if _DEBUG_MODE:
+            self.Logger.debug(f"Alchemist initialized. Mode: {'STRICT' if strict else 'LENIENT'}")
 
     # =========================================================================
-    # == THE HERMETIC WARDS (SECURITY)                                       ==
+    # == SECTION I: SECURITY & SANDBOXING                                    ==
     # =========================================================================
 
     def _arm_hermetic_wards(self):
         """
-        [ASCENSION 1]: THE ZERO-TRUST SANDBOX.
-        Strips the environment of all dangerous Python machinery.
+        Removes dangerous built-ins from the template environment to prevent
+        arbitrary code execution exploits.
         """
-        # Annihilate dangerous accessors
         banned = ["open", "eval", "exec", "getattr", "setattr", "delattr", "help", "__builtins__"]
         for forbidden in banned:
             self.env.globals[forbidden] = None
 
-        # [ASCENSION 21]: ENTROPY-SAFE REDACTION
         def is_safe_attribute(obj, attr, value):
-            # Forbid access to internal dunder souls
+            # Block access to private attributes and internal dicts
             if str(attr).startswith("__"):
                 return False
-            # Protect potentially sensitive internal dicts
             if str(attr) in ("__dict__", "func_globals", "func_code"):
                 return False
             return True
@@ -251,76 +230,60 @@ class DivineAlchemist:
         self.env.is_safe_attribute = is_safe_attribute
 
     # =========================================================================
-    # == THE CONVERGENCE REACTOR (CORE LOGIC)                                ==
+    # == SECTION II: RENDERING LOGIC                                         ==
     # =========================================================================
 
     def render_string(self, source: str, context: Dict[str, Any]) -> str:
-        """
-        =============================================================================
-        == THE OCULAR ALIAS (RENDER)                                               ==
-        =============================================================================
-        LIF: ∞ | ROLE: REVELATION_GATEWAY
-        A high-status alias for the master Transmute rite, specifically warded for
-        top-level scripture rendering.
-        """
+        """Alias for transmute."""
         return self.transmute(source, context)
 
     def transmute(self, source: str, gnosis: Dict[str, Any], depth_limit: int = 7) -> str:
         """
-        =================================================================================
-        == THE OMNISCIENT CONVERGENCE REACTOR (V-Ω-TOTALITY-V4000-INDESTRUCTIBLE)      ==
-        =================================================================================
-        LIF: ∞ | ROLE: MATTER_FISSION_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_TRANSMUTE_V4000_FAULT_ISOLATION_FINALIS
+        Recursively renders a string against a context dictionary.
 
-        [THE MANIFESTO]
-        The supreme rite of Alchemical Fission. Healed of the Jinja Symmetry Paradox.
-        This reactor performs Fault-Isolated Semantic Triage: if matter (React/CSS)
-        collides with Jinja syntax, the Alchemist stays its hand and returns the
-        raw scripture, ensuring the Engine remains unbreakable.
-        =================================================================================
+        Capabilities:
+        - **Recursive Resolution:** If a variable resolves to a string containing more tags,
+          it re-renders until stability or depth limit.
+        - **Syntax Guard:** Detects if the string is likely React/Latex (colliding syntax)
+          and returns raw string instead of crashing.
+        - **Interactive Prompting:** If a variable is missing and the environment is
+          interactive, prompts the user for input.
+
+        Args:
+            source (str): The template string.
+            gnosis (Dict): The variable context.
+            depth_limit (int): Max recursion depth to prevent infinite loops.
+
+        Returns:
+            str: The rendered content.
         """
         import jinja2
-        import time
-        import re
-        import hashlib
-        import platform
-        from datetime import datetime
         from rich.prompt import Prompt
-        from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
-        from ..runtime.vessels import GnosticSovereignDict
 
         if not source or not isinstance(source, str):
             return source if source is not None else ""
 
-        # --- MOVEMENT 0: SUBSTANCE TRIAGE ---
-        # [ASCENSION 14]: Peek for the Binary Spirit.
+        # 1. Binary Content Check
+        # If the string contains null bytes, it is binary; do not attempt to render.
         try:
-            # Check the first kilobyte for null bytes; if found, it's not a template.
-            sample = source[:1024].encode('utf-8', errors='ignore')
-            if b'\0' in sample:
-                self.Logger.verbose("Binary matter perceived. Bypassing Alchemist.")
+            if '\0' in source[:1024]:
+                if _DEBUG_MODE: self.Logger.debug("Binary content detected. Skipping render.")
                 return source
         except Exception:
             pass
 
-        # --- MOVEMENT I: THE TEMPORAL LOCK & IDENTITY ---
-        # [ASCENSION 4]: Establish a stable temporal anchor for the entire strike.
         start_ns = time.perf_counter_ns()
-        stasis_time = datetime.now()
 
-        # Resolve Trace Identity from the Engine or Environment
-        active_request = getattr(self.engine, 'active_request', None)
-        trace_id = os.environ.get("SCAFFOLD_TRACE_ID") or \
-                   getattr(active_request, 'trace_id', f"tr-alk-{uuid.uuid4().hex[:4].upper()}")
-
-        # --- MOVEMENT II: CONTEXT ENLIGHTENMENT ---
-        # Initialize the Gnostic Sovereign Mind for this specific fission pass.
-        # [ASCENSION 5]: NoneType Sarcophagus
+        # 2. Context Preparation
+        # Wrap in SovereignDict for case-insensitive access if needed
         context = GnosticSovereignDict(gnosis)
+
+        # Inject system-level variables
         context.update({
-            "__now__": stasis_time,
-            "__trace__": trace_id,
+            "env": self.env.globals['env'],
+            "environ": os.environ,
+            "getenv": os.environ.get,
+            "__now__": datetime.now(),
             "__os__": platform.system().lower(),
             "__engine__": self.engine
         })
@@ -328,63 +291,57 @@ class DivineAlchemist:
         current_matter = source
         iteration = 0
 
-        # =========================================================================
-        # == THE RECURSIVE CONVERGENCE LOOP                                      ==
-        # =========================================================================
-        # We loop until all variables are grounded or the Ouroboros limit is reached.
+        # --- The Convergence Loop ---
         while ("{{" in current_matter or "{%" in current_matter) and iteration < depth_limit:
             previous_matter = current_matter
 
             try:
-                # [ASCENSION 18]: THE MERKLE CHRONOCACHE
-                # Skip computation if this specific Matter+Mind state has been seen before.
+                # Cache Lookup
                 cache_key = self._forge_merkle_cache_key(current_matter, context)
                 if cache_key in self._l2_render_cache:
                     current_matter = self._l2_render_cache[cache_key]
                     break
 
-                # --- THE MOMENT OF FISSION ---
-                # We attempt to materialize the template into string reality.
+                # Render
                 template = self.env.from_string(current_matter)
                 current_matter = template.render(**context)
 
-                # Check for Steady State (Resonance Achieved)
+                # Stability Check
                 if current_matter == previous_matter:
                     break
 
                 iteration += 1
                 self._l2_render_cache[cache_key] = current_matter
 
-            # =========================================================================
-            # == [THE SINGULARITY FIX 1]: THE FAULT-ISOLATED REDEMPTION              ==
-            # =========================================================================
+            # --- Error Handling: Undefined Variables ---
             except (jinja2.exceptions.UndefinedError, NameError, AttributeError) as void_error:
-                # [THE CURE]: Socratic Fallback. We ask the Architect for the missing piece.
                 error_msg = str(void_error)
                 match = re.search(r"'(\w+)' is undefined|name '(\w+)' is not defined", error_msg)
                 missing_var = next((g for g in match.groups() if g), None) if match else None
 
-                # Is the Vow of Silence active or are we in a headless void?
                 is_headless = os.getenv("SCAFFOLD_NON_INTERACTIVE") == "1" or not sys.stdin.isatty()
 
+                # If headless or variable unknown, treat as literal (React protection)
                 if not missing_var or is_headless:
-                    # [ASCENSION 2]: APOPHATIC BYPASS
-                    # If we cannot interact, we treat the 'Undefined' as literal Matter.
-                    # This allows React/JS variables (which look like Jinja) to pass through.
-                    self.Logger.verbose(f"Gnosis Gap: '{missing_var}' unmanifest. Treating as Matter.")
+                    if _DEBUG_MODE:
+                        self.Logger.debug(f"Undefined variable '{missing_var}' in headless mode. Skipping.")
                     return current_matter
 
-                # CONDUCT SACRED DIALOGUE (Only if interactive)
-                self.Logger.info(f"The template hungers for unknown Gnosis: [bold yellow]{missing_var}[/]")
-                self._pulse_ocular_hud(0.0, label=f"GNOSIS_GAP:{missing_var}", color="#fbbf24")
+                # Interactive Prompt
+                if _DEBUG_MODE:
+                    self.Logger.debug(f"Prompting user for missing variable: {missing_var}")
 
-                provided_val = Prompt.ask(f"Please provide a value for [bold cyan]{missing_var}[/bold cyan]")
+                # We use Rich directly here to ensure visibility
+                from rich.console import Console
+                Console().print(
+                    f"[bold yellow]Context Missing:[/bold yellow] The template requires [cyan]{missing_var}[/cyan].")
+                provided_val = Prompt.ask(f"Value for {missing_var}")
 
-                # [ASCENSION 6]: Socratic Type-Divination
+                # Type Inference
                 clean_val = str(provided_val).strip()
-                if clean_val.lower() in ('true', 'yes', 'resonant'):
+                if clean_val.lower() in ('true', 'yes'):
                     final_val = True
-                elif clean_val.lower() in ('false', 'no', 'fractured'):
+                elif clean_val.lower() in ('false', 'no'):
                     final_val = False
                 elif clean_val.isdigit():
                     final_val = int(clean_val)
@@ -395,100 +352,84 @@ class DivineAlchemist:
                 iteration += 1
                 continue
 
-            # =========================================================================
-            # == [THE SINGULARITY FIX 2]: THE BRACE-COLLISION SHIELD                 ==
-            # =========================================================================
+            # --- Error Handling: Syntax Collisions ---
             except (jinja2.exceptions.TemplateSyntaxError, TypeError) as e:
-                # [THE CURE]: The ultimate defense against React/CSS/Tailwind collisions.
-                # If the error contains markers of a syntax mismatch (colons in print),
-                # we STAY the hand and treat the source as Immutable Matter.
                 err_msg = str(e).lower()
-
-                # Tokens that signal a collision between Jinja logic and Matter braces:
-                # - Colons inside braces: {{ key: value }}
-                # - Unclosed prints: expected '}}'
-                # - Unexpected tokens: got ':' or got '{'
+                # Detection of frontend syntax that conflicts with Jinja
                 collision_markers = [":", "expected token", "unexpected", "end of print", "statement"]
 
                 if any(sig in err_msg for sig in collision_markers):
-                    self.Logger.verbose(
-                        f"Alchemical Shield: Collision detected at L{getattr(e, 'lineno', '?')}. "
-                        f"Bypassing Jinja for potential React/CSS matter."
-                    )
-                    # We return the matter as it stands, ensuring the Engine proceeds to creation.
+                    if _DEBUG_MODE:
+                        self.Logger.debug(
+                            f"Syntax collision detected (likely React/CSS). Returning raw string. Error: {e}")
                     return current_matter
 
-                # If it's a truly fatal syntax error in a .scaffold directive (@if), we report it.
-                self.Logger.error(f"Alchemical Fracture: {str(e)} at line {getattr(e, 'lineno', '?')}")
-                if self.mode == "STRICT":
-                    # Re-raise as structured heresy if in strict mode
-                    raise ArtisanHeresy("TEMPLATE_SYNTAX_HERESY", details=str(e), severity=HeresySeverity.CRITICAL)
+                self.Logger.error(f"Template Syntax Error: {e}")
                 return current_matter
 
-            except Exception as catastrophic_paradox:
-                # [ASCENSION 12]: FAULT-ISOLATION
-                self.Logger.error(f"Alchemical Collapse: {catastrophic_paradox}")
-                # Return the source as a failsafe to ensure the materialization does not hang.
+            except Exception as e:
+                self.Logger.error(f"Unexpected render failure: {e}")
                 return current_matter
 
-        # --- MOVEMENT III: OUROBOROS TERMINATION ---
-        # [ASCENSION 4]: Protect against the Infinite Recursion Paradox.
+        # Recursion Limit Check
         if iteration >= depth_limit:
-            self.Logger.warn(
-                f"Ouroboros Paradox: Reactor failed to ground after {depth_limit} passes. Returning current state.")
+            if _DEBUG_MODE:
+                self.Logger.warn(f"Recursion depth limit ({depth_limit}) reached. Returning partially rendered string.")
             return current_matter
 
-        # --- MOVEMENT IV: FINAL NORMALIZATION ---
-        # [ASCENSION 7]: METABOLIC TELEMETRY
-        duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
-        if duration_ms > 200.0:
-            self._pulse_ocular_hud(duration_ms, label="HEAVY_FISSION", color="#a855f7")
-
-        # [ASCENSION 11]: UNICODE NFC PURIFICATION
-        # We strip trailing whitespace only if we actually performed a transmutation.
         return current_matter.strip() if iteration > 0 else current_matter
+
     # =========================================================================
-    # == THE GNOSTIC STANDARD LIBRARY (THE GRIMOIRE)                         ==
+    # == SECTION III: STANDARD LIBRARY (INJECTED FUNCTIONS)                  ==
     # =========================================================================
 
     def _consecrate_standard_library(self):
         """
-        =============================================================================
-        == THE STANDARD LIBRARY OF CREATION (V-Ω-TOTALITY-V3000-SUBSTRATE-AWARE)   ==
-        =============================================================================
-        LIF: ∞ | ROLE: GNOSTIC_GRIMOIRE_INCEPTION
-
-        Inscribes primordial functions into the global cortex. Now warded with
-        Substrate-Aware perception to annihilate the Windows 'which' heresy.
+        Injects utility functions into the template global scope.
+        Includes substrate-aware environment scrying.
         """
 
-        # --- 1. TEMPORAL RITES ---
+        # --- Temporal Helpers ---
         def _now(fmt="iso", tz="local"):
-            """[ASCENSION 13]: SUBSTRATE-AWARE LOCALIZATION."""
             dt = datetime.now(timezone.utc) if tz == "utc" else datetime.now()
             if fmt == "iso": return dt.isoformat()
             if fmt == "year": return str(dt.year)
             if fmt == "date": return dt.strftime("%Y-%m-%d")
             return dt.strftime(fmt)
 
-        # --- 2. IDENTITY RITES ---
+        # --- Identity Helpers ---
         def _uuid(v=4):
-            return str(uuid.uuid4()) if v == 4 else str(uuid.uuid7())
+            return str(uuid.uuid4())
 
         def _short_id(length=8):
             return uuid.uuid4().hex[:length].upper()
 
-        # --- 3. ENVIRONMENT RITES ---
-        def _env(key: str, default: str = ""):
+        # =============================================================================
+        # == [THE CURE]: THE BIMODAL ENVIRONMENT HELPER                              ==
+        # =============================================================================
+        def _env_callable(key: str, default: str = ""):
+            """
+            The Omniscient Env Scryer.
+            1. First, scries the substrate builtins (Simulacrum helper).
+            2. Second, scries the OS environment directly.
+            """
+            # Scry for the substrate-injected helper from simulacrum_installer.py/velm-worker.js.
+            # We use 'getattr' to prevent NameError if builtins is being shimmed.
+            substrate_helper = getattr(builtins, 'env', None)
+
+            # Ensure we aren't just looking at the os.environ object itself
+            if substrate_helper and substrate_helper is not os.environ and callable(substrate_helper):
+                try:
+                    return substrate_helper(key, default)
+                except Exception:
+                    pass
+
             return os.getenv(key, default)
 
-        # --- 4. PATH RITES ---
         def _path_join(*args):
             return os.path.join(*args).replace('\\', '/')
 
-        # --- 5. DATA RITES ---
         def _fetch(uri: str):
-            """[ASCENSION 20]: CELESTIAL LINK SUTURE."""
             if os.getenv("SCAFFOLD_ALLOW_CELESTIAL") != "1":
                 return f"[RESTRICTED_URI:{uri}]"
             try:
@@ -497,17 +438,17 @@ class DivineAlchemist:
             except:
                 return ""
 
-        # --- REGISTRATION ---
+        # --- Registration ---
         self.env.globals.update({
-            # [ASCENSION 1]: THE CURE - SUBSTRATE-AWARE SHELL
             "shell": self._shell_exec,
-            "binary": self._check_binary,  # High-velocity tool scry
-
-            # Contextual Probes
+            "binary": self._check_binary,
             "now": _now,
             "uuid": _uuid,
             "random_id": _short_id,
-            "env": _env,
+            # [THE SUTURE]: We provide multiple handles to satisfy all blueprint dialects
+            "env": _env_callable,
+            "environ": os.environ,  # The dict-like object
+            "getenv": os.environ.get,  # Direct function handle
             "path_join": _path_join,
             "fetch": _fetch,
             "os_name": platform.system().lower(),
@@ -524,74 +465,44 @@ class DivineAlchemist:
 
     def _shell_exec(self, command: str) -> Union[str, bool]:
         """
-        =============================================================================
-        == THE OMEGA SHELL EXECUTOR (V-Ω-PATH-AGNOSTIC-FINALIS)                    ==
-        =============================================================================
-        LIF: 100x | ROLE: KINETIC_PROBE | RANK: MASTER
-
-        [THE CURE]: Intercepts 'which' pleas and transmutates them into native
-        Python shutil.which calls, ensuring '{{ shell('which npm') }}' returns
-        True on Windows iron without requiring a Linux-dialect shell.
+        Executes a shell command and returns the output.
+        Handles cross-platform 'which' checks natively.
         """
         import shutil
         import subprocess
 
         cmd_str = str(command).strip()
 
-        # --- MOVEMENT I: THE WHICH REDIRECT ---
-        # Detect if the Architect is scrying for a binary
+        # Optimize 'which' calls to avoid spawning subprocesses
         if cmd_str.startswith("which "):
             target_binary = cmd_str.split(" ", 1)[1].strip().strip("'\"")
-            # [STRIKE]: Native, zero-cost search of the host's PATH
             path = shutil.which(target_binary)
-
             if path:
-                self.Logger.verbose(f"Substrate Scry: Discovered '{target_binary}' at {path}")
                 return str(path).replace('\\', '/')
             return False
 
-        # --- MOVEMENT II: THE KINETIC STRIKE (FALLBACK) ---
-        # For non-discovery commands, we perform a warded subprocess execution.
         try:
-            # We enforce a strict 2s timeout to prevent the Alchemist from hanging
+            # 2s Timeout to prevent template hangs
             res = subprocess.run(
                 command,
                 shell=True,
                 capture_output=True,
                 text=True,
                 timeout=2,
-                # Force Adrenaline Mode if active
+                # Hide window on Windows
                 creationflags=0x00008000 if os.name == 'nt' else 0
             )
-
-            if res.returncode == 0:
-                return res.stdout.strip()
-
-            return False
-
-        except Exception as paradox:
-            self.Logger.debug(f"Shell Probe Paradox: {paradox}")
+            return res.stdout.strip() if res.returncode == 0 else False
+        except Exception:
             return False
 
     def _check_binary(self, name: str) -> bool:
-        """
-        =============================================================================
-        == THE BINARY SENTINEL (V-Ω-ZERO-LATENCY-INCEPTION)                       ==
-        =============================================================================
-        LIF: INFINITY | ROLE: O(1)_TOOL_SCRIER
-        A direct, non-shell-spawning way to check for a tool's existence.
-        Usage: {{ if binary('npm') }} ... {{ endif }}
-        """
+        """Checks if a binary exists in the system PATH."""
         import shutil
         return bool(shutil.which(str(name).strip()))
 
-
-
     def _bestow_naming_nomenclature(self):
-        """
-        [ASCENSION 5]: THE CASING SHIFTERS.
-        Transmutes strings across semantic styles.
-        """
+        """Registers string manipulation filters (camelCase, snake_case, etc.)."""
         naming_rites = {
             'pascal': conv.to_pascal_case,
             'camel': conv.to_camel_case,
@@ -606,51 +517,42 @@ class DivineAlchemist:
             self.env.filters[name] = rite
             self.env.filters[name.upper()] = rite
 
-        # --- DATA ALCHEMY FILTERS ---
         self.env.filters.update({
             "to_json": lambda x: json.dumps(x, indent=2, default=str),
-            "to_yaml": self._to_yaml_safe,
             "hash": lambda x: hashlib.sha256(str(x).encode()).hexdigest()[:16],
             "quote": shlex.quote,
             "base64": self._to_base64_safe,
-            "native": self._transmute_to_native  # [ASCENSION 11]
+            "native": self._transmute_to_native
         })
 
     # =========================================================================
-    # == THE METABOLIC CACHE (PERFORMANCE)                                   ==
+    # == SECTION IV: CACHING & UTILITIES                                     ==
     # =========================================================================
 
     def _ignite_metabolic_cache(self):
-        """[ASCENSION 18]: LRU-Warded Memory Lattice."""
+        """Initializes the LRU render cache."""
         self._l2_render_cache: Dict[str, str] = collections.OrderedDict()
         self._cache_limit = 500
 
     def _forge_merkle_cache_key(self, source: str, context: Dict) -> str:
-        """[ASCENSION 12]: Merkle-State Fingerprint."""
-        # We hash the source string and the relevant part of the context
-        ctx_hash = hashlib.md5(str(sorted(context.items())).encode()).hexdigest()
-        src_hash = hashlib.md5(source.encode()).hexdigest()
-        return f"{src_hash}:{ctx_hash}"
-
-    # =========================================================================
-    # == ALCHEMICAL HELPERS (THE TRANSFIGURATORS)                            ==
-    # =========================================================================
+        """Generates a unique hash for the (Template + Context) tuple."""
+        try:
+            # Sort context keys for stability
+            ctx_hash = hashlib.md5(str(sorted(context.items())).encode('utf-8', 'ignore')).hexdigest()
+            src_hash = hashlib.md5(source.encode('utf-8', 'ignore')).hexdigest()
+            return f"{src_hash}:{ctx_hash}"
+        except Exception:
+            # Fallback random key to bypass cache on error
+            return uuid.uuid4().hex
 
     def _transmute_to_native(self, value: str) -> Any:
-        """[ASCENSION 11]: Transmutes strings to Python Primitives."""
+        """Safely evaluates a string literal to a Python primitive."""
         import ast
         if not isinstance(value, str): return value
         try:
             return ast.literal_eval(value)
         except (ValueError, SyntaxError):
             return value
-
-    def _to_yaml_safe(self, data: Any) -> str:
-        try:
-            import yaml
-            return yaml.dump(data, default_flow_style=False)
-        except ImportError:
-            return str(data)
 
     def _to_base64_safe(self, data: Any) -> str:
         import base64
@@ -661,191 +563,56 @@ class DivineAlchemist:
             return ""
 
     def purge_private_gnosis(self, gnosis: Dict[str, Any]) -> Dict[str, Any]:
-        """[ASCENSION 3]: Bicameral Purge of Transient Souls."""
+        """Removes keys starting with '_' from a dictionary."""
         if isinstance(gnosis, GnosticSovereignDict):
             gnosis = gnosis.model_dump()
         return {k: v for k, v in gnosis.items() if not str(k).startswith("_")}
 
-    # =========================================================================
-    # == THE HUD BRIDGE                                                      ==
-    # =========================================================================
-
-    def _pulse_ocular_hud(self, ms: float, label: str = "ALCHEMICAL_FISSION", color: str = "#64ffda"):
-        """
-        =============================================================================
-        == THE OCULAR RADIATION RITE (V-Ω-TOTALITY-V3000.7-LABEL-AWARE)            ==
-        =============================================================================
-        LIF: 50x | ROLE: ATMOSPHERIC_SIGNALER | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_HUD_PULSE_V300_LABEL_SUTURE_2026_FINALIS
-
-        [THE MANIFESTO]
-        This rite projects the internal kinetics of the Alchemist into the Ocular
-        Membrane. It is now fully aware of semantic labels, allowing the HUD to
-        distinguish between a standard Fission and a Socratic Gnosis Gap.
-
-        ### THE PANTHEON OF 7 ASCENSIONS:
-        1.  **Semantic Label Suture (THE FIX):** Now explicitly accepts the 'label'
-            argument, annihilating the 'Unexpected Argument' heresy.
-        2.  **Hydraulic Debouncing:** Implements a 100ms temporal ward to prevent
-            HUD saturation during high-velocity recursive cycles.
-        3.  **Achronal Trace Resonance:** Surgically scries the environment for the
-            active 'SCAFFOLD_TRACE_ID' to ensure the pulse follows the Silver Cord.
-        4.  **Metabolic Tomography:** Injects the 'ms' latency directly into the
-            signal metadata for real-time performance profiling in the Cockpit.
-        5.  **Aura Chromatics:** Dynamically shifts colors based on the label
-            (Teal for Fission, Amber for Gnosis Gaps).
-        6.  **NoneType Engine Guard:** Defensive scrying ensures that a missing
-            engine reference never shatters the Alchemist's mind.
-        7.  **The Finality Vow:** A mathematical guarantee of a non-blocking
-            broadcast, preserving the speed of the Matter Strike.
-        =============================================================================
-        """
-        now = time.time()
-
-        # [ASCENSION 2]: HYDRAULIC DEBOUNCING
-        # We only radiate if sufficient time has passed or if it's a critical Gap.
-        if not hasattr(self, '_last_hud_pulse'): self._last_hud_pulse = 0
-        if "GAP" not in label and (now - self._last_hud_pulse < 0.1):
-            return
-
-        self._last_hud_pulse = now
-
-        # [ASCENSION 6]: DEFENSIVE ENGINE SCRYING
-        # We attempt to find the Akashic link through the Engine's physical presence.
-        engine_ref = getattr(self, 'engine', None)
-        akashic = getattr(engine_ref, 'akashic', None) if engine_ref else None
-
-        if akashic:
-            try:
-                # [ASCENSION 3]: TRACE RESONANCE
-                trace_id = os.environ.get("SCAFFOLD_TRACE_ID") or "tr-alchemist-local"
-
-                # [ASCENSION 5]: AURA CHROMATICS
-                final_color = "#fbbf24" if "GAP" in label else color
-
-                # [STRIKE]: Radiate the Gnostic Pulse
-                akashic.broadcast({
-                    "method": "novalym/hud_pulse",
-                    "params": {
-                        "type": "ALCHEMICAL_EVENT",
-                        "label": label,
-                        "color": final_color,
-                        "trace": trace_id,
-                        "meta": {
-                            "latency_ms": round(ms, 2),
-                            "instance": self.instance_id,
-                            "timestamp": now
-                        }
-                    }
-                })
-            except Exception:
-                # The radiation is non-blocking; we allow silence over fracture.
-                pass
-
     def scry_template_variables(self, source: str) -> Set[str]:
-        """[ASCENSION 8]: THE SOCRATIC SCRIBE."""
+        """Analyzes a template string and returns a set of undeclared variables."""
         try:
-            ast = self.env.parse(source)
-            return meta.find_undeclared_variables(ast)
+            ast_obj = self.env.parse(source)
+            return meta.find_undeclared_variables(ast_obj)
         except Exception:
             return set()
 
-    def __repr__(self) -> str:
-        return f"<Ω_DIVINE_ALCHEMIST id={self.instance_id} status=RESONANT>"
 
+# =========================================================================
+# == SINGLETON ACCESSOR                                                  ==
+# =========================================================================
 
-# --- THE GNOSTIC CELL ---
-# This is the immortal Locus where the Alchemist's mind resides.
 _ALCHEMIST_CELL: Optional['DivineAlchemist'] = None
 _CELL_LOCK: Final[threading.RLock] = threading.RLock()
 
 
 def get_alchemist(engine: Optional[Any] = None, strict: bool = True) -> 'DivineAlchemist':
     """
-    =============================================================================
-    == THE ALCHEMICAL SINGLETON (V-Ω-TOTALITY-V400-INDESTRUCTIBLE)             ==
-    =============================================================================
-    Summons the one true, shared mind of the Alchemist.
+    Returns the singleton instance of the DivineAlchemist.
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-    1.  **Achronal Organ Suture (THE CURE):** Surgically injects the Engine reference
-        into the Alchemist's soul, healing the 'Born in a Void' paradox.
-    2.  **Double-Checked Atomic Gating:** Implements high-performance locking to
-        prevent "Race Condition Inception" during parallel kinetic strikes.
-    3.  **Late-Bound Resonance:** If the Alchemist exists but lacks an Engine,
-        this gateway conducts the surgery the microsecond a heart is provided.
-    4.  **NoneType Sarcophagus:** Hardened against null engines; automatically
-        assigns a 'Safe-Null' if the Architect's will is currently silent.
-    5.  **Apophatic Property Guard:** Uses `getattr/setattr` to bypass potential
-        Pydantic immutability or `__slots__` constraints during the suture.
-    6.  **Substrate-Aware Persistence:** Operates with bit-parity across Iron
-        (Native Azure) and Ether (WASM/Pyodide) boundaries.
-    7.  **Isomorphic Logging:** Propagates the 'silent' plea from the Engine
-        to ensure the boot-stream remains pure.
-    8.  **Hydraulic Lock Re-entrancy:** Employs `RLock` to prevent deadlocks
-        during recursive alchemical calls (e.g. Alchemist scrying the Engine).
-    9.  **Socratic Trace Suture:** Injects the active `trace_id` into the
-        Alchemist's metadata for distributed forensic auditing.
-    10. **Metabolic Floor Enforcement:** Guarantees that the Alchemist instance
-        is never returned in a 'Fractured' state (missing attributes).
-    11. **JIT Dependency Resolution:** Defers the import of the heavy engine
-        class to the moment of birth, accelerating system ignition.
-    12. **The Finality Vow:** A mathematical guarantee of a resonant,
-        engine-connected materialization mind.
-    =============================================================================
+    This function ensures that only one template engine exists per process.
+    If the engine reference is provided later, it is injected into the
+    existing instance.
     """
     global _ALCHEMIST_CELL
 
-    # --- MOVEMENT I: THE PRE-FLIGHT GAZE (OPTIMISTIC) ---
-    # We scry the cell without a lock for O(1) performance in the steady state.
+    # Fast check
     if _ALCHEMIST_CELL is not None:
-        # [ASCENSION 3]: THE LATE-BOUND SUTURE
-        # If the Mind is manifest but the Heart (Engine) is missing, we heal it.
-        # We check for 'engine' existance AND if it is actually None.
+        # Late-bound dependency injection: If we have a new engine ref and the alchemist needs it
         current_engine = getattr(_ALCHEMIST_CELL, 'engine', None)
-
         if engine and current_engine is None:
             with _CELL_LOCK:
-                # Re-verify inside the lock to prevent multi-thread surgery
                 if getattr(_ALCHEMIST_CELL, 'engine', None) is None:
-                    # [THE CURE]: Atomic Suture
-                    # We use __dict__ if it's a standard class, or setattr for safety.
                     try:
                         _ALCHEMIST_CELL.engine = engine
-                        # Radiate the success to the diagnostic stream
-                        if not getattr(engine, '_silent', False):
-                            _ALCHEMIST_CELL.Logger.verbose(
-                                f"Alchemist [{_ALCHEMIST_CELL.instance_id}] sutured to Engine post-inception."
-                            )
                     except Exception:
-                        # Fallback for Draconian immutability wards
-                        setattr(_ALCHEMIST_CELL, 'engine', engine)
-
+                        pass
         return _ALCHEMIST_CELL
 
-    # --- MOVEMENT II: THE ATOMIC BIRTH (DOUBLE-CHECKED) ---
     with _CELL_LOCK:
-        # Second Gaze: Ensure a sibling thread didn't materialize the soul while we waited.
         if _ALCHEMIST_CELL is None:
-            # JIT Materialization of the Class to prevent circular import heresies.
-            from .engine import DivineAlchemist
-
-            # [ASCENSION 1]: ORGAN MATERIALIZATION
-            # We birth the Alchemist with the provided Engine DNA.
             _ALCHEMIST_CELL = DivineAlchemist(engine=engine, strict=strict)
 
-            # [ASCENSION 7]: TELEMETRY LOG
-            # Proclaim the birth to the Ocular HUD if not in a state of Silence.
-            if engine and not getattr(engine, '_silent', False):
-                _ALCHEMIST_CELL.Logger.success(
-                    f"Divine Alchemist [{_ALCHEMIST_CELL.instance_id}] born and sutured to Engine."
-                )
-
-        # --- MOVEMENT III: SECONDARY SUTURE ---
-        # Handles the extreme edge case where the lock was acquired but the engine arrived late.
         elif engine and getattr(_ALCHEMIST_CELL, 'engine', None) is None:
             _ALCHEMIST_CELL.engine = engine
 
-    # [ASCENSION 12]: THE FINALITY VOW
-    # The gateway has spoken. The vessel is resonant, warded, and OMEGA.
     return _ALCHEMIST_CELL

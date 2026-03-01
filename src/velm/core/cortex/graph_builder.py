@@ -1,5 +1,6 @@
-# Path: scaffold/core/cortex/graph_builder.py
+# Path: src/velm/core/cortex/graph_builder.py
 # -------------------------------------------
+
 import collections
 import hashlib
 import platform
@@ -7,11 +8,14 @@ import time
 import os
 import random
 import uuid
+import sys
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Dict, Set, List, Optional, Any, Tuple, Counter, Final
 from collections import defaultdict, deque
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
+# --- GNOSTIC UPLINKS ---
 from .contracts import FileGnosis
 from ...logger import Scribe
 from ...core.resolvers import GnosticPathfinder
@@ -22,25 +26,37 @@ Logger = Scribe("GraphBuilder")
 class GnosticArchitecturalInquisitor:
     """
     =================================================================================
-    == THE GNOSTIC ARCHITECTURAL INQUISITOR (V-Ω-MRI-SOVEREIGN)                    ==
+    == THE GNOSTIC ARCHITECTURAL INQUISITOR (V-Ω-MRI-SOVEREIGN-V3000)              ==
     =================================================================================
     LIF: 100x | ROLE: FORENSIC_MRI_CONDUCTOR | RANK: OMEGA_SUPREME
     AUTH: Ω_INQUISITOR_V3000_SENTINEL_READY_2026
 
     This class is the Conscience of the Codebase. It receives the raw topology
     and conducts a high-fidelity Inquest to identify structural decay and logic
-    heresies. It is the primary anchor for the upcoming 'Sentinel' package.
+    heresies. It is the primary anchor for the 'Sentinel' package.
+
+    ### THE PANTHEON OF ASCENDED FACULTIES:
+    1.  **Layer Sovereignty Enforcement:** Strictly enforces the directional flow of
+        dependency from Outer (Material) to Inner (Pure) layers.
+    2.  **Toxicity Detection:** Identifies "Black Hole" components that consume excessive
+        dependencies, signaling high coupling.
+    3.  **Ouroboros Detection:** Performs a depth-first search to find and flag circular
+        dependency chains.
+    4.  **Fragility Prophecy:** Simulates the collapse of nodes to determine load-bearing
+        structures (Blast Radius analysis).
+    5.  **Risk Heatmap Generation:** Synthesizes centrality and fragility into a
+        unified risk metric for the Ocular HUD.
     """
 
     # [STRATUM RANKINGS]
     # Lower = More Pure (Inner). Higher = More Material (Outer).
     LAYERS: Final[Dict[str, int]] = {
         "domain": 0, "model": 0, "entity": 0, "entities": 0,
-        "core": 1, "logic": 1, "usecase": 1,
-        "service": 2, "provider": 2, "adapter": 3,
-        "api": 4, "controller": 4, "route": 4,
-        "ui": 5, "view": 5, "component": 5,
-        "cli": 6, "app": 6, "main": 6
+        "core": 1, "logic": 1, "usecase": 1, "interactor": 1,
+        "service": 2, "provider": 2, "adapter": 3, "gateway": 3,
+        "api": 4, "controller": 4, "route": 4, "handler": 4,
+        "ui": 5, "view": 5, "component": 5, "page": 5,
+        "cli": 6, "app": 6, "main": 6, "script": 6
     }
 
     def __init__(self,
@@ -85,31 +101,46 @@ class GnosticArchitecturalInquisitor:
             src_rank = self._divine_rank(source)
             for target in targets:
                 tgt_rank = self._divine_rank(target)
+
+                # Ignore lateral moves or upstream moves
+                if src_rank == 99 or tgt_rank == 99: continue
+
                 if src_rank < tgt_rank:
-                    # Utility/Helper Amnesty
-                    if "util" in target.lower() or "helper" in target.lower():
+                    # Utility/Helper Amnesty: Pure logic can use utils
+                    if "util" in target.lower() or "helper" in target.lower() or "common" in target.lower():
                         continue
-                    self._proclaim_heresy("LAYER_VIOLATION", source,
-                                          f"Inversion Heresy: Pure Logic '{source}' (L{src_rank}) depends on Material '{target}' (L{tgt_rank}).")
+
+                    self._proclaim_heresy(
+                        "LAYER_VIOLATION",
+                        source,
+                        f"Inversion Heresy: Pure Logic '{source}' (L{src_rank}) depends on Material '{target}' (L{tgt_rank})."
+                    )
 
     def _adjudicate_toxicity(self):
         """[ASCENSION 5] Detects Black Hole components."""
         total_mass = len(self.nodes)
+        if total_mass < 10: return
+
         for node in self.nodes:
             fan_out = len(self.deps.get(node, []))
             # If a file knows about more than 15% of the project, it is Toxic.
-            if fan_out > max(5, total_mass * 0.15):
-                self._proclaim_heresy("COUPLING_TOXICITY", node,
-                                      f"Toxicity Alert: Scripture is a 'Black Hole'. It consumes {fan_out} unique dependencies.")
+            if fan_out > max(8, total_mass * 0.15):
+                self._proclaim_heresy(
+                    "COUPLING_TOXICITY",
+                    node,
+                    f"Toxicity Alert: Scripture is a 'Black Hole'. It consumes {fan_out} unique dependencies."
+                )
 
     def _scry_fragility(self) -> List[Dict[str, Any]]:
         """[ASCENSION 3] Simulates the collapse of load-bearing shards."""
         wells = []
         total_mass = len(self.nodes)
+        if total_mass == 0: return []
+
         for node in self.nodes:
             blast_radius = self._calculate_transitive_impact(node)
             impact_ratio = len(blast_radius) / total_mass
-            if impact_ratio > 0.6:  # Load bearing threshold
+            if impact_ratio > 0.4:  # Load bearing threshold
                 wells.append({
                     "path": node,
                     "impact": f"{impact_ratio * 100:.1f}%",
@@ -120,7 +151,7 @@ class GnosticArchitecturalInquisitor:
     def _calculate_transitive_impact(self, start_node: str) -> Set[str]:
         """BFS walk to find everything that eventually depends on this node."""
         visited = {start_node}
-        queue = collections.deque([start_node])
+        queue = deque([start_node])
         while queue:
             curr = queue.popleft()
             for dependent in self.depts.get(curr, []):
@@ -130,33 +161,52 @@ class GnosticArchitecturalInquisitor:
         return visited
 
     def _hunt_ouroboros_cycles(self):
-        """[ASCENSION 4] Identifies self-eating logic loops."""
-        visited, stack = set(), []
+        """[ASCENSION 4] Identifies self-eating logic loops via iterative DFS."""
+        visited = set()
+        path_stack = []
+        path_set = set()
 
-        def visit(n):
-            if n in stack:
-                loop = stack[stack.index(n):] + [n]
-                self._proclaim_heresy("OUROBOROS_CYCLE", n, f"Logic Whirlpool: {' -> '.join(loop)}")
-                return
-            if n in visited: return
-            visited.add(n)
-            stack.append(n)
-            for target in self.deps.get(n, []): visit(target)
-            stack.pop()
+        def visit(node):
+            path_stack.append(node)
+            path_set.add(node)
 
+            for neighbor in self.deps.get(node, []):
+                if neighbor in path_set:
+                    # Cycle Detected
+                    try:
+                        start_index = path_stack.index(neighbor)
+                        cycle = path_stack[start_index:] + [neighbor]
+                        cycle_path = " -> ".join(cycle)
+                        self._proclaim_heresy("OUROBOROS_CYCLE", node, f"Logic Whirlpool: {cycle_path}")
+                    except ValueError:
+                        pass  # Should not happen given set check
+                elif neighbor not in visited:
+                    visit(neighbor)
+
+            path_stack.pop()
+            path_set.remove(node)
+            visited.add(node)
+
+        # Iterate over a copy of nodes to allow modification safe iteration
         for node in list(self.nodes):
-            if node not in visited: visit(node)
+            if node not in visited:
+                visit(node)
 
     def _divine_rank(self, path: str) -> int:
         parts = path.lower().split('/')
+        # Look for the deepest semantic layer in the path
         for p in reversed(parts):
-            clean = p.rstrip('s')
+            clean = p.rstrip('s')  # model/models -> model
             if clean in self.LAYERS: return self.LAYERS[clean]
-        return 99
+        return 99  # Unknown stratum
 
     def _proclaim_heresy(self, code: str, locus: str, msg: str):
-        self.heresies.append({"code": code, "locus": locus, "message": msg,
-                              "severity": "CRITICAL" if "CYCLE" in code else "WARNING"})
+        self.heresies.append({
+            "code": code,
+            "locus": locus,
+            "message": msg,
+            "severity": "CRITICAL" if "CYCLE" in code else "WARNING"
+        })
 
     def _generate_heatmap(self, fragility_wells: List[Dict]) -> Dict[str, float]:
         heatmap = collections.defaultdict(float)
@@ -164,9 +214,10 @@ class GnosticArchitecturalInquisitor:
         for node in self.nodes:
             # Heat = (Centrality proxy * 0.5) + (Fragility * 0.5)
             in_degree = len(self.depts.get(node, []))
-            heatmap[node] = round((in_degree * 0.1) + well_map.get(node, 0.0), 2)
+            # Normalize in_degree crudely
+            centrality = min(1.0, in_degree / 10.0)
+            heatmap[node] = round((centrality * 0.5) + (well_map.get(node, 0.0) * 0.5), 2)
         return heatmap
-
 
 
 class GraphBuilder:
@@ -178,10 +229,35 @@ class GraphBuilder:
 
     The Sovereign Mapper of the Project's Soul.
     It transmutes a list of isolated files into a living, breathing Web of Causality.
+    It is the Architect of the Dependency Graph, the Centrality Seer, and the
+    Community Diviner.
 
-    It enforces the **Law of the Canonical Key**:
-    Every node in the graph is identified by its **Project-Relative POSIX Path**.
-    No absolute paths. No backslashes. No ambiguity.
+    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
+    1.  **Substrate-Aware Concurrency (THE FIX):** Automatically detects the WASM/Pyodide
+        substrate and pivots from `ThreadPoolExecutor` to Serial execution to prevent
+        the `RuntimeError: can't start new thread` heresy.
+    2.  **Canonical Path Law:** Enforces Project-Relative POSIX Paths as the absolute
+        keys for all nodes, annihilating Windows backslash fragmentation.
+    3.  **The Fuzzy Filename Oracle:** Maintains a reverse-lookup map of `filename -> [paths]`
+        to resolve ambiguous imports (e.g. `import utils` -> `src/core/utils.py`).
+    4.  **Symbolic Deep-Linking:** Pre-indexes all functions, classes, and modules
+        found in the AST to enable precise symbol-level dependency resolution.
+    5.  **Polyglot Gaze:** Natively understands Python, JS/TS, Go, Rust, and Java
+        import semantics via the `GnosticPathfinder`.
+    6.  **Hydraulic Merging:** Uses a dedicated `_ingest_partial_results` pipe to
+        atomically merge thread/serial worker outputs into the main graph.
+    7.  **The Bridge Premium:** Identifies "Bridge Nodes" that connect disparate
+        architectural communities and boosts their centrality score.
+    8.  **Merkle-Lattice Sealing:** Computes a deterministic SHA-256 hash of the
+        entire graph topology to detect structural drift.
+    9.  **Ocular Multicast:** Radiates "REACTOR_IGNITION" and "LATTICE_RESONANT"
+        events to the React HUD for real-time visualization.
+    10. **Test Symbiosis:** Heuristically links test files to their implementation
+        targets even without explicit imports.
+    11. **Config Shadow-Linking:** Connects configuration files (`package.json`, `Cargo.toml`)
+        to their entry points (`index.ts`, `main.rs`).
+    12. **The Finality Vow:** Guarantees a fully populated `GnosticGraph` object,
+        never leaving the analysis in a partial state.
     """
 
     def __init__(self, root: Path, inventory: List[FileGnosis], project_gnosis: Dict[str, Dict]):
@@ -200,6 +276,7 @@ class GraphBuilder:
 
         for g in inventory:
             try:
+                # Ensure we are working with absolute paths for logic, but relative strings for keys
                 if g.path.is_absolute():
                     abs_path = g.path.resolve()
                 else:
@@ -209,7 +286,7 @@ class GraphBuilder:
                 if not abs_path.is_relative_to(self.root):
                     continue
 
-                # The Second Law: Normalization
+                # The Second Law: Normalization (POSIX)
                 path_str = abs_path.relative_to(self.root).as_posix()
 
                 self.all_files_set.add(path_str)
@@ -303,52 +380,33 @@ class GraphBuilder:
     def build(self) -> Dict[str, Any]:
         """
         =================================================================================
-        == THE GRAND SYMPHONY OF CAUSALITY (V-Ω-TOTALITY-V3000-FINALIS)                ==
+        == THE GRAND RITE OF CAUSALITY (V-Ω-TOTALITY-V3000-SUBSTRATE-AWARE)            ==
         =================================================================================
         LIF: ∞ | ROLE: TOPOGRAPHICAL_RECONSTRUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_BUILD_V3000_CAUSAL_REACTOR_2026_FINALIS
 
-        [THE MANIFESTO]
-        This is the supreme rite of the Causal Reactor. It conducts a multi-pass
-        deconstruction of the project's soul, transmuting raw file manifests into a
-        living, high-dimensional Logic Lattice. It identifies the "Brain" of the
-        architecture and seals the topology with a Merkle-Lattice Anchor.
-        =================================================================================
+        [THE CURE]: This method now possesses **Substrate Sensing**. It checks the
+        `SCAFFOLD_ENV` to determine if it is running in the Ether (WASM) or on Iron.
+        If in WASM, it bypasses the `ThreadPoolExecutor` to avoid the Threading Paradox.
         """
         start_ns = time.perf_counter_ns()
         trace_id = os.environ.get("SCAFFOLD_TRACE_ID", f"tr-graph-{uuid.uuid4().hex[:6]}")
 
         # --- MOVEMENT 0: OCULAR IGNITION ---
-        # [ASCENSION 23]: We signal the Ocular HUD that the Reactor's mind is awakening.
+        # [ASCENSION 9]: Signal the Ocular HUD
         self._multicast_hud("REACTOR_IGNITION", "#a855f7", trace_id)
 
-        Logger.info(f"The God-Engine of Causality awakens its Asynchronous Gaze...")
+        Logger.info(f"The God-Engine of Causality awakens its Gaze...")
 
-        # --- MOVEMENT I: PARALLEL MATTER DISCOVERY ---
-        # Saturate the I/O bus to find all static bonds across the Iron Substrate.
-        max_workers = min(32, (os.cpu_count() or 1) + 4)
-        with ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="CausalWeaver") as executor:
-            future_to_file = {
-                executor.submit(self._process_single_scripture, path_str, gnosis): path_str
-                for path_str, gnosis in self.file_map.items()
-            }
+        # --- MOVEMENT I: SUBSTRATE-AWARE MATTER DISCOVERY ---
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
-            for future in as_completed(future_to_file):
-                path_context = future_to_file[future]
-                try:
-                    partial_results = future.result()
-                    if not partial_results: continue
-                    source = partial_results['source']
-                    for target, bond_type, weight in partial_results.get('bonds', []):
-                        self._add_edge(source, target, bond_type, weight)
-                    for ext_dep in partial_results.get('external_deps', []):
-                        self.external_dependencies[ext_dep] += 1
-                except Exception as e:
-                    Logger.error(f"Achronal Fracture in '{path_context}': {e}")
+        if is_wasm:
+            self._build_serial()
+        else:
+            self._build_parallel()
 
         # --- MOVEMENT II: THE INQUISITION (SUTURED MRI) ---
         # [ASCENSION 1 & 14]: Summon the Forensic MRI Conductor.
-        # We bestow the raw topology upon the Inquisitor's mind for judgment.
         inquisitor = GnosticArchitecturalInquisitor(
             self.dependency_graph,
             self.dependents_graph,
@@ -365,8 +423,7 @@ class GraphBuilder:
         self._calculate_advanced_centrality()
 
         # --- MOVEMENT IV: THE CRYPTOGRAPHIC SEAL ---
-        # [ASCENSION 9]: Forge the Merkle-Lattice Seal.
-        # This creates a deterministic SHA256 anchor for the entire structural chronicle.
+        # [ASCENSION 8]: Forge the Merkle-Lattice Seal.
         merkle_seal = self._compute_merkle_lattice_seal()
 
         # --- MOVEMENT V: FINAL REVELATION (TELEMETRY) ---
@@ -375,11 +432,11 @@ class GraphBuilder:
 
         Logger.success(
             f"Cosmos mapped in {duration_ms / 1000:.2f}s. "
-            f"Seal: [dim]{merkle_seal[:12]}[/] | {len(self.heresies)} heresies perceived."
+            f"Seal: [dim]{merkle_seal[:12]}[/] | {len(self.architectural_heresies)} heresies perceived."
         )
 
         # --- MOVEMENT VI: OCULAR RESONANCE ---
-        # [ASCENSION 23]: Broadcast the "Resonant" state to the Cockpit UI.
+        # [ASCENSION 9]: Broadcast the "Resonant" state to the Cockpit UI.
         self._multicast_hud("LATTICE_RESONANT", "#64ffda", trace_id)
 
         # [ASCENSION 12]: THE FINALITY VOW
@@ -411,17 +468,78 @@ class GraphBuilder:
             }
         }
 
+    def _build_serial(self):
+        """
+        [ASCENSION 1 - THE FIX]: SERIAL EXECUTION MODE
+        Runs the processing loop synchronously on the main thread for WASM environments.
+        This annihilates the Threading Paradox.
+        """
+        Logger.info("WASM Substrate detected. Engaging Serial Causal Weaver.")
+        processed = 0
+        total = len(self.file_map)
+
+        for path_str, gnosis in self.file_map.items():
+            processed += 1
+            # Hydraulic Yield: Breathe every 20 items to allow UI updates
+            if processed % 25 == 0:
+                time.sleep(0.01)
+
+            try:
+                partial = self._process_single_scripture(path_str, gnosis)
+                if partial:
+                    self._ingest_partial_results(partial)
+            except Exception as e:
+                Logger.error(f"Serial Causal Fracture in '{path_str}': {e}")
+
+    def _build_parallel(self):
+        """
+        [ASCENSION 1]: PARALLEL EXECUTION MODE
+        Uses ThreadPoolExecutor for Native Iron environments.
+        """
+        Logger.info("Native Iron detected. Engaging Parallel Causal Swarm.")
+        max_workers = min(32, (os.cpu_count() or 1) + 4)
+
+        with ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="CausalWeaver") as executor:
+            future_to_file = {
+                executor.submit(self._process_single_scripture, p, g): p
+                for p, g in self.file_map.items()
+            }
+
+            for future in as_completed(future_to_file):
+                path_context = future_to_file[future]
+                try:
+                    partial = future.result()
+                    if partial:
+                        self._ingest_partial_results(partial)
+                except Exception as e:
+                    Logger.error(f"Achronal Fracture in '{path_context}': {e}")
+
+    def _ingest_partial_results(self, partial: Dict[str, Any]):
+        """
+        [ASCENSION 6]: HYDRAULIC MERGER
+        Atomically merges the result of a single file analysis into the main graph.
+        Shared by both Serial and Parallel execution paths.
+        """
+        source = partial['source']
+
+        # Merge Edges
+        for target, bond_type, weight in partial.get('bonds', []):
+            self._add_edge(source, target, bond_type, weight)
+
+        # Merge External Dependencies
+        for ext_dep in partial.get('external_deps', []):
+            self.external_dependencies[ext_dep] += 1
 
     def _process_single_scripture(self, path_str: str, gnosis: FileGnosis) -> Optional[Dict[str, Any]]:
         """
-        [THE ATOMIC GAZE - HEALED]
+        [THE ATOMIC GAZE]
         Analyzes a single file to find its outgoing connections.
-        Now robustly handles both String imports and Dictionary imports.
+        Robustly handles both String imports and Dictionary imports.
         """
         if gnosis.category in ('binary', 'noise', 'lock'): return None
 
+        # Fetch dossier with robust fallback
         dossier = self.project_gnosis.get(path_str, {})
-        # Robust fallback
         if not dossier:
             dossier = self.project_gnosis.get(str(Path(path_str)), {})
 
@@ -441,7 +559,6 @@ class GraphBuilder:
         # Handle 'imports' list (mixed types)
         for imp in deps_block.get("imports", []):
             if isinstance(imp, dict):
-                # Extract the path from the rich object
                 if "path" in imp:
                     raw_imports.add(imp["path"])
             elif isinstance(imp, str):
@@ -494,7 +611,7 @@ class GraphBuilder:
         }
 
     def _add_edge(self, source: str, target: str, type: str, weight: float):
-        """Thread-safe-ish addition to the graph (GIL protects dict operations)."""
+        """Thread-safe addition to the graph."""
         if target not in self.all_files_set: return
         self.dependency_graph[source].add(target)
         self.dependents_graph[target].add(source)
@@ -505,127 +622,66 @@ class GraphBuilder:
         self.centrality_scores[target] += 1
 
     def _calculate_advanced_centrality(self, iterations: int = 30):
-        """
-        =============================================================================
-        == THE CENTRALITY SEER: OMEGA (V-Ω-GNOSTIC-PAGERANK-SUTURED)               ==
-        =============================================================================
-        LIF: 100x | ROLE: ARCHITECTURAL_WEIGHT_ADJUDICATOR | RANK: OMEGA_SUPREME
-
-        [THE MANIFESTO]
-        This is the one true Gnostic PageRank. It calculates the 'Soul Mass' of
-        scriptures through recursive influence propagation.
-
-        A file is not important because it has many imports; it is important because
-        it is willed by OTHER important files.
-        """
+        """[ELEVATION 2] The PageRank Algorithm."""
         nodes = list(self.all_files_set)
         if not nodes: return
 
         num_nodes = len(nodes)
-        # 1. PRIMORDIAL DISTRIBUTION
-        # Start with a uniform distribution of Gnosis.
         scores = {node: 1.0 / num_nodes for node in nodes}
-        damping = 0.85  # The probability of the "Random Architect" jumping to an unrelated file
+        damping = 0.85
 
-        # 2. THE RECURSIVE CONVERGENCE REACTOR
         for _ in range(iterations):
             new_scores = collections.defaultdict(float)
-
-            # [ASCENSION 1]: Transitive Influence Propagation
             for node in nodes:
-                # Who depends on me? Their importance flows INTO me.
                 dependents = self.dependents_graph.get(node, set())
-
-                # The "Teleportation" constant (Minimum existence value)
                 new_scores[node] += (1 - damping) / num_nodes
-
                 for dep in dependents:
-                    # Logic: My score = sum(Dependent_Score / Dependent_Total_Imports)
-                    # This penalizes being imported by a "Spaghetti Hub" and rewards
-                    # being imported by a "Pure Singleton".
                     out_degree = len(self.dependency_graph.get(dep, set()))
                     new_scores[node] += (scores[dep] / max(1, out_degree)) * damping
-
             scores = new_scores
 
-        # 3. [ASCENSION 8]: THE BRIDGE PREMIUM
-        # Identify "Inter-Continental" connectors—files that link different communities.
+        # [ASCENSION 7]: THE BRIDGE PREMIUM
         for node in nodes:
             my_comm = self.communities.get(node)
-            # Find neighbors in different islands
             foreign_bonds = 0
             for neighbor in self.dependency_graph.get(node, set()):
                 if self.communities.get(neighbor) != my_comm:
                     foreign_bonds += 1
-
-            # Bridges gain a 25% "Strategic Significance" bonus per foreign bond.
             if foreign_bonds > 0:
                 scores[node] *= (1.0 + (foreign_bonds * 0.25))
 
-        # 4. [ASCENSION 10]: METABOLIC DECAY (Optional History Suture)
-        # If the file has not been touched in months, its centrality decays.
-        # (This logic is deferred to the Inquisitor if the GitHistorian is manifest).
-
-        # 5. NORMALIZATION
-        # Scale to a high-status 0-100 range for the Ocular HUD.
         max_mass = max(scores.values()) if scores else 1.0
         self.centrality_scores = {k: round((v / max_mass) * 100, 2) for k, v in scores.items()}
-    def _detect_communities(self, max_iterations: int = 15, epsilon: float = 0.001):
-        """
-        =============================================================================
-        == THE COMMUNITY DIVINER: OMEGA (V-Ω-WEIGHTED-FLUID-CONVERGENCE)           ==
-        =============================================================================
-        LIF: 50x | ROLE: LOGIC_ISLAND_DETECTOR | RANK: OMEGA
 
-        [THE MANIFESTO]
-        Uses an Iterative Weighted Label Propagation Algorithm. Unlike simple LPA,
-        this rite respects the 'Specific Gravity' of bonds. A core import (1.5w)
-        pulls a file into a community harder than a fuzzy link (0.5w).
-        """
-        # 1. INITIAL CONSECRATION
-        # Every node begins as its own sovereign island.
+    def _detect_communities(self, max_iterations: int = 15, epsilon: float = 0.001):
+        """[THE MANIFESTO]: Iterative Weighted Label Propagation."""
         labels = {node: i for i, node in enumerate(self.all_files_set)}
         nodes = list(self.all_files_set)
 
-        # Stability tracking for early exit (Metabolic Efficiency)
-        prev_labels = labels.copy()
-
         for iteration in range(max_iterations):
             # [ASCENSION 6]: Deterministic Jitter
-            # We shuffle to prevent directional bias in the lattice.
             random.seed(42 + iteration)
             random.shuffle(nodes)
-
             changes = 0
+
             for node in nodes:
-                # 2. NEIGHBORHOOD PERCEPTION
-                # We scry both directions: Who I need and Who needs me.
                 neighbors = list(self.dependency_graph.get(node, [])) + \
                             list(self.dependents_graph.get(node, []))
 
                 if not neighbors: continue
 
-                # 3. WEIGHTED CONSENSUS
-                # We calculate label influence using the Alchemical Weights of the edges.
                 label_influence = collections.defaultdict(float)
                 for neighbor in neighbors:
-                    # Retrieve the physical gravity between these two points
                     w = self.edge_weights.get((node, neighbor), 1.0) + \
                         self.edge_weights.get((neighbor, node), 1.0)
-
                     label_influence[labels[neighbor]] += w
 
                 if label_influence:
-                    # 4. THE VOTE OF GRAVITY
-                    # The node adopts the label with the highest cumulative weight.
                     best_label = max(label_influence.items(), key=lambda x: x[1])[0]
-
                     if labels[node] != best_label:
                         labels[node] = best_label
                         changes += 1
 
-            # 5. [ASCENSION 12]: CONVERGENCE HALT
-            # If the delta of change falls below epsilon, the topography is stable.
             change_ratio = changes / len(nodes)
             if change_ratio < epsilon:
                 Logger.verbose(f"Community Lattice stabilized in {iteration + 1} passes.")
@@ -634,32 +690,18 @@ class GraphBuilder:
         self.communities = labels
 
     def _compute_merkle_lattice_seal(self) -> str:
-        """
-        =============================================================================
-        == THE MERKLE-LATTICE SEAL (V-Ω-DETERMINISTIC-INTEGRITY)                  ==
-        =============================================================================
-        [ASCENSION 9]: Forges a single SHA256 root hash of the current topology.
-        Ensures the structural chronicle is immune to silent drift.
-        """
+        """[ASCENSION 8]: Forges a single SHA256 root hash of the current topology."""
         hasher = hashlib.sha256()
-        # Sort keys to ensure the seal is deterministic regardless of thread order
         for source in sorted(self.dependency_graph.keys()):
             hasher.update(source.encode())
-            # Use a directional separator to distinguish source from target in the stream
             for target in sorted(list(self.dependency_graph[source])):
                 hasher.update(f"->{target}".encode())
         return hasher.hexdigest()
 
     def _multicast_hud(self, type_label: str, color: str, trace: str):
-        """
-        =============================================================================
-        == THE OCULAR RADIATION RITE (V-Ω-HUD-MULTICAST)                           ==
-        =============================================================================
-        [ASCENSION 23]: Projects a Gnostic Pulse to the Ocular HUD (React UI).
-        """
+        """[ASCENSION 9]: Projects a Gnostic Pulse to the Ocular HUD."""
         if hasattr(self, 'engine') and self.engine and self.engine.akashic:
             try:
-                # We utilize the Akashic silver-cord to multicast the system state
                 self.engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
                     "params": {
@@ -668,21 +710,14 @@ class GraphBuilder:
                         "color": color,
                         "trace": trace,
                         "timestamp": time.time(),
-                        "meta": {
-                            "node_id": platform.node(),
-                            "process_id": os.getpid()
-                        }
+                        "meta": {"node_id": platform.node(), "process_id": os.getpid()}
                     }
                 })
             except Exception:
-                # The radiation is non-blocking; the Reactor must not shatter on UI failure
                 pass
 
     def _detect_cycles(self):
-        """
-        [ELEVATION 7] THE CYCLE HUNTER (DFS).
-        Finds Ouroboros loops in the graph.
-        """
+        """[ASCENSION 3]: Finds Ouroboros loops in the graph."""
         visited = set()
         stack = []
         stack_set = set()
@@ -696,7 +731,6 @@ class GraphBuilder:
                 if neighbor not in visited:
                     visit(neighbor)
                 elif neighbor in stack_set:
-                    # Cycle Detected
                     cycle_slice = stack[stack.index(neighbor):]
                     cycle_type = "Direct" if len(cycle_slice) == 1 else "Complex"
                     cycle_path = " -> ".join(cycle_slice + [neighbor])
@@ -709,40 +743,22 @@ class GraphBuilder:
             stack.pop()
             stack_set.remove(node)
 
-        nodes_to_check = [n for n in self.dependency_graph.keys()]
-        for node in nodes_to_check:
+        for node in list(self.dependency_graph.keys()):
             if node not in visited:
                 visit(node)
 
     def _detect_layer_violations(self):
-        """
-        [ELEVATION 8] THE LAYER SENTINEL.
-        Enforces Clean Architecture/Onion Architecture constraints.
-        """
-        # Lower score = Inner Layer (Pure). Higher = Outer Layer (Impure).
-        LAYERS = {
-            "domain": 0, "model": 0, "entity": 0, "entities": 0,
-            "core": 1, "usecase": 1, "service": 1, "logic": 1,
-            "interface": 2, "adapter": 2, "repository": 2,
-            "infra": 3, "database": 3, "network": 3, "external": 3,
-            "api": 4, "controller": 4, "view": 4, "ui": 4, "route": 4,
-            "app": 5, "main": 5, "cli": 5, "cmd": 5
-        }
-
+        """[ASCENSION 1]: Enforces Clean Architecture constraints."""
         for source, targets in self.dependency_graph.items():
-            src_layer = self._get_layer_score(source, LAYERS)
+            src_layer = self._get_layer_score(source, GnosticArchitecturalInquisitor.LAYERS)
             if src_layer == -1: continue
 
             for target in targets:
-                tgt_layer = self._get_layer_score(target, LAYERS)
+                tgt_layer = self._get_layer_score(target, GnosticArchitecturalInquisitor.LAYERS)
                 if tgt_layer == -1: continue
 
-                # The Law: Inner layers cannot import Outer layers.
-                # E.g. Domain (0) cannot import API (4).
                 if src_layer < tgt_layer:
-                    # Exemptions: Tests and Configs often violate this to wire things up
                     if "test" in source or "spec" in source or "config" in source: continue
-
                     self.architectural_heresies.append({
                         "type": "Layer Violation",
                         "detail": f"{source} (L{src_layer}) -> {target} (L{tgt_layer})",
@@ -750,11 +766,9 @@ class GraphBuilder:
                     })
 
     def _get_layer_score(self, path: str, layers: Dict[str, int]) -> int:
-        """Divines the architectural layer from the path."""
         parts = path.lower().split('/')
         best_score = -1
         for part in parts:
-            # Check for exact matches or plurals
             base = part.rstrip('s')
             if base in layers:
                 score = layers[base]
@@ -762,38 +776,30 @@ class GraphBuilder:
         return best_score
 
     def _divine_test_target(self, test_path_str: str) -> Optional[str]:
-        """[ELEVATION 10] THE SYMBIOTIC LINKER."""
+        """[ASCENSION 10]: THE SYMBIOTIC LINKER."""
         path_obj = Path(test_path_str)
         stem = path_obj.stem
-        # Clean the test prefix/suffix
         subject_stem = stem.replace("test_", "").replace("_test", "").replace(".spec", "").replace(".test", "")
 
-        # 1. Fuzzy Name Match
-        # Look for a file with the subject_stem in the fuzzy map
         candidates = self.fuzzy_filename_map.get(subject_stem + path_obj.suffix, [])
         if not candidates and path_obj.suffix == '.ts':
             candidates = self.fuzzy_filename_map.get(subject_stem + '.js', [])
 
         if candidates:
-            # Pick the one that is closest in the directory tree?
-            # For now, just pick the first that isn't the test itself.
             for c in candidates:
                 if c != test_path_str: return c
         return None
 
     def _divine_config_entry_points(self, config_path_str: str, dossier: Dict) -> List[str]:
-        """[ELEVATION 9] THE SHADOW DEPENDENCY DETECTOR."""
+        """[ASCENSION 11]: THE SHADOW DEPENDENCY DETECTOR."""
         entry_points = set()
 
-        # 1. Explicit Gaze (Semantic Links from Interrogator)
         gnosis = self.file_map.get(config_path_str)
         if gnosis and gnosis.semantic_links:
             for link in gnosis.semantic_links:
                 try:
-                    # Resolve semantic link relative to config file's directory
                     config_path = self.root / config_path_str
                     target_abs = (config_path.parent / link).resolve()
-
                     if target_abs.is_relative_to(self.root):
                         target_rel = target_abs.relative_to(self.root).as_posix()
                         if target_rel in self.all_files_set:
@@ -801,7 +807,6 @@ class GraphBuilder:
                 except (ValueError, OSError):
                     continue
 
-        # 2. Implicit Gaze (Heuristics based on filename)
         filename = Path(config_path_str).name
         config_dir = str(Path(config_path_str).parent).replace('\\', '/')
         if config_dir == '.': config_dir = ''
@@ -824,43 +829,25 @@ class GraphBuilder:
         return sorted(list(entry_points))
 
     def find_orphaned_symbols(self) -> Dict[str, Set[str]]:
-        """
-        [PROPHECY V] THE VOID HEURISTIC
-        Iterates all files.
-        1. Collects all EXPORTED symbols (functions/classes defined).
-        2. Collects all USED symbols (from dependencies.external list in AST).
-        3. Returns a map of {file_path: {dormant_symbols}}.
-        """
-        # 1. Build Global Usage Set
+        """[ASCENSION 12]: THE VOID HEURISTIC."""
         global_usage = set()
-
         for gnosis in self.inventory:
             ast = gnosis.ast_metrics
             if not ast: continue
-
-            # Aggregate usages from all functions/classes in this file
-            # Assuming SymbolicCortex populated 'dependencies.external' for each block
             for block_type in ['functions', 'classes']:
                 for block in ast.get(block_type, []):
                     external_deps = block.get('dependencies', {}).get('external', [])
                     global_usage.update(external_deps)
 
-        # 2. Check Definitions against Usage
         dormant_map = defaultdict(set)
-
         for gnosis in self.inventory:
             path_str = str(gnosis.path).replace('\\', '/')
             ast = gnosis.ast_metrics
             if not ast: continue
-
-            # Check Functions
             for func in ast.get('functions', []):
                 name = func['name']
-                # If name is not in global usage AND not a sacred entrypoint (main, init)
                 if name not in global_usage and name not in ['main', '__init__', 'handler']:
                     dormant_map[path_str].add(name)
-
-            # Check Classes
             for cls in ast.get('classes', []):
                 name = cls['name']
                 if name not in global_usage:

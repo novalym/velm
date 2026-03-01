@@ -36,6 +36,7 @@ from pydantic import (
     EmailStr
 )
 
+from ..constants import DEFAULT_COMMAND_TIMEOUT
 from ..contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 # --- LOCAL UTILITY (To avoid circular deps with Core) ---
 def _clean_uri_to_path(uri: str) -> str:
@@ -695,6 +696,15 @@ class DistillRequest(BaseRequest):
         default=".",
         description="The physical directory or celestial URL (Git/HTTP) to be distilled."
     )
+    virtual_context: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="A dictionary mapping relative file paths to their string content. Allows the UI to inject external realities without mounting them to the VFS."
+    )
+
+    non_interactive: bool = Field(
+        default=False,
+        description="The Vow of Silence. Suppresses all interactive prompts, accepting default Gnosis."
+    )
 
     profile: Optional[str] = Field(
         default=None,
@@ -728,7 +738,31 @@ class DistillRequest(BaseRequest):
     )
 
     # =============================================================================
-    # == II. THE INQUISITOR'S FOCUS (FORENSICS & SEMANTICS)                      ==
+    # == II. THE CAUSAL WEAVER (GRAPH TRAVERSAL PHYSICS)                         ==
+    # =============================================================================
+    # [THE CURE]: THE DEPTH PARAMETER
+    depth: int = Field(
+        default=2,
+        description="The maximum horizon (depth) of the Causal Weaver's graph traversal."
+    )
+
+    include_dependents: bool = Field(
+        default=True,
+        description="If True, the traversal walks UP the graph to find files that rely on the focus targets."
+    )
+
+    include_dependencies: bool = Field(
+        default=True,
+        description="If True, the traversal walks DOWN the graph to find files the focus targets rely upon."
+    )
+
+    trace_data: List[str] = Field(
+        default_factory=list,
+        description="Symbols (variables/classes) to track through the Data Flow Graph (The River of Data)."
+    )
+
+    # =============================================================================
+    # == III. THE INQUISITOR'S FOCUS (FORENSICS & SEMANTICS)                      ==
     # =============================================================================
     # These fields command the specialist inquisitors to perform deep, forensic,
     # or semantic analysis upon the target reality.
@@ -750,7 +784,7 @@ class DistillRequest(BaseRequest):
     )
 
     # =============================================================================
-    # == III. THE CHRONOMANCER'S GAZE (TEMPORAL CONTEXT)                         ==
+    # == IV. THE CHRONOMANCER'S GAZE (TEMPORAL CONTEXT)                         ==
     # =============================================================================
     # These fields command the Oracle to gaze into the Git Chronicle, making the
     # distillation aware of the project's history and recent evolution.
@@ -776,7 +810,7 @@ class DistillRequest(BaseRequest):
     )
 
     # =============================================================================
-    # == IV. THE HIGH PRIEST'S STRATEGY (BUDGET & PHILOSOPHY)                    ==
+    # == V. THE HIGH PRIEST'S STRATEGY (BUDGET & PHILOSOPHY)                    ==
     # =============================================================================
     # These fields govern the core philosophy and economic constraints of the
     # distillation rite, balancing detail against the token budget.
@@ -807,8 +841,13 @@ class DistillRequest(BaseRequest):
         description="A sacred vow to forbid the Oracle from communing with the Neural Cortex for intent analysis."
     )
 
+    recursive_agent: bool = Field(
+        default=False,
+        description="Activates the Socratic Reviewer for multi-pass AI refinement."
+    )
+
     # =============================================================================
-    # == V. THE ACTIVE WITNESS (EXECUTION & TRACING)                           ==
+    # == VI. THE ACTIVE WITNESS (EXECUTION & TRACING)                           ==
     # =============================================================================
     # These fields command the Oracle to become an Active Witness, executing a rite
     # within the target reality to perceive its living, dynamic soul.
@@ -838,8 +877,13 @@ class DistillRequest(BaseRequest):
         description="Inject runtime values into the blueprint from a static JSON crash dump or state snapshot."
     )
 
+    dynamic_focus: Optional[str] = Field(
+        default=None,
+        description="A command (e.g., 'pytest') to generate a dynamic coverage hologram."
+    )
+
     # =============================================================================
-    # == VI. THE OUTPUT SCRIBE (FINAL PROCLAMATION)                              ==
+    # == VII. THE OUTPUT SCRIBE (FINAL PROCLAMATION)                              ==
     # =============================================================================
     # These fields dictate the final form and destination of the distilled Gnosis.
 
@@ -874,7 +918,7 @@ class DistillRequest(BaseRequest):
     )
 
     # =============================================================================
-    # == VII. THE SOCRATIC DIAL (INTERACTION & UI)                               ==
+    # == VIII. THE SOCRATIC DIAL (INTERACTION & UI)                               ==
     # =============================================================================
     # These fields govern the interactive nature of the rite, allowing for communion
     # between the Engine and the Architect.
@@ -895,10 +939,10 @@ class DistillRequest(BaseRequest):
     )
 
     # =============================================================================
-    # == VIII. THE RITES OF ROBUST VALIDATION (THE UNBREAKABLE WARD)             ==
+    # == IX. THE RITES OF ROBUST VALIDATION (THE UNBREAKABLE WARD)             ==
     # =============================================================================
 
-    @field_validator('focus', 'ignore', 'include', 'stub_deps', mode='before')
+    @field_validator('focus', 'ignore', 'include', 'stub_deps', 'trace_data', mode='before')
     @classmethod
     def ensure_list_type(cls, v: Any) -> List[str]:
         """
@@ -954,7 +998,6 @@ class DistillRequest(BaseRequest):
                 return 100000
         # If not a string or int, return the sacred default.
         return 100000
-
 
 # =============================================================================
 # == 7. INIT RITE (scaffold init)                                            ==
@@ -3953,6 +3996,11 @@ class HolocronRequest(BaseRequest):
         ..., description="The causal rite."
     )
 
+    virtual_context: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="A dictionary mapping relative file paths to their string content for ephemeral causal tracing."
+    )
+
     # 'entry_point' serves as the Symbol for trace/slice OR the Intent string for forge
     entry_point: str = Field(
         ..., description="The starting point (Symbol) or Problem Description."
@@ -5886,3 +5934,63 @@ class LibrarianRequest(BaseRequest):
 
     def __repr__(self) -> str:
         return f"<Ω_LIBRARIAN_PLEA intensity={self.intensity.value} auto={self.is_autonomic}>"
+
+
+class PolyglotRequest(BaseRequest):
+    """
+    =================================================================================
+    == THE POLYGLOT REQUEST: OMEGA TOTALITY (V-Ω-TOTALITY-V25000.12-FINALIS)       ==
+    =================================================================================
+    LIF: ∞ | ROLE: INTENT_DNA_VESSEL | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_POLYGLOT_REQ_V25K_TOTALITY_2026_FINALIS
+
+    The definitive contract for cross-language execution. It carries the soul of
+    a foreign scripture, warded with metabolic constraints and spatial anchors.
+    =================================================================================
+    """
+    # --- I. THE LINGUISTIC SOUL ---
+    language: str = Field(
+        ...,
+        description="The target tongue (python, rust, node, go, ruby, shell)."
+    )
+
+    script_block: Optional[str] = Field(
+        None,
+        description="The raw Gnosis (code) to be transmuted. Required for EVAL/PIPE modes."
+    )
+
+    # --- II. THE SUBSTRATE ENVELOPE ---
+    runtime: str = Field(
+        default="",
+        description="Explicit version/environment plea (e.g. '3.11', 'node-20')."
+    )
+
+    # --- III. THE METABOLIC WARD ---
+    timeout: int = Field(
+        default=DEFAULT_COMMAND_TIMEOUT,
+        description="The temporal horizon before the Reaper severs the link."
+    )
+
+    # --- IV. THE SPATIAL ANCHOR ---
+    working_directory: Optional[str] = Field(
+        None,
+        description="The physical coordinate for the strike. Defaults to project_root."
+    )
+
+    # --- V. THE ALCHEMICAL MIXER ---
+    # [ASCENSION 12]: These variables are auto-injected into the child environment.
+    variables: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Architectural constants to be manifest as SC_VAR_ environment keys."
+    )
+
+    @field_validator('language')
+    @classmethod
+    def _validate_tongue(cls, v: str) -> str:
+        """[THE CURE]: Validates the tongue against the Gnostic Registry."""
+        from ..symphony.polyglot.grimoire import POLYGLOT_GRIMOIRE
+        tongue = v.lower().strip()
+        if tongue not in POLYGLOT_GRIMOIRE and tongue != "shell":
+            raise ValueError(f"Unmanifest Tongue: '{v}'. Use 'velm runtimes codex' to see manifest souls.")
+        return tongue
+

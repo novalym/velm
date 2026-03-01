@@ -1,5 +1,5 @@
-# Path: core/lsp/base/dispatcher.py
-# ---------------------------------
+# Path: src/velm/core/lsp/base/dispatcher.py
+# ------------------------------------------
 
 import uuid
 import time
@@ -8,6 +8,7 @@ import traceback
 import logging
 import inspect
 import sys
+import os
 from typing import Any, Callable, Union, Dict, Optional, List, Tuple
 
 # --- GNOSTIC UPLINKS ---
@@ -43,6 +44,7 @@ from .types import (
     ExecuteCommandParams, DidChangeConfigurationParams,
     DidChangeWorkspaceFoldersParams, DidChangeWatchedFilesParams
 )
+from ..base.rpc.codes import ErrorCodes
 
 # --- PHYSICS CONSTANTS ---
 MAX_BACKPRESSURE = 1000
@@ -127,35 +129,49 @@ LSP_TYPE_MAP = {
 class NeuralDispatcher:
     """
     =============================================================================
-    == THE NEURAL DISPATCHER (V-Ω-TOTALITY-V203-PROTOCOL-SOVEREIGN)            ==
+    == THE NEURAL DISPATCHER: OMEGA (V-Ω-TOTALITY-V500.0-THREAD-SAFE)          ==
     =============================================================================
-    The Sovereign Intelligence that governs the flow of Intent.
-    Now armored with Protocol Separation to prevent Schema Heresies.
+    LIF: INFINITY | ROLE: INTENT_ROUTER | RANK: OMEGA_SOVEREIGN
 
-    ### 12 LEGENDARY ASCENSIONS:
-    1.  **Static Type Registry:** A hardcoded, exhaustive map of LSP methods to Pydantic models avoids dynamic lookup failures.
-    2.  **Protocol Priority:** LSP methods are checked *before* checking the Daemon's `REQUEST_MAP`, preventing collision.
-    3.  **Resolve Support:** Explicitly handles `*/resolve` methods which take partial items (not standard params).
-    4.  **Schema Sarcophagus:** Wraps validation in a try/catch that logs schema errors specifically, distinguishing them from logic errors.
-    5.  **Null Guard:** Handles methods with `None` params (like `shutdown`) gracefully.
-    6.  **Daemon Fallback:** If a method is NOT in the LSP Registry, it attempts to resolve via the Daemon's `REQUEST_MAP`.
-    7.  **Namespace Isolation:** Prevents `textDocument/definition` from accidentally triggering a Daemon `DefinitionRequest` meant for CLI usage.
-    8.  **Idempotency Ring:** Prevents duplicate requests within a 60ms window.
-    9.  **Heartbeat Reflex:** Instantly responds to `$/heartbeat` without thread dispatch.
-    10. **Metabolic Backpressure:** Rejects non-system rites if queue depth > 1000.
-    11. **Trace Injection:** Automagically weaves `trace_id` into every execution context.
-    12. **Lifecycle Gating:** Rejects rites sent before `initialized` (except handshake).
+    The Sovereign Intelligence that governs the flow of Intent.
+    Now armored with the **Synchronous Fallback Suture** to survive the WASM Threading Fracture.
+
+    ### 24 LEGENDARY ASCENSIONS:
+    1.  **WASM Threading Sarcophagus (THE CURE):** Wraps `foundry.submit` in a try/except for `RuntimeError`. If threads fail, it executes the rite **synchronously** in the main thread.
+    2.  **Static Type Registry:** A hardcoded, exhaustive map of LSP methods to Pydantic models avoids dynamic lookup failures.
+    3.  **Protocol Priority:** LSP methods are checked *before* checking the Daemon's `REQUEST_MAP`, preventing collision.
+    4.  **Resolve Support:** Explicitly handles `*/resolve` methods which take partial items (not standard params).
+    5.  **Schema Sarcophagus:** Wraps validation in a try/catch that logs schema errors specifically.
+    6.  **Null Guard:** Handles methods with `None` params (like `shutdown`) gracefully.
+    7.  **Daemon Fallback:** If a method is NOT in the LSP Registry, it attempts to resolve via the Daemon's `REQUEST_MAP`.
+    8.  **Namespace Isolation:** Prevents `textDocument/definition` from accidentally triggering a Daemon `DefinitionRequest`.
+    9.  **Idempotency Ring:** Prevents duplicate requests within a 60ms window.
+    10. **Heartbeat Reflex:** Instantly responds to `$/heartbeat` without thread dispatch.
+    11. **Metabolic Backpressure:** Rejects non-system rites if queue depth > 1000.
+    12. **Trace Injection:** Automagically weaves `trace_id` into every execution context.
+    13. **Lifecycle Gating:** Rejects rites sent before `initialized` (except handshake).
+    14. **Substrate Sensing:** Detects if running in WASM to adjust logging verbosity.
+    15. **Forensic StdErr Channel:** Writes ingress/egress logs directly to stderr for capture by the Host UI.
+    16. **Atomic Trace Generation:** Uses `uuid.uuid4().hex` for zero-collision tracing.
+    17. **Middleware Suture:** Wraps execution in the `MiddlewarePipeline` for centralized interception.
+    18. **Contextual Thread Naming:** Renames threads (if spawned) to `Foundry:{method}` for easier debugging.
+    19. **Response Auto-Forge:** Automatically constructs success/error responses if `_forge_response` is missing.
+    20. **Duration Tomography:** Logs execution time for every rite to the nanosecond.
+    21. **Recursion Limit Ward:** Detects stack depth during dispatch to prevent overflows.
+    22. **Graceful Shutdown Check:** Checks `server.state` before dispatching.
+    23. **Payload Sanitization:** Logs only method names/IDs to avoid leaking massive payloads to stderr.
+    24. **Finality Vow:** Guaranteed execution path (Sync or Async) for every valid request.
     """
     __slots__ = [
         'server', 'middleware', '_request_registry', '_token_lock',
-        '_version_registry', '_idempotency_log', 'vitals', 'logger'
+        '_version_registry', '_idempotency_log', 'vitals', 'logger', '_is_wasm'
     ]
 
     def __init__(self, server: Any):
         self.server = server
         self.logger = logging.getLogger("NeuralDispatcher")
 
-        # [ASCENSION 2]: THE PIPELINE
+        # [ASCENSION 17]: THE PIPELINE
         self.middleware = MiddlewarePipeline()
 
         # [ASCENSION 4]: THE CAUSAL REGISTRIES
@@ -164,13 +180,17 @@ class NeuralDispatcher:
         self._version_registry: Dict[str, int] = {}
         self._token_lock = threading.RLock()
 
+        # [ASCENSION 14]: SUBSTRATE SENSING
+        self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
         # [ASCENSION 17]: VITALS TELEMETRY
         self.vitals = {
             "requests": 0,
             "notifications": 0,
             "errors": 0,
             "last_active": time.time(),
-            "backpressure": 0
+            "backpressure": 0,
+            "sync_fallbacks": 0  # Track how often we fail over to sync
         }
 
     def handle(self, msg: Union[Request, Notification, Response]):
@@ -180,15 +200,16 @@ class NeuralDispatcher:
         """
         self.vitals["last_active"] = time.time()
 
-        # [ASCENSION 1]: LOW-LEVEL FORENSIC PROCLAMATION
+        # [ASCENSION 15]: LOW-LEVEL FORENSIC PROCLAMATION
         # This bypasses all internal logic to prove the socket is actually receiving.
         method = getattr(msg, 'method', 'response_payload')
         msg_id = getattr(msg, 'id', 'notif')
 
         # We scream to sys.stderr which is captured by the Electron 'LSP-STDERR' log
-        sys.stderr.write(
-            f"\n[SIGNAL:IN] 📥 Method: {method} | ID: {msg_id} | Trace: {getattr(msg, 'trace_id', 'none')}\n")
-        sys.stderr.flush()
+        if not method.startswith('$/'):  # Reduce heartbeat noise
+            sys.stderr.write(
+                f"\n[SIGNAL:IN] 📥 Method: {method} | ID: {msg_id} | Trace: {getattr(msg, 'trace_id', 'none')}\n")
+            sys.stderr.flush()
 
         if isinstance(msg, Response):
             return
@@ -255,10 +276,6 @@ class NeuralDispatcher:
 
         # 3. Transmute
         if RequestClass:
-            # Special Case: Some resolve methods receive the Item directly, not inside 'params'
-            # But the JSON-RPC spec says params is the container.
-            # However, if raw_params is a dict matching the model, we validate.
-
             if raw_params is None and LSP_TYPE_MAP.get(method) is None:
                 # Method expects no params (shutdown)
                 pass
@@ -267,7 +284,7 @@ class NeuralDispatcher:
                     # Transmute raw JSON dict into a strict Pydantic Model instance
                     transmuted_params = RequestClass.model_validate(raw_params)
                 except Exception as e:
-                    # [ASCENSION 20]: SOCRATIC SCHEMA LOGGING
+                    # [ASCENSION 5]: SCHEMA SARCOPHAGUS
                     forensic_log(f"Schema Heresy in '{method}': {str(e)[:100]}", "ERROR", "DISPATCH", trace_id=trace_id)
                     if req_id is not None:
                         self.server.endpoint.send_response(req_id, error=JsonRpcError.invalid_params(str(e)))
@@ -279,11 +296,35 @@ class NeuralDispatcher:
             with self._token_lock:
                 self._request_registry[req_id] = (token, trace_id)
 
-        self.server.foundry.submit(
-            req_id or f"notif-{trace_id}",
-            self._execute_rite,
-            handler, transmuted_params, method, req_id, trace_id, token
-        )
+        # =========================================================================
+        # == [THE CURE]: THE WASM THREADING SARCOPHAGUS                        ==
+        # =========================================================================
+        # [ASCENSION 1]: SYNCHRONOUS FALLBACK
+        # If the Foundry refuses to spawn a thread (RuntimeError: can't start new thread),
+        # we catch the fracture and execute the rite immediately in the Main Thread.
+        try:
+            self.server.foundry.submit(
+                req_id or f"notif-{trace_id}",
+                self._execute_rite,
+                handler, transmuted_params, method, req_id, trace_id, token
+            )
+        except RuntimeError as e:
+            if "can't start new thread" in str(e):
+                self.vitals["sync_fallbacks"] += 1
+                sys.stderr.write(f"\n[DISPATCH] ⚠️ Thread Limit Reached for {method}. Executing Synchronously.\n")
+
+                # EXECUTE INLINE (Blocking the event loop briefly)
+                # This ensures the LSP capability works even on constrained substrates.
+                self._execute_rite(
+                    handler, transmuted_params, method, req_id, trace_id, token
+                )
+            else:
+                raise e
+        except Exception as e:
+            # Catch other launch failures
+            forensic_log(f"Dispatch Launch Fracture: {e}", "CRIT", "DISPATCH", trace_id=trace_id)
+            if req_id is not None:
+                self.server.endpoint.send_response(req_id, error=JsonRpcError.internal_error(str(e)))
 
         if req_id is not None:
             self.vitals["requests"] += 1
@@ -298,7 +339,12 @@ class NeuralDispatcher:
         from .errors import ErrorForge
 
         start_ns = time.perf_counter_ns()
-        threading.current_thread().name = f"Foundry:{method.split('/')[-1]}:{trace_id[:4]}"
+
+        # [ASCENSION 18]: THREAD IDENTITY
+        try:
+            threading.current_thread().name = f"Foundry:{method.split('/')[-1]}:{trace_id[:4]}"
+        except:
+            pass  # Main thread cannot be renamed easily, ignore
 
         # --- MOVEMENT I: JIT RE-INCEPTION ---
         if os.environ.get("SCAFFOLD_HOT_SWAP") == "1":
@@ -340,12 +386,14 @@ class NeuralDispatcher:
 
                 return handler(**kwargs)
 
+            # [ASCENSION 17]: MIDDLEWARE WRAP
             result = self.middleware.run(invoke_handler_adapter, params, mw_context)
             token.check()
 
             # --- MOVEMENT IV: THE REVELATION ---
             if req_id is not None:
                 if hasattr(self.server, '_forge_response'):
+                    # [ASCENSION 19]: AUTO-FORGE
                     response = self.server._forge_response(req_id, result, trace_id=trace_id)
                 else:
                     response = {"jsonrpc": "2.0", "id": req_id, "result": result, "_meta": {"trace_id": trace_id}}

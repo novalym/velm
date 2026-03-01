@@ -1,69 +1,12 @@
-# Path: scaffold/inquisitor/python_inquisitor.py
-"""
-=================================================================================
-== THE GNOSTIC SEER OF THE PYTHON COSMOS (V-Ω-ULTRA-DEFINITIVE)                ==
-=================================================================================
-LIF: 10,000,000,000,000,000
+# Path: src/velm/inquisitor/python_inquisitor.py
+# ----------------------------------------------
 
-This is the divine artisan in its final, eternal form. It is not a linter. It is a
-**Gnostic Cartographer**. Its one true, sacred purpose is to gaze upon an entire
-Python project reality and forge the **Symbol Map**—the unbreakable Gnostic map
-that chronicles the true home of every class and function in the cosmos.
-
-This map is the foundational Gnosis for the God-Engines of Healing and
-Translocation (`HealArtisan`, `PythonImportResolver`).
-
-### The Pantheon of 12 Legendary Faculties:
-
-1.  **The Asynchronous Gaze:** Its `inquire_project` rite is a masterpiece of
-    parallelism, using a `ThreadPoolExecutor` to gaze upon hundreds of scriptures
-    simultaneously.
-
-2.  **The Unbreakable Chronocache:** It performs a temporal Gaze upon the
-    filesystem, forging a unique hash of the project's state. If reality has not
-    changed, it resurrects the Symbol Map from its cache in microseconds.
-
-3.  **The Gaze of the True Inquisitor:** It no longer contains its own profane
-    parsing logic. It makes a sacred plea to the one true `PythonInquisitor` from
-    the Sentinel's Armory to perceive the soul of each individual scripture.
-
-4.  **The Alchemist of Paths:** It is a master of Python's import mechanics. It
-    transmutes filesystem paths into fully qualified module names (`src/api/user.py`
-    -> `src.api.user`) with divine precision.
-
-5.  **The Forger of the Symbol Map:** Its final proclamation is the `symbol_map`,
-    the sacred dictionary that links a Gnostic name (`src.api.user.User`) to its
-    home in the mortal realm (`/path/to/project/src/api/user.py`).
-
-6.  **The Scoped Gaze:** It can be commanded to focus its Gaze on a specific
-    sub-sanctum (`scan_path`), preventing a full, costly scan of a massive monorepo
-    when only localized Gnosis is required.
-
-7.  **The Sentinel of the Void:** It righteously ignores empty files, `__init__.py`
-    stubs, and other profane scriptures that contain no Gnostic value.
-
-8.  **The Gaze of Aversion:** It honors the Architect's will, respecting the
-    `.gitignore` and `.scaffoldignore` scriptures to avert its Gaze from profane
-    realities (e.g., `node_modules`, `.venv`).
-
-9.  **The Luminous Scribe's Voice:** It proclaims its every thought with luminous,
-    cinematic clarity, using `rich.progress` to guide the Architect through the
-    symphony of its Gaze.
-
-10. **The Unbreakable Ward of Paradox:** Its Gaze is shielded. A `SyntaxError` in
-    one scripture does not shatter the entire inquisition. The heresy is
-    chronicled, and the Great Work continues.
-
-11. **The Pure Gnostic Contract:** Its every vessel and rite is forged with pure
-    type hints, its contract with the cosmos absolute and unbreakable.
-
-12. **The Sovereign Soul:** It is a pure, self-contained God-Engine, its purpose
-    singular and its dependencies minimal, ready to serve any artisan that requires
-    its profound Gnosis.
-=================================================================================
-"""
 import hashlib
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
+import sys
+import time
+import concurrent.futures
+from concurrent.futures import as_completed, ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional, Dict, List, Any, Tuple
 
@@ -79,7 +22,69 @@ Logger = Scribe("PythonCodeInquisitor")
 
 
 class PythonCodeInquisitor:
-    """The Gnostic Cartographer of the Python Cosmos."""
+    """
+    =================================================================================
+    == THE GNOSTIC SEER OF THE PYTHON COSMOS (V-Ω-ULTRA-DEFINITIVE)                ==
+    =================================================================================
+    LIF: 10,000,000,000,000,000
+
+    This is the divine artisan in its final, eternal form. It is not a linter. It is a
+    **Gnostic Cartographer**. Its one true, sacred purpose is to gaze upon an entire
+    Python project reality and forge the **Symbol Map**—the unbreakable Gnostic map
+    that chronicles the true home of every class and function in the cosmos.
+
+    This map is the foundational Gnosis for the God-Engines of Healing and
+    Translocation (`HealArtisan`, `PythonImportResolver`).
+
+    ### The Pantheon of 12 Legendary Faculties:
+
+    1.  **The Asynchronous Gaze:** Its `inquire_project` rite is a masterpiece of
+        parallelism, using a `ThreadPoolExecutor` to gaze upon hundreds of scriptures
+        simultaneously.
+
+    2.  **The Unbreakable Chronocache:** It performs a temporal Gaze upon the
+        filesystem, forging a unique hash of the project's state. If reality has not
+        changed, it resurrects the Symbol Map from its cache in microseconds.
+
+    3.  **The Gaze of the True Inquisitor:** It no longer contains its own profane
+        parsing logic. It makes a sacred plea to the one true `PythonInquisitor` from
+        the Sentinel's Armory to perceive the soul of each individual scripture.
+
+    4.  **The Alchemist of Paths:** It is a master of Python's import mechanics. It
+        transmutes filesystem paths into fully qualified module names (`src/api/user.py`
+        -> `src.api.user`) with divine precision.
+
+    5.  **The Forger of the Symbol Map:** Its final proclamation is the `symbol_map`,
+        the sacred dictionary that links a Gnostic name (`src.api.user.User`) to its
+        home in the mortal realm (`/path/to/project/src/api/user.py`).
+
+    6.  **The Scoped Gaze:** It can be commanded to focus its Gaze on a specific
+        sub-sanctum (`scan_path`), preventing a full, costly scan of a massive monorepo
+        when only localized Gnosis is required.
+
+    7.  **The Sentinel of the Void:** It righteously ignores empty files, `__init__.py`
+        stubs, and other profane scriptures that contain no Gnostic value.
+
+    8.  **The Gaze of Aversion:** It honors the Architect's will, respecting the
+        `.gitignore` and `.scaffoldignore` scriptures to avert its Gaze from profane
+        realities (e.g., `node_modules`, `.venv`).
+
+    9.  **The Luminous Scribe's Voice:** It proclaims its every thought with luminous,
+        cinematic clarity, using `rich.progress` to guide the Architect through the
+        symphony of its Gaze.
+
+    10. **The Unbreakable Ward of Paradox:** Its Gaze is shielded. A `SyntaxError` in
+        one scripture does not shatter the entire inquisition. The heresy is
+        chronicled, and the Great Work continues.
+
+    11. **The Pure Gnostic Contract:** Its every vessel and rite is forged with pure
+        type hints, its contract with the cosmos absolute and unbreakable.
+
+    12. **The Sovereign Soul:** It is a pure, self-contained God-Engine, its purpose
+        singular and its dependencies minimal, ready to serve any artisan that requires
+        its profound Gnosis.
+    =================================================================================
+    """
 
     def __init__(self, project_root: Path, use_surgical_gaze: bool = True, scan_path: Optional[Path] = None):
         self.project_root = project_root.resolve()
@@ -132,22 +137,13 @@ class PythonCodeInquisitor:
             self.logger.warn("The Gaze found no Python scriptures to inquire.")
             return self
 
-        # [FACULTY 1 & 9] The Asynchronous Gaze & Luminous Scribe
-        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(),
-                      console=get_console(), transient=True) as progress:
-            task = progress.add_task(f"[cyan]Inquiring {len(final_targets)} Python souls...", total=len(final_targets))
-            with ThreadPoolExecutor() as executor:
-                future_to_file = {executor.submit(self._inquire_file, py_file): py_file for py_file in final_targets}
-                for future in as_completed(future_to_file):
-                    py_file = future_to_file[future]
-                    progress.update(task, advance=1, description=f"[cyan]Perceiving '{py_file.name}'...")
-                    try:
-                        file_gnosis = future.result()
-                        if file_gnosis:
-                            self.project_gnosis[py_file] = file_gnosis
-                    except Exception as e:
-                        # [FACULTY 10] The Unbreakable Ward of Paradox
-                        Logger.warn(f"A minor heresy was perceived during the Gaze upon '{py_file.name}': {e}")
+        # [THE CURE]: Substrate Sensing
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
+
+        if is_wasm:
+            self._inquire_serial(final_targets)
+        else:
+            self._inquire_parallel(final_targets)
 
         # [FACULTY 5] The Forger of the Symbol Map
         self.symbol_map, self.import_graph = self._forge_gnostic_maps()
@@ -158,6 +154,39 @@ class PythonCodeInquisitor:
 
         Logger.success(f"Gnostic Gaze complete. Forged a Symbol Map of {len(self.symbol_map)} symbols.")
         return self
+
+    def _inquire_serial(self, targets: List[Path]):
+        """[ASCENSION]: Serial Execution for WASM environments."""
+        for i, py_file in enumerate(targets):
+            try:
+                file_gnosis = self._inquire_file(py_file)
+                if file_gnosis:
+                    self.project_gnosis[py_file] = file_gnosis
+            except Exception as e:
+                # [FACULTY 10] The Unbreakable Ward of Paradox
+                Logger.warn(f"A minor heresy was perceived during the Gaze upon '{py_file.name}': {e}")
+
+            # Hydraulic Yield: Breathe every 10 files
+            if i % 10 == 0:
+                time.sleep(0)
+
+    def _inquire_parallel(self, targets: List[Path]):
+        """[ASCENSION]: Parallel Execution for Native Iron."""
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(),
+                      console=get_console(), transient=True) as progress:
+            task = progress.add_task(f"[cyan]Inquiring {len(targets)} Python souls...", total=len(targets))
+            with ThreadPoolExecutor() as executor:
+                future_to_file = {executor.submit(self._inquire_file, py_file): py_file for py_file in targets}
+                for future in as_completed(future_to_file):
+                    py_file = future_to_file[future]
+                    progress.update(task, advance=1, description=f"[cyan]Perceiving '{py_file.name}'...")
+                    try:
+                        file_gnosis = future.result()
+                        if file_gnosis:
+                            self.project_gnosis[py_file] = file_gnosis
+                    except Exception as e:
+                        # [FACULTY 10] The Unbreakable Ward of Paradox
+                        Logger.warn(f"A minor heresy was perceived during the Gaze upon '{py_file.name}': {e}")
 
     def _get_project_state_hash(self, files_to_gaze: List[Path]) -> str:
         """Performs a temporal Gaze to create a unique fingerprint of the project's current state."""

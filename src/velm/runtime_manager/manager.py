@@ -82,6 +82,7 @@ import re
 import shutil
 import stat
 import subprocess
+import sys
 import tarfile
 import time
 import zipfile
@@ -108,23 +109,64 @@ Logger = Scribe("RuntimeManager")
 class RuntimeManager:
     """The God-Engine of the Hermetic Forge."""
 
-    def __init__(self, silent: bool = False):
-        # [OPTIMIZATION] Paths are defined but not created until needed to save IO ops on startup.
-        self.runtimes_root = Path.home() / ".scaffold" / "runtimes"
+    def __init__(self, silent: bool = False, engine: Any = None):
+        """
+        =============================================================================
+        == THE RITE OF INCEPTION: OMEGA (V-Ω-TOTALITY-V500.8-RESILIENT)            ==
+        =============================================================================
+        LIF: ∞ | ROLE: RUNTIME_GOVERNOR_INITIALIZER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_RUNTIME_INIT_V500_SPATIAL_SUTURE_2026_FINALIS
+        """
+        import os
+        from pathlib import Path
+
+        # --- MOVEMENT I: SPATIAL ANCHORING (THE CURE) ---
+        # [ASCENSION 1]: We scry the multiverse for the Home coordinate.
+        # Prioritizes explicit SCAFFOLD_HOME > Standard HOME > Virtual /vault (WASM)
+        scaf_home = os.environ.get("SCAFFOLD_HOME")
+        sys_home = None
+        try:
+            sys_home = str(Path.home())
+        except (RuntimeError, ImportError, Exception):
+            # Fallback for sandboxed WASM or headless Iron
+            sys_home = "/vault" if os.environ.get("SCAFFOLD_ENV") == "WASM" else "."
+
+        self.base_root = Path(scaf_home or sys_home).resolve()
+
+        # [ASCENSION 2]: LAZY PATH DEFINITION
+        # Coordinates are mapped but the substrate is not yet touched (O(1) velocity).
+        self.runtimes_root = self.base_root / ".scaffold" / "runtimes"
         self.downloads_root = self.runtimes_root / "downloads"
         self.locks_root = self.runtimes_root / "locks"
 
+        # --- MOVEMENT II: ORGAN MATERIALIZATION ---
+        self.engine = engine
         self.logger = Logger
         self.silent = silent
 
-        # [OPTIMIZATION] Lazy properties
+        # --- MOVEMENT III: LAZY FACULTY SLOTS ---
+        # [ASCENSION 4]: Prepared for JIT materialization to save boot memory.
         self._platform_key = None
         self._session = None
         self._docker_engine = None
         self._console = None
 
+        # --- MOVEMENT IV: METABOLIC MEMORY ---
+        # [ASCENSION 9]: Ready for high-density Gnostic Cache inhalation.
         self._runtime_cache: Optional[Dict[str, List[Dict]]] = None
         self._last_scan_time = 0.0
+
+        # --- MOVEMENT V: SUBSTRATE SENSING ---
+        self.is_wasm = (
+                os.environ.get("SCAFFOLD_ENV") == "WASM" or
+                sys.platform == "emscripten"
+        )
+
+        # [ASCENSION 10]: TOMOGRAPHY RECORD
+        # We don't log during init unless willed, to preserve boot-stream purity.
+        if not self.silent and os.environ.get("SCAFFOLD_DEBUG") == "1":
+            self.logger.debug(f"RuntimeManager Anchored: {self.runtimes_root.as_posix()}")
+
 
     @property
     def console(self):

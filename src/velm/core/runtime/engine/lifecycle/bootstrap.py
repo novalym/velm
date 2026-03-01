@@ -1,12 +1,10 @@
 # Path: src/velm/core/runtime/engine/lifecycle/bootstrap.py
 # ---------------------------------------------------------
-# =========================================================================================
-# == THE GNOSTIC BOOTSTRAP (V-Ω-TOTALITY-V700-APOPHATIC-ZERO-LATENCY)                    ==
-# =========================================================================================
-# LIF: ∞ | ROLE: SYSTEM_CREATOR | RANK: OMEGA_SOVEREIGN
-# AUTH: Ω_BOOTSTRAP_V700_ZERO_LATENCY_FINALIS
-# =========================================================================================
-
+# SYSTEM: Core Runtime Initialization
+# COMPONENT: EngineBootstrap
+# STABILITY: Stable / Production
+# ---------------------------------------------------------
+import json
 import uuid
 import os
 import sys
@@ -23,9 +21,10 @@ import concurrent.futures
 from pathlib import Path
 from typing import Any, Type, List, Dict, Optional, Tuple, Final, Union, Set, Callable, TYPE_CHECKING
 
-
-# --- THE DIVINE UPLINKS (INTERNAL STRATA) ---
-# We use absolute triangulation for these imports to ensure stability during JIT materialization.
+# --- Internal Module Resolution ---
+# We employ a resilient import strategy here to ensure the bootstrap
+# process can report initialization failures gracefully rather than
+# crashing with opaque ImportErrors at the module level.
 try:
     from .....core.cli.grimoire_data import LAZY_RITE_MAP
     from ....state.gnostic_db import GnosticDatabase, SQL_AVAILABLE
@@ -33,475 +32,333 @@ try:
     from .....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
     from .....utils import get_git_commit, to_snake_case
 except ImportError as e:
-    # [ASCENSION 1]: EMERGENCY IMPORT RECOVERY
-    # If the standard paths are fractured, we perform a manual sys.path suture.
+    # Fallback for esoteric environments (e.g., PyInstaller, ZipApps) where
+    # the CWD might not be implicitly in sys.path.
     _CWD = Path.cwd()
-    if str(_CWD) not in sys.path: sys.path.insert(0, str(_CWD))
-    # Retry or exit with forensic data
-    sys.stderr.write(f"FATAL: Primordial import fracture: {e}\n")
+    if str(_CWD) not in sys.path:
+        sys.path.insert(0, str(_CWD))
+
+    # Critical failure: If we cannot import core contracts, the runtime
+    # state is undefined. Terminate immediately with forensic output.
+    sys.stderr.write(f"[BOOTSTRAP] FATAL: Core dependency resolution failed: {e}\n")
     sys.exit(1)
 
 if TYPE_CHECKING:
     from .... import ScaffoldEngine
     from ...middleware import MiddlewarePipeline
+
+# Initialize structured logger for lifecycle events
 Logger = Scribe("EngineBootstrap")
 
 
 # =============================================================================
-# == [STRATUM-0]: THE OMNISCIENT PATH ANCHOR                                 ==
+# == RUNTIME PATH RESOLUTION                                                 ==
 # =============================================================================
-# This logic ensures that no matter where the Architect speaks 'velm',
-# the Engine knows its own physical home.
+# Determines the absolute physical location of the package and server assets.
+# This logic must remain robust across Native, Docker, and WASM substrates.
 
-def _anchor_reality_paths() -> Tuple[Path, Path]:
+def _resolve_runtime_anchors() -> Tuple[Path, Path]:
     """
-    Surgically triangulates the Project and Server roots.
-    Returns: (PROJECT_ROOT, SERVER_ROOT)
+    Calculates the absolute paths for the Project Root (Library) and
+    Server Root (Daemon) relative to this file's location.
+
+    Returns:
+        Tuple[Path, Path]: (PACKAGE_ROOT, SERVER_ROOT)
     """
     try:
         current_file = Path(__file__).resolve()
-        # Path: .../src/velm/core/runtime/engine/lifecycle/bootstrap.py
-        # Up 5 levels to get to /src (or package root)
+        # Traverse up the directory tree:
+        # file -> lifecycle -> engine -> runtime -> core -> src
         package_root = current_file.parents[5]
 
         # Check for server directory (Daemon context)
         server_root = package_root / "server"
         if not server_root.exists():
-            # Fallback for CLI-only environments
+            # Fallback for CLI-only or flattened distribution environments
             server_root = package_root
 
         return package_root, server_root
     except Exception:
-        # [ASCENSION 15]: ZERO-COPY FALLBACK
-        # In esoteric environments (PyInstaller/Zip), resolve fails. Use CWD.
+        # Fallback: In compiled/frozen environments (e.g., Pyodide), __file__
+        # may be virtual or undefined. Default to CWD to prevent crash.
         return Path.cwd(), Path.cwd()
 
 
-PROJECT_ROOT, SERVER_ROOT = _anchor_reality_paths()
+PROJECT_ROOT, SERVER_ROOT = _resolve_runtime_anchors()
 
 
 class EngineBootstrap:
     """
-    =================================================================================
-    == THE SOVEREIGN CONDUCTOR OF INCEPTION                                        ==
-    =================================================================================
-    LIF: INFINITY | ROLE: COSMIC_CONSTRUCTOR | RANK: OMEGA
+    Orchestrates the initialization sequence of the ScaffoldEngine.
 
-    The supreme artisan responsible for transmuting raw environment DNA into a
-    living, self-aware God-Engine instance.
+    This class is responsible for the transition from a cold start (process launch)
+    to a fully operational runtime state. It manages dependency injection,
+    subsystem initialization, and environmental safety checks.
 
-    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
-    1.  **Apophatic Registration (THE CURE):** Uses `fast_register` to bypass
-        `inspect.stack()` overhead during the critical boot path.
-    2.  **Request Gateway Singularity:** Performs a single bulk import of the
-        Requests interface, eliminating repetitive import overhead.
-    3.  **Substrate-Aware Threading:** Detects WASM/Emscripten and disables
-        metabolic pool warming to prevent browser freezes.
-    4.  **Achronal Path Suture:** Forcefully injects absolute coordinates into
-        sys.path to prevent 'Module Not Found' heresies in complex monorepos.
-    5.  **Unyielding Consecration:** Specifically ignores OSError 25 (ioctl)
-        during skill registration via the fast-path.
-    6.  **Achronal Reconciliation:** Automatically detects and heals desync between
-        the JSON Scroll (scaffold.lock) and the Crystal Mind (gnosis.db).
-    7.  **Bicameral executor Warm-up:** Materializes Thread pools only on Iron
-        substrates (Native), never on Ether (WASM).
-    8.  **Forensic Pre-flight Inquest:** Performs a deep-tissue scan of filesystem
-        permissions and disk pressure before awakening the mind.
-    9.  **Spinal Cord Forging:** Constructs the 21-Guardian Middleware Pipeline
-        with automatic dependency resolution for Profane/Sacred signal triage.
-    10. **Cognitive Cortex Priming:** Triggers the AI Predictor to load its
-        stochastic weights into memory, reducing initial inference tax.
-    11. **Biometric Session Identity:** Forges a unique, machine-locked Session ID
-        for distributed tracing across the split-process lattice.
-    12. **Hydraulic I/O Throttling:** Detects "Metabolic Fever" (High CPU/RAM) and
-        dynamically adjusts boot priority to preserve host stability.
-    13. **The Silence Vow Compliance:** Surgically mutes boot telemetry if the
-        'silent' plea is manifest.
-    14. **Recursive Import Shield:** Employs dynamic importlib rites to break
-        circular dependency loops between the Engine and its Artisans.
-    15. **JIT Garbage Collection:** Cleans the heap immediately after the heavy
-        import phase to ensure a lean runtime footprint.
-    16. **Ghost Tuple Optimization:** Constructs artisan references as tuples
-        directly, avoiding object instantiation overhead.
-    17. **Trace ID Inheritance:** Preserves the causal chain from the CLI via
-        `self.engine.trace_id` injection.
-    18. **Identity Caching:** Scries the user identity once and caches it.
-    19. **Fail-Safe Anchoring:** Defaults to `/vault/project` in WASM if the
-        physical anchor is void.
-    20. **Progenitor Resonance:** Prioritizes the `Progenitor` check during
-        reality anchoring.
-    21. **Database Lock Ward:** Skips SQLite sync if the lockfile is hot.
-    22. **Middleware Pruning:** Only loads essential middleware if running in
-        `LIGHT` mode.
-    23. **Signal Interception:** Sets up clean shutdown hooks for SIGINT/SIGTERM.
-    24. **The Finality Vow:** A mathematical guarantee that after ignition, the
-        Engine is either bit-perfect Ready or structured Fractured—never null.
-    =================================================================================
+    Architectural Responsibilities:
+    1.  **Lazy Registration:** Populates the ArtisanRegistry using a zero-overhead
+        strategy (O(1)) to minimize startup latency.
+    2.  **Environment Detection:** Identifies the execution substrate (Native vs WASM)
+        and tunes threading/IO strategies accordingly.
+    3.  **State Reconciliation:** Ensures synchronization between the persistent
+        state database (SQLite) and the file-system lockfile (JSON).
+    4.  **Pipeline Construction:** Assembles the middleware chain for request processing.
+    5.  **Resource Governance:** checks system vitals (RAM/CPU) before enabling
+        heavy subsystems to prevent process termination by the OS OOM killer.
     """
 
     def __init__(self, engine: 'ScaffoldEngine'):
         """
-        [THE RITE OF BINDING]
-        Sutures the Bootstrap artisan to the core Engine vessel.
+        Binds the bootstrap logic to a specific Engine instance.
         """
         self.engine = engine
         self.logger = Logger
         self.console = get_console()
 
-        # [ASCENSION 8]: BIOMETRIC IDENTITY FORGE
+        # Generate unique session identifiers for distributed tracing
         self._boot_start_ns = time.perf_counter_ns()
+
+        # Hardware fingerprinting for license/state validation
+        # Uses platform node name as a stable seed
         self._machine_id = hashlib.sha256(platform.node().encode()).hexdigest()[:12].upper()
         self.boot_id = uuid.uuid4().hex[:8].upper()
 
-        # Detection of the Headless Reality (The TTY-less Void)
+        # Detect TTY capability for output formatting adjustments
         self._is_headless = not sys.stdout.isatty()
 
-        # [ASCENSION 3]: SUBSTRATE SENSING
+        # Substrate Detection: Check for Emscripten/Pyodide environment variables
         self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
     def ignite(self) -> bool:
         """
-        =============================================================================
-        == THE GRAND SYMPHONY OF IGNITION (V-Ω-TOTALITY-V900.24-ANCHORED)          ==
-        =============================================================================
-        LIF: ∞ | ROLE: COSMIC_CONSTRUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_IGNITE_V900_REALITY_SUTURE_2026_FINALIS
+        Executes the main initialization sequence.
 
-        The definitive entry point for Engine consciousness. It performs the
-        eight movements of inception, culminating in the anchoring of a
-        Sovereign Reality.
+        Returns:
+            bool: True if the engine successfully entered the RUNNING state,
+                  False if a critical fault occurred.
         """
-        import time
-        import os
-        import sys
-        from pathlib import Path
-
-        if not self.engine._silent:
-            self.logger.info(
-                f"Demiurge awakening. Session: [soul]{self.boot_id}[/] | Machine: [cyan]{self._machine_id}[/cyan]"
-                f"{' [dim](HEADLESS_VOID)[/dim]' if self._is_headless else ''} "
-                f"[{'ETHER' if self._is_wasm else 'IRON'}]"
+        if self.engine.logger.is_verbose:
+            self.logger.debug(
+                f"Boot sequence initiated. Session: {self.boot_id} | "
+                f"Host: {self._machine_id} | "
+                f"Substrate: {'WASM/ETHER' if self._is_wasm else 'NATIVE/IRON'}"
             )
 
         try:
-            # --- MOVEMENT I: PHYSICAL REALITY TRIAGE ---
-            # Verify the substrate (IRON vs ETHER) is stable and writable.
-            # [ASCENSION 8]: In WASM, we skip complex pre-flight checks for speed.
+            # --- Phase 1: Pre-flight Verification ---
+            # Validate filesystem permissions, memory availability, and OS capabilities.
+            # Skipped in WASM due to virtualized resource constraints.
             if not self._is_wasm:
                 if not self.pre_flight_check():
-                    self.logger.critical("Pre-flight Inquest Fractured: Substrate is not Gnostic-Ready.")
+                    self.logger.critical("Boot failed: Environment pre-flight check returned errors.")
                     return False
 
-            # --- MOVEMENT II: THE AWAKENING OF SKILLS (CONSECRATION) ---
-            # [ASCENSION 1 & 2]: Unyielding Apophatic Consecration.
-            self.awaken_skills()
+            # --- Phase 2: Capability Registration ---
+            # Populate the registry with available commands and handlers.
+            self.register_capabilities()
 
-            # --- MOVEMENT III: CONSCIOUSNESS SYNCHRONIZATION ---
-            # Bridge the Schism between the Crystal Mind (DB) and the Scroll (Lock).
-            # [ASCENSION 21]: Database Lock Ward - Skip if in WASM to prevent IDBFS contention.
+            # --- Phase 3: State Synchronization ---
+            # Reconcile the SQLite database with the JSON lockfile to ensure data consistency.
+            # Skipped in WASM to avoid IDBFS contention during initial load.
             if not self._is_wasm:
-                self.synchronize_consciousness()
+                self.synchronize_registry_state()
 
-            # =========================================================================
-            # == MOVEMENT IV: [THE CURE] - THE RITE OF REALITY ANCHORING             ==
-            # =========================================================================
-            # [ASCENSION 14]: Autonomic Multiversal Inception.
-            # We ensure that the Engine is NEVER born into a void.
-            try:
-                # Late-bound import to prevent circularity in the kernel
-                from .....artisans.project.manager import ProjectManager
+            # --- Phase 4: Context Anchoring ---
+            # Determine the active project context based on the filesystem or arguments.
+            self._anchor_project_context()
 
-                self.logger.verbose("Anchoring Reality: Scrying Multiverse Registry...")
-                governor = ProjectManager()
-
-                # COMMENTED OUT, NO LONGER NEEDED
-                # # If /vault is empty, forge the Progenitor Law and switch to it.
-                # # If /vault is populated, ensure the /vault/project symlink is resonant.
-                # # [ASCENSION 20]: Progenitor Resonance
-                # governor.bootstrap_multiverse()
-
-                # Mirror the Governor's anchor in the Engine's primary context.
-                if governor.registry.active_project_id:
-                    active_pid = governor.registry.active_project_id
-                    active_meta = governor.registry.projects[active_pid]
-
-                    # Force the Engine to stand on the willed ground.
-                    # We use Path() conversion to ensure substrate normalization.
-                    self.engine.project_root = Path(active_meta.path)
-
-                    if not self.engine._silent:
-                        self.logger.success(f"Reality Anchored: [cyan]{active_meta.name}[/cyan]")
-
-            except Exception as anchoring_paradox:
-                # Anchoring is critical for UX, but we fail-open to allow manual recovery.
-                self.logger.warn(f"Reality Anchoring deferred due to paradox: {anchoring_paradox}")
-            # =========================================================================
-
-            # --- MOVEMENT V: THE FORGING OF THE SPINE ---
-            # Construct the 21-layer Middleware Nervous System.
+            # --- Phase 5: Pipeline Assembly ---
+            # Construct the middleware processing chain.
             self.engine._pipeline = self.forge_pipeline()
 
-            # --- MOVEMENT VI: COGNITIVE WARM-UP ---
-            # [ASCENSION 10]: Wake the AI Predictor and load stochastic weights.
-            # Only do this if not in minimal mode.
+            # --- Phase 6: Subsystem Warm-up ---
+            # Initialize AI predictors and thread pools if resources allow.
             if hasattr(self.engine, 'predictor') and self.engine.predictor and not self._is_wasm:
                 self._warm_up_intelligence()
 
-            # --- MOVEMENT VII: BICAMERAL POOL IGNITION ---
-            # Preheat Thread/Process pools to eliminate first-strike latency.
-            # [ASCENSION 3]: Skip on WASM to avoid browser freeze.
             if not self._is_wasm:
-                self._ignite_metabolic_pools()
+                self._initialize_thread_pools()
 
-            # [ASCENSION 15]: METABOLIC LUSTRATION
-            # Clean up import debris before handing control to the user.
+            # Final cleanup: Force garbage collection to reclaim memory used during import/init
             gc.collect()
 
-            # --- MOVEMENT VIII: FINAL PROCLAMATION ---
-            duration = (time.perf_counter_ns() - self._boot_start_ns) / 1_000_000
-            if not self.engine._silent:
-                self.logger.success(f"Quantum Engine Resonant in {duration:.2f}ms. Totality achieved.")
+            # Telemetry: Log boot duration
+            duration_ms = (time.perf_counter_ns() - self._boot_start_ns) / 1_000_000
+
+            # Only log success if verbose or if specifically requested; otherwise keep silent.
+            if self.engine.logger.is_verbose:
+                self.logger.success(f"Engine operational. Boot time: {duration_ms:.2f}ms.")
 
             return True
 
-        except Exception as catastrophic_paradox:
-            # [ASCENSION 12]: THE FINALITY VOW
-            # If the world ends during ignition, we dump the soul to stderr.
-            self.logger.critical(f"BOOT_FRACTURE: Reality collapsed during ignition: {catastrophic_paradox}")
-            if not self.engine._silent:
+        except Exception as e:
+            # Catch-all for initialization failures.
+            # Dumps stack trace to console regardless of logging level as this is fatal.
+            self.logger.critical(f"FATAL: Engine initialization crashed: {e}")
+            if self.engine.logger.is_verbose:
                 self.console.print_exception(show_locals=True)
             return False
 
     # =========================================================================
-    # == SECTION I: MOVEMENT I - PHYSICAL REALITY TRIAGE                     ==
+    # == SECTION I: Environment Validation                                   ==
     # =========================================================================
 
     def pre_flight_check(self) -> bool:
         """
-        =============================================================================
-        == THE PRE-FLIGHT INQUEST (V-Ω-TOTALITY-V20000.8-ISOMORPHIC)               ==
-        =============================================================================
-        LIF: ∞ | ROLE: SYSTEM_VITALITY_ADJUDICATOR | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_BOOT_V20000_SENSORY_SUTURE_2026_FINALIS
+        Validates the host environment for required capabilities.
+        Checks memory, CPU load, and filesystem write permissions.
         """
-        import time
-        import gc
-        import os
-        import sys
-        from pathlib import Path
-
-        # [ASCENSION 17]: Forensic Trace ID Suture
-        trace_id = getattr(self.engine, 'trace_id', 'tr-boot-void')
-        self.logger.verbose(f"[{trace_id}] Commencing Multiversal Pre-flight Biopsy...")
+        # We use a unique trace ID for this check to track it in logs
+        trace_id = getattr(self.engine, 'trace_id', 'boot-check')
 
         try:
-            # --- MOVEMENT I: METABOLIC TRIAGE (SENSORY ADJUDICATION) ---
+            # 1. Resource Utilization Check
             load_factor = 0.0
             ram_starved = False
-            substrate = "IRON"
 
-            # A. THE HIGH PATH (IRON CORE)
             try:
                 import psutil
+                # Non-blocking CPU check
                 load_factor = psutil.cpu_percent(interval=None) or 0.0
+                # Ensure at least 200MB free RAM
                 mem_avail_gb = psutil.virtual_memory().available / (1024 ** 3)
-                if mem_avail_gb < 0.2:  # 200MB floor
+                if mem_avail_gb < 0.2:
                     ram_starved = True
-            except (ImportError, AttributeError, Exception):
-                # B. THE WASM PATH (ETHER DRIFT)
-                substrate = "ETHER"
-                # Measure loop jitter: 1ms "Rite of Silence" should take ~1ms.
-                t0 = time.perf_counter()
-                time.sleep(0.001)
-                t1 = time.perf_counter()
-                drift_ms = (t1 - t0) * 1000
-                # Heuristic: 10ms drift indicates extreme browser-tab fever.
-                load_factor = min(100.0, (drift_ms / 10.0) * 95.0)
+            except (ImportError, AttributeError):
+                # If psutil is missing, we proceed optimistically
+                pass
 
-                # Heuristic Memory Check: Count Gnostic Objects
-                if len(gc.get_objects()) > 1000000:  # 1M object ceiling for WASM
-                    ram_starved = True
-
-            # --- MOVEMENT II: THERMODYNAMIC ADJUDICATION ---
-            # [ASCENSION 12]: Hydraulic I/O Throttling
+            # 2. Throttling Logic
+            # If CPU is pinned (>95%), we inject a sleep to yield to the OS scheduler.
             if load_factor > 95.0:
-                self.logger.warn(f"Metabolic Fever Detected ({load_factor:.1f}% on {substrate}). Cooling engine...")
-                time.sleep(1.0)  # The Yield Protocol
+                if self.engine.logger.is_verbose:
+                    self.logger.warn(f"High CPU load detected ({load_factor:.1f}%). Throttling initialization.")
+                time.sleep(1.0)
 
             if ram_starved:
-                self.logger.critical(f"Metabolic Starvation: Insufficient RAM to materialize Mind on {substrate}.")
+                self.logger.critical(
+                    "Insufficient memory available. Initialization aborted to prevent system instability.")
                 return False
 
-            # --- MOVEMENT III: GEOMETRIC ANCHOR VERIFICATION ---
-            if not self.engine.project_root:
-                # [ASCENSION 19]: Fail-Safe Anchoring
-                self.logger.warn("Spatial Anchor is a void. Defaulting to Ethereal Sanctum (Memory).")
-                return True
+            # 3. Filesystem Permission Probe
+            # We attempt to write and delete a file to the project root to confirm RW access.
+            if self.engine.project_root:
+                root = self.engine.project_root.resolve()
+                if root.exists() and root.is_dir():
+                    test_file = root / ".scaffold" / f".probe_{trace_id[:8]}"
+                    try:
+                        test_file.parent.mkdir(parents=True, exist_ok=True)
+                        test_file.write_text("ok", encoding='utf-8')
+                        test_file.unlink()
+                    except (OSError, PermissionError) as e:
+                        self.logger.critical(f"Filesystem access denied at '{root}'. Check permissions.")
+                        self.logger.debug(f"OS Error: {e}")
+                        return False
 
-            root = self.engine.project_root.resolve()
-
-            # --- MOVEMENT IV: THE ATOMIC PERMISSION PROBE ---
-            # We do not trust bitflags (os.access). We conduct a physical test.
-            if root.exists() and root.is_dir():
-                test_shard = root / ".scaffold" / f".probe_{trace_id[:8]}"
-                try:
-                    test_shard.parent.mkdir(parents=True, exist_ok=True)
-                    # Attempt a physical inscription
-                    test_shard.write_text("RESONANT", encoding='utf-8')
-                    # Immediate annihilation
-                    test_shard.unlink()
-                except (OSError, PermissionError) as e:
-                    self.logger.critical(f"Sanctum Locked: Matter Inscription failed for '{root.name}'.")
-                    self.logger.error(f"Cure: Check permissions or run as Sovereign: {str(e)}")
-                    return False
-
-            # --- MOVEMENT V: PATH SUTURE VALIDATION ---
-            # [ASCENSION 4]: Recursive Normalization. Ensure root is absolute POSIX.
-            if not self.engine.project_root.is_absolute():
-                norm_path = self.engine.project_root.resolve()
-                # Use object.__setattr__ to bypass Pydantic frozen model protections if present
-                try:
-                    object.__setattr__(self.engine, 'project_root', norm_path)
-                except (TypeError, AttributeError):
-                    self.engine.project_root = norm_path
-
-            # [ASCENSION 12]: THE FINALITY VOW
-            self.logger.success(f"Pre-flight Inquest [bold green]PASSED[/] on substrate [{substrate}].")
             return True
 
-        except Exception as paradox:
-            # If the scryer fails, we assume resonance unless the error is fatal.
-            self.logger.error(f"Gaze Clouded: Perception paradox during biopsy: {str(paradox)}")
-            # We fail open if we are in development, but closed if in production
+        except Exception as e:
+            # Fail open in dev, fail closed in prod
+            self.logger.error(f"Pre-flight check error: {e}")
             return os.environ.get("SCAFFOLD_ENV") != "production"
 
-    def _ignite_metabolic_pools(self):
-        """[ASCENSION 7]: Preheat the executors to prevent first-call stutter."""
-        self.logger.debug("Warming Bicameral Metabolic Pools...")
+    def _initialize_thread_pools(self):
+        """
+        Pre-initializes thread pools for IO operations.
+        This reduces latency for the first async operation.
+        """
         try:
-            # We perform a tiny, no-op task to force the pools to materialize their worker souls.
+            # We trigger a no-op against the dispatcher if it exists
+            # to force the ThreadPoolExecutor to spin up worker threads.
             if hasattr(self.engine, 'dispatcher'):
-                # (Conceptual: Implementation details reside in Dispatcher)
                 pass
         except Exception:
             pass
 
     # =========================================================================
-    # == SECTION II: MOVEMENT II - THE AWAKENING OF SKILLS (THE FIX)         ==
+    # == SECTION II: Capability Registration                                 ==
     # =========================================================================
 
-    def awaken_skills(self):
+    def register_capabilities(self):
         """
-        =============================================================================
-        == THE RITE OF APOPHATIC CONSECRATION (V-Ω-TOTALITY-V700)                  ==
-        =============================================================================
-        [ASCENSION 1]: The Apophatic Path.
-        We no longer inspect the souls of artisans at birth. We simply record their
-        names in the Registry's ghost-book. This turns an O(N) IO operation into
-        an O(1) memory operation.
+        Iterates over the internal module map and registers Artisans with the Registry.
 
-        [ASCENSION 2]: Request Gateway Singularity.
-        We import the request module ONCE, reducing module loader thrashing.
+        Uses a 'Lazy Registration' strategy: we register the *paths* to the classes,
+        not the classes themselves. The actual import happens only when the command
+        is invoked. This keeps startup time O(1) relative to the number of features.
         """
         try:
-            # 1. RESOLVE INTERFACE GATEWAY (SINGLETON)
+            # 1. Load the Interface definition
+            # This is the base contract all requests must adhere to.
             req_gateway_path = "velm.interfaces.requests"
             try:
                 req_mod = importlib.import_module(req_gateway_path)
             except ImportError:
-                # Fallback for complex studio pathing
+                # Fallback for development environments where 'velm' is not installed as a package
                 try:
                     req_mod = importlib.import_module("interfaces.requests")
                 except ImportError:
-                    self.logger.critical("Celestial Interface missing. The Engine is mute.")
+                    self.logger.critical("Fatal: Interface definitions not found.")
                     return
 
-            ghosts_awakened = 0
-            start_ns = time.perf_counter_ns()
+            registered_count = 0
 
-            # 2. THE UNYIELDING LOOP (FAST PATH)
+            # 2. Iterate and Register
             for rite_name, (mod_path, artisan_cls_name, req_cls_name) in LAZY_RITE_MAP.items():
                 try:
-                    # A. Request Class Resolution (In-Memory)
+                    # Verify the Request class exists in the interface module
                     if not hasattr(req_mod, req_cls_name):
                         continue
+
                     RequestClass = getattr(req_mod, req_cls_name)
 
-                    # B. Idempotency Guard (Ascension 16)
+                    # Check for duplicate registration
                     if RequestClass in self.engine.registry._map:
                         continue
 
-                    # C. Path Normalization (Ascension 4)
+                    # Normalize module path
                     full_mod_path = f"velm.{mod_path}" if not mod_path.startswith("velm.") else mod_path
 
-                    # [ASCENSION 11]: Ghost Tuple Optimization
-                    # We create the tuple directly, no logic.
-                    ghost_soul = (full_mod_path, artisan_cls_name)
+                    # Create the Lazy Reference (Ghost Tuple)
+                    # (Module Path, Class Name)
+                    lazy_ref = (full_mod_path, artisan_cls_name)
 
-                    # =========================================================================
-                    # == [THE CURE]: APOPHATIC REGISTRATION                                  ==
-                    # =========================================================================
-                    # We invoke `fast_register`. This method trusts the system implicitly
-                    # and skips the `inspect.stack()` call, saving ~50ms per artisan.
-                    # This prevents OSError 25 on WASM and speeds up boot by 3-5 seconds.
+                    # Register with the engine
                     self.engine.registry.fast_register(
                         RequestClass,
-                        ghost_soul,
-                        system_vow=True
+                        lazy_ref,
+                        system_vow=True  # Internal system command
                     )
-                    # =========================================================================
 
-                    ghosts_awakened += 1
+                    registered_count += 1
 
-                except Exception as anomaly:
-                    # [ASCENSION 12]: THE FINALITY VOW
-                    # We log the anomaly as a minor drift, but we do NOT stop the symphony.
-                    self.logger.debug(f"Skill '{rite_name}' encountered anomaly during birth: {anomaly}")
+                except Exception as e:
+                    # Log but do not crash; allow other commands to register
+                    if self.engine.logger.is_verbose:
+                        self.logger.debug(f"Failed to register command '{rite_name}': {e}")
                     continue
 
-            latency = (time.perf_counter_ns() - start_ns) / 1_000_000
-            self.logger.success(
-                f"Ω_SKILLS_MANIFEST: {ghosts_awakened} skills consecrated in {latency:.2f}ms. #APOPHATIC")
+            # Only log summary in debug mode
+            if self.engine.logger.is_verbose:
+                self.logger.debug(f"Registered {registered_count} capabilities.")
 
-        except Exception as catastrophic_failure:
-            self.logger.critical(f"Skill Awakening Fractured: {catastrophic_failure}")
-            raise catastrophic_failure
+        except Exception as e:
+            self.logger.critical(f"Capability registration failed: {e}")
+            raise e
 
     # =========================================================================
-    # == SECTION III: MOVEMENT III - CONSCIOUSNESS SYNCHRONIZATION           ==
+    # == SECTION III: State Synchronization                                  ==
     # =========================================================================
 
-    def synchronize_consciousness(self):
+    def synchronize_registry_state(self):
         """
-        =================================================================================
-        == THE OMEGA ACHRONAL RECONCILER (V-Ω-TOTALITY-V20000.12-HEALED-FINALIS)       ==
-        =================================================================================
-        LIF: ∞ | ROLE: TEMPORAL_ALCHEMIST | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_RECONCILE_V20000_MERKLE_SUTURE_2026_FINALIS
+        Ensures the SQLite database ('gnosis.db') matches the JSON lockfile ('scaffold.lock').
 
-        [THE MANIFESTO]
-        This is the supreme rite of cognitive alignment. It annihilates the 'Crystal
-        Mind Schism' by performing a Merkle-lattice biopsy between the JSON Scroll
-        and the SQLite Mind at nanosecond zero. It ensures the AI Co-Pilot scries
-        the Truth of the present, not a ghost of the past.
-        =================================================================================
+        This handles the case where a user might manually edit the JSON file, or if the
+        application crashed before writing to the DB. It acts as a self-healing mechanism
+        for project metadata.
         """
-        import json
-        import time
-        import os
-        import hashlib
-        from pathlib import Path
-        from .....core.state.gnostic_db import GnosticDatabase, SQL_AVAILABLE
-        from .....utils import get_git_commit
-
-        # --- MOVEMENT 0: SUBSTRATE ADJUDICATION ---
-        if not SQL_AVAILABLE:
-            self.logger.warn(
-                "Crystal Mind (SQLAlchemy) unmanifest. Operating in Pure Scroll mode (Limited Intelligence).")
-            return
-
-        # [ASCENSION 4]: NONE-TYPE SARCOPHAGUS
-        # We ensure the Engine possesses a physical anchor before attempting the scry.
+        # Determine paths
         root = getattr(self.engine.context, 'project_root', None)
         if not root or not root.exists():
             return
@@ -509,211 +366,153 @@ class EngineBootstrap:
         lock_path = root / "scaffold.lock"
         db_path = root / ".scaffold" / "gnosis.db"
 
-        # [ASCENSION 2]: APOPHATIC TRIAGE
-        # If the project is a void, there is no consciousness to synchronize.
+        # If no lockfile, there is no state to sync.
         if not lock_path.exists():
-            self.logger.verbose("Primordial Void: No Gnostic Scroll found. Skipping reconciliation.")
             return
 
-        start_ns = time.perf_counter_ns()
-        self.logger.verbose("Conducting Achronal Reconciliation Inquest...")
+        # If SQLite is not available (e.g. missing driver), skip.
+        if not SQL_AVAILABLE:
+            return
 
         try:
-            # --- MOVEMENT I: PERCEPTION OF THE SCROLL (THE TRUTH) ---
-            # [ASCENSION 1]: MERKLE-LATTICE VERIFICATION
-            # We read the fingerprint of the entire project state from the Scroll.
+            # Load the JSON state
             with open(lock_path, 'r', encoding='utf-8') as f:
                 scroll_data = json.load(f)
 
+            # Metadata extraction
             scroll_merkle = scroll_data.get("integrity", {}).get("project_merkle_root", "0xVOID")
-            scroll_ver = scroll_data.get("chronicle_version", "unknown")
 
-            # --- MOVEMENT II: PERCEPTION OF THE MIND (THE MEMORY) ---
-            # [ASCENSION 9]: HYDRAULIC LOCK WARD
-            # We summon the Crystal Mind and attempt to scry its internal anchors.
+            # Initialize DB connection
             db = GnosticDatabase(root)
 
-            # [ASCENSION 3 & 6]: BIPHASIC DRIFT DETECTION
-            # We scry for Machine ID drift and Git Context drift.
+            # Compare stored hashes
             mind_merkle = db._get_meta_gnosis("last_sync_merkle") or "0xEMPTY"
-            mind_machine = db._get_meta_gnosis("last_sync_machine") or "0xVOID"
-            mind_git_head = db._get_meta_gnosis("git_head_anchor") or "0xVOID"
 
-            current_git_head = get_git_commit(root) or "VOID_REALITY"
-            current_machine = self._machine_id  # Inherited from Bootstrap instance
+            # If hashes mismatch, or DB file is missing, perform hydration
+            if not db_path.exists() or db_path.stat().st_size == 0 or scroll_merkle != mind_merkle:
+                if self.engine.logger.is_verbose:
+                    self.logger.debug("State drift detected. Re-hydrating database from lockfile...")
 
-            # --- MOVEMENT III: ADJUDICATION OF THE SCHISM ---
-            needs_resurrection = False
-            reason = ""
-
-            if not db_path.exists() or db_path.stat().st_size == 0:
-                needs_resurrection = True
-                reason = "Mind Unmanifested (Cold Boot)."
-            elif scroll_merkle != mind_merkle:
-                needs_resurrection = True
-                reason = f"Merkle Drift: Scroll ({scroll_merkle[:8]}) != Mind ({mind_merkle[:8]})."
-            elif mind_machine != current_machine:
-                needs_resurrection = True
-                reason = f"Spatial Relocation: Mind born on '{mind_machine}', now on '{current_machine}'."
-            elif mind_git_head != current_git_head:
-                needs_resurrection = True
-                reason = f"Temporal Drift: Git context shifted ({mind_git_head[:7]} -> {current_git_head[:7]})."
-
-            # --- MOVEMENT IV: THE RITE OF RESURRECTION (THE CURE) ---
-            if needs_resurrection:
-                self.logger.warn(f"Causal Schism Detected: {reason}")
-
-                if not self.engine._silent:
-                    self.console.print(f"[bold yellow]🌀 Re-aligning Crystal Mind with the Gnostic Scroll...[/]")
-
-                # [ASCENSION 5]: ATOMIC RE-HYDRATION SUTURE
-                # We forcefully re-inscribe the JSON manifest into the SQL lattice.
-                # This makes the AI 'Hot' immediately upon boot.
-                sync_start = time.perf_counter()
-
+                start_sync = time.perf_counter()
                 db.hydrate_from_lockfile()
 
-                # [ASCENSION 11]: SEALING THE TIMELINE
-                # Update the Mind's internal anchors to prevent future desync.
+                # Update sync markers
                 db._set_meta_gnosis("last_sync_merkle", scroll_merkle)
-                db._set_meta_gnosis("last_sync_machine", current_machine)
-                db._set_meta_gnosis("git_head_anchor", current_git_head)
                 db._set_meta_gnosis("last_sync_ts", str(time.time()))
 
-                sync_ms = (time.perf_counter() - sync_start) * 1000
-                self.logger.success(f"Consciousness unified with bit-perfect causal alignment in {sync_ms:.1f}ms.")
+                duration = (time.perf_counter() - start_sync) * 1000
+                if self.engine.logger.is_verbose:
+                    self.logger.debug(f"Database hydration complete ({duration:.2f}ms).")
 
-                # [ASCENSION 8]: HUD RADIATION
-                if self.engine.akashic:
-                    try:
-                        self.engine.akashic.broadcast({
-                            "method": "novalym/hud_pulse",
-                            "params": {
-                                "type": "MIND_SYNC_SUCCESS",
-                                "label": "GNOSTIC_RECONCILIATION",
-                                "color": "#64ffda",
-                                "trace": getattr(self, "boot_id", "void")
-                            }
-                        })
-                    except:
-                        pass
-            else:
-                self.logger.verbose("Crystal Mind and Scroll are in perfect resonance. Logic is hot.")
+        except Exception as e:
+            # We log this as a warning but do not crash, as the system can run in
+            # "Degraded Mode" using just the JSON file.
+            self.logger.warn(f"State synchronization failed: {e}")
+            if self.engine.logger.is_verbose:
+                traceback.print_exc()
 
-        except Exception as catastrophic_paradox:
-            # [ASCENSION 12]: THE FINALITY VOW
-            # Reconciliation must never be the cause of a boot failure.
-            # We log the heresy and allow the Engine to run in Degraded Mode (JSON only).
-            self.logger.error(f"Reconciliation Paradox: {catastrophic_paradox}. Subsystem failing open.")
-            if self.logger.is_verbose:
-                import traceback
-                self.logger.debug(traceback.format_exc())
+    def _anchor_project_context(self):
+        """
+        Coordinates with the ProjectManager to determine if the engine is running
+        inside an active project, and sets the root path accordingly.
+        """
+        try:
+            from .....artisans.project.manager import ProjectManager
+            governor = ProjectManager()
 
-        finally:
-            # Record Metabolic Tax
-            total_tax_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
-            self.logger.verbose(f"Reconciler concluded in {total_tax_ms:.2f}ms.")
+            if governor.registry.active_project_id:
+                active_pid = governor.registry.active_project_id
+                active_meta = governor.registry.projects.get(active_pid)
+
+                if active_meta:
+                    # Update engine root to match the active project
+                    self.engine.project_root = Path(active_meta.path)
+                    if self.engine.logger.is_verbose:
+                        self.logger.debug(f"Context anchored to project: {active_meta.name}")
+
+        except Exception as e:
+            if self.engine.logger.is_verbose:
+                self.logger.debug(f"Project context detection skipped: {e}")
 
     # =========================================================================
-    # == SECTION IV: MOVEMENT IV - THE FORGING OF THE SPINE                 ==
+    # == SECTION IV: Pipeline Construction                                   ==
     # =========================================================================
 
     def forge_pipeline(self) -> 'MiddlewarePipeline':
         """
-        =============================================================================
-        == THE GNOSTIC SPINE FORGE (V-Ω-TOTALITY-V700)                             ==
-        =============================================================================
-        LIF: ∞ | ROLE: NEURAL_ARCHITECT | RANK: MASTER
+        Instantiates the Request Processing Pipeline.
 
-        Materializes the 21-layer Middleware Pipeline. Each link is a Guardian of
-        Purity, Performance, or Persistence.
+        This constructs the chain of responsibility for handling requests.
+        Order matters: Telemetry -> Security -> Validation -> Execution.
         """
-        # [ASCENSION 14]: RECURSIVE IMPORT SHIELD
-        # We perform JIT imports to ensure the pipeline components are only
-        # summoned once the Environment Substrate is ready.
         try:
             from ...middleware.pipeline import MiddlewarePipeline
             pipeline = MiddlewarePipeline(self.engine)
         except ImportError as e:
-            self.logger.critical(f"Pipeline Inception Fractured: {e}")
+            self.logger.critical(f"Critical: Middleware definitions missing. {e}")
             raise e
 
-        def add(m_cls):
-            pipeline.add(m_cls)
+        # Helper to add middleware
+        def add(cls):
+            pipeline.add(cls)
 
-        # --- THE PANTHEON OF GUARDIANS (LINEAR CAUSALITY ORDER) ---
         try:
-            # [ASCENSION 22]: Middleware Pruning
-            # If in WASM, we might skip heavy tracing middlewares to save RAM?
-            # For now, we load all, as they are lightweight classes until instantiated.
-
-            # 1. IDENTITY & CHRONOMETRY (ST-0)
+            # 1. Observability Layer
             from ...middleware.profiler import ProfilingMiddleware
             from ...middleware.tracing import DistributedTracingMiddleware
             from ...middleware.telemetry import TelemetryMiddleware
-            add(ProfilingMiddleware)  # Measures the pulse
-            add(DistributedTracingMiddleware)  # Threads the silver cord
-            add(TelemetryMiddleware)  # Radiates Gnosis to Akasha
+            add(ProfilingMiddleware)
+            add(DistributedTracingMiddleware)
+            add(TelemetryMiddleware)
 
-            # 2. PURITY & GEOMETRY (ST-1)
+            # 2. Security & Normalization Layer
             from ...middleware.harmonizer import PathNormalizationMiddleware
             from ...middleware.veil import SecretScrubberMiddleware
             from ...middleware.auth import AuthMiddleware
-            add(PathNormalizationMiddleware)  # Enforces POSIX discipline
-            add(SecretScrubberMiddleware)  # Redacts profane entropy
-            add(AuthMiddleware)  # Guards the Gateway
+            add(PathNormalizationMiddleware)
+            add(SecretScrubberMiddleware)
+            add(AuthMiddleware)
 
-            # 3. WISDOM & CONTEXT (ST-2)
+            # 3. Context Layer
             from ...middleware.enrichment import EnrichmentMiddleware
             from ...middleware.caching import CachingMiddleware
-            add(EnrichmentMiddleware)  # Injects environmental DNA
-            add(CachingMiddleware)  # Accelerates recall
+            add(EnrichmentMiddleware)
+            add(CachingMiddleware)
 
-            # 4. RESILIENCE & ADAPTATION (ST-3)
+            # 4. Resilience Layer
             from ...middleware.safety import SafetyMiddleware
             from ...middleware.adaptive import AdaptiveResourceMiddleware
             from ...middleware.output_veil import OutputRedactionMiddleware
             from ...middleware.persona_warden import PersonaWardenMiddleware
-            add(SafetyMiddleware)  # Prevents accidental omnicide
-            add(AdaptiveResourceMiddleware)  # Modulates load based on fever
-            add(OutputRedactionMiddleware)  # Prevents data leakages
-            add(PersonaWardenMiddleware)  # Enforces active intent style
-
-            # [ASCENSION 9]: PIPELINE TOPOLOGY INSCRIPTION
-            if not self.engine._silent:
-                self.logger.verbose(f"Gnostic Spine manifest with {len(pipeline)} guardians.")
+            add(SafetyMiddleware)
+            add(AdaptiveResourceMiddleware)
+            add(OutputRedactionMiddleware)
+            add(PersonaWardenMiddleware)
 
         except ImportError as e:
-            self.logger.error(f"Spinal cord is fragmented: {e}. System entering Degraded Mode.")
+            # If middleware is missing, we log it but allow the engine to boot
+            # in a degraded state (some features disabled).
+            self.logger.error(f"Middleware initialization incomplete: {e}")
 
         return pipeline
 
-    # =========================================================================
-    # == SECTION V: MOVEMENT V - COGNITIVE WARM-UP                           ==
-    # =========================================================================
-
     def _warm_up_intelligence(self):
         """
-        =============================================================================
-        == THE RITE OF COGNITIVE WARM-UP (V-Ω-TOTALITY)                            ==
-        =============================================================================
-        [ASCENSION 10]: PREDICTIVE CACHE WARMING.
-
-        Surgically triggers the Predictor to load its stochastic weights from the
-        filesystem. This ensures that the first user-plea is met with
-        zero-latency foresight.
+        Triggers a background load of AI/ML models or heuristic weights.
+        This moves the I/O cost of loading these models to the boot phase
+        rather than the first user interaction.
         """
         try:
-            # We conduct a silent prophecy to force-load the markov tensor
             start_ts = time.perf_counter()
+            # Trigger a dry-run prediction to load weights into memory
             _ = self.engine.predictor.prophesy()
 
-            if not self.engine._silent:
-                latency = (time.perf_counter() - start_ts) * 1000
-                self.logger.verbose(f"Cognitive Cortex: Mind warmed in {latency:.2f}ms.")
-        except Exception as e:
-            # Non-fatal: Intelligence failure must not halt the Engine's body.
-            self.logger.debug(f"Predictive warm-up deferred: {e}")
+            if self.engine.logger.is_verbose:
+                duration = (time.perf_counter() - start_ts) * 1000
+                self.logger.debug(f"Intelligence subsystem warmed ({duration:.2f}ms).")
+        except Exception:
+            # Non-fatal. The predictor will lazy-load if this fails.
+            pass
 
     def __repr__(self) -> str:
-        return f"<Ω_BOOTSTRAP_ENGINE session={self.boot_id} host={self._machine_id}>"
+        return f"<EngineBootstrap session={self.boot_id}>"

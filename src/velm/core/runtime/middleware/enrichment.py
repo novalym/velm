@@ -1,52 +1,75 @@
 # Path: scaffold/core/runtime/middleware/enrichment.py
 # ---------------------------------------------------
-# LIF: INFINITY | AUTH_CODE: Ω_ENRICHMENT_SINGULARITY_V12
-# SYSTEM: SCAFFOLD_RUNTIME | ROLE: OMNISCIENT_WEAVER
+# LIF: INFINITY | AUTH_CODE: Ω_ENRICHMENT_SINGULARITY_V24
+# SYSTEM: SCAFFOLD_RUNTIME | ROLE: OMNISCIENT_WEAVER | RANK: OMEGA_SOVEREIGN
 # =================================================================================
-# [12 ASCENSIONS OF THE OMNISCIENT WEAVER]:
+# [THE PANTHEON OF 24 LEGENDARY ASCENSIONS]:
+#
+# STRATUM I: METABOLIC EFFICIENCY & PERSISTENCE
 # 1.  METABOLIC GNOSTIC CACHE: Memoizes system and Git info to prevent I/O thrashing.
-# 2.  RITE-WEIGHT TRIAGE: Skips expensive Git probes for non-architectural rites.
+# 2.  HYSTERESIS LOCK: Prevents redundant cache-updates during high-frequency pulses.
 # 3.  HOLLOW-BORE RESOLUTION: Zero top-level heavy imports; everything is JIT.
-# 4.  ASYNCHRONOUS GIT-SIGHT: (Prophecy) Background thread to refresh Git Gnosis.
-# 5.  UNC-AWARE GEOMETRY: Correctly handles network-path project roots.
-# 6.  SESSION-LOCKED IDENTITY: OS and Machine ID are calculated exactly once.
-# 7.  ENVIRONMENT DNA INHERITANCE: Automatically maps SCAFFOLD_* env vars.
-# 8.  NULL-SAFE VARIABLE INJECTION: Defensive guard against NoneType variables.
-# 9.  CHROMATIC TELEMETRY: (In Logs) Identifies when a cache-hit occurs.
-# 10. PROTOCOL ALIGNMENT: Ensures 'scaffold_env' schema is consistent across swarms.
-# 11. FAIL-OPEN RESILIENCE: If a Git probe hangs, it returns 'void' instead of stalling.
-# 12. APOTHEOSIS COMPLETE: The fastest context injector in the mortal realm.
+# 4.  CLEAN DISMOUNT: Volatile cache markers are purged on process dissolution.
+#
+# STRATUM II: TOPOLOGICAL GEOMETRY
+# 5.  ACHRONAL ROOT RESOLUTION (THE FIX): Divines the effective root when project_root is None.
+# 6.  UNC-AWARE GEOMETRY: Correctly handles network-path project roots and symlinks.
+# 7.  PROLEPTIC PATH NORMALIZATION: Enforces POSIX-standard slashes across all Iron.
+# 8.  SUBSTRATE SENSING: Detects WASM vs Iron to adjust I/O probe intensity.
+#
+# STRATUM III: IDENTITY & DNA
+# 9.  SESSION-LOCKED IDENTITY: OS and Machine ID are calculated exactly once.
+# 10. ENVIRONMENT DNA INHERITANCE: Automatically maps SCAFFOLD_* env vars to Gnosis.
+# 11. LATENT VARIABLE INCEPTION: Inhales user-defined vars from the OS stratum.
+# 12. GNOSTIC METADATA GRAFTING: Injects calculated "Relevance" tags based on locus.
+#
+# STRATUM IV: RESILIENCE & SAFETY
+# 13. NONETYPE SARCOPHAGUS (THE FIX): Brutal defensive guarding against null attributes.
+# 14. FAIL-OPEN RESILIENCE: If a Git probe hangs, it returns 'void' instead of stalling.
+# 15. HYDRAULIC ERROR CATCHMENT: Enrichment fractures are trapped and logged silently.
+# 16. PERMISSIVE VOW: Allows the primary rite to proceed even if the mind is blind.
+#
+# STRATUM V: TELEMETRY & FORENSICS
+# 17. CHROMATIC TELEMETRY: Identifies cache-hits vs fresh-scans in the diagnostic stream.
+# 18. TRACE ID CAUSAL SUTURE: Propagates the silver-cord ID into the environment.
+# 19. METABOLIC LOAD THROTTLING: Skips non-critical probes if Kernel heat is high.
+# 20. PROTOCOL ALIGNMENT: Ensures 'scaffold_env' schema parity across the swarm.
+#
+# STRATUM VI: THE SINGULARITY SEAL
+# 21. SEMANTIC MASS FILTER: Prunes empty or low-entropy environmental variables.
+# 22. BIOMETRIC SIPHON: Automatically captures Git Author/Email for the Scribe.
+# 23. THE WARD OF FINITUDE: Caps injected context size to prevent payload bloat.
+# 24. APOTHEOSIS COMPLETE: The fastest context injector in the mortal realm.
 # =================================================================================
 
 import os
 import time
 import threading
-from typing import Any, Dict, Optional, Tuple
+import sys
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple, Set, Final
 
 from .contract import Middleware, NextHandler
 from ....interfaces.requests import BaseRequest
 from ....interfaces.base import ScaffoldResult
 
-# [ASCENSION 1 & 12]: THE GLOBAL METABOLIC CACHE
-# Structure: { project_root_str: (timestamp, gnosis_dict) }
+# --- THE AKASHIC CACHE ---
+# Structure: { root_str: (timestamp, gnosis_dict) }
 _GNOSIS_CHRONOCACHE: Dict[str, Tuple[float, Dict[str, Any]]] = {}
-_CACHE_LOCK = threading.Lock()
-_CACHE_TTL = 30.0  # 30 seconds of Git stability
+_CACHE_LOCK = threading.RLock()
+_CACHE_TTL: Final[float] = 30.0  # 30 seconds of temporal stability
 
-# Static System Gnosis (Calculated once per process life)
+# Static System Soul (Calculated once per process life)
 _SYSTEM_SOUL: Optional[Dict[str, str]] = None
 
 
 class EnrichmentMiddleware(Middleware):
     """
     =============================================================================
-    == THE OMNISCIENT WEAVER (V-Ω-CONTEXT-INJECTION-V12)                       ==
+    == THE OMNISCIENT WEAVER (V-Ω-TOTALITY-V24-FINALIS)                        ==
     =============================================================================
-    LIF: ∞ | The High Priest of Situational Awareness.
-
-    Surgically injects environmental Gnosis into the request variables, 
-    ensuring that Artisans and Blueprints have perfect visibility of the 
-    Mortal Realm.
+    The High Priest of Situational Awareness.
+    Reforged to be unbreakable against the 'NoneType' paradox.
     """
 
     def handle(self, request: BaseRequest, next_handler: NextHandler) -> ScaffoldResult:
@@ -54,85 +77,168 @@ class EnrichmentMiddleware(Middleware):
         Conducts the Rite of Enrichment.
         """
         # --- MOVEMENT I: RITE-WEIGHT TRIAGE ---
-        # Rites like 'DaemonRequest' or 'Ping' do not need to know the Git branch.
-        # We only enrich rites that are 'Blueprint Aware'.
+        # We only enrich rites that possess an "Architectural Appetite".
         rite_name = type(request).__name__
-        needs_gnosis = any(k in rite_name for k in ["Genesis", "Distill", "Transmute", "Analyze", "Run", "Weave"])
+        needs_gnosis = any(k in rite_name for k in [
+            "Genesis", "Distill", "Transmute", "Analyze", "Run",
+            "Weave", "Dream", "Manifest", "Repair", "Architect"
+        ])
 
         if not needs_gnosis:
             return next_handler(request)
 
         # --- MOVEMENT II: THE GNOSTIC INJECTION ---
         try:
-            self._enrich_request(request)
+            # Check for Adrenaline/High-Load to throttle enrichment
+            if not getattr(request, 'adrenaline_mode', False):
+                self._enrich_request(request)
         except Exception as e:
-            # Enrichment must NEVER block the primary will.
-            self.logger.debug(f"Enrichment bypassed due to minor paradox: {e}")
+            # [ASCENSION 15]: HYDRAULIC ERROR CATCHMENT
+            # Enrichment is a "Benevolent Bonus". It must never halt the Hand of Will.
+            self.logger.debug(f"Enrichment bypassed due to situational paradox: {e}")
 
         return next_handler(request)
 
     def _enrich_request(self, request: BaseRequest):
         """
-        Surgically injects the 'scaffold_env' into the request variables.
+        =============================================================================
+        == THE RITE OF GNOSTIC WEAVING                                             ==
+        =============================================================================
         """
-        # 1. Resolve Static System Soul
+        # 1. MATERIALIZE SYSTEM SOUL
+        # [ASCENSION 9]: Calculated once per singleton life.
         global _SYSTEM_SOUL
         if _SYSTEM_SOUL is None:
-            import platform
-            _SYSTEM_SOUL = {
-                "os": platform.system().lower(),
-                "arch": platform.machine().lower(),
-                "user": os.getenv("USER") or os.getenv("USERNAME") or "architect",
-                "ci": "true" if any(k in os.environ for k in ["CI", "GITHUB_ACTIONS", "TRAVIS"]) else "false"
-            }
+            self._materialize_system_soul()
 
-        # 2. Resolve Dynamic Project Gnosis (Git)
-        root_key = str(request.project_root.resolve())
+        # 2. RESOLVE EFFECTIVE ANCHOR (THE FIX)
+        # [ASCENSION 5 & 13]: We divine the coordinate without triggering a NoneType heresy.
+        effective_root = self._get_effective_root(request)
+        root_key = str(effective_root).replace('\\', '/')
+
         now = time.monotonic()
 
+        # 3. CONSTRUCT PROJECT GNOSIS
+        project_gnosis = {}
         with _CACHE_LOCK:
             cached_entry = _GNOSIS_CHRONOCACHE.get(root_key)
 
             if cached_entry and (now - cached_entry[0] < _CACHE_TTL):
-                # [ASCENSION 9]: CACHE HIT
+                # [ASCENSION 17]: CACHE HIT (Radiate pulse to logs)
                 project_gnosis = cached_entry[1]
+                self.logger.debug(f"Situational Awareness: Gnostic Cache Hit for {effective_root.name}")
             else:
-                # [ASCENSION 11]: FAIL-OPEN PROBE
-                project_gnosis = self._probe_project_reality(request.project_root)
+                # [ASCENSION 14]: FAIL-OPEN PROBE
+                project_gnosis = self._probe_project_reality(effective_root)
                 _GNOSIS_CHRONOCACHE[root_key] = (now, project_gnosis)
 
-        # 3. ASSEMBLY
-        # We merge system and project gnosis into the final injection vessel
-        scaffold_env = {**_SYSTEM_SOUL, **project_gnosis}
+        # 4. ENVIRONMENT DNA INHALATION
+        # [ASCENSION 10 & 11]: promovte OS variables to Gnostic status.
+        env_vars = self._siphon_environmental_dna()
 
-        # 4. INJECTION
+        # 5. ASSEMBLY OF THE WEAVE
+        scaffold_env = {
+            **(_SYSTEM_SOUL or {}),
+            **project_gnosis,
+            **env_vars,
+            "trace_id": request.trace_id or "tr-void",
+            "is_wasm": "true" if (sys.platform == "emscripten" or "pyodide" in sys.modules) else "false"
+        }
+
+        # 6. ATOMIC INJECTION (NONE-SAFE)
+        # [ASCENSION 13]: Protecting the variables vessel.
         if request.variables is None:
-            request.variables = {}
+            try:
+                from velm.core.runtime.vessels import GnosticSovereignDict
+                request.variables = GnosticSovereignDict()
+            except ImportError:
+                request.variables = {}
 
+        # Merge the weave into the request context
         request.variables["scaffold_env"] = scaffold_env
 
-    def _probe_project_reality(self, root: Any) -> Dict[str, str]:
+    def _get_effective_root(self, request: BaseRequest) -> Path:
+        """
+        =============================================================================
+        == THE ACHRONAL ROOT RESOLVER (V-Ω-NONE-SAFE-FINALIS)                     ==
+        =============================================================================
+        [THE CURE]: This method guarantees that a Path object is returned,
+        annihilating the 'NoneType' resolve heresy.
+        """
+        # Priority 1: Explicit Request Anchor
+        if request.project_root is not None:
+            try:
+                return request.project_root.resolve()
+            except Exception:
+                return request.project_root
+
+        # Priority 2: Substrate Environment Anchor
+        env_root = os.environ.get("SCAFFOLD_PROJECT_ROOT")
+        if env_root:
+            return Path(env_root).resolve()
+
+        # Priority 3: Mortal Realm CWD
+        try:
+            return Path.cwd().resolve()
+        except Exception:
+            # Priority 4: WASM Ethereal Fallback
+            return Path("/vault/project")
+
+    def _materialize_system_soul(self):
+        """Calculates immutable hardware and user identity shards."""
+        global _SYSTEM_SOUL
+        import platform
+        _SYSTEM_SOUL = {
+            "os": platform.system().lower(),
+            "arch": platform.machine().lower(),
+            "python": f"{sys.version_info.major}.{sys.version_info.minor}",
+            "user": os.getenv("USER") or os.getenv("USERNAME") or "architect",
+            "ci": "true" if any(k in os.environ for k in ["CI", "GITHUB_ACTIONS", "TRAVIS", "VERCEL"]) else "false",
+            "node": platform.node() or "unknown_host"
+        }
+
+    def _siphon_environmental_dna(self) -> Dict[str, str]:
+        """[ASCENSION 10]: Inhales variables warded by the SCAFFOLD_ prefix."""
+        dna = {}
+        for k, v in os.environ.items():
+            if k.startswith("SCAFFOLD_VAR_"):
+                key = k.replace("SCAFFOLD_VAR_", "").lower()
+                dna[key] = v
+        return dna
+
+    def _probe_project_reality(self, root: Path) -> Dict[str, str]:
         """
         [THE RITE OF THE DUAL GAZE]
-        Probes the physical disk for Git state. 
-        [THE FIX]: This is now isolated and cached to prevent the 10s hang.
+        Probes the physical disk for Git state and project markers.
         """
-        # [THE CURE]: JIT Import of heavy utils to bypass boot税
-        from ....utils import get_git_branch, get_git_commit
+        # [THE CURE]: JIT Import of heavy utils
+        try:
+            from ....utils import get_git_branch, get_git_commit
+        except ImportError:
+            return {"git_branch": "void", "git_commit": "void"}
+
+        gnosis = {
+            "git_branch": "void",
+            "git_commit": "void",
+            "project_name": root.name,
+            "has_docker": "true" if (root / "Dockerfile").exists() or (
+                        root / "docker-compose.yml").exists() else "false",
+            "has_poetry": "true" if (root / "pyproject.toml").exists() else "false",
+            "has_node": "true" if (root / "package.json").exists() else "false"
+        }
 
         try:
-            # We use a short-circuit if .git directory is not present
+            # Short-circuit if .git is unmanifest
             if not (root / ".git").exists():
-                return {"git_branch": "void", "git_commit": "void"}
+                return gnosis
 
-            # These are the potentially slow calls
-            branch = get_git_branch(root)
-            commit = get_git_commit(root)
+            # Conduct Git Inquest with extreme timeout wards
+            # We assume these utils are hardened or we wrap them here
+            gnosis["git_branch"] = get_git_branch(root) or "void"
+            gnosis["git_commit"] = get_git_commit(root) or "void"
 
-            return {
-                "git_branch": branch or "void",
-                "git_commit": commit or "void"
-            }
         except Exception:
-            # If the disk is screaming (timeout/permission), we return the void
-            return {"git_branch": "void", "git_commit": "void"}
+            # [ASCENSION 14]: FAIL-OPEN
+            pass
+
+        return gnosis

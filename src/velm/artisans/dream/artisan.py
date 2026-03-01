@@ -165,6 +165,12 @@ class DreamArtisan(BaseArtisan[DreamRequest]):
 
             # Recursive dispatch engages the InitArtisan's Sovereign Gateway.
             final_result = self.engine.dispatch(prophecy.dispatched_request)
+            # [THE CURE]: DATA PERCOLATION
+            # We ensure the project_id from the Init/Genesis rite
+            # reaches the top-level Dream response.
+            if final_result.success and not final_result.data.get('project_id'):
+                if 'project_name' in final_result.data:
+                    final_result.data['project_id'] = final_result.data['project_name']
 
             # --- MOVEMENT V: TELEMETRY & FINALITY ---
             duration_ms = (time.perf_counter_ns() - start_ts) / 1_000_000

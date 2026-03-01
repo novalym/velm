@@ -1,6 +1,5 @@
-# Path: creator/cpu.py
-# --------------------
-
+# Path: src/velm/creator/cpu.py
+# -----------------------------
 
 from uuid import uuid4
 import os
@@ -20,7 +19,6 @@ from pathlib import Path
 from typing import List, Tuple, Optional, Set, Union, TYPE_CHECKING, Any, Dict, Final, Deque
 from collections import defaultdict, deque
 
-# --- THE DIVINE UPLINKS ---
 from .alu import AlchemicalLogicUnit
 from .io_controller import IOConductor
 from .opcodes import OpCode, Instruction
@@ -35,20 +33,20 @@ if TYPE_CHECKING:
 
 Logger = Scribe("QuantumCPU")
 
-# [PHYSICS CONSTANTS OF THE VIRTUAL MACHINE]
+# --- System Constraints ---
 MAX_IO_CONCURRENCY: Final[int] = 32
 RETRY_THRESHOLD: Final[int] = 5
-METABOLIC_YIELD_MS: Final[float] = 0.02
+YIELD_MS: Final[float] = 0.02
 INSTRUCTION_CACHE_SIZE: Final[int] = 1024
 
 
 class QuantumCPU:
     """
-    =================================================================================
-    == THE OMEGA QUANTUM CPU (V-Ω-TOTALITY-V1000.7-ALIEN-FORGE-HEALED)             ==
-    =================================================================================
-    LIF: ∞ | ROLE: KINETIC_VIRTUAL_MACHINE | RANK: OMEGA_SINGULARITY
-    AUTH: Ω_EXEC_V1000_PROCLAIM_SUTURE_FINALIS
+    Executes the compiled blueprint instructions reliably across multiple OS platforms.
+
+    The QuantumCPU operates using a two-stage pipeline:
+    1. I/O Pipeline: Handles file system generation (MKDIR, WRITE, CHMOD) concurrently.
+    2. Execution Pipeline: Handles shell commands (EXEC) sequentially to respect state dependencies.
     """
 
     def __init__(
@@ -60,14 +58,12 @@ class QuantumCPU:
     ):
         import argparse
 
-        # --- STRATUM-0: SOVEREIGN ORGAN BINDING ---
         self.regs = registers
         self.io = io_conductor
         self.maestro = maestro
         self.engine = engine
         self.logger = Logger
 
-        # --- STRATUM-1: THE CONTEXTUAL SUTURE (ASCENSION 19) ---
         self.context = getattr(registers, 'context', None)
         if self.context is None:
             self.context = argparse.Namespace(
@@ -76,39 +72,31 @@ class QuantumCPU:
                 env=os.environ.copy()
             )
 
-        # --- STRATUM-2: ACHRONAL POINTERS & REGISTERS ---
         self.program_counter: int = 0
         self.instruction_pointer: int = 0
         self.is_halted: bool = False
-        self._state_flags: int = 0x00
+        self.state_register: str = "0xINIT"
 
-        # [ASCENSION 4]: Cryptographic State Registers
-        self.csr: str = "0xINIT"
-
-        # --- STRATUM-3: THE INSTRUCTION PIPELINE ---
         self.program: List[Instruction] = []
-        self._form_pipeline: List[Instruction] = []
-        self._will_pipeline: List[Instruction] = []
+        self._io_pipeline: List[Instruction] = []
+        self._exec_pipeline: List[Instruction] = []
 
-        # [ASCENSION 3]: Instruction Prefetch Buffer (IPB)
+        # Instruction Prefetch Buffer (IPB) for large template files
         self._prefetch_buffer: Dict[str, bytes] = {}
 
-        # --- STRATUM-4: METABOLIC TOMOGRAPHY ---
         self._birth_ns: int = time.perf_counter_ns()
         self._instruction_telemetry: Dict[int, Dict[str, Any]] = {}
-        self._state_merkle: str = "0xVOID"
-
         self._io_lock = threading.RLock()
         self._telemetry_lock = threading.Lock()
 
-        # [ASCENSION 10]: Hyper-Threading Nexus
+        # Hyper-Threading configuration for the native OS layer
         self._cpu_cores = os.cpu_count() or 1
         self._active_workers = min(MAX_IO_CONCURRENCY, self._cpu_cores * 2)
 
-        # [ASCENSION 12]: Isomorphic Binary Loader (L1 Cache)
+        # L1 Cache for binary resolution (shutil.which)
         self._binary_l1_cache: Dict[str, str] = {}
 
-        self._suture_pool = concurrent.futures.ThreadPoolExecutor(
+        self._thread_pool = concurrent.futures.ThreadPoolExecutor(
             max_workers=self._active_workers,
             thread_name_prefix=f"TitanCPU-{self.regs.trace_id[:4]}"
         )
@@ -117,10 +105,7 @@ class QuantumCPU:
         self.session_id = self.regs.session_id
 
         self.logger.verbose(
-            f"Quantum CPU [Ω] materialised. "
-            f"Lattice: {self._active_workers} nodes | "
-            f"Trace: {self.trace_id} | "
-            f"Status: ALIEN_FORGE_READY"
+            f"Execution engine initialized. Workers: {self._active_workers} | Trace: {self.trace_id}"
         )
 
     def load_program(
@@ -129,17 +114,14 @@ class QuantumCPU:
             commands: List[Tuple[str, int, Optional[List[str]], Optional[List[str]]]]
     ):
         """
-        =============================================================================
-        == THE GNOSTIC COMPILER (V-Ω-TRI-PHASIC-SORT)                              ==
-        =============================================================================
-        Compiles the AST into two distinct pipelines (Form and Will) to facilitate
-        the Tri-Phasic Execution Model (Form -> Sync -> Will).
+        Compiles the AST into distinct I/O and Execution pipelines.
+        Ensures that directories are created before their nested files.
         """
         self.program.clear()
-        self._form_pipeline.clear()
-        self._will_pipeline.clear()
+        self._io_pipeline.clear()
+        self._exec_pipeline.clear()
 
-        # 1. TOPOLOGICAL PRE-SORT (FORM)
+        # Topological sorting: Sort by depth, ensuring directories evaluate before files
         sorted_items = sorted(
             items,
             key=lambda x: (len(x.path.parts) if x.path else 0, not x.is_dir)
@@ -150,12 +132,12 @@ class QuantumCPU:
 
             if item.is_dir:
                 instr = Instruction(op=OpCode.MKDIR, target=item.path, line_num=item.line_num)
-                self._form_pipeline.append(instr)
+                self._io_pipeline.append(instr)
                 self.program.append(instr)
             else:
                 origin = item.blueprint_origin or Path("unknown")
 
-                # [ASCENSION 3]: Trigger Prefetching for large seeds
+                # Trigger background prefetching for heavy seed templates to hide network latency
                 if item.seed_path and not item.content:
                     self._trigger_prefetch(item.seed_path)
 
@@ -167,7 +149,7 @@ class QuantumCPU:
                               'seed': item.seed_path},
                     line_num=item.line_num
                 )
-                self._form_pipeline.append(write_instr)
+                self._io_pipeline.append(write_instr)
                 self.program.append(write_instr)
 
                 if item.permissions:
@@ -177,10 +159,10 @@ class QuantumCPU:
                         payload=item.permissions,
                         line_num=item.line_num
                     )
-                    self._form_pipeline.append(chmod_instr)
+                    self._io_pipeline.append(chmod_instr)
                     self.program.append(chmod_instr)
 
-        # 2. COMPILE WILL (KINETIC EDICTS)
+        # Assemble the sequential shell execution pipeline
         if not self.regs.no_edicts:
             for cmd_tuple in commands:
                 exec_instr = Instruction(
@@ -188,24 +170,20 @@ class QuantumCPU:
                     target=cmd_tuple,
                     line_num=cmd_tuple[1]
                 )
-                self._will_pipeline.append(exec_instr)
+                self._exec_pipeline.append(exec_instr)
                 self.program.append(exec_instr)
 
-        # [ASCENSION 2]: Heuristic Branch Prediction
-        self._predict_and_warm()
+        self._warm_binary_cache()
 
         self.logger.verbose(
-            f"Compilation complete: {len(self._form_pipeline)} Form ops, {len(self._will_pipeline)} Will ops.")
+            f"Pipeline compiled: {len(self._io_pipeline)} file ops, {len(self._exec_pipeline)} commands.")
 
     def execute(self):
         """
-        =================================================================================
-        == THE GRAND SYMPHONY OF EXECUTION (V-Ω-TOTALITY-V1000.5-TRI-PHASIC)           ==
-        =================================================================================
-        LIF: ∞ | ROLE: KINETIC_ORCHESTRATOR | RANK: OMEGA_SINGULARITY
+        Orchestrates the entire execution run.
         """
         if not self.program:
-            self.logger.verbose("Void Intent: Program is empty. Skipping Strike.")
+            self.logger.verbose("No instructions found. Skipping execution.")
             return
 
         is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
@@ -220,93 +198,80 @@ class QuantumCPU:
         can_use_spinner = hasattr(self.regs.console, "status") and not is_wasm
 
         if not self.regs.silent and can_use_spinner:
-            status_ctx = self.regs.console.status("[bold cyan]Quantum CPU: Materializing Reality...[/]")
+            status_ctx = self.regs.console.status("[bold cyan]Building project structure...[/]")
         else:
             if not self.regs.silent:
-                self.regs.console.print("[bold cyan]🌀 Quantum CPU: Materializing Reality...[/]")
+                self.regs.console.print("[bold cyan]🌀 Building project structure...[/]")
             status_ctx = nullcontext()
 
         try:
             with status_ctx:
-
-                # =========================================================================
-                # == PHASE I: FETCH_FORM (PHYSICAL MATTER STRIKE)                        ==
-                # =========================================================================
+                # --- PHASE I: I/O OPERATIONS ---
                 if not self.regs.silent and hasattr(status_ctx, "update"):
-                    status_ctx.update("[bold cyan]Movement I: Forging Form (Physical Matter into Staging)...[/]")
+                    status_ctx.update("[bold cyan]Step 1: Generating files in staging area...[/]")
                 elif not self.regs.silent and not is_wasm:
-                    self.logger.info("Movement I: Forging Form (Physical Matter into Staging)...")
+                    self.logger.info("Step 1: Generating files in staging area...")
 
                 self._execute_parallel_strata(status_ctx, force_sequential=is_wasm)
 
-                # =========================================================================
-                # == PHASE II: ACHRONAL_SYNC (THE VOLUME SUTURE)                         ==
-                # =========================================================================
+                # --- PHASE II: TRANSACTIONAL SYNC ---
                 if self.regs.transaction and not self.regs.transaction.simulate:
                     if not self.regs.silent and hasattr(status_ctx, "update"):
-                        status_ctx.update("[bold green]Movement II: Achronal Volume Synchronization...[/]")
+                        status_ctx.update("[bold green]Step 2: Syncing files to project root...[/]")
                     elif not self.regs.silent and not is_wasm:
-                        self.logger.info("Movement II: Achronal Volume Synchronization...")
+                        self.logger.info("Step 2: Syncing files to project root...")
 
-                    # [ASCENSION 22]: Pre-verify volume state
-                    self._verify_volumetric_lock()
-
-                    self.logger.verbose("CPU Halting pipeline to flush Staging to Shadow Volume...")
+                    self._verify_transaction_integrity()
                     self.regs.transaction.materialize()
-                    self.logger.verbose("CPU Pipeline resumed. Shadow Volume is now physically resonant.")
 
-                # =========================================================================
-                # == PHASE III: EXECUTE_WILL (KINETIC EDICTS)                            ==
-                # =========================================================================
-                if self._will_pipeline:
+                # --- PHASE III: SHELL COMMANDS ---
+                if self._exec_pipeline:
                     if not self.regs.silent and hasattr(status_ctx, "update"):
-                        status_ctx.update("[bold purple]Movement III: Conducting Will (Kinetic Edicts)...[/]")
+                        status_ctx.update("[bold purple]Step 3: Running post-build commands...[/]")
                     elif not self.regs.silent and not is_wasm:
-                        self.logger.info("Movement III: Conducting Will (Kinetic Edicts)...")
+                        self.logger.info("Step 3: Running post-build commands...")
 
-                    self._execute_kinetic_sequence(status_ctx)
+                    self._execute_shell_sequence(status_ctx)
 
-        except Exception as fracture:
-            self._conduct_emergency_autopsy(fracture)
+        except Exception as failure:
+            self._handle_system_halt(failure)
             self.regs.ui_hints = {"vfx": "shake", "sound": "fracture_critical", "priority": "CRITICAL"}
 
-            if not isinstance(fracture, ArtisanHeresy):
+            if not isinstance(failure, ArtisanHeresy):
                 raise ArtisanHeresy(
-                    "KINETIC_CPU_FRACTURE",
-                    child_heresy=fracture,
+                    "EXECUTION_FAILED",
+                    child_heresy=failure,
                     details=f"Opcodes: {total_ops} | Substrate: {'WASM' if is_wasm else 'NATIVE'}",
                     severity=HeresySeverity.CRITICAL
-                ) from fracture
+                ) from failure
             raise
 
         finally:
-            if hasattr(self, '_suture_pool') and not is_wasm:
+            if hasattr(self, '_thread_pool') and not is_wasm:
                 try:
-                    self._suture_pool.shutdown(wait=False)
+                    self._thread_pool.shutdown(wait=False)
                 except Exception:
                     pass
 
-            # [ASCENSION 15]: The Entropy Siphon
-            self._siphon_entropy()
+            self._release_memory()
 
             total_duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
             if not self.regs.silent:
-                self.logger.success(f"Quantum CPU Halted. Totality achieved in {total_duration_ms:.2f}ms.")
+                self.logger.success(f"Build process completed in {total_duration_ms:.2f}ms.")
 
             self.regs.metabolic_tax_ms = total_duration_ms
             self.regs.ops_conducted = total_ops
 
     # =========================================================================
-    # == THE ALIEN ASCENSIONS (INTERNAL ORGANS)                              ==
+    # == Pipeline Optimization & Prefetching                                 ==
     # =========================================================================
 
-    def _predict_and_warm(self):
+    def _warm_binary_cache(self):
         """
-        [ASCENSION 2 & 12]: Heuristic Branch Predictor & Isomorphic Binary Loader.
-        Scans the Will pipeline for common binaries (make, npm, poetry) and caches
-        their paths. If a binary is missing, it logs a prophetic warning before execution.
+        Scans the execution pipeline for common binaries (make, npm, poetry) and caches
+        their system paths. If a binary is missing, logs a warning before execution begins.
         """
-        for instr in self._will_pipeline:
+        for instr in self._exec_pipeline:
             cmd_tuple = instr.target
             raw_cmd = cmd_tuple[0] if isinstance(cmd_tuple, tuple) else str(cmd_tuple)
 
@@ -315,24 +280,21 @@ class QuantumCPU:
 
             first_word = clean_cmd.split()[0].lower()
 
-            if first_word in self._binary_l1_cache:
-                continue
-
-            if first_word in ['cd', 'echo', 'py:', 'js:', '>>', '??', '%%', '->', 'proclaim:', 'allow_fail:']:
-                continue
+            if first_word in self._binary_l1_cache: continue
+            if first_word in ['cd', 'echo', 'py:', 'js:', '>>', '??', '%%', '->', 'proclaim:', 'allow_fail:']: continue
 
             bin_path = shutil.which(first_word)
             if bin_path:
                 self._binary_l1_cache[first_word] = bin_path
             else:
-                self.logger.debug(f"Branch Predictor Warning: Binary '{first_word}' unmanifest in PATH.")
+                self.logger.debug(f"Pre-flight Warning: Binary '{first_word}' is missing from system PATH.")
 
     def _trigger_prefetch(self, seed_path: Union[str, Path]):
         try:
             path_obj = Path(seed_path)
             if path_obj.exists() and path_obj.is_file():
                 if path_obj.stat().st_size < 50 * 1024 * 1024:
-                    self._suture_pool.submit(self._async_load_seed, path_obj)
+                    self._thread_pool.submit(self._async_load_seed, path_obj)
         except Exception:
             pass
 
@@ -342,21 +304,19 @@ class QuantumCPU:
         except Exception:
             pass
 
-    def _verify_volumetric_lock(self):
+    def _verify_transaction_integrity(self):
         tx = getattr(self.regs, 'transaction', None)
         if tx and hasattr(tx, 'volume_shifter'):
             shifter = tx.volume_shifter
             if getattr(shifter, 'state', None) and shifter.state.name == "FRACTURED":
-                raise ArtisanHeresy(
-                    "Volumetric State Heresy: The Shadow Volume is fractured. Cannot synchronize.",
-                    severity=HeresySeverity.CRITICAL
-                )
+                raise ArtisanHeresy("File sync failed. Transaction staging area is locked.",
+                                    severity=HeresySeverity.CRITICAL)
 
-    def _siphon_entropy(self):
+    def _release_memory(self):
         self._prefetch_buffer.clear()
         self.program.clear()
-        self._form_pipeline.clear()
-        self._will_pipeline.clear()
+        self._io_pipeline.clear()
+        self._exec_pipeline.clear()
         gc.collect(2)
 
     # =========================================================================
@@ -364,11 +324,11 @@ class QuantumCPU:
     # =========================================================================
 
     def _execute_parallel_strata(self, status_ctx: Any, force_sequential: bool = False):
-        if not self._form_pipeline:
+        if not self._io_pipeline:
             return
 
         strata: Dict[int, List[Any]] = defaultdict(list)
-        for instr in self._form_pipeline:
+        for instr in self._io_pipeline:
             if isinstance(instr.target, (str, Path)):
                 depth = len(Path(instr.target).parts)
             else:
@@ -380,53 +340,56 @@ class QuantumCPU:
             batch.sort(key=lambda x: str(x.target).lower())
 
             if not self.regs.silent and status_ctx and hasattr(status_ctx, 'update'):
-                status_ctx.update(f"[bold cyan]🏗️  Materializing Stratum {depth} ({len(batch)} atoms)...[/]")
+                status_ctx.update(f"[bold cyan]Creating directory depth {depth} ({len(batch)} files)...[/]")
             elif not self.regs.silent:
-                self.regs.console.print(f"[dim]   -> Stratum {depth}: {len(batch)} atoms[/]")
+                self.regs.console.print(f"[dim]   -> Depth {depth}: {len(batch)} files[/]")
 
-            self._check_metabolic_fever()
+            self._throttle_system_load()
 
+            # In WASM (Emscripten IDBFS), concurrent heavy writes can lock the event loop.
+            # We degrade to forced sequential execution to maintain browser stability.
             if force_sequential:
                 for instr in batch:
                     try:
                         self._dispatch_instruction(instr)
                     except Exception as e:
-                        self._handle_matter_failure(instr, e)
+                        self._handle_io_failure(instr, e)
             else:
                 deduped_batch = {str(i.target): i for i in batch}.values()
 
                 futures = {
-                    self._suture_pool.submit(self._dispatch_instruction, instr): instr
+                    self._thread_pool.submit(self._dispatch_instruction, instr): instr
                     for instr in deduped_batch
                 }
                 for future in concurrent.futures.as_completed(futures):
                     try:
                         future.result()
-                    except Exception as paradox:
+                    except Exception as execution_error:
                         instr = futures[future]
-                        self._handle_matter_failure(instr, paradox)
+                        self._handle_io_failure(instr, execution_error)
 
-        self._multicast_strata_completion(len(self._form_pipeline))
+        self._publish_progress_event(len(self._io_pipeline))
 
-    def _handle_matter_failure(self, instr: Any, e: Exception):
-        err_msg = f"Matter Fission Failure at L{instr.line_num}: {str(e)}"
+    def _handle_io_failure(self, instr: Any, e: Exception):
+        err_msg = f"File creation failed at L{instr.line_num}: {str(e)}"
         self.logger.error(err_msg)
         raise ArtisanHeresy(
             err_msg,
             severity=HeresySeverity.CRITICAL,
             details=f"Opcode: {instr.op} | Target: {instr.target}",
             line_num=instr.line_num,
-            suggestion="Verify filesystem permissions or available Gnostic space."
+            suggestion="Verify filesystem permissions or available disk space."
         )
 
-    def _multicast_strata_completion(self, count: int):
+    def _publish_progress_event(self, count: int):
+        """Radiates completion events to the front-end dashboard."""
         if hasattr(self.engine, 'akashic') and self.engine.akashic:
             try:
                 self.engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
                     "params": {
                         "type": "MATTER_MANIFESTED",
-                        "label": "GNOSTIC_FORGE",
+                        "label": "PROJECT_BUILDER",
                         "value": count,
                         "color": "#64ffda"
                     }
@@ -434,19 +397,19 @@ class QuantumCPU:
             except:
                 pass
 
-    def _execute_kinetic_sequence(self, status_ctx: Any):
-        for instr in self._will_pipeline:
-            # We strip purely for the UI display
+    def _execute_shell_sequence(self, status_ctx: Any):
+        for instr in self._exec_pipeline:
             cmd_str = str(instr.target[0]) if isinstance(instr.target, tuple) else str(instr.target)
             display_cmd = re.sub(r'^(?:->\s*)?[>!?]*\s*', '', cmd_str).strip()
 
             if not self.regs.silent and hasattr(status_ctx, "update"):
-                status_ctx.update(f"[bold yellow]Executing Edict: {display_cmd[:30]}...[/]")
+                status_ctx.update(f"[bold yellow]Running command: {display_cmd[:30]}...[/]")
             self._dispatch_instruction(instr)
 
     def _dispatch_instruction(self, instr: Instruction):
         start_ns = time.perf_counter_ns()
-        self.csr = hashlib.md5(f"{self.csr}:{instr.op.name}:{instr.target}".encode()).hexdigest()[:8]
+        self.state_register = hashlib.md5(f"{self.state_register}:{instr.op.name}:{instr.target}".encode()).hexdigest()[
+                              :8]
 
         try:
             if instr.op == OpCode.MKDIR:
@@ -458,14 +421,14 @@ class QuantumCPU:
             elif instr.op == OpCode.EXEC:
                 self._handle_exec(instr)
 
-            time.sleep(METABOLIC_YIELD_MS)
+            time.sleep(YIELD_MS)
 
             duration = (time.perf_counter_ns() - start_ns) / 1_000_000
             with self._telemetry_lock:
-                self._instruction_telemetry[id(instr)] = {"duration_ms": duration, "status": "PURE"}
+                self._instruction_telemetry[id(instr)] = {"duration_ms": duration, "status": "OK"}
         except Exception as e:
             with self._telemetry_lock:
-                self._instruction_telemetry[id(instr)] = {"status": "FRACTURED", "error": str(e)}
+                self._instruction_telemetry[id(instr)] = {"status": "ERROR", "error": str(e)}
             raise
 
     # =========================================================================
@@ -480,177 +443,105 @@ class QuantumCPU:
                 return
             except OSError:
                 if attempt == RETRY_THRESHOLD - 1: raise
-                time.sleep(METABOLIC_YIELD_MS * (attempt + 2))
+                time.sleep(YIELD_MS * (attempt + 2))
 
     def _handle_write(self, instr: Instruction):
-        """
-        =================================================================================
-        == THE OMEGA INSCRIPTION RITE (V-Ω-TOTALITY-V20000-SIM-RESONANT)               ==
-        =================================================================================
-        LIF: ∞ | ROLE: MATTER_MATERIALIZER | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_WRITE_V20000_SIM_RESONANCE_FINALIS_2026
-
-        [THE MANIFESTO]
-        The supreme implementation of the WRITE opcode. It transmutes Gnostic Intent
-        into physical or virtual Matter. It resolves the 'Simulation Void' by ensuring
-        the Gnostic Transaction is the absolute source of truth for the Ocular HUD.
-        =================================================================================
-        """
-        import time
         from pathlib import Path
         from ..contracts.data_contracts import InscriptionAction
         from ..contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
-        _start_ns = time.perf_counter_ns()
-
-        # --- MOVEMENT I: GEOMETRIC NORMALIZATION ---
-        # [ASCENSION 10]: We force POSIX discipline on the target coordinate.
         logical_path = Path(str(instr.target).replace('\\', '/'))
-
-        # --- MOVEMENT II: THE PREFETCH SUTURE (THE CURE) ---
-        # [ASCENSION 1]: Extract the soul of the content.
-        # Priority: Prefetch Buffer (L1) > Instruction Payload > Void.
         payload = instr.payload or ""
         seed_path = instr.metadata.get('seed')
 
+        # Retrieve content from prefetch buffer if available
         if seed_path and str(seed_path) in self._prefetch_buffer:
-            # self.logger.debug(f"Prefetch Suture: Resurrecting matter for '{logical_path.name}' from IPB.")
             payload = self._prefetch_buffer[str(seed_path)]
 
-        # =========================================================================
-        # == MOVEMENT III: THE KINETIC STRIKE (PHYSICAL OR VIRTUAL)              ==
-        # =========================================================================
-        # [ASCENSION 3]: The IOConductor righteously adjudicates between Reality
-        # and Simulation. In Dry-Run mode, it performs the 'Virtual Write'
-        # and returns an InscriptionAction.DRY_RUN_CREATED result.
         try:
             result = self.io.write(logical_path, payload, instr.metadata)
         except Exception as strike_fracture:
-            # [ASCENSION 11]: Fault Isolation
             raise ArtisanHeresy(
-                f"Matter Fission Failure: Could not inscribe '{logical_path.name}'.",
+                f"Failed to write '{logical_path.name}'.",
                 details=str(strike_fracture),
                 line_num=instr.line_num,
                 severity=HeresySeverity.CRITICAL
             )
 
-        # --- MOVEMENT IV: METABOLIC ACCOUNTING ---
         if result.success:
             with self._io_lock:
-                # 1. Byte-Mass Accumulation
                 self.regs.bytes_written += result.bytes_written
-
-                # 2. [ASCENSION 2]: ISOMORPHIC TRIAGE
-                # We count both physical births and virtual prophecies.
-                # This ensures the HUD shows '5 Atoms' in both modes.
                 if result.action_taken in (InscriptionAction.CREATED, InscriptionAction.DRY_RUN_CREATED):
                     self.regs.files_forged += 1
-
-                # 3. [ASCENSION 8]: MERKLE INTEGRITY
-                # We update the running hash to detect dimensional drift.
                 self.regs.record_mutation(logical_path, result.bytes_written)
 
-        # =========================================================================
-        # == MOVEMENT V: THE TRANSACTIONAL SUTURE (THE FINAL CURE)               ==
-        # =========================================================================
-        # [ASCENSION 3]: This is the one true fix for the 'Ghost Matter' heresy.
-        # We MUST record the result in the transaction dossier. This dossier is
-        # what the SimulationOrchestrator scries to build the final report.
         if self.regs.transaction:
             self.regs.transaction.record(result)
 
-        # [ASCENSION 6]: VIRTUAL FS MIRRORING
-        # For AI-Co-Pilot context, we track the 'Dreamed' topography.
         if self.regs.is_simulation:
             self.regs.virtual_fs.append(logical_path)
 
-        # --- MOVEMENT VI: OCULAR RESONANCE ---
-        # [ASCENSION 7]: Haptic HUD Multicast (Throttled)
         if self.regs.ops_executed % 5 == 0:
             self.regs.pulse_hud("pulse", "#64ffda")
-
-        # METABOLIC FINALITY
-        _tax_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
-        # self.logger.verbose(f"L{instr.line_num}: Inscribed '{logical_path.name}' [{_tax_ms:.2f}ms]")
 
     def _handle_chmod(self, instr: Instruction):
         self.io.chmod(Path(instr.target), instr.payload)
 
     def _handle_exec(self, instr: Instruction):
         """
-        =============================================================================
-        == THE OMEGA KINETIC CONDUCTOR (V-Ω-TOTALITY-V514-PROCLAIM-SUTURE)         ==
-        =============================================================================
-        LIF: ∞ | ROLE: KINETIC_DISPATCHER | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_EXEC_V514_PROCLAIM_INTERCEPT_FINALIS
-
-        [THE CURE]: The CPU now natively intercepts `proclaim:` edicts and passes them
-        directly to the Maestro's `proclaim` handler, bypassing the OS shell entirely.
-        This annihilates the `Exit Code 1` heresy caused by arrows (`->`) leaking into bash.
+        Native interception of internal edicts (like `proclaim:`).
+        Passes execution to the Maestro Conductor for safe shell evaluation.
         """
-        # --- MOVEMENT I: THE GNOSTIC N-TUPLE SIEVE ---
         cmd_tuple = instr.target
         parts = list(cmd_tuple) if isinstance(cmd_tuple, (tuple, list)) else [cmd_tuple]
         while len(parts) < 4:
             parts.append(None)
 
-        cmd, line, undo, heresy_cmds = parts[:4]
+        cmd, line, undo, error_handlers = parts[:4]
 
-        # --- MOVEMENT II: THE SIGIL EXORCISM (THE WARD) ---
         if isinstance(cmd, str):
-            # 1. Universal Arrow Exorcism. Strips '->' and '>>' and '!!' perfectly.
-            # Using zero-or-more quantifiers to catch '-> >> ' or just '-> '
             clean_cmd = re.sub(r'^(?:->\s*)?[>!?]*\s*', '', cmd).strip()
 
-            # 2. PROCLAMATION INTERCEPT (THE CURE)
-            # If the command is a proclamation, we transmute it into a direct handler call.
-            # We preserve the 'proclaim:' prefix so the Maestro can route it to ProclaimHandler.
             if clean_cmd.lower().startswith("proclaim:"):
-                # We strip potential outer quotes around the whole command if present
-                # but let the handler deal with the message content
                 pass
             elif clean_cmd.lower().startswith("echo "):
-                # Transmute echo to proclaim for internal consistency
                 clean_cmd = "proclaim: " + clean_cmd[5:]
 
-            # 3. Update the command variable for execution
             cmd = clean_cmd
 
-            # 4. Handle the Void
             if not cmd:
-                self.logger.warn(f"L{line}: Kinetic Void perceived. Skipping empty edict.")
                 return
 
-        # --- MOVEMENT III: ENVIRONMENT DNA & TRANSMUTATION ---
-        execution_env = self._terraform_environment()
-        transmuted_cmd = self._transmute_artisan_plea(cmd)
-        self._multicast_kinetic_start(transmuted_cmd, line)
+        execution_env = self._build_subprocess_env()
+        cmd = self._normalize_python_executables(cmd)
 
-        # --- MOVEMENT IV: THE STRIKE & REDEMPTION ---
+        self._publish_execution_start(cmd, line)
+
         try:
-            # [STRIKE]: Execute via the Maestro
-            self.maestro.execute((transmuted_cmd, line, undo), env=execution_env)
-
-        except Exception as fracture:
-            # [ASCENSION 9]: THE RITE OF CASCADING REDEMPTION
-            if heresy_cmds:
-                self.logger.warn(f"L{line}: Rite fractured. Initiating Redemption Sequence...")
-                for h_cmd in heresy_cmds:
+            self.maestro.execute((cmd, line, undo), env=execution_env)
+        except Exception as failure:
+            if error_handlers:
+                self.logger.warn(f"L{line}: Command failed. Attempting recovery steps...")
+                for recovery_cmd in error_handlers:
                     try:
-                        self.maestro.execute((h_cmd, line, None), env=execution_env)
+                        self.maestro.execute((recovery_cmd, line, None), env=execution_env)
                     except Exception as nested_fail:
-                        self.logger.error(f"Redemption Fragment Failed: {nested_fail}")
+                        self.logger.error(f"Recovery Command Failed: {nested_fail}")
 
-            if "127" in str(fracture) or "not found" in str(fracture).lower():
-                self._diagnose_missing_artisan(cmd, line)
+            if "127" in str(failure) or "not found" in str(failure).lower():
+                self._diagnose_missing_executable(cmd, line)
 
-            raise fracture
+            raise failure
 
     # =========================================================================
-    # == ALCHEMICAL UTILITIES                                                ==
+    # == ENVIRONMENT ISOLATION                                               ==
     # =========================================================================
 
-    def _terraform_environment(self, env_from_caller: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    def _build_subprocess_env(self, env_from_caller: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+        """
+        Constructs an isolated, deterministic environment for subprocess execution.
+        Automatically injects node_modules and virtualenv bin directories into the PATH.
+        """
         import os
         import sys
         import platform
@@ -678,6 +569,7 @@ class QuantumCPU:
         path_lattice: List[str] = []
         path_sep = ";" if platform.system() == "Windows" else ":"
 
+        # Prioritize local virtual environments
         for venv_name in [".venv", "venv", "env"]:
             bin_dir = "Scripts" if platform.system() == "Windows" else "bin"
             venv_path = project_root / venv_name / bin_dir
@@ -687,6 +579,7 @@ class QuantumCPU:
                 env["VIRTUAL_ENV"] = str(project_root / venv_name)
                 break
 
+        # Prioritize local node modules
         node_bin = project_root / "node_modules" / ".bin"
         if node_bin.exists():
             path_lattice.append(str(node_bin))
@@ -725,16 +618,13 @@ class QuantumCPU:
         env["FORCE_COLOR"] = "1"
         env["TERM"] = "xterm-256color"
 
-        if os.environ.get("SCAFFOLD_ADRENALINE") == "1":
-            env["SCAFFOLD_PRIORITY"] = "HIGH"
-            env["NODE_OPTIONS"] = "--max-old-space-size=4096"
-
         if hasattr(self.context, 'command'):
             env["SC_MAESTRO_CMD"] = str(self.context.command)
 
         return env
 
-    def _transmute_artisan_plea(self, command: str) -> str:
+    def _normalize_python_executables(self, command: str) -> str:
+        """Ensures cross-platform reliability for core Python utilities."""
         parts = command.strip().split()
         if not parts: return command
 
@@ -748,43 +638,43 @@ class QuantumCPU:
         }
 
         if first_word in PYTHON_MAP:
-            self.logger.debug(f"Transmuting Artisan: {first_word} -> {sys.executable} -m {PYTHON_MAP[first_word]}")
+            self.logger.debug(f"Translating command '{first_word}' to '{sys.executable} -m {PYTHON_MAP[first_word]}'")
             exe_path = f'"{sys.executable}"'
             parts[0] = f"{exe_path} -m {PYTHON_MAP[first_word]}"
             return " ".join(parts)
 
         return command
 
-    def _check_metabolic_fever(self):
+    def _throttle_system_load(self):
+        """Injects artificial latency if the host system CPU exceeds 90%."""
         if self.engine and hasattr(self.engine, 'watchdog'):
             vitals = self.engine.watchdog.get_vitals()
             if vitals.get("load_percent", 0) > 90.0:
-                self.logger.verbose("Metabolic Fever detected. Injecting Yield Protocol.")
                 time.sleep(0.5)
                 gc.collect(1)
 
-    def _diagnose_missing_artisan(self, cmd: str, line: int):
-        artisan = cmd.split()[0]
-        self.logger.error(f"L{line}: Artisan '{artisan}' is unmanifest in this reality.")
-        if artisan == "pytest":
-            self.logger.info("💡 Hint: `pip install pytest` is required for this Vow.")
-        elif artisan == "git":
-            self.logger.info("💡 Hint: Git is not installed on the host machine.")
+    def _diagnose_missing_executable(self, cmd: str, line: int):
+        executable = cmd.split()[0]
+        self.logger.error(f"L{line}: Command '{executable}' is not installed or not in PATH.")
+        if executable == "pytest":
+            self.logger.info("Hint: `pip install pytest` is required to run tests.")
+        elif executable == "git":
+            self.logger.info("Hint: Git must be installed to use version control features.")
 
-    def _multicast_kinetic_start(self, cmd: str, line: int):
+    def _publish_execution_start(self, cmd: str, line: int):
         if self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
             self.engine.akashic.broadcast({
                 "method": "novalym/hud_pulse",
                 "params": {
                     "type": "KINETIC_STRIKE",
-                    "label": f"STRIKE: {cmd[:20]}...",
+                    "label": f"CMD: {cmd[:20]}...",
                     "color": "#fbbf24",
                     "line": line
                 }
             })
 
-    def _conduct_emergency_autopsy(self, error: Exception):
-        self.logger.critical(f"QUANTUM_CPU_HALT: Reality collapsed at Op {self.program_counter + 1} / CSR: {self.csr}.")
+    def _handle_system_halt(self, error: Exception):
+        self.logger.critical(f"Execution halted at instruction {self.program_counter + 1} due to unhandled error.")
 
     def __repr__(self) -> str:
-        return f"<Ω_QUANTUM_CPU program_len={len(self.program)} csr={self.csr} state=ALIEN_FORGE_RESONANT>"
+        return f"<QuantumCPU ops={len(self.program)} state=READY>"

@@ -1,104 +1,98 @@
-# Path: scaffold/core/sentinel_conduit.py
+# Path: src/velm/core/sentinel_conduit.py
+# ---------------------------------------
+# LIF: INFINITY // ROLE: IPC_STATIC_ANALYSIS_BRIDGE
+# AUTH: Ω_SENTINEL_V3_IPC_HARDENED_FINALIS
 # ---------------------------------------
 
-"""
-=================================================================================
-== THE SACRED SANCTUM OF THE SENTINEL CONDUIT (V-Ω-ETERNAL-BRIDGE)             ==
-=================================================================================
-This scripture contains the living soul of the Gnostic Bridge to the Sentinel
-God-Engine. Its one true purpose is to act as a hyper-intelligent, resilient,
-and performant ambassador, allowing any artisan in the Scaffold cosmos to
-commune with the Sentinel's deep analytical Gaze.
-=================================================================================
-"""
 import json
 import shutil
 import subprocess
 import tempfile
+import os
+import time
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Dict, Any
 
 from ..contracts.heresy_contracts import Heresy, HeresySeverity
 from ..logger import Scribe
 
-# A Gnostic Scribe to chronicle the communion between the two God-Engines.
 Logger = Scribe("SentinelConduit")
+
+# =========================================================================
+# == DIAGNOSTIC TELEMETRY GATE                                           ==
+# =========================================================================
+# Enables deep tracing of Inter-Process Communication (IPC) payloads.
+# Kept disabled by default to maintain zero-noise console output.
+_DEBUG_MODE = os.environ.get("SCAFFOLD_DEBUG") == "1"
 
 
 class SentinelConduit:
     """
-    =================================================================================
-    == THE GNOSTIC AMBASSADOR (V-Ω-HYPER-RESILIENT)                                ==
-    =================================================================================
-    LIF: 100,000,000,000
+    Manages Inter-Process Communication (IPC) with the external 'sentinel' static analysis engine.
 
-    This artisan is the one true, sacred bridge to the Sentinel. It is forged with a
-    pantheon of Gnostic faculties that make its communion unbreakable and its Gaze pure.
+    This class serves as a fault-tolerant bridge between the Python runtime and an
+    external polyglot linter binary. It is designed to be completely decoupled from the
+    host environment's configuration state; if the binary is missing, this component
+    enters a 'Passive' state, bypassing analysis without raising exceptions.
 
-    ### THE PANTHEON OF 12 ASCENDED FACULTIES:
-
-    1.  **The Sentinel's Gaze:** It first performs a Gaze to see if the `sentinel`
-        artisan is even manifest in the mortal realm, failing gracefully if not.
-    2.  **The Ephemeral Sanctum:** It forges a temporary, ephemeral scripture to bestow
-        upon the Sentinel, ensuring the mortal realm's disk is never profaned.
-    3.  **The Gnostic Plea:** It knows the one true, sacred plea (`sentinel lint --json`)
-        required to receive a pure, machine-readable scripture of heresies.
-    4.  **The Unbreakable Ward of Paradox:** Its communion is shielded. It captures stderr
-        and transmutes any catastrophic failure in the Sentinel into a single,
-        luminous, high-level `Heresy` vessel.
-    5.  **The Heresy Transmuter:** It transmutes the Sentinel's raw JSON output into a
-        pure, Gnostically-typed `List[Heresy]`, honoring the sacred contract of the
-        Scaffold cosmos.
-    6.  **The Chronomancer's Ward:** It enforces a strict timeout on the Sentinel's Gaze,
-        preventing a fallen or frozen Sentinel from hanging the Scaffold engine.
-    7.  **The Luminous Voice:** It proclaims its every major rite to the Gnostic log.
-    8.  **The Sovereign Soul:** It is a pure, stateless artisan. It can be summoned by
-        any other artisan without fear of profane side effects.
-    9.  **The Polyglot Mind (Inherited):** Because it summons the Sentinel, it
-        inherits the Sentinel's own polyglot Gaze, capable of adjudicating Python,
-        TypeScript, Go, and all other known tongues.
-    10. **The Unbreakable Contract:** Its public `adjudicate` rite is a pure,
-        unbreakable contract, its input and output vessels perfectly defined.
-    11. **The Performance Ward:** It operates on in-memory content, writing to disk
-        only for the brief, ephemeral moment of IPC communion.
-    12. **The Gnostic Purifier:** It performs a final purification rite upon the
-        ephemeral sanctum, ensuring no trace of its communion is left behind.
-    =================================================================================
+    Architectural Design:
+    1.  **Ephemeral Sandboxing:** Source code is streamed to a temporary file descriptor
+        rather than passed via stdin. This avoids shell buffer limits (E2BIG) and ensures
+        encoding consistency across OS boundaries.
+    2.  **Fault Isolation:** The execution of the external binary is wrapped in a strict
+        timeout/catch block. A crash in the linter will never crash the parent Engine.
+    3.  **Cross-Platform Locking:** File handles are explicitly closed before subprocess
+        invocation to satisfy Windows NTFS exclusive locking requirements.
+    4.  **Protocol Normalization:** Transmutes raw JSON stdout from the binary into
+        strongly-typed `Heresy` objects used by the internal adjudication system.
     """
 
     def __init__(self):
         """
-        The Rite of Inception. The Ambassador performs its Gaze to ensure its
-        divine counterpart, the Sentinel, is manifest.
+        Initializes the bridge by resolving the absolute path of the Sentinel binary.
+        Performs a silent path lookup; no errors are raised if the tool is missing.
         """
-        # [FACULTY 1] The Sentinel's Gaze
-        self.sentinel_path = shutil.which("sentinel")
-        if not self.sentinel_path:
-            Logger.warn("The 'sentinel' artisan is not manifest. The Gaze of Adjudication will be averted.")
+        # Resolve binary location from system PATH
+        self.sentinel_path: Optional[str] = shutil.which("sentinel")
 
-    def adjudicate(self, path: Path, content: str) -> List[Heresy]:
+        # In Debug mode, we log the resolution status for environment troubleshooting.
+        # In Production, we remain silent to avoid alarming users who haven't installed the optional tooling.
+        if _DEBUG_MODE:
+            if self.sentinel_path:
+                Logger.debug(f"Sentinel binary resolved at: {self.sentinel_path}")
+            else:
+                Logger.debug("Sentinel binary not found in PATH. Static analysis subsystem disabled.")
+
+    def adjudicate(self, filename: str, content: str) -> List[Heresy]:
         """
-        The one true, public rite. It receives a scripture's soul and proclaims
-        a list of any heresies perceived within it.
+        Executes the static analysis routine against the provided content.
+
+        Args:
+            filename (str): The logical name of the file (used for linter context, e.g., extension detection).
+            content (str): The in-memory content of the file to analyze.
+
+        Returns:
+            List[Heresy]: A list of detected code issues. Returns empty if the tool is missing or the code is clean.
         """
-        # If the Sentinel is a void, the Gaze is averted, and the scripture is
-        # proclaimed as pure by default.
+        # 1. Availability Check: Fast exit if the tool is unmanifest.
         if not self.sentinel_path:
             return []
 
-        Logger.verbose(f"Sentinel Conduit awakened. Adjudicating the soul of '{path.name}'...")
+        start_time = time.perf_counter()
         heresies: List[Heresy] = []
+        temp_file_path: Optional[Path] = None
 
-        # [FACULTY 2] The Ephemeral Sanctum
-        # We use a temporary file to pass the content to the Sentinel CLI.
-        # This is the safest, most robust method for inter-process communication.
-        temp_file = None
         try:
-            with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix=path.suffix, encoding='utf-8') as tf:
-                temp_file_path = Path(tf.name)
+            # 2. Ephemeral Materialization (The IPC Transfer)
+            # We create a temp file with the same extension as the source to trigger correct language rules.
+            # delete=False is required for Windows compatibility (allows closing handle before subprocess opens it).
+            suffix = Path(filename).suffix
+            with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix=suffix, encoding='utf-8') as tf:
                 tf.write(content)
+                temp_file_path = Path(tf.name)
 
-            # [FACULTY 3] The Gnostic Plea
+            # 3. Construct Command Vector
+            # We request JSON output for machine-readable deterministic parsing.
             command = [
                 self.sentinel_path,
                 "lint",
@@ -106,59 +100,74 @@ class SentinelConduit:
                 str(temp_file_path)
             ]
 
-            # --- THE SACRED COMMUNION ---
-            Logger.verbose(f"Summoning the Sentinel with the plea: `{' '.join(command)}`")
+            if _DEBUG_MODE:
+                Logger.debug(f"IPC Dispatch: `{' '.join(command)}`")
 
-            # [FACULTY 6 & 4] The Chronomancer's Ward & Unbreakable Ward of Paradox
+            # 4. Kinetic Execution
+            # We enforce a hard timeout to prevent the main thread from hanging on a stalled linter.
             result = subprocess.run(
                 command,
                 capture_output=True,
                 text=True,
                 encoding='utf-8',
-                timeout=60  # A generous 60-second timeout
+                timeout=30  # 30s Execution Budget
             )
 
-            # --- THE ADJUDICATION OF THE SENTINEL'S RESPONSE ---
-            if result.returncode > 1:  # 0=pure, 1=heresies found, >1=crash
-                # A catastrophic paradox occurred within the Sentinel itself.
-                raise RuntimeError(f"The Sentinel's Gaze was shattered. Stderr:\n{result.stderr}")
+            # 5. Exit Code Adjudication
+            # 0 = Clean, 1 = Issues Found, >1 = System Crash
+            if result.returncode > 1:
+                # Log internal crash details only in debug mode to prevent console spam
+                if _DEBUG_MODE:
+                    Logger.error(f"Sentinel subprocess crashed (Exit {result.returncode}):\n{result.stderr}")
+                return []
 
+            # 6. Payload Ingestion & Transmutation
             if result.stdout:
                 try:
-                    # [FACULTY 5] The Heresy Transmuter
-                    sentinel_report = json.loads(result.stdout)
-                    for file_report in sentinel_report:
-                        for heresy_data in file_report.get("heresies", []):
-                            heresies.append(Heresy(
-                                message=heresy_data.get("message", "Unknown Heresy"),
-                                line_num=heresy_data.get("line", 0),
-                                line_content=heresy_data.get("context", ""),
-                                severity=HeresySeverity(heresy_data.get("severity", "WARNING")),
-                                suggestion=heresy_data.get("suggestion")
-                            ))
-                except (json.JSONDecodeError, KeyError) as e:
-                    raise IOError(f"The Sentinel spoke a profane, malformed tongue (JSON). Heresy: {e}")
+                    payload = json.loads(result.stdout)
 
+                    # The payload structure is expected to be: List[FileReport]
+                    if isinstance(payload, list):
+                        for file_report in payload:
+                            # Extract issues associated with this file context
+                            raw_issues = file_report.get("heresies", [])
+                            for issue in raw_issues:
+                                heresies.append(Heresy(
+                                    message=issue.get("message", "Unknown Static Analysis Warning"),
+                                    line_num=issue.get("line", 0),
+                                    line_content=issue.get("context", ""),
+                                    severity=HeresySeverity(issue.get("severity", "WARNING").upper()),
+                                    suggestion=issue.get("suggestion"),
+                                    code=issue.get("code", "SENTINEL_DETECT")
+                                ))
+                except json.JSONDecodeError as e:
+                    if _DEBUG_MODE:
+                        Logger.error(f"Sentinel JSON serialization failed: {e}. Output was: {result.stdout[:100]}...")
+
+        except subprocess.TimeoutExpired:
+            if _DEBUG_MODE:
+                Logger.warn("Sentinel execution timed out. Aborting analysis to preserve system responsiveness.")
         except Exception as e:
-            # The Unbreakable Ward catches all paradoxes and transmutes them.
-            Logger.error(f"A paradox occurred during communion with the Sentinel: {e}")
-            heresies.append(Heresy(
-                message="Sentinel Communion Paradox",
-                details=f"The bridge between Scaffold and Sentinel was shattered.\nReason: {str(e)}",
-                severity=HeresySeverity.CRITICAL
-            ))
+            # Catch-all for IO errors, Permission denied, etc.
+            if _DEBUG_MODE:
+                Logger.error(f"Sentinel IPC Bridge fault: {e}")
 
         finally:
-            # [FACULTY 12] The Gnostic Purifier
-            if temp_file and temp_file_path.exists():
+            # 7. Purge Ephemeral Artifacts
+            # Ensure the temp file is deleted regardless of execution outcome.
+            if temp_file_path and temp_file_path.exists():
                 try:
                     temp_file_path.unlink()
-                except OSError:
-                    pass
+                except OSError as e:
+                    if _DEBUG_MODE:
+                        Logger.warn(f"Failed to clean up temp artifact {temp_file_path}: {e}")
 
-        if heresies:
-            Logger.warn(f"The Sentinel's Gaze perceived {len(heresies)} heresies in '{path.name}'.")
-        else:
-            Logger.verbose(f"The Sentinel's Gaze is serene. The soul of '{path.name}' is pure.")
+        # 8. Performance Telemetry (Debug Only)
+        if _DEBUG_MODE:
+            duration = (time.perf_counter() - start_time) * 1000
+            if heresies:
+                Logger.debug(f"Analysis complete. {len(heresies)} issues detected in {duration:.2f}ms.")
+            else:
+                Logger.debug(f"Analysis complete. Clean result in {duration:.2f}ms.")
 
         return heresies

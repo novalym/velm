@@ -1,20 +1,19 @@
-# scaffold/logger.py - PART 1 of 2
+# Path: src/velm/logger.py
+# =========================================================================================
+# == PART 1 OF 4: THE FOUNDATION OF THE SCRIBE (V-Ω-TOTALITY-V1000)                      ==
+# =========================================================================================
+# LIF: 10,000,000,000 | ROLE: CENTRAL_NERVOUS_SYSTEM | RANK: OMEGA_SOVEREIGN
+# AUTH_CODE: Ω_LOGGER_V1000_PART_1_FINALIS
+#
+# [THE MANIFESTO]
+# This is the nervous system of the Velm God-Engine. It has been ascended to
+# handle any form of Gnostic proclamation, whether structured data, raw text, or
+# catastrophic paradoxes.
+#
+# It implements the **Argument Segregation Membrane** to ensure perfect compatibility
+# between Gnostic Rites (Rich TUI) and Standard Laws (Python Logging).
+# =========================================================================================
 
-"""
-=================================================================================
-== THE SACRED SANCTUM OF THE UNIVERSAL SCRIBE (V-Ω-APOTHEOSIS-FINALIS)         ==
-=================================================================================
-LIF: 10,000,000,000
-STATUS: SENTIENT EVENT BUS, HYPER-LOGGER & TELEMETRY ENGINE
-
-This is the nervous system of the Velm God-Engine. It has been ascended to
-handle any form of Gnostic proclamation, whether structured data, raw text, or
-catastrophic paradoxes.
-
-It implements the **Argument Segregation Membrane** to ensure perfect compatibility
-between Gnostic Rites (Rich TUI) and Standard Laws (Python Logging).
-=================================================================================
-"""
 import os
 import json
 import logging
@@ -50,9 +49,14 @@ except ImportError:
     class Console:
         def __init__(self, *args, **kwargs): pass
 
-        def print(self, *args, **kwargs): print(*args, file=sys.stderr)
+        def print(self, *args, **kwargs):
+            # Fallback print to stderr
+            msg = " ".join(str(a) for a in args)
+            print(msg, file=sys.stderr)
 
         def rule(self, *args, **kwargs): print("-" * 80, file=sys.stderr)
+
+        def clear(self): pass
 
 
     class Theme:
@@ -74,7 +78,6 @@ except ImportError:
     def Pretty(data):
         return str(data)
 
-
 # --- THE DIVINE GRIMOIRE OF THE SCRIBE'S VOICE ---
 SCRIBE_THEME = Theme({
     "info": "cyan",
@@ -87,7 +90,7 @@ SCRIBE_THEME = Theme({
     "context": "dim italic",
     "timestamp": "dim white",
     "tag": "bold magenta reverse",
-    # [ASCENSION]: THE SOUL PARTICLE
+    # [ASCENSION 1]: THE SOUL PARTICLE
     # Maps the 'soul' style to a high-status neon magenta frequency.
     "soul": "bold magenta",
 }) if RICH_AVAILABLE else None
@@ -106,42 +109,44 @@ _COSMIC_GNOSIS = {
 # If it is a Pipe (Lightning/Docker), we FORCE a width to prevent
 # Rich from calling 'ioctl' to guess dimensions, which causes the crash.
 _IS_TTY = sys.stderr.isatty()
-_IS_WASM = os.environ.get("SCAFFOLD_ENV") == "WASM"
+_IS_WASM = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
+# [ASCENSION 2]: SUBSTRATE-AWARE CONSOLE FACTORY
 _CONSOLE: Console = Console(
     theme=SCRIBE_THEME,
     stderr=True,
-    # [ASCENSION 1]: IOCTL SHIELD & WASM GEOMETRY
+    # [ASCENSION 3]: IOCTL SHIELD & WASM GEOMETRY
     # In WASM, we cannot query window size via IOCTL. We force a standard width.
     width=120 if (not _IS_TTY or _IS_WASM) else None,
 
-    # [ASCENSION 2]: INTERACTIVITY FORCE
+    # [ASCENSION 4]: INTERACTIVITY FORCE
     # WASM is interactive via XTerm.js, even if Python sees a pipe. We force it.
     force_interactive=True if _IS_WASM else (False if not _IS_TTY else None),
 
-    # [ASCENSION 3]: CHROMATIC SOVEREIGNTY
+    # [ASCENSION 5]: CHROMATIC SOVEREIGNTY
     # We mandate ANSI output in WASM to prevent the "<rich.panel...>" heresy.
     force_terminal=True if (_IS_TTY or _IS_WASM or os.getenv("FORCE_COLOR") == "1") else None,
 
-    # [ASCENSION 4]: WRAPPING BEHAVIOR
+    # [ASCENSION 6]: WRAPPING BEHAVIOR
     # We want hard wrapping in WASM to respect the 120 char limit visually.
     soft_wrap=not _IS_TTY and not _IS_WASM
 )
 
-# --- ELEVATION 6: THE TELEPATHIC LINK (CALLBACK REGISTRY) ---
-# Allows external systems (VS Code) to subscribe to the log stream
+# --- ELEVATION 1: THE TELEPATHIC LINK (CALLBACK REGISTRY) ---
+# Allows external systems (VS Code, React UI) to subscribe to the log stream
 _LOG_HOOKS: List[Callable[[Dict], None]] = []
 
-# --- ELEVATION 5: THE EPHEMERAL BUFFER (MEMORY RING) ---
-# Stores the last N logs for crash reporting
+# --- ELEVATION 2: THE EPHEMERAL BUFFER (MEMORY RING) ---
+# Stores the last N logs for crash reporting and replay
 _MEMORY_BUFFER = deque(maxlen=_COSMIC_GNOSIS["max_memory"])
 
-# --- ELEVATION 2: THE SECRET REDACTOR PATTERNS ---
-# Regex patterns to mask sensitive data in logs
+# --- ELEVATION 3: THE SECRET REDACTOR PATTERNS ---
+# Regex patterns to mask sensitive data in logs before they hit the stream
 _SECRET_PATTERNS = [
     r'(api_key|token|secret|password|passwd|credential)\s*[:=]\s*[\'"]?([^\s\'"]+)[\'"]?',
     r'(Bearer\s+)([a-zA-Z0-9\-\._~\+\/]+)',
-    r'(ghp_[a-zA-Z0-9]+)'
+    r'(ghp_[a-zA-Z0-9]+)',
+    r'(sk_live_[a-zA-Z0-9]+)'
 ]
 
 
@@ -155,7 +160,6 @@ def set_console(console: Console):
     Scribe.consecrate_console(console)
 
 
-# --- I. THE GNOSTIC PROGRESS STATE (SINGLETON) ---
 # =========================================================================================
 # == THE ACHRONAL OCULAR NEXUS (V-Ω-TOTALITY-V120-SINGLETON)                             ==
 # =========================================================================================
@@ -187,6 +191,10 @@ def _get_signal_concourse() -> Optional['Progress']:
     # 0. THE WARD OF MATTER
     if not RICH_AVAILABLE: return None
 
+    # [ASCENSION 7]: WASM SILENCE
+    # In WASM, progress bars can cause rendering jitter. We might disable or simplify.
+    # For now, we allow it if interactive.
+
     # 1. THE HYDRAULIC MUTEX
     with _SIGNAL_CONCOURSE["lock"]:
         # 2. THE RITE OF INCEPTION (LAZY INITIALIZATION)
@@ -198,11 +206,10 @@ def _get_signal_concourse() -> Optional['Progress']:
                     MofNCompleteColumn
                 )
 
-                # [ASCENSION 3]: HEADLESS ADAPTIVE SENSING
-                # Scry the nature of the reality (Is it a real TTY or a Pipe?)
-                is_tty = sys.stderr.isatty()
+                # [ASCENSION 8]: HEADLESS ADAPTIVE SENSING
+                is_tty = sys.stderr.isatty() or _IS_WASM
 
-                # [ASCENSION 5]: COLUMN ALCHEMY
+                # [ASCENSION 9]: COLUMN ALCHEMY
                 # We forge the visual lattice based on the environment's fidelity.
                 columns = []
 
@@ -230,13 +237,13 @@ def _get_signal_concourse() -> Optional['Progress']:
                     columns.append(MofNCompleteColumn())
                     columns.append(TimeElapsedColumn())
 
-                # [ASCENSION 6 & 11]: THE MATERIALIZATION
+                # [ASCENSION 10]: THE MATERIALIZATION
                 _SIGNAL_CONCOURSE["progress"] = Progress(
                     *columns,
                     console=_CONSOLE,  # Binds to the Headless-Hardened master console
-                    transient=True,  # [ASCENSION 7]: Purity Vow - Bars evaporate on 100%
+                    transient=True,  # [ASCENSION 11]: Purity Vow - Bars evaporate on 100%
                     auto_refresh=True,
-                    refresh_per_second=20,  # [ASCENSION 6]: Logic Debounce (20Hz)
+                    refresh_per_second=10 if _IS_WASM else 20,  # [ASCENSION 12]: WASM Throttle
                     expand=False  # Prevent bar from greedily consuming width
                 )
 
@@ -251,14 +258,11 @@ def _get_signal_concourse() -> Optional['Progress']:
         return _SIGNAL_CONCOURSE["progress"]
 
 
-
-
 class Scribe:
     """
     =================================================================================
-    == THE HYPER-SENTIENT GOD-ENGINE OF GNOSTIC PROCLAMATION                       ==
+    == THE HYPER-SENTIENT GOD-ENGINE OF GNOSTIC PROCLAMATION (PART 2)              ==
     =================================================================================
-    The Scribe is not merely a logger; it is a Context-Aware Event Bus.
     """
     _console_instance: Optional[Console] = None
     _cache_lock = threading.Lock()
@@ -315,34 +319,23 @@ class Scribe:
         Configures the Global Nervous System (Root Logger).
 
         ### THE PANTHEON OF ASCENSIONS:
-        1.  **The Rotating Scroll:** Replaces the static FileHandler with `RotatingFileHandler`
-            (10MB limit, 5 backups) to prevent disk gluttony.
-        2.  **The UTF-8 Covenant:** Enforces `encoding='utf-8'` on file operations to
-            preserve emoji and unicode Gnosis.
-        3.  **The Stdout Quarantine:** Forces all console output to `sys.stderr`, reserving
-            `stdout` purely for JSON-RPC or piped data.
-        4.  **The JSON Transmuter:** If `json_mode` is active, reformats all logs into
-            NDJSON for machine ingestion.
-        5.  **The Third-Party Muzzle:** Silences noisy libraries (httpx, asyncio) unless
-            Deep Debug mode is active.
-        6.  **The Root Purification:** Surgically removes pre-existing handlers to prevent
-            "Echo Chamber" duplicate logs.
-        7.  **The Global Interceptor:** Hooks `sys.excepthook` to ensure even unhandled
-            crashes are scribed into the forensic log.
-        8.  **The Atomic Path Forge:** Resolves and creates the log directory structure
-            before attempting inscription.
-        9.  **The Environment Override:** Respects `SCAFFOLD_SILENT` and `SCAFFOLD_VERBOSE`
-            env vars over arguments.
-        10. **The Process Identity:** Injects PID and Thread Name into the log format for
-            concurrency debugging.
-        11. **The Fail-Safe Fallback:** If the file system is read-only, degrades gracefully
-            to stderr without crashing the Engine.
-        12. **The State Reflection:** Updates `_COSMIC_GNOSIS` to keep the Scribe instance
-            synchronized with the global configuration.
+        13. **The Rotating Scroll:** Replaces the static FileHandler with `RotatingFileHandler`.
+        14. **The UTF-8 Covenant:** Enforces `encoding='utf-8'` on file operations.
+        15. **The Stdout Quarantine:** Forces all console output to `sys.stderr`.
+        16. **The JSON Transmuter:** Reformats logs into NDJSON if `json_mode` is active.
+        17. **The Third-Party Muzzle:** Silences noisy libraries unless Verbose.
+        18. **The Root Purification:** Surgically removes pre-existing handlers.
+        19. **The Global Interceptor:** Hooks `sys.excepthook` for unhandled crashes.
+        20. **The Atomic Path Forge:** Resolves/creates log directories automatically.
+        21. **The Environment Override:** Respects `SCAFFOLD_SILENT` / `SCAFFOLD_VERBOSE`.
+        22. **The Process Identity:** Injects PID and Thread Name.
+        23. **The Fail-Safe Fallback:** Degrades gracefully if filesystem is read-only.
+        24. **The State Reflection:** Updates `_COSMIC_GNOSIS` state.
         """
         # --- MOVEMENT I: ENVIRONMENT SCRYING ---
         if os.environ.get("SCAFFOLD_SILENT") == "1": silent_console = True
         if os.environ.get("SCAFFOLD_VERBOSE") == "1": verbose = True
+        if os.environ.get("SCAFFOLD_JSON") == "1": json_mode = True
 
         # Sync Global State
         _COSMIC_GNOSIS["verbose"] = verbose
@@ -364,6 +357,7 @@ class Scribe:
             logging.getLogger("httpx").setLevel(logging.WARNING)
             logging.getLogger("httpcore").setLevel(logging.WARNING)
             logging.getLogger("asyncio").setLevel(logging.WARNING)
+            logging.getLogger("urllib3").setLevel(logging.WARNING)
 
         # --- MOVEMENT III: FORMAT FORGING ---
         if json_mode:
@@ -385,7 +379,7 @@ class Scribe:
 
         # 1. THE CONSOLE (Only if not silenced)
         if not silent_console:
-            # [ASCENSION 3]: The Stdout Quarantine (Use stderr)
+            # [ASCENSION 15]: The Stdout Quarantine (Use stderr)
             console_handler = logging.StreamHandler(sys.stderr)
             console_handler.setFormatter(formatter)
             console_handler.setLevel(level)
@@ -395,25 +389,25 @@ class Scribe:
         if log_file:
             try:
                 log_path = Path(log_file).resolve()
-                # [ASCENSION 8]: Atomic Path Forge
+                # [ASCENSION 20]: Atomic Path Forge
                 log_path.parent.mkdir(parents=True, exist_ok=True)
 
-                # [ASCENSION 1]: The Rotating Scroll
+                # [ASCENSION 13]: The Rotating Scroll
                 file_handler = RotatingFileHandler(
                     filename=str(log_path),
                     maxBytes=10 * 1024 * 1024,  # 10 MB Limit
                     backupCount=5,  # Keep 5 historical scrolls
-                    encoding='utf-8'  # [ASCENSION 2]: UTF-8 Covenant
+                    encoding='utf-8'  # [ASCENSION 14]: UTF-8 Covenant
                 )
                 file_handler.setFormatter(formatter)
                 file_handler.setLevel(level)
                 root_logger.addHandler(file_handler)
             except Exception as e:
-                # [ASCENSION 11]: Fail-Safe Fallback
+                # [ASCENSION 23]: Fail-Safe Fallback
                 sys.stderr.write(f"!! LOGGING FRACTURE: Could not consecrate log file: {e}\n")
 
         # --- MOVEMENT V: THE GLOBAL INTERCEPTOR ---
-        # [ASCENSION 7]: Capture unhandled crashes
+        # [ASCENSION 19]: Capture unhandled crashes
         def _gnostic_excepthook(type_, value, traceback_):
             root_logger.critical(
                 f"UNHANDLED KERNEL PANIC: {value}",
@@ -426,12 +420,13 @@ class Scribe:
 
     def _redact(self, message: str) -> str:
         """
-        [ELEVATION 2] The Secret Redactor.
+        [ELEVATION 3] The Secret Redactor.
         Masks sensitive information based on regex patterns.
         """
         redacted_msg = message
         for pattern in _SECRET_PATTERNS:
-            redacted_msg = re.sub(pattern, r'\1: [REDACTED]', redacted_msg)
+            # Replaces the sensitive capture group (usually group 2) with [REDACTED]
+            redacted_msg = re.sub(pattern, lambda m: m.group(0).replace(m.group(m.lastindex), "[REDACTED]"), redacted_msg)
         return redacted_msg
 
     def progress(self, task: str, current: int, total: int, message: str = "", **kwargs):
@@ -479,7 +474,7 @@ class Scribe:
         # We use the provided 'id' or the task name as the unique coordinate in the multiverse.
         task_id_key = kwargs.get("id", task)
 
-        # [ASCENSION 2]: THE HYDRAULIC MUTEX
+        # [ASCENSION 25]: THE HYDRAULIC MUTEX
         # We lock the concourse to prevent parallel thread collisions during TTY mutation.
         with _SIGNAL_CONCOURSE["lock"]:
 
@@ -488,7 +483,6 @@ class Scribe:
                 try:
                     concourse.start()
                     _SIGNAL_CONCOURSE["is_active"] = True
-                    # self.Logger.verbose("Ocular Deck: IGNITED")
                 except Exception as e:
                     # If ignition fails (e.g. IOCTL error), we fallback to standard logging.
                     self.warn(f"Ocular Deck Ignition failed: {e}")
@@ -510,8 +504,7 @@ class Scribe:
             internal_id = _SIGNAL_CONCOURSE["active_tasks"][task_id_key]
 
             # C. THE TRANSMUTATION: Update the visual matter of the bar.
-            # [ASCENSION 4]: Zero-Division Sarcophagus logic is handled by concourse.update.
-            # [ASCENSION 7]: We inject the message as a 'dim' secondary gaze.
+            # [ASCENSION 26]: Zero-Division Sarcophagus logic is handled by concourse.update.
             concourse.update(
                 internal_id,
                 completed=current,
@@ -522,11 +515,11 @@ class Scribe:
             # --- 4. THE RITE OF FINALITY (COMPLETION) ---
             # If the current progress has reached the willed total...
             if current >= total and total > 0:
-                # [ASCENSION 11]: The task evaporates from the deck, leaving only the logs.
+                # [ASCENSION 27]: The task evaporates from the deck, leaving only the logs.
                 concourse.remove_task(internal_id)
                 del _SIGNAL_CONCOURSE["active_tasks"][task_id_key]
 
-                # [ASCENSION 12]: DRAIN - If the deck is a void, stop the engine to release the TTY.
+                # [ASCENSION 28]: DRAIN - If the deck is a void, stop the engine to release the TTY.
                 if not _SIGNAL_CONCOURSE["active_tasks"]:
                     concourse.stop()
                     _SIGNAL_CONCOURSE["is_active"] = False
@@ -537,8 +530,8 @@ class Scribe:
         try:
             # We scry the trace ID from the active thread context
             trace_id = None
-            if 'scaffold.core.runtime.middleware.tracing' in sys.modules:
-                from .core.runtime.middleware.tracing import get_current_trace_id
+            if 'velm.core.runtime.middleware.tracing' in sys.modules:
+                from velm.core.runtime.middleware.tracing import get_current_trace_id
                 trace_id = get_current_trace_id()
 
             broadcast_payload = {
@@ -587,8 +580,8 @@ class Scribe:
         # --- 2. THE RETRIEVAL OF THE SILVER CORD (DISTRIBUTED TRACING) ---
         trace_id: Optional[str] = None
         try:
-            if 'scaffold.core.runtime.middleware.tracing' in sys.modules:
-                from .core.runtime.middleware.tracing import get_current_trace_id
+            if 'velm.core.runtime.middleware.tracing' in sys.modules:
+                from velm.core.runtime.middleware.tracing import get_current_trace_id
                 trace_id = get_current_trace_id()
         except Exception:
             pass
@@ -609,7 +602,7 @@ class Scribe:
         # --- 4. LEXICAL ALCHEMY (STRINGIFICATION & REDACTION) ---
         message_parts = []
         for obj in objects:
-            # [ASCENSION 6]: Isomorphic Path Normalization
+            # [ASCENSION 29]: Isomorphic Path Normalization
             if isinstance(obj, Path):
                 message_parts.append(str(obj).replace('\\', '/'))
             elif isinstance(obj, (dict, list)) and not _COSMIC_GNOSIS["json_mode"]:
@@ -627,7 +620,7 @@ class Scribe:
         # =========================================================================
         # == [THE CURE]: THE BIFURCATION OF TRUTH (MARKUP STRIPPING)             ==
         # =========================================================================
-        # [ASCENSION 2]: We forge the 'Stripped Message' for non-rich streams.
+        # [ASCENSION 30]: We forge the 'Stripped Message' for non-rich streams.
         if RICH_AVAILABLE:
             try:
                 # Transmute markup into a plain string via Rich's internal renderer
@@ -662,7 +655,7 @@ class Scribe:
             return
 
         # --- 7. THE OCULAR PROCLAMATION (CONSOLE) ---
-        # [ASCENSION 8]: THE HOISTING SUTURE
+        # [ASCENSION 31]: THE HOISTING SUTURE
         # We scry the Concourse state. If a Live Deck is manifest, we MUST print through it.
         concourse = _get_signal_concourse()
         is_deck_active = bool(concourse and _SIGNAL_CONCOURSE.get("is_active"))
@@ -681,14 +674,14 @@ class Scribe:
             # --- THE LUMINOUS VOICE CONSTRUCTION ---
             timestamp_str = time.strftime("%H:%M:%S")
 
-            # [ASCENSION 3]: Chronometric Delta Analysis
+            # [ASCENSION 32]: Chronometric Delta Analysis
             delta_markup = ""
             if delta > 1.0:
                 delta_markup = f"[bold red](+{delta:.2f}s)[/bold red] "
             elif delta > 0.1:
                 delta_markup = f"[dim](+{delta:.2f}s)[/dim] "
 
-            # [ASCENSION 4]: Trace Identity Suture
+            # [ASCENSION 33]: Trace Identity Suture
             trace_markup = f"[dim blue]T:{trace_id[:6]}[/dim blue] " if trace_id else ""
 
             # Standardized Gnostic Prefix
@@ -706,11 +699,11 @@ class Scribe:
                     }.get(tag.upper(), "dim magenta")
                     text_obj.append(f" #{tag}", style=t_style)
 
-            # [ASCENSION 7]: Visual Hierarchy Render
+            # [ASCENSION 34]: Visual Hierarchy Render
             _final_visual_strike(Padding(text_obj, (0, 0, 0, indent_depth * 2)))
 
         # --- 8. THE MIRROR OF PARADOX (EXCEPTIONS) ---
-        # [ASCENSION 10]: Forge the Forensic Paradox Prism if an exception is manifest.
+        # [ASCENSION 35]: Forge the Forensic Paradox Prism if an exception is manifest.
         if kwargs.get('exc_info') or kwargs.get('ex'):
             exc = kwargs.get('ex') or sys.exc_info()[1]
             if exc:
@@ -722,7 +715,7 @@ class Scribe:
                 _final_visual_strike(Padding(panel, (0, 0, 0, 2)))
 
         # --- 9. THE SYNAPTIC BROADCAST (HOOKS / AKASHA) ---
-        # [ASCENSION 11]: Narcissus Guard preventing infinite feedback loops.
+        # [ASCENSION 36]: Narcissus Guard preventing infinite feedback loops.
         if tags and "INTERNAL_BRIDGE" in tags:
             return
 
@@ -798,7 +791,6 @@ class Scribe:
                     hook(packet)
                 except Exception:
                     pass
-
 
     def _render_visual_paradox(self, exc_info_arg: Any, explicit_ex: Any):
         """Helper to render rich tracebacks if an exception occurred."""
@@ -1256,15 +1248,30 @@ def configure_logging(
         sys.excepthook = _gnostic_excepthook
 
         # --- MOVEMENT VII: SYMBOLIC SYNCHRONIZATION ---
-        try:
-            from .logger import Scribe
-            # Update the Scribe's Global Mind so all new instances are pre-configured
-            Scribe.configure_cosmic_gnosis(verbose, silent_console, log_file, json_mode)
-        except (ImportError, AttributeError):
-            pass
+        # [ASCENSION 37]: THE IDENTITY MIRROR
+        # We synchronize the Global Mind of the Scribe class. Since Scribe is
+        # defined in this same scripture, we access it directly through the
+        # local scope. This avoids the 'Self-Import Paradox' while ensuring
+        # all new Scribe instances inherit the newly willed configuration.
+
+        # We scry if Scribe is manifest in the current globals
+        scribe_class = globals().get('Scribe')
+        if scribe_class and hasattr(scribe_class, 'configure_cosmic_gnosis'):
+            try:
+                scribe_class.configure_cosmic_gnosis(
+                    verbose,
+                    silent_console,
+                    log_file,
+                    json_mode
+                )
+            except Exception as e:
+                # The synchronization is a courtesy, not a law.
+                # We silence the error to prevent a boot-loop.
+                root_logger.debug(f"Scribe synchronization deferred: {e}")
 
         root_logger.debug("Gnostic Logging System Resonant. Spacetime coordinates locked.")
 
 
+__all__ = ["Scribe", "get_console", "set_console", "configure_logging", "SCRIBE_THEME", "_COSMIC_GNOSIS"]
 
-__all__ = ["Scribe", "get_console", "set_console", "configure_logging", "SCRIBE_THEME","_COSMIC_GNOSIS"]
+

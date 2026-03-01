@@ -62,7 +62,7 @@ def _warm_acolyte_inception(project_root_str: str):
         )
 
         # [ASCENSION 15]: JIT Skill Awakening
-        _worker_engine.bootstrap.awaken_skills()
+        _worker_engine.bootstrap.register_capabilities()
 
         sys.stderr.write(f"[Acolyte-{pid}] ✅ Inception Complete. Gnosis Manifest.\n")
         sys.stderr.flush()

@@ -10,6 +10,8 @@
 import os
 import json
 import difflib
+import re
+
 import requests
 import logging
 from pathlib import Path

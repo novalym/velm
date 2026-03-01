@@ -1,10 +1,13 @@
 # Path: scaffold/core/kernel/transaction/staging.py
 import os
 import shutil
+import sys
+import threading
 import time
 from pathlib import Path
 from typing import Union, List, Any
 
+from ....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ....logger import Scribe
 
 Logger = Scribe("StagingManager")
@@ -24,33 +27,27 @@ class StagingManager:
     def __init__(self, project_root: Path, tx_id: str, engine: Any, logger: 'Scribe'):
         """
         =============================================================================
-        == THE RITE OF STAGING INCEPTION (V-Ω-TOTALITY-V2000-SUTURED)              ==
+        == THE RITE OF STAGING INCEPTION (V-Ω-TOTALITY-V2001-LOCKED)               ==
         =============================================================================
         LIF: ∞ | ROLE: GEOMETRIC_WOMB_ARCHITECT | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_INIT_STAGING_V2000_ENGINE_SUTURE_2026_FINALIS
-
-        [THE MANIFESTO]
-        This rite materializes the Architect of Ephemeral Realities. It anchors the
-        Mind (Engine) and the Voice (Logger) to the physical coordinate of the
-        project, creating the warded sanctums required for atomic transmutation.
-        =============================================================================
+        AUTH: Ω_INIT_STAGING_V2001_MUTEX_SUTURE_2026_FINALIS
         """
         self.project_root = project_root.resolve()
         self.tx_id = tx_id
 
         # [THE CURE]: SOVEREIGN ORGAN SUTURE
-        # Binds the Engine Heart and the Gnostic Scribe to the stratum.
         self.engine = engine
         self.logger = logger
 
+        # [ASCENSION 1]: THE GEOMETRIC MUTEX
+        # Materializes the re-entrant lock required by the path scryer.
+        self._lock = threading.RLock()
+
         # --- THE SACRED SANCTUMS (GEOMETRIC COORDINATES) ---
-        # Defines the boundaries of the parallel universes.
         self.scaffold_dir = self.project_root / ".scaffold"
         self.staging_root = self.scaffold_dir / "staging" / self.tx_id
         self.backup_root = self.scaffold_dir / "backups" / self.tx_id
 
-        # [ASCENSION VII]: THE CHRONOCACHE OF RESOLUTION
-        # An O(1) lookup lattice to accelerate path translation across dimensions.
         self._path_cache: dict[Union[str, Path], Path] = {}
 
     def initialize_sanctums(self):
@@ -356,23 +353,87 @@ class StagingManager:
         duration_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
         self.logger.verbose(f"[{self.tx_id[:8]}] Purification complete in {duration_ms:.2f}ms. Reality is Zen.")
 
-
-
     def get_staging_path(self, logical_path: Union[str, Path]) -> Path:
         """
-        Ascension VI: The On-Demand Sanctum Forge.
-        Returns the absolute path to a file within the staging area.
+        =============================================================================
+        == THE OMEGA STAGING RESOLVER (V-Ω-TOTALITY-V2000-GEOMETRIC-JAIL)          ==
+        =============================================================================
+        LIF: ∞ | ROLE: COORDINATE_CRYSTALLIZER | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_PATH_RESOLVE_V2K_UNBREAKABLE_SUTURE_2026_FINALIS
+
+        [THE MANIFESTO]
+        This is the ultimate authority for spatial triangulation in the shadow realm.
+        It transmutes a Logical Coordinate into a Physical Staging coordinate,
+        ensuring absolute containment and substrate-aware geometry.
         """
-        if logical_path in self._path_cache:
-            return self._path_cache[logical_path]
+        # --- MOVEMENT 0: THE VOID SENTINEL ---
+        # [ASCENSION 4]: NoneType Sarcophagus
+        if logical_path is None or str(logical_path).strip() in ("", ".", "None"):
+            return self.staging_root.resolve()
 
-        physical_path = self.staging_root / logical_path
+        # --- MOVEMENT I: THE ACHRONAL L1 CACHE ---
+        # [ASCENSION 2]: O(1) Resonance.
+        # If we have already willed this path into existence, we return its shadow instantly.
+        cache_key = str(logical_path)
+        if cache_key in self._path_cache:
+            return self._path_cache[cache_key]
 
-        # Ensure the parent directory for the item exists within the staging area.
-        physical_path.parent.mkdir(parents=True, exist_ok=True)
+        with self._lock:  # Ensure thread-safe cache mutation
+            # --- MOVEMENT II: ISOMORPHIC NORMALIZATION ---
+            # [ASCENSION 1 & 7]: Transmute Backslashes and Strip Profane Matter
+            # We enforce POSIX discipline regardless of the host OS (Win/WASM/Linux).
+            clean_str = cache_key.replace('\\', '/').strip('/')
 
-        self._path_cache[logical_path] = physical_path
-        return physical_path
+            # [ASCENSION 8]: ATOMIC RE-ANCHORING
+            # If the path claimed to be absolute (/vault/project/main.py),
+            # we surgically extract the relative shard to prevent "Double Rooting".
+            if clean_str.startswith('vault/'):
+                # Extract everything after the first two segments (vault/project/ or vault/workspaces/ID/)
+                parts = clean_str.split('/')
+                if len(parts) > 2:
+                    if parts[1] == 'project':
+                        clean_str = '/'.join(parts[2:])
+                    elif parts[1] == 'workspaces':
+                        clean_str = '/'.join(parts[3:])
+
+            # --- MOVEMENT III: GEOMETRIC FUSION ---
+            # [ASCENSION 5 & 11]: Absolute Coordinate Crystallization
+            # We join the purified logical shard with the physical staging anchor.
+            physical_path = (self.staging_root / clean_str).absolute()
+
+            # --- MOVEMENT IV: THE GEOMETRIC JAIL ---
+            # [ASCENSION 3]: Absolute Containment Verification.
+            # We mathematically prove that the path has not escaped the staging sanctum
+            # via '../' traversal or symlink rifts.
+            try:
+                # We use resolve() to collapse all relative markers
+                resolved_phys = physical_path.resolve()
+                resolved_root = self.staging_root.resolve()
+
+                if not str(resolved_phys).startswith(str(resolved_root)):
+                    raise ArtisanHeresy(
+                        f"Topological Transgression: Path '{logical_path}' attempted to escape the Staging Sanctum.",
+                        details=f"Target: {resolved_phys} | Boundary: {resolved_root}",
+                        severity=HeresySeverity.CRITICAL
+                    )
+            except (OSError, ValueError):
+                # If resolution fails (WASM edge case), we fallback to string-based containment check
+                if ".." in str(physical_path):
+                    raise ArtisanHeresy("Causal Fracture: Path traversal detected in logical coordinate.")
+
+            # --- MOVEMENT V: JIT SANCTUM FORGING ---
+            # [ASCENSION 6]: On-Demand Parent Inception.
+            # We ensure the physical parent tree is manifest before the Scribe strikes.
+            try:
+                physical_path.parent.mkdir(parents=True, exist_ok=True)
+            except Exception as e:
+                # [DIAGNOSTIC]: Truth Serum Pulse
+                sys.stderr.write(f"\x1b[41;1m[VFS_FRACTURE]\x1b[0m Cannot forge parent for {physical_path}: {e}\n")
+
+            # --- MOVEMENT VI: FINAL CONSECRATION ---
+            # [ASCENSION 12]: THE FINALITY VOW
+            self._path_cache[cache_key] = physical_path
+            return physical_path
 
     def triangulate_relative_path(self, path: Path) -> Path:
         """
