@@ -31,11 +31,7 @@ class CompletionEngine:
 
     def __init__(self, server: Any):
         self.server = server
-        self.providers = []
-        self._executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=8,
-            thread_name_prefix="Prophet"
-        )
+        self.providers =[]
 
     def register(self, provider):
         """Consecrates a new prophet in the council."""
@@ -50,7 +46,7 @@ class CompletionEngine:
         start_time = time.perf_counter()
 
         # 1. RETRIEVE SCRIPTURE
-        uri = str(params.text_document.uri)
+        uri = self.server._extract_uri(params)
         doc = self.server.documents.get(uri)
 
         # [ASCENSION 1]: VOID GUARD
@@ -62,17 +58,11 @@ class CompletionEngine:
         line_text = doc.get_line(pos.line)
         line_prefix = line_text[:pos.character]
 
-        # [ASCENSION 2]: HOLOGRAPHIC METADATA PASSTHROUGH
-        # Allow middleware/client metadata to flow into the context
         metadata = getattr(params, 'metadata', {}) or {}
         if isinstance(metadata, dict) and 'current_line' in metadata:
-            # If middleware injected truth, use it
             line_text = metadata['current_line']
             line_prefix = line_text[:pos.character]
 
-        # [ASCENSION 3]: STRING CONTEXT DETECTION (HEURISTIC)
-        # Counts unescaped quotes to determine if we are inside a string.
-        # This prevents Prophets from speaking inside string literals.
         import re
         double_quotes = len(re.findall(r'(?<!\\)"', line_prefix))
         single_quotes = len(re.findall(r"(?<!\\)'", line_prefix))
@@ -94,18 +84,18 @@ class CompletionEngine:
             trigger_kind=trigger_kind,
             language_id=doc.language_id,
             context_type='soul',
-            # [ASCENSION 4]: LEXICAL AWARENESS
             is_inside_jinja='{{' in line_prefix and '}}' not in line_prefix,
             is_inside_comment=line_prefix.strip().startswith('#') or line_prefix.strip().startswith('//'),
-            is_inside_string=is_inside_string,  # <--- [ASCENSION 3 INTEGRATED]
+            is_inside_string=is_inside_string,
             trace_id=trace_id,
             client_info=metadata.get('client_info', {})
         )
 
         all_items: List[CompletionItem] = []
 
-        # 3. [ASCENSION 5]: PARALLEL GATHERING
-        futures = {self._executor.submit(p.provide, ctx): p for p in self.providers}
+        import concurrent.futures
+        # 3.[ASCENSION 5]: PARALLEL GATHERING (VIA FOUNDRY)
+        futures = {self.server.foundry.submit(f"pred-{p.name}", p.provide, ctx): p for p in self.providers}
 
         # [ASCENSION 6]: METABOLIC THROTTLING (350ms)
         done, not_done = concurrent.futures.wait(futures, timeout=0.350)
@@ -116,34 +106,25 @@ class CompletionEngine:
                 items = future.result()
                 if items:
                     for item in items:
-                        # [ASCENSION 7]: DEFAULT KIND
                         if not item.kind: item.kind = CompletionItemKind.Text
-
-                        # [ASCENSION 8]: PRIORITY SORTING (Zero-Padded)
                         prio_prefix = f"{100 - provider.priority:03d}"
                         if not item.sort_text: item.sort_text = f"{prio_prefix}-{item.label}"
-
-                        # [ASCENSION 9]: PROVIDER ATTRIBUTION (The Cure)
                         if item.data is None: item.data = {}
                         if isinstance(item.data, dict):
                             item.data["_provider"] = provider.name
                             item.data["_trace_id"] = trace_id
-
                         all_items.append(item)
 
             except Exception as e:
-                # [ASCENSION 10]: FAULT ISOLATION
                 forensic_log(f"Prophet '{provider.name}' fractured: {e}", "ERROR", "COMPLETION", trace_id=trace_id)
 
         # 4. [ASCENSION 11]: DEDUPLICATION
         unique_map = {}
         for item in all_items:
-            # Key by Label + Detail to merge similar items
             key = f"{item.label}:{item.detail or ''}"
             if key not in unique_map:
                 unique_map[key] = item
             else:
-                # Keep the one with better sort text (Higher priority)
                 existing = unique_map[key]
                 if (item.sort_text or "") < (existing.sort_text or ""):
                     unique_map[key] = item

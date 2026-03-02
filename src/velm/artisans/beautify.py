@@ -58,8 +58,8 @@ class BeautifyArtisan(BaseArtisan[BeautifyRequest]):
         Conducts the mass purification of blueprints. It is a parallelized, atomic,
         and now **Guarded** operation.
         """
-        self.request = request
-        self.alchemist = get_alchemist()
+
+
 
         # 1. The Rite of the Pad (Interactive Mode)
         if request.pad:

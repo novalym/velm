@@ -18,8 +18,7 @@ class SymbolSingularityEngine:
 
     def __init__(self, server):
         self.server = server
-        self.scryers: List[SymbolScryer] = []
-        self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+        self.scryers: List[SymbolScryer] =[]
 
     def register(self, scryer: SymbolScryer):
         """Binds a new search vector (e.g. Local, Daemon, or Python-specific)."""
@@ -29,8 +28,10 @@ class SymbolSingularityEngine:
         if not query: return []
 
         all_results = []
-        # [ASCENSION]: Parallel Multi-Vector Search
-        futures = {self._executor.submit(s.scan, query): s for s in self.scryers}
+        import concurrent.futures
+
+        # [ASCENSION]: FOUNDRY Multi-Vector Search
+        futures = {self.server.foundry.submit(f"ws-sym-{s.name}", s.scan, query): s for s in self.scryers}
 
         for future in concurrent.futures.as_completed(futures):
             try:

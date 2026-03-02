@@ -70,7 +70,6 @@ from .patch import PatchArtisan
 from ..artisans.template_engine import TemplateEngine
 from ..contracts.data_contracts import GnosticWriteResult, ScaffoldItem
 from ..contracts.heresy_contracts import ArtisanHeresy
-from ..core.alchemist import get_alchemist
 from ..core.artisan import BaseArtisan
 from ..help_registry import register_artisan
 from ..interfaces.base import ScaffoldResult, Artifact
@@ -107,7 +106,7 @@ class TransmuteArtisan(BaseArtisan[TransmuteRequest]):
         self.Logger = Logger
         # --- MOVEMENT II: THE FORGING OF THE DIVINE INSTRUMENTS ---
         # The artisan is bestowed with its eternally required, stateless tools.
-        self.alchemist = get_alchemist()
+
         # The Template Engine is summoned in silent mode, as its work is internal.
         self.template_engine = TemplateEngine(silent=True)
 

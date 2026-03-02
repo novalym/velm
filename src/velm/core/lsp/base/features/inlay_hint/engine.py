@@ -52,8 +52,6 @@ class InlayHintEngine:
         trace_id = f"ghost-{uuid.uuid4().hex[:6]}"
 
         # 1. RETRIEVE THE LIVING SCRIPTURE
-        # [THE CURE]: Universal Accessor Pattern
-        # Handles both Pydantic Models (dot access) and legacy Dicts (.get)
         uri_data = params.text_document
 
         if hasattr(uri_data, 'uri'):
@@ -68,11 +66,12 @@ class InlayHintEngine:
         # 2. [ASCENSION 2]: SPATIAL RANGE TRIAGE
         target_range = params.range
 
-        # 3. [ASCENSION 1]: PARALLEL INQUEST
+        # 3. [ASCENSION 1]: PARALLEL INQUEST (VIA FOUNDRY)
         all_hints: List[InlayHint] = []
 
-        # We poll all providers in the background to prevent UI lag
-        futures = {self._executor.submit(p.provide_hints, doc, target_range): p for p in self.providers}
+        import concurrent.futures
+        futures = {self.server.foundry.submit(f"inlay-{p.name}", p.provide_hints, doc, target_range): p for p in
+                   self.providers}
 
         # 500ms hard-timeout for spectral revelation
         done, not_done = concurrent.futures.wait(futures, timeout=0.5)
@@ -86,7 +85,6 @@ class InlayHintEngine:
             except Exception as e:
                 Logger.error(f"Ghost-Writer '{provider.name}' fractured range {target_range}: {e}", exc_info=True)
 
-        # Log slow writers
         for f in not_done:
             Logger.warning(f"Ghost-Writer '{futures[f].name}' was too slow for range revelation.")
 

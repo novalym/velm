@@ -226,7 +226,7 @@ class ScriptureSiphon:
         self.server.diagnostics.clear(uri)
 
         forensic_log(f"Oblivion: {path_name} dissolved from memory.", "INFO", "SYNC")
-        
+
     def clear(self):
         """Total purification of the synchronizer."""
         with self._sync_lock:

@@ -24,13 +24,7 @@ class SelectionRangeEngine:
 
     def __init__(self, server: Any):
         self.server = server
-        self.providers: List[SelectionRangeProvider] = []
-
-        # [ASCENSION 1]: KINETIC FOUNDRY
-        self._executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=4,
-            thread_name_prefix="Selector"
-        )
+        self.providers: List[SelectionRangeProvider] =[]
 
     def register(self, provider: SelectionRangeProvider):
         self.providers.append(provider)
@@ -45,23 +39,18 @@ class SelectionRangeEngine:
 
         uri = str(params.text_document.uri)
         doc = self.server.documents.get(uri)
-        if not doc: return []
-
-        # We typically use the first provider that returns results
-        # In a multi-provider setup, we could merge, but SelectionRange usually implies
-        # a single strict hierarchy. We take the highest priority one.
+        if not doc: return[]
 
         for provider in self.providers:
             try:
                 # Execute in thread to prevent blocking
-                future = self._executor.submit(provider.provide_selection_ranges, doc, params.positions)
+                future = self.server.foundry.submit(f"sel-{provider.name}", provider.provide_selection_ranges, doc, params.positions)
                 results = future.result(timeout=0.5)  # Fast timeout for UI responsiveness
 
                 if results:
                     duration = (time.perf_counter() - start_time) * 1000
-                    # Logger.debug(f"[{trace_id}] Selection Expanded in {duration:.2f}ms")
                     return results
             except Exception as e:
                 Logger.error(f"Strategy '{provider.name}' fractured: {e}")
 
-        return []
+        return[]

@@ -24,13 +24,7 @@ class DocumentLinkEngine:
 
     def __init__(self, server: Any):
         self.server = server
-        self.providers: List[DocumentLinkProvider] = []
-
-        # [ASCENSION 1]: KINETIC FOUNDRY
-        self._executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=4,
-            thread_name_prefix="LinkWeaver"
-        )
+        self.providers: List[DocumentLinkProvider] =[]
 
     def register(self, provider: DocumentLinkProvider):
         self.providers.append(provider)
@@ -42,12 +36,13 @@ class DocumentLinkEngine:
         doc = self.server.documents.get(uri)
         if not doc: return []
 
-        all_links = []
+        all_links =[]
 
-        # Parallel Execution
-        futures = {self._executor.submit(p.provide_links, doc): p for p in self.providers}
+        import concurrent.futures
+        # Parallel Execution via Foundry
+        futures = {self.server.foundry.submit(f"link-{p.name}", p.provide_links, doc): p for p in self.providers}
 
-        # 500ms timeout for link detection (needs to be fast)
+        # 500ms timeout for link detection
         done, not_done = concurrent.futures.wait(futures, timeout=0.5)
 
         for future in done:

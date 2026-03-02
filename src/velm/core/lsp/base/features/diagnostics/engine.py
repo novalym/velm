@@ -59,7 +59,6 @@ class DiagnosticsEngine:
         self.server = server
         self.registry = SentinelRegistry(server)
         self.formatter = LspDiagnosticFormatter()
-        self._executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="InquestWorker")
         self._boot_time = time.time()
         self._last_heavy_event = 0.0
 
@@ -74,26 +73,21 @@ class DiagnosticsEngine:
             return []
 
         # [ASCENSION 2]: CALCULATE DILATED TIMEOUT
-        # Base patience (30s) + file size compensation
         size_kb = len(doc.text) / 1024
         dynamic_timeout = TIMEOUT_FLOOR + (size_kb * 0.2)
 
-        # [ASCENSION 3]: COLD START COMPENSATION
         if time.time() - self._boot_time < 60.0:
             dynamic_timeout += 20.0
 
-        # [ASCENSION 7]: HEAVY MATTER AWARENESS
         if time.time() - self._last_heavy_event < 300.0:
             dynamic_timeout += 10.0
 
         dynamic_timeout = min(dynamic_timeout, TIMEOUT_CEILING)
 
         try:
-            # 1. DISPATCH TO WORKER
-            future = self._executor.submit(self._execute_poll, doc)
+            # 1. [THE CURE]: DISPATCH TO CENTRAL FOUNDRY
+            future = self.server.foundry.submit(rid, self._execute_poll, doc)
 
-            # [ASCENSION 4]: INERTIAL POLLING LOOP
-            # Instead of one .result(timeout), we poll to allow for granular logs
             waited = 0.0
             while waited < dynamic_timeout:
                 if future.done():
@@ -101,7 +95,6 @@ class DiagnosticsEngine:
                 time.sleep(0.5)
                 waited += 0.5
 
-                # Pulse a log every 10s to show we are still waiting
                 if int(waited) % 10 == 0:
                     Logger.debug(
                         f"[INQUISITOR] Still gazing into {filename}... ({int(waited)}s/{int(dynamic_timeout)}s)")
@@ -110,8 +103,7 @@ class DiagnosticsEngine:
                 self._last_heavy_event = time.time()
                 Logger.warning(f"[INQUISITOR] ⏳ Time-Bound Severance: {filename} exceeded {dynamic_timeout}s.")
 
-                # [ASCENSION 6]: SOCRATIC TIMEOUT
-                return [self._forge_meta_heresy(
+                return[self._forge_meta_heresy(
                     "TIMEOUT_HERESY",
                     f"The Inquisitor timed out ({int(waited)}s). The Gnostic Parser is digesting Heavy Matter.",
                     DiagnosticSeverity.Warning,
@@ -124,7 +116,6 @@ class DiagnosticsEngine:
             diagnostics = self.formatter.to_lsp(raw_findings, doc)
             diagnostics = self._deduplicate(diagnostics)
 
-            # [ASCENSION 7]: Inject Heavy Matter Flag
             duration_ms = (time.perf_counter() - start_time) * 1000
             if duration_ms > 5000:
                 for d in diagnostics:
@@ -136,7 +127,7 @@ class DiagnosticsEngine:
         except Exception as e:
             tb = traceback.format_exc()
             Logger.error(f"[INQUISITOR] Judgment Fractured: {e}\n{tb}", exc_info=True)
-            return [self._forge_meta_heresy(
+            return[self._forge_meta_heresy(
                 "META_FRACTURE",
                 f"The Inquisitor faltered: {str(e)}",
                 DiagnosticSeverity.Warning,

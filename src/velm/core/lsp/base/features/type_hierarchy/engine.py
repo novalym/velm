@@ -29,13 +29,7 @@ class TypeHierarchyEngine:
 
     def __init__(self, server: Any):
         self.server = server
-        self.providers: List[TypeHierarchyProvider] = []
-
-        # [ASCENSION 1]: KINETIC FOUNDRY
-        self._executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=4,
-            thread_name_prefix="GeneticTracer"
-        )
+        self.providers: List[TypeHierarchyProvider] =[]
 
     def register(self, provider: TypeHierarchyProvider):
         self.providers.append(provider)
@@ -45,12 +39,12 @@ class TypeHierarchyEngine:
         """STAGE 1: Resolve the root type node."""
         uri = str(params.text_document.uri)
         doc = self.server.documents.get(uri)
-        if not doc: return []
+        if not doc: return[]
 
-        # Parallel Poll
-        futures = {self._executor.submit(p.prepare, doc, params.position): p for p in self.providers}
+        import concurrent.futures
+        futures = {self.server.foundry.submit(f"type-prep-{p.name}", p.prepare, doc, params.position): p for p in self.providers}
 
-        items = []
+        items =[]
         done, _ = concurrent.futures.wait(futures, timeout=1.0)
 
         for future in done:
@@ -64,8 +58,9 @@ class TypeHierarchyEngine:
 
     def supertypes(self, params: TypeHierarchySupertypesParams) -> List[TypeHierarchyItem]:
         """STAGE 2: Upstream Traversal (Parents)."""
-        results = []
-        futures = {self._executor.submit(p.supertypes, params.item): p for p in self.providers}
+        results =[]
+        import concurrent.futures
+        futures = {self.server.foundry.submit(f"type-super-{p.name}", p.supertypes, params.item): p for p in self.providers}
 
         done, _ = concurrent.futures.wait(futures, timeout=2.0)
         for future in done:
@@ -78,8 +73,9 @@ class TypeHierarchyEngine:
 
     def subtypes(self, params: TypeHierarchySubtypesParams) -> List[TypeHierarchyItem]:
         """STAGE 3: Downstream Traversal (Children)."""
-        results = []
-        futures = {self._executor.submit(p.subtypes, params.item): p for p in self.providers}
+        results =[]
+        import concurrent.futures
+        futures = {self.server.foundry.submit(f"type-sub-{p.name}", p.subtypes, params.item): p for p in self.providers}
 
         done, _ = concurrent.futures.wait(futures, timeout=2.0)
         for future in done:

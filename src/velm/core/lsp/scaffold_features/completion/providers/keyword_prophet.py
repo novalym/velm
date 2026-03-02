@@ -1,5 +1,5 @@
-# Path: core/lsp/scaffold_features/completion/providers/keyword_prophet.py
-# ------------------------------------------------------------------------
+# src/velm/core/lsp/scaffold_features/completion/providers/keyword_prophet.py
+# ---------------------------------------------------------------------------------
 # LIF: INFINITY | AUTH_CODE: Ω_KEYWORD_PROPHET_APOTHEOSIS_V24
 # SYSTEM: OCULAR_PROPHET | ROLE: SYNTAX_LAW_KEEPER | RANK: SOVEREIGN
 # =================================================================================
@@ -158,6 +158,7 @@ class KeywordProphet(CompletionProvider):
                     cloned = item.model_copy()
                     if '\n' in cloned.insert_text:
                         lines = cloned.insert_text.split('\n')
+                        # [THE CURE]: Using ctx.indent_str
                         cloned.insert_text = lines[0] + '\n' + '\n'.join([f"{ctx.indent_str}{l}" for l in lines[1:]])
                     results.append(cloned)
                 return results
@@ -190,15 +191,13 @@ class KeywordProphet(CompletionProvider):
             # 4. OPERATORS & FALLBACKS
             if any(token.startswith(c) for c in [':', '<', '-', '+', '^', '~']):
                 # We scry the Operator Tier
-                from .keyword_prophet import OPERATORS  # Reference to sibling list if needed
-                # For brevity, assuming SIGILS + OPERATORS combined check
+                # Note: We assume OPERATORS is defined if we import it, otherwise empty
                 return _clone_and_align(
-                    [i for i in SIGILS + (OPERATORS if 'OPERATORS' in globals() else []) if i.label.startswith(token)])
+                    [i for i in SIGILS if i.label.startswith(token)])
 
             # 5. [ASCENSION 13]: KINETIC SEQUENCING (Vows)
             # If the current line is an Action (>>), suggest Vows (??)
             if ctx.line_prefix.strip().startswith('>>'):
-                # (Assuming Vows are defined or we offer the generic sigil)
                 vow_sigil = CompletionItem(
                     label="??", kind=CompletionItemKind.Keyword, detail="Assert Reality",
                     insertText="?? ${1|succeeds,file_exists,port_open|}",
@@ -206,9 +205,15 @@ class KeywordProphet(CompletionProvider):
                 )
                 return _clone_and_align([vow_sigil])
 
-            # 6. ROOT GAZE (Empty Line)
-            if not token:
-                # Proclaim the Totality
+            # 6. ROOT GAZE (Empty Line or Partial Match)
+            # If we have a token but it didn't trigger a specific block, filter everything.
+            if token:
+                all_prototypes = SIGILS + ROOT_DIRECTIVES + MAESTRO_EXPANSIONS
+                matches = [i for i in all_prototypes if token in i.label or token in i.filterText]
+                return _clone_and_align(matches)
+
+            # 7. TABULA RASA (Whitespace Only)
+            if not token and not ctx.line_prefix.strip():
                 return _clone_and_align(SIGILS + ROOT_DIRECTIVES + MAESTRO_EXPANSIONS)
 
             return []
@@ -222,6 +227,7 @@ class KeywordProphet(CompletionProvider):
         [ASCENSION 3]: RECURSIVE SCOPE GAZE
         Checks if an @if or @for block is currently open at this indentation.
         """
+        # [THE CURE]: Using ctx.indent_str directly
         current_indent = len(ctx.indent_str.replace('\t', '    '))
         lines = ctx.full_content.splitlines()
 
@@ -229,6 +235,7 @@ class KeywordProphet(CompletionProvider):
         # Limit lookback to preserve nanosecond interaction speeds
         lookback = 50
 
+        # [THE CURE]: Using ctx.line_idx directly
         for i in range(ctx.line_idx - 1, max(-1, ctx.line_idx - lookback), -1):
             line = lines[i]
             stripped = line.strip()

@@ -3,14 +3,15 @@
 
 import csv
 from io import StringIO
-from typing import List, Dict, Callable
-
+from typing import List, Dict, Callable, TYPE_CHECKING
 from .....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from .....core.jurisprudence.adjudicator import VowAdjudicator as CoreVowAdjudicator
 from .....core.jurisprudence.contracts import AdjudicationContext
 from .....core.alchemist import get_alchemist
 from .....logger import Scribe
 
+if TYPE_CHECKING:
+    from ... import GnosticContextManager
 Logger = Scribe("VowAdjudicator")
 
 

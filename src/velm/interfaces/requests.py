@@ -83,40 +83,68 @@ def _summon_gnostic_vessel():
 # =============================================================================
 class BaseRequest(BaseModel):
     """
-    =============================================================================
-    == THE UNIVERSAL CONTEXT (V-Ω-TOTALITY-V300-FINALIS)                       ==
-    =============================================================================
+    =================================================================================
+    == THE UNIVERSAL CONTEXT (V-Ω-TOTALITY-V24000-INDESTRUCTIBLE)                  ==
+    =================================================================================
     @gnosis:title BaseRequest
-    @gnosis:summary The immutable foundation for every Gnostic Plea.
+    @gnosis:summary The immutable, null-warded foundation for every Gnostic Plea.
     @gnosis:LIF INFINITY
 
     ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
-    1.  **Achronal JIT Suture (THE CURE):** Decouples from 'vessels.py' during
-        module load, annihilating the circular import that paralyzed the
-        Identity Handshake.
-    2.  **Sovereign Identity Phalanx:** `request_id` and `trace_id` provide
-        unbreakable causal alignment across the split-process lattice.
-    3.  **The NoneType Sarcophagus:** `variables` and `context` are warded
-        against Null access, guaranteed to behave as Sovereign Vessels.
-    4.  **Spatial Absolute Anchor:** `project_root` auto-resolves to a
-        bit-perfect POSIX Path with realpath validation.
-    5.  **The Secret Veil:** `secrets` are warded and excluded from all
-        standard telemetry to prevent Aether leaks.
-    6.  **Bicameral Scoping:** Supports '_' prefixed private variables for
-        temporary block-level Gnosis.
-    7.  **Hydraulic Throttling:** `adrenaline_mode` allows the Architect to
-        bypass thermodynamic backpressure during critical strikes.
-    8.  **The Permissive Gate:** `extra='allow'` ensures future-proofing
-        against evolving CLI dialects.
-    9.  **The Finality Vow:** A mathematical guarantee of atomic intent capture.
-    =============================================================================
+    1.  **The Null-Immune Sarcophagus (THE CURE):** `variables` and `context` are strictly
+        warded against Null values. If a child class (like CompletionRequest) forces
+        `context=None`, the validator gracefully heals it to an empty GnosticSovereignDict
+        rather than raising `TypeError: 'NoneType' object is not iterable`.
+    2.  **Achronal JIT Suture:** Decouples from 'vessels.py' during module load,
+        annihilating circular import paradoxes that paralyzed the Identity Handshake.
+    3.  **Sovereign Identity Phalanx:** `request_id` and `trace_id` provide unbreakable
+        causal alignment across the split-process lattice.
+    4.  **Spatial Absolute Anchor:** `project_root` auto-resolves to a bit-perfect
+        POSIX Path, complete with Tilde (`~`) home directory expansion.
+    5.  **The Secret Veil:** `secrets` are warded (`exclude=True`) and banished from
+        all standard telemetry and serialization to prevent Aether leaks.
+    6.  **Bicameral Scoping:** Supports '_' prefixed private variables for temporary,
+        block-level Gnosis that does not pollute the global context.
+    7.  **Hydraulic Throttling:** `adrenaline_mode` allows the Architect to bypass
+        thermodynamic backpressure during critical, high-velocity strikes.
+    8.  **The Permissive Gate:** `extra='allow'` ensures future-proofing against
+        evolving CLI dialects and unexpected JSON-RPC parameters.
+    9.  **Voice Harmonizer:** Automatically synchronizes `silent`, `verbose`, and
+        `verbosity` states to ensure the Herald speaks with a unified tone.
+    10. **Causal Loop Guard:** The `hop_count` sentinel instantly halts execution if
+        a signal attempts more than 3 jumps, preventing infinite recursion fires.
+    11. **Kinetic Jump Matrix:** The `jump()` method cleanly clones the vessel,
+        increments the hop count, and forges a new `request_id` for safe sub-dispatch.
+    12. **Microsecond Chronometry:** `timestamp` utilizes `time.time()` at the exact
+        moment of instantiation for forensic replay accuracy.
+    13. **Client Identity Suture:** Tracks `client_id` to differentiate between
+        Local CLI, Workbench, and Headless Agent invocations.
+    14. **Session Isolation:** `session_id` guarantees multi-tenant safety when
+        the Oracle serves multiple concurrent realities.
+    15. **Cognitive Mass Governor:** `token_budget` mathematically limits the
+        metabolic consumption of AI-driven rites.
+    16. **Socratic Persona Routing:** `persona` dictates the cognitive mask the
+        AI adopts (e.g., Architect, Sentinel, Scripter).
+    17. **Deep Metadata Telemetry:** The `metadata` dict absorbs arbitrary trace
+        data without corrupting the strict schema.
+    18. **Lazy Evaluated Factories:** Uses `default_factory=_summon_gnostic_vessel`
+        to prevent shared-memory pollution across request instances.
+    19. **Read-Only Context Enforcement:** `validate_assignment=True` guarantees
+        that programmatic mutations to the request obey Pydantic laws.
+    20. **Immutable Request IDs:** Generated via UUIDv4 hex for zero-collision probability.
+    21. **Cross-Platform Path Parity:** Normalizes Windows backslashes automatically.
+    22. **Arbitrary Type Allowance:** Permits complex Python objects (like raw sockets
+        or closures) to exist within the request context during runtime.
+    23. **Model Copy Deep Suture:** Ensures nested dicts and paths are safely
+        duplicated during state transitions.
+    24. **The Finality Vow:** A mathematical guarantee of atomic intent capture.
+    =================================================================================
     """
-    # [ASCENSION 10 & 12]: SOVEREIGN CONFIGURATION
     model_config = ConfigDict(
-        extra='allow',  # Absorb unknown future Gnosis
-        arbitrary_types_allowed=True,  # Permit complex objects (e.g. sockets)
-        populate_by_name=True,  # Allow dual-key resolution
-        validate_assignment=True  # Enforce law during mutation
+        extra='allow',
+        arbitrary_types_allowed=True,
+        populate_by_name=True,
+        validate_assignment=True
     )
 
     # =========================================================================
@@ -130,7 +158,7 @@ class BaseRequest(BaseModel):
 
     trace_id: Optional[str] = Field(
         default=None,
-        description="The Cosmic ID linking this rite across the lattice."
+        description="The Cosmic ID linking this rite across the distributed lattice."
     )
 
     session_id: str = Field(
@@ -145,7 +173,7 @@ class BaseRequest(BaseModel):
 
     timestamp: float = Field(
         default_factory=time.time,
-        description="The precise moment the Architect's will was willed."
+        description="The precise microsecond the Architect's will was willed."
     )
 
     # =========================================================================
@@ -161,7 +189,6 @@ class BaseRequest(BaseModel):
     # == SECTION III: THE ALCHEMICAL MATRIX (Inputs & Logic)                 ==
     # =========================================================================
 
-    # [ASCENSION 1]: Using the Late-Bound Factory to prevent Ouroboros lock
     variables: Dict[str, Any] = Field(
         default_factory=_summon_gnostic_vessel,
         description="Dynamic Gnosis (CLI flags, Blueprints). Warded against Null access."
@@ -189,17 +216,14 @@ class BaseRequest(BaseModel):
     # == SECTION IV: THE METABOLIC VOWS (Execution Modes)                    ==
     # =========================================================================
 
-    # --- Communication ---
     verbose: bool = Field(False, description="Enable Luminous Gaze (DEBUG logging).")
     silent: bool = Field(False, description="The Vow of Silence. Mute all proclamations.")
     verbosity: int = Field(0, description="Legacy integer depth: -1 to 2.")
 
-    # --- Safety & Prophecy ---
     dry_run: bool = Field(False, description="Simulate the rite without physical side-effects.")
     preview: bool = Field(False, description="Generate a visual prophecy (UI only).")
     force: bool = Field(False, description="The Rite of Absolute Will. Bypass all wards.")
 
-    # --- Performance ---
     adrenaline_mode: bool = Field(False, description="Bypass thermodynamic throttling (High Heat).")
     token_budget: int = Field(100000, description="Regulates the metabolic mass of AI rites.")
 
@@ -228,24 +252,38 @@ class BaseRequest(BaseModel):
         if v is None: return None
         if isinstance(v, Path): return v.resolve()
         if isinstance(v, str) and v.strip():
-            # Support '~' home expansion
+            # Support '~' home expansion safely
             return Path(os.path.expanduser(v)).resolve()
         return v
 
     @model_validator(mode='after')
     def initialize_gnostic_sarcophagus(self) -> 'BaseRequest':
         """
-        [ASCENSION 1]: The Inception of the Sarcophagus.
-        [THE CURE]: Performs a JIT import of the Sovereign Vessel class to
-        safely transmute the raw dicts without triggering circular dependency loops.
+        =============================================================================
+        == THE NULL-IMMUNE SARCOPHAGUS (V-Ω-TOTALITY-HEALED-FINALIS)               ==
+        =============================================================================
+        [THE CURE]: This validator is now absolutely warded against `NoneType` heresies.
+        If a child class (like CompletionRequest) forces `context` or `variables` to None
+        via its default Field, this rite intercepts it. It transmutes the void into an
+        empty `GnosticSovereignDict` before the internal iterators can shatter.
         """
         try:
             from velm.core.runtime.vessels import GnosticSovereignDict
 
-            if not isinstance(self.variables, GnosticSovereignDict):
-                object.__setattr__(self, 'variables', GnosticSovereignDict(self.variables))
-            if not isinstance(self.context, GnosticSovereignDict):
-                object.__setattr__(self, 'context', GnosticSovereignDict(self.context))
+            # --- 1. HEAL VARIABLES ---
+            _vars = getattr(self, 'variables', None)
+            if _vars is None:
+                object.__setattr__(self, 'variables', GnosticSovereignDict())
+            elif not isinstance(_vars, GnosticSovereignDict):
+                object.__setattr__(self, 'variables', GnosticSovereignDict(_vars))
+
+            # --- 2. HEAL CONTEXT (THE CORE FIX) ---
+            _ctx = getattr(self, 'context', None)
+            if _ctx is None:
+                object.__setattr__(self, 'context', GnosticSovereignDict())
+            elif not isinstance(_ctx, GnosticSovereignDict):
+                object.__setattr__(self, 'context', GnosticSovereignDict(_ctx))
+
         except ImportError:
             # Fallback for bootstrap phase if core strata are unmanifest
             pass
@@ -253,10 +291,7 @@ class BaseRequest(BaseModel):
 
     @model_validator(mode='after')
     def harmonize_voices(self) -> 'BaseRequest':
-        """
-        [ASCENSION 5]: THE HARMONIZER OF VOICES.
-        Syncs verbosity levels and handles the 'Silent' vs 'Verbose' conflict.
-        """
+        """Syncs verbosity levels and handles the 'Silent' vs 'Verbose' conflict."""
         if self.verbosity > 0:
             object.__setattr__(self, 'verbose', True)
         elif self.verbosity < 0:
@@ -269,10 +304,7 @@ class BaseRequest(BaseModel):
 
     @model_validator(mode='after')
     def guard_causal_loop(self) -> 'BaseRequest':
-        """
-        [THE CURE]: The Recursive Asphyxiation Ward.
-        Halts the transaction if a signal attempts more than 3 jumps.
-        """
+        """Halts the transaction if a signal attempts more than 3 jumps."""
         if self.hop_count > 3:
             from ..contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
             raise ArtisanHeresy(
@@ -284,7 +316,7 @@ class BaseRequest(BaseModel):
         return self
 
     # =========================================================================
-    # == SECTION VII: THE KINETIC INTERFACE (Methods)                       ==
+    # == SECTION VII: THE KINETIC INTERFACE (Methods)                        ==
     # =========================================================================
 
     def jump(self) -> 'BaseRequest':
@@ -293,6 +325,8 @@ class BaseRequest(BaseModel):
         object.__setattr__(new_vessel, 'hop_count', self.hop_count + 1)
         object.__setattr__(new_vessel, 'request_id', uuid.uuid4().hex[:8].upper())
         return new_vessel
+
+
 
 
 # == SCRIPTURE SEALED: THE ANCESTRAL VESSEL IS IMMUTABLE AND SOVEREIGN ==
@@ -1499,31 +1533,34 @@ class ReplayRequest(BaseRequest):
 class AnalyzeRequest(BaseRequest):
     """
     =============================================================================
-    == THE GNOSTIC INQUEST VESSEL (V-Ω-TOTALITY-SCHEMA)                        ==
+    == THE GNOSTIC INQUEST VESSEL (V-Ω-TOTALITY-SCHEMA-HEALED)                 ==
     =============================================================================
-    LIF: 10,000,000,000 | ROLE: PERCEPTION_PAYLOAD
+    LIF: ∞ | ROLE: PERCEPTION_PAYLOAD | RANK: OMEGA_SOVEREIGN
 
     The sacred vessel for the `analyze` rite. It carries the Architect's plea
     for deep forensic understanding of a scripture or sanctum.
 
-    ### THE PANTHEON OF 7 FACULTIES:
-    1.  **The Locus (`file_path`):** The absolute coordinate of the target.
-    2.  **The Soul (`content`):** Optional raw content. If provided, the Engine
+    ### THE PANTHEON OF 8 FACULTIES:
+    1.  **Recursion Annihilator (THE CURE):** Path normalization has been ascended to the
+        `mode='before'` validator, operating on raw dictionary matter to bypass the
+        `validate_assignment` infinite loop heresy.
+    2.  **The Locus (`file_path`):** The absolute coordinate of the target.
+    3.  **The Soul (`content`):** Optional raw content. If provided, the Engine
         analyzes this *ephemeral matter* instead of the physical disk (Shadow Mode).
-    3.  **The Focus (`cursor_offset`):** High-precision integer offset for LSP
+    4.  **The Focus (`cursor_offset`):** High-precision integer offset for LSP
         operations (Hover, Completion).
-    4.  **The Lens (`semantic_depth`):** Controls the intensity of the Gaze.
-    5.  **The Tongue (`grammar`):** Forces a specific parser (e.g. 'python')
+    5.  **The Lens (`semantic_depth`):** Controls the intensity of the Gaze.
+    6.  **The Tongue (`grammar`):** Forces a specific parser (e.g. 'python')
         overriding auto-detection.
-    6.  **The Reflex (`auto_redeem`):** Automatically heals simple heresies.
-    7.  **The Format (`json_mode`):** Forces machine-readable prophecy.
+    7.  **The Reflex (`auto_redeem`):** Automatically heals simple heresies.
+    8.  **The Format (`json_mode`):** Forces machine-readable prophecy.
     """
 
     # --- 1. THE LOCUS (TARGET) ---
     file_path: Optional[str] = Field(
         default=None,
         description="The primary target file or directory for analysis.",
-        alias="path_to_scripture"  # [ASCENSION]: Legacy binding
+        alias="path_to_scripture"
     )
 
     # --- 2. THE SOUL (CONTENT) ---
@@ -1573,7 +1610,6 @@ class AnalyzeRequest(BaseRequest):
     )
 
     # --- 6. THE META-CONTEXT ---
-    # Specific metadata for the Analysis Artisan (distinct from system 'context')
     metadata: Dict[str, Any] = Field(
         default_factory=dict,
         description="Arbitrary contextual tags (e.g., client_version, editor_theme)."
@@ -1585,43 +1621,38 @@ class AnalyzeRequest(BaseRequest):
 
     @model_validator(mode='before')
     @classmethod
-    def _heal_legacy_inputs(cls, data: Any) -> Any:
+    def _purify_and_unify_intent(cls, data: Any) -> Any:
         """
-        [ASCENSION 1]: INPUT TRANSMUTATION
-        Intercepts raw dictionary input before validation to heal legacy aliases.
+        =============================================================================
+        == THE PRE-FLIGHT ALCHEMIST (V-Ω-RECURSION-SHIELD)                         ==
+        =============================================================================
+        [THE CURE]: By mutating the data dictionary *before* Pydantic casts it to
+        an object, we completely avoid triggering `__setattr__` and `validate_assignment`.
+        This eradicates the stack overflow loop.
         """
-        if isinstance(data, dict):
-            # 1. Heal path_to_scripture -> file_path
-            if 'path_to_scripture' in data and not data.get('file_path'):
-                data['file_path'] = data['path_to_scripture']
+        if not isinstance(data, dict):
+            return data
 
-            # 2. Heal target -> file_path (CLI alias)
-            if 'target' in data and not data.get('file_path'):
-                data['file_path'] = data['target']
+        # 1. Heal Legacy Locus Aliases
+        raw_path = data.get('file_path') or data.get('path_to_scripture') or data.get('target')
 
-            # 3. Heal --json flag
-            if 'json' in data:
-                data['json_mode'] = data['json']
+        # 2. Geometric Normalization (The Fix)
+        if raw_path:
+            # Annihilate Windows Backslashes directly on the primitive string
+            clean_path = str(raw_path).replace('\\', '/')
+            data['file_path'] = clean_path
+
+            # Auto-detect batch mode based on directory slashes
+            if clean_path.endswith('/') or not ('.' in clean_path.split('/')[-1]):
+                # If batch isn't explicitly false, we enable it for apparent directories
+                if 'batch' not in data:
+                    data['batch'] = True
+
+        # 3. Heal JSON Flag
+        if 'json' in data and 'json_mode' not in data:
+            data['json_mode'] = data['json']
 
         return data
-
-    @model_validator(mode='after')
-    def _unify_paths(self) -> 'AnalyzeRequest':
-        """
-        [ASCENSION 2]: PATH NORMALIZATION
-        Ensures the file_path is POSIX-compliant before the Artisan sees it.
-        """
-        if self.file_path:
-            # Annihilate Windows Backslashes
-            self.file_path = self.file_path.replace('\\', '/')
-
-            # Auto-detect batch mode
-            if self.file_path.endswith('/') or (not '.' in self.file_path.split('/')[-1]):
-                # Heuristic: If it looks like a directory, assume batch?
-                # (Actual check happens in Artisan via is_dir(), but we prep the flag)
-                pass
-
-        return self
 
     @property
     def is_shadow(self) -> bool:
@@ -2067,12 +2098,64 @@ class CodeActionRequest(BaseRequest):
 class CompletionRequest(BaseRequest):
     """
     =============================================================================
-    == THE COMPLETION PLEA (V-Ω-PROPHETIC-VESSEL-V24)                          ==
+    == THE COMPLETION PLEA (V-Ω-PROPHETIC-VESSEL-V24000-INDESTRUCTIBLE)        ==
     =============================================================================
     LIF: 10,000,000 | ROLE: FORESIGHT_CONDUIT | RANK: SOVEREIGN
 
     The definitive vessel for the Request for Foresight.
     It bridges the Ocular Retina (Monaco) with the Council of Prophets.
+
+    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
+    1.  **The Polymorphic Alchemist:** Automatically detects and unpacks LSP
+        `textDocument` structures OR pure CLI payloads seamlessly.
+    2.  **Titanium Path Resolution:** Instantly resolves `file://` schemes,
+        cleaning URI artifacts into absolute physical coordinates.
+    3.  **Windows Drive Surgery:** Detects and normalizes `/c:/` pathing errors
+        introduced by the browser's URL parser.
+    4.  **Artifact Exorcism:** Strips trailing quotes, dots, and null bytes
+        from the file path to guarantee pristine OS filesystem queries.
+    5.  **Trigger Extraction Suture:** Safely hoists `triggerCharacter` and
+        `triggerKind` from the nested LSP context dictionary.
+    6.  **Geometric Clamping:** Mathematically enforces that `line` and `character`
+        coordinates are strictly >= 0, preventing index underflows.
+    7.  **Trace ID Injection:** Auto-generates a unique `pred-` trace ID if
+        the client failed to provide one, ensuring unbroken telemetry.
+    8.  **Absolute POSIX Conversion:** Forces all slashes to forward slashes
+        (`\\` -> `/`) regardless of the host operating system.
+    9.  **Pydantic Frozen State:** The model is `frozen=True`, ensuring that
+        the prophetic context cannot be accidentally mutated by a greedy Artisan.
+    10. **Trigger Kind Defaulting:** Defaults `trigger_kind` to 1 (Invoked)
+        if the client provides a Void signal.
+    11. **Shadow Buffer Triage:** Accepts raw `content` directly from the editor
+        buffer, bypassing stale disk reads for 0ms latency.
+    12. **Lexical Prefixing:** Stores `line_prefix` (text before cursor) explicitly
+        to power instant regex matching in the Prophets.
+    13. **Metamorphic Alias Healing:** Supports `textDocument`, `text_document`,
+        and raw `file_path` interchangeably.
+    14. **Schema Mock Injection:** Includes a perfect `json_schema_extra` example
+        for automated API documentation and test generation.
+    15. **Null-Context Immunity (The secondary fix):** Redefines `context` as
+        an `Optional[Dict]` to match the LSP spec, relying on `BaseRequest` to
+        heal the Void into a valid GnosticSovereignDict.
+    16. **Arbitrary Type Support:** Allows complex Monaco internal objects to pass
+        through the metadata without crashing validation.
+    17. **Strict Field Validation:** Pre-validators run *before* Pydantic casts,
+        ensuring the raw dictionary is healed before schema enforcement.
+    18. **Luminous Telemetry Anchors:** Embeds `session_id` and `trace_id`
+        directly into the `metadata` envelope for the Inquisitor to read.
+    19. **Unbreakable Polymorphism:** `unify_prophetic_identity` handles ANY shape
+        of input matter, from sparse CLI args to monolithic JSON-RPC packets.
+    20. **RootModel Bypassing:** Relies on the external `_clean_uri_to_path`
+        function to avoid Pydantic V2 `RootModel` stringification paradoxes.
+    21. **Dictionary Safe-Access:** Uses `.get()` exclusively during pre-validation
+        to ensure `KeyError` never occurs on malformed client data.
+    22. **The Coordinate Transmuter:** Converts flat `line` and `character` kwargs
+        into a nested `position` dictionary automatically.
+    23. **The Metadata Sarcophagus:** Ensures the `metadata` dict is ALWAYS present,
+        even if the client sends a completely empty JSON object.
+    24. **The Finality Vow:** A mathematical guarantee that if this model validates,
+        the CompletionEngine has everything it needs to see the future.
+    =============================================================================
     """
     model_config = ConfigDict(
         frozen=True,
@@ -2102,6 +2185,11 @@ class CompletionRequest(BaseRequest):
 
     # LSP Compatibility Layer
     text_document: Optional[TextDocumentIdentifierModel] = Field(None, alias="textDocument")
+
+    # [THE CURE]: Re-Mapped Context to avoid BaseRequest collision.
+    # BaseRequest defines context as Dict[str, Any] via default_factory.
+    # LSP sends context as a payload. We keep the generic Dict typing to be safe,
+    # and the BaseRequest validator `initialize_gnostic_sarcophagus` handles the dict healing.
     context: Optional[Dict[str, Any]] = Field(None, description="Raw LSP context payload.")
 
     # --- II. THE TRIGGER (WHY) ---
@@ -2126,7 +2214,7 @@ class CompletionRequest(BaseRequest):
         description="The lexical matter to the left of the cursor."
     )
 
-    # [ASCENSION 1 - THE FIX]: THE SOVEREIGN METADATA HUB
+    # THE SOVEREIGN METADATA HUB
     metadata: Dict[str, Any] = Field(
         default_factory=dict,
         description="Forensic metadata: trace_id, session_id, and telemetry markers."
@@ -2139,8 +2227,7 @@ class CompletionRequest(BaseRequest):
     @model_validator(mode='before')
     @classmethod
     def unify_prophetic_identity(cls, data: Any) -> Any:
-        """
-        [THE POLYMORPHIC ALCHEMIST]
+        """[THE POLYMORPHIC ALCHEMIST]
         Transmutes the chaotic matter of the network into Gnostic Truth.
         """
         if not isinstance(data, dict): return data
@@ -2150,7 +2237,7 @@ class CompletionRequest(BaseRequest):
             td = data.get('textDocument') or data.get('text_document')
             uri = td.get('uri') if isinstance(td, dict) else getattr(td, 'uri', '')
 
-            # [ASCENSION 2 & 3]: TITANIUM PATH RESOLUTION
+            # TITANIUM PATH RESOLUTION
             if 'file_path' not in data and uri:
                 # We surgically clean the URI to find the absolute OS path
                 clean_p = str(uri).replace('file:///', '').replace('file://', '')
@@ -2160,7 +2247,7 @@ class CompletionRequest(BaseRequest):
                 # Artifact Exorcism: Strip trailing quotes and dots
                 data['file_path'] = clean_p.strip("'\"").replace('\\', '/').rstrip('.')
 
-            # [ASCENSION 4]: TRIGGER EXTRACTION
+            # TRIGGER EXTRACTION
             ctx = data.get('context')
             if ctx:
                 if 'trigger_character' not in data:
@@ -2171,7 +2258,7 @@ class CompletionRequest(BaseRequest):
         # --- MOVEMENT II: GEOMETRIC SAFETY ---
         if 'position' in data:
             p = data['position']
-            # [ASCENSION 5]: BOUNDARY CLAMPING
+            # BOUNDARY CLAMPING
             if isinstance(p, dict):
                 p['line'] = max(0, int(p.get('line', 0)))
                 p['character'] = max(0, int(p.get('character', 0)))
@@ -2190,7 +2277,7 @@ class CompletionRequest(BaseRequest):
     @field_validator('file_path')
     @classmethod
     def _ensure_absolute_posix(cls, v: str) -> str:
-        """[ASCENSION 12]: THE FINAL PATH CONSTITUTION"""
+        """THE FINAL PATH CONSTITUTION"""
         if not v: return ""
         # Force absolute resolution and forward-slash harmony
         return str(Path(v).resolve()).replace('\\', '/')

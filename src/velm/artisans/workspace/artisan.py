@@ -60,7 +60,6 @@ class WorkspaceArtisan(BaseArtisan[WorkspaceRequest]):
 
     def __init__(self, engine):
         super().__init__(engine)
-        self.alchemist = get_alchemist()
         self.observatory = ObservatoryManager()
 
     def execute(self, request: WorkspaceRequest) -> ScaffoldResult:

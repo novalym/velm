@@ -14,12 +14,12 @@ from .models import CompletionItem
 class CompletionContext:
     """
     =============================================================================
-    == THE PROPHETIC CONTEXT (V-Ω-TOTALITY-V100)                               ==
+    == THE PROPHETIC CONTEXT (V-Ω-TOTALITY-V100-GEOMETRIC-SUTURE)              ==
     =============================================================================
     Captures the absolute state of the reality at the exact moment of the trigger.
     Passed to every Prophet to inform their vision.
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+    ### THE PANTHEON OF 14 LEGENDARY ASCENSIONS:
     1.  **Isomorphic Spatial Anchor:** Includes `project_root` to ensure relative
         path completions are mathematically absolute.
     2.  **Full-Spectrum Content:** Carries `full_content` to allow the Artisan
@@ -44,6 +44,10 @@ class CompletionContext:
         Architect Grade (Initiate vs Master).
     12. **Holographic Metadata:** `client_info` helps tune snippet output
         for specific IDE capabilities.
+    13. **Geometric Indentation (THE CURE):** `indent_str` derived property
+        provides the exact whitespace prefix of the current line.
+    14. **Line Index (THE CURE):** `line_idx` derived property provides
+        direct integer access to the vertical coordinate.
     """
 
     # --- I. SPATIAL & IDENTITY ---
@@ -85,6 +89,17 @@ class CompletionContext:
     def elapsed_ms(self) -> float:
         """Calculates the age of this context context in milliseconds."""
         return (time.perf_counter_ns() - self.start_time_ns) / 1_000_000
+
+    @property
+    def indent_str(self) -> str:
+        """[THE CURE]: Returns the leading whitespace of the current line."""
+        if not self.line_text: return ""
+        return self.line_text[:len(self.line_text) - len(self.line_text.lstrip())]
+
+    @property
+    def line_idx(self) -> int:
+        """[THE CURE]: Returns the current line index as an integer."""
+        return self.position.get('line', 0)
 
 
 class CompletionProvider(ABC):

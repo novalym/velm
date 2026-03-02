@@ -111,7 +111,7 @@ class OriginOracle:
         # Note: This requires the 'source' metadata we added to the Canon
         # in the 'gnosis/canon.py' Apotheosis.
         from ..introspect import IntrospectionArtisan
-        res = self.engine.dispatch(self.engine.registry.get_request_type("introspect")(topic="all"))
+        res = self.engine.dispatch(self.engine.registry.get_request_class("introspect")(topic="all"))
         if not res.success or not res.data: return None
 
         canon = res.data

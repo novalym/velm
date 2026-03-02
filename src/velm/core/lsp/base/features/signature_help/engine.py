@@ -29,12 +29,6 @@ class SignatureHelpEngine:
         self.server = server
         self.providers: List[SignatureProvider] = []
 
-        # [ASCENSION 5]: KINETIC FOUNDRY
-        self._executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=4,
-            thread_name_prefix="SignatureOracleWorker"
-        )
-
     def register(self, provider: SignatureProvider):
         """Consecrates a new signature prophet."""
         self.providers.append(provider)
@@ -53,15 +47,15 @@ class SignatureHelpEngine:
         doc = self.server.documents.get(uri)
         if not doc: return None
 
-        # 1. DIVINE INVOCATION CONTEXT (The Heavy Lifting)
-        # We walk back from the cursor to find the unclosed '(' and the symbol preceding it.
+        # 1. DIVINE INVOCATION CONTEXT
         invoc_ctx = self._divine_context(doc, params.position, trace_id)
         if not invoc_ctx:
             return None
 
-        # 2. [ASCENSION 5]: PARALLEL POLLING
-        all_sigs: List[SignatureInformation] = []
-        futures = {self._executor.submit(p.provide_signatures, invoc_ctx): p for p in self.providers}
+        import concurrent.futures
+        # 2. [ASCENSION 5]: PARALLEL POLLING (VIA FOUNDRY)
+        all_sigs: List[SignatureInformation] =[]
+        futures = {self.server.foundry.submit(f"sig-{p.name}", p.provide_signatures, invoc_ctx): p for p in self.providers}
 
         done, _ = concurrent.futures.wait(futures, timeout=0.400)
 

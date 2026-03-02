@@ -26,26 +26,18 @@ class FoldingRangeEngine:
         self.server = server
         self.providers: List[FoldingRangeProvider] = []
 
-        # [ASCENSION 1]: KINETIC FOUNDRY
-        self._executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=2, # Folding is usually fast, low concurrency needed
-            thread_name_prefix="FoldingWorker"
-        )
-
     def register(self, provider: FoldingRangeProvider):
         """Consecrates a new folding strategy."""
         self.providers.append(provider)
         Logger.debug(f"Folding Strategy Registered: {provider.name}")
 
     def compute(self, params: FoldingRangeParams) -> List[FoldingRange]:
-        """
-        [THE RITE OF COMPRESSION]
+        """[THE RITE OF COMPRESSION]
         Aggregates ranges from all providers.
         """
         start_time = time.perf_counter()
         trace_id = f"fold-{uuid.uuid4().hex[:6]}"
 
-        # [THE CURE]: Universal Accessor Pattern
         uri_data = params.text_document
         if hasattr(uri_data, 'uri'):
             uri = str(uri_data.uri)
@@ -55,12 +47,12 @@ class FoldingRangeEngine:
         doc = self.server.documents.get(uri)
         if not doc: return []
 
-        all_ranges: List[FoldingRange] = []
+        all_ranges: List[FoldingRange] =[]
 
-        # [ASCENSION 1]: PARALLEL GATHERING
-        futures = {self._executor.submit(p.provide_folding_ranges, doc): p for p in self.providers}
+        import concurrent.futures
+        # [ASCENSION 1]: FOUNDRY PARALLEL GATHERING
+        futures = {self.server.foundry.submit(f"fold-{p.name}", p.provide_folding_ranges, doc): p for p in self.providers}
 
-        # 200ms threshold for folding calculation
         done, not_done = concurrent.futures.wait(futures, timeout=0.2)
 
         for future in done:
@@ -72,8 +64,7 @@ class FoldingRangeEngine:
             except Exception as e:
                 Logger.error(f"Strategy '{provider.name}' fractured: {e}", exc_info=True)
 
-        # [ASCENSION 2]: LIMIT GOVERNOR
-        # VS Code has a limit on folding ranges (usually 5000). We clamp it to be safe.
+        # VS Code has a limit on folding ranges
         if len(all_ranges) > 5000:
             all_ranges = all_ranges[:5000]
 

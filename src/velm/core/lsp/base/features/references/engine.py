@@ -30,12 +30,6 @@ class ReferenceEngine:
         self.server = server
         self.providers: List[ReferenceProvider] = []
 
-        # [ASCENSION 1]: KINETIC FOUNDRY
-        self._executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=6,
-            thread_name_prefix="ReferenceSeekerWorker"
-        )
-
     def register(self, provider: ReferenceProvider):
         """Consecrates a new reference seeker in the registry."""
         self.providers.append(provider)
@@ -56,20 +50,19 @@ class ReferenceEngine:
             params.text_document.uri)
         doc = self.server.documents.get(uri)
         if not doc:
-            return []
+            return[]
 
         # 2. DIVINE THE ATOM (Word Identification)
         info = TextUtils.get_word_at_position(doc, params.position)
         if not info:
             return []
 
-        # 3. [ASCENSION 1]: PARALLEL GATHERING
-        all_locations: List[Location] = []
+        # 3. [ASCENSION 1]: FOUNDRY GATHERING
+        all_locations: List[Location] =[]
 
-        # We poll all providers in the background to prevent UI lag
-        futures = {self._executor.submit(p.find_references, doc, info, params.context): p for p in self.providers}
+        import concurrent.futures
+        futures = {self.server.foundry.submit(f"ref-{p.name}", p.find_references, doc, info, params.context): p for p in self.providers}
 
-        # [ASCENSION 8]: Wait for the Council (with 2s threshold for global scans)
         done, not_done = concurrent.futures.wait(futures, timeout=2.0)
 
         for future in done:
@@ -84,7 +77,7 @@ class ReferenceEngine:
         if not_done:
             Logger.warning(f"Global Reference scan partially timed out for {info.text}.")
 
-        # 4. [ASCENSION 5]: GEOMETRIC DEDUPLICATION
+        # 4. GEOMETRIC DEDUPLICATION
         final_locations = self._deduplicate(all_locations)
 
         # 5. TELEMETRY

@@ -40,8 +40,8 @@ from ..base.types import (
     PrepareRenameParams,
     SemanticTokensParams,
     SemanticTokensDeltaParams,
-    ExecuteCommandParams
-
+    ExecuteCommandParams,
+    DocumentHighlightParams
 )
 from ..base.features.document_link import DocumentLinkParams
 
@@ -465,9 +465,10 @@ class ScaffoldLSPServer(BaseLSPServer):
     def consecrate(self):
         """
         =============================================================================
-        == THE RITE OF UNIVERSAL CONSECRATION (V-Ω-TOTALITY-V306)                  ==
+        == THE RITE OF UNIVERSAL CONSECRATION (V-Ω-TOTALITY-V307-NATIVE-LIGHT)     ==
         =============================================================================
         LIF: 10,000,000,000 | ROLE: CONSTITUTIONAL_ARCHITECT | RANK: SOVEREIGN
+        AUTH: Ω_CONSECRATE_V307_HIGHLIGHT_SUTURE_2026_FINALIS
 
         The definitive act of materializing the Oracle's capabilities. It ensures
         absolute parity between the Python Gnosis and the Monaco Retina.
@@ -538,7 +539,7 @@ class ScaffoldLSPServer(BaseLSPServer):
             self._bind_scaffold_rites()
 
             # --- MOVEMENT II: CONSECRATE THE PANTHEON (CAPABILITIES) ---
-            # [ASCENSION 1, 10, 15, 20, 21]
+            # We define the internal closure that mutates the capability payload.
             def _apply_constitution(caps: Any):
                 try:
                     # 1. CORE SYNCHRONIZATION [ASCENSION 7]
@@ -550,7 +551,7 @@ class ScaffoldLSPServer(BaseLSPServer):
                     }
                     caps.position_encoding = "utf-16"
 
-                    # 2. THE INTELLIGENCE QUARTET [ASCENSION 1]
+                    # 2. THE INTELLIGENCE QUARTET[ASCENSION 1]
                     caps.hover_provider = True
                     caps.definition_provider = True
                     caps.references_provider = True
@@ -563,17 +564,19 @@ class ScaffoldLSPServer(BaseLSPServer):
                         "resolveProvider": True
                     }
 
-                    # 4. STRUCTURAL HIERARCHIES (LSP 3.17) [ASCENSION 15]
+                    # 4. STRUCTURAL HIERARCHIES (LSP 3.17)[ASCENSION 15]
                     caps.call_hierarchy_provider = True
                     caps.type_hierarchy_provider = True
                     caps.selection_range_provider = True
                     caps.folding_range_provider = True
 
-                    # 5. GEOMETRIC MUTATION [ASCENSION 21]
+                    # 5. GEOMETRIC MUTATION & ILLUMINATION [ASCENSION 21]
                     caps.rename_provider = {"prepareProvider": True}
                     caps.document_formatting_provider = True
                     caps.document_symbol_provider = True
                     caps.document_link_provider = {"resolveProvider": True}
+                    # [THE CURE]: Natively broadcast DocumentHighlight support to Monaco
+                    caps.document_highlight_provider = True
                     caps.code_action_provider = {
                         "codeActionKinds": ["quickfix", "refactor", "refactor.extract", "source.organizeImports"],
                         "resolveProvider": True  # <--- CRITICAL: Tells Monaco to call resolve_action
@@ -587,7 +590,7 @@ class ScaffoldLSPServer(BaseLSPServer):
                         "workspaceDiagnostics": False
                     }
 
-                    # 7. [THE FIX]: WORKSPACE SOVEREIGNTY [ASCENSION 5]
+                    # 7. WORKSPACE SOVEREIGNTY [ASCENSION 5]
                     caps.workspace = {
                         "workspaceFolders": {
                             "supported": True,
@@ -602,7 +605,7 @@ class ScaffoldLSPServer(BaseLSPServer):
                         }
                     }
 
-                    # 8. KINETIC COMMANDS [ASCENSION 8]
+                    # 8. KINETIC COMMANDS[ASCENSION 8]
                     caps.execute_command_provider = {
                         "commands": [
                             "scaffold.heal",
@@ -613,7 +616,7 @@ class ScaffoldLSPServer(BaseLSPServer):
                         ]
                     }
 
-                    # 9. [ASCENSION 17]: SEMANTIC TOKENS (THE SPECTRAL MAP)
+                    # 9. SEMANTIC TOKENS (THE SPECTRAL MAP) [ASCENSION 17]
                     from ..scaffold_features.semantic_tokens.legend import get_default_legend
                     caps.semantic_tokens_provider = {
                         "legend": get_default_legend().model_dump(by_alias=True),
@@ -624,11 +627,11 @@ class ScaffoldLSPServer(BaseLSPServer):
                 except Exception as e:
                     forensic_log(f"Constitutional Fracture during assignment: {e}", "ERROR", "CONSECRATE")
 
-            # [ASCENSION 1]: Execute the constitution rite via the Kernel
+            # Execute the constitution rite via the Kernel capability pipeline
             self.register_capability(_apply_constitution)
 
             # --- MOVEMENT III: POPULATE THE GNOSTIC MAP ---
-            # [ASCENSION 3]: JIT Request Mapping
+            # [ASCENSION 3]: JIT Request Mapping for strict Pydantic parsing
             from ....interfaces.requests import (
                 InitializeRequest, AnalyzeRequest, CompletionRequest,
                 HoverRequest, DefinitionRequest, WorkspaceRequest,
@@ -642,7 +645,7 @@ class ScaffoldLSPServer(BaseLSPServer):
                 'textDocument/didChange': None,
                 'textDocument/didSave': None,
                 'textDocument/completion': CompletionRequest,
-                'completionItem/resolve': CompletionItem,  # <--- NEW MAPPING
+                'completionItem/resolve': CompletionItem,
                 'textDocument/hover': HoverRequest,
                 'textDocument/definition': DefinitionRequest,
                 'textDocument/references': None,
@@ -657,6 +660,8 @@ class ScaffoldLSPServer(BaseLSPServer):
                 'textDocument/formatting': DocumentFormattingParams,
                 'textDocument/rename': RenameParams,
                 'textDocument/prepareRename': PrepareRenameParams,
+                # [THE CURE]: Map the incoming plea to the native Pydantic params class
+                'textDocument/documentHighlight': DocumentHighlightParams,
                 'textDocument/semanticTokens/full': SemanticTokensParams,
                 'textDocument/semanticTokens/full/delta': SemanticTokensDeltaParams,
             })
@@ -695,13 +700,15 @@ class ScaffoldLSPServer(BaseLSPServer):
             self.call_hierarchy = ScaffoldCallHierarchyEngine.forge(self)
             self.type_hierarchy = ScaffoldTypeHierarchyEngine.forge(self)
 
-            # --- [ASCENSION 24]: THE ABSOLUTE GENESIS ANCHOR ---
+            # --- MOVEMENT V: THE ABSOLUTE GENESIS ANCHOR ---
             if self.project_root:
                 os.environ["SCAFFOLD_PROJECT_ROOT"] = str(self.project_root).replace('\\', '/')
 
             self.is_consecrated = True
             duration_ms = (time.perf_counter() - start_time) * 1000
             forensic_log(f"Singularity Consecrated. Reality frequency: {duration_ms:.2f}ms.", "SUCCESS", "BOOT")
+
+
 
     @property
     def is_consecrated(self) -> bool:
@@ -983,6 +990,16 @@ class ScaffoldLSPServer(BaseLSPServer):
 
         return resolved
 
+    @safe_handler("textDocument/documentHighlight", [])
+    def h_document_highlight(self, params: Any):
+        """
+        [THE LUMINARY SHIELD]
+        Monaco requests highlights constantly. We return an empty array
+        to satisfy the strict LSP contract, preventing the 'Method Unmanifest'
+        heresy and eliminating terminal noise.
+        """
+        return []
+
     # =========================================================================
     # == SECTION IV: DAEMON RELAY & DISPATCH                                 ==
     # =========================================================================
@@ -1156,8 +1173,16 @@ class ScaffoldLSPServer(BaseLSPServer):
     def _heartbeat(self, params: Any):
         return {"alive": True, "state": self.state}
 
+
     def _bind_scaffold_rites(self):
-        # Base Rites
+        """
+        =============================================================================
+        == THE RITE OF PROTOCOL BINDING (V-Ω-NATIVE-SUTURE)                        ==
+        =============================================================================
+        Maps the string-based JSON-RPC commands received from the Dispatcher
+        directly to the Python handler methods on this class.
+        """
+        # --- I. BASE LIFECYCLE & SYNC RITES ---
         self.feature("initialize")(self.initialize)
         self.feature("initialized")(self.initialized)
         self.feature("shutdown")(self.shutdown_rite)
@@ -1167,9 +1192,9 @@ class ScaffoldLSPServer(BaseLSPServer):
         self.feature("textDocument/didSave")(self.did_save)
         self.feature("textDocument/didClose")(self.did_close)
 
-        # Features (Iron-Clad)
+        # --- II. FEATURES (IRON-CLAD PROXIES) ---
         self.feature("textDocument/completion")(self.h_completion)
-        self.feature("completionItem/resolve")(self.h_completion_resolve)  # <--- NEW BINDING
+        self.feature("completionItem/resolve")(self.h_completion_resolve)
         self.feature("textDocument/hover")(self.h_hover)
         self.feature("textDocument/definition")(self.h_definition)
         self.feature("textDocument/references")(self.h_references)
@@ -1194,7 +1219,10 @@ class ScaffoldLSPServer(BaseLSPServer):
         self.feature("typeHierarchy/supertypes")(self.h_type_hierarchy_supertypes)
         self.feature("typeHierarchy/subtypes")(self.h_type_hierarchy_subtypes)
 
-        # Workspace
+        # [THE CURE]: The missing link natively bound.
+        self.feature("textDocument/documentHighlight")(self.h_document_highlight)
+
+        # --- III. WORKSPACE & OBSERVATORY RITES ---
         self.feature("workspace/executeCommand")(self.h_execute_command)
         self.feature("workspace/symbol")(self.h_workspace_symbol)
         self.feature("workspace/didChangeWatchedFiles")(self.h_watched_files)
@@ -1202,7 +1230,7 @@ class ScaffoldLSPServer(BaseLSPServer):
         self.feature("workspace/didChangeConfiguration")(self._on_config_change)
         self.feature("workspace/willRenameFiles")(self.h_will_rename_files)
 
-        # Internal
+        # --- IV. INTERNAL GNOSTIC RITES ---
         self.feature("gnostic/relay_auth")(self.handle_relay_auth)
         self.feature("gnostic/config")(self.handle_config_update)
         self.feature("$/heartbeat")(self._heartbeat)

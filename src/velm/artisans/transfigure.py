@@ -70,7 +70,6 @@ class TransfigureArtisan(BaseArtisan[TransfigureRequest]):
 
     def execute(self, request: TransfigureRequest) -> ScaffoldResult:
         self.args = request
-        self.alchemist = get_alchemist()
         self.global_forge = Path.home() / ".scaffold" / "templates"
         self.local_forge = self.project_root / ".scaffold" / "templates"
 

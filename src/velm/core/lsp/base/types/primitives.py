@@ -1,5 +1,6 @@
-# Path: core/lsp/base/types/primitives.py
-# ---------------------------------------
+# Path: src/velm/core/lsp/base/types/primitives.py
+# ------------------------------------------------
+
 from __future__ import annotations
 from enum import Enum
 from typing import Union, List, Optional, Any, Dict, Literal
@@ -12,18 +13,31 @@ from .base import LspModel
 # =================================================================================
 
 class URI(RootModel[str]):
-    """A uniform resource identifier."""
-    pass
+    """
+    [THE UNIFORM ANCHOR]
+    A uniform resource identifier.[THE CURE]: __str__ ensures Pydantic V2 resolves the raw string soul,
+    preventing the 'root=...' corruption heresy.
+    """
+
+    def __str__(self): return str(self.root)
+
+    def __repr__(self): return f"'{self.root}'"
 
 
 class DocumentUri(RootModel[str]):
     """The sacred string path to a scripture."""
-    pass
+
+    def __str__(self): return str(self.root)
+
+    def __repr__(self): return f"'{self.root}'"
 
 
 class ProgressToken(RootModel[Union[int, str]]):
     """A token used to report progress on a long-running rite."""
-    pass
+
+    def __str__(self): return str(self.root)
+
+    def __repr__(self): return f"'{self.root}'"
 
 
 class TraceValue(str, Enum):
@@ -39,44 +53,77 @@ class TraceValue(str, Enum):
 
 class Position(LspModel):
     """
-    [THE ATOM OF LOCATION]
+    =============================================================================
+    == THE ATOM OF LOCATION (V-Ω-FLUID-GEOMETRY-V200)                          ==
+    =============================================================================
+    LIF: 100,000x | ROLE: SPATIAL_COORDINATE | RANK: OMEGA_PRIMITIVE
+
     A zero-based point in 2D spacetime.
-    Includes dunder methods for geometric comparison.
+
+    ### THE PANTHEON OF ASCENSIONS:
+    1.  **The Thaw (THE CURE):** The `frozen=True` heresy has been annihilated.
+        The God-Engine frequently expands blocks and ranges during dynamic AST
+        reconstruction (e.g., SymbolEngine). This atom is now fluid, yet protected
+        by Pydantic's mutation validation (`validate_assignment=True`).
+    2.  **Isomorphic Comparison:** Overloaded `__eq__` and `__lt__` methods intelligently
+        detect and compare against raw `dict` payloads sent by the Client, preventing
+        'unsupported operand type' crashes when un-hydrated JSON touches the Engine.
+    3.  **Hashable Fluidity:** Explicitly implements `__hash__` to guarantee the
+        model can be stored in Sets and Dictionaries even while fully mutable.
     """
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(validate_assignment=True)
 
     line: int = Field(..., ge=0, description="Line position in a document (zero-based).")
     character: int = Field(..., ge=0, description="Character offset on a line (zero-based).")
 
-    def __lt__(self, other: 'Position') -> bool:
-        if self.line < other.line: return True
-        if self.line == other.line: return self.character < other.character
+    def __lt__(self, other: Union['Position', Dict[str, int]]) -> bool:
+        o_line = other['line'] if isinstance(other, dict) else other.line
+        o_char = other['character'] if isinstance(other, dict) else other.character
+        if self.line < o_line: return True
+        if self.line == o_line: return self.character < o_char
         return False
 
-    def __le__(self, other: 'Position') -> bool:
+    def __le__(self, other: Union['Position', Dict[str, int]]) -> bool:
         return self < other or self == other
 
-    def __gt__(self, other: 'Position') -> bool:
+    def __gt__(self, other: Union['Position', Dict[str, int]]) -> bool:
         return not self <= other
 
-    def __ge__(self, other: 'Position') -> bool:
+    def __ge__(self, other: Union['Position', Dict[str, int]]) -> bool:
         return not self < other
 
     def __eq__(self, other: object) -> bool:
+        if isinstance(other, dict) and 'line' in other and 'character' in other:
+            return self.line == other['line'] and self.character == other['character']
         if not isinstance(other, Position): return False
         return self.line == other.line and self.character == other.character
 
     def __hash__(self):
+        # [ASCENSION]: Hashing remains perfectly intact despite fluidity.
         return hash((self.line, self.character))
 
 
 class Range(LspModel):
     """
-    [THE VESSEL OF EXTENT]
+    =============================================================================
+    == THE VESSEL OF EXTENT (V-Ω-FLUID-EXPANSION-V200)                         ==
+    =============================================================================
+    LIF: 100,000x | ROLE: SPATIAL_BOUNDARIES | RANK: OMEGA_PRIMITIVE
+
     A range expressed as (zero-based) start and end positions.
     Enforces the Law of Chronology: End must not precede Start.
+
+    ### THE PANTHEON OF ASCENSIONS:
+    1.  **Dynamic Boundary Expansion:** Unfrozen to allow hierarchical processors
+        (like `SymbolEngine` and `FoldingRangeEngine`) to stretch the range as
+        child nodes are discovered.
+    2.  **Auto-Healing Chronology Ward:** When `validate_assignment=True` is active,
+        mutating `start` and `end` sequentially creates a temporary invalid state
+        if the new `start` eclipses the old `end`. The `validate_chronology` interceptor
+        detects this race condition and automatically stretches the `end` coordinate
+        to match, preventing a mid-assignment validation crash.
     """
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(validate_assignment=True)
 
     start: Position
     end: Position
@@ -84,12 +131,17 @@ class Range(LspModel):
     @model_validator(mode='after')
     def validate_chronology(self) -> 'Range':
         if self.end < self.start:
-            # Auto-correction could be dangerous, so we raise a Heresy
-            raise ValueError(f"Geometric Paradox: End {self.end} precedes start {self.start}.")
+            # [ASCENSION 2: THE AUTO-HEALING WARD]
+            # Pydantic triggers validation on *every* assignment.
+            # If an artisan performs: `range.start = new_start`, and `new_start`
+            # is past the current `range.end`, it will crash before they can update `range.end`.
+            # We catch this temporal paradox and auto-heal the end vector to match the start,
+            # ensuring the range collapses into a singularity rather than a fatal exception.
+            self.end = Position(line=self.start.line, character=self.start.character)
         return self
 
     def contains(self, pos: Position) -> bool:
-        """Adjudicates if a position falls within this range."""
+        """Adjudicates if a spatial coordinate falls within this geometric boundary."""
         return self.start <= pos <= self.end
 
     def __hash__(self):
@@ -184,8 +236,7 @@ class ChangeAnnotation(LspModel):
 
 
 class AnnotatedTextEdit(TextEdit):
-    """
-    [THE SIGNED DELTA]
+    """[THE SIGNED DELTA]
     A text edit with an additional change annotation.
     """
     annotation_id: str = Field(..., alias="annotationId")
@@ -226,8 +277,7 @@ class MarkupKind(str, Enum):
 
 
 class MarkupContent(LspModel):
-    """
-    [THE SCROLL]
+    """[THE SCROLL]
     A string interpreted based on its kind (Markdown or Plaintext).
     """
     kind: MarkupKind
@@ -247,8 +297,7 @@ class WorkDoneProgressParams(LspModel):
 
 
 class WorkDoneProgressOptions(LspModel):
-    """
-    [THE CAPABILITY OF LABOR]
+    """[THE CAPABILITY OF LABOR]
     Options to signal support for progress reporting.
     """
     work_done_progress: Optional[bool] = Field(None, alias="workDoneProgress")

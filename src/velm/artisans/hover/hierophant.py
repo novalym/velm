@@ -14,6 +14,7 @@ import traceback
 from pathlib import Path
 from typing import Dict, Optional, List, Any, Tuple, Union, cast
 
+from .canon import CanonExplorer
 # --- CORE UPLINKS ---
 from ...core.artisan import BaseArtisan
 from ...interfaces.base import ScaffoldResult
@@ -297,7 +298,7 @@ class HoverArtisan(BaseArtisan[HoverRequest]):
 
     def _gaze_into_canon(self, token: str, raw_token: str) -> Optional[Dict]:
         """[RITE]: CANON_LOOKUP."""
-        introspect = self.engine.registry.get_request_type("introspect")
+        introspect = self.engine.registry.get_request_class("introspect")
         if introspect:
             try:
                 res = self.engine.dispatch(introspect(topic="all"))

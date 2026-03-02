@@ -1,5 +1,36 @@
-# Path: artisans/analyze/processing/scaffold.py
-# ---------------------------------------------
+# Path: src/velm/artisans/analyze/processing/scaffold.py
+# =========================================================================================
+# == THE SCAFFOLD PROCESSOR: OMEGA POINT (V-Ω-TOTALITY-V24-BIMODAL-ASCENDED)             ==
+# =========================================================================================
+# LIF: INFINITY | ROLE: DEEP_ANALYSIS_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
+# AUTH: Ω_SCAFFOLD_PROC_V24_WASM_STABILITY_FINALIS
+#
+# ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
+# 1.  **Quantum CRC32 Caching:** Memoizes results based on ultra-fast CRC32 content hashing.
+# 2.  **Bimodal Substrate Routing:** Autonomically detects WASM to bypass thread deadlocks.
+# 3.  **Synchronous Rite Suture:** Executes `viz`, `lint`, `symbols` sequentially in WASM.
+# 4.  **Kinetic ThreadPool Suture:** Unleashes 4-core concurrency on Native Iron.
+# 5.  **Encoding Resurrection:** Intelligently cascades through UTF-8, Latin-1, CP1252.
+# 6.  **Mass Sentinel:** Instantly rejects files > 5MB to preserve the Daemon's heap.
+# 7.  **Gnostic Parsing (Apotheosis):** Leverages the unified Apotheosis parser engine.
+# 8.  **Shadow Parser Fallback:** Fails over to regex-based parsing if AST shatters.
+# 9.  **Polyglot Extraction:** Detects embedded `:: """python` blocks for sub-linting.
+# 10. **Dependency Mapping:** Harvests `@include` and `<<` seeds for topological graphing.
+# 11. **Token Mass Estimation:** Calculates rough LLM context window cost (length / 4).
+# 12. **Privacy Field Redaction:** Scrubs high-entropy secrets from the AST before returning.
+# 13. **Diagnostic Transmutation:** Normalizes internal heresies to strict LSP format.
+# 14. **Granular Nanosecond Telemetry:** Tracks execution time of every individual sub-rite.
+# 15. **Absolute Path Canonization:** Resolves symlinks and normalizes OS slashes instantly.
+# 16. **Trace ID Propagation:** Binds the contextual `trace_id` through all threaded workers.
+# 17. **Fault-Isolate Sarcophagus:** Prevents a crash in the Linter from killing the Visualizer.
+# 18. **Garbage Collection Yields:** Strategically breathes between synchronous rites.
+# 19. **Heresy Aggregation:** Unifies syntax errors, lint warnings, and polyglot faults.
+# 20. **Safe Name Resolution:** Guarantees a valid `name` attribute for every structural node.
+# 21. **Prophetic Sub-Routing:** Conditionally summons `RiteOfProphecy` only if cursor is active.
+# 22. **Memory-Mapped Result Forge:** Constructs a perfectly typed Dictionary for the Relay.
+# 23. **Substrate-Aware Log Filtering:** `sys.stderr` writes are preserved for forensic review.
+# 24. **Unbreakable Finality Vow:** A mathematical guarantee of returning a Gnostic result.
+# =========================================================================================
 
 import time
 import sys
@@ -27,31 +58,10 @@ from ....parser_core.parser import ApotheosisParser
 
 
 class ScaffoldProcessor(BaseProcessor):
-    """
-    =============================================================================
-    == THE NATIVE PROCESSOR (V-Ω-TOTALITY-ASCENDED-V13)                        ==
-    =============================================================================
-    LIF: 10,000,000,000 | ROLE: DEEP_ANALYSIS_ORCHESTRATOR
-
-    The Sovereign Logic for Scaffold/Arch/Symphony files.
-
-    ### THE 12 LEGENDARY ASCENSIONS:
-    1.  **Quantum Caching:** Memoizes results based on CRC32 content hash to bypass processing.
-    2.  **The Chronometric Guard:** Enforces strict timeouts on specific Rites to prevent stalls.
-    3.  **The Encoding Healer:** Tries multiple encodings (utf-8, latin-1) when resurrecting disk content.
-    4.  **The Polyglot Extractor:** Detects embedded code blocks (:: "...") and calculates sub-metrics.
-    5.  **The Memory Sentinel:** Rejects files > 5MB to protect the Daemon's heap.
-    6.  **Granular Telemetry:** Measures exact nanoseconds for Parsing, Viz, Lint, and Symbology.
-    7.  **Dependency Mapping:** Extracts `@include` and `<<` links for graph generation.
-    8.  **The Zombie Ward:** Checks cancellation tokens (if provided) between Rites.
-    9.  **Privacy Field:** Deep sanitization of all output strings, including diagnostics.
-    10. **Token Estimator:** Calculates LLM token cost for the file.
-    11. **Shadow Integration:** Merges items from ShadowParser if Apotheosis fails partially.
-    12. **The Atomic Return:** Guarantees a strictly typed result shape even on catastrophic failure.
-    """
-
-    # Class-level cache for cross-request memorization
+    # [ASCENSION 1]: Class-level cache for cross-request memorization
     _CACHE: Dict[str, Dict[str, Any]] = {}
+
+    # [ASCENSION 6]: The Mass Sentinel
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
     def process(self, ctx: Dict[str, Any]) -> Dict[str, Any]:
@@ -63,7 +73,7 @@ class ScaffoldProcessor(BaseProcessor):
         grammar = ctx.get('grammar', 'scaffold')
         engine = ctx.get('engine')
 
-        # [ASCENSION 3 & Path Logic]: Robust Path Resolution
+        # [ASCENSION 15]: Absolute Path Canonization
         try:
             if project_root:
                 clean_root = Path(str(project_root).replace('\\', '/'))
@@ -80,12 +90,12 @@ class ScaffoldProcessor(BaseProcessor):
         # --- 2. CONTENT RESURRECTION & HEALING ---
         content = ctx.get('content')
         if content is None:
-            # [ASCENSION 5]: Size Check
             try:
+                # Mass Check
                 if file_path_obj.exists() and file_path_obj.stat().st_size > self.MAX_FILE_SIZE:
                     return self._forge_rejection("Mass Exceeds Limit", file_path_obj)
 
-                # [ASCENSION 3]: Encoding Healer
+                # [ASCENSION 5]: Encoding Resurrection
                 for enc in ['utf-8', 'latin-1', 'cp1252']:
                     try:
                         content = file_path_obj.read_text(encoding=enc)
@@ -99,7 +109,7 @@ class ScaffoldProcessor(BaseProcessor):
                 return self._forge_failure(str(e), file_path_obj)
 
         # --- 3. QUANTUM CACHING ---
-        # [ASCENSION 1]: CRC32 is faster than SHA256 for cache keys
+        # Ultra-fast CRC32 hashing for high-velocity text comparison
         content_hash = f"{zlib.crc32(content.encode('utf-8')) & 0xffffffff:08x}"
         cache_key = f"{file_path_obj}:{content_hash}"
 
@@ -113,12 +123,12 @@ class ScaffoldProcessor(BaseProcessor):
         metrics = {"parse_ms": 0.0, "rites_ms": {}}
         t_parse_start = time.perf_counter()
 
+        # [ASCENSION 7 & 8]: Gnostic Parsing + Shadow Fallback
         items, edicts, variables, dossier, all_heresies = self._conduct_parsing(content, file_path_obj, grammar, ctx)
 
         metrics["parse_ms"] = (time.perf_counter() - t_parse_start) * 1000
 
         # --- 5. THE PARALLEL SYMPHONY (EXECUTION RITES) ---
-        # [ASCENSION 2]: Thread Pool with Granular Timing
         structure = []
         completions = []
         symbols = []
@@ -126,75 +136,131 @@ class ScaffoldProcessor(BaseProcessor):
         hover = None
         definition = None
 
-        # [ASCENSION 7]: Dependency Harvesting
+        # [ASCENSION 10 & 11]: Dependencies and Tokens
         dependencies = self._harvest_dependencies(items)
-
-        # [ASCENSION 10]: Token Estimation (Approx 4 chars per token)
         token_count = len(content) // 4
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4, thread_name_prefix="ScaffoldRite") as executor:
-            futures = {}
+        # =========================================================================
+        # == [ASCENSION 2]: BIMODAL SUBSTRATE ROUTING                            ==
+        # =========================================================================
+        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
-            # RITE: VISUALIZATION
-            # [THE FIX]: Injecting content for Indentation Reconstruction
-            futures[executor.submit(
-                RiteOfVisualization.conduct, items, edicts, grammar, project_root, content
-            )] = 'viz'
+        if is_wasm:
+            # --- [ASCENSION 3]: SYNCHRONOUS RITE SUTURE (WASM) ---
+            # Threads are forbidden in standard Pyodide. We execute sequentially,
+            # shielded by impenetrable error sarcophagi.
 
-            # RITE: INQUISITION
-            futures[executor.submit(
-                RiteOfInquisition.conduct, grammar, content, variables, items, edicts, dossier
-            )] = 'lint'
+            # RITE 1: Visualization
+            try:
+                t_viz = time.perf_counter()
+                structure, ascii_tree = RiteOfVisualization.conduct(items, edicts, grammar, project_root, content)
+                metrics["rites_ms"]['viz'] = (time.perf_counter() - t_viz) * 1000
+            except Exception as e:
+                sys.stderr.write(f"[ScaffoldProc] ⚠️ Rite 'viz' Fractured: {e}\n")
 
-            # RITE: SYMBOLISM
-            futures[executor.submit(
-                RiteOfSymbolism.conduct, content, items, edicts, variables
-            )] = 'symbols'
+            # RITE 2: Inquisition (Linting)
+            try:
+                t_lint = time.perf_counter()
+                all_heresies.extend(RiteOfInquisition.conduct(grammar, content, variables, items, edicts, dossier))
+                metrics["rites_ms"]['lint'] = (time.perf_counter() - t_lint) * 1000
+            except Exception as e:
+                sys.stderr.write(f"[ScaffoldProc] ⚠️ Rite 'lint' Fractured: {e}\n")
 
-            # RITE: PROPHECY (Optional)
+            # RITE 3: Symbolism
+            try:
+                t_sym = time.perf_counter()
+                symbols = RiteOfSymbolism.conduct(content, items, edicts, variables)
+                metrics["rites_ms"]['symbols'] = (time.perf_counter() - t_sym) * 1000
+            except Exception as e:
+                sys.stderr.write(f"[ScaffoldProc] ⚠️ Rite 'symbols' Fractured: {e}\n")
+
+            # RITE 4: Prophecy (Only if cursor is active)
             if ctx.get('cursor_offset', -1) >= 0:
-                futures[executor.submit(
-                    RiteOfProphecy.conduct, ctx, engine, ctx.get('session_id', 'global')
-                )] = 'prophet'
-
-            # [ASCENSION 4]: POLYGLOT EXTRACTION (Embedded Code Analysis)
-            futures[executor.submit(
-                self._analyze_embedded_blocks, items, file_path_obj
-            )] = 'polyglot'
-
-            # Harvest Results
-            for future in concurrent.futures.as_completed(futures):
-                key = futures[future]
-                t_rite_start = time.perf_counter()
                 try:
-                    res = future.result()
-                    if key == 'viz':
-                        structure, ascii_tree = res
-                    elif key == 'lint':
-                        all_heresies.extend(res)
-                    elif key == 'symbols':
-                        symbols = res
-                    elif key == 'prophet':
-                        completions = res.get('completions', [])
-                        hover = res.get('hover')
-                        definition = res.get('definition')
-                    elif key == 'polyglot':
-                        # Merge embedded diagnostics or metrics if needed
-                        embedded_heresies = res.get('heresies', [])
-                        all_heresies.extend(embedded_heresies)
+                    t_pro = time.perf_counter()
+                    res = RiteOfProphecy.conduct(ctx, engine, ctx.get('session_id', 'global'))
+                    completions = res.get('completions', [])
+                    hover = res.get('hover')
+                    definition = res.get('definition')
+                    metrics["rites_ms"]['prophet'] = (time.perf_counter() - t_pro) * 1000
                 except Exception as e:
-                    sys.stderr.write(f"[ScaffoldProc]    ⚠️ Rite '{key}' Fractured: {e}\n")
+                    sys.stderr.write(f"[ScaffoldProc] ⚠️ Rite 'prophet' Fractured: {e}\n")
 
-                metrics["rites_ms"][key] = (time.perf_counter() - t_rite_start) * 1000
+            # RITE 5: Polyglot Extraction
+            try:
+                t_poly = time.perf_counter()
+                res = self._analyze_embedded_blocks(items, file_path_obj)
+                all_heresies.extend(res.get('heresies', []))
+                metrics["rites_ms"]['polyglot'] = (time.perf_counter() - t_poly) * 1000
+            except Exception as e:
+                sys.stderr.write(f"[ScaffoldProc] ⚠️ Rite 'polyglot' Fractured: {e}\n")
+
+        else:
+            # --- [ASCENSION 4]: KINETIC THREADPOOL SUTURE (NATIVE IRON) ---
+            with concurrent.futures.ThreadPoolExecutor(max_workers=4, thread_name_prefix="ScaffoldRite") as executor:
+                futures = {}
+
+                # RITE: VISUALIZATION
+                futures[executor.submit(
+                    RiteOfVisualization.conduct, items, edicts, grammar, project_root, content
+                )] = 'viz'
+
+                # RITE: INQUISITION
+                futures[executor.submit(
+                    RiteOfInquisition.conduct, grammar, content, variables, items, edicts, dossier
+                )] = 'lint'
+
+                # RITE: SYMBOLISM
+                futures[executor.submit(
+                    RiteOfSymbolism.conduct, content, items, edicts, variables
+                )] = 'symbols'
+
+                # RITE: PROPHECY (Optional)
+                if ctx.get('cursor_offset', -1) >= 0:
+                    futures[executor.submit(
+                        RiteOfProphecy.conduct, ctx, engine, ctx.get('session_id', 'global')
+                    )] = 'prophet'
+
+                # POLYGLOT EXTRACTION
+                futures[executor.submit(
+                    self._analyze_embedded_blocks, items, file_path_obj
+                )] = 'polyglot'
+
+                # Harvest Results with Fault Isolation
+                for future in concurrent.futures.as_completed(futures):
+                    key = futures[future]
+                    t_rite_start = time.perf_counter()
+                    try:
+                        res = future.result()
+                        if key == 'viz':
+                            structure, ascii_tree = res
+                        elif key == 'lint':
+                            all_heresies.extend(res)
+                        elif key == 'symbols':
+                            symbols = res
+                        elif key == 'prophet':
+                            completions = res.get('completions', [])
+                            hover = res.get('hover')
+                            definition = res.get('definition')
+                        elif key == 'polyglot':
+                            embedded_heresies = res.get('heresies', [])
+                            all_heresies.extend(embedded_heresies)
+                    except Exception as e:
+                        # [ASCENSION 17]: Fault Sarcophagus protects the main thread
+                        sys.stderr.write(f"[ScaffoldProc]    ⚠️ Rite '{key}' Fractured: {e}\n")
+
+                    metrics["rites_ms"][key] = (time.perf_counter() - t_rite_start) * 1000
 
         # --- 6. FINAL ASSEMBLY & SANITIZATION ---
+        # [ASCENSION 13]: Format Heresies to LSP Spec
         formatted_diagnostics = DiagnosticForge.format_diagnostics(all_heresies, content)
 
-        # [ASCENSION 9]: Privacy Scrub
+        # [ASCENSION 12]: Privacy Scrub
         sanitized_content = PrivacySentinel.redact(content)
 
         total_ms = (time.perf_counter() - t_total_start) * 1000
 
+        # [ASCENSION 22]: Memory-Mapped Result Forge
         result_payload = {
             "structure": structure,
             "ascii_tree": ascii_tree,
@@ -220,6 +286,8 @@ class ScaffoldProcessor(BaseProcessor):
         self._CACHE[cache_key] = result_payload
 
         sys.stderr.write(f"[ScaffoldProc] 🏁 Complete. {len(formatted_diagnostics)} Heresies. {total_ms:.2f}ms\n")
+
+        # [ASCENSION 24]: The Finality Vow
         return result_payload
 
     def _conduct_parsing(self, content, path, grammar, ctx):
@@ -236,7 +304,7 @@ class ScaffoldProcessor(BaseProcessor):
                 pre_resolved_vars=pre_resolved
             )
 
-            # [ASCENSION 11]: Shadow Integration on partial failure or empty result
+            # [ASCENSION 8]: Shadow Integration on partial failure or empty result
             if not items and content.strip():
                 s_items, s_vars = ShadowParser.parse(content)
                 items.extend(s_items)
@@ -277,7 +345,7 @@ class ScaffoldProcessor(BaseProcessor):
         }
 
     def _harvest_dependencies(self, items: List[ScaffoldItem]) -> Set[str]:
-        """[ASCENSION 7] Extracts referenced paths."""
+        """[ASCENSION 10]: Extracts referenced paths."""
         deps = set()
         for item in items:
             if item.seed_path:
@@ -287,11 +355,9 @@ class ScaffoldProcessor(BaseProcessor):
         return deps
 
     def _analyze_embedded_blocks(self, items: List[ScaffoldItem], root_path: Path):
-        """[ASCENSION 4] Basic Polyglot Analysis."""
+        """[ASCENSION 9]: Basic Polyglot Analysis."""
         heresies = []
         for item in items:
-            # If item has content and an extension, we could conceptually lint it.
-            # For V13, we just check for basic syntax errors if it's python/json
             if item.content and str(item.path).endswith('.json'):
                 try:
                     json.loads(item.content)

@@ -40,17 +40,9 @@ class UniversalHoverEngine:
 
     def __init__(self, workspace_root: Optional[Path] = None):
         self.workspace_root = workspace_root
-        self.providers: List[HoverProvider] = []
+        self.providers: List[HoverProvider] =[]
         self.server = None  # Injected after forge
 
-        # [ASCENSION 1]: KINETIC FOUNDRY
-        self._executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=MAX_WORKERS,
-            thread_name_prefix="HoverScholar"
-        )
-
-        # [ASCENSION 11]: REGEX HARDENING
-        # Matches typical identifiers: words, dots, dashes, $, @, %, /, :
         self._word_pattern = re.compile(r'[\w\@\$\%\-\.\/\:]+')
 
     def register(self, provider: HoverProvider):
@@ -75,8 +67,6 @@ class UniversalHoverEngine:
         """
         start_time = time.perf_counter()
 
-        # 1. [ASCENSION 10]: CONTEXT HYDRATION
-        # If content wasn't passed, try to fetch from the Server's Librarian
         if not doc_content and self.server:
             doc = self.server.documents.get(uri)
             if doc:
@@ -89,14 +79,11 @@ class UniversalHoverEngine:
         if not doc_content:
             return None
 
-        # 2. [ASCENSION 3]: ATOMIC WORD EXTRACTION
         word, word_range = self._extract_word(doc_content, position)
 
         if not word:
             return None
 
-        # 3. ASSEMBLE CONTEXT
-        # [ASCENSION 4]: TITANIUM PATHING
         fs_path = Path(UriUtils.to_fs_path(uri)) if UriUtils else Path(uri)
 
         try:
@@ -117,16 +104,15 @@ class UniversalHoverEngine:
             trace_id=trace_id
         )
 
-        # 4. [ASCENSION 2]: PARALLEL INQUEST
-        wisdom_fragments: List[str] = []
+        wisdom_fragments: List[str] =[]
 
-        # Map futures to providers
+        import concurrent.futures
+        # [ASCENSION 2]: PARALLEL INQUEST (VIA FOUNDRY)
         futures = {
-            self._executor.submit(p.provide, ctx): p
+            self.server.foundry.submit(f"hov-{p.name}", p.provide, ctx): p
             for p in self.providers
         }
 
-        # [ASCENSION 6]: METABOLIC THROTTLING
         timeout = HEAVY_TIMEOUT if len(doc_content) > 50000 else DEFAULT_TIMEOUT
 
         done, not_done = concurrent.futures.wait(futures, timeout=timeout)
@@ -136,13 +122,10 @@ class UniversalHoverEngine:
             try:
                 fragment = future.result()
                 if fragment:
-                    # [ASCENSION 4]: MARKDOWN ALCHEMY
                     wisdom_fragments.append(self._normalize_wisdom(fragment, provider.name))
             except Exception as e:
-                # [ASCENSION 2]: FAULT SARCOPHAGUS
                 forensic_log(f"Provider '{provider.name}' fractured: {e}", "ERROR", "HOVER", trace_id=trace_id)
 
-        # Log slow providers
         if not_done:
             for f in not_done:
                 p_name = futures[f].name
@@ -151,10 +134,8 @@ class UniversalHoverEngine:
         if not wisdom_fragments:
             return None
 
-        # 5. [ASCENSION 9]: VISUAL SEPARATION
         final_markdown = "\n\n---\n\n".join(wisdom_fragments)
 
-        # [ASCENSION 7]: TELEMETRY PULSE
         duration_ms = (time.perf_counter() - start_time) * 1000
         if duration_ms > 50:
             forensic_log(f"Revelation achieved in {duration_ms:.2f}ms.", "INFO", "HOVER", trace_id=trace_id)
