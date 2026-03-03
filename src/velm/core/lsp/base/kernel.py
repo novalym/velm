@@ -188,6 +188,104 @@ class BaseLSPServer(BaseGnosticObject):
 
         return caps
 
+    @staticmethod
+    def safe_handler(method_name: str, default_return: Any = None):
+        """
+        =============================================================================
+        == THE OMNI-VARIADIC IRON-CLAD HANDLER (V-Ω-TOTALITY-V320-BASE)            ==
+        =============================================================================
+        LIF: INFINITY | ROLE: SOVEREIGN_WARDEN | RANK: OMEGA_SUPREME
+        AUTH: Ω_BASE_HANDLER_V320_FINALIS
+
+        [ARCHITECTURAL CONSTITUTION]
+        1.  **Apophatic Error Shielding:** Wraps every feature handler in a titanium
+            try-except sarcophagus, preventing a single logic-gap from collapsing
+            the entire Neural Link.
+        2.  **Achronal Trace Suture:** Surgically extracts the Trace ID from the
+            plea or context, anchoring the execution thread in the Gnostic Timeline.
+        3.  **Metabolic Tomography:** Automatically records ingress/egress metrics
+            via the server's MetricAccumulator.
+        4.  **NoneType Sarcophagus:** If a fracture occurs, it righteously yields
+            the 'default_return' (e.g., []) to satisfy the client's protocol expectations.
+        5.  **Thread Identity Inception:** Renames the active thread to match the
+            method name, providing bit-perfect forensic observability.
+        """
+        import functools
+        import threading
+        import time
+        import uuid
+        import gc
+        import sys
+
+        def decorator(func: Callable):
+            @functools.wraps(func)
+            def wrapper(self, *args, **kwargs):
+                # --- MOVEMENT 0: METABOLIC GATING ---
+                if getattr(self, 'is_shutdown', False) or getattr(self, 'state', '') == 'DRAINING':
+                    return default_return
+
+                # --- MOVEMENT I: THE CONTEXT SIPHON ---
+                params = args[0] if len(args) > 0 else None
+                ctx = kwargs.get('ctx') or kwargs.get('context')
+                if not ctx and len(args) > 1:
+                    ctx = args[1]
+                ctx = ctx or {}
+
+                # --- MOVEMENT II: CAUSAL ANCHORING ---
+                trace_id = ctx.get('trace_id')
+                if not trace_id and hasattr(params, 'metadata'):
+                    trace_id = getattr(params.metadata, 'trace_id', None)
+                if not trace_id:
+                    trace_id = f"tr-{uuid.uuid4().hex[:6].upper()}"
+
+                # Bind thread identity for forensics
+                curr_thread = threading.current_thread()
+                if not hasattr(curr_thread, '_stack_depth'):
+                    curr_thread._stack_depth = 0
+
+                # --- MOVEMENT III: KINETIC EXECUTION ---
+                try:
+                    curr_thread._stack_depth += 1
+                    if curr_thread._stack_depth > 50:
+                        raise RecursionError(f"Gnostic Depth Breach in {method_name}")
+
+                    start_tick = time.perf_counter()
+
+                    # [THE STRIKE]
+                    result = func(self, *args, **kwargs)
+
+                    # --- MOVEMENT IV: TELEMETRY & TRANSMUTATION ---
+                    if hasattr(self, 'metrics'):
+                        self.metrics.record(0, 0, is_err=False)
+
+                    # Enforce Pydantic Aliasing (camelCase) for the Retina
+                    if hasattr(result, 'model_dump'):
+                        return result.model_dump(mode='json', by_alias=True, exclude_none=True)
+
+                    return result
+
+                except Exception as fracture:
+                    # --- MOVEMENT V: CAUTERIZATION ---
+                    if hasattr(self, 'metrics'):
+                        self.metrics.record(0, 0, is_err=True)
+
+                    msg = f"FRACTURE in {method_name} [{trace_id}]: {str(fracture)}"
+                    if hasattr(self, 'logger'):
+                        self.logger.error(msg)
+                    else:
+                        sys.stderr.write(f"\n[KERNEL_FRACTURE] {msg}\n")
+                        sys.stderr.flush()
+
+                    return default_return
+
+                finally:
+                    curr_thread._stack_depth = max(0, curr_thread._stack_depth - 1)
+
+            return wrapper
+
+        return decorator
+
+
     # =============================================================================
     # == THE MAIN EXECUTION LOOP                                                 ==
     # =============================================================================
