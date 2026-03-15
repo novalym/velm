@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/hologram.py
+# Path: velm/core/kernel/hologram.py
 
 import os
 import shutil

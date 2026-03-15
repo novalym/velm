@@ -1,4 +1,4 @@
-# path: scaffold/core/kernel/artifact_hoarder.py
+# path: velm/core/kernel/artifact_hoarder.py
 
 import json
 import time

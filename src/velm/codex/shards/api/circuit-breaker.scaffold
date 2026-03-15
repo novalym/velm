@@ -1,0 +1,153 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/CIRCUIT-BREAKER
+# ==============================================================================
+# @id:           api/circuit-breaker
+# @version:      3.0.0-Ω
+# @tier:         mind
+# @summary:      A Tri-State (Closed, Open, Half-Open) Circuit Breaker 
+#                middleware. Surgically isolates failing downstream 
+#                dependencies and prevents cascading systemic collapse via 
+#                autonomic healing probes and metabolic load-shedding.
+# @vibe:         [resilience, bulkhead, stability, auto-healing, fault-tolerance]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:kinetic-circuit-breaker, capability:systemic-fault-isolation, capability:bulkhead]
+# @requires:     [capability:api-heart, capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["FAILURE_THRESHOLD", "HEALING_TIMEOUT", "RESILIENCE_LOG_LEVEL"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        middleware-shield
+#   priority:    3
+#   alias:       "breaker"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ threshold    = {{ failure_threshold | default(5) }}
+$$ timeout_sec  = {{ healing_timeout_sec | default(30) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Bulkhead Mind) ---
+
+src/{{ package_name }}/middleware/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .circuit_breaker import KineticCircuitBreaker\n"
+
+    circuit_breaker.py :: """
+import asyncio
+import logging
+import time
+import os
+from enum import Enum
+from typing import Callable, Optional, Dict, Any
+from fastapi import Request, Response, HTTPException, status
+from starlette.middleware.base import BaseHTTPMiddleware
+
+Logger = logging.getLogger("API:CircuitBreaker")
+
+class CircuitState(str, Enum):
+    \"\"\"The Gnostic States of Resilience.\"\"\"
+    CLOSED = "CLOSED"       # REALITY IS RESONANT.
+    OPEN = "OPEN"           # REALITY IS FRACTURED.
+    HALF_OPEN = "HALF_OPEN" # REALITY IS HEALING.
+
+class KineticCircuitBreaker(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE KINETIC CIRCUIT BREAKER (V-Ω-TOTALITY)                              ==
+    =============================================================================
+    LIF: ∞ | ROLE: CASCADING_FAILURE_WARDEN | RANK: OMEGA_SENTINEL
+    
+    The Sovereign Bulkhead.
+    1.  Tri-State Physics: Autonomous transition between health and isolation.
+    2.  Apophatic Triage: Trips only on 5xx fractures, ignoring 4xx intent.
+    3.  Achronal Healing: Automatically probes the void after the timeout.
+    4.  Haptic Signaling: Radiates state-aura to the Ocular HUD.
+    \"\"\"
+    def __init__(self, app):
+        super().__init__(app)
+        self.state = CircuitState.CLOSED
+        self.failure_count = 0
+        self.last_fracture_time = 0.0
+        self.threshold = int(os.getenv("FAILURE_THRESHOLD", "{{ threshold }}"))
+        self.timeout = int(os.getenv("HEALING_TIMEOUT", "{{ timeout_sec }}"))
+        self._lock = asyncio.Lock()
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # --- MOVEMENT I: STATE ADJUDICATION ---
+        # [ASCENSION 1]: We scry the state before touching the request.
+        if self.state == CircuitState.OPEN:
+            if time.time() - self.last_fracture_time > self.timeout:
+                # [ASCENSION 3]: THE RITE OF HEALING
+                async with self._lock:
+                    if self.state == CircuitState.OPEN:
+                        self.state = CircuitState.HALF_OPEN
+                        Logger.warning(f"🛡️ [CIRCUIT] [{request.state.trace_id}] Probing target resonance...")
+            else:
+                # [ASCENSION 9]: Metabolic Load-Shedding
+                # Rejects the plea instantly to preserve the host's mass.
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Circuit Open: The downstream reality is currently fractured.",
+                    headers={"Retry-After": str(self.timeout)}
+                )
+
+        # --- MOVEMENT II: THE KINETIC STRIKE ---
+        try:
+            response = await call_next(request)
+            
+            # [ASCENSION 2]: APOPHATIC ERROR SIEVE
+            # We ignore 4xx (Architect errors) and only trip on 5xx (Iron fractures).
+            if response.status_code >= 500:
+                await self._record_fracture()
+            else:
+                await self._record_resonance()
+                
+            # [ASCENSION 4]: Haptic Aura Projection
+            response.headers["X-Circuit-Status"] = self.state.value
+            return response
+            
+        except Exception as catastrophic_heresy:
+            # Unhandled paradoxes (Crashes) always trigger the Bulkhead.
+            await self._record_fracture()
+            raise catastrophic_heresy
+
+    async def _record_fracture(self):
+        \"\"\"Inscribes a fracture into the resilience ledger.\"\"\"
+        async with self._lock:
+            self.failure_count += 1
+            self.last_fracture_time = time.time()
+            
+            # [ASCENSION 1]: STATE TRANSITION (OPEN)
+            # If we were probing (HALF_OPEN) or hit the threshold, we trip the breaker.
+            if self.state == CircuitState.HALF_OPEN or self.failure_count >= self.threshold:
+                if self.state != CircuitState.OPEN:
+                    self.state = CircuitState.OPEN
+                    Logger.critical(f"🛑 [CIRCUIT] TRIPPED. Reality isolated for {self.timeout}s.")
+
+    async def _record_resonance(self):
+        \"\"\"Inscribes a successful strike, healing the bulkhead.\"\"\"
+        if self.state != CircuitState.CLOSED:
+            async with self._lock:
+                # We require perfect resonance to close the circuit
+                self.state = CircuitState.CLOSED
+                self.failure_count = 0
+                Logger.success("✅ [CIRCUIT] RESONANT. Bulkhead dissolved.")
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Kinetic Circuit Breaker[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]MIDDLEWARE-SHIELD[/bold green]"
+    proclaim: "Threshold: [bold yellow]{{ threshold }} Fractures[/bold yellow] | Reset: [bold yellow]{{ timeout_sec }}s[/bold yellow]"
+    
+    # [THE CURE]: Metadata is managed autonomicly. No manual installs.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Cascading Collapse -> 0)[/]"
+    proclaim: "[bold green]✅ System Bulkheads are Active.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Circuit Breaker materialization fractured.[/bold red]"

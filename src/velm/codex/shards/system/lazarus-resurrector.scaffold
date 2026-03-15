@@ -1,0 +1,115 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/lazarus-resurrector
+# ==============================================================================
+# @id:           system/lazarus-resurrector
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Autonomic immune sentinel that scries application health and metabolic load to trigger process-level resurrection on failure.
+# @vibe:         [lazarus, self-healing, sentinel, health-check, watchdog, uptime, immune-system]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:process-resurrector, capability:immune-sentinel]
+# @requires:     [capability:python-core, capability:network-conduit]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["requests>=2.31.0", "psutil>=5.9.0", "pydantic>=2.6.0"]
+#   env:         ["SCAF_HEALTH_URL", "SCAF_CPU_LIMIT_PCT"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "immune-sentinel"
+#   priority:    999
+#   alias:       "resurrector"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-core") }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+$$ health_url = {{ health_url | default("http://localhost:8000/health") }}
+$$ cpu_limit = {{ cpu_limit | default(95.0) }}
+
+# --- II. THE RESURRECTOR CORE (The Immune Engine) ---
+
+src/{{ package_name }}/core/system/
+    __init__.py :: "from .resurrector import ignite_sentinel, LazarusSentinel\n"
+    
+    resurrector.py :: """
+import time
+import os
+import sys
+import signal
+import threading
+import logging
+import requests
+import psutil
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("System:Resurrector")
+
+class VitalsReport(BaseModel):
+    \"\"\"The Gnostic record of a metabolic scry.\"\"\"
+    status: str = "RESONANT"
+    heartbeat_stable: bool = True
+    cpu_fever: bool = False
+    timestamp: float = Field(default_factory=time.time)
+
+class LazarusSentinel(threading.Thread):
+    \"\"\"
+    =============================================================================
+    == THE LAZARUS SENTINEL (V-Ω-AUTONOMIC-RECOVERY)                           ==
+    =============================================================================
+    LIF: ∞ | ROLE: IMMUNE_SYSTEM_ORCHESTRATOR | RANK: OMEGA
+    \"\"\"
+    def __init__(self, target_url: str = "{{ health_url }}"):
+        super().__init__(daemon=True, name="LazarusSentinel")
+        self.target_url = os.getenv("SCAF_HEALTH_URL", target_url)
+        self.cpu_limit = float(os.getenv("SCAF_CPU_LIMIT_PCT", "{{ cpu_limit }}"))
+        self.failed_checks = 0
+
+    def run(self):
+        Logger.info(f"🛰️ Lazarus Sentinel active on {self.target_url}")
+        while True:
+            try:
+                vitals = self._scry_vitals()
+                if not vitals.heartbeat_stable or vitals.cpu_fever:
+                    self.failed_checks += 1
+                    if self.failed_checks >= 3:
+                        self._conduct_resurrection_rite()
+                else:
+                    self.failed_checks = 0
+            except Exception: pass
+            time.sleep(30)
+
+    def _scry_vitals(self) -> VitalsReport:
+        report = VitalsReport()
+        try:
+            res = requests.get(self.target_url, timeout=5)
+            report.heartbeat_stable = (res.status_code == 200)
+        except Exception: report.heartbeat_stable = False
+        
+        cpu = psutil.cpu_percent(interval=None)
+        if cpu > self.cpu_limit:
+            report.cpu_fever = True
+            report.status = "FEVERISH"
+        return report
+
+    def _conduct_resurrection_rite(self):
+        Logger.critical("💀 CRITICAL: Metabolic Flatline. Invoking Lazarus Protocol...")
+        # Trigger OS-level termination to allow Orchestrator (Docker/K8s) to restart
+        os.kill(os.getpid(), signal.SIGTERM)
+
+def ignite_sentinel():
+    sentinel = LazarusSentinel()
+    sentinel.start()
+    return sentinel
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Lazarus Resurrector[/bold cyan] is manifest."
+    proclaim: "Immune Engine: [white]core/system/resurrector.py[/]"
+    
+    >> mkdir -p src/{{ package_name }}/core/system
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Metabolic Failure -> 0)[/]"
+    proclaim: "[bold green]The application is now Transactionally Immortal.[/bold green]"

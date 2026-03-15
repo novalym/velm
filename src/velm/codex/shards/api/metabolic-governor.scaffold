@@ -1,0 +1,154 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/METABOLIC-GOVERNOR
+# ==============================================================================
+# @id:           api/metabolic-governor
+# @version:      3.0.0
+# @tier:         body
+# @summary:      An Adaptive Throttling Governor based on real-time hardware 
+#                tomography. Utilizes an asynchronous background scryer to 
+#                measure iron heat (CPU/RAM) without adding latency, enforcing 
+#                metabolic limits via 429 backpressure.
+# @vibe:         [resilience, performance, throttling, hardware-aware, self-healing]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:autonomic-throttling, capability:thermodynamic-shield, capability:overload-protection]
+# @requires:     [capability:api-heart, capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["psutil>=5.9.0"]
+#   env:         ["CPU_THRESHOLD", "METABOLIC_CHECK_INTERVAL"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        middleware-shield
+#   priority:    1
+#   alias:       "governor"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ cpu_ceiling  = {{ cpu_threshold | default(90.0) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Thermodynamic Mind) ---
+
+src/{{ package_name }}/middleware/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .governor import MetabolicGovernorMiddleware, start_metabolic_sensor\n"
+
+    governor.py :: """
+import asyncio
+import psutil
+import logging
+import os
+import time
+from typing import Callable, Dict, Any
+from fastapi import Request, Response, status
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
+
+Logger = logging.getLogger("API:MetabolicGovernor")
+
+# =============================================================================
+# == THE METABOLIC CACHE (V-Ω-TOTALITY)                                      ==
+# =============================================================================
+# [ASCENSION 1]: Achronal State Sharing.
+# This dictionary serves as the 'Retina' of the governor, updated in the 
+# background to ensure 0ms latency impact during request adjudication.
+_METABOLIC_STATE: Dict[str, Any] = {
+    "cpu_load": 0.0,
+    "is_feverish": False,
+    "last_scry": 0.0
+}
+
+# @scaffold:lifecycle(event="startup")
+async def start_metabolic_sensor():
+    \"\"\"
+    [ASCENSION 2]: THE BACKGROUND VIGIL.
+    Ignites the periodic hardware biopsy. Bypasses the request loop entirely.
+    \"\"\"
+    async def _sensor_loop():
+        threshold = float(os.getenv("CPU_THRESHOLD", "{{ cpu_ceiling }}"))
+        Logger.info(f"🌡️ [METABOLISM] Autonomic Governor waked. Ceiling: {threshold}%")
+        
+        while True:
+            try:
+                # [STRIKE]: Non-blocking hardware biopsy
+                cpu = psutil.cpu_percent(interval=None)
+                _METABOLIC_STATE["cpu_load"] = cpu
+                _METABOLIC_STATE["last_scry"] = time.time()
+                
+                # [ASCENSION 3]: HYSTERESIS ADJUDICATION (The Cooling Gate)
+                # Prevents rapid state-switching (flapping) under oscillating load.
+                if cpu >= threshold:
+                    if not _METABOLIC_STATE["is_feverish"]:
+                        Logger.critical(f"🔥 [METABOLISM] FEVER: CPU {cpu}% exceeds ceiling. Throttling active.")
+                        _METABOLIC_STATE["is_feverish"] = True
+                elif cpu < (threshold - 10.0): 
+                    if _METABOLIC_STATE["is_feverish"]:
+                        Logger.success(f"❄️ [METABOLISM] Fever Broken: CPU {cpu}%. Throttles released.")
+                        _METABOLIC_STATE["is_feverish"] = False
+                        
+            except Exception as paradox:
+                Logger.debug(f"Sensor Gaze clouded: {paradox}")
+            
+            # Metabolic Pacing
+            await asyncio.sleep(2.0)
+            
+    asyncio.create_task(_sensor_loop())
+
+
+class MetabolicGovernorMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE METABOLIC GOVERNOR (V-Ω-TOTALITY)                                   ==
+    =============================================================================
+    LIF: ∞ | ROLE: THERMODYNAMIC_SHIELD | RANK: OMEGA_SENTINEL
+    
+    The Ultimate Protector of the Iron.
+    1.  Zero-Latency Adjudication: Scries the background cache in O(1).
+    2.  Adaptive Backpressure: Issues HTTP 429 with 'Retry-After' guidance.
+    3.  Heartbeat Exemption: Always permits '/health' to pass.
+    \"\"\"
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # [ASCENSION 4]: Bypass for the Heartbeat
+        # We must ensure the pulse is always audible to the Fleet Commander.
+        if request.url.path == "/health":
+            return await call_next(request)
+
+        # --- MOVEMENT I: THE GAZE ---
+        # Scry the background mind-state
+        if _METABOLIC_STATE["is_feverish"]:
+            # [ASCENSION 5]: ADAPTIVE REJECTION
+            # Commands the client to wait while the iron cools.
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={
+                    "error": "METABOLIC_FEVER",
+                    "detail": "System Fever: The Sanctum is currently under extreme metabolic pressure.",
+                    "cpu_load": f"{_METABOLIC_STATE['cpu_load']}%",
+                    "trace": request.state.trace_id
+                },
+                headers={
+                    "Retry-After": "5",
+                    "X-Metabolic-Status": "CRITICAL"
+                }
+            )
+        
+        # --- MOVEMENT II: KINETIC FLOW ---
+        # Reality is resonant. Let the intent pass.
+        return await call_next(request)
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Metabolic Governor[/bold cyan] is manifest and vigilant."
+    proclaim: "Role: [bold green]MIDDLEWARE-SHIELD[/bold green]"
+    proclaim: "Ceiling: [bold red]CPU > {{ cpu_ceiling }}%[/bold red]"
+    
+    # [THE CURE]: No 'poetry add' needed; Parser handled the mass.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Metabolic Collapse -> 0)[/]"
+    proclaim: "[bold green]✅ The Iron is warded by the Mind.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Governor materialization fractured.[/bold red]"

@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/contracts.py
+# Path: velm/core/ignition/diviner/contracts.py
 # --------------------------------------------------
 # LIF: 10,000,000,000,000 // AUTH_CODE: Ω_SINGULARITY_CONTRACTS_V12_FINAL
 # SYSTEM: IDEABOX QUANTUM // MODULE: IGNITION.DIVINER

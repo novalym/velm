@@ -1,0 +1,128 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: velm-core/gnostic-adoptive-scribe
+# ==============================================================================
+# @id:           velm-core/gnostic-adoptive-scribe
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      A reverse-genesis engine that abstracts legacy codebases into reusable .scaffold blueprints.
+# @vibe:         [adoption, reverse-engineering, abstraction, templates, blueprints, legacy-migration]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:legacy-adoption-engine, capability:blueprint-generator]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      [] # Only standard lib required for OS walking
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "meta-tool"
+#   priority:    500
+#   alias:       "adoptive_scribe"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tool_name = "adoptive-scribe"
+$$ output_blueprint = {{ output_name | default("adopted_reality.scaffold") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE ADOPTION ENGINE ---
+
+scripts/meta/
+    adopt_reality.py :: """
+import os
+import sys
+import time
+from pathlib import Path
+
+class AdoptiveScribe:
+    \"\"\"
+    =============================================================================
+    == THE ADOPTIVE SCRIBE (V-Ω-REVERSE-GENESIS)                               ==
+    =============================================================================
+    LIF: ∞ | ROLE: REALITY_TRANSCRIBER | RANK: OMEGA
+    \"\"\"
+    ABYSS = {".git", ".scaffold", "__pycache__", "node_modules", ".venv", "venv", "dist", "build", ".idea"}
+
+    def __init__(self, target_dir: Path):
+        self.target_dir = target_dir.resolve()
+        self.project_slug = self.target_dir.name
+        self.package_name = self.project_slug.replace('-', '_')
+        self.project_title = self.project_slug.replace('-', ' ').replace('_', ' ').title()
+
+    def transcribe(self) -> str:
+        print(f"🌀 [SCRIBE] Transcribing Legacy Reality: {self.project_slug}...")
+        
+        lines = [
+            f"# == GNOSTIC BLUEPRINT: {self.project_title.upper()} (ADOPTED)",
+            f"$$ project_name = \\\"{self.project_title}\\\"",
+            f"$$ project_slug = \\\"{{{{ project_name | slug }}}}\\\"",
+            f"$$ package_name = \\\"{{{{ project_slug | snake }}}}\\\"",
+            "",
+            f"{{{{ project_slug }}}}/"
+        ]
+
+        for root, dirs, files in os.walk(self.target_dir):
+            dirs[:] = [d for d in dirs if d not in self.ABYSS and not d.startswith('.')]
+            
+            for file in files:
+                if file.startswith('.') and file not in (".env.example", ".gitignore"): continue
+                if file.endswith(('.pyc', '.pyo', '.lock')): continue
+                    
+                abs_path = Path(root) / file
+                rel_path = abs_path.relative_to(self.target_dir)
+                indent = "    " * len(rel_path.parts)
+
+                try:
+                    content = abs_path.read_text(encoding='utf-8', errors='ignore')
+                    # Semantic Abstraction
+                    content = content.replace(self.project_slug, "{{ project_slug }}")
+                    content = content.replace(self.package_name, "{{ package_name }}")
+                    
+                    lines.append(f"{indent}{rel_path.name} :: \\\"\\\"\\\"")
+                    lines.append(content)
+                    lines.append(f"{indent}\\\"\\\"\\\"\\n")
+                except Exception as e:
+                    print(f"⚠️  [SCRIBE] Skipping {file}: {e}")
+
+        return "\\n".join(lines)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2: sys.exit(1)
+    target = Path(sys.argv[1]).resolve()
+    if not target.exists(): sys.exit(1)
+        
+    scribe = AdoptiveScribe(target)
+    blueprint = scribe.transcribe()
+    
+    output_file = Path("{{ output_blueprint }}")
+    output_file.write_text(blueprint, encoding='utf-8')
+    print(f"✨ [SCRIBE] Blueprint forged: {output_file}")
+"""
+
+# --- III. THE KINETIC SYMPHONY ---
+symphonies/adopt-reality.symphony :: """
+# == Symphony: The Rite of Gnostic Adoption ==
+@task main
+    %% let: target_path = @ask("Enter the physical path of the legacy directory to adopt:")
+    ?? dir_exists: {{ target_path }}
+
+    %% proclaim: "🌀 [SCRIBE] Scrying legacy matter. Distilling structural soul..."
+    >> python3 scripts/meta/adopt_reality.py {{ target_path }}
+    ?? succeeds
+
+    %% proclaim: "[bold green]✅ ADOPTION COMPLETE.[/bold green] The legacy soul has been transcribed to {{ output_blueprint }}."
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+# --- ADOPTION RITES ---
+adopt: ## transmute an unmanaged directory into a Gnostic Blueprint
+    @velm run symphonies/adopt-reality.symphony
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Gnostic Adoptive Scribe[/bold cyan] is manifest."
+    >> mkdir -p scripts/meta symphonies
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Legacy Migration Tax -> 0)[/]"

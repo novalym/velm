@@ -1,4 +1,4 @@
-# Path: packages/scaffold/src/scaffold/core/symbolic/sutures/neural_bridge.py
+# Path: packages/scaffold/src/velm/core/symbolic/sutures/neural_bridge.py
 # ---------------------------------------------------------------------------
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from ....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ....logger import Scribe
 
 if TYPE_CHECKING:
-    from ....core.runtime.engine import ScaffoldEngine
+    from ....core.runtime.engine import VelmEngine
 
 Logger = Scribe("Scaffold:NeuralBridge")
 
@@ -58,7 +58,7 @@ class NeuralBridge:
     # Hard economic ceiling per lead to prevent DDoS (Distributed Denial of Solvent).
     MAX_METABOLIC_TAX_PER_LEAD: Final[float] = 0.50  # USD
 
-    def __init__(self, engine: ScaffoldEngine):
+    def __init__(self, engine: VelmEngine):
         """
         =============================================================================
         == THE RITE OF BINDING (V-Ω-TOTALITY-V8-SCRIBE-AWARE)                      ==

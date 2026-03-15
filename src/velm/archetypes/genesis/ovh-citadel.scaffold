@@ -1,0 +1,100 @@
+# Path: src/velm/archetypes/ovh-citadel.scaffold
+# ---------------------------------------------------------------------------------
+# == GNOSTIC ARCHETYPE: OVH_NOMADIC_CITADEL (V-Ω-SOVEREIGN-IRON)                 ==
+# ---------------------------------------------------------------------------------
+# @description: A Sovereign Torso for nomadic applications on OVH Cloud.
+# @category: Infrastructure
+# @difficulty: Grand Architect
+# @tags: ovh, bare-metal, nomadic-compute, sovereignty, automation
+# ---------------------------------------------------------------------------------
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = {{ project_name | default("Sovereign Node") }}
+$$ package_name = {{ project_name | snake }}
+$$ ovh_region = {{ region | default("GRA11") }} # Defaulting to Gravelines (Sovereign Europe)
+$$ instance_flavor = "d2-4" # Balanced Compute
+
+# --- II. THE SCRIPTURE OF FORM (THE RECEPTOR HUBS) ---
+
+# [THE HUB: SUBSTRATE BROKER]
+src/{{ package_name }}/core/substrate.py :: """
+import ovh
+import os
+from typing import Dict, Any
+
+class OVHSubstrateBroker:
+    \"\"\"
+    [NOMADIC_CONDUCTOR]: This hub manages the physical iron. 
+    It righteously uses the OVH Identity Shard to command the API.
+    \"\"\"
+    def __init__(self):
+        # [IDENTITY_SUTURE]: The IdentityRequest has already 
+        # manifest these keys in the .env vault.
+        self.client = ovh.Client(
+            endpoint=os.getenv("OVH_ENDPOINT", "ovh-eu"),
+            application_key=os.getenv("OVH_APP_KEY"),
+            application_secret=os.getenv("OVH_APP_SECRET"),
+            consumer_key=os.getenv("OVH_CONSUMER_KEY"),
+        )
+
+    # @scaffold:substrate_action_anchor
+
+    def scry_vitals(self):
+        \"\"\"Tomography of the active OVH Region.\"\"\"
+        return self.client.get(f'/cloud/project/{os.getenv("OVH_PROJECT_ID")}/region/{{{{ ovh_region }}}}')
+\"\"\"
+
+# [THE HUB: PRIMARY CONDUIT]
+src/{{ package_name }}/main.py :: """
+import asyncio
+from .core.substrate import OVHSubstrateBroker
+
+async def awaken_citadel():
+    print("🚀 [CITADEL] Awakening Sovereign Node in {{{{ ovh_region }}}}...")
+    broker = OVHSubstrateBroker()
+    
+    # [NEURAL_LINK]: The Conductor will automatically wire 
+    # nomadic translocation logic here.
+    # @scaffold:logic_anchor
+    
+    vitals = broker.scry_vitals()
+    print(f"✅ [RESONANT] Substrate Health: {vitals['status']}")
+
+if __name__ == "__main__":
+    asyncio.run(awaken_citadel())
+\"\"\"
+
+# [THE SUBSTRATE: DEPENDENCIES]
+pyproject.toml :: """
+[tool.poetry]
+name = "{{ project_name | slug }}"
+version = "0.1.0"
+description = "A Sovereign Nomadic Citadel forged by Velm."
+
+[tool.poetry.dependencies]
+python = "^3.11"
+ovh = "^1.1.2"
+python-dotenv = "^1.0.0"
+httpx = "^0.25.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+\"\"\"
+
+# [THE VAULT: OVH CREDENTIALS]
+# We forge a template for the secret matter.
+.env.example :: """
+# == OVH SOVEREIGN IDENTITY ==
+OVH_ENDPOINT=ovh-eu
+OVH_APP_KEY=
+OVH_APP_SECRET=
+OVH_CONSUMER_KEY=
+OVH_PROJECT_ID=
+\"\"\"
+
+# --- III. THE KINETIC WILL ---
+%% post-run
+    proclaim: "OVH Nomadic Citadel manifest. The substrate broker is warded for iron-command."
+    proclaim: "[bold red]ACTION REQUIRED:[/bold red] Execute [bold]velm identity --provider ovh[/] to forge the celestial bond."
+```

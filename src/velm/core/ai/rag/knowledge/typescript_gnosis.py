@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/knowledge/typescript_gnosis.py
+# Path: velm/core/ai/rag/knowledge/typescript_gnosis.py
 # ---------------------------------------------------------
 
 TYPESCRIPT_SHARDS = [

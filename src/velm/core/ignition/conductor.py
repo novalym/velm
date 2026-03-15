@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/conductor.py
+# Path: velm/core/ignition/conductor.py
 # =========================================================================================
 # == THE OMEGA IGNITION CONDUCTOR (V-Ω-TOTALITY-V20000.1-TITANIUM)                      ==
 # =========================================================================================

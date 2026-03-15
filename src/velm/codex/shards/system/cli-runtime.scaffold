@@ -1,0 +1,99 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/cli-runtime
+# ==============================================================================
+# @id:           system/cli-runtime
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      The command-line bridge utilizing Typer and Rich to transmute human terminal intent into Engine dispatches.
+# @vibe:         [cli, typer, commands, bridge, dispatch, terminal, ui]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:cli-bridge, capability:command-orchestrator, capability:cli-framework]
+# @requires:     [capability:python-core, capability:rich-logging]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["typer[rich]>=0.12.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "cli-runtime-heart"
+#   priority:    0
+#   alias:       "cli_runtime"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-app") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ cli_name = {{ cli_name | default(project_slug | slug) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Command Bridge) ---
+
+src/{{ package_name }}/cli/
+    __init__.py :: "from .main import app\n"
+
+    main.py :: """
+import typer
+import sys
+from typing import Optional
+from .bridge import conduct_rite
+# The Causal Linker ensures the Engine exists
+from ..core.engine import engine 
+
+app = typer.Typer(
+    name="{{ cli_name }}",
+    help="Sovereign CLI manifest by the VELM God-Engine.",
+    no_args_is_help=True,
+    rich_markup_mode="rich"
+)
+
+@app.callback()
+def global_vows(
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable luminous logging."),
+    trace_id: Optional[str] = typer.Option(None, "--trace", help="Attach a specific Trace ID.")
+):
+    \"\"\"Universal Vows for the {{ cli_name }} cosmos.\"\"\"
+    pass
+
+@app.command()
+def status():
+    \"\"\"Perceive the vitality of the local node.\"\"\"
+    conduct_rite("StatusRequest", {})
+
+if __name__ == "__main__":
+    app()
+"""
+
+    bridge.py :: """
+import logging
+from typing import Dict, Any
+from ..core.engine import engine
+from ..core.telemetry.rich_scribe import scribe
+
+Logger = logging.getLogger("CLI:Bridge")
+
+def conduct_rite(request_name: str, params: Dict[str, Any]):
+    \"\"\"The primary bridge between the Terminal and the Kernel.\"\"\"
+    try:
+        # [STRIKE]: The Dispatch
+        result = engine.dispatch_by_name(request_name, params)
+        
+        if result.success:
+            scribe.proclaim_panel(result.message, title="SUCCESS", style="green")
+        else:
+            scribe.proclaim_panel(result.message, title="FRACTURED", style="red")
+                
+    except Exception as e:
+        scribe.proclaim_panel(f"Bridge Fracture: {e}", title="CRITICAL", style="bold red")
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]CLI Runtime Shard[/] is manifest."
+    proclaim: "Command Name: [bold yellow]{{ cli_name }}[/bold yellow]"
+    
+    # [THE CURE]: We no longer manually edit pyproject.toml. 
+    # The `ApotheosisParser` aggregates the @metabolism.typer and 
+    # the Suture strategy will handle the [tool.poetry.scripts] entry.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Command-to-Logic Impedance -> 0)[/]"
+    proclaim: "[bold green]✅ THE FOUNDATION IS COMPLETE. Your project now has a Voice.[/bold green]"

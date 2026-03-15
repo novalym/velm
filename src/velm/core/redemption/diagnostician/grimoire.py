@@ -1,4 +1,4 @@
-# Path: scaffold/core/redemption/diagnostician/grimoire.py
+# Path: velm/core/redemption/diagnostician/grimoire.py
 # --------------------------------------------------------
 
 """

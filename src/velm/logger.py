@@ -420,13 +420,24 @@ class Scribe:
 
     def _redact(self, message: str) -> str:
         """
-        [ELEVATION 3] The Secret Redactor.
-        Masks sensitive information based on regex patterns.
+        =============================================================================
+        == THE OMEGA REDACTION SIEVE (V-Ω-TOTALITY-V1000.2-MARKUP-SAFE)            ==
+        =============================================================================
+        [THE CURE]: Replaces square brackets `[]` with angled brackets `«»` for
+        redaction markers. This ensures that the 'Veil of Secrecy' never triggers
+        a MarkupError in the Rich console.
         """
+        if not message:
+            return ""
+
         redacted_msg = message
         for pattern in _SECRET_PATTERNS:
-            # Replaces the sensitive capture group (usually group 2) with [REDACTED]
-            redacted_msg = re.sub(pattern, lambda m: m.group(0).replace(m.group(m.lastindex), "[REDACTED]"), redacted_msg)
+            # [ASCENSION 1]: Use Gnostic Safe-Delimiters « »
+            redacted_msg = re.sub(
+                pattern,
+                lambda m: m.group(0).replace(m.group(m.lastindex), "« REDACTED »"),
+                redacted_msg
+            )
         return redacted_msg
 
     def progress(self, task: str, current: int, total: int, message: str = "", **kwargs):
@@ -562,11 +573,19 @@ class Scribe:
                   bare: bool = False, **kwargs):
         """
         =============================================================================
-        == THE SOVEREIGN PROCLAMATION (V-Ω-TOTALITY-V300-BIFURCATED)               ==
+        == THE SOVEREIGN PROCLAMATION (V-Ω-TOTALITY-V1000.5-MARKUP-RESILIENT)      ==
         =============================================================================
         LIF: ∞ | ROLE: KINETIC_SIGNAL_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-        AUTH_CODE: Ω_PROCLAIM_V300_STRIPPED_TRUTH_FIX_)(@)(!@#(#@)
+        AUTH_CODE: Ω_PROCLAIM_V1000_MARKUP_SHIELD_FINALIS
+
+        [THE MANIFESTO]
+        This is the ultimate evolution of the Gnostic Voice. It is warded against
+        'MarkupError' by the Lazarus Fallback Matrix. If a message contains illegal
+        brackets (like [REDACTED]), it automatically escapes them and re-proclaims,
+        guaranteeing that the terminal never fractures.
         """
+        from rich.markup import escape as gnostic_escape, MarkupError
+
         # --- 0. THE WARD OF QUIETUDE ---
         if _COSMIC_GNOSIS["silent"] and level_name not in ['ERROR', 'AUDIT', 'CRITICAL']:
             return
@@ -602,12 +621,10 @@ class Scribe:
         # --- 4. LEXICAL ALCHEMY (STRINGIFICATION & REDACTION) ---
         message_parts = []
         for obj in objects:
-            # [ASCENSION 29]: Isomorphic Path Normalization
             if isinstance(obj, Path):
                 message_parts.append(str(obj).replace('\\', '/'))
             elif isinstance(obj, (dict, list)) and not _COSMIC_GNOSIS["json_mode"]:
                 try:
-                    # Sort keys for deterministic Gnosis in the scroll
                     message_parts.append(json.dumps(obj, default=str, sort_keys=True))
                 except Exception:
                     message_parts.append(str(obj))
@@ -615,25 +632,19 @@ class Scribe:
                 message_parts.append(str(obj))
 
         raw_message = " ".join(message_parts)
-        clean_message = self._redact(raw_message)  # Still contains Rich markup for Console
+        clean_message = self._redact(raw_message)
 
-        # =========================================================================
-        # == [THE CURE]: THE BIFURCATION OF TRUTH (MARKUP STRIPPING)             ==
-        # =========================================================================
-        # [ASCENSION 30]: We forge the 'Stripped Message' for non-rich streams.
+        # 5. THE BIFURCATION OF TRUTH (MARKUP STRIPPING FOR FILES)
         if RICH_AVAILABLE:
             try:
-                # Transmute markup into a plain string via Rich's internal renderer
                 from rich.markup import render as render_markup
                 stripped_message = render_markup(clean_message).plain
             except Exception:
-                # Emergency Sieve: Regex-based tag removal
                 stripped_message = re.sub(r'\[/?[a-z][^\]]*\]', '', clean_message)
         else:
             stripped_message = clean_message
 
-        # --- 5. THE INSCRIPTION OF THE SCROLL (FILE LOG) ---
-        # [THE FIX]: File logs now receive only the Stripped Truth.
+        # --- 6. THE INSCRIPTION OF THE SCROLL (FILE LOG) ---
         if hasattr(self, 'logger'):
             log_method = getattr(self.logger, level_name.lower(), self.logger.info)
             file_msg = f"{'  ' * indent_depth}{stripped_message}"
@@ -641,8 +652,7 @@ class Scribe:
             if tags: file_msg += f" [{', '.join(tags)}]"
             log_method(file_msg, **std_log_kwargs)
 
-        # --- 6. THE MACHINE GAZE (JSON / DAEMON MODE) ---
-        # If machine-purity is willed, we emit the stripped message and exit.
+        # --- 7. THE MACHINE GAZE (JSON / DAEMON MODE) ---
         if _COSMIC_GNOSIS["json_mode"]:
             json_record = {
                 "ts": now, "lvl": level_name, "mod": self.module_name,
@@ -654,86 +664,82 @@ class Scribe:
             _MEMORY_BUFFER.append(json_record)
             return
 
-        # --- 7. THE OCULAR PROCLAMATION (CONSOLE) ---
-        # [ASCENSION 31]: THE HOISTING SUTURE
-        # We scry the Concourse state. If a Live Deck is manifest, we MUST print through it.
+        # --- 8. THE OCULAR PROCLAMATION (CONSOLE) ---
         concourse = _get_signal_concourse()
         is_deck_active = bool(concourse and _SIGNAL_CONCOURSE.get("is_active"))
 
-        def _final_visual_strike(renderable):
-            """Diverts visual light to the correct terminal beam."""
-            if is_deck_active and concourse:
-                # Hoist standard logs above the materialization bar
-                concourse.console.print(renderable)
-            else:
-                self.get_console().print(renderable)
+        def _conduct_visual_strike(msg_to_render: str, is_bare: bool, is_escaped: bool = False):
+            """
+            =========================================================================
+            == THE LAZARUS MARKUP SHIELD (INTERNAL RITE)                          ==
+            =========================================================================
+            [ASCENSION 1]: Attempts to print with Rich markup. If it fractures due to
+            illegal brackets in the message, it automatically escapes the content
+            and re-materializes the proclamation.
+            """
+            try:
+                if is_bare:
+                    renderable = Text.from_markup(msg_to_render)
+                else:
+                    # Construct the Luminous Header
+                    timestamp_str = time.strftime("%H:%M:%S")
+                    d_markup = f"[dim](+{delta:.2f}s)[/dim] " if delta > 0.1 else ""
+                    t_markup = f"[dim blue]T:{trace_id[:6]}[/dim blue] " if trace_id else ""
+                    header = f"[dim]{timestamp_str}[/dim] {d_markup}{t_markup}[[[{style}]{self.module_name}[/{style}]]] "
 
-        if bare:
-            _final_visual_strike(Text.from_markup(clean_message))
-        else:
-            # --- THE LUMINOUS VOICE CONSTRUCTION ---
-            timestamp_str = time.strftime("%H:%M:%S")
+                    # If we are already in an 'escaped' retry, we escape the message part only
+                    final_msg = gnostic_escape(msg_to_render) if is_escaped else msg_to_render
+                    renderable = Text.from_markup(f"{header}{final_msg}")
 
-            # [ASCENSION 32]: Chronometric Delta Analysis
-            delta_markup = ""
-            if delta > 1.0:
-                delta_markup = f"[bold red](+{delta:.2f}s)[/bold red] "
-            elif delta > 0.1:
-                delta_markup = f"[dim](+{delta:.2f}s)[/dim] "
+                    if tags:
+                        for tag in tags:
+                            tag_style = {"HERESY": "bold red", "SUCCESS": "bold green"}.get(tag.upper(), "dim magenta")
+                            renderable.append(f" #{tag}", style=tag_style)
 
-            # [ASCENSION 33]: Trace Identity Suture
-            trace_markup = f"[dim blue]T:{trace_id[:6]}[/dim blue] " if trace_id else ""
+                # Route to correct console beam
+                if is_deck_active and concourse:
+                    concourse.console.print(Padding(renderable, (0, 0, 0, indent_depth * 2)))
+                else:
+                    self.get_console().print(Padding(renderable, (0, 0, 0, indent_depth * 2)))
 
-            # Standardized Gnostic Prefix
-            prefix = f"[dim]{timestamp_str}[/dim] {delta_markup}{trace_markup}[[[{style}]{self.module_name}[/{style}]]] "
-            text_obj = Text.from_markup(f"{prefix}{clean_message}")
+            except MarkupError as me:
+                if not is_escaped:
+                    # [REDEMPTION]: Attempt a second strike with absolute escaping
+                    _conduct_visual_strike(msg_to_render, is_bare, is_escaped=True)
+                else:
+                    # If it STILL fails, fall back to the most primitive stderr strike
+                    sys.stderr.write(f"!! CRITICAL_MARKUP_FAILURE: {str(me)} | Content: {msg_to_render}\n")
+                    sys.stderr.flush()
 
-            # Semantic Tag Badging
-            if tags:
-                for tag in tags:
-                    t_style = {
-                        "HERESY": "bold red",
-                        "SUCCESS": "bold green",
-                        "SYSTEM": "bold cyan",
-                        "KINETIC": "bold yellow"
-                    }.get(tag.upper(), "dim magenta")
-                    text_obj.append(f" #{tag}", style=t_style)
+        # Execute the Visual Strike
+        _conduct_visual_strike(clean_message, bare)
 
-            # [ASCENSION 34]: Visual Hierarchy Render
-            _final_visual_strike(Padding(text_obj, (0, 0, 0, indent_depth * 2)))
-
-        # --- 8. THE MIRROR OF PARADOX (EXCEPTIONS) ---
-        # [ASCENSION 35]: Forge the Forensic Paradox Prism if an exception is manifest.
+        # --- 9. THE MIRROR OF PARADOX (EXCEPTIONS) ---
         if kwargs.get('exc_info') or kwargs.get('ex'):
             exc = kwargs.get('ex') or sys.exc_info()[1]
             if exc:
-                trace_renderable = Traceback.from_exception(
-                    type(exc), exc, exc.__traceback__,
-                    show_locals=self.is_verbose, width=100
-                )
-                panel = Panel(trace_renderable, title="[bold red]Forensic Autopsy[/]", border_style="red")
-                _final_visual_strike(Padding(panel, (0, 0, 0, 2)))
+                t_render = Traceback.from_exception(type(exc), exc, exc.__traceback__, show_locals=self.is_verbose,
+                                                    width=100)
+                panel = Panel(t_render, title="[bold red]Forensic Autopsy[/]", border_style="red")
+                if is_deck_active and concourse:
+                    concourse.console.print(Padding(panel, (0, 0, 0, 2)))
+                else:
+                    self.get_console().print(Padding(panel, (0, 0, 0, 2)))
 
-        # --- 9. THE SYNAPTIC BROADCAST (HOOKS / AKASHA) ---
-        # [ASCENSION 36]: Narcissus Guard preventing infinite feedback loops.
-        if tags and "INTERNAL_BRIDGE" in tags:
-            return
-
+        # --- 10. THE SYNAPTIC BROADCAST ---
+        if tags and "INTERNAL_BRIDGE" in tags: return
         event_packet = {
             "timestamp": now, "level": level_name, "module": self.module_name,
             "trace_id": trace_id, "message": stripped_message, "tags": tags or [],
             "data": extra_payload
         }
-
-        # Enshrine in the rolling memory buffer
         _MEMORY_BUFFER.append(event_packet)
-
-        # Broadcast across the Silver Cord to all telepathic listeners (LSP / React UI)
         for hook in _LOG_HOOKS:
             try:
                 hook(event_packet)
             except Exception:
                 pass
+
 
     def system(self, *objects, bare=False, **kwargs):
         """

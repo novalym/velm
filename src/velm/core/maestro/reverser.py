@@ -1,4 +1,4 @@
-# Path: scaffold/core/maestro/reverser.py
+# Path: velm/core/maestro/reverser.py
 # ---------------------------------------
 
 # NOTE: This file is a direct translocation of `scaffold/creator/maestro_reverser.py`

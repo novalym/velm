@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/inquisitors/librarian.py
+# Path: src/velm/core/symbolic/inquisitors/librarian.py
 # ---------------------------------------------------------------------------
 # LIF: INFINITY | ROLE: TRUTH_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
 # AUTH_CODE: )_@!_#!_)!)(!#)!#)(

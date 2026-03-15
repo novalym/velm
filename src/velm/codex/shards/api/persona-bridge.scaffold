@@ -1,0 +1,131 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/PERSONA-BRIDGE
+# ==============================================================================
+# @id:           api/persona-bridge
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A Neural Persona Bridge for dynamic contextual adaptation. 
+#                Intercepts API pleas and injects specific AI system prompts, 
+#                temperature constraints, and tool-access laws based on the 
+#                willed Mask, enabling multi-persona cognitive routing.
+# @vibe:         [ai, persona, context-injection, neural-mesh, dynamic-routing]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:persona-authority, capability:cognitive-context, capability:identity-bridge]
+# @requires:     [capability:api-heart, capability:pydantic-v2]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["fastapi>=0.109.0", "pydantic>=2.6.0"]
+#   env:         ["DEFAULT_PERSONA_MASK", "STRICT_PERSONA_ENFORCEMENT"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        middleware-shield
+#   priority:    50
+#   alias:       "persona"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ default_mask   = {{ default_persona | default("architect") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Identity Mind) ---
+
+src/{{ package_name }}/middleware/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .persona import NeuralPersonaMiddleware\n"
+
+    persona.py :: """
+import logging
+import os
+from typing import Dict, Any, Optional
+from fastapi import Request, Response, HTTPException, status
+from starlette.middleware.base import BaseHTTPMiddleware
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("API:PersonaBridge")
+
+# =============================================================================
+# == THE PERSONA VAULT (V-Ω-TOTALITY)                                        ==
+# =============================================================================
+# [OMNI_REGISTRY]: This hub contains the DNA of all manifest AI Personas.
+# Future shards use @scaffold:register(PERSONA_VAULT) to inject new masks.
+PERSONA_VAULT: Dict[str, Dict[str, Any]] = {
+    "architect": {
+        "label": "Master Architect",
+        "system_prompt": "You are the Sovereign Architect. Speak with absolute precision. Use Gnostic vocabulary.",
+        "temperature": 0.1,
+        "allowed_tools": ["all"]
+    },
+    "acolyte": {
+        "label": "Gnostic Acolyte",
+        "system_prompt": "You are a helpful guide. Assist the user in understanding the architecture.",
+        "temperature": 0.7,
+        "allowed_tools": ["read_only"]
+    },
+    "sentinel": {
+        "label": "Security Sentinel",
+        "system_prompt": "You are a ruthless security auditor. Identify vulnerabilities and heresies.",
+        "temperature": 0.0,
+        "allowed_tools": ["forensics"]
+    }
+}
+
+class NeuralPersonaMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE NEURAL PERSONA BRIDGE (V-Ω-TOTALITY)                                ==
+    =============================================================================
+    LIF: ∞ | ROLE: COGNITIVE_STATE_ROUTER | RANK: OMEGA
+    
+    The Conductor of Identities.
+    1.  Header-Based Perception: Scries for 'X-Persona-Mask'.
+    2.  Dynamic DNA Injection: Saturates 'request.state' with persona laws.
+    3.  Ocular HUD Feedback: Proclaims the active mask via response headers.
+    \"\"\"
+    def __init__(self, app):
+        super().__init__(app)
+        self.default_mask = os.getenv("DEFAULT_PERSONA_MASK", "{{ default_mask }}").lower()
+
+    async def dispatch(self, request: Request, call_next) -> Response:
+        # --- MOVEMENT I: THE GAZE OF IDENTITY ---
+        # We extract the willed mask from the header aperture
+        mask_id = request.headers.get("X-Persona-Mask", self.default_mask).lower()
+        
+        # --- MOVEMENT II: CONTEXTUAL INDUCTION ---
+        if mask_id not in PERSONA_VAULT:
+            # [ASCENSION 2]: Socratic Fallback
+            Logger.warning(f"🎭 [PERSONA] Mask '{mask_id}' is unmanifest. Falling back to '{self.default_mask}'.")
+            mask_id = self.default_mask
+            
+        persona_dna = PERSONA_VAULT[mask_id]
+        
+        # [STRIKE]: Suture the DNA into the request state.
+        # This ensures every downstream Agent is waked with the correct Mind-set.
+        request.state.persona = persona_dna
+        request.state.active_mask = mask_id
+        
+        # --- MOVEMENT III: KINETIC EXECUTION ---
+        response = await call_next(request)
+        
+        # --- MOVEMENT IV: OCULAR PROJECTION ---
+        # [ASCENSION 3]: Radiate active mask back to the Ocular HUD
+        response.headers["X-Active-Persona"] = mask_id
+        response.headers["X-Active-Persona-Label"] = persona_dna.get("label", "Unknown")
+        
+        return response
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Neural Persona Bridge[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]MIDDLEWARE-SHIELD[/bold green]"
+    proclaim: "Default Identity: [bold yellow]{{ default_mask }}[/bold yellow]"
+    
+    # [THE CURE]: No 'poetry add' required; the Engine's Cortex handled the DNA.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Cognitive Friction -> 0)[/]"
+    proclaim: "[bold green]✅ The Mind is now Polymorphic.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Persona Bridge materialization fractured.[/bold red]"

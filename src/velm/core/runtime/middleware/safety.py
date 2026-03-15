@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/safety.py
+# Path: velm/core/runtime/middleware/safety.py
 # ------------------------------------------------
 
 from pathlib import Path

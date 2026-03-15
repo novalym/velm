@@ -2,8 +2,11 @@
 # --------------------------------------------
 from __future__ import annotations
 import time
+import traceback
+import hashlib
 import uuid
 import re
+import io
 from enum import Enum, auto
 from typing import Optional, Any, List, Dict, Union, TYPE_CHECKING
 from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator, PrivateAttr, computed_field
@@ -31,7 +34,7 @@ class HeresySeverity(Enum):
     WARNING = auto()  # A sign of drift. The Work continues, but purity is questioned.
     CRITICAL = auto()  # A catastrophic fracture. The Work must cease immediately.
     HINT = auto()
-
+    ERROR = auto()
 class Heresy(BaseModel):
     """
     =================================================================================
@@ -609,6 +612,116 @@ class GuardianHeresy(Exception):
             base += f"\n  Suggestion: {escape(self.suggestion)}"
 
         return base
+
+
+class CodexExecutionHeresy(ArtisanHeresy):
+    """
+    =============================================================================
+    == THE CODEX EXECUTION HERESY (V-Ω-TOTALITY-V48)                           ==
+    =============================================================================
+    ROLE: DIRECTIVE_ERROR_VESSEL | RANK: OMEGA
+
+    Raised when a Gnostic Directive (@domain/rite) encounters a physical
+    or logical paradox during its kinetic strike.
+    """
+
+    def __init__(
+            self,
+            message: str,
+            directive_name: str,
+            line_num: int = 0,
+            details: Optional[str] = None,
+            suggestion: Optional[str] = None,
+            severity: HeresySeverity = HeresySeverity.CRITICAL,
+            trace_id: Optional[str] = None,
+            child_heresy: Optional[Exception] = None,
+            **kwargs
+    ):
+        # 1. IDENTITY SUTURE
+        self.directive_name = directive_name.lower().strip()
+        self.trace_id = trace_id or f"tr-codex-{uuid.uuid4().hex[:6].upper()}"
+
+        # 2. THE CURE: NONE-TYPE SARCOPHAGUS
+        # We ensure no field is willed as Null.
+        self.raw_message = message or f"Paradox in @{self.directive_name}"
+        self.suggestion = suggestion or self._prophesy_cure(child_heresy)
+
+        # 3. METABOLIC TOMOGRAPHY
+        self.tax_ms = kwargs.get("tax_ms", 0.0)
+        self.timestamp = time.time()
+
+        # 4. FORENSIC TRACE RECONSTRUCTION
+        self.forensic_trace = ""
+        if child_heresy:
+            self.forensic_trace = "".join(traceback.format_exception(
+                type(child_heresy), child_heresy, child_heresy.__traceback__
+            ))
+
+        # 5. MERKLE FINGERPRINTING
+        # Forges a unique identity for this specific error instance.
+        sig_base = f"{self.directive_name}:{self.raw_message}:{line_num}"
+        self.gnostic_code = f"CODEX_FRACTURE_{hashlib.md5(sig_base.encode()).hexdigest()[:8].upper()}"
+
+        # --- CONSECRATE PARENT SOUL ---
+        super().__init__(
+            message=self.raw_message,
+            suggestion=self.suggestion,
+            details=details or f"Traceback:\n{self.forensic_trace}",
+            severity=severity,
+            line_num=line_num,
+            # [ASCENSION 10]: Apophatic Identity
+            code=self.gnostic_code,
+            **kwargs
+        )
+
+        # 6. HAPTIC SIGNALING
+        # We inject UI hints directly into the soul.
+        self.ui_hints = {
+            "vfx": "shake_red" if severity == HeresySeverity.CRITICAL else "glow_amber",
+            "sound": "fracture_alert",
+            "aura": "#ef4444",
+            "trace": self.trace_id
+        }
+
+    def _prophesy_cure(self, error: Optional[Exception]) -> str:
+        """
+        [ASCENSION 7]: THE SOCRATIC CURE PROPHET.
+        Scries the nature of the error to suggest a Path to Redemption.
+        """
+        if not error: return "Align your plea with the Gnostic Contracts."
+
+        err_str = str(error).lower()
+
+        if "keyerror" in err_str or "undefined" in err_str:
+            return "A willed variable is unmanifest. Define it with '$$' or pass via CLI."
+        if "permission" in err_str or "access" in err_str:
+            return "Substrate Lock: Verify filesystem ACLs or run with elevated privileges."
+        if "syntax" in err_str:
+            return "Linguistic Fracture: The inner code of the directive is malformed."
+        if "timeout" in err_str:
+            return "Metabolic Congestion: The iron is too slow. Increase the 'timeout' parameter."
+
+        return f"Examine the Forensic Trace for @{self.directive_name}."
+
+    def to_panel_data(self) -> Dict[str, Any]:
+        """Transmutes the heresy into a high-fidelity Ocular HUD manifest."""
+        return {
+            "title": f"Ω | CODEX EXECUTION FRACTURE: @{self.directive_name}",
+            "trace": self.trace_id,
+            "message": self.message,
+            "suggestion": self.suggestion,
+            "code": self.gnostic_code,
+            "vitals": {
+                "tax_ms": self.tax_ms,
+                "line": self.line_num,
+                "epoch": self.timestamp
+            },
+            "ui": self.ui_hints
+        }
+
+    def __repr__(self) -> str:
+        return f"<Ω_CODEX_EXECUTION_HERESY code={self.gnostic_code} trace={self.trace_id[:8]}>"
+
 
 
 class HeresyThreatLevel(Enum):

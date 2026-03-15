@@ -1,4 +1,4 @@
-# Path: scaffold/core/blueprint_scribe/content_renderer.py
+# Path: velm/core/blueprint_scribe/content_renderer.py
 # --------------------------------------------------------
 import codecs
 from pathlib import Path

@@ -1,4 +1,4 @@
-# Path: scaffold/core/cli/grimoire/_workspace_rites.py
+# Path: velm/core/cli/grimoire/_workspace_rites.py
 # ----------------------------------------------------
 
 from ..cli_utils import add_common_flags, add_variable_flags

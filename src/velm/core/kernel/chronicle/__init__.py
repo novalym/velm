@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/chronicle/__init__.py
+# Path: velm/core/kernel/chronicle/__init__.py
 
 """
 =================================================================================

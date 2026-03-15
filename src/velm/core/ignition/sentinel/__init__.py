@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/sentinel/__init__.py
+# Path: velm/core/ignition/diviner/sentinel/__init__.py
 # --------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: SENTINEL_GATEWAY_V1
 

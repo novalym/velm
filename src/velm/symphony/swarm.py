@@ -113,7 +113,7 @@ class SwarmOrchestrator:
         # State Management
         self.drones: List[DroneState] = []
         self._abort_event = threading.Event()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self.active_drone_idx: int = 0
         self.start_time: float = 0.0
 

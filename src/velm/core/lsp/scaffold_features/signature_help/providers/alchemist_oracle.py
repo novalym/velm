@@ -39,7 +39,7 @@ class AlchemistSignatureProvider(SignatureProvider):
     }
 
     def provide_signatures(self, ctx: InvocationContext) -> List[SignatureInformation]:
-        # Strip Jinja braces if present
+        # Strip SGF braces if present
         name = ctx.symbol_name.replace('{', '').replace('}', '').strip()
 
         if name in self.GRIMOIRE:

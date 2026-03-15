@@ -1,0 +1,158 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: velm-core/ai-context-anchor
+# ==============================================================================
+# @id:           velm-core/ai-context-anchor
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Generates an XML-optimized markdown constitution to anchor LLM context mechanisms.
+# @vibe:         [ai, context, constitution, llm, markdown, xml, rules, memory]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:ai-context-manager, capability:project-constitution]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["rich>=13.7.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "ai-context-manager"
+#   priority:    100
+#   alias:       "ai_context_anchor"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_title = {{ project_name | title | default("omega-reality") }}
+$$ project_philosophy = {{ philosophy | default("Gnostic Clean Architecture") }}
+$$ naming_convention = {{ naming | default("snake_case for logic, kebab-case for topography") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ indexing_strategy = {{ strategy | default("surgical") }}
+$$ auto_index = {{ auto_index | default(true) }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+.scaffold/
+    # [ASCENSION 2]: THE CONSTITUTIONAL ANCHOR (XML-Optimized)
+    context.md :: """
+# 🧠 GNOSTIC CONSTITUTION: {{ project_title }}
+> [!IMPORTANT]
+> **Locus of Truth:** This file is the Supreme Law of the Sanctum. 
+> **AI INSTRUCTION:** You are prohibited from generating matter that violates these Invariants.
+
+<invariants>
+## I. ARCHITECTURAL INVARIANTS (THE LAW)
+1. **Sovereignty:** Domain logic (Soul) must remain hermetically sealed from infrastructure (Body).
+2. **Integrity:** Every mutation must be transactionally warded and bear a Merkle-signed Trace ID.
+3. **Geometry:** {{ naming_convention }}. Indentation represents Spacetime Coordinates.
+4. **Metabolism:** Favor composition over inheritance.
+</invariants>
+
+<topography>
+## II. SEMANTIC TOPOGRAPHY (THE MAP)
+- `src/{{ package_name }}/api`: **The Ocular Layer**. No business logic permitted.
+- `src/{{ package_name }}/services`: **The Mind**. Orchestrates intent and use cases.
+- `src/{{ package_name }}/core`: **The Soul**. Pure entities, constants, and invariants.
+- `src/{{ package_name }}/infrastructure`: **The Body**. DB, External APIs, and I/O.
+- `tests/`: **The Inquisition**. No code is manifest until mathematically verified.
+</topography>
+
+<grimoire>
+## III. THE ALCHMIST'S GRIMOIRE (CODING STANDARDS)
+- **Validation:** Use Pydantic V2 for all data vessels.
+- **Logging:** Use `structlog` for forensic traceability.
+- **Async:** Prefer `async/await` for all I/O-bound kinetic strikes.
+</grimoire>
+
+<symbols>
+## IV. HIGH-STATUS SYMBOLS (CONTEXTUAL HUB)
+<!-- @scaffold:symbol_inquest_start -->
+# The Librarian will inject the top 12 logical hubs here during 'make sync-context'.
+<!-- @scaffold:symbol_inquest_end -->
+</symbols>
+"""
+
+    vector_rules.json :: """
+{
+  "version": "1.0.0",
+  "indexing_strategy": "{{ indexing_strategy }}",
+  "priority_files": [
+    "scaffold.scaffold",
+    ".scaffold/context.md",
+    "README.md",
+    "pyproject.toml"
+  ],
+  "semantic_weights": {
+    "context.md": 3.0,
+    "scaffold.scaffold": 2.5,
+    "README.md": 1.5,
+    "src/{{ package_name }}/core/": 1.8,
+    "src/{{ package_name }}/api/": 1.2,
+    "tests/": 0.3
+  },
+  "ignore_patterns": [
+    "*.log", "*.tmp", "__pycache__", ".git/", "node_modules/", ".scaffold/cache/"
+  ],
+  "chunk_logic": "ast-aware"
+}
+"""
+
+scripts/intelligence/
+    verify_context.py :: """
+import os
+import sys
+from pathlib import Path
+from rich.console import Console
+
+CONSOLE = Console()
+
+def scry_alignment():
+    CONSOLE.print("🔍 [SENTINEL] Scrying for architectural alignment...")
+    root = Path(os.getcwd())
+    context_file = root / ".scaffold" / "context.md"
+    
+    if not context_file.exists():
+        CONSOLE.print("❌ [ERROR] Gnostic Anchor is unmanifest. AI is blind.", style="bold red")
+        sys.exit(1)
+
+    package = "{{ package_name }}"
+    required_strata = ["api", "services", "core", "infrastructure"]
+    
+    fractures = []
+    for stratum in required_strata:
+        path = root / "src" / package / stratum
+        if not path.exists():
+            fractures.append(str(path))
+
+    if fractures:
+        CONSOLE.print(f"⚠️  [WARNING] Reality Schism: {len(fractures)} strata missing.", style="bold yellow")
+    else:
+        CONSOLE.print("✅ Reality is in perfect resonance with the Constitution.", style="bold green")
+
+if __name__ == "__main__":
+    scry_alignment()
+"""
+
+Makefile += """
+# --- INTELLIGENCE RITES ---
+ai-index: ## Command the Vector Librarian to embed the project soul
+    @echo "🌀 Summoning the Librarian..."
+    @velm vector index --config .scaffold/vector_rules.json
+
+ai-verify: ## Adjudicate alignment between manifest matter and Gnostic Law
+    @poetry run python scripts/intelligence/verify_context.py
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]AI Context Anchor[/bold cyan] is materializing."
+    >> mkdir -p .scaffold scripts/intelligence
+    
+    @if {{ auto_index | lower }} == "true":
+        @try:
+            >> make ai-index
+        @catch:
+            proclaim: "[yellow]Initial indexing deferred.[/yellow]"
+        @end
+    @endif
+    
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (AI Hallucination -> 0)[/]"

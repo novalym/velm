@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/heuristics/__init__.py
+# Path: velm/core/ignition/diviner/heuristics/__init__.py
 # ----------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_HEURISTIC_GATEWAY_V1
 

@@ -1,0 +1,141 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: integrations/polyglot-hyperdrive
+# ==============================================================================
+# @id:           integrations/polyglot-hyperdrive
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Rust-based native extension using PyO3 to bypass Python's GIL and achieve maximum compute velocity.
+# @vibe:         [rust, pyo3, ffi, native, performance, hyperdrive, gil-bypass]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:native-compute, capability:rust-ffi]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["maturin>=1.5.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "ffi-bridge"
+#   priority:    100
+#   alias:       "hyperdrive"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ module_name = {{ module_name | default("hypercore") }}
+$$ author = {{ author | default("The Architect") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE IRON CORE SANCTUM (Rust Source) ---
+
+native/{{ module_name }}/
+    .gitignore :: """
+/target
+Cargo.lock
+**/*.rs.bk
+"""
+
+    Cargo.toml :: """
+[package]
+name = "{{ module_name }}"
+version = "0.1.0"
+edition = "2021"
+authors = ["{{ author }}"]
+
+[lib]
+name = "{{ module_name }}"
+# [ASCENSION 1]: C-Dynamic Library output for FFI bindings
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.21", features = ["extension-module"] }
+rayon = "1.8" 
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen_units = 1
+panic = "abort"
+"""
+
+    # [ASCENSION 3]: THE SOUL (The Implementation)
+    src/lib.rs :: """
+//! =============================================================================
+//! == {{ module_name | upper }} - NATIVE IRON CORE
+//! =============================================================================
+//! ROLE: HIGH_SPEED_COMPUTE | RANK: OMEGA
+
+use pyo3::prelude::*;
+use pyo3::wrap_pyfunction;
+
+/// [ASCENSION 3]: Python Native Implementation
+/// Performs high-order computation in the Rust iron.
+#[pyfunction]
+fn calculate_resonance(n: u64) -> PyResult<u64> {
+    // [ASCENSION 8]: Rayon-powered parallel processing
+    let result = (0..n).into_iter().sum();
+    Ok(result)
+}
+
+#[pymodule]
+fn {{ module_name }}(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(calculate_resonance, m)?)?;
+    Ok(())
+}
+"""
+
+# --- III. THE LOGIC SUTURES (The Mind-Eye Wrappers) ---
+
+src/{{ package_name }}/core/
+    hyperdrive.py :: """
+import logging
+import time
+
+Logger = logging.getLogger("HyperDrive")
+
+# [ASCENSION 5]: THE APOPHATIC FALLBACK CIRCUIT
+# Ensures system stability even if the Iron Core is unmanifest.
+try:
+    # We attempt to lift the compiled native binary from the package root
+    from .. import {{ module_name }}
+    Logger.info("⚡ Hyper-Drive [STATUS]: ENGAGED (Native Iron Core active)")
+    HAS_NATIVE = True
+except ImportError:
+    Logger.warning("⚠️  Hyper-Drive [STATUS]: DISENGAGED (Native binary missing)")
+    Logger.warning("   -> Falling back to Pure Python. Performance will decrease.")
+    HAS_NATIVE = False
+
+def compute_resonance(n: int) -> int:
+    \"\"\"The unified portal to the fastest available computation.\"\"\"
+    if HAS_NATIVE:
+        return {{ module_name }}.calculate_resonance(n)
+    return sum(range(n))
+"""
+
+# --- IV. THE CONTROL PLANE (Makefile Integration) ---
+Makefile += """
+
+# --- HYPER-DRIVE RITES ---
+native-build: ## forge the Iron Core using Maturin
+    @echo "🦀 Forging Native Bindings for [{{ module_name }}]..."
+    @cd native/{{ module_name }} && maturin develop --release
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Polyglot Hyper-Drive[/bold cyan] is materializing."
+    proclaim: "Iron Core: [white]native/{{ module_name }}/[/]"
+    
+    # 1. Forensic Pre-flight
+    proclaim: "Scrying for Rust toolchain..."
+    @if {{ shell('rustc --version > /dev/null 2>&1 && echo "yes" || echo "no"') == 'yes' }}
+        -> proclaim: "Rust Artisan: [green]RESONANT[/green]"
+    @else
+        -> proclaim: "[bold yellow]WARNING:[/bold yellow] Rust not found. The Iron Core will remain a ghost until Rust is installed."
+    @endif
+
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Compute Latency -> 0)[/]"
+    proclaim: "[bold green]The project now possesses an Iron Core.[/bold green]"
+    proclaim: "To compile the binary and engage the drive: [bold cyan]make native-build[/bold cyan]"

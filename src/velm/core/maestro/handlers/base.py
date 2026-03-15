@@ -1,4 +1,4 @@
-# Path: scaffold/core/maestro/handlers/base.py
+# Path: velm/core/maestro/handlers/base.py
 # --------------------------------------------
 # LIF: ∞ | ROLE: ANCESTRAL_RITE_CONDUCTOR | RANK: OMEGA_SOVEREIGN
 # AUTH: Ω_BASE_HANDLER_V10000_TOTALITY_FINALIS_2026
@@ -22,7 +22,7 @@ from ....logger import Scribe
 
 if TYPE_CHECKING:
     from ..conductor import MaestroConductor
-    from ...runtime.engine import ScaffoldEngine
+    from ...runtime.engine import VelmEngine
 
 
 class BaseRiteHandler(ABC):
@@ -83,7 +83,7 @@ class BaseRiteHandler(ABC):
 
         # --- II. THE ORGAN SUTURES ---
         # [ASCENSION 5]: Sarcophagus Protection
-        self.engine: Optional['ScaffoldEngine'] = getattr(registers, 'engine', None)
+        self.engine: Optional['VelmEngine'] = getattr(registers, 'engine', None)
         self.akashic = getattr(self.engine, 'akashic', None) if self.engine else None
 
         # [ASCENSION 8]: The Gnostic Doctor

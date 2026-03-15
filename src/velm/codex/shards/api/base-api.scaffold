@@ -1,0 +1,147 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/BASE-API
+# ==============================================================================
+# @id:           api/base-api
+# @version:      3.0.0-Ω
+# @tier:         mind
+# @summary:      The Sovereign FastAPI Heart. Materializes the primary application 
+#                instance, lifespan orchestrators, and global exception handlers. 
+#                Acts as the gravitational center for all Router and Middleware shards.
+# @vibe:         [fastapi, api, server, asynchronous, backend, core]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:fastapi-core, capability:api-heart]
+# @requires:     [capability:python-mind, capability:environment-management]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["fastapi>=0.110.0", "uvicorn[standard]>=0.29.0", "loguru>=0.7.0"]
+#   env:         ["PORT", "LOG_LEVEL", "DEBUG"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true, "iron": ["docker", "fargate"] }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "fastapi-heart"
+#   priority:    0
+#   alias:       "api_heart"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_title = {{ project_name | title }}
+$$ api_port      = {{ port | default(8000) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Heart) ---
+
+src/{{ package_name }}/
+    # [ASCENSION 1]: THE PRIMARY ENTRYPOINT
+    main.py :: """
+import time
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
+from loguru import logger
+
+# [STRATUM: CONFIG]
+from .core.config import settings
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    \"\"\"
+    =============================================================================
+    == THE LIFESPAN VIGIL (V-Ω-TOTALITY-V3.0)                                  ==
+    =============================================================================
+    LIF: ∞ | ROLE: EXISTENTIAL_CONDUCTOR | RANK: OMEGA
+    
+    Orchestrates the Awakening and Dissolution of the application mind.
+    \"\"\"
+    # [ASCENSION 11]: HUD AWAKENING SIGNAL
+    logger.info(f"🚀 {settings.PROJECT_NAME} Awakening on Substrate: {settings.ENVIRONMENT}")
+    
+    # --- MOVEMENT I: THE AWAKENING ---
+    # @scaffold:lifecycle(event="startup")
+    
+    yield
+    
+    # --- MOVEMENT II: THE DISSOLUTION ---
+    # @scaffold:lifecycle(event="shutdown")
+    logger.info(f"🌑 {settings.PROJECT_NAME} returning to the void.")
+
+# [ASCENSION 2]: THE SOVEREIGN INSTANCE
+app = FastAPI(
+    title="{{ project_title }}",
+    description="Sovereign reality manifest by the VELM God-Engine.",
+    version="3.0.0-Ω",
+    lifespan=lifespan,
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None,
+    openapi_url="/openapi.json" if settings.DEBUG else None
+)
+
+# [ASCENSION 3]: METABOLIC TOMOGRAPHY MIDDLEWARE
+@app.middleware("http")
+async def metabolic_telemetry_middleware(request: Request, call_next):
+    \"\"\"Calculates the exact CPU/IO tax of every incoming plea.\"\"\"
+    start_time = time.perf_counter()
+    
+    # [ASCENSION 7]: TRACE ID SILVER-CORD
+    trace_id = request.headers.get("X-Gnostic-Trace", "tr-unbound")
+    request.state.trace_id = trace_id
+    
+    response = await call_next(request)
+    
+    process_time = (time.perf_counter() - start_time) * 1000
+    response.headers["X-Metabolic-Tax-MS"] = f"{process_time:.3f}"
+    response.headers["X-Gnostic-Trace"] = trace_id
+    
+    return response
+
+# [ASCENSION 4]: THE GNOSTIC APERTURE (HEALTH)
+@app.get("/health", tags=["Vitality"])
+async def health_check():
+    \"\"\"Adjudicates the physical and logical resonance of the node.\"\"\"
+    return {
+        "status": "RESONANT",
+        "timestamp": time.time(),
+        "version": "3.0.0-Ω",
+        "trace": getattr(settings, "trace_id", "tr-void")
+    }
+
+# [ASCENSION 5]: THE REDEMPTION GATE (ERROR HANDLING)
+@app.exception_handler(Exception)
+async def universal_heresy_handler(request: Request, exc: Exception):
+    \"\"\"Transmutes unhandled paradoxes into structured Gnostic Heresies.\"\"\"
+    logger.error(f"UNHANDLED_PARADOX | Trace: {getattr(request.state, 'trace_id', 'void')} | Error: {exc}")
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "success": False, 
+            "error": "INTERNAL_FRACTURE", 
+            "message": str(exc) if settings.DEBUG else "A temporal paradox has occurred."
+        }
+    )
+
+# [THE MASTER SUTURE]: Direct Dispatch for Shard Wiring
+# Shards with the @role: fastapi-router will be grafted here autonomicly.
+# @scaffold:suture_point(hubs)
+"""
+
+# --- III. THE OPERATIONAL CONTROL PLANE ---
+
+Makefile += """
+# --- KINETIC RITES: API ---
+dev: ## ignite the local development server with auto-reload
+	@poetry run uvicorn src.{{ package_name }}.main:app --reload --port {{ api_port }}
+
+start: ## conduct the production strike on the local Iron
+	@poetry run uvicorn src.{{ package_name }}.main:app --host 0.0.0.0 --port {{ api_port }} --workers 4
+"""
+
+# --- IV. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]FastAPI Sovereign Heart[/bold cyan] is manifest."
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Architectural Drift -> 0)[/]"
+    proclaim: "Heart Locus: [white]src/{{ package_name }}/main.py[/]"
+    
+    proclaim: "[bold green]✅ The Heart is beating.[/bold green]"
+    proclaim: "To ignite the server, speak: [bold cyan]make dev[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]API Heart materialization fractured.[/bold red]"

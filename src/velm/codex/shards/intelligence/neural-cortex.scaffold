@@ -1,0 +1,127 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: intelligence/neural-cortex
+# ==============================================================================
+# @id:           intelligence/neural-cortex
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Universal, provider-agnostic LLM interface using LiteLLM. Serves as the base cognitive engine.
+# @vibe:         [llm, ai, litellm, gateway, openai, anthropic, cortex, brain]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:llm-gateway, capability:neural-cortex]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["litellm>=1.31.0", "pydantic>=2.6.0"]
+#   env:         ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "SCAFFOLD_AI_MODEL"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "core-dependency"
+#   priority:    100
+#   alias:       "neural_cortex"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ vault_package_name = {{ package_name | default(project_slug | snake) }}
+$$ default_model       = {{ default_model | default("gpt-4o") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Cognitive Mind) ---
+
+src/{{ vault_package_name }}/core/ai/
+    __init__.py :: """
+from .gateway import neural_gateway, AIRevelation
+__all__ = ["neural_gateway", "AIRevelation"]
+"""
+
+    # [ASCENSION 1]: THE UNIVERSAL PROXY (THE MASTER SUTURE)
+    gateway.py :: """
+import os
+import time
+import uuid
+import logging
+from typing import List, Dict, Any, Optional, Union
+from litellm import completion
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("NeuralCortex")
+
+class AIRevelation(BaseModel):
+    \"\"\"The structured soul of an AI epiphany.\"\"\"
+    content: str = Field(..., description="The transmuted matter (output text).")
+    model: str = Field(..., description="The specific mind utilized.")
+    cost_usd: float = Field(0.0, description="The fiscal tax of this thought.")
+    latency_ms: float = Field(0.0, description="The temporal tax of this thought.")
+    trace_id: str = Field(..., description="The silver cord of causality.")
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+class NeuralGateway:
+    \"\"\"
+    =============================================================================
+    == THE NEURAL GATEWAY (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: COGNITIVE_ORCHESTRATOR | RANK: OMEGA
+    
+    The supreme bridge between Architect Intent and Silicon Intelligence.
+    \"\"\"
+    def __init__(self):
+        self.default_model = os.getenv("SCAFFOLD_AI_MODEL", "{{ default_model }}")
+        
+        import litellm
+        litellm.num_retries = 3
+        litellm.telemetry = False # Preserve Gnostic privacy
+
+    async def think(
+        self, 
+        prompt: str, 
+        system: Optional[str] = None, 
+        model: Optional[str] = None,
+        trace_id: Optional[str] = None
+    ) -> AIRevelation:
+        \"\"\"Conducts the Rite of Inference.\"\"\"
+        start_ts = time.perf_counter()
+        active_trace = trace_id or f"tr-ai-{uuid.uuid4().hex[:6].upper()}"
+        active_model = model or self.default_model
+
+        try:
+            # [STRIKE]: The Neural Communion
+            response = await completion(
+                model=active_model,
+                messages=[
+                    {"role": "system", "content": system or "You are a Gnostic Architect Engine."},
+                    {"role": "user", "content": prompt}
+                ],
+                metadata={"trace_id": active_trace}
+            )
+
+            duration_ms = (time.perf_counter() - start_ts) * 1000
+            cost = getattr(response, '_response_cost', 0.0)
+            
+            revelation = AIRevelation(
+                content=response.choices[0].message.content,
+                model=response.model,
+                cost_usd=cost,
+                latency_ms=duration_ms,
+                trace_id=active_trace
+            )
+            
+            return revelation
+
+        except Exception as e:
+            Logger.error(f"Neural Link Severed: {e}")
+            raise e
+
+# [ASCENSION 12]: THE SOVEREIGN BINDING
+neural_gateway = NeuralGateway()
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Neural Cortex[/] has been sutured into the Mind."
+    proclaim: "Locus: [white]src/{{ vault_package_name }}/core/ai/gateway.py[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Cognitive Friction -> 0)[/]"
+    proclaim: "[bold green]✅ The Mind is open.[/bold green] Your application can now perceive intent."
+
+%% on-heresy
+    proclaim: "[bold red]Neural materialization fractured.[/bold red]"

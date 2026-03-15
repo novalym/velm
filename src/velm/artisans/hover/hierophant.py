@@ -161,7 +161,7 @@ class HoverArtisan(BaseArtisan[HoverRequest]):
 
         # --- PLANE D: ALCHEMY (VARIABLES & STATE) ---
         is_var_sigil = token_type == "SIGIL_VAR" or token.startswith("$$")
-        if aura.is_inside_jinja or aura.is_inside_header or is_var_sigil:
+        if aura.is_inside_sgf or aura.is_inside_header or is_var_sigil:
             # [THE FIX]: Strict Name Isolation
             # We strip braces, sigils AND any assignment debris to get the pure identifier soul
             clean_var = re.sub(r'[\{\}\$]|(\s*[:=].*)', '', token).strip()
@@ -191,7 +191,7 @@ class HoverArtisan(BaseArtisan[HoverRequest]):
                     return self._finalize_revelation(payload, trace_id)
 
             # [ASCENSION 2]: THE ALCHEMICAL VOID
-            if (aura.is_inside_header or aura.is_inside_jinja) and clean_var:
+            if (aura.is_inside_header or aura.is_inside_sgf) and clean_var:
                 payload["special_md"] = f"### 🌑 Alchemical Void\n**Target:** `{clean_var}`\n\nUndefined variable."
                 similars = self._prophesy_similar_symbols(clean_var)
                 if similars: payload["special_md"] += f"\n\n**Did you mean?** {', '.join([f'`{s}`' for s in similars])}"

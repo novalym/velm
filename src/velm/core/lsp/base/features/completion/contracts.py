@@ -71,7 +71,7 @@ class CompletionContext:
 
     # --- V. AURA & STATE ---
     context_type: str  # 'form', 'will', 'logic', 'metadata', 'soul'
-    is_inside_jinja: bool
+    is_inside_sgf: bool
     is_inside_comment: bool
     is_inside_string: bool
     parent_block: Optional[str] = None

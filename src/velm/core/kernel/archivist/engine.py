@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/archivist/engine.py
+# Path: velm/core/kernel/archivist/engine.py
 # ----------------------------------------------
 
 import shutil

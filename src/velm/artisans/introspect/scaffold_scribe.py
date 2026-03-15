@@ -8,7 +8,7 @@ from typing import Dict, Any
 from ... import __version__ as scaffold_version
 from ...core.alchemist import get_alchemist
 from ...jurisprudence_core.scaffold_grammar_codex import ALLOWED_VAR_TYPES
-from ...semantic_injection.loader import SemanticRegistry
+from ...codex.loader import CodexRegistry
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
@@ -130,12 +130,12 @@ def proclaim_gnosis(lite: bool = True) -> Dict[str, Any]:
     """
     [ASCENSION]: Restores the registry list with SMART-FULL logic.
     """
-    if not SemanticRegistry._is_loaded:
-        SemanticRegistry.awaken()
+    if not CodexRegistry._is_loaded:
+        CodexRegistry.awaken()
 
-    semantic_domains = SemanticRegistry.list_domains()
+    semantic_domains = CodexRegistry.list_domains()
     semantic_directives = []
-    for domain, handler in SemanticRegistry._domains.items():
+    for domain, handler in CodexRegistry._domains.items():
         directives = [f"@{domain}/{d.replace('_directive_', '')}" for d in dir(handler) if d.startswith('_directive_')]
         semantic_directives.extend(directives)
 

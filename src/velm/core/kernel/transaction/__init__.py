@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/transaction/__init__.py
+# Path: velm/core/kernel/transaction/__init__.py
 
 """
 =================================================================================

@@ -1,0 +1,112 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/project-manager
+# ==============================================================================
+# @id:           system/project-manager
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      The Multiversal Hypervisor for tracking project metadata, physical anchors, and architectural resonance across the Registry.
+# @vibe:         [project-manager, hypervisor, registry, metadata, multirepo, spatial-anchor]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:project-registry, capability:multirepo-manager]
+# @requires:     [capability:python-core, capability:environment-management]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["SCAFFOLD_PROJECT_REGISTRY_PATH"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "system-manager"
+#   priority:    10
+#   alias:       "project_manager"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-hypervisor") }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+$$ registry_path = "~/.scaffold/projects.json"
+
+# --- II. THE SCRIPTURE OF FORM (The Observatory) ---
+
+src/{{ package_name }}/core/observatory/
+    __init__.py :: "from .manager import ProjectManager\nfrom .contracts import ProjectMetadata"
+
+    # [ASCENSION 1]: The Gnostic Contracts
+    contracts.py :: """
+import time
+from pathlib import Path
+from typing import Dict, List, Optional, Any
+from pydantic import BaseModel, Field, ConfigDict
+
+class ProjectMetadata(BaseModel):
+    \"\"\"The structured soul of a managed reality.\"\"\"
+    model_config = ConfigDict(extra='allow')
+
+    id: str = Field(..., description="The unique project slug.")
+    name: str = Field(..., description="Human-readable project label.")
+    path: Path = Field(..., description="The absolute physical coordinate.")
+    
+    created_at: float = Field(default_factory=time.time)
+    last_accessed: float = Field(default_factory=time.time)
+    status: str = "active"
+"""
+
+    # [ASCENSION 2]: THE HYPERVISOR
+    manager.py :: """
+import json
+import os
+import logging
+from pathlib import Path
+from typing import Dict, List, Optional
+from .contracts import ProjectMetadata
+
+Logger = logging.getLogger("System:ProjectManager")
+
+class ProjectManager:
+    \"\"\"
+    =============================================================================
+    == THE PROJECT MANAGER (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: PROJECT_HYPERVISOR | RANK: OMEGA
+    \"\"\"
+    def __init__(self):
+        env_path = os.getenv("SCAFFOLD_PROJECT_REGISTRY_PATH")
+        self.registry_file = Path(env_path).expanduser() if env_path else Path("{{ registry_path }}").expanduser()
+        self.registry_file.parent.mkdir(parents=True, exist_ok=True)
+        self._projects: Dict[str, ProjectMetadata] = self._load()
+
+    def _load(self) -> Dict[str, ProjectMetadata]:
+        if not self.registry_file.exists(): return {}
+        try:
+            data = json.loads(self.registry_file.read_text())
+            return {pid: ProjectMetadata(**meta) for pid, meta in data.items()}
+        except Exception: return {}
+
+    def _persist(self):
+        try:
+            data = {pid: meta.model_dump(mode='json') for pid, meta in self._projects.items()}
+            self.registry_file.write_text(json.dumps(data, indent=2))
+        except Exception as e:
+            Logger.error(f"Registry Inscription Failure: {e}")
+
+    def register_project(self, meta: ProjectMetadata):
+        # [ASCENSION 6]: Idempotency Guard
+        path_str = str(meta.path).replace('\\\\', '/')
+        for existing in self._projects.values():
+            if str(existing.path).replace('\\\\', '/') == path_str:
+                return
+        self._projects[meta.id] = meta
+        self._persist()
+        Logger.info(f"✨ [OBSERVATORY] Reality '{meta.name}' waked and registered.")
+
+    def list_projects(self) -> List[ProjectMetadata]:
+        return list(self._projects.values())
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Project Manager[/] is manifest."
+    proclaim: "Registry Coordinate: [white]{{ registry_path }}[/]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Multirepo Friction -> 0)[/]"
+    proclaim: "[bold green]✅ The Gnostic Hypervisor is active.[/bold green]"

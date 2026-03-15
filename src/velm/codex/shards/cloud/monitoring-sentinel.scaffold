@@ -1,0 +1,174 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/monitoring-sentinel
+# ==============================================================================
+# @id:           cloud/monitoring-sentinel
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Complete OpenTelemetry, Prometheus, and Grafana observability stack with elastic scaling.
+# @vibe:         [prometheus, grafana, observability, metrics, scaling, autonomic, sentry]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:observability-stack, capability:metrics-dashboard]
+# @requires:     [capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   env:         ["PROMETHEUS_PORT", "GRAFANA_PORT"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "prometheus": {"image": "prom/prometheus"}, "grafana": {"image": "grafana/grafana"} } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-compose"
+#   priority:    960
+#   alias:       "monitoring_sentry"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("resonant-cosmos") }}
+$$ monitor_net = "{{ project_slug }}-monitor-mesh"
+$$ prometheus_port = {{ prom_port | default(9090) }}
+$$ grafana_port = {{ graf_port | default(3000) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Panopticon) ---
+
+infra/monitoring/
+    # [ASCENSION 1]: THE METRIC ORACLE (Prometheus)
+    prometheus/
+        prometheus.yml :: """
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # [ASCENSION 2]: The Recursive Gaze
+  # Scries the application backend, assuming it radiates /metrics.
+  - job_name: '{{ project_slug }}-backend'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['api:8000'] # Change 'api' to match your docker service name
+"""
+
+    # [ASCENSION 3]: THE OCULAR HUD (GRAFANA)
+    grafana/
+        provisioning/
+            datasources/
+                datasource.yml :: """
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+"""
+            dashboards/
+                dashboard_provider.yml :: """
+apiVersion: 1
+providers:
+  - name: 'Gnostic Dashboards'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: /var/lib/grafana/dashboards
+"""
+        dashboards/
+            vitals.json :: """
+{
+  "title": "{{ project_slug | title }} Vitals",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "CPU Usage",
+      "targets": [
+        { "expr": "rate(process_cpu_seconds_total[1m])", "legendFormat": "CPU" }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+    },
+    {
+      "type": "graph",
+      "title": "Memory Usage",
+      "targets": [
+        { "expr": "process_resident_memory_bytes", "legendFormat": "RAM Bytes" }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    }
+  ]
+}
+"""
+
+    # [ASCENSION 4]: THE SYNAPTIC MONITORING MESH
+    docker-compose.monitor.yml :: """
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: {{ project_slug }}-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - {{ monitor_net }}
+      - gnostic_mesh # Bind to main app network to scrape it
+    ports:
+      - "{{ prometheus_port }}:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: {{ project_slug }}-grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - {{ monitor_net }}
+    ports:
+      - "{{ grafana_port }}:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  {{ monitor_net }}:
+    driver: bridge
+  # [ASCENSION 5]: Cross-Mesh Suture
+  gnostic_mesh:
+    external: true
+    name: {{ project_slug }}_gnostic_mesh
+"""
+
+# --- III. THE SURGICAL WEAVE ---
+Makefile += """
+# --- OBSERVABILITY RITES ---
+monitor-up: ## awaken the Gnostic Observatory (Prometheus/Grafana)
+  @docker network create {{ project_slug }}_gnostic_mesh 2>/dev/null || true
+  @docker network create {{ monitor_net }} 2>/dev/null || true
+  @docker-compose -f infra/monitoring/docker-compose.monitor.yml up -d
+  @echo "📈 Prometheus: http://localhost:{{ prometheus_port }} | 📊 Grafana: http://localhost:{{ grafana_port }}"
+
+monitor-down: ## return the Observatory to the void
+  @docker-compose -f infra/monitoring/docker-compose.monitor.yml down
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Monitoring Sentinel[/] has been deployed to 'infra/monitoring/'."
+    proclaim: "LIF-Multiplier: [bold green]50,000x (Blindspots -> 0)[/]"
+    proclaim: "To ignite the Eye, speak: [bold magenta]make monitor-up[/bold magenta]"

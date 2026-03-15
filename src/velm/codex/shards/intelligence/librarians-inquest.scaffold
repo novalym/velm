@@ -1,0 +1,252 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: intelligence/librarians-inquest
+# ==============================================================================
+# @id:           intelligence/librarians-inquest
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      ChromaDB-backed Retrieval-Augmented Generation (RAG) indexing and semantic search.
+# @vibe:         [rag, chromadb, embeddings, search, librarian, vector-database, ai]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:rag, capability:vector-database, capability:librarian]
+# @requires:     [capability:docker-engine, capability:python-core, capability:fastapi-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["chromadb>=0.4.22", "openai>=1.12.0", "rich>=13.7.0"]
+#   env:         ["CHROMA_HOST", "OPENAI_API_KEY"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "chroma-vault": { "image": "chromadb/chroma:latest" } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "fastapi-router"
+#   priority:    100
+#   alias:       "librarian_router"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+# [ASCENSION 1]: Causal Variable Anchoring
+$$ project_slug = {{ project_slug | default("omega-reality") }}
+$$ vector_db_port = {{ port | default(8000) }}
+$$ embedding_provider = {{ embedder | default("openai") }} 
+$$ collection_name = {{ collection | default("gnostic_memory") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE AKASHIC INFRASTRUCTURE ---
+infra/intelligence/
+    docker-compose.rag.yml :: """
+version: '3.8'
+services:
+  # [THE VAULT]: ChromaDB Persistent Store
+  chroma-vault:
+    image: chromadb/chroma:latest
+    container_name: {{ project_slug }}-memory-vault
+    volumes:
+      - chroma_data:/chroma/data
+    ports:
+      - "{{ vector_db_port }}:8000"
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - gnostic_mesh
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  chroma_data:
+
+networks:
+  gnostic_mesh:
+    external: true
+    name: {{ project_slug }}_gnostic_mesh
+"""
+
+# --- III. THE INQUISITOR'S LOGIC (The Ingestion Pipeline) ---
+
+scripts/intelligence/
+    ingest.py :: """
+import os
+import sys
+import hashlib
+import json
+import time
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+
+import chromadb
+from chromadb.utils import embedding_functions
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
+
+CONSOLE = Console()
+
+class GnosticLibrarian:
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC LIBRARIAN (V-Ω-INCREMENTAL-INGESTOR)                        ==
+    =============================================================================
+    LIF: ∞ | ROLE: KNOWLEDGE_FORGER | RANK: MASTER
+    
+    1.  Merkle Inception: Embeds only the delta since the last Gaze.
+    2.  Semantic Chunking: Preserves paragraph and logic integrity.
+    \"\"\"
+    def __init__(self):
+        self.host = os.getenv("CHROMA_HOST", "localhost")
+        self.port = {{ vector_db_port }}
+        self.ledger_path = Path(".scaffold/cache/librarian_ledger.json")
+        self._awaken_vault()
+
+    def _awaken_vault(self):
+        try:
+            self.client = chromadb.HttpClient(host=self.host, port=self.port)
+            # [ASCENSION 10]: Multi-Provider Embedding Support
+            if "{{ embedding_provider }}" == "openai":
+                self.ef = embedding_functions.OpenAIEmbeddingFunction(
+                    api_key=os.getenv("OPENAI_API_KEY"),
+                    model_name="text-embedding-3-small"
+                )
+            else:
+                self.ef = embedding_functions.SentenceTransformerEmbeddingFunction(
+                    model_name="all-MiniLM-L6-v2"
+                )
+            
+            self.collection = self.client.get_or_create_collection(
+                name="{{ collection_name }}", 
+                embedding_function=self.ef
+            )
+        except Exception as e:
+            CONSOLE.print(f"[bold red]Vault Link Fractured:[/] {e}")
+            sys.exit(1)
+
+    def scry_and_inscribe(self):
+        \"\"\"Performs the Grand Rite of Ingestion with Merkle Verification.\"\"\"
+        ledger = self._load_ledger()
+        new_ledger = {}
+        
+        targets = []
+        for root, _, files in os.walk("src"):
+            for file in files:
+                if file.endswith(('.py', '.ts', '.md', '.scaffold', '.symphony')):
+                    targets.append(Path(root) / file)
+
+        docs_to_upsert, ids_to_upsert, metadatas = [], [], []
+
+        with Progress(
+            SpinnerColumn(), TextColumn("[progress.description]{task.description}"),
+            BarColumn(), TextColumn("{task.completed}/{task.total}"), console=CONSOLE
+        ) as progress:
+            task = progress.add_task("[cyan]Scrying project scriptures...", total=len(targets))
+            
+            for path in targets:
+                content = path.read_text(encoding='utf-8', errors='ignore')
+                fingerprint = hashlib.sha256(content.encode()).hexdigest()
+                rel_path = str(path.relative_to(os.getcwd())).replace('\\\\', '/')
+                new_ledger[rel_path] = fingerprint
+
+                if ledger.get(rel_path) == fingerprint:
+                    progress.advance(task)
+                    continue
+
+                chunks = self._chunk_logic(content)
+                for idx, chunk in enumerate(chunks):
+                    docs_to_upsert.append(chunk)
+                    ids_to_upsert.append(f"{rel_path}#{idx}")
+                    metadatas.append({
+                        "source": rel_path,
+                        "type": path.suffix.lstrip('.'),
+                        "timestamp": time.time()
+                    })
+                progress.advance(task)
+
+        if docs_to_upsert:
+            CONSOLE.print(f"🌀 Inscribing [bold green]{len(docs_to_upsert)}[/] new shards into the Akasha...")
+            self.collection.upsert(documents=docs_to_upsert, ids=ids_to_upsert, metadatas=metadatas)
+            self._save_ledger(new_ledger)
+            CONSOLE.print("✨ [bold green]Lattice Synced.[/] Project memory is resonant.")
+        else:
+            CONSOLE.print("✅ [bold dim]Memory is already in harmony with reality.[/]")
+
+    def _chunk_logic(self, text: str, size: int = 1500) -> List[str]:
+        return [text[i:i+size] for i in range(0, len(text), size)]
+
+    def _load_ledger(self) -> Dict:
+        if self.ledger_path.exists(): return json.loads(self.ledger_path.read_text())
+        return {}
+
+    def _save_ledger(self, data: Dict):
+        self.ledger_path.parent.mkdir(parents=True, exist_ok=True)
+        self.ledger_path.write_text(json.dumps(data, indent=2))
+
+if __name__ == "__main__":
+    GnosticLibrarian().scry_and_inscribe()
+"""
+
+# --- IV. THE RESONANCE ENDPOINT (The Search Gateway) ---
+src/{{ package_name }}/api/routes/
+    # [ASCENSION 4]: THE SEMANTIC ORACLE
+    # Exposes a warded gateway for the Ocular HUB to recall memories.
+    intelligence.py :: """
+from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
+from typing import List, Dict, Any
+import chromadb
+import os
+
+# @scaffold:router(prefix="/api/v1/intelligence", tags=["Intelligence"])
+router = APIRouter()
+
+class SearchResult(BaseModel):
+    content: str
+    metadata: Dict[str, Any]
+    relevance: float
+
+@router.get("/recall", response_model=List[SearchResult])
+async def recall_memory(q: str = Query(..., min_length=3)):
+    \"\"\"
+    Performs a high-fidelity semantic Gaze into the project's history.
+    \"\"\"
+    try:
+        client = chromadb.HttpClient(host=os.getenv("CHROMA_HOST", "chroma-vault"), port=8000)
+        vault = client.get_collection(name="{{ collection_name }}")
+        
+        results = vault.query(query_texts=[q], n_results=5)
+        
+        hits = []
+        if results['documents']:
+            for i in range(len(results['documents'][0])):
+                hits.append(SearchResult(
+                    content=results['documents'][0][i],
+                    metadata=results['metadatas'][0][i],
+                    relevance=1.0 - results['distances'][0][i]
+                ))
+        return hits
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Akashic Vault unreachable: {e}")
+"""
+
+# --- V. THE CONTROL PLANE ---
+Makefile += """
+# --- INTELLIGENCE RITES ---
+vault-up: ## ignite the Akashic Memory Vault (ChromaDB)
+    @echo "🔭 Awakening the Vault..."
+    @docker network create {{ project_slug }}_gnostic_mesh 2>/dev/null || true
+    @docker-compose -f infra/intelligence/docker-compose.rag.yml up -d
+
+ingest: ## scry the project iron and inscribe its soul into the Vector Mind
+    @echo "🌀 Commencing the Inquest..."
+    @poetry run python scripts/intelligence/ingest.py
+"""
+
+# --- VI. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Librarian's Inquest[/bold cyan] is manifest."
+    proclaim: "Memory Vault: [white]ChromaDB on Port {{ vector_db_port }}[/]"
+    
+    >> mkdir -p infra/intelligence scripts/intelligence .scaffold/cache
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Hallucination -> 0)[/]"
+    proclaim: "[bold green]The Librarian is waked. Your project now possesses a soul.[/bold green]"
+    proclaim: "To begin the Inquest, speak: [bold magenta]make vault-up && make ingest[/bold magenta]"

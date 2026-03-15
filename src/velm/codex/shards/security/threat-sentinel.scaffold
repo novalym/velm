@@ -1,0 +1,146 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: security/threat-sentinel
+# ==============================================================================
+# @id:           security/threat-sentinel
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Redis-backed threat detection, IP banishment, and strict WAF signature enforcement.
+# @vibe:         [waf, threats, redis, security, sentinel, banishment, protection]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:threat-detection, capability:waf]
+# @requires:     [capability:fastapi-core, capability:redis-client]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["redis[hiredis]>=5.0.0"]
+#   env:         ["SENTINEL_REDIS_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "threat-vault": { "image": "redis:7-alpine" } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "middleware-spine"
+#   priority:    0
+#   alias:       "threat_sentinel_guard"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ redis_url = {{ redis_url | default("redis://threat-vault:6379/0") }}
+$$ ban_duration_seconds = {{ ban_duration | default(86400) }}
+$$ risk_threshold = {{ risk_threshold | default(3) }}
+
+# --- II. THE INFRASTRUCTURE OF THE VOID (Redis Substrate) ---
+infra/security/
+    docker-compose.sentinel.yml :: """
+version: '3.8'
+services:
+  threat-vault:
+    image: redis:7-alpine
+    container_name: {{ project_slug }}-threat-vault
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 128mb
+    ports:
+      - "6379:6379"
+    networks:
+      - gnostic_mesh
+
+networks:
+  gnostic_mesh:
+    external: true
+    name: {{ project_slug }}_gnostic_mesh
+"""
+
+# --- III. THE SENTINEL ENGINE (Logic Stratum) ---
+src/{{ package_name }}/core/security/
+    signatures.py :: """
+import re
+from typing import List
+
+SIGNATURES: List[re.Pattern] = [
+    re.compile(r"(?i)(\\%27)|(\\')|(\\-\\-)|(\\%23)|(#)"),
+    re.compile(r"(?i)\\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|EXEC|TRUNCATE)\\b"),
+    re.compile(r"(?i)<script"),
+    re.compile(r"(?i)javascript:"),
+    re.compile(r"(?i)onerror="),
+    re.compile(r"\\.\\./"),
+    re.compile(r"/etc/passwd"),
+    re.compile(r"(?i)\\b(base64_decode|eval|system|exec|passthru|shell_exec)\\b")
+]
+"""
+
+    sentinel.py :: """
+import logging
+import os
+from typing import Callable, Awaitable, Optional
+from fastapi import Request, Response, status, FastAPI
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
+import redis.asyncio as redis
+
+from .signatures import SIGNATURES
+
+Logger = logging.getLogger("Security:Sentinel")
+
+class ThreatSentinel(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE THREAT SENTINEL (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: PERIMETER_GUARDIAN | RANK: OMEGA
+    \"\"\"
+    def __init__(self, app):
+        super().__init__(app)
+        self.vault = redis.from_url(os.getenv("SENTINEL_REDIS_URL", "{{ redis_url }}"))
+        self.ban_ttl = {{ ban_duration_seconds }}
+        self.threshold = {{ risk_threshold }}
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        client_ip = request.client.host if request.client else "0.0.0.0"
+        
+        if await self.vault.exists(f"void:{client_ip}"):
+            return self._proclaim_banished(client_ip)
+
+        profane_matter = await self._scry_malice(request)
+        if profane_matter:
+            return await self._record_strike(client_ip, profane_matter)
+
+        return await call_next(request)
+
+    async def _scry_malice(self, request: Request) -> Optional[str]:
+        target = f"{request.url.path}?{request.url.query}"
+        for sig in SIGNATURES:
+            if sig.search(target): return f"URL_MALICE: {sig.pattern}"
+        return None
+
+    async def _record_strike(self, ip: str, evidence: str) -> JSONResponse:
+        strike_key = f"strikes:{ip}"
+        strikes = await self.vault.incr(strike_key)
+        await self.vault.expire(strike_key, 3600)
+
+        Logger.warning(f"⚠️ [SENTINEL] Strike {strikes}/{{self.threshold}} for {ip}. Evidence: {evidence}")
+
+        if strikes >= self.threshold:
+            Logger.critical(f"💀 [SENTINEL] BANISHING {ip} to the Void for {{self.ban_ttl}}s.")
+            await self.vault.set(f"void:{ip}", "1", ex=self.ban_ttl)
+            return self._proclaim_banished(ip)
+
+        return JSONResponse(status_code=400, content={"error": "MALICIOUS_INTENT"})
+
+    def _proclaim_banished(self, ip: str) -> JSONResponse:
+        return JSONResponse(status_code=403, content={"error": "IP_BANISHED"})
+
+def wire_sentinel(app: FastAPI):
+    app.add_middleware(ThreatSentinel)
+    Logger.info("🛡️ [SECURITY] Threat Sentinel waked and warded.")
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+sentinel-up: ## Ignite the threat vault
+    @docker-compose -f infra/security/docker-compose.sentinel.yml up -d
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Threat Sentinel[/bold cyan] is manifest and warded."
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Zero-Day Exploits -> 0)[/]"

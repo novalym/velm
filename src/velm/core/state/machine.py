@@ -1,4 +1,4 @@
-# Path: scaffold/core/state/machine.py
+# Path: velm/core/state/machine.py
 from contextlib import contextmanager
 from .store import Store
 from .ledger import ActiveLedger

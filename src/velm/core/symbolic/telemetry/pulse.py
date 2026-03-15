@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/telemetry/pulse.py
+# Path: src/velm/core/symbolic/telemetry/pulse.py
 # ----------------------------------------------------
 # LIF: ∞ | ROLE: HUD_SIGNAL_PROJECTOR | RANK: SOVEREIGN
 # AUTH: Ω_SYMBOLIC_PULSE_TOTALITY_V100

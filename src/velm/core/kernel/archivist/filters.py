@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/archivist/filters.py
+# Path: velm/core/kernel/archivist/filters.py
 # -----------------------------------------------
 
 import os

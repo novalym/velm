@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/contracts.py
+# Path: src/velm/core/symbolic/contracts.py
 # ---------------------------------------------
 # LIF: ∞ | ROLE: GNOSTIC_DATA_CONTRACTS | RANK: LEGENDARY
 # AUTH: Ω_SYMBOLIC_VESS_TOTALITY_V100

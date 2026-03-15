@@ -75,7 +75,7 @@ class PathProphet(CompletionProvider):
         try:
             # [ASCENSION 8]: JINJA GUARD
             # If we are inside a Jinja expression, do not suggest paths (Variables take precedence)
-            if ctx.is_inside_jinja: return []
+            if ctx.is_inside_sgf: return []
 
             # --- 1. DIVINE CONTEXT ---
             line = ctx.line_prefix

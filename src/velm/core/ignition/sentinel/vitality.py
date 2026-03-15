@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/sentinel/vitality.py
+# Path: velm/core/ignition/diviner/sentinel/vitality.py
 # ---------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: SENTINEL_VITALITY_V1
 

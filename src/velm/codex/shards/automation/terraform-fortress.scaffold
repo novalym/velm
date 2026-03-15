@@ -1,0 +1,121 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: automation/terraform-fortress
+# ==============================================================================
+# @id:           automation/terraform-fortress
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      AWS Cloud provisioning using HashiCorp Terraform with S3 remote state and KMS locking.
+# @vibe:         [terraform, aws, iac, infrastructure, cloud, provisioning, fortress]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:cloud-provisioning, capability:terraform-core]
+# @requires:     [capability:aws-credentials]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   env:         ["AWS_REGION", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   terraform:   ["backend 's3'", "provider 'aws'"]
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-terraform"
+#   priority:    1000
+#   alias:       "terraform_fortress"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("celestial-fortress") }}
+$$ aws_region = {{ aws_region | default("us-east-1") }}
+$$ state_bucket_name = "{{ project_slug }}-tf-state-{{ crypto.hex(6) }}"
+$$ state_lock_table = "{{ project_slug }}-tf-lock"
+
+# --- II. THE SCRIPTURE OF FORM (The Celestial Iron) ---
+
+# [ASCENSION 2]: THE KERNEL CONFIGURATION
+.gitignore += """
+# --- Terraform Gnosis ---
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+crash.log
+"""
+
+# [ASCENSION 3]: THE GNOSTIC PROVIDER
+providers.tf :: """
+terraform {
+  required_providers {
+    aws = { source  = "hashicorp/aws", version = "~> 5.0" }
+  }
+
+  # [ASCENSION 1]: REMOTE STATE & ACHRONAL LOCKING
+  backend "s3" {
+    bucket         = "{{ state_bucket_name }}"
+    key            = "global/terraform.tfstate"
+    region         = "{{ aws_region }}"
+    dynamodb_table = "{{ state_lock_table }}"
+    encrypt        = true
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+"""
+
+# [ASCENSION 4]: THE GNOSTIC VARIABLES
+variables.tf :: """
+variable "aws_region" {
+  description = "The AWS region to forge resources in."
+  type        = string
+  default     = "{{ aws_region }}"
+}
+variable "environment" {
+  description = "The target environment (staging, production)."
+  type        = string
+  default     = "staging"
+}
+"""
+
+# [ASCENSION 5]: THE MODULAR ORGANS
+modules/network/
+    main.tf :: """
+    resource "aws_vpc" "main" {
+      cidr_block = "10.0.0.0/16"
+      tags = { Name = "vpc-${var.environment}" }
+    }
+    """
+    variables.tf :: "variable \"environment\" { type = string }"
+
+# [ASCENSION 6]: THE MASTER SYMPHONY
+main.tf :: """
+# This is the root conductor. It delegates to modular organs.
+module "network" {
+  source = "./modules/network"
+  environment = var.environment
+}
+"""
+
+# --- III. THE SURGICAL WEAVE ---
+# [ASCENSION 9]: Global Conductor Integration
+Makefile += """
+# --- TERRAFORM RITES ---
+tf-init: ## initialize the Terraform sanctum
+  terraform init
+
+tf-plan: ## prophesy the changes to the celestial iron
+  terraform plan
+
+tf-apply: ## strike the iron and make reality manifest
+  terraform apply -auto-approve
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Terraform Fortress[/bold cyan] has been woven into reality."
+    proclaim: "[bold red]CRITICAL:[/bold red] You must manually forge the S3 state bucket and DynamoDB lock table."
+    proclaim: "  Speak these sacred incantations:"
+    proclaim: "    [dim]aws s3 mb s3://{{ state_bucket_name }} --region {{ aws_region }}[/]"
+    proclaim: "    [dim]aws dynamodb create-table --table-name {{ state_lock_table }} ...[/]"
+
+%% on-heresy
+    proclaim: "[bold red]Fortress materialization fractured.[/bold red]"

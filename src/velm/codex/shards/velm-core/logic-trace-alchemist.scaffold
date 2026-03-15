@@ -1,0 +1,115 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: velm-core/logic-trace-alchemist
+# ==============================================================================
+# @id:           velm-core/logic-trace-alchemist
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Intercepts physical write intents to inject Trace IDs and Merkle data as comments into generated files.
+# @vibe:         [tracing, provenance, comments, metadata, debugging, alchemist]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:trace-decorator, capability:file-provenance]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "trace-decorator"
+#   priority:    0
+#   alias:       "trace_alchemist"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ enable_trace_in_prod = {{ prod_trace | default(false) }}
+$$ trace_sigil = "Ω_GNOSTIC_TRACE"
+
+# --- II. THE TRACE CORE (The Mind of the Scribe) ---
+
+src/{{ package_name }}/core/alchemist/
+    __init__.py :: "from .trace_decorator import trace_materialization"
+
+    trace_decorator.py :: """
+import os
+import time
+import platform
+from pathlib import Path
+from typing import Dict, Any
+
+class TraceAlchemist:
+    \"\"\"
+    =============================================================================
+    == THE TRACE DECORATOR (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: PROVENANCE_RECORDER | RANK: OMEGA
+    \"\"\"
+    
+    SIGIL_MAP = {
+        '.py': '#', '.sh': '#', '.rb': '#', '.yaml': '#', '.yml': '#', '.toml': '#',
+        '.js': '//', '.ts': '//', '.tsx': '//', '.jsx': '//', '.go': '//', 
+        '.rs': '//', '.java': '//', '.cpp': '//', '.h': '//',
+        '.sql': '--', '.html': '<!--', '.css': '/*'
+    }
+
+    @classmethod
+    def apply_trace(cls, content: str, path: Path, context: Dict[str, Any]) -> str:
+        is_dev = os.getenv("SCAFFOLD_ENV") == "development"
+        if not is_dev and not {{ enable_trace_in_prod | lower }}:
+            return content
+
+        ext = path.suffix.lower()
+        sigil = cls.SIGIL_MAP.get(ext, '#')
+        
+        # [ASCENSION 23]: THE ENTROPY SIEVE
+        safe_ctx = {
+            k: v for k, v in context.items() 
+            if not any(s in k.lower() for s in ['key', 'secret', 'token', 'pass', 'auth'])
+            and not str(k).startswith('_')
+        }
+
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        trace_id = context.get('trace_id', 'tr-local-void')
+        
+        header = [
+            f"{sigil} =============================================================",
+            f"{sigil} == {{ trace_sigil }}: {path.name} ",
+            f"{sigil} == TRACE_ID: {trace_id}",
+            f"{sigil} == FORGED_AT: {timestamp}",
+            f"{sigil} == SUBSTRATE: {platform.node()}",
+            f"{sigil} == [ALCHEMICAL CONTEXT]:",
+        ]
+        
+        for k, v in sorted(safe_ctx.items()):
+            header.append(f"{sigil}    {k} = {v}")
+            
+        header.append(f"{sigil} =============================================================\\n")
+        
+        if sigil == '<!--':
+            header = [line.replace('<!--', '  ') for line in header]
+            header[0] = '<!--'
+            header[-1] = '-->\\n'
+        elif sigil == '/*':
+            header = [line.replace('/*', ' *') for line in header]
+            header[0] = '/**'
+            header[-1] = ' */\\n'
+
+        return "\\n".join(header) + content
+
+def trace_materialization(content: str, path: Path, context: Dict[str, Any]) -> str:
+    return TraceAlchemist.apply_trace(content, path, context)
+"""
+
+# --- III. THE CONTROL PLANE ---
+Makefile += """
+# --- ALCHEMICAL RITES ---
+scry-origin: ## scry the gnostic trace of a specific file
+    @grep -A 20 "{{ trace_sigil }}" $(file) || echo "❌ No Gnostic Trace manifest in $(file)."
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Logic Trace Alchemist[/bold cyan] is manifest."
+    >> mkdir -p src/{{ package_name }}/core/alchemist
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Debugging Confusion -> 0)[/]"

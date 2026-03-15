@@ -44,7 +44,7 @@ except ImportError as e:
     sys.exit(1)
 
 if TYPE_CHECKING:
-    from .... import ScaffoldEngine
+    from .... import VelmEngine
     from ...middleware import MiddlewarePipeline
 
 # Initialize structured logger for lifecycle events
@@ -89,7 +89,7 @@ PROJECT_ROOT, SERVER_ROOT = _resolve_runtime_anchors()
 
 class EngineBootstrap:
     """
-    Orchestrates the initialization sequence of the ScaffoldEngine.
+    Orchestrates the initialization sequence of the VelmEngine.
 
     This class is responsible for the transition from a cold start (process launch)
     to a fully operational runtime state. It manages dependency injection,
@@ -107,7 +107,7 @@ class EngineBootstrap:
         heavy subsystems to prevent process termination by the OS OOM killer.
     """
 
-    def __init__(self, engine: 'ScaffoldEngine'):
+    def __init__(self, engine: 'VelmEngine'):
         """
         Binds the bootstrap logic to a specific Engine instance.
         """

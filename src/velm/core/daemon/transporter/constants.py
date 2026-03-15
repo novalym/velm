@@ -1,4 +1,4 @@
-# Path: scaffold/core/daemon/transporter/constants.py
+# Path: velm/core/daemon/transporter/constants.py
 # ---------------------------------------------------
 # LIF: INFINITY | AUTH_CODE: Ω_PY_CONSTANTS_BINARY_V999
 # SYSTEM: KINETIC_PHYSICS | ROLE: IMMUTABLE_LAWS

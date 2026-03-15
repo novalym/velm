@@ -84,7 +84,7 @@ class CompletionEngine:
             trigger_kind=trigger_kind,
             language_id=doc.language_id,
             context_type='soul',
-            is_inside_jinja='{{' in line_prefix and '}}' not in line_prefix,
+            is_inside_sgf='{{' in line_prefix and '}}' not in line_prefix,
             is_inside_comment=line_prefix.strip().startswith('#') or line_prefix.strip().startswith('//'),
             is_inside_string=is_inside_string,
             trace_id=trace_id,

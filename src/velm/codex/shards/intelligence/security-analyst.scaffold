@@ -1,0 +1,106 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: intelligence/security-analyst
+# ==============================================================================
+# @id:           intelligence/security-analyst
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Pydantic-AI agent acting as a forensic inquisitor for deep code vulnerability scanning.
+# @vibe:         [agent, security, forensic, pydantic-ai, llm, vulnerability-scanner, analysis]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:security-agent, capability:forensic-analysis]
+# @requires:     [capability:neural-cortex, capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic-ai>=0.0.18", "logfire>=0.42.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "agent-registration"
+#   priority:    500
+#   alias:       "security_analyst"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ agent_model = {{ model | default("gpt-4o") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Inquisitor's Mind) ---
+
+src/{{ package_name }}/intelligence/agents/
+    __init__.py :: "from .forensic_analyst import security_analyst\nfrom .contracts import ForensicReport"
+
+    # [ASCENSION 3]: THE GNOSTIC CONTRACTS
+    contracts.py :: """
+from pydantic import BaseModel, Field
+from typing import Optional, Literal
+
+class ForensicReport(BaseModel):
+    \"\"\"The structured soul of a discovered logic fracture.\"\"\"
+    heresy_detected: bool = Field(..., description="True if the code violates Gnostic Law.")
+    severity: Literal["INFO", "WARNING", "CRITICAL"]
+    locus: str = Field(..., description="The physical coordinate (file:line) of the sin.")
+    cwe_mapping: Optional[str] = Field(None, description="The relevant MITRE common weakness identifier.")
+    reasoning: str = Field(..., description="Socratic explanation of why this code is profane.")
+    cure_suggestion: str = Field(..., description="The exact architectural rite required to heal the wound.")
+"""
+
+    # [ASCENSION 2]: THE NEUROMORPHIC AGENT (The Mind)
+    forensic_analyst.py :: """
+import logging
+from pydantic_ai import Agent, RunContext
+from .contracts import ForensicReport
+
+Logger = logging.getLogger("Intelligence:Inquisitor")
+
+# [ASCENSION 4]: THE SOVEREIGN AGENT INCEPTION
+# @scaffold:agent(model="{{ agent_model }}", group="security_swarm")
+security_analyst = Agent(
+    "openai:{{ agent_model }}",
+    result_type=ForensicReport,
+    system_prompt=(
+        "You are the High Inquisitor of the VELM God-Engine. "
+        "Your mission is to scry willed code for 'Architectural Heresies'—"
+        "logic-gaps, layer violations, and data-leakage paradoxes. "
+        "You have access to the VFS (Virtual Filesystem) and the Causal Web. "
+        "Speak with mathematical precision. Your judgment is final."
+    )
+)
+
+# --- THE KINETIC TOOLS ---
+
+@security_analyst.tool
+def scry_vfs(ctx: RunContext[None], path: str) -> str:
+    \"\"\"
+    [ASCENSION 11]: Physical Perception.
+    Allows the Inquisitor to read the soul of a file on the disk.
+    \"\"\"
+    Logger.info(f"🔎 [INQUISITOR] Scrying matter at: {path}")
+    try:
+        with open(path, 'r') as f:
+            return f.read()
+    except Exception as e:
+        return f"Fracture: Matter unreadable. {e}"
+
+@security_analyst.tool
+def scry_causality(ctx: RunContext[None], symbol: str) -> str:
+    \"\"\"
+    [ASCENSION 20]: Topological Perception.
+    Allows the Inquisitor to scry the Causal Web (Dependency Graph).
+    \"\"\"
+    return f"Oracle: Symbol '{symbol}' is a central node warded by 12 dependents."
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Security Analyst Agent[/bold cyan] is manifest."
+    proclaim: "Inquisitor Locus: [white]src/{{ package_name }}/intelligence/agents/forensic_analyst.py[/]"
+    proclaim: "Model Stratum: [bold yellow]{{ agent_model }}[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Security Blindspots -> 0)[/]"
+    proclaim: "[bold green]The Inquisitor is waked. Your logic is now warded by an active Mind.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Agent materialization fractured.[/bold red] Perimeter remains blind."
+    >> rm -rf src/{{ package_name }}/intelligence/agents

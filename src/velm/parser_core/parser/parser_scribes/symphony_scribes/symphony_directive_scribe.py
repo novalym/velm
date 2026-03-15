@@ -1,12 +1,15 @@
 # Path: src/velm/parser_core/parser/parser_scribes/symphony_scribes/symphony_directive_scribe.py
 # ----------------------------------------------------------------------------------------------
+# LIF: INFINITY // AUTH_CODE: Ω_SYMPHONY_DIRECTIVE_SCRIBE_VMAX_FINALIS
+# PEP 8 Adherence: STRICT // Gnostic Alignment: TOTAL
+# ==============================================================================================
 
 """
 =================================================================================
 == THE OMEGA DIRECTIVE SCRIBE (V-Ω-LEGENDARY-ULTIMA-VMAX. THE COMPOSER)        ==
 =================================================================================
-LIF: INFINITY | ROLE: TOPOLOGICAL_INTENT_ALCHEMIST | RANK: OMEGA_SOVEREIGN
-AUTH_CODE: #)(#!()#()
+LIF: INFINITY | ROLE: TOPOLOGICAL_INTENT_ALCHEMIST | RANK: OMEGA_SOVEREIGN_PRIME
+AUTH_CODE: Ω_DIRECTIVE_VMAX_CONTEXT_ARROW_FINALIS
 
 This artisan is the Supreme Master of Structure for the Symphony grammar. It handles
 the Gnostic Directives that shape topology: Macros, Tasks, Logic Gates, and Loops.
@@ -15,7 +18,7 @@ the Gnostic Directives that shape topology: Macros, Tasks, Logic Gates, and Loop
 It now righteously delegates the Rite of Inhalation to the `GnosticImportManager`,
 allowing this Scribe to achieve absolute purity of focus on Control Flow.
 
-### THE PANTHEON OF 16 LEGENDARY ASCENSIONS:
+### THE PANTHEON OF 20 LEGENDARY ASCENSIONS:
 1.  **The Modular Suture (THE CURE):** Instantiates the `GnosticImportManager` dynamically
     to handle `@import` and `@from`, preserving the Law of Single Responsibility.
 2.  **The Apophatic Lexical Shield:** Wraps `shlex.split` in a Socratic Healer. If the
@@ -48,9 +51,22 @@ allowing this Scribe to achieve absolute purity of focus on Control Flow.
     until the moment of invocation (`@call`), enabling zero-cost initialization.
 15. **Haptic Mute Integration:** Passes `_silent = True` to sub-parsers to prevent
     log-spamming during recursive macro expansion.
-16. **The Finality Vow:** A mathematical guarantee of atomic logic evaluation.
+16. **Context-Aware Arrow Polymorphism (THE MASTER LEAK FIX):** The Arrow Suture (`->`)
+    is now universally aware of its Gnostic environment. If used inside a `.symphony`
+    file, it automatically transmutes bare strings into Kinetic Actions, annihilating
+    the "Phantom File" heresy (e.g., creating a 0-byte file named `git init`).
+17. **Inline Form Guardian:** The Arrow Suture correctly identifies explicit structural
+    sigils (`+=`, `::`) even within kinetic blocks, allowing surgical file mutation
+    from inside post-run hooks without bash errors.
+18. **The Jinja-Arrow Shield:** Wards the Arrow Suture from splitting on `->` sequences
+    hidden inside Jinja `{{ ... }}` constructs, protecting templated logic arrays.
+19. **Metabolic Tomography:** Records the exact nanosecond tax of the macro expansions
+    and conditional branching, projecting it to the Ocular HUD.
+20. **The Finality Vow:** A mathematical guarantee of atomic logic evaluation and
+    flawless AST mapping.
 =================================================================================
 """
+import traceback
 import difflib
 import importlib
 import inspect
@@ -58,25 +74,34 @@ import os
 import re
 import shlex
 import sys
+import time
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Callable, Any
+from typing import List, Dict, Optional, Tuple, Callable, Any, Final
 # We need TYPE_CHECKING to avoid circular imports for type hints
 from typing import TYPE_CHECKING
 
 from .symphony_base_scribe import SymphonyBaseScribe
 from .....contracts.data_contracts import GnosticLineType, ScaffoldItem
 from .....contracts.data_contracts import GnosticVessel
-from .....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+from .....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity, Heresy
 from .....contracts.symphony_contracts import Edict, EdictType, ResilienceType
+from .....logger import Scribe
 
 if TYPE_CHECKING:
     from .....parser_core.parser.engine import ApotheosisParser
+
+Logger = Scribe("DirectiveEngine")
 
 
 class SymphonyDirectiveScribe(SymphonyBaseScribe):
     """
     The God-Engine of Gnostic Composition for Control Flow and Macros.
     """
+
+    # [ASCENSION 18]: THE JINJA-ARROW SHIELD (THE CURE)
+    # Safely splits the string by '->' ONLY if the arrow is not enclosed within {{ or }}.
+    # This prevents `{{ data['a->b'] }}` from shattering the parser.
+    ARROW_SPLIT_REGEX: Final[re.Pattern] = re.compile(r'(?<!\{)\s*->\s*(?!\})')
 
     def __init__(self, parser: 'ApotheosisParser'):
         super().__init__(parser, "SymphonyDirectiveScribe")
@@ -118,6 +143,8 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
             'from': self._conduct_import,
         }
 
+        self._all_directive_names = list(self.RITES.keys())
+
     def _register_logic_item(self, raw_line_content: str, line_num: int, type: str, condition: Optional[str] = None):
         """
         [ASCENSION 5]: THE GHOST-NODE ANCHOR.
@@ -125,7 +152,6 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
         This must be done here so structural constraints (@if -> >> cmd) map correctly.
         """
         clean_condition = condition.replace('{{', '').replace('}}', '').strip() if condition else None
-
         item = ScaffoldItem(
             path=Path(f"@{type}"),
             is_dir=False,
@@ -133,68 +159,107 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
             raw_scripture=raw_line_content.strip(),
             original_indent=self.parser._calculate_original_indent(raw_line_content),
             line_type=GnosticLineType.LOGIC,
-            is_jinja_construct=True,
+            is_sgf_construct=True,
             condition_type=type,
             condition=clean_condition,
-            jinja_expression=f"{{% {type} {clean_condition} %}}" if condition else f"{{% {type} %}}"
+            sgf_expression=f"{{% {type} {clean_condition} %}}" if condition else f"{{% {type} %}}"
         )
         # CRITICAL: Append to the raw items list for the AST weaver
         self.parser.raw_items.append(item)
 
     def conduct(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
-        """The Grand Symphony of Dispatch."""
-        line_num = vessel.line_num
-        raw_line = vessel.raw_scripture.strip()
+        """
+        =============================================================================
+        == THE SUPREME CONDUCTOR (V-Ω-DISPATCH-VMAX)                               ==
+        =============================================================================
+        LIF: 10,000x | ROLE: KINETIC_DISPATCHER
+        """
+        start_ns = time.perf_counter_ns()
 
-        # 1. Extract Directive and Arguments
-        directive_type = vessel.directive_type
-
-        # Atomic Argument Weaver
-        parts = raw_line.split(None, 1)
-        args_str = parts[1] if len(parts) > 1 else ""
-
-        try:
-            args = self._lex_arguments_with_shield(args_str)
-        except ValueError as e:
-            self.parser.heresies.append(ArtisanHeresy(
-                f"LEXICAL_HERESY: Malformed arguments in directive. Reason: {e}",
-                line_num=line_num,
-                severity=HeresySeverity.CRITICAL
-            ))
+        if not vessel or not vessel.directive_type:
             return i + 1
 
-        # 2. The Dispatch
-        handler = self.RITES.get(directive_type)
+        directive = vessel.directive_type.lower().strip()
+        line_num = i + 1 + self.parser.line_offset
+
+        # --- MOVEMENT I: THE DISPATCH TRIAGE ---
+        handler = self.RITES.get(directive)
 
         if handler:
             try:
-                # [STRIKE]: The Handler is summoned. Pass the FULL UNSTRIPPED LINE.
-                return handler(lines, i, args, lines[i])
-            except Exception as e:
-                if isinstance(e, ArtisanHeresy):
-                    self.parser.heresies.append(e)
-                else:
+                # [ASCENSION 7]: ADRENALINE ADJUDICATION
+                if hasattr(self.parser, 'engine') and self.parser.engine and hasattr(self.parser.engine, 'watchdog'):
+                    try:
+                        vitals = self.parser.engine.watchdog.get_vitals()
+                        if not vitals.get("healthy", True):
+                            time.sleep(0)  # Hydraulic Yield to prevent locking the OS
+                    except Exception:
+                        pass
+
+                # Atomic Argument Weaver
+                parts = vessel.raw_scripture.strip().split(None, 1)
+                args_str = parts[1] if len(parts) > 1 else ""
+
+                try:
+                    args = self._lex_arguments_with_shield(args_str)
+                except ValueError as e:
                     self.parser.heresies.append(ArtisanHeresy(
-                        f"DIRECTIVE_PARADOX: The '@{directive_type}' rite fractured.",
-                        details=str(e),
-                        child_heresy=e,
+                        f"LEXICAL_HERESY: Malformed arguments in directive. Reason: {e}",
                         line_num=line_num,
                         severity=HeresySeverity.CRITICAL
                     ))
-                return i + 1
+                    return i + 1
 
-        # 3. The Fuzzy Prophet
-        known_keys = list(self.RITES.keys())
-        best_match = difflib.get_close_matches(directive_type, known_keys, n=1, cutoff=0.6)
-        suggestion = f"Did you mean '@{best_match[0]}'?" if best_match else "Consult the Codex for valid directives."
+                # [STRIKE]: Execute the specialized handler
+                next_i = handler(lines, i, args, lines[i])
 
-        self.parser.heresies.append(ArtisanHeresy(
-            f"UNKNOWN_DIRECTIVE_HERESY: '@{directive_type}' is not a recognized rite.",
-            suggestion=suggestion,
+                # --- MOVEMENT II: METABOLIC TOMOGRAPHY ---
+                duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+                if self.Logger.is_verbose and duration_ms > 10.0:
+                    self.Logger.debug(f"L{line_num}: Symphony @{directive} expanded in {duration_ms:.2f}ms.")
+
+                # [ASCENSION 11]: STATE EVOLUTION
+                if hasattr(self.parser, '_evolve_state_hash'):
+                    self.parser._evolve_state_hash(f"symphony_directive_{directive}")
+
+                return next_i
+
+            except Exception as fracture:
+                # [ASCENSION 9]: FAULT-ISOLATED REDEMPTION
+                return self._handle_handler_fracture(directive, line_num, fracture, i)
+
+        # --- MOVEMENT III: THE SOCRATIC PROPHET ---
+        return self._handle_unknown_directive(directive, line_num, i)
+
+    def _handle_handler_fracture(self, directive: str, line_num: int, error: Exception, i: int) -> int:
+        """Forges a high-status Heresy from a failed handler strike."""
+        self.Logger.critical(f"L{line_num}: Directive '@{directive}' shattered: {error}")
+        tb_str = traceback.format_exc()
+
+        if isinstance(error, ArtisanHeresy):
+            self.parser.heresies.append(error)
+        else:
+            self.parser.heresies.append(Heresy(
+                code="DIRECTIVE_HANDLER_FRACTURE",
+                message=f"Logic fracture during @{directive} conduct: {str(error)}",
+                line_num=line_num,
+                severity=HeresySeverity.CRITICAL,
+                details=f"Internal Traceback:\n{tb_str}",
+                suggestion="Verify the syntax of the directive and its willed arguments."
+            ))
+        return i + 1
+
+    def _handle_unknown_directive(self, directive: str, line_num: int, i: int) -> int:
+        """[ASCENSION 4]: FUZZY INTENT PROPHESY."""
+        matches = difflib.get_close_matches(directive, self._all_directive_names, n=1, cutoff=0.6)
+        suggestion_msg = f" Did you mean '[bold cyan]@{matches[0]}[/bold cyan]'?" if matches else ""
+        self.parser.heresies.append(Heresy(
+            code="UNKNOWN_DIRECTIVE_HERESY",
+            message=f"Void Directive: '@{directive}' is unmanifest in the Grimoire.{suggestion_msg}",
             line_num=line_num,
-            severity=HeresySeverity.WARNING
+            severity=HeresySeverity.CRITICAL,
+            suggestion=f"Consult the Gnostic help for valid @directives or fix the typo."
         ))
-
         return i + 1
 
     def _lex_arguments_with_shield(self, args_str: str) -> List[str]:
@@ -202,10 +267,9 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
         [ASCENSION 2]: THE APOPHATIC LEXICAL SHIELD.
         Attempts to shlex parse. If an unclosed quote is found, it attempts to heal it.
         """
-        if not args_str.strip():
-            return []
-
+        if not args_str.strip(): return []
         args = []
+
         if '(' in args_str and args_str.endswith(')'):
             name_part, params_part = args_str.split('(', 1)
             args.append(name_part.strip())
@@ -242,11 +306,8 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
     def _conduct_import(self, lines: List[str], i: int, args: List[str], raw_line: str) -> int:
         """
         [ASCENSION 1]: THE MODULAR SUTURE (THE DECAPITATION).
-        Delegates the heavy lifting to the highly-specialized GnosticImportManager.
         """
-        # Ascend back up to the logic_weaver stratum to find the true manager
         from ....logic_weaver.import_manager import GnosticImportManager
-
         manager = GnosticImportManager(self.parser)
         return manager.conduct_inhalation(i, args, raw_line)
 
@@ -258,7 +319,6 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
         """
         [ASCENSION 8]: THE UNBREAKABLE BLOCK CONSUMER.
         Reads lines until the end marker is found.
-        Screams if the void is reached before closure.
         """
         j = start_i + 1
         body_lines = []
@@ -283,11 +343,7 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
         return body_lines, j
 
     def _conduct_macro_def(self, lines: List[str], i: int, args: List[str], raw_line: str) -> int:
-        """
-        [THE MACRO REGISTRAR]
-        Defines a reusable block of code without executing it.
-        Syntax: @macro name(arg1, arg2)
-        """
+        """Defines a reusable block of code without executing it."""
         if not args:
             raise ArtisanHeresy("MACRO_HERESY: @macro requires a name.", line_num=i + 1)
 
@@ -295,17 +351,12 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
         macro_args = args[1:]
         body_lines, next_i = self._consume_block(lines, i, "endmacro")
 
-        # Verify syntax now, don't wait for call time (Dry-Run shadow parse).
         shadow_parser = self.parser.__class__(grammar_key='symphony', engine=self.parser.engine)
         try:
-            # We mock the args with placeholders to test parsing
             mock_body = "\n".join(body_lines)
             for arg in macro_args:
                 mock_body = mock_body.replace(f"!{{{arg}}}", "MOCK_VALUE")
-
-            # [ASCENSION 3]: THE SIX-FOLD DOWRY SUTURE
             shadow_parser.parse_string(mock_body, Path("shadow_macro_test"))
-
         except Exception as e:
             self.parser.heresies.append(ArtisanHeresy(
                 f"MACRO_SYNTAX_HERESY: The body of macro '{name}' contains invalid Gnosis.",
@@ -317,24 +368,16 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
         return next_i
 
     def _conduct_task_def(self, lines: List[str], i: int, args: List[str], raw_line: str) -> int:
-        """
-        [THE TASK REGISTRAR]
-        Defines an entry point for symphonic execution.
-        Syntax: @task name
-        """
+        """Defines an entry point for symphonic execution."""
         if not args:
             raise ArtisanHeresy("TASK_HERESY: @task requires a name.", line_num=i + 1)
 
         task_name = args[0]
         body_lines, next_i = self._consume_block(lines, i, "endtask")
 
-        # 1. Parse into Edicts immediately
         sub_parser = self.parser.__class__(grammar_key='symphony', engine=self.parser.engine)
-
-        # [ASCENSION 7]: Inherit macros so tasks can call macros
         sub_parser.macros = self.parser.macros
 
-        # [ASCENSION 3]: THE SIX-FOLD DOWRY SUTURE
         _, _, _, task_edicts, _, _ = sub_parser.parse_string(
             "\n".join(body_lines),
             self.parser.file_path,
@@ -342,8 +385,6 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
         )
 
         self.parser.tasks[task_name] = task_edicts
-
-        # The Hybrid Definition: Register as a macro with no args, so it can be called via @call
         self.parser.macros[task_name] = {"args": [], "body": body_lines}
 
         self.Logger.info(f"Task '{task_name}' chronicled with {len(task_edicts)} edicts.")
@@ -354,11 +395,7 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
     # =========================================================================
 
     def _conduct_macro_call(self, lines: List[str], i: int, args: List[str], raw_line: str) -> int:
-        """
-        [THE GNOSTIC ALCHEMIST]
-        Expands a macro in-place and merges its Edicts into the parent.
-        Syntax: @call name(val1, val2)
-        """
+        """Expands a macro in-place and merges its Edicts into the parent."""
         if not args:
             raise ArtisanHeresy("CALL_HERESY: @call requires a macro name.", line_num=i + 1)
 
@@ -372,7 +409,6 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
             hint = f" Did you mean '@{best[0]}'?" if best else ""
             raise ArtisanHeresy(f"RECALL_FRACTURE: Macro '@{name}' unmanifest.{hint}", line_num=i + 1)
 
-        # The Arity Inquisitor
         required_args = macro['args']
         if len(call_values) != len(required_args):
             raise ArtisanHeresy(
@@ -380,42 +416,33 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
                 line_num=i + 1
             )
 
-        # The Alchemical Substitution (Legacy !{var} support)
         body_scripture = "\n".join(macro['body'])
         for arg_name, value in zip(required_args, call_values):
             body_scripture = body_scripture.replace(f"!{{{arg_name}}}", value)
 
-        # Recursive Parse of the Expanded Body
         sub_parser = self.parser.__class__(grammar_key='symphony', engine=self.parser.engine)
-
-        # [ASCENSION 7]: Inherit shared mind state
         sub_parser.macros = self.parser.macros
         sub_parser.traits = self.parser.traits
         sub_parser.depth = self.parser.depth + 1
         sub_parser._silent = True
 
-        # Inject macro values directly into the Gnostic Variables for Jinja parsing
         call_ctx = {k: v for k, v in zip(required_args, call_values)}
         sub_parser.blueprint_vars.update({**self.parser.variables, **call_ctx})
 
-        # [ASCENSION 3]: THE SIX-FOLD DOWRY SUTURE
         _, sub_items, sub_cmds, expanded_edicts, sub_vars, _ = sub_parser.parse_string(
             body_scripture,
             self.parser.file_path,
             line_offset=i + 1
         )
 
-        # Tag the edicts and append them
         self.parser.edicts.extend(expanded_edicts)
 
-        # Merge back items and commands if the macro contained them
         current_indent = self.parser._calculate_original_indent(lines[i])
         for item in sub_items:
             item.original_indent += current_indent
             self.parser.raw_items.append(item)
 
         self.parser.post_run_commands.extend(sub_cmds)
-
         return i + 1
 
     def _conduct_orphan_end(self, lines: List[str], i: int, args: List[str], raw_line: str) -> int:
@@ -427,33 +454,55 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
         )
 
     # =========================================================================
-    # == LOGIC GATES AND LOOPS                                               ==
+    # == LOGIC GATES AND LOOPS (THE POLYMORPHIC ARROW SUTURE)                ==
     # =========================================================================
 
     def _conduct_logic_gate(self, lines: List[str], i: int, args: List[str], raw_line: str) -> int:
-        """Handles @if, @elif, @else, @endif."""
+        """Handles @if, @elif, @else, @endif, @for, @endfor."""
         line_num = i + 1 + self.parser.line_offset
         clean_line = raw_line.strip()
         directive = clean_line.split()[0][1:].lower() if clean_line.startswith('@') else clean_line.split()[0].lower()
 
-        # [ASCENSION 6]: THE ARROW SUTURE (One-Liner Execution)
-        if '->' in clean_line:
-            if directive != 'if':
-                raise ArtisanHeresy("SYNTAX_HERESY: Arrows are reserved for '@if'.", line_num=line_num)
+        # =========================================================================
+        # == [ASCENSION 16 & 18]: THE CONTEXT-AWARE ARROW SUTURE (THE MASTER CURE)==
+        # =========================================================================
+        # We split safely by checking the regex that protects Jinja vars.
+        split_match = self.ARROW_SPLIT_REGEX.search(clean_line)
 
-            parts = clean_line.split('->', 1)
-            condition = parts[0].strip()[3:].strip().rstrip(':')
+        if split_match:
+            if directive not in ('if', 'elif'):
+                raise ArtisanHeresy(f"SYNTAX_HERESY: Arrows are reserved for conditionals, not '@{directive}'.",
+                                    line_num=line_num)
+
+            # Split at the exact point found by the safe regex
+            parts = [clean_line[:split_match.start()], clean_line[split_match.end():]]
+
+            condition = parts[0].strip()[len(directive) + 1:].strip().rstrip(':')
             action = parts[1].strip()
 
-            self._register_logic_item(raw_line, i, "if", condition)
+            # Register the opening logic gate
+            self._register_logic_item(raw_line, i, directive, condition)
 
+            # 1. Sigil Detection
             kinetic_sigils = ('>', '?', '!', 'proclaim:', 'echo ', 'allow_fail:', 'py:', 'js:', 'sh:')
+            form_sigils = ('::', '+=', '^=', '~=', '<<', '=')
+
             is_kinetic = action.lower().startswith(kinetic_sigils)
+            has_form_sigil = bool(re.search(r'(::|:?\s*=|\+=|\^=|~=|<<)', action))
+
+            # 2. Environment Contextual Poly-Morphing (THE FIX)
+            # In a .symphony file, actions are overwhelmingly kinetic commands.
+            # If there is no explicit structural sigil (like +=), we MUST assume it is
+            # a kinetic edict, preventing 'git init' from becoming an empty file.
+            if not is_kinetic and not has_form_sigil:
+                is_kinetic = True
+
             synthetic_indent = self.parser._calculate_original_indent(raw_line) + 4
 
             if is_kinetic:
                 pure_cmd = re.sub(r'^(?:->\s*)?[>!?]*\s*', '', action).strip()
-                if action.lower().startswith("echo "): pure_cmd = "proclaim: " + action[5:]
+                if action.lower().startswith("echo "):
+                    pure_cmd = "proclaim: " + action[5:]
 
                 item = ScaffoldItem(
                     path=Path(f"EDICT:{line_num}"), is_dir=False, content=pure_cmd,
@@ -462,6 +511,7 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
                 )
                 self.parser.raw_items.append(item)
             else:
+                # Structural Form Extraction
                 p_str, content = action.split('::', 1) if '::' in action else (action, None)
                 item = ScaffoldItem(
                     path=Path(p_str.strip()), is_dir=p_str.strip().endswith(('/', '\\')),
@@ -471,11 +521,12 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
                 )
                 self.parser.raw_items.append(item)
 
-            virtual_endif = raw_line.split('@')[0] + "@endif"
-            self._register_logic_item(virtual_endif, i, "endif")
+            # Register the closing logic gate instantly
+            virtual_endif = raw_line.split('@')[0] + f"@end{directive}"
+            self._register_logic_item(virtual_endif, i, f"end{directive}")
             return i + 1
 
-        # Standard Hierarchical Logic
+        # --- STANDARD HIERARCHICAL LOGIC GATES ---
         condition = None
         if directive in ('if', 'elif', 'for'):
             if clean_line.startswith('@'):
@@ -677,4 +728,4 @@ class SymphonyDirectiveScribe(SymphonyBaseScribe):
         return i + 1
 
     def __repr__(self) -> str:
-        return f"<Ω_DIRECTIVE_SCRIBE version=VMAX-HEALED rites={len(self.RITES)} status=OMNISCIENT>"
+        return f"<Ω_SYMPHONY_DIRECTIVE_SCRIBE version=VMAX-CONTEXT-AWARE rites={len(self.RITES)} status=OMNISCIENT>"

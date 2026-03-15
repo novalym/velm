@@ -48,9 +48,9 @@ class SymphonyCompletionScribe:
         [ASCENSION 5]: THE ALCHEMIST'S SOUL
         Prophesies variables, filters, and functions within a `{{...}}` block.
         """
-        jinja_start = line_prefix.rfind('{{')
-        if jinja_start == -1: return []
-        expression_prefix = line_prefix[jinja_start + 2:].strip()
+        sgf_start = line_prefix.rfind('{{')
+        if sgf_start == -1: return []
+        expression_prefix = line_prefix[sgf_start + 2:].strip()
 
         # 1. Filters (|) - If the user has typed a pipe
         pipe_pos = expression_prefix.rfind('|')

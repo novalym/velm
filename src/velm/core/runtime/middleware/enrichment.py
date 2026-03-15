@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/enrichment.py
+# Path: velm/core/runtime/middleware/enrichment.py
 # ---------------------------------------------------
 # LIF: INFINITY | AUTH_CODE: Ω_ENRICHMENT_SINGULARITY_V24
 # SYSTEM: SCAFFOLD_RUNTIME | ROLE: OMNISCIENT_WEAVER | RANK: OMEGA_SOVEREIGN

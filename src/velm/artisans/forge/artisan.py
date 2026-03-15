@@ -80,7 +80,7 @@ class {request_name}(BaseRequest):
 
         # 4. Forge the Registration (Injection Instruction)
         reg_instruction = f"""
-# --- INSTRUCTION: Add this to scaffold/core/cli/grimoire.py ---
+# --- INSTRUCTION: Add this to velm/core/cli/grimoire.py ---
 
 "{name_snake.replace('_', '-')}": {{
     "help": "{request.description}",

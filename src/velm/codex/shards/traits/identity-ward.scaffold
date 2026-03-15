@@ -1,0 +1,119 @@
+# ==============================================================================
+# == GNOSTIC DNA TRAIT: traits/identity-ward
+# ==============================================================================
+# @id:           traits/identity-ward
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      A cryptographic identity verifier trait handling HMAC-signed JWTs and payload entropy scrubbing.
+# @vibe:         [trait, identity, security, jwt, hmac, privacy, encryption, auth]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:identity-ward, capability:entropy-sieve]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["SCAFFOLD_INTERNAL_KEY", "SCAFFOLD_AUTH_REALM"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "system-trait"
+#   priority:    0
+#   alias:       "identity_ward"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ auth_provider = {{ auth_provider | default("novalym-citadel") }}
+$$ secret_key = "{{ crypto.random(64, 'hex') }}" 
+$$ encryption_algo = "HS256"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Mind's Shield) ---
+
+src/{{ package_name }}/core/security/
+    __init__.py += "from .warden import IdentityWarden\nfrom .scrubber import EntropySieve\n"
+    
+    # [ASCENSION 2]: THE GNOSTIC WARDEN (Logic)
+    warden.py :: """
+import hmac
+import hashlib
+import json
+import time
+import os
+from datetime import datetime, timezone
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
+
+class IdentityClaim(BaseModel):
+    \"\"\"The Gnostic Vessel for an identity proclamation.\"\"\"
+    sub: str = Field(..., description="The Subject ID")
+    role: str = Field("acolyte", description="The Jurisprudence Rank")
+    iat: float = Field(default_factory=time.time)
+    iss: str = os.getenv("SCAFFOLD_AUTH_REALM", "{{ auth_provider }}")
+
+class IdentityWarden:
+    \"\"\"
+    =============================================================================
+    == THE IDENTITY WARDEN (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: ∞ | ROLE: SECURITY_SENTINEL | RANK: OMEGA
+    
+    1.  Merkle-Validated Seals: Forges tokens warded by the system's secret.
+    2.  Temporal Integrity: Enforces expiration and achronal validity.
+    \"\"\"
+    def __init__(self):
+        # Siphon from environmental DNA autonomicly
+        master_secret = os.getenv("SCAFFOLD_INTERNAL_KEY", "void")
+        self.secret = master_secret.encode()
+
+    def forge_seal(self, claim: Dict[str, Any]) -> str:
+        \"\"\"Transmutes a claim into a Merkle-validated Gnostic Seal.\"\"\"
+        canonical = json.dumps(claim, sort_keys=True)
+        return hmac.new(self.secret, canonical.encode(), hashlib.sha256).hexdigest()
+
+    def verify_seal(self, claim: Dict[str, Any], seal: str) -> bool:
+        \"\"\"Adjudicates the purity of a presented seal.\"\"\"
+        expected = self.forge_seal(claim)
+        return hmac.compare_digest(expected, seal)
+"""
+
+    # [ASCENSION 3]: THE ENTROPY SIEVE (Scrubber)
+    # The hand that purifies the stream. It scans for secrets and redacts them.
+    scrubber.py :: """
+import re
+from typing import Any, List
+
+class EntropySieve:
+    \"\"\"
+    =============================================================================
+    == THE ENTROPY SIEVE (V-Ω-TOTALITY)                                       ==
+    =============================================================================
+    LIF: 50x | ROLE: DATA_LEAK_PREVENTION
+    
+    Scans for and shrouds high-entropy matter (Secrets) in logs and output.
+    \"\"\"
+    PATTERNS = [
+        re.compile(r'sk-[a-zA-Z0-9]{32}'),     # Generic API Keys
+        re.compile(r'ghp_[a-zA-Z0-9]{36}'),    # GitHub Tokens
+        re.compile(r'xox[baprs]-[0-9a-zA-Z]{10,48}'), # Slack Tokens
+        re.compile(r'(?i)password\s*[:=]\s*["\']?([^\s"\'}]+)["\']?') # Plaintext Passwords
+    ]
+
+    def scrub(self, text: Any) -> str:
+        \"\"\"Surgically redacts sensitive matter from the provided text soul.\"\"\"
+        content = str(text)
+        for pattern in self.PATTERNS:
+            content = pattern.sub("[REDACTED_GNOSTIC_MATTER]", content)
+        return content
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # Inject secrets into the vault immediately
+    >> echo "SCAFFOLD_INTERNAL_KEY={{ secret_key }}\nSCAFFOLD_AUTH_REALM={{ auth_provider }}" >> .env
+    
+    proclaim: "The [bold cyan]Identity Ward Trait[/bold cyan] has been woven."
+    proclaim: "Auth Provider: [bold magenta]{{ auth_provider }}[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Identity Leakage -> 0)[/]"
+    proclaim: "[bold green]Perimeter secured. Internal logic is now warded.[/bold green]"

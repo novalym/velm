@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/inquisitors/banker.py
+# Path: src/velm/core/symbolic/inquisitors/banker.py
 # --------------------------------------------------------
 # LIF: ∞ | ROLE: FISCAL_ADJUDICATOR | RANK: SOVEREIGN
 # AUTH: Ω_BANKER_TOTALITY_V100

@@ -1,4 +1,4 @@
-# Path: scaffold/core/state/contracts.py
+# Path: velm/core/state/contracts.py
 # --------------------------------------
 
 from __future__ import annotations

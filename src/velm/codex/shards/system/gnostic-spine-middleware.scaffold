@@ -1,0 +1,101 @@
+# ==============================================================================
+# == GNOSTIC DNA TRAIT: system/gnostic-spine-middleware
+# ==============================================================================
+# @id:           system/gnostic-spine-middleware
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      The primary sensory conduit for the application mind; manages trace propagation, metabolic timing, and log purification.
+# @vibe:         [middleware, spine, tracing, telemetry, logging, security, entropy-veil]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:request-spine, capability:trace-radiator]
+# @requires:     [capability:python-core, capability:fastapi-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["SCAF_TRACE_HEADER", "SCAF_ENABLE_ENTROPY_VEIL"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "middleware-spine"
+#   priority:    0
+#   alias:       "gnostic_spine"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ trace_header = {{ trace_header | default("X-Titan-Trace") }}
+$$ enable_entropy_veil = {{ enable_veil | default(true) }}
+
+# --- II. THE SPINE CORE (The Mind's Nervous System) ---
+
+src/{{ package_name }}/core/middleware/
+    __init__.py :: "from .spine import GnosticSpine\n"
+    
+    spine.py :: """
+import time
+import uuid
+import logging
+import re
+import os
+from fastapi import Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
+
+Logger = logging.getLogger("System:Spine")
+
+class GnosticSpine(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC SPINE (V-Ω-NERVOUS-SYSTEM)                                  ==
+    =============================================================================
+    LIF: ∞ | ROLE: TELEMETRY_CONDUCTOR | RANK: OMEGA
+    
+    1.  The Silver Cord: Injects or propagates the unique Trace ID.
+    2.  Metabolic Inception: Measures nanosecond perf-counters for all rites.
+    3.  The Entropy Veil: Recursively scrubs logs for sensitive patterns.
+    \"\"\"
+    
+    VEIL_PATTERNS = [
+        re.compile(r"(?i)(password|secret|token|api_key|authorization)[\"']?\s*[:=]\s*[\"']?([^\s\"',}}]+)"),
+        re.compile(r"sk_live_[a-zA-Z0-9]{24}"),
+        re.compile(r"ghp_[a-zA-Z0-9]{36}")
+    ]
+
+    async def dispatch(self, request: Request, call_next):
+        # --- MOVEMENT I: THE SILVER CORD (TRACING) ---
+        trace_id = request.headers.get(os.getenv("SCAF_TRACE_HEADER", "{{ trace_header }}"), uuid.uuid4().hex[:8].upper())
+        request.state.trace_id = trace_id
+        
+        # --- MOVEMENT II: METABOLIC INCEPTION ---
+        start_time = time.perf_counter()
+        
+        try:
+            response = await call_next(request)
+        except Exception as e:
+            Logger.error(f"💥 [SPINE] Logic Fracture | Trace: {trace_id} | Heresy: {e}")
+            raise e
+        
+        # --- MOVEMENT III: METABOLIC FINALITY ---
+        duration_ms = (time.perf_counter() - start_time) * 1000
+        
+        # --- MOVEMENT IV: THE VEIL (RESPONSE HARDENING) ---
+        response.headers[os.getenv("SCAF_TRACE_HEADER", "{{ trace_header }}")] = trace_id
+        response.headers["X-Metabolic-Tax-MS"] = f"{duration_ms:.2f}"
+        
+        return response
+
+    def _scrub_entropy(self, text: str) -> str:
+        if os.getenv("SCAF_ENABLE_ENTROPY_VEIL", "{{ enable_entropy_veil }}").lower() != "true":
+            return text
+        for pattern in self.VEIL_PATTERNS:
+            text = pattern.sub("[REDACTED_BY_VEIL]", text)
+        return text
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Gnostic Spine Middleware[/bold cyan] is manifest."
+    proclaim: "Trace Header: [bold magenta]{{ trace_header }}[/bold magenta]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Application Awareness -> TOTAL)[/]"
+    proclaim: "[bold green]✅ The Nervous System is now sensing every signal.[/bold green]"

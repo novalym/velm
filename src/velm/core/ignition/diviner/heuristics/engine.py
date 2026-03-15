@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/heuristics/engine.py
+# Path: velm/core/ignition/diviner/heuristics/engine.py
 # --------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_BAYESIAN_BRAIN_V1
 

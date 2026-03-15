@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/heuristics/node_inquisitor.py
+# Path: velm/core/ignition/diviner/heuristics/node_inquisitor.py
 # -----------------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_NODE_INQUISITOR_V1
 

@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/ai/providers/base.py
+# Path: src/velm/core/ai/providers/base.py
 # ----------------------------------------
 # LIF: INFINITY | ROLE: ANCESTRAL_SOUL | RANK: ARCHITECT
 # AUTH: Ω_BASE_PROVIDER_V_FINALIS

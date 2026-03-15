@@ -38,11 +38,11 @@ class LocalMutator(RenameMutator):
                 # Verify Alchemical Aura: Is it a definition or inside braces?
                 is_def = line.lstrip().startswith(('$$', 'let', 'def'))
 
-                # Check for Jinja enclosure
+                # Check for SGF enclosure
                 prefix = line[:match.start()]
-                is_jinja = prefix.count("{{") > prefix.count("}}")
+                is_sgf = prefix.count("{{") > prefix.count("}}")
 
-                if is_def or is_jinja:
+                if is_def or is_sgf:
                     edits.append(TextEdit(
                         range=Range(
                             start=Position(line=i, character=match.start()),

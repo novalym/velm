@@ -1,0 +1,255 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: automation/ci-cd-hardening
+# ==============================================================================
+# @id:           automation/ci-cd-hardening
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Titanium-grade GitHub Actions CI/CD pipeline with Trivy, Bandit, and PyPI OIDC.
+# @vibe:         [ci, cd, github-actions, security, trivy, bandit, pipeline, hardening]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:ci-cd, capability:security-pipeline]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pytest>=8.0.0", "pytest-cov>=4.1.0", "ruff>=0.3.0", "mypy>=1.8.0", "bandit>=1.7.7"]
+#   env:         ["CODECOV_TOKEN"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "github-actions-pipeline"
+#   priority:    900
+#   alias:       "ci_cd_pipeline"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+# [ASCENSION 1]: Causal Variable Anchoring
+$$ main_branch = {{ main_branch | default("main") }}
+$$ dev_branch = {{ dev_branch | default("develop") }}
+$$ python_versions = {{ python_versions | default(["3.11", "3.12"]) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE TITANIUM PIPELINE SCRIPTURES ---
+
+.github/workflows/
+    # [ASCENSION 2]: THE TITAN'S GAZE (MAIN CI)
+    # The primary inquisitor. It scries every push for architectural sins.
+    titanium_integrity.yml :: """
+name: Ω | Titanium Integrity Adjudication
+
+on:
+  push:
+    branches: ["{{ main_branch }}", "{{ dev_branch }}"]
+  pull_request:
+    branches: ["{{ main_branch }}"]
+  workflow_dispatch:
+
+# [ASCENSION 1]: CONCURRENCY WARD
+# Prevents race conditions and metabolic waste in parallel realities.
+concurrency:
+  group: ${{"{{"}} github.workflow {{"}}"}}-${{"{{"}} github.head_ref || github.run_id {{"}}"}}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  id-token: write # For OIDC PyPI Ascension
+
+jobs:
+  # --- MOVEMENT I: GNOSTIC LINTING & FORM ---
+  purity_inquest:
+    name: Purity Inquest (Ruff & Mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Consecrate Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '${{"{{"}} inputs.python-version || '{{ python_versions[-1] }}' {{"}}"}}'
+          cache: 'pip'
+      
+      - name: Summon Dependencies
+        run: |
+          pip install poetry
+          poetry install
+          
+      - name: Audit Gnostic Form (Ruff)
+        run: poetry run ruff check .
+        
+      - name: Adjudicate Type Purity (Mypy)
+        run: poetry run mypy src/
+
+  # --- MOVEMENT II: REALITY ADJUDICATION ---
+  verification_trial:
+    name: Verification Trial
+    needs: purity_inquest
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: {{ python_versions | tojson }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: Consecrate Python ${{"{{"}} matrix.python-version {{"}}"}}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{"{{"}} matrix.python-version {{"}}"}}
+          cache: 'pip'
+          
+      - name: Summon Dependencies
+        run: |
+          pip install poetry
+          poetry install
+          
+      - name: Conduct Unit Inquisition (Pytest)
+        run: poetry run pytest --cov --cov-report=xml
+        
+      - name: Radiate Coverage to the Akasha
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{"{{"}} secrets.CODECOV_TOKEN {{"}}"}}
+
+  # --- MOVEMENT III: SECURITY TOMOGRAPHY ---
+  security_audit:
+    name: Security Aegis (Trivy & Bandit)
+    needs: purity_inquest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # [ASCENSION 5]: Trivy Filesystem Scan
+      - name: Trivy FS Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          
+      - name: Upload Trivy results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      # [ASCENSION 3]: Bandit Intent Scan
+      - name: Bandit Security Analysis
+        run: |
+          pip install bandit
+          bandit -r src/ -f sarif -o bandit-results.sarif || true
+          
+      - name: Upload Bandit results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'bandit-results.sarif'
+
+  # --- MOVEMENT IV: VELM GNOSTIC DRIFT ---
+  velm_verify:
+    name: Gnostic Drift Adjudication
+    needs: [verification_trial, security_audit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Velm Engine
+        run: pip install velm-cli
+      - name: Adjudicate Gnostic Drift
+        # [ASCENSION 4]: Physically blocks the merge if reality drifts from law.
+        run: velm verify --strict
+"""
+
+    # [ASCENSION 12]: THE CELESTIAL ASCENSION (RELEASE)
+    # The rite of OIDC-powered distribution.
+    titanium_release.yml :: """
+name: Ω | Celestial Ascension (Release)
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  id-token: write # Mandatory for OIDC
+
+jobs:
+  pypi_publish:
+    name: Proclaim to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/{{ project_slug }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: Consecrate Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Build Matter Shards
+        run: poetry build
+      - name: Proclaim to PyPI via OIDC
+        # [THE CURE]: No username/password required. Pure trust link.
+        uses: pypa/gh-action-pypi-publish@release/v1
+"""
+
+# [ASCENSION 5]: THE PURITY SCRIPT (Local Execution)
+scripts/purity-check.sh :: """
+#!/bin/bash
+set -e
+echo "🔍 [SENTINEL] Adjudicating local code purity..."
+
+if [ ! -d ".git" ]; then
+  echo "❌ Error: Must be run from the Project Root."
+  exit 1
+fi
+
+if command -v velm &> /dev/null; then
+    velm analyze --strict
+else
+    echo "⚠️ velm artisan unmanifest. Falling back to standard linting."
+    ruff check .
+fi
+
+echo "✅ [PURE] Form matches Law."
+"""
+%% 755
+
+# [ASCENSION 11]: THE FORENSIC TEST WRAPPER
+scripts/forensic-test.sh :: """
+#!/bin/bash
+export SCAFFOLD_TRACE_ID="tr-ci-$(date +%s)"
+echo "🧪 [INQUISITOR] Initiating Verification Trial (Trace: $SCAFFOLD_TRACE_ID)..."
+
+pytest --cov=src --cov-report=term-missing
+
+if [ $? -eq 0 ]; then
+    echo "✅ [RESONANT] Tests passed."
+else
+    echo "❌ [FRACTURED] Heresy detected in logic."
+    exit 1
+fi
+"""
+%% 755
+
+# --- III. THE MAESTRO'S WILL ---
+# [ASCENSION 12]: Cinematic Guidance
+%% post-run
+    proclaim: "The [bold cyan]Titanium CI/CD Symphony[/bold cyan] is manifest."
+    proclaim: "Pipeline Locus: [white].github/workflows/[/]"
+    proclaim: "Target Branch: [bold yellow]{{ main_branch }}[/]"
+    
+    # 1. Prune the Profane
+    proclaim: "Phase I: Annihilating legacy, non-gnostic workflows..."
+    >> rm -f .github/workflows/main.yml
+    >> rm -f .github/workflows/python-app.yml
+    >> rm -f .github/workflows/ci.yml
+    
+    # 2. Final Proclamation
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Integration Entropy -> 0)[/]"
+    proclaim: "[bold green]✅ The Gate is Warded. Only pure code shall pass.[/bold green]"
+    proclaim: "[yellow]ACTION REQUIRED:[/yellow] Inscribe [bold]CODECOV_TOKEN[/] in GitHub Secrets."
+
+%% on-heresy
+    # [ASCENSION 24]: Transactional Purgation
+    proclaim: "[bold red]Hardening fractured.[/bold red] Gate remains vulnerable."
+    >> rm -rf .github/workflows/titanium_*.yml

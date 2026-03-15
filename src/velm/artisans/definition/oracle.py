@@ -9,7 +9,7 @@ from ...contracts.data_contracts import GnosticLineType
 from ...logger import Scribe
 
 if TYPE_CHECKING:
-    from ...core.runtime.engine import ScaffoldEngine
+    from ...core.runtime.engine import VelmEngine
     from ...core.cortex.engine import GnosticCortex
 
 Logger = Scribe("OriginOracle")
@@ -32,7 +32,7 @@ class OriginOracle:
     4. **The Seed Gaze:** Resolves file paths used in seeding directives.
     """
 
-    def __init__(self, engine: 'ScaffoldEngine', cortex: 'GnosticCortex', project_root: Path, current_path: Path):
+    def __init__(self, engine: 'VelmEngine', cortex: 'GnosticCortex', project_root: Path, current_path: Path):
         self.engine = engine
         self.cortex = cortex
         self.root = project_root

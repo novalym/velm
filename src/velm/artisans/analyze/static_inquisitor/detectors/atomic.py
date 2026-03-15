@@ -84,10 +84,10 @@ class AtomicDetector(BaseDetector):
     }
 
     # --- Jinja Hygiene ---
-    JINJA_BLOCK_REGEX = re.compile(r'(\{\{.*?\}\}|\{%.*?%\})')
-    JINJA_FILTER_REGEX = re.compile(r'\|\s*([a-zA-Z0-9_]+)')
+    SGF_BLOCK_REGEX = re.compile(r'(\{\{.*?\}\}|\{%.*?%\})')
+    SGF_FILTER_REGEX = re.compile(r'\|\s*([a-zA-Z0-9_]+)')
     # [ASCENSION 7]: Enhanced Unbalanced Check
-    UNBALANCED_JINJA = re.compile(r'(\{\{[^\}]*$|^[^\{]*\}\})')
+    UNBALANCED_SGF = re.compile(r'(\{\{[^\}]*$|^[^\{]*\}\})')
 
     # --- Security (The Deep Ward) ---
     SECRET_REGEX = re.compile(
@@ -409,9 +409,9 @@ class AtomicDetector(BaseDetector):
                           "severity_override": "CRITICAL"}
                 ))
 
-            for match in self.JINJA_BLOCK_REGEX.finditer(text):
+            for match in self.SGF_BLOCK_REGEX.finditer(text):
                 block_content = match.group(0)
-                filters = self.JINJA_FILTER_REGEX.findall(block_content)
+                filters = self.SGF_FILTER_REGEX.findall(block_content)
                 for f_name in filters:
                     if f_name not in SAFE_JINJA_FILTERS:
                         diagnostics.append(self._forge_diagnostic(

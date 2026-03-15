@@ -1,4 +1,4 @@
-# scaffold/core/cli/grimoire/_history_rites.py
+# velm/core/cli/grimoire/_history_rites.py
 """Rites governing the Gnostic Timeline and causality."""
 from ..cli_utils import add_common_flags
 import argparse

@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/entropy_shield.py
+# Path: velm/core/runtime/middleware/entropy_shield.py
 # =========================================================================================
 # == THE ENTROPY SHIELD (V-Ω-TOTALITY-V20000.12-ISOMORPHIC-INTEL)                        ==
 # =========================================================================================

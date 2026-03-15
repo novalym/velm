@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/chronicle/integrity_alchemist.py
+# Path: velm/core/kernel/chronicle/integrity_alchemist.py
 import hashlib
 import json
 from pathlib import Path

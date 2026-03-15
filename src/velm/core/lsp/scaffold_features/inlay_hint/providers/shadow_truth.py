@@ -54,7 +54,7 @@ class ShadowTruthProvider(InlayHintProvider):
         return 50  # Lower than type, appears after
 
     # Matches: {{ var }} or {{ var | filter }}
-    JINJA_PATTERN = re.compile(r'\{\{\s*([a-zA-Z_]\w*)(?:\s*\|.*?)?\s*\}\}')
+    SGF_PATTERN = re.compile(r'\{\{\s*([a-zA-Z_]\w*)(?:\s*\|.*?)?\s*\}\}')
 
     def provide_hints(self, doc: TextDocument, target_range: Range) -> List[InlayHint]:
         hints = []
@@ -66,7 +66,7 @@ class ShadowTruthProvider(InlayHintProvider):
 
         for i in range(target_range.start.line, min(target_range.end.line + 1, len(lines))):
             line = lines[i]
-            for match in self.JINJA_PATTERN.finditer(line):
+            for match in self.SGF_PATTERN.finditer(line):
                 var_name = match.group(1)
 
                 if var_name in local_reality:

@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/engine.py
+# Path: velm/core/ignition/diviner/engine.py
 # ----------------------------------------------
 # LIF: INFINITY // AUTH_CODE: @)(!@(!()@ // Ω_DIVINER_ENGINE_SINGULARITY
 # SYSTEM: IDEABOX QUANTUM // MODULE: IGNITION.DIVINER

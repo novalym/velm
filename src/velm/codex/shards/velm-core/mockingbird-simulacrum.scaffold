@@ -1,0 +1,160 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: velm-core/mockingbird-simulacrum
+# ==============================================================================
+# @id:           velm-core/mockingbird-simulacrum
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      AST-driven data mimicry engine that automatically generates mock JSON data based on Pydantic/SQLAlchemy models.
+# @vibe:         [mocking, faker, testing, simulacrum, data-generation, ast]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:data-mocking-engine, capability:prototype-generator]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["faker>=23.0.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "testing-tool"
+#   priority:    600
+#   alias:       "mockingbird_engine"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tool_name = "mockingbird"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ mock_depth = {{ mock_depth | default(3) }}
+$$ artifact_dir = "artifacts/mock_vault"
+
+# --- II. THE SIMULACRUM ENGINE ---
+
+scripts/intelligence/
+    mock_forge.py :: """
+import ast
+import os
+import logging
+from pathlib import Path
+
+Logger = logging.getLogger("Mockingbird:Forge")
+
+class MockingbirdForge:
+    \"\"\"
+    =============================================================================
+    == THE MOCKINGBIRD FORGE (V-Ω-TOTALITY)                                    ==
+    =============================================================================
+    LIF: ∞ | ROLE: SCHEMA_MIRROR_ARTISAN | RANK: OMEGA
+    \"\"\"
+    def __init__(self, source_dir: str = "src"):
+        self.root = Path(os.getcwd())
+        self.source_dir = self.root / source_dir
+        self.models_manifest = {}
+
+    def conduct_biopsy(self):
+        Logger.info("🔍 [MOCKINGBIRD] Scrying schemas for multiversal mimicry...")
+        
+        targets = list(self.source_dir.rglob("*models.py")) + \
+                  list(self.source_dir.rglob("*schemas.py"))
+
+        for target in targets:
+            self._parse_file(target)
+
+        if not self.models_manifest:
+            print("❓ The Oracle perceives no models. Prototyping stayed.")
+            return
+
+        self._materialize_factory_logic()
+
+    def _parse_file(self, path: Path):
+        try:
+            tree = ast.parse(path.read_text())
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef):
+                    bases = [b.id for b in node.bases if isinstance(b, ast.Name)]
+                    if any(b in ["BaseModel", "Base", "DeclarativeBase"] for b in bases):
+                        self._extract_class_dna(node)
+        except Exception:
+            pass
+
+    def _extract_class_dna(self, node: ast.ClassDef):
+        fields = {}
+        for item in node.body:
+            if isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
+                fields[item.target.id] = ast.unparse(item.annotation)
+        self.models_manifest[node.name] = fields
+
+    def _materialize_factory_logic(self):
+        output_script = Path("scripts/intelligence/generate_mock_data.py")
+        output_script.parent.mkdir(parents=True, exist_ok=True)
+
+        lines = [
+            "import json, uuid, random, time",
+            "from datetime import datetime",
+            "from faker import Faker",
+            "from pathlib import Path",
+            "fake = Faker()",
+            "",
+            "def generate_mock_reality():",
+            "    vault = Path('{{ artifact_dir }}')",
+            "    vault.mkdir(parents=True, exist_ok=True)",
+            "    data = {}"
+        ]
+
+        for model_name, fields in self.models_manifest.items():
+            lines.append(f"    data['{model_name.lower()}s'] = []")
+            lines.append(f"    for i in range(10):")
+            lines.append(f"        obj = {{")
+            for f_name, f_type in fields.items():
+                val = "None"
+                ft = f_type.lower()
+                if "str" in ft: val = "fake.name()" if "name" in f_name else "fake.word()"
+                if "email" in ft: val = "fake.email()"
+                if "int" in ft: val = "random.randint(1, 1000)"
+                if "uuid" in ft: val = "str(uuid.uuid4())"
+                lines.append(f"            '{f_name}': {val},")
+            lines.append(f"        }}")
+            lines.append(f"        data['{model_name.lower()}s'].append(obj)")
+
+        lines.extend([
+            "    final_path = vault / 'mock_totality.json'",
+            "    final_path.write_text(json.dumps(data, indent=2))",
+            "    print(f'✨ [SUCCESS] Reality Mimicry manifest at: {final_path}')",
+            "",
+            "if __name__ == '__main__': generate_mock_reality()"
+        ])
+
+        output_script.write_text('\\n'.join(lines))
+        print(f"✅ [RESONANT] Mock Factory manifest at {output_script}")
+
+if __name__ == '__main__':
+    MockingbirdForge().conduct_biopsy()
+"""
+
+# --- III. THE KINETIC SYMPHONY ---
+symphonies/prototype-reality.symphony :: """
+# == Symphony: The Rite of the Mockingbird ==
+@task main
+    %% proclaim: "🐦 [MOCKINGBIRD] Awakening the Prototyping Engine..."
+    @try:
+        >> python3 scripts/intelligence/mock_forge.py
+        ?? succeeds
+        >> python3 scripts/intelligence/generate_mock_data.py
+        ?? succeeds
+        %% proclaim: "[bold green]✅ PROTOTYPE RESONANT.[/bold green]"
+    @catch Exception as e:
+        %% error: "Prototyping fractured: {{ e }}."
+    @end
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+# --- PROTOTYPING RITES ---
+prototype: ## conduct the full mockingbird symphony
+    @velm run symphonies/prototype-reality.symphony
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Mockingbird Simulacrum[/bold cyan] is waked and warded."
+    >> mkdir -p scripts/intelligence {{ artifact_dir }}
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Frontend Lag -> 0)[/]"

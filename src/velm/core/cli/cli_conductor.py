@@ -288,7 +288,7 @@ def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -
                 pass
 
         # --- MOVEMENT III: ENGINE MATERIALIZATION ---
-        from ...core.runtime import ScaffoldEngine
+        from ...core.runtime import VelmEngine
 
         engine = None
         if engine_instance:
@@ -301,7 +301,7 @@ def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -
             # COLD BOOT (GENESIS)
             _trace("Materializing Quantum Engine...", "94")
             # [ASCENSION 27]: Thermodynamic Pacing handled by Engine.__init__
-            engine = ScaffoldEngine(
+            engine = VelmEngine(
                 project_root=project_root,
                 log_level="DEBUG" if _is_verbose else "INFO",
                 json_logs=_is_json,

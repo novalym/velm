@@ -137,7 +137,7 @@ class SingularityCompletionEngine(CompletionEngine):
                 trigger_kind=getattr(params.context, 'triggerKind', 1),
                 language_id=doc.language_id,
                 context_type='soul',
-                is_inside_jinja='{{' in line_prefix and '}}' not in line_prefix,
+                is_inside_sgf='{{' in line_prefix and '}}' not in line_prefix,
                 is_inside_comment=line_prefix.strip().startswith('#'),
                 is_inside_string=is_inside_string,
                 client_info=metadata.get('client_info', {})

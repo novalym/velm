@@ -1,4 +1,4 @@
-# Path: scaffold/core/symbolic/inquisitors/bouncer.py
+# Path: velm/core/symbolic/inquisitors/bouncer.py
 # ---------------------------------------------------
 
 from __future__ import annotations

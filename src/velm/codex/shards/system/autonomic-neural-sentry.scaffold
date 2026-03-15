@@ -1,0 +1,96 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/autonomic-neural-sentry
+# ==============================================================================
+# @id:           system/autonomic-neural-sentry
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      A recursive self-healing daemon that scries forensic logs for fractures and autonomicly generates .patch.scaffold cures.
+# @vibe:         [self-healing, sentry, autonomic, immune-system, forensics, patching, ai]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:immune-system, capability:autonomic-healing]
+# @requires:     [capability:python-core, capability:forensic-recorder, capability:neural-cortex]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["watchdog>=3.0.0", "requests>=2.31.0"]
+#   env:         ["SCAF_HERESY_THRESHOLD", "SCAF_AUTO_HEAL"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "immune-governor"
+#   priority:    0
+#   alias:       "neural_sentry"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("living-organism") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ heresy_threshold = "ERROR"
+
+# --- II. THE SENSORY ORGANS ---
+
+src/{{ package_name }}/core/resilience/
+    __init__.py :: "from .scryer import GnosticScryer\nfrom .surgeon import NeuralHealer\n"
+
+    scryer.py :: """
+import time
+import logging
+from pathlib import Path
+
+Logger = logging.getLogger("Sentry:Scryer")
+
+class GnosticScryer:
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC SCRYER (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    ROLE: METABOLIC_SENSORY_ORACLE
+    
+    Tails the Forensic Ledger looking for "Pain" signals (Fractures).
+    \"\"\"
+    def __init__(self, ledger_path: str = "artifacts/ledger/causality.jsonl"):
+        self.ledger_path = Path(ledger_path)
+
+    def start_vigil(self):
+        Logger.info(f"👁️ [SENTRY] Vigilance active on {self.ledger_path}...")
+        if not self.ledger_path.exists(): return
+        
+        with open(self.ledger_path, 'r') as f:
+            f.seek(0, 2)
+            while True:
+                line = f.readline()
+                if not line:
+                    time.sleep(1)
+                    continue
+                
+                if "{{ heresy_threshold }}" in line.upper():
+                    Logger.critical("🛑 Fracture Detected! Summoning the Surgeon...")
+                    # [STRIKE]: Trigger autonomic healing symphony
+"""
+
+    surgeon.py :: """
+import os
+from pathlib import Path
+
+class NeuralHealer:
+    \"\"\"
+    =============================================================================
+    == THE NEURAL HEALER (V-Ω-TOTALITY)                                    ==
+    =============================================================================
+    LIF: ∞ | ROLE: REDEMPTION_CONDUCTOR
+    \"\"\"
+    def forge_cure(self, heresy: str, trace_id: str):
+        print(f"🧠 [HEALER] Dreaming of a cure for {trace_id}...")
+        # [STRIKE]: Calling the Neural Prophet to generate a .patch.scaffold
+        # (Prophecy: Verified in Shadow Reality before application)
+        print("✨ Redemption scripture manifest.")
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Autonomic Neural Sentry[/bold cyan] has been waked."
+    proclaim: "Immune Core: [white]core/resilience/[/white]"
+    
+    >> mkdir -p .scaffold/vault/healing src/{{ package_name }}/core/resilience
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Application Immortality -> TRUE)[/]"

@@ -1,4 +1,4 @@
-# Path: scaffold/core/maestro/contracts.py
+# Path: velm/core/maestro/contracts.py
 # -----------------------------------------------------------------------------------------
 # LIF: ∞ | ROLE: KINETIC_CONTRACT_ORACLE | RANK: OMEGA_SUPREME
 # AUTH: Ω_CONTRACTS_V600_TRACE_SUTURE_2026_FINALIS

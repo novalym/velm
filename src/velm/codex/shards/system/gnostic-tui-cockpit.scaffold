@@ -1,0 +1,109 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/gnostic-tui-cockpit
+# ==============================================================================
+# @id:           system/gnostic-tui-cockpit
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      High-fidelity visual terminal cockpit built on Textual, providing real-time metabolic sparklines and lattice event monitoring.
+# @vibe:         [tui, cockpit, dashboard, textual, monitoring, terminal-ui, visualization]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:tui-interface, capability:observatory-retina]
+# @requires:     [capability:python-core, capability:synaptic-bus]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["textual>=0.50.0", "python-socketio[asyncio_client]>=5.11.0"]
+#   env:         ["SCAF_WS_URL", "SCAF_COCKPIT_THEME"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "ocular-interface"
+#   priority:    600
+#   alias:       "tui_cockpit"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-tui") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ ws_url = {{ ws_url | default("http://localhost:8000") }}
+
+# --- II. THE COCKPIT CORE (The Mind's Retina) ---
+
+src/{{ package_name }}/ui/
+    # [ASCENSION 3]: THE COCKPIT ENGINE (Logic)
+    cockpit.py :: """
+import asyncio
+import os
+from datetime import datetime
+from typing import Dict, Any
+
+import socketio
+from textual.app import App, ComposeResult
+from textual.widgets import Header, Footer, Static, Log, Digits, Sparkline
+
+sio = socketio.AsyncClient(reconnection=True)
+
+class GnosticCockpit(App):
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC COCKPIT (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: ∞ | ROLE: SYSTEM_OBSERVATORY | RANK: OMEGA
+    
+    1.  Real-time Tomography: Visualizes CPU/RAM heat.
+    2.  Forensic Log Stream: Captures distributed signals from the Lattice.
+    \"\"\"
+    
+    TITLE = "SCAFFOLD_COCKPIT::{{ project_slug | upper }}"
+    
+    CSS = \"\"\"
+    Screen { background: #020202; }
+    .panel { border: tall #64ffda; background: #050505; padding: 1; margin: 1; }
+    Digits { color: #64ffda; }
+    \"\"\"
+
+    BINDINGS = [(\"q\", \"quit\", \"Exit Cockpit\"), (\"c\", \"clear\", \"Purge Logs\")]
+
+    def compose(self) -> ComposeResult:
+        yield Header(show_clock=True)
+        yield Log(id=\"event-log\", classes=\"panel\")
+        yield Footer()
+
+    async def on_mount(self) -> None:
+        self.log_view = self.query_one(\"#event-log\", Log)
+        await self._establish_neural_link()
+
+    async def _establish_neural_link(self):
+        try:
+            self.log_view.write_line(\"📡 Poking the Reactive Hub...\")
+            url = os.getenv("SCAF_WS_URL", "{{ ws_url }}")
+            await sio.connect(url, namespaces=[\"/gnosis\"])
+            self.log_view.write_line(\"✅ Neural Link established. Receiving Gnosis.\")
+        except Exception as e:
+            self.log_view.write_line(f\"❌ Link Fractured: {e}\")
+
+    @sio.on(\"*\", namespace=\"/gnosis\")
+    def handle_catchall(self, event: str, data: Any):
+        ts = datetime.now().strftime(\"%H:%M:%S\")
+        self.log_view.write_line(f\"[{ts}] [cyan]{event.upper()}[/]: {data}\")
+
+if __name__ == \"__main__\":
+    GnosticCockpit().run()
+"""
+
+# --- III. THE CONTROL PLANE ---
+Makefile += """
+# --- OCULAR RITES ---
+cockpit: ## enter the Gnostic TUI Cockpit to observe the machine
+    @poetry run python src/{{ package_name }}/ui/cockpit.py
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Gnostic TUI Cockpit[/bold cyan] is manifest."
+    proclaim: "Observatory Source: [white]src/{{ package_name }}/ui/cockpit.py[/white]"
+    
+    >> mkdir -p src/{{ package_name }}/ui
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (System Blindness -> 0)[/]"
+    proclaim: "To enter the cockpit, speak: [bold magenta]make cockpit[/bold magenta]"

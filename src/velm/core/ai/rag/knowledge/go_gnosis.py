@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/knowledge/go_gnosis.py
+# Path: velm/core/ai/rag/knowledge/go_gnosis.py
 # -------------------------------------------------
 
 GO_SHARDS = [

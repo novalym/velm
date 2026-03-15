@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/telemetry.py
+# Path: velm/core/ignition/diviner/telemetry.py
 # --------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: DIVINER_TELEMETRY_V1
 

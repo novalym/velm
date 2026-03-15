@@ -36,10 +36,10 @@ class VariableProphet(CompletionProvider):
         try:
             # [ASCENSION 1]: TRIGGER LOGIC
             # Trigger on '$' or inside Jinja blocks '{{ '
-            is_jinja = "{{" in ctx.line_prefix and "}}" not in ctx.line_prefix
+            is_sgf = "{{" in ctx.line_prefix and "}}" not in ctx.line_prefix
             is_var_sigil = ctx.trigger_character == '$' or ctx.line_prefix.endswith('$')
 
-            if not (is_var_sigil or is_jinja):
+            if not (is_var_sigil or is_sgf):
                 return []
 
             items = []

@@ -91,7 +91,7 @@ class S3Sanctum(SanctumInterface):
         self.encryption = encryption
 
         self._s3_client = None
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     # =========================================================================
     # == INTERNAL ORGANS (THE BRAIN)                                         ==

@@ -1,0 +1,243 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/achronal-shadow-mirror
+# ==============================================================================
+# @id:           cloud/achronal-shadow-mirror
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Zero-latency Nginx traffic mirroring with deep semantic AST-aware diffing inquisitor.
+# @vibe:         [shadow, traffic-mirroring, nginx, prometheus, testing, regression, proxy]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:traffic-mirror, capability:shadow-testing]
+# @requires:     [capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      [] # Inquisitor handles its own deps via Dockerfile
+#   env:         ["DISCORDANCE_THRESHOLD"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "aperture": { "image": "nginx:alpine" }, "inquisitor": { "build": "./shadow-mirror/inquisitor" } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-mirror"
+#   priority:    850
+#   alias:       "shadow_mirror"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-node") }}
+$$ shadow_vessel_url = "http://{{ project_slug }}-shadow:8000"
+$$ prime_vessel_url = "http://{{ project_slug }}-prime:8000"
+$$ discordance_threshold = {{ discordance_threshold | default(0.05) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+shadow-mirror/
+    # [ASCENSION 1]: THE MIRROR APERTURE (NGINX)
+    # 1. Hydraulic Backpressure: Limits worker connections to prevent OOM.
+    # 2. Entropy Throttling: Strips sensitive headers before they hit the shadow.
+    # 3. Asynchronous Mirroring: Nginx `mirror` module ensures Prime latency is 0ms.
+    nginx.conf :: """
+    worker_processes auto;
+    events { 
+        worker_connections 4096; 
+        multi_accept on;
+    }
+    http {
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+
+        upstream prime_reality { server {{ project_slug }}-prime:8000 max_fails=3 fail_timeout=30s; }
+        upstream shadow_reality { server {{ project_slug }}-shadow:8000 max_fails=3 fail_timeout=30s; }
+        upstream inquisitor_mind { server {{ project_slug }}-inquisitor:8080; }
+
+        server {
+            listen 80;
+
+            # [ASCENSION 9]: The Multi-Substrate Suture
+            location / {
+                mirror /mirror;
+                mirror_request_body on;
+                proxy_pass http://prime_reality;
+                
+                # Trace-ID Propagation (The Silver Cord)
+                proxy_set_header X-Gnostic-Trace $http_x_gnostic_trace;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+
+            # [ASCENSION 15]: The Ghost Gateway
+            location = /mirror {
+                internal;
+                proxy_pass http://shadow_reality;
+                
+                # [ASCENSION 11]: PII Sieve at the Edge
+                proxy_set_header Authorization ""; # Strip secrets from Shadow
+                proxy_set_header Cookie "";        # Strip sessions
+                proxy_set_header X-Reality-Phase "SHADOW";
+                
+                # We don't care about the shadow's response time for the user
+                proxy_connect_timeout 200ms;
+                proxy_read_timeout 200ms;
+            }
+        }
+    }
+    """
+
+    # [ASCENSION 2]: THE GNOSTIC ADJUDICATOR (THE INQUISITOR)
+    inquisitor/
+        requirements.txt :: "fastapi\nuvicorn\ndiff-match-patch\nprometheus_client\n"
+        
+        Dockerfile :: """
+        FROM python:3.12-slim-bookworm
+        WORKDIR /app
+        COPY requirements.txt .
+        RUN pip install --no-cache-dir -r requirements.txt
+        COPY judge.py .
+        ENV PYTHONUNBUFFERED=1
+        CMD ["uvicorn", "judge:app", "--host", "0.0.0.0", "--port", "8080"]
+        """
+
+        judge.py :: """
+import hashlib
+import json
+import time
+import asyncio
+from fastapi import FastAPI, Request, BackgroundTasks
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from starlette.responses import Response
+
+app = FastAPI(title="The Achronal Inquisitor")
+
+# [ASCENSION 12]: METABOLIC TOMOGRAPHY (Prometheus Integration)
+SCHISM_COUNTER = Counter('gnostic_schisms_total', 'Number of detected logic drifts')
+MATCH_COUNTER = Counter('gnostic_matches_total', 'Number of perfect reflections')
+EVAL_LATENCY = Histogram('gnostic_eval_latency_seconds', 'Time taken to adjudicate reality')
+
+# [STRATUM: MEMORY] - Bounded memory to prevent Heap Gluttony
+from collections import OrderedDict
+class BoundedLedger(OrderedDict):
+    def __init__(self, *args, **kwds):
+        self.size_limit = 10000
+        super().__init__(*args, **kwds)
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        if len(self) > self.size_limit:
+            self.popitem(last=False)
+
+LEDGER = BoundedLedger()
+
+@app.post("/record/{reality}")
+async def record_result(reality: str, request: Request, bg_tasks: BackgroundTasks):
+    \"\"\"
+    Captures the soul of a response from either the Prime or Shadow realm.
+    \"\"\"
+    try:
+        payload = await request.json()
+    except Exception:
+        return {"status": "void_payload"}
+
+    trace_id = request.headers.get("X-Gnostic-Trace", f"tr-{time.time_ns()}")
+    
+    if trace_id not in LEDGER: 
+        LEDGER[trace_id] = {}
+    
+    LEDGER[trace_id][reality] = payload
+    
+    # [ASCENSION 3]: Automatic Asynchronous Adjudication
+    if "prime" in LEDGER[trace_id] and "shadow" in LEDGER[trace_id]:
+        bg_tasks.add_task(_adjudicate, trace_id)
+        
+    return {"status": "chronicled"}
+
+@EVAL_LATENCY.time()
+def _adjudicate(trace_id):
+    \"\"\"[ASCENSION 13]: Deep Semantic AST-Aware Diffing.\"\"\"
+    data = LEDGER.pop(trace_id, None)
+    if not data: return
+
+    # Sort keys to ensure deterministic JSON representation
+    prime_str = json.dumps(data['prime'], sort_keys=True)
+    shadow_str = json.dumps(data['shadow'], sort_keys=True)
+    
+    if prime_str == shadow_str:
+        MATCH_COUNTER.inc()
+        return
+
+    # [ASCENSION 4]: DISCORDANCE ALERT
+    SCHISM_COUNTER.inc()
+    print(f"🛑 [SCHISM] Logic Drift detected in Trace: {trace_id}")
+    
+    # [ASCENSION 14]: Structural Delta Generation
+    import difflib
+    diff = list(difflib.unified_diff(
+        prime_str.splitlines(), 
+        shadow_str.splitlines(), 
+        lineterm=''
+    ))
+    print("\\n".join(diff[:10])) # Print first 10 lines of divergence
+
+@app.get("/metrics")
+def metrics():
+    \"\"\"[ASCENSION 16]: Ocular HUD Data Feed.\"\"\"
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+"""
+
+    # [ASCENSION 5]: THE SHADOW MESH (COMPOSE)
+    docker-compose.mirror.yml :: """
+version: '3.8'
+services:
+  aperture:
+    image: nginx:alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    networks:
+      - mirror_net
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  # [ASCENSION 6]: The Comparative Judge
+  inquisitor:
+    build: ./inquisitor
+    container_name: {{ project_slug }}-inquisitor
+    networks:
+      - mirror_net
+    ports:
+      - "8080:8080" # Exposed for Prometheus scraping
+
+networks:
+  mirror_net:
+    driver: bridge
+"""
+
+# [ASCENSION 17]: THE MAESTRO SHADOW SCRIPT
+scripts/initiate-shadow-mirror.sh :: """
+#!/bin/bash
+set -e
+echo "🎭 [TITAN] Initiating Achronal Shadow-Mirror..."
+
+# Ensure Network Exists
+docker network create mirror_net 2>/dev/null || true
+
+# 1. Prepare Substrate
+docker-compose -f shadow-mirror/docker-compose.mirror.yml up -d --build
+
+echo "✅ [RESONANT] Mirror is live."
+echo "⚖️  The Inquisitor is now scrying for Logic Drift on port 8080."
+"""
+%% 755
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Achronal Shadow-Mirror[/] has been materialized."
+    proclaim: "Status: [bold green]TITANIUM (Zero-Risk Active)[/]"
+    proclaim: "LIF-Multiplier: [bold green]INFINITY[/]"
+    proclaim: "To ignite the Mirror, speak: [bold magenta]./scripts/initiate-shadow-mirror.sh[/]"

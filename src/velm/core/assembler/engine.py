@@ -1,4 +1,4 @@
-# Path: scaffold/core/assembler/engine.py
+# Path: velm/core/assembler/engine.py
 # ---------------------------------------
 
 from pathlib import Path

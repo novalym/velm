@@ -1,4 +1,4 @@
-# Path: scaffold/core/lsp/scaffold_features/semantic_tokens/providers/gnostic.py
+# Path: velm/core/lsp/scaffold_features/semantic_tokens/providers/gnostic.py
 # ---------------------------------------------------------------------
 # LIF: INFINITY | ROLE: SPECTRAL_TOKENIZER | RANK: SOVEREIGN
 # auth_code: Ω_SPECTRAL_SEER_V100
@@ -30,8 +30,8 @@ class GnosticTokenProvider(TokenProvider):
         r'(?P<polyglot>\b[a-z]+:)|'
         r'(?P<operator>::|<<|->|\+=|-=|~=|\^=|\|=)|'
         r'(?P<variable>\$\$[a-zA-Z_]\w*)|'
-        r'(?P<jinja_open>\{\{)|'
-        r'(?P<jinja_close>\}\})|'
+        r'(?P<sgf_open>\{\{)|'
+        r'(?P<sgf_close>\}\})|'
         r'(?P<number>\b\d+\b)|'
         r'(?P<ident>[a-zA-Z_][\w\-]*)'
     )
@@ -43,8 +43,8 @@ class GnosticTokenProvider(TokenProvider):
         lines = doc.text.splitlines()
 
         for i, line in enumerate(lines):
-            # Track if we are inside a Jinja block for sub-token logic
-            is_inside_jinja = False
+            # Track if we are inside a SGF block for sub-token logic
+            is_inside_sgf = False
 
             for match in self.GNOSTIC_PATTERN.finditer(line):
                 kind = match.lastgroup
@@ -80,13 +80,13 @@ class GnosticTokenProvider(TokenProvider):
                     t_type = TokenType.VARIABLE
                     modifiers |= TokenModifier.DECLARATION
 
-                elif kind == "jinja_open":
+                elif kind == "sgf_open":
                     t_type = TokenType.OPERATOR
-                    is_inside_jinja = True
+                    is_inside_sgf= True
 
-                elif kind == "jinja_close":
+                elif kind == "sgf_close":
                     t_type = TokenType.OPERATOR
-                    is_inside_jinja = False
+                    is_inside_sgf = False
 
                 elif kind == "number":
                     t_type = TokenType.NUMBER
@@ -95,7 +95,7 @@ class GnosticTokenProvider(TokenProvider):
                     val = match.group()
 
                     # Jinja-specific sub-triage
-                    if is_inside_jinja:
+                    if is_inside_sgf:
                         if val in self.SYSTEM_VARS:
                             t_type = TokenType.VARIABLE
                             modifiers |= TokenModifier.STATIC | TokenModifier.READONLY

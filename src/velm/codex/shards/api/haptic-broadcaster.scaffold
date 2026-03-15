@@ -1,0 +1,150 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/HAPTIC-BROADCASTER
+# ==============================================================================
+# @id:           api/haptic-broadcaster
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A Haptic HUD Broadcaster for real-time visual telemetry. 
+#                Intercepts API finality and transmutes HTTP resonance into 
+#                Ocular VFX events (bloom, shake, pulse) via the Achronal 
+#                Event Bus, closing the loop between Mind and Eye.
+# @vibe:         [haptics, vfx, telemetry, real-time, ocular-hub, reactive]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:haptic-telemetry, capability:ui-resonance-loop, capability:visual-feedback]
+# @requires:     [capability:api-heart, capability:achronal-event-bus]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["fastapi>=0.109.0"]
+#   env:         ["HUD_ACCENT_COLOR", "HAPTIC_INTENSITY"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        middleware-shield
+#   priority:    1000
+#   alias:       "haptics"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Visual Conductor) ---
+
+src/{{ package_name }}/middleware/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .haptics import HapticBroadcasterMiddleware\n"
+
+    haptics.py :: """
+import asyncio
+import logging
+import time
+import os
+from typing import Callable, Dict, Any
+from fastapi import Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.background import BackgroundTask
+
+Logger = logging.getLogger("API:Haptics")
+
+class HapticBroadcasterMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE HAPTIC BROADCASTER (V-Ω-TOTALITY)                                   ==
+    =============================================================================
+    LIF: ∞ | ROLE: OCULAR_SYNCHRONIZER | RANK: OMEGA_SCRIBE
+    
+    The Messenger of Light.
+    1.  Zero-Latency Emission: Telemetry is offloaded to background threads.
+    2.  Semantic Aura Mapping: HTTP codes -> Ocular VFX.
+    3.  Trace ID Binding: Perfect synchronization with the Ocular HUB.
+    4.  Fracture Resilience: Captures and radiates even unhandled paradoxes.
+    \"\"\"
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        start_time = time.perf_counter()
+        
+        try:
+            # --- MOVEMENT I: KINETIC EXECUTION ---
+            response = await call_next(request)
+            
+            # [ASCENSION 1]: Calculation of Metabolic Tax
+            duration_ms = (time.perf_counter() - start_time) * 1000
+            
+            # --- MOVEMENT II: ACHRONAL RADIATION ---
+            # We attach the pulse to the response so the user's result is not delayed.
+            response.background = BackgroundTask(
+                self._radiate_vfx_pulse, 
+                request, 
+                response.status_code, 
+                duration_ms
+            )
+            return response
+            
+        except Exception as catastrophic_heresy:
+            # [ASCENSION 4]: FRACTURE CAPTURE
+            # If the Mind shatters, the Eye must see the blood.
+            duration_ms = (time.perf_counter() - start_time) * 1000
+            asyncio.create_task(self._radiate_vfx_pulse(request, 500, duration_ms, is_fatal=True))
+            raise catastrophic_heresy
+
+    async def _radiate_vfx_pulse(self, request: Request, status: int, duration: float, is_fatal: bool = False):
+        \"\"\"Transmutes HTTP state into Ocular light.\"\"\"
+        try:
+            # [CAUSAL_LINK]: Reaching for the Achronal Event Bus
+            # We attempt the import JIT to allow for late-bound materialization.
+            from ..api.events.bus import event_bus
+        except ImportError:
+            Logger.debug("Event Bus unmanifest. Haptic pulse vanished into the void.")
+            return
+
+        # =============================================================================
+        # == THE ALCHEMY OF COLOR (AURA MAPPING)                                     ==
+        # =============================================================================
+        # [ASCENSION 2]: Semantic Color Logic
+        if status < 300:
+            vfx, color = "bloom", "#64ffda"    # RESONANT TEAL
+        elif status < 400:
+            vfx, color = "pulse", "#3b82f6"    # REDIRECT BLUE
+        elif status < 500:
+            vfx, color = "shake", "#f59e0b"    # WARNING AMBER
+        else:
+            vfx, color = "shake_red", "#ef4444" # FRACTURE RED
+
+        if is_fatal:
+            vfx, color = "shake_fatal", "#dc2626"
+
+        # [ASCENSION 3]: TRACE BINDING
+        # Extract the Silver Cord from headers or state
+        trace_id = request.headers.get("X-Gnostic-Trace") or getattr(request.state, "trace_id", "tr-void")
+
+        # Forge the Pulse Payload
+        pulse = {
+            "type": "HAPTIC_REVELATION",
+            "vfx": vfx,
+            "color": color,
+            "metadata": {
+                "status": status,
+                "path": request.url.path,
+                "method": request.method,
+                "latency_ms": round(duration, 2),
+                "trace_id": trace_id
+            },
+            "timestamp": time.time()
+        }
+
+        # [STRIKE]: Project the pulse into the Lattice
+        await event_bus.publish("system.haptics", pulse, trace_id=trace_id)
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Haptic Broadcaster[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]MIDDLEWARE-SHIELD[/bold green]"
+    proclaim: "Conduit: [bold magenta]Achronal Event Bus[/bold magenta]"
+    
+    # [THE CURE]: No 'poetry add' needed; the Engine handles the genomic mass.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (UI Responsiveness -> ∞)[/]"
+    proclaim: "[bold green]✅ The Retina is now Resonant.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Broadcaster materialization fractured.[/bold red]"

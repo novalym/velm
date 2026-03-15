@@ -1,4 +1,4 @@
-# Path: scaffold/core/traceback/inspector.py
+# Path: velm/core/traceback/inspector.py
 # ------------------------------------------
 # LIF: ∞ | ROLE: FORENSIC_STACK_INQUISITOR | RANK: OMEGA_SOVEREIGN
 # AUTH: Ω_INSPECTOR_V9000_TOTALITY_SUTURE_2026

@@ -1,0 +1,131 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/docker-orchestration
+# ==============================================================================
+# @id:           system/docker-orchestration
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Production-grade multi-stage Docker build system and Docker Compose orchestration for microservices.
+# @vibe:         [docker, compose, multi-stage, container, orchestration, iron, asgi]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:containerization, capability:infrastructure-vessel, capability:docker-engine]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   env:         ["DOCKER_BUILDKIT", "COMPOSE_PROJECT_NAME"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "app": { "build": "." } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-orchestrator"
+#   priority:    1000
+#   alias:       "docker_conductor"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-vessel") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ app_port = {{ port | default(8000) }}
+$$ python_v = {{ python_version | default("3.11") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Physical Vessel) ---
+
+# [ASCENSION 1]: The Multi-Stage Production Vessel
+# This is the "Body" of the application. It is warded against 
+# high-entropy build tools, leaving only the pure runtime.
+Dockerfile :: """
+# --- Stage I: The Forge (Builder) ---
+FROM python:{{ python_v }}-slim-bookworm AS builder
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 \\
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends gcc curl && \\
+    rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml poetry.lock* ./
+RUN pip install poetry && poetry config virtualenvs.create false && \\
+    poetry install --no-root --only main
+
+# --- Stage II: The Celestial Vessel (Runtime) ---
+FROM python:{{ python_v }}-slim-bookworm
+RUN groupadd -r gnostic && useradd -r -g gnostic scaf_artisan
+WORKDIR /app
+
+# Inhale the consecrated dependencies from the builder
+COPY --from=builder /usr/local/lib/python{{ python_v }}/site-packages /usr/local/lib/python{{ python_v }}/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Inhale the Soul (Source Code)
+COPY --chown=scaf_artisan:gnostic src /app/src
+COPY --chown=scaf_artisan:gnostic .env.example /app/.env.example
+
+USER scaf_artisan
+EXPOSE {{ app_port }}
+
+# [ASCENSION 3]: Metabolic Health Tomography
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \\
+    CMD curl -f http://localhost:{{ app_port }}/health || exit 1
+
+CMD ["uvicorn", "src.{{ package_name }}.main:app", "--host", "0.0.0.0", "--port", "{{ app_port }}"]
+"""
+
+# [ASCENSION 2]: THE SYNAPTIC MESH (Docker Compose)
+docker-compose.yml :: """
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: {{ project_slug }}-core
+    ports:
+      - "{{ app_port }}:{{ app_port }}"
+    env_file: .env
+    networks:
+      - gnostic_mesh
+    restart: always
+
+networks:
+  gnostic_mesh:
+    name: {{ project_slug }}_gnostic_mesh
+    driver: bridge
+"""
+
+# [ASCENSION 4]: The Abyssal Filter (.dockerignore)
+.dockerignore :: """
+# == The Abyss (Docker Specific) ==
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.git/
+.scaffold/
+scaffold.lock
+*.scaffold
+*.symphony
+tests/
+"""
+
+# --- III. THE SURGICAL WEAVE (Control Plane Suture) ---
+
+Makefile += """
+
+# --- CONTAINER RITES ---
+up: ## ignite the physical vessels in the background
+    @docker-compose up -d
+
+down: ## return the vessels to the void
+    @docker-compose down
+
+vessel-logs: ## gaze into the heart of the running containers
+    @docker-compose logs -f
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Docker Orchestration Shard[/] is manifest."
+    proclaim: "Vessel Locus: [white]docker-compose.yml[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Infrastructure Chaos -> 0)[/]"
+    proclaim: "[bold green]✅ The Project now possesses a Physical Vessel.[/bold green]"
+    proclaim: "To ignite your vessels, speak: [bold cyan]make up[/bold cyan]"

@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/providers/anthropic.py
+# Path: velm/core/ai/providers/anthropic.py
 # ---------------------------------------------
 
 import os

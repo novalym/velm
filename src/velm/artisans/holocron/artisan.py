@@ -48,7 +48,7 @@ from ...help_registry import register_artisan
 from ...logger import Scribe
 
 if TYPE_CHECKING:
-    from ...core.runtime.engine import ScaffoldEngine
+    from ...core.runtime.engine import VelmEngine
 
 Logger = Scribe("HolocronArtisan")
 
@@ -62,7 +62,7 @@ class HolocronArtisan(BaseArtisan[HolocronRequest]):
     LIF: ∞ | ROLE: CAUSAL_CONTEXT_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
     """
 
-    def __init__(self, engine: 'ScaffoldEngine'):
+    def __init__(self, engine: 'VelmEngine'):
         """[THE RITE OF BINDING]"""
         super().__init__(engine)
         self.signature = "Ω_HOLOCRON_V25000_RESONANT"

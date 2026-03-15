@@ -1,4 +1,4 @@
-# Path: scaffold/core/blueprint_scribe/canonical_serializer.py
+# Path: velm/core/blueprint_scribe/canonical_serializer.py
 # ------------------------------------------------------------
 
 import re

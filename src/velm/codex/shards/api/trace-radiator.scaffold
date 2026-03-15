@@ -1,0 +1,122 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/TRACE-RADIATOR
+# ==============================================================================
+# @id:           api/trace-radiator
+# @version:      3.0.0
+# @tier:         body
+# @summary:      The Gnostic Trace Radiator for distributed OpenTelemetry 
+#                observability. Materializes a non-blocking gRPC exporter that 
+#                streams architectural spans to the Panopticon, enabling 
+#                real-time forensic scrying of distributed intent.
+# @vibe:         [telemetry, tracing, opentelemetry, jaeger, observability, grpc]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:distributed-tracing, capability:telemetry-radiator, capability:span-exporter]
+# @requires:     [capability:api-heart, capability:network-access]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["opentelemetry-api>=1.24.0", "opentelemetry-sdk>=1.24.0", "opentelemetry-exporter-otlp>=1.24.0", "opentelemetry-instrumentation-fastapi>=0.45b0"]
+#   env:         ["OTLP_ENDPOINT", "OTLP_SERVICE_NAME", "TRACE_SAMPLING_RATE"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        lifecycle-pulse
+#   priority:    2
+#   alias:       "radiator"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ otel_service_name = {{ project_slug | default("omega-node") }} + "-radiator"
+$$ otel_endpoint = {{ otlp_endpoint | default("http://otel-collector:4317") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Ocular Nervous System) ---
+
+src/{{ package_name }}/api/telemetry/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .radiator import ignite_trace_radiator, flush_trace_radiator\n"
+
+    radiator.py :: """
+import os
+import logging
+import time
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
+Logger = logging.getLogger("API:TraceRadiator")
+
+# @scaffold:lifecycle(event="startup")
+async def ignite_trace_radiator(app=None):
+    \"\"\"
+    =============================================================================
+    == THE TRACE RADIATOR (V-Ω-TOTALITY)                                       ==
+    =============================================================================
+    LIF: ∞ | ROLE: METABOLIC_EXPORTER | RANK: OMEGA
+    
+    [ASCENSIONS]:
+    1. Batch Processing: Uses BatchSpanProcessor to ensure 0ms latency impact.
+    2. gRPC Conduit: High-speed Protobuf transmission to the Collector.
+    3. Automatic Instrumentation: Automatically wraps the FastAPI heart.
+    \"\"\"
+    endpoint = os.getenv("OTLP_ENDPOINT", "{{ otel_endpoint }}")
+    service_name = os.getenv("OTLP_SERVICE_NAME", "{{ otel_service_name }}")
+    
+    # 1. Forge the Resource Identity (The Project's Soul)
+    resource = Resource.create({
+        SERVICE_NAME: service_name,
+        "gnostic_trace_id": os.getenv("SCAFFOLD_TRACE_ID", "tr-unbound")
+    })
+    
+    # 2. Establish the Provider
+    provider = TracerProvider(resource=resource)
+    
+    # 3. Connect the Conduit to the Panopticon
+    try:
+        # [STRIKE]: Creating the gRPC Exporter
+        exporter = OTLPSpanExporter(endpoint=endpoint, insecure=True)
+        
+        # [ASCENSION 1]: The Batch Processor Sieve
+        processor = BatchSpanProcessor(exporter)
+        provider.add_span_processor(processor)
+        
+        # Consecrate as Global Provider
+        trace.set_tracer_provider(provider)
+        
+        # 4. Suture to the Application Heart
+        if app:
+            # [ASCENSION 3]: Automatic Instrumentation
+            FastAPIInstrumentor.instrument_app(app)
+            
+        Logger.info(f"📡 [RADIATOR] OpenTelemetry Conduit forged to {endpoint}.")
+        return provider
+    except Exception as e:
+        # [ASCENSION 4]: Resilience Ward
+        Logger.warning(f"⚠️ [RADIATOR] Conduit fracture: {e}. Traces will remain local.")
+        return None
+
+# @scaffold:lifecycle(event="shutdown")
+async def flush_trace_radiator():
+    \"\"\"Ensures the final thoughts of the Engine are transmitted before dissolution.\"\"\"
+    provider = trace.get_tracer_provider()
+    if hasattr(provider, 'shutdown'):
+        Logger.info("🌑 [RADIATOR] Flushing remaining spans to the Panopticon...")
+        provider.shutdown()
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Trace Radiator[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]LIFECYCLE-PULSE[/bold green]"
+    proclaim: "Endpoint: [bold yellow]{{ otel_endpoint }}[/bold yellow]"
+    
+    # [THE CURE]: No 'poetry add' needed. The DNA is in the Dossier.
+    
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Systemic Blindness -> 0)[/]"
+    proclaim: "[bold green]✅ The Project now has an Observability Retina.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Radiator materialization fractured.[/bold red]"

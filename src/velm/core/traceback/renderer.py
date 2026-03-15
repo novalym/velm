@@ -1,4 +1,4 @@
-# Path: scaffold/core/traceback/renderer.py
+# Path: velm/core/traceback/renderer.py
 # ------------------------------------------
 # LIF: ∞ | ROLE: OCULAR_REVELATION_ENGINE | RANK: OMEGA_SOVEREIGN
 # AUTH: Ω_RENDERER_V9000_LUMINOUS_FINALIS_2026

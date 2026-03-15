@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/refinement/purifier.py
+# Path: src/velm/core/symbolic/refinement/purifier.py
 # --------------------------------------------------------
 # LIF: ∞ | ROLE: ATOMIC_PARTICLE_ACCELERATOR | RANK: LEGENDARY
 # AUTH: Ω_PURIFIER_TOTALITY_V101_HEALED

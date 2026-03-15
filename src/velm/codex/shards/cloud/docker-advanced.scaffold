@@ -1,0 +1,182 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/docker-advanced
+# ==============================================================================
+# @id:           cloud/docker-advanced
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Production-grade multi-stage Docker orchestration with Celery workers, Nginx, and Redis/Postgres.
+# @vibe:         [docker, production, multi-stage, celery, nginx, redis, postgres, architecture]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:docker-production, capability:container-orchestration]
+# @requires:     [capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   env:         ["API_PORT", "PYTHON_VERSION", "REGISTRY_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "api": {"build": "."}, "worker": {"command": "celery..."}, "nginx": {} } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-compose"
+#   priority:    900
+#   alias:       "docker_advanced"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-service") }}
+$$ app_port = {{ port | default(8000) }}
+$$ python_v = {{ python_version | default("3.12") }}
+$$ registry = {{ registry_url | default("registry.novalym.systems") }}
+$$ image_name = "{{ registry }}/{{ project_slug }}"
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+# [ASCENSION 1]: THE BUILDKIT ALCHEMIST
+Dockerfile :: """
+# syntax=docker/dockerfile:1.4
+# --- Stage I: The Forge (Builder) ---
+FROM python:{{ python_v }}-slim-bookworm AS builder
+
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc curl build-essential libpq-dev && rm -rf /var/lib/apt/lists/*
+
+# [ASCENSION 2]: Semantic Cache Mounting
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip wheel --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# --- Stage II: The Celestial Vessel (Production) ---
+FROM python:{{ python_v }}-slim-bookworm
+
+RUN groupadd -r gnostic && useradd -r -g gnostic -u 1000 -m scaf_artisan
+WORKDIR /app
+
+COPY --from=builder /app/wheels /wheels
+RUN pip install --no-index --find-links=/wheels /wheels/* && rm -rf /wheels
+
+# [ASCENSION 3]: The Trace Suture
+LABEL service="{{ project_slug }}" managed_by="velm_god_engine"
+
+COPY --chown=scaf_artisan:gnostic . .
+
+USER scaf_artisan
+EXPOSE {{ app_port }}
+
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "{{ app_port }}", "--workers", "4"]
+"""
+
+# [ASCENSION 4]: THE NETWORK LATTICE
+docker-compose.yml :: """
+version: '3.8'
+
+services:
+  api:
+    build: .
+    image: {{ image_name }}:latest
+    container_name: {{ project_slug }}-api
+    env_file: .env
+    depends_on:
+      redis: { condition: service_healthy }
+      db: { condition: service_healthy }
+    networks:
+      - public_aperture
+      - internal_synapse
+    deploy:
+      resources:
+        limits: { cpus: '1.0', memory: 1G }
+
+  # [ASCENSION 5]: THE WORKER FISSION
+  worker:
+    image: {{ image_name }}:latest
+    container_name: {{ project_slug }}-worker
+    command: ["celery", "-A", "src.worker", "worker", "--loglevel=info"]
+    env_file: .env
+    depends_on: [redis]
+    networks: [internal_synapse]
+    restart: always
+
+  # [ASCENSION 6]: THE PROXY APERTURE
+  nginx:
+    image: nginx:alpine
+    container_name: {{ project_slug }}-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks: [public_aperture]
+    depends_on: [api]
+
+  db:
+    image: postgres:16-alpine
+    container_name: {{ project_slug }}-db
+    environment:
+      POSTGRES_DB: reality
+      POSTGRES_USER: gnostic
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    volumes: [db_mass:/var/lib/postgresql/data]
+    networks: [internal_synapse]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gnostic"]
+      interval: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: {{ project_slug }}-redis
+    networks: [internal_synapse]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+
+networks:
+  public_aperture: { driver: bridge }
+  internal_synapse: { internal: true }
+
+volumes:
+  db_mass:
+
+secrets:
+  # [ASCENSION 7]: Docker Secrets Integration
+  db_password:
+    file: ./.scaffold/vault/db_pass.txt
+"""
+
+infra/
+    nginx.conf :: """
+    events { worker_connections 1024; }
+    http {
+        server {
+            listen 80;
+            location / {
+                proxy_pass http://api:{{ app_port }};
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+        }
+    }
+    """
+
+# --- III. THE SURGICAL WEAVE ---
+Makefile += """
+# --- TITANIUM CONTAINER RITES ---
+build: ## invoke BuildKit for a high-velocity, cached image compilation
+  @DOCKER_BUILDKIT=1 docker build -t {{ image_name }}:latest .
+
+prod-up: ## awaken the full production-grade mesh
+  @docker-compose up -d
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    # Pre-forge the secret file to prevent compose crash
+    >> mkdir -p .scaffold/vault
+    >> echo "{{ crypto.password(24) }}" > .scaffold/vault/db_pass.txt
+    
+    proclaim: "The [bold cyan]Docker Advanced Fortress[/bold cyan] is manifest."
+    proclaim: "Architecture: [green]API + Celery Worker + Nginx + DB/Redis[/green]"
+    proclaim: "LIF-Multiplier: [bold green]50,000x (Production Readiness)[/]"

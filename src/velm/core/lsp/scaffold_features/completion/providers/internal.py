@@ -42,7 +42,7 @@ class InternalCompletionProvider(CompletionProvider):
     6.  **Pydantic Model Handover:** Strict `CompletionRequest.model_validate` enforcement.
     7.  **Dialect Triage:** Maps TriggerCharacter and TriggerKind precisely.
     8.  **Empty Response Autopsy:** Triggers deep forensic logging on "0 items" results.
-    9.  **Shared Engine Consciousness:** Passes the living `ScaffoldEngine` to share caches.
+    9.  **Shared Engine Consciousness:** Passes the living `VelmEngine` to share caches.
     10. **Metabolic Pressure Shield:** Yields execution if Foundry queues are flooded.
     11. **Fault-Isolate Sarcophagus:** An unbreakable try/except ward around the entire rite.
     12. **Result Transmutation:** Fast-casts raw dicts into `CompletionItem` vessels.

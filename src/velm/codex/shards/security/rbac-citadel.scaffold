@@ -1,0 +1,123 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: security/rbac-citadel
+# ==============================================================================
+# @id:           security/rbac-citadel
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      YAML-driven Role-Based Access Control (RBAC) engine with route guards.
+# @vibe:         [rbac, permissions, authorization, yaml, roles, security, guards]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:rbac, capability:authorization]
+# @requires:     [capability:fastapi-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["PyYAML>=6.0.1"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "auth-dependency"
+#   priority:    60
+#   alias:       "rbac_citadel"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ policy_file = {{ policy_file | default("access_policy.yaml") }}
+$$ default_role = {{ default_role | default("guest") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE POLICY SCRIPTURE (The Law) ---
+src/{{ package_name }}/core/security/
+    {{ policy_file }} :: """
+# =============================================================================
+# == GNOSTIC ACCESS POLICY (V-Ω-TOTALITY)                                    ==
+# =============================================================================
+roles:
+  guest:
+    description: "The Uninitiated. Access to public apertures only."
+    permissions:
+      - "public:read"
+  
+  acolyte:
+    inherits: ["guest"]
+    description: "The Initiated. Can perceive blueprints and artifacts."
+    permissions:
+      - "blueprint:read"
+      - "artifact:download"
+  
+  architect:
+    inherits: ["acolyte"]
+    description: "The Sovereign. Total Gnostic Authority."
+    permissions:
+      - "*" 
+"""
+
+    sentinel.py :: """
+import yaml
+import fnmatch
+import logging
+import time
+from pathlib import Path
+from typing import Set, Dict, Any
+from fastapi import Request, HTTPException, status
+
+Logger = logging.getLogger("Security:Sentinel")
+POLICY_PATH = Path(__file__).parent / "{{ policy_file }}"
+
+class AccessSentinel:
+    \"\"\"The Judge of Station.\"\"\"
+    _policy_cache: Dict[str, Any] = {}
+    _last_load: float = 0
+
+    def __init__(self, required_permission: str):
+        self.required_permission = required_permission
+
+    def __call__(self, request: Request):
+        return self.adjudicate(request, self.required_permission)
+
+    @classmethod
+    def adjudicate(cls, request: Request, permission: str):
+        user_role = getattr(request.state, "role", "{{ default_role }}")
+        policy = cls._load_policy()
+        
+        allowed_permissions = cls._get_flattened_permissions(user_role, policy)
+        
+        granted = any(fnmatch.fnmatch(permission, pattern) for pattern in allowed_permissions)
+        
+        if not granted:
+            Logger.warning(f"🚫 ACCESS_DENIED: Role '{user_role}' attempted forbidden rite '{permission}'")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Jurisprudence Violation: Role '{user_role}' lacks permission '{permission}'."
+            )
+        return True
+
+    @classmethod
+    def _get_flattened_permissions(cls, role: str, policy: Dict) -> Set[str]:
+        perms = set()
+        role_data = policy.get("roles", {}).get(role, {})
+        perms.update(role_data.get("permissions", []))
+        for parent in role_data.get("inherits", []):
+            perms.update(cls._get_flattened_permissions(parent, policy))
+        return perms
+
+    @classmethod
+    def _load_policy(cls) -> Dict:
+        if not cls._policy_cache or (time.time() - cls._last_load > 10):
+            if POLICY_PATH.exists():
+                with open(POLICY_PATH, "r") as f:
+                    cls._policy_cache = yaml.safe_load(f)
+                    cls._last_load = time.time()
+        return cls._policy_cache
+
+def Guard(permission: str):
+    return AccessSentinel(permission)
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]RBAC Citadel[/bold cyan] has been waked."
+    proclaim: "To ward an endpoint, use the [bold]Guard[/bold] dependency:"
+    proclaim: "[magenta]  @app.post('/forge', dependencies=[Depends(Guard('reality:forge'))])[/magenta]"
+    proclaim: "LIF-Multiplier: [bold green]10,000x (Access Drift -> 0)[/]"

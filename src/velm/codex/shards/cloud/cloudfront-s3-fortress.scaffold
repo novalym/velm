@@ -1,0 +1,178 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/cloudfront-s3-fortress
+# ==============================================================================
+# @id:           cloud/cloudfront-s3-fortress
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Global CDN edge delivery via AWS CloudFront mapped to an S3 origin bucket with strict OAC.
+# @vibe:         [aws, cloudfront, s3, cdn, edge, static-hosting, fortress, global]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:cdn, capability:static-hosting, capability:global-edge]
+# @requires:     [capability:terraform-core, capability:aws-credentials]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+#   env:         ["AWS_REGION"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   terraform:   ["resource 'aws_cloudfront_distribution' 'cdn'", "resource 'aws_s3_bucket' 'asset_bucket'"]
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-terraform"
+#   priority:    900
+#   alias:       "cdn_fortress"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-reality") }}
+$$ aws_region = {{ aws_region | default("us-east-1") }}
+$$ domain_name = {{ domain | default("www.ocular-membrane.com") }}
+$$ bucket_name_prefix = "{{ project_slug }}-assets"
+
+# Derived Gnosis
+$$ bucket_name = "{{ bucket_name_prefix }}-{{ crypto.hex(6) }}"
+$$ s3_origin_id = "{{ project_slug }}-s3-origin"
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+# [ASCENSION 1]: The Abyssal Filter Suture
+.gitignore += """
+# --- CDN Terraform Gnosis ---
+infra/cdn/.terraform/
+infra/cdn/*.tfstate
+infra/cdn/*.tfstate.backup
+infra/cdn/.terraform.lock.hcl
+"""
+
+infra/cdn/
+    # [ASCENSION 2]: THE GNOSTIC PROVIDER
+    providers.tf :: """
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+
+# [ASCENSION 3]: The ACM Certificate Authority (Must be us-east-1 for CloudFront)
+provider "aws" {
+  alias  = "us-east-1"
+  region = "us-east-1"
+}
+    """
+
+    # [ASCENSION 4]: THE MASTER SYMPHONY
+    main.tf :: """
+# --- S3 BUCKET (The Data Anchor) ---
+resource "aws_s3_bucket" "asset_bucket" {
+  bucket = var.bucket_name
+  tags   = var.tags
+}
+
+resource "aws_s3_bucket_public_access_block" "asset_bucket_pab" {
+  bucket                  = aws_s3_bucket.asset_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# --- CLOUDFRONT DISTRIBUTION (The Global Edge) ---
+resource "aws_cloudfront_distribution" "cdn_distribution" {
+  enabled             = true
+  comment             = "Ocular Membrane Distribution for ${var.project_name}"
+  is_ipv6_enabled     = true
+  price_class         = "PriceClass_100" # USA, Europe, Asia
+
+  # [ASCENSION 5]: Zero-Trust Origin Access Control
+  origin {
+    domain_name              = aws_s3_bucket.asset_bucket.bucket_regional_domain_name
+    origin_id                = "{{ s3_origin_id }}"
+    origin_access_control_id = aws_cloudfront_origin_access_control.default.id
+  }
+
+  default_cache_behavior {
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD", "OPTIONS"]
+    target_origin_id = "{{ s3_origin_id }}"
+    viewer_protocol_policy = "redirect-to-https"
+    compress         = true
+    
+    forwarded_values {
+      query_string = false
+      cookies { forward = "none" }
+    }
+  }
+
+  restrictions { geo_restriction { restriction_type = "none" } }
+  
+  # [ASCENSION 6]: Universal HTTPS
+  viewer_certificate { cloudfront_default_certificate = true }
+}
+
+# --- OAC & POLICIES (The Law of the Forbidden Gate) ---
+resource "aws_cloudfront_origin_access_control" "default" {
+  name                              = "${var.project_name}-oac"
+  description                       = "OAC for S3 Bucket access"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+data "aws_iam_policy_document" "s3_policy" {
+  statement {
+    sid    = "AllowCloudFrontOAC"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.asset_bucket.arn}/*"]
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.cdn_distribution.arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "asset_bucket_policy" {
+  bucket = aws_s3_bucket.asset_bucket.id
+  policy = data.aws_iam_policy_document.s3_policy.json
+}
+    """
+
+    variables.tf :: """
+variable "aws_region" { type = string; default = "{{ aws_region }}" }
+variable "project_name" { type = string; default = "{{ project_slug }}" }
+variable "bucket_name" { type = string; default = "{{ bucket_name }}" }
+variable "tags" { type = map(string); default = { Environment = "production" } }
+    """
+
+# --- III. THE SURGICAL WEAVE ---
+# [ASCENSION 7]: Global Conductor Suture
+Makefile += """
+
+# --- CDN RITES ---
+cdn-deploy: ## materialize the CloudFront/S3 edge architecture
+  @echo "🚀 Ascending to the Edge..."
+  @cd infra/cdn && terraform init && terraform apply -auto-approve
+
+cdn-sync: ## teleport the local build artifacts to the S3 bucket
+  @echo "📦 Teleporting matter to S3..."
+  @aws s3 sync ./dist/ s3://{{ bucket_name }}/ --delete
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]CloudFront/S3 Fortress Shard[/bold cyan] is manifest."
+    proclaim: "Terraform Sanctum: [white]infra/cdn/[/]"
+    proclaim: "LIF-Multiplier: [bold green]10,000x (Static Hosting Complexity -> 0)[/]"
+    proclaim: "To deploy your edge: [bold magenta]make cdn-deploy[/bold magenta]"

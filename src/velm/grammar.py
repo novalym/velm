@@ -1,4 +1,4 @@
-# Path: scaffold/grammar.py
+# Path: src/velm/grammar.py
 # -------------------------
 
 """
@@ -26,6 +26,7 @@ the Engine cannot perceive it.
 *   **The Gnostic Traits:** Added `%% trait` and `%% use` for mixin composition.
 *   **The Integrity Anchor:** Added `@hash(...)` for SRI-style verification.
 *   **The Permission Granularizer:** Expanded permission logic to accept keywords.
+*   **The SGF Suture:** Transfigured legacy constructs into the Sovereign Gnostic Formula.
 =================================================================================
 """
 
@@ -79,14 +80,15 @@ SCAFFOLD_ATOMS = [
     # To add a new command to the language, simply append the verb here and wire its
     # Scribe in the SCRIBE_PANTHEON.
     # -----------------------------------------------------------------------------------------
-    ('SIGIL_DIRECTIVE', r'@(import|from|include|macro|call|session|manifested|if|elif|else|endif|for|endfor|task|endtask|try|catch|finally|endtry|scry|audit|herald|proclaim)\b'),
+    ('SIGIL_DIRECTIVE',
+     r'@(import|from|include|macro|call|session|manifested|if|elif|else|endif|for|endfor|task|endtask|try|catch|finally|endtry|scry|audit|herald|proclaim)\b'),
     # -----------------------------------------------------------------------------------------
     # [2] SIGIL_MODIFIER: THE LAWS OF PROPERTY & AD-HOC ASCENSION
     # -----------------------------------------------------------------------------------------
     # These are the "Spectral Adjectives". Unlike Directives, they attach to Matter (Paths).
     # e.g., "src/auth.py @encrypt @readonly".
     #
-    # ### THE AD-HOC STRATEGY (WHAT THIS OPENS UP):
+    # ### THE AD-HOC STRATEGY (WHAT THIS OPENS_UP):
     # 1. ATOMIC EXPANSION: This architecture allows us to add new "Middleware Traits" to
     #    files without refactoring. By adding '@hidden' here, we instantly enable the
     #    VFS to scry that property and hide the file from the Ocular UI.
@@ -99,7 +101,8 @@ SCAFFOLD_ATOMS = [
     #    word to this regex. The DeconstructionScribe automatically extracts it into the
     #    'semantic_selector' dict on the ScaffoldItem, where any Artisan can scry it.
     # -----------------------------------------------------------------------------------------
-    ('SIGIL_MODIFIER', r'@(inside|after|before|patch|warded|hidden|volatile|ephemeral|readonly|executable|signature|encrypt|trace|audit)\b'),
+    ('SIGIL_MODIFIER',
+     r'@(inside|after|before|patch|warded|hidden|volatile|ephemeral|readonly|executable|signature|encrypt|trace|audit)\b'),
 
     # -----------------------------------------------------------------------------------------
     # [3] OPERATOR_KEYWORD: THE LOGICAL SUTURE (CONJUNCTIONS)
@@ -110,7 +113,7 @@ SCAFFOLD_ATOMS = [
     # the word "import" as a "file path" when it appears inside a @directive line.
     # -----------------------------------------------------------------------------------------
     ('OPERATOR_KEYWORD', r'\b(import|as|in|from|where|using|trait|use|of|by|with|on|to)\b'),
-    
+
     # Arguments for directives: (key="value", ...)
     ('SIGIL_LPAREN', r'\('),
     ('SIGIL_RPAREN', r'\)'),
@@ -124,10 +127,10 @@ SCAFFOLD_ATOMS = [
     # [NEW] Gnostic Traits: Reusable architectural DNA
     ('SIGIL_TRAIT_DEF', r'%%\s*trait\b'),  # %% trait Auth = ...
     ('SIGIL_TRAIT_USE', r'%%\s*use\b'),  # %% use Auth
-    ('SIGIL_ON_UNDO', r'%%\s*on-undo\b'), # [NEW] The Maestro's Counter-Edict
+    ('SIGIL_ON_UNDO', r'%%\s*on-undo\b'),  # [NEW] The Maestro's Counter-Edict
     # =====================
     ('SIGIL_PERMS', r'%%'),  # Permissions marker
-    ('SIGIL_VAR_DEF', r'\$\$'),  # Variable definition
+    ('SIGIL_VAR_DEF', r'\$$'),  # Variable definition
     ('SIGIL_VOW', r'\?\?'),  # Gnostic Vow (Assertion)
     ('SIGIL_INDENTED', r':\s*$'),  # Start of an indented block
 
@@ -142,9 +145,9 @@ SCAFFOLD_ATOMS = [
     # Seed Paths: The source of a << operation
     ('SEED_PATH', r'(?<=\<\<\s)[\S]+'),
 
-    # Jinja2 Constructs: {{ var }} or {% if %}
-    ('JINJA_CONSTRUCT', r'\{[%#].*?[%#]\}'),
-    ('PLACEHOLDER', r'\{\{.*?\}\}'),
+    # Sovereign Gnostic Formula (SGF) Constructs: {{ var }} or {% if %}
+    ('SGF_CONSTRUCT', r'\{[%#].*?[%#]\}'),
+    ('PLACEHOLDER', r'\{\{.*?\}\ eye'),
 
     # Strings: Double or Single quoted, handling escaped quotes.
     ('QUOTED_STRING', r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\''),

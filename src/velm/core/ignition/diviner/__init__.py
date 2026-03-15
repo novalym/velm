@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/__init__.py
+# Path: velm/core/ignition/diviner/__init__.py
 # ------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: DIVINER_SINGULARITY_SEAL
 

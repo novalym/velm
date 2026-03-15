@@ -1,4 +1,4 @@
-# Gnostic Codex: scaffold/core/kernel/chronicle/provenance_scribe.py
+# Gnostic Codex: velm/core/kernel/chronicle/provenance_scribe.py
 # ------------------------------------------------------------------
 # LIF: ∞ (ETERNAL & ABSOLUTE)
 #

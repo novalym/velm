@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/ai/rag/librarian/master.py
+# Path: src/velm/core/ai/rag/librarian/master.py
 # -----------------------------------------------------------------------------------
 # LIF: INFINITY | ROLE: GNOSTIC_CHRONICLER_ORCHESTRATOR | RANK: OMEGA_SUPREME
 # AUTH_CODE: Ω_LIBRARIAN_TOTALITY_2026_FINALIS_TITANIUM

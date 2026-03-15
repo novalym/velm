@@ -26,7 +26,7 @@ class LocalUsageProvider(ReferenceProvider):
         if not target: return []
 
         # [ASCENSION 7]: Precise Regex for Gnostic Particles
-        # Matches the variable name surrounded by word boundaries or Jinja braces
+        # Matches the variable name surrounded by word boundaries or SGF braces
         pattern = re.compile(rf'(?<![\w]){re.escape(target)}(?![\w])')
 
         locations = []
@@ -37,14 +37,14 @@ class LocalUsageProvider(ReferenceProvider):
             if line.strip().startswith('#'): continue
 
             for match in pattern.finditer(line):
-                # Context Check: Ensure we are either at a definition site or in a Jinja block
+                # Context Check: Ensure we are either at a definition site or in a SGF block
                 is_def = line.lstrip().startswith(('$$', 'let', 'def', 'const'))
 
-                # Check for Jinja enclosure
+                # Check for SGF enclosure
                 prefix = line[:match.start()]
-                is_jinja = prefix.count("{{") > prefix.count("}}")
+                is_sgf = prefix.count("{{") > prefix.count("}}")
 
-                if is_def or is_jinja:
+                if is_def or sgf:
                     locations.append(Location(
                         uri=doc.uri,
                         range=Range(

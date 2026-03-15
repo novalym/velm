@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/engine.py
+# Path: src/velm/core/symbolic/engine.py
 # ------------------------------------------
 # LIF: ∞ | ROLE: CEREBRAL_CONDUCTOR | RANK: SOVEREIGN
 # AUTH: Ω_SYMBOLIC_ENGINE_TOTALITY_V100
@@ -25,7 +25,7 @@ from .telemetry import OcularPulser
 
 # --- TYPE GUARDING ---
 if TYPE_CHECKING:
-    from ...core.runtime.engine import ScaffoldEngine
+    from ...core.runtime.engine import VelmEngine
 
 Logger = logging.getLogger("Scaffold::SymbolicEngine")
 
@@ -71,7 +71,7 @@ class GnosticSymbolicEngine:
     =============================================================================
     """
 
-    def __init__(self, engine: ScaffoldEngine):
+    def __init__(self, engine: VelmEngine):
         """
         [THE RITE OF INCEPTION]
         Binds the Symbolic Engine to the universal God-Engine.

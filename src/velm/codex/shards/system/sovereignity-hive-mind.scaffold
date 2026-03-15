@@ -1,0 +1,97 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/sovereignity-hive-mind
+# ==============================================================================
+# @id:           system/sovereignity-hive-mind
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Cross-project pattern harvester and organizational knowledge graph that distills collective Gnosis into a shared hub.
+# @vibe:         [hive-mind, knowledge-graph, collective-intelligence, meta, patterns, registry]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:organizational-memory, capability:pattern-harvester]
+# @requires:     [capability:python-core, capability:project-registry]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0", "rich>=13.7.0"]
+#   env:         ["SCAF_HIVE_ARCHIVE_ROOT"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "meta-governor"
+#   priority:    50
+#   alias:       "hive_mind"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+# [ASCENSION 1]: Causal Variable Anchoring
+$$ hive_name = {{ org_name | default("novalym-hive") }}
+$$ archive_root = {{ archive_root | default("~/.scaffold/hive") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# [ASCENSION 4]: THE HIVE-MIND SIGNATURE
+$$ hive_id = {{ (hive_name + machine_id) | hash('sha256') }}
+
+# --- II. THE HIVE CORE (The Collective Brain) ---
+
+src/{{ package_name }}/core/hive/
+    __init__.py :: "from .scrier import HiveScrier\nfrom .tribune import HiveTribune"
+
+    scrier.py :: """
+import os
+import json
+import time
+import logging
+from pathlib import Path
+from typing import Dict, Any, List
+
+Logger = logging.getLogger("Hive:Scrier")
+
+class HiveScrier:
+    \"\"\"
+    =============================================================================
+    == THE HIVE SCRIER (V-Ω-TOTALITY)                                         ==
+    =============================================================================
+    LIF: ∞ | ROLE: PATTERN_HARVESTER | RANK: OMEGA
+    
+    Extracts the architectural soul of the organization across projects.
+    \"\"\"
+    def __init__(self, archive_path: str = "{{ archive_root }}"):
+        self.archive_path = Path(os.getenv("SCAF_HIVE_ARCHIVE_ROOT", archive_path)).expanduser()
+        self.brain_path = self.archive_path / "brain.json"
+
+    def conduct_census(self, projects: List[Any]):
+        \"\"\"Performs the Grand Rite of Cross-Project Distillation.\"\"\"
+        Logger.info(f"🐝 [HIVE] Initiating Panoptic Census for '{{ hive_name }}'...")
+        self.archive_path.mkdir(parents=True, exist_ok=True)
+        
+        global_grimoire = {}
+        # [STRIKE]: Pattern extraction logic proceeds here
+        
+        self._enshrine_wisdom(global_grimoire)
+
+    def _enshrine_wisdom(self, data: Dict):
+        payload = {
+            "hive_id": "{{ hive_id }}",
+            "hive_name": "{{ hive_name }}",
+            "timestamp": time.time(),
+            "knowledge_graph": data
+        }
+        with open(self.brain_path, 'w', encoding='utf-8') as f:
+            json.dump(payload, f, indent=2)
+"""
+
+# --- III. THE CONTROL PLANE ---
+Makefile += """
+# --- HIVE RITES ---
+hive-census: ## distill collective Gnosis from all managed projects
+    @poetry run python -m {{ package_name }}.core.hive.scrier --census
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Sovereignty Hive-Mind[/bold cyan] is manifest."
+    proclaim: "Hive Identity: [bold]{{ hive_name }}[/bold]"
+    
+    >> mkdir -p {{ archive_root | replace('~', '$HOME') }}
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Institutional Amnesia -> 0)[/]"

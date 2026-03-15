@@ -1,4 +1,4 @@
-# Path: scaffold/src/scaffold/core/cli/grimoire/_service_rites.py
+# Path: scaffold/src/velm/core/cli/grimoire/_service_rites.py
 from ..cli_utils import add_common_flags
 import json
 

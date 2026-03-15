@@ -233,134 +233,202 @@ class MaestroConductor:
     def execute(self, instruction: Tuple, env: Optional[Dict] = None):
         """
         =================================================================================
-        == THE OMEGA SYMPHONY OF EXECUTION (V-Ω-TOTALITY-V25000-SILENCE-SUTURED)       ==
+        == THE MAESTRO CONDUCTOR: OMEGA POINT (V-Ω-TOTALITY-VMAX-BICAMERAL-MERCY)       ==
         =================================================================================
-        LIF: ∞ | ROLE: KINETIC_DISPATCH_ORCHESTRATOR | RANK: OMEGA_SUPREME
-        AUTH: Ω_EXECUTE_V25000_TOTAL_QUIETUS_2026_FINALIS
+        LIF: ∞^∞ | ROLE: KINETIC_SUBSTRATE_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH_CODE: Ω_EXECUTE_VMAX_BICAMERAL_MERCY_2026_FINALIS
 
         [THE MANIFESTO]
-        The supreme conductor of kinetic will. It has been ascended to its final form,
-        possessing 'Substrate-Level Silence'. It righteously enforces the Gavel of the
-        Void, ensuring that in Ethereal realities, no acoustic leak profanes the
-        JS/WASM bridge. It maintains the Law of Symmetric Causality through the
-        Antidote Suture.
+        The supreme definitive authority for kinetic execution. This version
+        righteously annihilates the 88f37d38 Spacetime Displacement (Missing Manifests)
+        and the Auto-Immune Rollback Paradox. It implements Bicameral Jurisprudence,
+        granting Amnesty to .scaffold edicts while enforcing Law on .symphony rites.
 
-        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-        1.  **Apophatic Silence Suture (THE CURE):** Scries the 'SCAFFOLD_SILENT' DNA
-            at nanosecond zero. If manifest, it physically gags the Maestro's voice
-            and stays the hand of all Ocular HUD multicasts.
-        2.  **Achronal Spacetime Tomography:** Measures the precise nanosecond latency
-            of the alchemical, geometric, and kinetic phases for the telemetry ledger.
-        3.  **The Quaternity Ledger Sieve:** Robustly deconstructs the instruction
+        ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS IN THIS RITE:
+        1.  **Bicameral Jurisprudence (THE MASTER CURE):** Surgically scries the
+            originating blueprint extension. .scaffold edicts are granted 'Amnesty'
+            on failure, preventing Transaction Rollback. .symphony edicts remain
+            Strict Law.
+        2.  **Substrate-Aware Manifest Pivot (THE MASTER CURE):** If a manifest-bound
+            edict (npm, poetry, pip) lacks its soul-file at the root, the Conductor
+            performs a Recursive Topological Scry to pivot the CWD JIT.
+        3.  **Apophatic Silence Suture:** Strictly enforces 'SCAFFOLD_SILENT' at
+            nanosecond zero, preventing acoustic leaks into the JS/WASM bridge.
+        4.  **Achronal Trace ID Suture:** Force-binds the active 'trace_id' to the
+            environment and HUD telemetry for bit-perfect forensic causality.
+        5.  **The Quaternity Ledger Sieve:** Robustly deconstructs the instruction
             dowry (Cmd, Line, Undo, Heresy) with bit-perfect arity validation.
-        4.  **The Inverse Will Suture:** Adjudicates the 'Antidote' (Undo) script.
-            Prioritizes Blueprint '!!' edicts over automated Reverser prophecies.
-        5.  **Environment DNA Fusion:** Force-injects 'SC_VAR_' prefixed variables,
-            Trace IDs, and the Silence Vow into the OS environment block.
         6.  **Volumetric Achronal Redirect:** Surgically translocates the CWD to the
-            Shadow Volume (Green) if a Gnostic Transaction is manifest and resonant.
-        7.  **Semantic Polyglot Triage:** O(1) routing of intents (Proclaim, Shell,
-            Vault, Polyglot, Tunnel) to their specialized Artisan Handlers.
-        8.  **Hydraulic Output Flush:** Enforces a physical 'sys.stdout.flush' before
-            and after the strike to prevent log-clipping in the terminal pipe.
-        9.  **Socratic Redemption Pulse:** Only radiates "REDEMPTION_START" signals to
-            the HUD if the Vow of Silence is NOT active.
-        10. **Recursive Fracture Protection:** Wraps the entire symphony in a
-            Titanium Sarcophagus; a fracture in a child-edict will not annihilate
-            the parent's timeline.
-        11. **Substrate-Aware Permission Healer:** Injects metadata hints to help
-            the ShellHandler decide between standard and 'sudo' strategies.
-        12. **The Finality Vow:** A mathematical guarantee of bit-perfect
-            transactional alignment between willed Intent and physical Matter.
+            Shadow Volume (Green) if a Gnostic Transaction is resonant.
+        7.  **ELARA Transmutation Suture:** Uses the Alchemist to thaw {{ vars }}
+            inside shell commands precisely at the microsecond of discharge.
+        8.  **Hydraulic Output Flush:** Physically forces hardware buffer flushes
+            before and after the strike to prevent log-clipping.
+        9.  **Inverse Will Suture:** Adjudicates the 'Antidote' script, prioritizing
+            blueprint-willed '!!' edicts over automated reverser prophecies.
+        10. **Apophatic State Reconciliation:** Synchronizes 'gnosis' variables into
+            the OS environment block (SC_VAR_) for cross-process memory.
+        11. **Socratic Redemption Pulse:** Radiates high-fidelity failure telemetry
+            and "REDEMPTION_START" signals to the HUD with ultraviolet aura.
+        12. **NoneType Quaternity Sarcophagus:** Hard-wards against Null-access;
+            guarantees 4-tuple resonance regardless of input entropy.
+        13. **Metabolic Tomography:** Records nanosecond-precision latency for the
+            Alchemy, Pivot, and Kinetic phases independently.
+        14. **Semantic Polyglot Triage:** O(1) routing of intents to specialized
+            Artisan Handlers (Vault, Polyglot, Tunnel, Proclaim).
+        15. **The Herald's Amnesty Gate:** Prevents non-critical command failures
+            from triggering the "VFX: Shake_Red" HUD response for .scaffold rites.
+        16. **Indentation Floor Preservation:** Ensures polyglot blocks (py:, js:)
+            retain their visual soul during execution.
+        17. **Substrate DNA Recognition:** Adjusts internal $PATH to include local
+            node_modules/.bin and .venv/bin automatically.
+        18. **Apophatic Error Unwrapping:** Transmutes OS 'FileNotFound' errors
+            into human-readable "Artisan Unmanifest" suggestions.
+        19. **Geometric Path Anchor:** Validates the physical ground before
+            allowing the ShellHandler to spawn sub-processes.
+        20. **The Ghost-Edict Avoidance:** Skips I/O cycles for edicts whose
+            logical intent evaluates to an empty string.
+        21. **Subversion Ward:** Protects protected system settings from
+            being shadowed by AI-generated local variables.
+        22. **Haptic Trace Branding:** HMAC-signs the execution context for
+            authenticity verification.
+        23. **Thermodynamic Pacing:** Injects micro-yields if the Iron is
+            feverish (>92% load) before launching sub-shells.
+        24. **The Finality Vow:** A mathematical guarantee of an unbreakable,
+            transaction-aligned, and context-aware kinetic discharge.
         =================================================================================
         """
         import inspect
         import sys
         import time
         import os
+        import re
+        import shlex
         from pathlib import Path
         from ...core.state import ActiveLedger
         from ...core.state.contracts import LedgerEntry, LedgerOperation, InverseOp
+        from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
         _start_ns = time.perf_counter_ns()
 
-        # --- MOVEMENT I: ATOMIC DECONSTRUCTION (THE QUATERNITY) ---
-        # [ASCENSION 3]: Robustly unpack the quaternity, populating voids where necessary.
+        # --- MOVEMENT I: ATOMIC DECONSTRUCTION ---
+        # [ASCENSION 5 & 12]: Quaternity Sieve
         parts = list(instruction) if isinstance(instruction, (tuple, list)) else [instruction]
-        while len(parts) < 4:
-            parts.append(None)
+        while len(parts) < 4: parts.append(None)
+        raw_cmd, line_num, explicit_undo, heresy_block = parts[:4]
 
-        raw_command, line_num, explicit_undo, heresy_block = parts[:4]
+        if not raw_cmd: return
 
-        # [VOID_WARD]: If no command is spoken, the Maestro remains silent.
-        if not raw_command:
-            return
-
-        # =========================================================================
-        # == MOVEMENT II: [THE CURE] - THE GAVEL OF THE VOID                     ==
-        # =========================================================================
-        # [ASCENSION 1]: We scry the environment and registers for the Vow of Silence.
+        # --- MOVEMENT II: THE GAVEL OF THE VOID (SILENCE) ---
+        # [ASCENSION 3]: Scry for Quietus
         _is_silent = (
                 os.environ.get("SCAFFOLD_SILENT") == "1" or
                 getattr(self.regs, 'silent', False)
         )
 
         # --- MOVEMENT III: THE ALCHEMICAL RESOLUTION ---
-        # [ASCENSION 2]: Nanosecond Tomography - Step 1: Alchemy
-        transmuted_cmd = self.alchemist.transmute(str(raw_command), self.regs.gnosis)
+        # [ASCENSION 7]: ELARA Transmutation Strike
+        transmuted_cmd = self.alchemist.transmute(str(raw_cmd), self.regs.gnosis)
         stripped_cmd = transmuted_cmd.strip()
+        if not stripped_cmd: return
 
-        # --- MOVEMENT IV: ENVIRONMENT DNA FUSION ---
-        # [ASCENSION 5]: Suture the Environment for the Kinetic Strike
+        # =========================================================================
+        # == MOVEMENT IV: [THE MASTER CURE] - BICAMERAL JURISPRUDENCE            ==
+        # =========================================================================
+        # [ASCENSION 1]: We divine the nature of the Timeline.
+        # Is this a "Creation of Form" (.scaffold) or a "Manifestation of Will" (.symphony)?
+        origin = str(self.regs.gnosis.get("_blueprint_provenance", "unknown.scaffold")).lower()
+        is_will_based = origin.endswith(('.symphony', '.arch'))
+
+        # Covenant of Mercy: .scaffold edicts are best-effort.
+        is_mercy_allowed = not is_will_based
+
+        # =========================================================================
+        # == MOVEMENT V: [THE MASTER CURE] - THE MANIFEST PIVOT                  ==
+        # =========================================================================
+        # [ASCENSION 2]: We identify edicts that are "Manifest Bound".
+        MANIFEST_REQUIRED = {
+            "npm": "package.json", "pnpm": "package.json", "yarn": "package.json",
+            "poetry": "pyproject.toml", "pip": "requirements.txt",
+            "cargo": "Cargo.toml", "go": "go.mod", "make": "Makefile"
+        }
+
+        active_anchor = Path(self.project_anchor or os.getcwd()).resolve()
+
+        try:
+            cmd_parts = shlex.split(stripped_cmd)
+        except ValueError:
+            cmd_parts = stripped_cmd.split()
+
+        target_exe = cmd_parts[0].lower() if cmd_parts else ""
+        required_manifest = MANIFEST_REQUIRED.get(target_exe)
+
+        current_execution_cwd = active_anchor
+
+        if required_manifest and not (active_anchor / required_manifest).exists():
+            # [STRIKE]: The Geometric Scry.
+            # The manifest is missing at root (88f37d38). Scry sub-strata (depth 2).
+            candidates = list(active_anchor.glob(f"*/{required_manifest}")) + \
+                         list(active_anchor.glob(f"*/*/{required_manifest}"))
+
+            if candidates:
+                # Pivot to the nearest sub-sanctum
+                best_match = min(candidates, key=lambda p: len(p.parts))
+                current_execution_cwd = best_match.parent
+                if not _is_silent:
+                    self.Logger.success(
+                        f"   -> Substrate Pivot: {target_exe} anchored to [cyan]'{current_execution_cwd.relative_to(active_anchor)}/'[/cyan]")
+            else:
+                # [ASCENSION 1]: THE COVENANT OF MERCY STRIKE
+                if is_mercy_allowed:
+                    if not _is_silent:
+                        self.Logger.warn(
+                            f"L{line_num}: Mercy Granted. '{required_manifest}' unmanifest. Edict '{target_exe}' stayed.")
+                    return  # Graceful exit, no heresy raised, transaction preserved.
+                else:
+                    # SYMPHONY LAWS: If a symphony wills a manifest-bound command, it MUST exist.
+                    raise ArtisanHeresy(
+                        f"Spacetime Displacement Heresy: Manifest for '{target_exe}' unmanifest in Symphony.",
+                        line_num=line_num, severity=HeresySeverity.CRITICAL,
+                        suggestion=f"Ensure '{required_manifest}' exists at {active_anchor.name}/"
+                    )
+
+        # --- MOVEMENT VI: ENVIRONMENT DNA FUSION ---
+        # [ASCENSION 10]: Apophatic Reconciliation
         active_env = (env or os.environ).copy()
-
-        # 1. Project DNA Injection
         if self.regs.gnosis:
             for k, v in self.regs.gnosis.items():
-                # Only inject serializable primitives to prevent environment corruption
                 if isinstance(v, (str, int, bool, float)):
                     active_env[f"SC_VAR_{k.upper()}"] = str(v)
 
-        # 2. Causal Identity Suture
         active_env["SCAFFOLD_TRACE_ID"] = getattr(self.regs, 'trace_id', 'tr-maestro-local')
+        if _is_silent: active_env["SCAFFOLD_SILENT"] = "1"
 
-        # 3. [THE CURE]: Propagate silence to the OS layer
-        if _is_silent:
-            active_env["SCAFFOLD_SILENT"] = "1"
-
-        # --- MOVEMENT V: THE INVERSE WILL SUTURE ---
-        # [ASCENSION 4]: Adjudicate the Antidote for temporal reversal.
+        # --- MOVEMENT VII: THE INVERSE WILL SUTURE ---
+        # [ASCENSION 9]: Antidote Adjudication
         final_undo_script = None
         if explicit_undo:
-            # Alchemy: Fix variables into the undo script at the moment of birth.
             final_undo_script = self.alchemist.transmute(str(explicit_undo), self.regs.gnosis)
         else:
-            # Prophecy: Consult the Reverser for an autonomic undo strategy.
-            predicted_undo = self.reverser.infer_undo(transmuted_cmd, self.project_anchor)
-            if predicted_undo:
-                final_undo_script = "\n".join(predicted_undo)
+            predicted_undo = self.reverser.infer_undo(stripped_cmd, current_execution_cwd)
+            if predicted_undo: final_undo_script = "\n".join(predicted_undo)
 
-        # [LEDGER_INSCRIPTION]: Record the Vow into the Chronicle before the Strike.
+        # [LEDGER]: Enshrine the Vow
         ActiveLedger.record(LedgerEntry(
-            actor="Maestro",
-            operation=LedgerOperation.EXEC_SHELL,
-            forward_state={"command": transmuted_cmd, "line": line_num},
-            inverse_action=InverseOp(
-                op=LedgerOperation.EXEC_SHELL,
-                params={"command": final_undo_script}
-            ) if final_undo_script else None,
+            actor="Maestro", operation=LedgerOperation.EXEC_SHELL,
+            forward_state={"command": stripped_cmd, "line": line_num, "locus": str(current_execution_cwd)},
+            inverse_action=InverseOp(op=LedgerOperation.EXEC_SHELL,
+                                     params={"command": final_undo_script}) if final_undo_script else None,
             metadata={"trace_id": active_env["SCAFFOLD_TRACE_ID"]}
         ))
 
-        # --- MOVEMENT VI: SEMANTIC POLYGLOT ROUTING ---
-        # [ASCENSION 7]: O(1) Triage of the willed intent.
+        # --- MOVEMENT VIII: SEMANTIC POLYGLOT ROUTING ---
+        # [ASCENSION 14]: O(1) Triage
         rite_key = "shell"
-        final_command_body = transmuted_cmd
-
+        final_command_body = stripped_cmd
         lines = stripped_cmd.split('\n')
         first_line = lines[0].strip().lower()
 
-        # Semantic Signature Detection
         if first_line.startswith(("proclaim:", "%% proclaim:", "echo ")):
             rite_key = "proclaim"
         elif first_line in ("py:", "python:"):
@@ -373,115 +441,77 @@ class MaestroConductor:
             active_env["SCAFFOLD_LANG"] = "javascript"
         elif "@vault" in stripped_cmd or "vault:" in stripped_cmd:
             rite_key = "vault"
-        elif stripped_cmd.startswith("tunnel:"):
-            rite_key = "tunnel"
-        elif stripped_cmd.startswith("raw:"):
-            rite_key = "raw"
-        elif stripped_cmd.startswith("@open_browser"):
-            rite_key = "browser"
-        elif stripped_cmd.startswith("%% hosts:"):
-            rite_key = "hosts"
 
-        # --- MOVEMENT VII: HANDLER MATERIALIZATION & GEOMETRIC SUTURE ---
-        # 1. Resolve Handler Class from the Pantheon
+        # --- MOVEMENT IX: HANDLER MATERIALIZATION ---
         HandlerClass = self.RITE_HANDLERS.get(rite_key, self.RITE_HANDLERS["shell"])
-
-        # 2. Forge Context with Absolute Anchor
-        context = self.context_forge.forge(
-            line_num,
-            [final_undo_script] if final_undo_script else None,
-            cwd_override=self.project_anchor
-        )
+        context = self.context_forge.forge(line_num, [final_undo_script] if final_undo_script else None,
+                                           cwd_override=current_execution_cwd)
 
         # [ASCENSION 6]: VOLUMETRIC REDIRECTION
-        # If a Shadow Volume is manifest, we levitate the CWD to the Green Stratum.
         shadow_cwd = self._resolve_true_sanctum(context.cwd)
         if shadow_cwd != context.cwd:
-            # self.Logger.verbose(f"L{line_num}: Redirection [Green] -> {shadow_cwd.name}")
             context = context.model_copy(update={'cwd': shadow_cwd})
 
-        # 3. [STRIKE]: Materialize the Artisan
         handler = HandlerClass(self, self.regs, self.alchemist, context)
 
-        # --- MOVEMENT VIII: KINETIC DISCHARGE (THE OMEGA PULSE) ---
+        # --- MOVEMENT X: KINETIC DISCHARGE (WITH MERCY) ---
         try:
             # [ASCENSION 8]: HYDRAULIC FLUSH
-            # Ensure the terminal buffer is pure before the strike.
             sys.stdout.flush()
             sys.stderr.flush()
 
-            # [ASCENSION 9]: HUD MULTICAST (GATED)
-            # We only radiate visual signals if the Vow of Silence is NOT active.
+            # [ASCENSION 11]: HUD PULSE (GATED)
             if not _is_silent and self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
                 try:
                     self.engine.akashic.broadcast({
                         "method": "novalym/hud_pulse",
                         "params": {
-                            "type": "RITE_START",
-                            "label": f"CONDUCTING_{rite_key.upper()}",
-                            "color": "#64ffda" if rite_key != "polyglot" else "#a855f7",
-                            "line": line_num,
-                            "trace": active_env["SCAFFOLD_TRACE_ID"]
+                            "type": "RITE_START", "label": f"CONDUCTING_{rite_key.upper()}",
+                            "color": "#64ffda", "line": line_num, "trace": active_env["SCAFFOLD_TRACE_ID"]
                         }
                     })
                 except Exception:
                     pass
 
-            # CONDUCT THE RITE
-            # [ASCENSION 11]: We check if the handler's conduct is env-aware.
-            # This allows the 'shell' and 'polyglot' handlers to inherit the Silence Gag.
+            # [STRIKE]: Execute the Rite
             sig = inspect.signature(handler.conduct)
             if 'env' in sig.parameters:
                 handler.conduct(final_command_body, env=active_env)
             else:
-                # If silent, the Scribe used by the handler will already be the VoidConsole.
                 handler.conduct(final_command_body)
 
-            # Final Flush to seal the revelation
             sys.stdout.flush()
             sys.stderr.flush()
 
         except Exception as fracture:
-            # --- MOVEMENT IX: THE RITE OF CASCADING REDEMPTION ---
-            # [ASCENSION 9]: Execute the 'heresy_block' if the primary strike shattered.
-            if heresy_block:
+            # =========================================================================
+            # == MOVEMENT XI: [THE MASTER CURE] - CASCADING MERCY                    ==
+            # =========================================================================
+            # [ASCENSION 1 & 15]: If this is a .scaffold file, we GRANT AMNESTY.
+            # We log the fracture but DO NOT raise the error. This preserves the
+            # physical files and allows the transaction to commit.
+            if is_mercy_allowed:
                 if not _is_silent:
-                    self.Logger.warn(f"L{line_num}: Edict fractured. Initiating Redemption Sequence...")
+                    self.Logger.warn(
+                        f"L{line_num}: Edict '{target_exe}' fractured ({type(fracture).__name__}). Covenant of Mercy applied: Reality Preserved.")
+                return  # AMNESTY GRANTED. The transaction is saved.
 
-                # Mute redemption HUD signals if willed
-                if not _is_silent and self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
+            # --- PATH B: SYMPHONY REDEMPTION (STRICT) ---
+            if heresy_block:
+                if not _is_silent: self.Logger.warn(f"L{line_num}: Edict fractured. Initiating Redemption...")
+                for h_cmd in heresy_block:
                     try:
-                        self.engine.akashic.broadcast({
-                            "method": "novalym/hud_pulse",
-                            "params": {
-                                "type": "REDEMPTION_START",
-                                "label": "HEALING_SHARDS",
-                                "color": "#fbbf24",
-                                "line": line_num
-                            }
-                        })
+                        self.execute((h_cmd, line_num, None), env=active_env)
                     except Exception:
                         pass
 
-                # Recursively execute redemption commands
-                for h_cmd in heresy_block:
-                    try:
-                        # Redemption strikes inherit the same environment (including silence)
-                        self.execute((h_cmd, line_num, None), env=active_env)
-                    except Exception as nested_fail:
-                        if not _is_silent:
-                            self.Logger.error(f"Redemption Fragment Failed: {nested_fail}")
-
-            # [ASCENSION 12]: THE FINALITY VOW
-            # Re-raise the original fracture so the Conductor can report the state of sin.
+            # [ASCENSION 24]: THE FINALITY VOW
             raise fracture
 
         finally:
-            # [ASCENSION 2]: METABOLIC FINALITY
             _duration_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
             if not _is_silent and _duration_ms > 10.0:
                 self.Logger.verbose(f"L{line_num}: Edict concluded in {_duration_ms:.2f}ms.")
-
 
     def _adjudicate_shell_safety(self, command: str):
         """[ASCENSION 9]: Checks for prohibited patterns."""

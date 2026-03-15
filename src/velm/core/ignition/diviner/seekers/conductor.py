@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/seekers/conductor.py
+# Path: velm/core/ignition/diviner/seekers/conductor.py
 # --------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_SEEKER_CONDUCTOR_V7
 

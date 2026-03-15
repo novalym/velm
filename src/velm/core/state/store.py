@@ -1,4 +1,4 @@
-# Path: scaffold/core/state/store.py
+# Path: velm/core/state/store.py
 # ----------------------------------
 # LIF: INFINITY | ROLE: AKASHIC_MEMORY_CONTROLLER | RANK: SOVEREIGN
 # auth_code: Ω_STORE_TOTALITY_V12_SINGULARITY

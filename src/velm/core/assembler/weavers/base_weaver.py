@@ -1,4 +1,4 @@
-# scaffold/core/assembler/weavers/base_weaver.py
+# velm/core/assembler/weavers/base_weaver.py
 
 """
 =================================================================================

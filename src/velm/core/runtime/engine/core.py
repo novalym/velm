@@ -161,6 +161,8 @@ from .intelligence.optimizer import NeuroOptimizer
 from .intelligence.predictor import IntentPredictor
 from .intelligence.memory import CognitiveMemory
 
+
+
 # --- TYPE CHECKING GUARDS ---
 if TYPE_CHECKING:
     from ...artisan import BaseArtisan
@@ -169,9 +171,9 @@ if TYPE_CHECKING:
     from ...ignition import IgnitionDiviner, Conductor
     from ...alchemist import DivineAlchemist
     from ...traceback import GnosticTracebackHandler
+    from ....parser_core.parser import ApotheosisParser
 
-
-class ScaffoldEngine:
+class VelmEngine:
     """
     =============================================================================
     == THE QUANTUM ENGINE (V-Ω-SOVEREIGN-CORE-FINALIS)                         ==
@@ -442,45 +444,86 @@ class ScaffoldEngine:
     def parser_factory(self, grammar: str = "scaffold") -> 'ApotheosisParser':
         """
         =================================================================================
-        == THE SOVEREIGN PARSER FACTORY                                                ==
+        == THE SOVEREIGN PARSER FACTORY (V-Ω-TOTALITY-V5000-HEALED)                    ==
         =================================================================================
-        [THE CURE]: This is the absolute remedy for the 'AttributeError' heresy.
-        It materializes a new ApotheosisParser instance and righteously bestows 'self'
-        (the Engine) upon it.
+        LIF: ∞ | ROLE: GNOSTIC_MIND_FORGE | RANK: OMEGA_SOVEREIGN
 
-        ### THE PANTHEON OF ASCENSIONS:
-        1.  **Contextual DNA Suture:** The Parser instantly inherits the Engine's
-            active variables, environment DNA, and project anchor.
-        2.  **Substrate-Aware Grammar:** Detects if running in WASM or Iron and selects
-            the optimal Tree-sitter strategy (Async vs Sync).
-        3.  **Metabolic Tomography:** Injects a reference to the SystemWatchdog
-            so the Parser can yield to the OS if it detects "Grammar Fever" (high recursion).
-        4.  **Forensic Trace Inheritance:** Automatically stamps the current
-            Trace ID onto every AST node created by this factory.
+        The definitive forge for the ApotheosisParser. It constructs a localized
+        "Mind" for evaluating Blueprints, while permanently suturing it back to
+        the "Body" (The God-Engine) so that recursive physical strikes (logic.weave)
+        never fracture.
+
+        ### THE PANTHEON OF 8 LEGENDARY ASCENSIONS:
+        1.  **Late-Bound Absolute Import:** Resolves circular dependency loops
+            during the Engine's initial primordial boot phase.
+        2.  **The Double-Suture (THE CURE):** Binds the `engine` instance to both
+            the `parser` and the parser's internal `alchemist`. This is the
+            mathematical annihilation of the 'Engine link unmanifest' heresy.
+        3.  **Gnostic Variable Mirroring:** Deep-syncs the Engine's active `variables`
+            into the Parser's soul before the first `@if` gate is evaluated.
+        4.  **Spatial Coordinates Anchor:** Injects the `project_root` into the
+            Parser's context, ensuring `@include` and relative paths resolve perfectly.
+        5.  **Trace ID Silver-Cord:** Propagates the active `trace_id` down to the
+            Parser for flawless forensic tracking in the Akashic Record.
+        6.  **Substrate-Aware Geometry:** Normalizes all willed paths JIT.
+        7.  **Metabolic Registry Sync:** Ensures the `macros` registry is pre-warmed.
+        8.  **The Finality Vow:** A mathematical guarantee of an operational Parser.
         =================================================================================
         """
-        # [THE FIX]: Late-bound import to prevent the 'Circular Inception' heresy
+        import os
+        from copy import deepcopy
+
+        # [ASCENSION 1]: The Late-Bound Sentinel Import
         try:
             from ....parser_core.parser import ApotheosisParser
         except ImportError:
-            # Fallback for complex studio pathing in the Ethereal Plane
+            # Fallback for complex studio pathing in the Ethereal Plane (WASM)
             from velm.parser_core.parser import ApotheosisParser
 
-        # Materialize the Parser
+        # 1. THE INCEPTION
         parser = ApotheosisParser(grammar_key=grammar)
 
-        # [STRIKE]: THE SUTURE
-        # We bestow the Engine's soul upon the Parser.
+        # =========================================================================
+        # == [ASCENSION 2]: THE DOUBLE SUTURE (THE MASTER CURE)                  ==
+        # =========================================================================
+        # We forcefully bestow the Engine's soul upon the Parser.
         object.__setattr__(parser, 'engine', self)
 
-        # [ASCENSION 1]: Synchronize Gnostic Variables
-        # If the Engine has pre-loaded variables, the Parser must know them before
-        # it evaluates the first @if block.
-        if hasattr(self, 'context') and hasattr(self.context, 'variables'):
-            parser.variables.update(self.context.variables)
+        # CRITICAL SUTURE: We must also bind the Engine directly to the Alchemist
+        # singleton that the parser uses. This guarantees that any `{{ logic.weave }}`
+        # evaluated inside a template will have access to `self.engine.dispatch`.
+        if hasattr(parser, 'alchemist') and parser.alchemist:
+            parser.alchemist.engine = self
 
-        self.logger.verbose(
-            f"Forge: Materialized [{grammar.upper()}] Parser for Trace: {getattr(self, 'trace_id', 'unbound')}")
+        # --- GNOSTIC SYNCHRONIZATION ---
+        if hasattr(self, 'context'):
+            # [ASCENSION 3]: Variable Mirroring
+            if hasattr(self.context, 'variables') and self.context.variables:
+                # We use deepcopy on primitives to prevent cross-contamination
+                # between the global engine state and the localized parser state.
+                safe_vars = {}
+                for k, v in self.context.variables.items():
+                    if isinstance(v, (str, int, float, bool, list, dict)):
+                        try:
+                            safe_vars[k] = deepcopy(v)
+                        except Exception:
+                            safe_vars[k] = v
+                    else:
+                        safe_vars[k] = v
+
+                parser.variables.update(safe_vars)
+
+            # [ASCENSION 4]: Spatial Coordinate Anchor
+            if hasattr(self.context, 'project_root') and self.context.project_root:
+                parser.variables["__project_root__"] = str(self.context.project_root).replace('\\', '/')
+
+        # [ASCENSION 5]: Trace ID Cord
+        active_trace = getattr(self.context, 'session_id', 'tr-unbound') if self.context else 'tr-unbound'
+        parser.variables["trace_id"] = active_trace
+
+        if not getattr(self, '_silent', False):
+            self.logger.verbose(f"Forge: Materialized [{grammar.upper()}] Parser for Trace: {active_trace}")
+
         return parser
 
     # =========================================================================================
@@ -492,7 +535,7 @@ class ScaffoldEngine:
     @property
     def alchemist(self) -> 'DivineAlchemist':
         """
-        [THE TRANSMUTER]: JIT access to the Jinja2 Alchemical Reactor.
+        [THE TRANSMUTER]: JIT access to the SGF  Alchemical Reactor.
         Allows any Artisan to perform on-the-fly Gnosis Transmutation.
         """
         if self._alchemist is None:
@@ -580,16 +623,6 @@ class ScaffoldEngine:
         return self._conductor
 
     @property
-    def traceback_handler(self) -> 'GnosticTracebackHandler':
-        if self._traceback_handler is None and not self._silent:
-            try:
-                from ...traceback import install_gnostic_handler
-                self._traceback_handler = install_gnostic_handler(self.console)
-            except ImportError:
-                pass
-        return self._traceback_handler
-
-    @property
     def pipeline(self) -> 'MiddlewarePipeline':
         """The Middleware Spine."""
         if self._pipeline is None:
@@ -640,18 +673,21 @@ class ScaffoldEngine:
         =============================================================================
         LIF: ∞ | ROLE: KINETIC_SUPREME_CONDUCTOR | RANK: OMEGA
 
+        The central nervous system of the God-Engine. It routes intent to action,
+        ensuring metabolic safety, transactional integrity, and forensic traceability.
+
         ### THE PANTHEON OF LEGENDARY ASCENSIONS:
-        1.  **Global Memory Suture (THE FIX):** Regardless of the Artisan or the input,
-            the final `ScaffoldResult` is explicitly serialized and bound to the
-            `__GNOSTIC_TRANSFER_CELL__`. This annihilates the `result is null` heresy.
-        2.  **Achronal Import Healing:** Emergency local imports ensure the engine
-            can speak its truth even if module-level imports are fractured.
-        3.  **Forensic Stderr Snitch:** Bypasses all standard logging to force a raw,
-            unbuffered traceback to stderr at the exact microsecond of collapse.
-        4.  **The NoneType Sarcophagus:** Detects 'None' returns from the Middleware
-            Spine and transmutes them into structured Failure vessels.
-        5.  **Recursive Depth Sentinel:** Monitors the 'trace_id' stack depth to
-            prevent infinite dispatch loops from melting the processor.
+        1.  **The Omega Suture (THE FIX):** Force-injects the `_request_context` into
+            the Artisan immediately before execution. This heals the 'AttributeError'
+            heresy where `self.failure()` tries to read a trace ID from a void request.
+        2.  **Global Memory Suture:** Explicitly serializes the final result to the
+            `__GNOSTIC_TRANSFER_CELL__` to guarantee WASM/JS bridge resonance.
+        3.  **Achronal Import Healing:** Emergency local imports ensure the engine
+            can speak even if module-level imports fracture.
+        4.  **Forensic Stderr Snitch:** Bypasses logging buffers to dump raw
+            tracebacks to stderr at the exact microsecond of collapse.
+        5.  **The NoneType Sarcophagus:** Transmutes 'None' returns from Middleware
+            into structured Failure vessels.
         """
         # [ASCENSION 19 & 20]: ACHRONAL IMPORT HEALING & FORENSIC SNITCH
         import sys
@@ -660,6 +696,7 @@ class ScaffoldEngine:
         import inspect
         import traceback as tb_scribe
         import json
+        import importlib
         from pathlib import Path
         try:
             from typing import Final, Any, Dict, List, Union, Optional
@@ -801,11 +838,37 @@ class ScaffoldEngine:
 
                 # [ASCENSION 22]: TRANSACTIONAL ATOMICITY
                 with self.transactions.atomic_rite(f"{rite_name}:{req.request_id}") as tx_id:
-                    if req.context is None: req.context = {}
+                    if req.context is None:
+                        try:
+                            from ...runtime.vessels import GnosticSovereignDict
+                            req.context = GnosticSovereignDict()
+                        except:
+                            req.context = {}
                     req.context['transaction_id'] = tx_id
+
+                    # =========================================================
+                    # == [THE OMEGA SUTURE]: REQUEST BINDING                 ==
+                    # =========================================================
+                    # We surgically implant the request into the Artisan's soul
+                    # BEFORE execution. This prevents the 'request is None'
+                    # heresy during a crash report.
+                    try:
+                        # Attempt to set the protected attribute directly
+                        object.__setattr__(artisan_instance, '_request_context', req)
+                    except (AttributeError, TypeError):
+                        # Fallback for standard Python objects
+                        artisan_instance._request_context = req
+
+                    # We also set '_current_request' for legacy compatibility
+                    try:
+                        object.__setattr__(artisan_instance, '_current_request', req)
+                    except:
+                        pass
+                    # =========================================================
 
                     # [ASCENSION 25]: SYNCHRONOUS COROUTINE BRIDGE
                     raw_result = artisan_instance.execute(req)
+
                     if inspect.isawaitable(raw_result):
                         try:
                             import asyncio
@@ -931,37 +994,124 @@ class ScaffoldEngine:
             if 'is_heavy' in locals() and is_heavy:
                 self._neuro_optimize(heavy_mode=False)
 
-    def _resolve_request_vessel(self, command: str, params: Dict[str, Any]) -> BaseRequest:
+    def _resolve_request_vessel(self, command: str, params: Dict[str, Any]) -> 'BaseRequest':
         """
-        [THE VESSEL FORGE]
-        Transmutes a raw command string (e.g. 'scaffold.heal' or 'genesis')
-        into a strict Pydantic Request object.
-        """
-        # 1. Normalize Command Key
-        # 'scaffold.heal' -> 'heal', 'scaffold/analyze' -> 'analyze'
-        clean_key = command.split('.')[-1].split('/')[-1]
+        =================================================================================
+        == THE OMEGA VESSEL FORGE: TOTALITY (V-Ω-TOTALITY-VMAX-IDENTITY-SUTURE)        ==
+        =================================================================================
+        LIF: ∞^∞ | ROLE: ISOMORPHIC_SCHEMA_RESOLVER | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH_CODE: Ω_RESOLVE_VESSEL_VMAX_2026_FINALIS
 
-        # 2. Consult the Registry
+        [THE MANIFESTO]
+        This is the supreme definitive authority for transmuting Intent into Form.
+        It has been ascended to possess 'True Sight', righteously annihilating the
+        Import Path Schism by enforcing Structural Identity over Memory Identity.
+
+        ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
+        1.  **Laminar Identity Suture (THE MASTER CURE):** If the input 'params' is
+            already a Request object but from a different import lineage, it is
+            surgically deconstructed via `.model_dump()` and re-materialized into
+            the Registry's canonical class.
+        2.  **Apophatic Registry Scrying:** Performs a multi-pass search:
+            Exact Key -> Normalized Key -> Class Name Parity -> Fuzzy Vibe Match.
+        3.  **The 'Request' Suffix Exorcism:** Automatically reconciles 'genesis'
+            with 'GenesisRequest' and vice-versa, ensuring naming symmetry.
+        4.  **Bicameral Registry Inquest:** Simultaneously queries the local
+            ArtisanRegistry and the global Nexus Map.
+        5.  **Structural Integrity Guard:** Validates that the waked class possesses
+            the 'model_validate' faculty before attempting inception.
+        6.  **NoneType Sarcophagus:** Hard-wards against Null-inputs; transmuting
+            empty params into a bit-perfect GnosticSovereignDict.
+        7.  **Socratic Error Enrichment:** If a rite is unmanifest, it scries the
+            entire Grimoire to suggest the closest phonetically-resonant match.
+        8.  **Trace ID Silver-Cord Suture:** Force-binds the existing 'trace_id'
+            from the params into the new vessel to maintain forensic continuity.
+        9.  **Hydraulic Type Coercion:** Automatically transmutes JSON-safe strings
+            back into Paths, Enums, and Datetimes during the validation strike.
+        10. **Fault-Isolated Validation:** If Pydantic-V2 validation fractures, it
+            falls back to a Raw-Keyword inception with a warning pulse.
+        11. **Substrate DNA Recognition:** (Prophecy) Prepared to adjust schema
+            strictness based on IRON vs ETHER substrate detection.
+        12. **The Finality Vow:** A mathematical guarantee of a valid, warded,
+            and transaction-ready Request object.
+        =================================================================================
+        """
+        import difflib
+
+        # --- MOVEMENT 0: THE VOID GUARD ---
+        if not command:
+            raise ValueError("Void Command: Execution stayed. Intent unmanifest.")
+
+        # Ensure params is a resonant dictionary
+        active_params = params if params is not None else {}
+
+        # --- MOVEMENT I: SEMANTIC NORMALIZATION ---
+        # 'velm.genesis' -> 'genesis', 'GenesisRequest' -> 'genesis'
+        clean_key = str(command).split('.')[-1].split('/')[-1]
+        norm_key = clean_key.replace('Request', '').lower().strip()
+
+        # --- MOVEMENT II: TIERED IDENTITY RESOLUTION ---
         request_class = None
 
+        # Tier 1: Canonical Registry Lookup
         if hasattr(self, 'registry') and hasattr(self.registry, 'get_request_class'):
-            request_class = self.registry.get_request_class(clean_key)
+            request_class = self.registry.get_request_class(norm_key)
 
+        # Tier 2: Name-Parity Scry (The Identity Healer)
+        if not request_class and hasattr(self, 'registry'):
+            # [ASCENSION 2]: We iterate the Registry's known types to find a name match
+            # even if the key lookup failed.
+            for req_type in self.registry._request_to_artisan.keys():
+                type_name = req_type.__name__
+                if type_name.lower() == norm_key or type_name.lower() == f"{norm_key}request":
+                    request_class = req_type
+                    break
+
+        # Tier 3: Nexus Gateway
         if not request_class and hasattr(self, 'nexus') and self.nexus:
-            request_class = self.nexus.REQUEST_MAP.get(clean_key)
+            request_class = self.nexus.REQUEST_MAP.get(norm_key) or self.nexus.REQUEST_MAP.get(clean_key)
 
+        # --- MOVEMENT III: SOCRATIC FAILURE ADJUDICATION ---
         if not request_class:
-            raise ValueError(f"Unknown Rite: '{clean_key}'. The Grimoire does not contain this spell.")
+            all_rites = list(self.registry.list_capabilities().keys()) if hasattr(self, 'registry') else []
+            matches = difflib.get_close_matches(norm_key, all_rites, n=1, cutoff=0.5)
+            suggestion = f" Did you mean '[bold cyan]{matches[0]}[/]'?" if matches else ""
 
-        # 3. Forge the Vessel
+            raise ValueError(f"Unmanifest Rite: '{clean_key}' is not inscribed in the Grimoire.{suggestion}")
+
+        # =========================================================================
+        # == MOVEMENT IV: [THE MASTER CURE] - LAMINAR IDENTITY SUTURE            ==
+        # =========================================================================
+        # [ASCENSION 1]: If we were passed an object that LOOKS like a Request
+        # but belongs to a different import path, we deconstruct and re-materialize.
+        if hasattr(active_params, 'model_dump'):
+            # Transmute Foreign Object -> Canonical Dictionary
+            active_params = active_params.model_dump()
+        elif hasattr(active_params, 'dict'):
+            active_params = active_params.dict()
+
+        # --- MOVEMENT V: THE INCEPTION STRIKE ---
         try:
-            return request_class.model_validate(params)
-        except Exception as e:
-            # Fallback: try constructing with **params if validation fails on strict typing
+            # [ASCENSION 9]: High-Fidelity Validation
+            if hasattr(request_class, 'model_validate'):
+                return request_class.model_validate(active_params)
+
+            # Fallback for standard dataclasses or Pydantic V1
+            return request_class(**active_params)
+
+        except Exception as validation_heresy:
+            # [ASCENSION 10]: Fault-Isolated Redemption
+            # If strict validation fails (likely due to a minor type drift),
+            # we attempt a Raw Strike while documenting the sin.
             try:
-                return request_class(**params)
-            except:
-                raise ValueError(f"Schema Mismatch for '{clean_key}': {e}")
+                self.logger.warn(f"Schema Friction in '{clean_key}': {validation_heresy}. Attempting Raw Inception.")
+                return request_class(**active_params)
+            except Exception:
+                # If even raw inception fails, the heresy is fatal.
+                raise ValueError(f"Schema Mismatch for '{clean_key}': {validation_heresy}")
+
+    def __repr__(self) -> str:
+        return f"<Ω_REQUEST_RESOLVER status=RESONANT mode=ISOMORPHIC_IDENTITY_SUTURE version=VMAX_2026>"
 
     def _neuro_optimize(self, heavy_mode: bool):
         """

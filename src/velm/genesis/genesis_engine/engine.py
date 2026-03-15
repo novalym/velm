@@ -41,7 +41,7 @@ from .apotheosis import ApotheosisMixin
 from .materialization import MaterializationMixin
 
 if TYPE_CHECKING:
-    from ...core import ScaffoldEngine
+    from ...core import VelmEngine
     from ...parser_core.parser import ApotheosisParser
 
 Logger = Scribe("GenesisEngine")
@@ -63,7 +63,7 @@ class GenesisEngine(PerceptionMixin, CommunionMixin, WeavingMixin, ApotheosisMix
         transaction to ensure atomicity (all-or-nothing writes).
     """
 
-    def __init__(self, project_root: Path, engine: "ScaffoldEngine"):
+    def __init__(self, project_root: Path, engine: "VelmEngine"):
         """
         Initializes the engine and establishes bindings to the core runtime subsystems.
         """

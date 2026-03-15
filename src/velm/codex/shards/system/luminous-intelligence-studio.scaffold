@@ -1,0 +1,136 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/luminous-intelligence-studio
+# ==============================================================================
+# @id:           system/luminous-intelligence-studio
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A high-status administrative workbench providing real-time schema scrying, TUI/UI orchestration, and Maestro command conduction.
+# @vibe:         [studio, workbench, gui, dashboard, monitoring, admin, management]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:admin-studio, capability:schema-oracle]
+# @requires:     [capability:python-core, capability:fastapi-core, capability:ocular-foundation]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0", "fastapi>=0.110.0"]
+#   env:         ["SCAF_STUDIO_PORT", "SCAF_THEME_ACCENT"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "studio-workbench"
+#   priority:    500
+#   alias:       "intelligence_studio"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-studio") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ studio_port = {{ port | default(7860) }}
+$$ theme_color = {{ theme_color | default("#64ffda") }}
+
+# [ASCENSION 4]: THE STUDIO SIGNATURE
+$$ studio_hash = {{ (project_slug + machine_id) | hash('md5') }}
+
+# --- II. THE SCRIPTURE OF FORM (The High Mind & Retina) ---
+
+src/{{ package_name }}/studio/
+    __init__.py :: "from .scrier import SchemaOracle\n"
+
+    # [ASCENSION 2]: THE AUTOMATIC SCHEMA ORACLE (Logic)
+    scrier.py :: """
+import json
+import logging
+import inspect
+from pathlib import Path
+from pydantic import BaseModel
+from typing import List, Dict, Any, Type
+
+Logger = logging.getLogger("Studio:Oracle")
+
+class SchemaOracle:
+    \"\"\"
+    =============================================================================
+    == THE SCHEMA ORACLE (V-Ω-TOTALITY)                                       ==
+    =============================================================================
+    1.  Recursive Model Scrying: Finds every subclass of BaseModel.
+    2.  JSON-Schema Inception: Transmutes Python logic into UI forms.
+    \"\"\"
+    def get_manifest(self) -> Dict[str, Any]:
+        Logger.info("👁️ [ORACLE] Scrying project models for Studio mapping...")
+        
+        entities = []
+        for model in BaseModel.__subclasses__():
+            entities.append({
+                "name": model.__name__,
+                "schema": model.model_json_schema()
+            })
+
+        return {
+            "project_id": "{{ project_slug }}",
+            "studio_hash": "{{ studio_hash }}",
+            "entities": entities
+        }
+"""
+
+    app/
+        page.tsx :: """
+import React from 'react';
+
+/**
+ * =============================================================================
+ * == THE LUMINOUS INTELLIGENCE STUDIO (V-Ω-TOTALITY)                        ==
+ * =============================================================================
+ */
+export default function StudioRoot() {
+  return (
+    <div className="bg-[#020202] text-white min-h-screen p-8 font-mono">
+      <nav className="border-b border-zinc-900 pb-6 mb-10 flex justify-between items-center">
+        <h1 className="text-2xl font-black italic uppercase">
+          STUDIO_RESONANCE::{{ project_slug }}
+        </h1>
+        <div className="text-[10px] text-zinc-500">HASH: {{ studio_hash[:12] }}</div>
+      </nav>
+      
+      <main className="grid grid-cols-12 gap-10">
+        <aside className="col-span-3">
+          <h2 className="text-xs font-bold text-zinc-600 uppercase">Managed Entities</h2>
+        </aside>
+        <section className="col-span-9 bg-zinc-900/30 border border-zinc-900 p-8 rounded-2xl">
+           <h2 className="text-sm font-bold mb-6">Maestro Command Console</h2>
+        </section>
+      </main>
+    </div>
+  );
+}
+"""
+
+# --- III. THE KINETIC LIMBS (Ignition) ---
+
+scripts/
+    ignite-studio.sh :: """
+#!/bin/bash
+set -e
+echo "🎨 [TITAN] Igniting the Luminous Intelligence Studio..."
+
+# 1. Update the Schema Oracle
+python3 -m {{ package_name }}.studio.scrier --export .scaffold/studio_manifest.json
+
+# 2. Awaken the Ocular Server
+echo "🚀 [RESONANT] Studio manifest at http://localhost:{{ studio_port }}"
+velm run src/{{ package_name }}/studio/app/page.tsx --port {{ studio_port }}
+"""
+    %% 755
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Luminous Intelligence Studio[/bold cyan] is manifest."
+    proclaim: "Port: [bold magenta]{{ studio_port }}[/bold magenta]"
+    
+    >> mkdir -p scripts src/{{ package_name }}/studio/app
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Admin Tax -> 0)[/]"
+    proclaim: "To launch the Administrative Workbench, speak: [bold cyan]./scripts/ignite-studio.sh[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Studio materialization fractured.[/bold red]"
+    >> rm -rf src/{{ package_name }}/studio

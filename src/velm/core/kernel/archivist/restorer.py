@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/archivist/restorer.py
+# Path: velm/core/kernel/archivist/restorer.py
 # ------------------------------------------------
 
 import tarfile

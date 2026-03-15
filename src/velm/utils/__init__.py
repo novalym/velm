@@ -29,7 +29,7 @@ __all__ = [
     'to_kebab_case',
     'to_upper_case',
     'to_lower_case',
-
+    'forge_edict_from_vessel',
     # From core_utils.py (example names)
     '_resilient_rename',
     'is_binary_extension',

@@ -36,7 +36,7 @@ class SyntaxLaw(BaseLinterRule):
                     data={"fix_type": "replace_text", "old": "$", "new": "$$"}
                 ))
 
-            # 2. JINJA BALANCE
+            # 2. SGF BALANCE
             open_count = line.count("{{")
             close_count = line.count("}}")
             if open_count != close_count:

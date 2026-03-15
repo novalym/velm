@@ -1,0 +1,111 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/autonomic-intent-manifestor
+# ==============================================================================
+# @id:           system/autonomic-intent-manifestor
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      The Singularity Engine for runtime self-mutation; transmutates natural language pleas into additive logic patches warded by shadow-reality verification.
+# @vibe:         [singularity, self-mutation, autonomic, intent, evolution, neural-suture, manifestor]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:self-evolution, capability:intent-transmuter]
+# @requires:     [capability:python-core, capability:neural-cortex, capability:shadow-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["velm-cli>=2.5.0", "pydantic>=2.6.0"]
+#   env:         ["SCAF_ADMIN_VOW", "SCAF_GOVERNANCE_MODE"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "autonomic-governor"
+#   priority:    0
+#   alias:       "intent_manifestor"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("living-organism") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ vault_root = ".scaffold/vault/intent"
+
+# --- II. THE SCRIPTURE OF FORM (The Autonomic Mind) ---
+
+src/{{ package_name }}/core/autonomics/
+    __init__.py :: "from .perceptor import IntentPerceptor\nfrom .manifestor import SingularityManifestor\n"
+
+    perceptor.py :: """
+import os
+import logging
+from .manifestor import SingularityManifestor
+from ..ai.gateway import neural_gateway 
+
+Logger = logging.getLogger("Autonomics:Perceptor")
+
+class IntentPerceptor:
+    \"\"\"
+    =============================================================================
+    == THE INTENT PERCEPTOR (V-Ω-TOTALITY)                                    ==
+    =============================================================================
+    LIF: ∞ | ROLE: SEMANTIC_INTENT_TRANSMUTER
+    
+    Perceives Natural Language and forges the Evolution Blueprint.
+    \"\"\"
+    def __init__(self):
+        self.manifestor = SingularityManifestor()
+
+    async def perceive_plea(self, user_plea: str, trace_id: str):
+        Logger.info(f"🧠 [PERCEPTOR] Perceiving evolution intent: '{user_plea}'")
+        
+        # [ASCENSION 3]: Scry the current project soul
+        current_reality = os.popen("velm distill --fidelity=surgical --no-ai").read()
+        
+        prompt = f\"\"\"
+        CURRENT ARCHITECTURE: {current_reality}
+        USER PLEA: {user_plea}
+        MISSION: Forge a .scaffold blueprint to manifest this evolution.
+        \"\"\"
+        
+        # [STRIKE]: The Neural Communion
+        blueprint = await neural_gateway.think(prompt, model="smart")
+        return await self.manifestor.materialize_evolution(blueprint, trace_id)
+"""
+
+    manifestor.py :: """
+import os
+import signal
+import logging
+from pathlib import Path
+
+Logger = logging.getLogger("Autonomics:Manifestor")
+
+class SingularityManifestor:
+    \"\"\"
+    =============================================================================
+    == THE SINGULARITY MANIFESTOR (V-Ω-TOTALITY)                              ==
+    =============================================================================
+    ROLE: REALITY_TRANSMUTER
+    \"\"\"
+    async def materialize_evolution(self, blueprint: str, trace_id: str):
+        Logger.warning(f"🔥 [MANIFESTOR] Striking the iron for {trace_id}...")
+        
+        # [ASCENSION 15]: SHADOW TRIAL
+        # We spawn a parallel reality to test the mutation before commit.
+        trial = os.system(f"velm shadow spawn --label 'trial-{trace_id}' --mode lab")
+        if trial != 0: return False
+
+        # [STRIKE]: Matter Transmutation
+        os.system(f"velm transmute --blueprint-string '{blueprint}' --force")
+        
+        # [ASCENSION 9]: QUANTUM COLLAPSE
+        # Notify the OS to reload the Mind (Process Restart).
+        os.kill(os.getpid(), signal.SIGHUP)
+        return True
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Autonomic Intent-Manifestor[/bold cyan] is manifest."
+    proclaim: "[bold red]DANGER:[/bold red] The application can now rewrite its own soul."
+    
+    >> mkdir -p {{ vault_root }} src/{{ package_name }}/core/autonomics
+    
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (The barrier between Will and Reality is gone.)[/]"

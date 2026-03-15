@@ -14,7 +14,7 @@ from ....logger import Scribe
 from ....contracts.heresy_contracts import ArtisanHeresy, Heresy, HeresySeverity
 
 if TYPE_CHECKING:
-    from ...runtime import ScaffoldEngine
+    from ...runtime import VelmEngine
 
 Logger = Scribe("SimulationMind")
 
@@ -36,16 +36,16 @@ class SimulationMind:
     =================================================================================
     """
 
-    def __init__(self, parent_engine: 'ScaffoldEngine', sim_root: Path):
+    def __init__(self, parent_engine: 'VelmEngine', sim_root: Path):
         self.parent_engine = parent_engine
         self.sim_root = sim_root.resolve()
 
     def execute_rite(self, request: BaseRequest) -> Tuple[Optional[ScaffoldResult], Dict[str, Any]]:
         # [THE LAZY SUMMONS]
-        from ...runtime import ScaffoldEngine
+        from ...runtime import VelmEngine
 
         # 1. Forge the Inner Engine
-        sim_engine = ScaffoldEngine(
+        sim_engine = VelmEngine(
             project_root=self.sim_root,
             log_level="INFO",
             silent=True,

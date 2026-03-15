@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/librarian/contracts.py
+# Path: velm/core/ai/rag/librarian/contracts.py
 # -------------------------------------------------
 
 from dataclasses import dataclass, field

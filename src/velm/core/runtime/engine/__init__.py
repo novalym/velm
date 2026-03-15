@@ -10,6 +10,6 @@ The beating heart of the runtime. Broken into specialized organs for maximum
 resilience, transactionality, and cognitive throughput.
 """
 
-from .core import ScaffoldEngine
+from .core import VelmEngine
 
-__all__ = ["ScaffoldEngine"]
+__all__ = ["VelmEngine"]

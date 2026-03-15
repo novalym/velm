@@ -1,0 +1,144 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/SYNAPTIC-LIMITER
+# ==============================================================================
+# @id:           api/synaptic-limiter
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A Distributed Rate-Limiter backed by the Redis Lattice. 
+#                Prevents DDoS and abusive API consumption by tracking client 
+#                IPs and enforcing a strict Requests-Per-Minute (RPM) ceiling 
+#                across the entire multiversal server fleet.
+# @vibe:         [ddos-protection, throttling, redis, distributed-state, security]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:api-rate-limiting, capability:distributed-throttling, capability:ddos-shield]
+# @requires:     [capability:api-heart, capability:redis-client]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["redis>=5.0.1"]
+#   env:         ["RATE_LIMIT_RPM", "REDIS_URL", "LIMITER_WINDOW"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        middleware-shield
+#   priority:    2
+#   alias:       "limiter"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ rpm_limit    = {{ rate_limit_rpm | default(60) }}
+$$ window_sec   = {{ window_seconds | default(60) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Throttling Mind) ---
+
+src/{{ package_name }}/middleware/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .limiter import SynapticLimiterMiddleware\n"
+
+    limiter.py :: """
+import logging
+import time
+import os
+from typing import Callable, Optional
+from fastapi import Request, Response, status
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
+
+Logger = logging.getLogger("API:SynapticLimiter")
+
+class SynapticLimiterMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE SYNAPTIC LIMITER (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: ∞ | ROLE: NETWORK_THROTTLER | RANK: OMEGA_WARDEN
+    
+    [ASCENSIONS]:
+    1. Distributed Sovereignty: Redis-backed state synchronization.
+    2. Atomic Inception: SET NX + EXPIRE in a single temporal strike.
+    3. Haptic Header Signaling: Injects Retry-After and Limit status.
+    4. Bypass Oracle: Exempts Localhost and Health probes.
+    \"\"\"
+    def __init__(self, app):
+        super().__init__(app)
+        self.rpm_limit = int(os.getenv("RATE_LIMIT_RPM", "{{ rpm_limit }}"))
+        self.window = int(os.getenv("LIMITER_WINDOW", "{{ window_sec }}"))
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # --- MOVEMENT I: BYPASS ADJUDICATION ---
+        client_ip = request.client.host if request.client else "unknown"
+        
+        # [ASCENSION 4]: Banishment of internal noise
+        if client_ip in ("127.0.0.1", "localhost", "::1") or request.url.path == "/health":
+            return await call_next(request)
+
+        # --- MOVEMENT II: LATTICE COMMUNION ---
+        # [THE CURE]: Fetching the willed Redis client from the Mind-State
+        redis = getattr(request.app.state, "redis_client", None)
+        
+        if not redis:
+            # [ASCENSION 12]: Fail-Open Sarcophagus
+            return await call_next(request)
+
+        # Forge the unique identity key
+        key = f"limiter:rpm:{client_ip}"
+        
+        try:
+            # --- MOVEMENT III: THE ATOMIC STRIKE ---
+            # [ASCENSION 2]: Increment the counter for this temporal window
+            count = await redis.incr(key)
+            
+            # If this is the first plea in the window, set the Law of Finitude
+            if count == 1:
+                await redis.expire(key, self.window)
+            
+            # --- MOVEMENT IV: JURISPRUDENCE ---
+            if count > self.rpm_limit:
+                # [ASCENSION 3]: Calculate remaining duration
+                ttl = await redis.ttl(key)
+                retry_after = str(ttl if ttl > 0 else self.window)
+                
+                Logger.warning(f"🛑 [LIMITER] IP {client_ip} exceeded budget: {count}/{self.rpm_limit}")
+                
+                return JSONResponse(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    content={
+                        "error": "LATTICE_CONGESTION",
+                        "detail": "Rate limit exceeded. The Oracle demands silence.",
+                        "trace": request.state.trace_id
+                    },
+                    headers={
+                        "Retry-After": retry_after,
+                        "X-Rate-Limit-Limit": str(self.rpm_limit),
+                        "X-Rate-Limit-Remaining": "0"
+                    }
+                )
+                
+            # --- MOVEMENT V: KINETIC FLOW ---
+            response = await call_next(request)
+            
+            # Inhale remaining quota for transparency
+            response.headers["X-Rate-Limit-Limit"] = str(self.rpm_limit)
+            response.headers["X-Rate-Limit-Remaining"] = str(max(0, self.rpm_limit - count))
+            return response
+
+        except Exception as paradox:
+            # Resilience: Maintenance of service during Lattice fracture
+            Logger.error(f"💥 Limiter Fracture: {paradox}. Adopting Permissive Mode.")
+            return await call_next(request)
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Synaptic Limiter[/bold cyan] is waked and warded."
+    proclaim: "Role: [bold green]MIDDLEWARE-SHIELD[/bold green]"
+    proclaim: "Threshold: [bold yellow]{{ rpm_limit }} Requests / {{ window_sec }}s[/]"
+    
+    # [THE CURE]: No 'poetry add' required.
+    
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (System Exhaustion -> 0)[/]"
+    proclaim: "[bold green]✅ The Distributed Shield is Active.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Limiter materialization fractured.[/bold red]"

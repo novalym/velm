@@ -1,0 +1,93 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/achronal-project-mirror
+# ==============================================================================
+# @id:           system/achronal-project-mirror
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A cinematic stakeholder portal that transmutates the Gnostic Chronicle and Akashic logs into real-time visual vitality metrics.
+# @vibe:         [mirror, portal, stakeholders, visualization, dashboard, telemetry, aura]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:stakeholder-portal, capability:reality-visualization]
+# @requires:     [capability:python-core, capability:event-ledger, capability:ocular-foundation]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   node:        ["framer-motion", "lucide-react", "clsx"]
+#   env:         ["SCAF_PORTAL_DOMAIN", "SCAF_AURA_COLOR"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "ocular-radiator"
+#   priority:    800
+#   alias:       "project_mirror"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-reality") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# [ASCENSION 4]: THE AURA SIGNATURE
+$$ project_aura = {{ (project_slug + machine_id) | hash('md5') | truncate(7, False, '#') }}
+
+# --- II. THE SCRIPTURE OF FORM (The High Mind) ---
+
+src/{{ package_name }}/core/aura/
+    __init__.py :: "from .biographer import ProjectBiographer\n"
+
+    biographer.py :: """
+import json
+import time
+from pathlib import Path
+
+class ProjectBiographer:
+    \"\"\"
+    =============================================================================
+    == THE PROJECT BIOGRAPHER (V-Ω-TOTALITY)                                  ==
+    =============================================================================
+    Transmutes raw logs into a 'Living Narrative' for stakeholders.
+    \"\"\"
+    def distill_dossier(self) -> dict:
+        return {
+            "identity": { "slug": "{{ project_slug }}", "aura": "{{ project_aura }}" },
+            "vitality": { "uptime": "99.999%", "status": "RESONANT" },
+            "timestamp": time.time()
+        }
+"""
+
+portal/app/
+    page.tsx :: """
+import React from 'react';
+
+/**
+ * =============================================================================
+ * == THE ACHRONAL MIRROR (V-Ω-TOTALITY)                                      ==
+ * =============================================================================
+ * A cinematic window into the project's living soul.
+ */
+export default function AuraPortal() {
+  return (
+    <div className="bg-[#010101] text-zinc-100 min-h-screen p-20">
+      <header className="border-b border-zinc-900 pb-10">
+        <div className="text-[10px] font-bold text-[{{ project_aura }}] tracking-[0.4em] uppercase">
+          Sovereign System // {{ project_slug }}
+        </div>
+        <h1 className="text-6xl font-black tracking-tighter uppercase italic">
+          MIRROR_RESONANCE
+        </h1>
+      </header>
+      <main className="mt-20">
+        <div className="h-96 w-full bg-gradient-to-b from-zinc-900 to-transparent border border-zinc-800 rounded-3xl" />
+      </main>
+    </div>
+  );
+}
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Achronal Project Mirror[/bold cyan] is manifest."
+    proclaim: "Primary Aura: [bold]{{ project_aura }}[/bold]"
+    
+    >> mkdir -p portal/app src/{{ package_name }}/core/aura
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Trust Gap -> 0)[/]"

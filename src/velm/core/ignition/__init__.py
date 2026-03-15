@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/__init__.py
+# Path: velm/core/ignition/__init__.py
 # ----------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_IGNITION_SINGULARITY_V3
 

@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/archivist/__init__.py
+# Path: velm/core/kernel/archivist/__init__.py
 # ------------------------------------------------
 
 """

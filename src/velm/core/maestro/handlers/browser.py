@@ -1,4 +1,4 @@
-# Path: scaffold/core/maestro/handlers/browser.py
+# Path: velm/core/maestro/handlers/browser.py
 # -----------------------------------------------
 # LIF: ∞ | ROLE: CELESTIAL_NAVIGATOR | RANK: OMEGA_SOVEREIGN
 # AUTH: Ω_BROWSER_V9005_TOTALITY_FINALIS_2026
@@ -31,7 +31,7 @@ class BrowserHandler(BaseRiteHandler):
      to project the manifest reality into the Architect's Gaze.
 
     ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-    1.  **Alchemical Variable Hydration (THE CURE):** Surgically renders Jinja2
+    1.  **Alchemical Variable Hydration (THE CURE):** Surgically renders SGF
         placeholders within the URL string using the living Gnostic Context.
     2.  **Substrate-Aware Routing:** Intelligently pivots between OS-native
         `webbrowser` (Iron) and `window.open` JS-bridging (Ether/WASM).

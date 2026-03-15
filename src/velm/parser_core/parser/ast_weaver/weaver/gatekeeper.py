@@ -26,8 +26,8 @@ class LogicGatekeeper:
                 ctype_str = ctype_str.split('.')[-1]
             return ctype_str.startswith('END')
 
-        elif item.jinja_expression:
-            match = re.search(r'{%[-]?\s*(\w+)', item.jinja_expression)
+        elif item.sgf_expression:
+            match = re.search(r'{%[-]?\s*(\w+)', item.sgf_expression)
             if match:
                 return match.group(1).lower().startswith('end')
 

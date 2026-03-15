@@ -1,4 +1,4 @@
-# Path: scaffold/core/jurisprudence/vows/__init__.py
+# Path: velm/core/jurisprudence/vows/__init__.py
 # --------------------------------------------------
 
 """

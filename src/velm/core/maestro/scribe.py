@@ -1,4 +1,4 @@
-# Path: scaffold/core/maestro/scribe.py
+# Path: velm/core/maestro/scribe.py
 # -------------------------------------
 import os
 import time

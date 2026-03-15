@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/inquisitors/retina.py
+# Path: src/velm/core/symbolic/inquisitors/retina.py
 # --------------------------------------------------------
 # LIF: ∞ | ROLE: VISUAL_INTENT_SPECIALIST | RANK: LEGENDARY
 # AUTH: Ω_RETINA_TOTALITY_V100

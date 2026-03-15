@@ -22,7 +22,7 @@ from ....interfaces.requests import (
 from ....logger import Scribe
 
 if TYPE_CHECKING:
-    from ...runtime import ScaffoldEngine
+    from ...runtime import VelmEngine
 
 Logger = Scribe("SimulationOrchestrator")
 
@@ -35,7 +35,7 @@ class SimulationConductor:
     LIF: ∞ | ROLE: PROPHETIC_CONDUCTOR | RANK: OMEGA_SOVEREIGN
     """
 
-    def __init__(self, engine: 'ScaffoldEngine'):
+    def __init__(self, engine: 'VelmEngine'):
         self.engine = engine
         self.real_root = self.engine.project_root.resolve()
         self.sim_id = str(uuid.uuid4())[:8]

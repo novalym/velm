@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/inquisitors/__init__.py
+# Path: src/velm/core/symbolic/inquisitors/__init__.py
 # ---------------------------------------------------------
 # LIF: ∞ | ROLE: SPECIALIST_REGISTRY_GATEWAY | RANK: SOVEREIGN
 # AUTH: Ω_INQUISITOR_INIT_TOTALITY

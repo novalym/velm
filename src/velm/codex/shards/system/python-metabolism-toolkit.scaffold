@@ -1,0 +1,117 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/python-metabolism-toolkit
+# ==============================================================================
+# @id:           system/python-metabolism-toolkit
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Process-level metabolic sensor tracking memory RSS, thread count, and internal Python GC states.
+# @vibe:         [metabolism, process, memory, gc, psutil, profiling, health]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:process-metabolism, capability:vital-signs]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["psutil>=5.9.0", "pydantic>=2.6.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "system-telemetry"
+#   priority:    10
+#   alias:       "metabolic_scrier"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default('omega-core') }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+
+# --- II. THE SCRIPTURE OF FORM (The Sensory Layer) ---
+
+src/{{ package_name }}/core/system/
+    __init__.py :: "from .metabolism import MetabolicScrier, metabolism_scrier\n"
+
+    # [ASCENSION 5]: THE METABOLIC SCRIER
+    metabolism.py :: """
+import os
+import time
+import platform
+import logging
+import gc
+from typing import Dict, Any, List
+import psutil
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("System:Metabolism")
+
+class ProcessVitals(BaseModel):
+    \"\"\"The Gnostic record of process-level tomography.\"\"\"
+    cpu_load_pct: float = 0.0
+    process_rss_mb: float = 0.0
+    active_threads: int = 0
+    gc_objects_count: int = 0
+    status: str = "RESONANT"
+    ts: float = Field(default_factory=time.time)
+    node: str = Field(default_factory=lambda: platform.node())
+
+class MetabolicScrier:
+    \"\"\"
+    =============================================================================
+    == THE METABOLIC SCRIER (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: ∞ | ROLE: PROCESS_BIOLOGIST | RANK: MASTER
+    
+    1. Achronal Biopsy: Scries the EXACT Python process running the engine.
+    2. Garbage Collection Tomography: Tracks heap object count.
+    3. Memory Leak Sieve: Flags 'HEAVILY_BLOATED' if RSS > 1GB.
+    \"\"\"
+    def __init__(self):
+        try:
+            self.process = psutil.Process(os.getpid())
+            self._boot_time = psutil.boot_time()
+        except Exception:
+            self.process = None
+
+    def conduct_biopsy(self) -> ProcessVitals:
+        \"\"\"Performs a high-fidelity scan of the application mind.\"\"\"
+        try:
+            cpu_pct = psutil.cpu_percent(interval=None)
+            
+            # [ASCENSION 6]: Substrate-Aware Memory Scry
+            process_mem = 0.0
+            thread_count = 1
+            if self.process:
+                try:
+                    process_mem = self.process.memory_info().rss / (1024 * 1024)
+                    thread_count = self.process.num_threads()
+                except Exception:
+                    pass
+            
+            # [ASCENSION 9]: GC Object Count
+            obj_count = len(gc.get_objects())
+            
+            status = "RESONANT"
+            if process_mem > 1024.0: status = "HEAVILY_BLOATED"
+            elif cpu_pct > 90.0: status = "FEVERISH"
+
+            return ProcessVitals(
+                cpu_load_pct=cpu_pct,
+                process_rss_mb=round(process_mem, 2),
+                active_threads=thread_count,
+                gc_objects_count=obj_count,
+                status=status
+            )
+        except Exception as e:
+            Logger.error(f"Metabolic Scry Failed: {e}")
+            return ProcessVitals(status="VOID")
+
+# Global Singleton
+metabolism_scrier = MetabolicScrier()
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Python Metabolism Toolkit[/] is manifest."
+    proclaim: "Process Scrier Locus: [white]src/{{ package_name }}/core/system/metabolism.py[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Architectural Stability -> ABSOLUTE)[/]"
+    proclaim: "[bold green]✅ The Biometric Mind is waked.[/bold green] The Process is now Observable."

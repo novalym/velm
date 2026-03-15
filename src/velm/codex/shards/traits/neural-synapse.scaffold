@@ -1,0 +1,141 @@
+# ==============================================================================
+# == GNOSTIC DNA TRAIT: traits/neural-synapse
+# ==============================================================================
+# @id:           traits/neural-synapse
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A self-updating Markdown constitution and symbol table that anchors LLM context across the project.
+# @vibe:         [trait, ai, context, markdown, llm, constitution, documentation]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:ai-context-anchor]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      [] # Leverages internal Engine Cortex logic
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "system-trait"
+#   priority:    0
+#   alias:       "neural_synapse"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_title = {{ project_name | title | default(" omega-reality") }}
+$$ context_depth = {{ context_depth | default("forensic") }} # [skeletal, balanced, forensic]
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The AI's Retina) ---
+
+.scaffold/
+    # [ASCENSION 2]: THE CONSTITUTIONAL ANCHOR
+    context.md :: """
+# 🧠 GNOSTIC CONSTITUTION: {{ project_title }}
+> [!IMPORTANT]
+> **Locus of Truth:** This file is warded and waked by the Neural Synapse. 
+> **AI INSTRUCTION:** Treat this as your Primary Long-Term Memory. Prioritize these Invariants over implementation noise.
+
+## I. ARCHITECTURAL INVARIANTS (THE LAW)
+1. **Sovereignty:** Domain logic must remain hermetically sealed from infrastructure (I/O, DB).
+2. **Integrity:** Every mutation must bear a Merkle-signed trace ID from the Gnostic Chronicle.
+3. **Geometry:** Indentation is Spacetime. Respect the visual DNA of the file.
+
+## II. THE CAUSAL WEB (TOPOLOGY)
+<!-- @scaffold:causal_map_start -->
+[RESONANCE_PENDING]: Use 'make sync-context' to materialize the Graph.
+<!-- @scaffold:causal_map_end -->
+
+## III. HIGH-STATUS SYMBOLS (THE MIND)
+<!-- @scaffold:symbol_inquest_start -->
+| Symbol | Locus | Purpose | Authority |
+| :--- | :--- | :--- | :--- |
+# The Librarian will inject the top 12 logical hubs here.
+<!-- @scaffold:symbol_inquest_end -->
+
+## IV. ALCHEMICAL DIRECTIVES
+- **Naming:** Enforce `snake_case` for logic, `PascalCase` for types.
+- **Persistence:** All data souls must flow through the `Bicameral Evolution Engine`.
+"""
+
+scripts/intelligence/
+    # [ASCENSION 3]: THE SYNAPTIC SCRYER (Logic)
+    update_synapse.py :: """
+import os
+import logging
+from pathlib import Path
+from velm.core.cortex.engine import GnosticCortex # Internal engine capability
+
+Logger = logging.getLogger("Synapse:Scryer")
+
+class SynapticScryer:
+    \"\"\"
+    =============================================================================
+    == THE SYNAPTIC SCRYER (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: ∞ | ROLE: CONTEXT_SYNCHRONIZER | RANK: OMEGA
+    \"\"\"
+    def __init__(self, root: Path):
+        self.root = root
+        self.cortex = GnosticCortex(root)
+        self.context_path = root / ".scaffold" / "context.md"
+
+    def refresh(self):
+        Logger.info("🌀 [SYNAPSE] Initiating semantic mirror sync...")
+        
+        # 1. Harvest Gnosis
+        graph = self.cortex.get_dependency_graph()
+        top_symbols = self.cortex.find_high_status_symbols(limit=12)
+        
+        # 2. Transcribe Causal Map
+        causal_md = self._forge_causal_mermaid(graph)
+        
+        # 3. Transcribe Symbol Table
+        symbol_md = self._forge_symbol_table(top_symbols)
+
+        # 4. Surgical Inception
+        if self.context_path.exists():
+            content = self.context_path.read_text()
+            content = self._suture(content, "causal_map", causal_md)
+            content = self._suture(content, "symbol_inquest", symbol_md)
+            self.context_path.write_text(content)
+            Logger.success("✨ [SYNAPSE] AI Retina synchronized with Physical Iron.")
+
+    def _suture(self, content, tag, new_matter):
+        import re
+        pattern = f"<!-- @scaffold:{tag}_start -->.*?<!-- @scaffold:{tag}_end -->"
+        replacement = f"<!-- @scaffold:{tag}_start -->\\n{new_matter}\\n<!-- @scaffold:{tag}_end -->"
+        return re.sub(pattern, replacement, content, flags=re.DOTALL)
+
+    def _forge_causal_mermaid(self, graph):
+        return "```mermaid\\ngraph TD\\n  ... # Causal Web Projection\\n```"
+
+    def _forge_symbol_table(self, symbols):
+        rows = []
+        for s in symbols:
+            rows.append(f"| {s.name} | {s.locus} | {s.summary} | OMEGA |")
+        return "\\n".join(rows)
+
+if __name__ == "__main__":
+    SynapticScryer(Path(os.getcwd())).refresh()
+"""
+
+# --- III. THE CONTROL PLANE ---
+Makefile += """
+# --- INTELLIGENCE RITES ---
+sync-context: ## update the AI context mirror with latest AST gnosis
+    @poetry run python scripts/intelligence/update_synapse.py
+
+observe-brain: ## gaze into the project's prefrontal cortex
+    @cat .scaffold/context.md
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Neural Synapse Trait[/bold cyan] has been wove."
+    proclaim: "Context Anchor: [white].scaffold/context.md[/]"
+    
+    >> mkdir -p .scaffold scripts/intelligence
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (AI Hallucination -> 0)[/]"
+    proclaim: "[bold green]Context Anchored. The AI now shares your Gnosis.[/bold green]"

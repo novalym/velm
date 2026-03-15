@@ -23,7 +23,7 @@ from .scaffold_scribes import (
     CommentScribe,
     ContractScribe,
     ScaffoldDirectiveScribe,
-    JinjaScribe,
+    AlchemicalScribe,
     MakefileScribe,
     PostRunScribe,
     StructuralScribe,
@@ -53,7 +53,7 @@ SCRIBE_PANTHEON = {
         GnosticLineType.LOGIC: ScaffoldDirectiveScribe,
         GnosticLineType.FORM: StructuralScribe,
         GnosticLineType.CONTRACT_DEF: ContractScribe,
-        GnosticLineType.JINJA_CONSTRUCT: JinjaScribe,
+        GnosticLineType.SGF_CONSTRUCT: AlchemicalScribe,
         GnosticLineType.TRAIT_DEF: StructuralScribe,
         GnosticLineType.TRAIT_USE: StructuralScribe,
 

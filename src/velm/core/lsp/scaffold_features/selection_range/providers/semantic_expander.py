@@ -17,7 +17,7 @@ class SemanticExpanderProvider(SelectionRangeProvider):
     A sophisticated engine that expands selection based on Gnostic Grammar.
     It understands:
     1.  **Atoms:** Words, identifiers.
-    2.  **Molecules:** Strings ("..."), Jinja expressions ({{ ... }}).
+    2.  **Molecules:** Strings ("..."), SGF expressions ({{ ... }}).
     3.  **Constructs:** Full lines, Variable definitions ($$ ...).
     4.  **Blocks:** Indented regions, @if ... @endif blocks.
     5.  **Cosmos:** The file.
@@ -29,7 +29,7 @@ class SemanticExpanderProvider(SelectionRangeProvider):
 
     # --- THE GRIMOIRE OF REGEX ---
     RE_WORD = re.compile(r'[\w\-\$\@\%]+')  # Matches $$var, @if, word
-    RE_JINJA = re.compile(r'\{\{.*?\}\}')
+    RE_SGF = re.compile(r'\{\{.*?\}\}')
     RE_STRING_DOUBLE = re.compile(r'"(?:[^"\\]|\\.)*"')
     RE_STRING_SINGLE = re.compile(r"'(?:[^'\\]|\\.)*'")
     RE_BLOCK_START = re.compile(r'^\s*(@if|@for|@macro|@try|@task|%%)\b')
@@ -48,7 +48,7 @@ class SemanticExpanderProvider(SelectionRangeProvider):
             word_range = self._get_word_range(doc.get_line(pos.line), pos)
             if word_range: ranges.append(word_range)
 
-            # --- LAYER 2: MOLECULAR (String/Jinja) ---
+            # --- LAYER 2: MOLECULAR (String/SGF) ---
             mol_range = self._get_molecular_range(doc.get_line(pos.line), pos)
             if mol_range and (not ranges or ranges[-1] != mol_range):
                 ranges.append(mol_range)
@@ -125,7 +125,7 @@ class SemanticExpanderProvider(SelectionRangeProvider):
 
     def _get_molecular_range(self, line: str, pos: Position) -> Optional[Range]:
         # Check Strings
-        for pattern in [self.RE_STRING_DOUBLE, self.RE_STRING_SINGLE, self.RE_JINJA]:
+        for pattern in [self.RE_STRING_DOUBLE, self.RE_STRING_SINGLE, self.RE_SGF]:
             for match in pattern.finditer(line):
                 if match.start() <= pos.character <= match.end():
                     # If inside content (excluding quotes/braces), return content first?

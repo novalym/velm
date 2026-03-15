@@ -1,0 +1,130 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/docker-basic
+# ==============================================================================
+# @id:           cloud/docker-basic
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Lightweight, Tini-warded Docker containerization for immediate local development.
+# @vibe:         [docker, local-dev, tini, containers, fast, basic]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:docker-basic, capability:container-orchestration]
+# @requires:     [capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   env:         ["API_PORT", "PYTHON_VERSION"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "app": {"build": "."}, "cache": {"image": "redis:7-alpine"} } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-compose"
+#   priority:    950
+#   alias:       "docker_basic"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("resonant-app") }}
+$$ app_port = {{ port | default(8000) }}
+$$ python_version = {{ python_version | default("3.11") }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+# [ASCENSION 1]: THE PID-1 REAPER (TINI)
+# Annihilates the Zombie Process Heresy by ensuring proper signal forwarding.
+Dockerfile :: """
+FROM python:{{ python_version }}-slim-bookworm
+
+# [ASCENSION 2]: Tini Inception & Privilege Drop
+RUN apt-get update && apt-get install -y --no-install-recommends tini curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    groupadd -r gnostic && useradd -r -g gnostic scaf_artisan
+
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY --chown=scaf_artisan:gnostic . .
+
+# [ASCENSION 3]: Substrate Health Probes
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+    CMD curl -f http://localhost:{{ app_port }}/health || exit 1
+
+USER scaf_artisan
+EXPOSE {{ app_port }}
+
+# Tini acts as the perfect OS-level init system
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "{{ app_port }}"]
+"""
+
+# [ASCENSION 4]: THE SYNAPTIC MESH
+docker-compose.yml :: """
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: {{ project_slug }}-core
+    ports:
+      - "{{ app_port }}:{{ app_port }}"
+    env_file: .env
+    environment:
+      - SCAFFOLD_ENV=development
+      - REDIS_URL=redis://cache:6379/0
+    depends_on:
+      cache:
+        condition: service_healthy
+    networks:
+      - gnostic_mesh
+
+  cache:
+    image: redis:7-alpine
+    container_name: {{ project_slug }}-cache
+    networks:
+      - gnostic_mesh
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  gnostic_mesh:
+    driver: bridge
+"""
+
+.dockerignore += """
+**/*.pyc
+**/__pycache__
+.pytest_cache/
+.coverage
+.scaffold/
+scaffold.lock
+*.scaffold
+*.symphony
+.env
+venv/
+node_modules/
+"""
+
+# --- III. THE SURGICAL WEAVE ---
+Makefile += """
+# --- CONTAINER RITES ---
+up: ## awaken the containerized mesh
+  @docker-compose up --build -d
+
+down: ## return the containers to the void
+  @docker-compose down -v
+
+logs: ## tail the celestial logs
+  @docker-compose logs -f app
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Docker Basic Shard[/bold cyan] has been woven."
+    proclaim: "Substrate: [bold green]PID-1 Warded (Tini)[/bold green]"
+    proclaim: "To launch the mesh: [bold magenta]make up[/bold magenta]"

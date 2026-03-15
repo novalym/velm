@@ -1,4 +1,4 @@
-# Path: scaffold/core/jurisprudence/contracts.py
+# Path: velm/core/jurisprudence/contracts.py
 # ----------------------------------------------
 
 from dataclasses import dataclass, field

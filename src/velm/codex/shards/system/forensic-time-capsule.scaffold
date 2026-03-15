@@ -1,0 +1,113 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/forensic-time-capsule
+# ==============================================================================
+# @id:           system/forensic-time-capsule
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Achronal execution recorder and replayer providing high-fidelity "Black Box" snapshots for deterministic failure reconstruction.
+# @vibe:         [forensics, time-capsule, replay, black-box, chronomancy, debugging]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:execution-recording, capability:time-machine, capability:forensic-recorder]
+# @requires:     [capability:python-core, capability:persistence-lattice]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["SCAF_BLACK_BOX_ROOT", "SCAF_RETENTION_DAYS"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "forensic-recorder"
+#   priority:    900
+#   alias:       "time_capsule"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-engine") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ black_box_root = ".scaffold/akasha/black_box"
+
+# --- II. THE SCRIPTURE OF FORM (The Chronomancer's Tools) ---
+
+src/{{ package_name }}/core/forensics/
+    __init__.py :: "from .black_box import BlackBoxRecorder\nfrom .replayer import ChronomanticReplayer\n"
+
+    black_box.py :: """
+import json
+import time
+import os
+import logging
+from pathlib import Path
+
+Logger = logging.getLogger("Forensics:BlackBox")
+
+class BlackBoxRecorder:
+    \"\"\"
+    =============================================================================
+    == THE BLACK BOX RECORDER (V-Ω-TOTALITY)                                    ==
+    =============================================================================
+    Inscribes the 'Causal Chain' of every execution into the Akasha.
+    \"\"\"
+    def __init__(self):
+        self.vault = Path(os.getenv("SCAF_BLACK_BOX_ROOT", "{{ black_box_root }}"))
+        self.vault.mkdir(parents=True, exist_ok=True)
+
+    def inscribe_intent(self, trace_id: str, payload: dict):
+        \"\"\"Captures the 'Moment of Intent' before the strike.\"\"\"
+        entry = {
+            "trace_id": trace_id,
+            "timestamp": time.time(),
+            "intent": payload,
+            "seed": os.environ.get("SCAFFOLD_ENTROPY_SEED")
+        }
+        self._write_shard(trace_id, "intent", entry)
+
+    def _write_shard(self, trace_id: str, phase: str, data: dict):
+        path = self.vault / f"{trace_id}.{phase}.json"
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+"""
+
+    replayer.py :: """
+import os
+import json
+import logging
+from pathlib import Path
+
+Logger = logging.getLogger("Forensics:Replayer")
+
+class ChronomanticReplayer:
+    \"\"\"
+    =============================================================================
+    == THE CHRONOMANTIC REPLAYER (V-Ω-TOTALITY)                                ==
+    =============================================================================
+    LIF: ∞ | ROLE: REALITY_RECONSTRUCTOR
+    \"\"\"
+    def __init__(self, engine: Any):
+        self.engine = engine
+        self.vault = Path(os.getenv("SCAF_BLACK_BOX_ROOT", "{{ black_box_root }}"))
+
+    def thaw_and_strike(self, trace_id: str):
+        \"\"\"Re-executes the exact logic that failed in Shadow Mode.\"\"\"
+        intent_path = self.vault / f"{trace_id}.intent.json"
+        if not intent_path.exists(): raise FileNotFoundError("Capsule unmanifest.")
+            
+        with open(intent_path, 'r') as f:
+            capsule = json.load(f)
+
+        if capsule.get("seed"):
+            os.environ["SCAFFOLD_ENTROPY_SEED"] = str(capsule["seed"])
+
+        # Strike the Engine in Dry-Run mode
+        return self.engine.dispatch(capsule['intent'], dry_run=True)
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Forensic Time-Capsule[/bold cyan] is manifest."
+    proclaim: "Akashic Vault: [white]{{ black_box_root }}[/white]"
+    
+    >> mkdir -p {{ black_box_root }}
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Bug Reproduction -> 0ms)[/]"
+    proclaim: "[bold green]✅ Chronomantic Replay is Active.[/bold green]"

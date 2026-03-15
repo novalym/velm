@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/inquisitors/base.py
+# Path: src/velm/core/symbolic/inquisitors/base.py
 # -----------------------------------------------------
 # LIF: ∞ | ROLE: ANCESTRAL_LOGIC_CONTRACT | RANK: LEGENDARY
 # AUTH: Ω_INQUISITOR_BASE_V100

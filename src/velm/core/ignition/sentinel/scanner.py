@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/sentinel/scanner.py
+# Path: velm/core/ignition/diviner/sentinel/scanner.py
 # --------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: SENTINEL_SCANNER_V1
 

@@ -1,0 +1,93 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/terraform-orchestrator
+# ==============================================================================
+# @id:           system/terraform-orchestrator
+# @version:      3.0.0
+# @tier:         body
+# @summary:      Substrate-aware Terraform lifecycle conductor for executing cloud provisioning, planning, and state management.
+# @vibe:         [terraform, iac, orchestration, cloud, infrastructure, provisioning, devops]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:iac-governor, capability:cloud-genesis]
+# @requires:     [capability:python-core, capability:maestro-conductor]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["sh>=2.0.0"]
+#   env:         ["TERRAFORM_BINARY_PATH"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "terraform": ["backend 's3'"] }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-governor"
+#   priority:    900
+#   alias:       "terraform_orchestrator"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-infra") }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+
+# --- II. THE SCRIPTURE OF FORM (The Conductor) ---
+
+src/{{ package_name }}/core/infra/
+    __init__.py :: "from .terraform import TerraformConductor\n"
+
+    terraform.py :: """
+import os
+import logging
+import shutil
+from pathlib import Path
+from typing import Dict, Any, Optional
+from ..maestro.conductor import MaestroConductor
+
+Logger = logging.getLogger("Infra:Terraform")
+
+class TerraformConductor:
+    \"\"\"
+    =============================================================================
+    == THE TERRAFORM CONDUCTOR (V-Ω-TOTALITY)                                  ==
+    =============================================================================
+    LIF: ∞ | ROLE: IAC_GOVERNOR | RANK: MASTER
+    
+    [ASCENSIONS]:
+    1. Apophatic Binary Verification: Scries the OS for the 'terraform' artisan.
+    2. Transactional Planning: Forces a '-out=plan.tfplan' to ensure parity.
+    3. Substrate Isolation: Manages '.terraform' directories per-environment.
+    \"\"\"
+    def __init__(self, working_dir: Path, trace_id: str = "tr-void"):
+        self.working_dir = working_dir
+        self.maestro = MaestroConductor(trace_id=trace_id)
+        self._check_binary()
+
+    def _check_binary(self):
+        \"\"\"Ensures the 'terraform' artisan is manifest in this reality.\"\"\"
+        if not shutil.which("terraform"):
+            Logger.critical("💀 [TERRAFORM] Binary unmanifested. Cloud Genesis is stayed.")
+            raise FileNotFoundError("The 'terraform' executable is missing from the PATH.")
+
+    def init(self) -> bool:
+        return self.maestro.strike("terraform init", cwd=str(self.working_dir))
+
+    def plan(self, variables: Dict[str, Any]) -> bool:
+        var_args = " ".join([f'-var="{k}={v}"' for k, v in variables.items()])
+        cmd = f"terraform plan {var_args} -out=reality.tfplan"
+        return self.maestro.strike(cmd, cwd=str(self.working_dir))
+
+    def apply(self) -> bool:
+        return self.maestro.strike("terraform apply -auto-approve reality.tfplan", cwd=str(self.working_dir))
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Terraform Orchestrator[/] is manifest."
+    proclaim: "Conductor Locus: [white]core/infra/terraform.py[/]"
+    
+    # [ASCENSION 1]: Binary Verification Strike
+    proclaim: "Phase I: Verifying Terraform binary resonance..."
+    @if {{ not shell('terraform version > /dev/null 2>&1 && echo "yes"') == 'yes' }}
+        proclaim: "[bold red]HERESY:[/bold red] 'terraform' binary is unmanifested."
+    @else
+        proclaim: "✅ [bold green]Terraform Artisan confirmed.[/bold green]"
+    @endif
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Infrastructure Drift -> 0)[/]"
+    proclaim: "[bold green]✅ The God-Engine can now strike the Celestial Iron.[/bold green]"

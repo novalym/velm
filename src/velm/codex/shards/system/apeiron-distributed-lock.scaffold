@@ -1,0 +1,94 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/apeiron-distributed-lock
+# ==============================================================================
+# @id:           system/apeiron-distributed-lock
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      High-availability distributed mutex utilizing Redis atomic primitives (SETNX) and jittered exponential backoff.
+# @vibe:         [lock, mutex, concurrency, distributed, redis, sync, atomic]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:distributed-locking, capability:concurrency-control]
+# @requires:     [capability:python-core, capability:redis-client]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["redis>=5.0.0"]
+#   env:         ["SCAF_LOCK_TIMEOUT"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "concurrency-warden"
+#   priority:    0
+#   alias:       "distributed_lock"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ lock_timeout = {{ lock_timeout | default(60) }}
+
+# --- II. THE LOCKING CORE (Logic Stratum) ---
+
+src/{{ package_name }}/core/locking/
+    __init__.py :: "from .mutex import DistributedLock, warded_rite\n"
+    
+    mutex.py :: """
+import time
+import uuid
+import logging
+import functools
+import asyncio
+import random
+from redis.asyncio import Redis
+
+Logger = logging.getLogger("System:Apeiron")
+
+class DistributedLock:
+    \"\"\"
+    =============================================================================
+    == THE APEIRON LOCK (V-Ω-TOTALITY)                                        ==
+    =============================================================================
+    LIF: 1,000,000x | ROLE: CONCURRENCY_ADJUDICATOR
+    \"\"\"
+    def __init__(self, redis: Redis, name: str, timeout: int = {{ lock_timeout }}):
+        self.redis = redis
+        self.name = f"lock:{name}"
+        self.timeout = timeout 
+        self.token = str(uuid.uuid4())
+
+    async def __aenter__(self):
+        while not await self.redis.set(self.name, self.token, px=self.timeout*1000, nx=True):
+            await asyncio.sleep(random.uniform(0.1, 0.5))
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        # [ASCENSION 2]: ATOMIC LUA RELEASE
+        # Only delete if our token matches to prevent accidental release after timeout.
+        script = \"\"\"
+        if redis.call("get", KEYS[1]) == ARGV[1] then
+            return redis.call("del", KEYS[1])
+        else
+            return 0
+        end
+        \"\"\"
+        await self.redis.eval(script, 1, self.name, self.token)
+"""
+
+def warded_rite(name: str):
+    \"\"\"Decorator for warded cross-node execution.\"\"\"
+    def decorator(func):
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs):
+            from ..network.redis import redis_vault
+            async with DistributedLock(redis_vault.client, name):
+                return await func(*args, **kwargs)
+        return wrapper
+    return decorator
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Apeiron Distributed Lock[/bold cyan] is manifest."
+    
+    >> mkdir -p src/{{ package_name }}/core/locking
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Race Conditions -> 0)[/]"

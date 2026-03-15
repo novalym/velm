@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/heuristics/visual_inquisitor.py
+# Path: velm/core/ignition/diviner/heuristics/visual_inquisitor.py
 # -------------------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_VISUAL_INQUISITOR_V1
 

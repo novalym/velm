@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/sentinel/grimoire.py
+# Path: velm/core/ignition/diviner/sentinel/grimoire.py
 # --------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: SENTINEL_GRIMOIRE_V1
 

@@ -47,7 +47,7 @@ class TreeWeaver:
         connector_style = Style(dim=True)
 
         # Node Type Gnosis
-        is_logic_node = node.item and node.item.line_type == GnosticLineType.JINJA_CONSTRUCT
+        is_logic_node = node.item and node.item.line_type == GnosticLineType.SGF_CONSTRUCT
         is_variable_node = node.item and node.item.line_type == GnosticLineType.VARIABLE
 
         # 1. Indentation

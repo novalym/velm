@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/inquisitors/scrier.py
+# Path: src/velm/core/symbolic/inquisitors/scrier.py
 # -------------------------------------------------------
 # LIF: ∞ | ROLE: INTENT_&_VELOCITY_ADJUDICATOR | RANK: LEGENDARY
 # AUTH: Ω_SCRIER_TOTALITY_V100

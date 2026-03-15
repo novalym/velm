@@ -1,0 +1,79 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/achronal-clock
+# ==============================================================================
+# @id:           system/achronal-clock
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Nanosecond-precision temporal governor for distributed system synchronization and metabolic tax auditing.
+# @vibe:         [time, chronos, precision, drift-detection, telemetry, audit]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:temporal-governor, capability:system-clock]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "system-module"
+#   priority:    0
+#   alias:       "achronal_clock"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+
+# --- II. THE SCRIPTURE OF FORM (The Temporal Mind) ---
+
+src/{{ package_name }}/core/chronos/
+    __init__.py :: "from .clock import achronal_clock, SpacetimeCoordinate\n"
+
+    clock.py :: """
+import time
+import logging
+from typing import Optional
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("Chronos:Clock")
+
+class SpacetimeCoordinate(BaseModel):
+    \"\"\"The Gnostic record of a moment in the continuum.\"\"\"
+    epoch_ns: int = Field(default_factory=time.time_ns)
+    monotonic_ns: int = Field(default_factory=time.perf_counter_ns)
+    trace_id: Optional[str] = None
+
+class AchronalClock:
+    \"\"\"
+    =============================================================================
+    == THE ACHRONAL CLOCK (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: TEMPORAL_GOVERNOR | RANK: OMEGA
+    \"\"\"
+    def __init__(self):
+        self._boot_ts = time.time()
+        self._boot_ns = time.perf_counter_ns()
+
+    def now(self, trace_id: Optional[str] = None) -> SpacetimeCoordinate:
+        return SpacetimeCoordinate(trace_id=trace_id)
+
+    def measure_tax(self, start_ns: int) -> float:
+        \"\"\"Returns duration in milliseconds.\"\"\"
+        return (time.perf_counter_ns() - start_ns) / 1_000_000
+
+    def scry_drift(self) -> float:
+        \"\"\"Perceives the drift between System Time and the Monotonic Truth.\"\"\"
+        wall_elapsed = time.time() - self._boot_ts
+        mono_elapsed = (time.perf_counter_ns() - self._boot_ns) / 1_000_000_000
+        return abs(wall_elapsed - mono_elapsed)
+
+achronal_clock = AchronalClock()
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Achronal Clock[/] is manifest."
+    proclaim: "Temporal Locus: [white]core/chronos/clock.py[/]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Temporal Entropy -> 0)[/]"
+    proclaim: "[bold green]✅ The Heartbeat of the project is warded.[/bold green]"

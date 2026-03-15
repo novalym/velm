@@ -1,4 +1,4 @@
-# Path: scaffold/core/traceback/handler.py
+# Path: velm/core/traceback/handler.py
 # ------------------------------------------
 # LIF: ∞ | ROLE: FORENSIC_INTERCEPTOR_SUPREME | RANK: OMEGA_SOVEREIGN
 # AUTH: Ω_HANDLER_V9000_TOTALITY_FINALIS_2026

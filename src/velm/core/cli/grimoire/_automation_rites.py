@@ -1,4 +1,4 @@
-# scaffold/core/cli/grimoire/_automation_rites.py
+# velm/core/cli/grimoire/_automation_rites.py
 """Rites for conducting workflows, orchestrating symphonies, and local vigilance."""
 from ..cli_utils import add_common_flags, add_variable_flags, add_simulation_flags
 import argparse

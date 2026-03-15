@@ -1,0 +1,119 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: security/clerk-auth
+# ==============================================================================
+# @id:           security/clerk-auth
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Full-stack Clerk identity integration for FastAPI and React/Next.js.
+# @vibe:         [auth, clerk, identity, jwt, security, react, nextjs, sso]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:auth-provider, capability:identity-management]
+# @requires:     [capability:fastapi-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["clerk-backend-api>=1.0.0"]
+#   node:        ["@clerk/nextjs", "@clerk/themes"]
+#   env:         ["CLERK_SECRET_KEY", "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "auth-gate"
+#   priority:    50
+#   alias:       "clerk_identity"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug       = {{ project_slug | default("omega-citadel") }}
+$$ vault_package_name = {{ package_name | default(project_slug | snake) }}
+$$ clerk_theme        = {{ clerk_theme | default("dark") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Mind & The Eye) ---
+
+src/{{ vault_package_name }}/core/security/
+    __init__.py += "from .passport import get_current_user\n"
+
+    passport.py :: """
+import logging
+import os
+from typing import Optional
+from fastapi import Request, HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from clerk_backend_api import Clerk
+
+Logger = logging.getLogger("Security:Passport")
+
+# [ASCENSION 3]: THE CLERK ENGINE
+# The Causal Linker automatically enforces env var presence.
+clerk_client = Clerk(bearer_auth=os.getenv("CLERK_SECRET_KEY", "void"))
+security = HTTPBearer()
+
+async def get_current_user(res: HTTPAuthorizationCredentials = Depends(security)):
+    \"\"\"
+    =============================================================================
+    == THE PASSPORT GUARD (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: IDENTITY_ADJUDICATOR | RANK: OMEGA
+    
+    Surgically verifies the Gnostic JWT issued by the Celestial Identity Provider.
+    \"\"\"
+    token = res.credentials
+    try:
+        # [STRIKE]: The Achronal Handshake
+        request_state = clerk_client.sessions.verify_session(token)
+        user_id = request_state.user_id
+        
+        # Inhale full user Gnosis from the Hub
+        user = clerk_client.users.get(user_id)
+        return user
+    except Exception as e:
+        Logger.error(f"❌ [AUTH] Identity Fracture: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Profane Identity: The provided token does not resonate with the Citadel."
+        )
+"""
+
+frontend/src/components/auth/
+    ClerkProvider.tsx :: """
+import React from 'react';
+import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { {{ clerk_theme }} } from '@clerk/themes';
+
+/**
+ * =============================================================================
+ * == THE OCULAR IDENTITY MEMBRANE (V-Ω-TOTALITY-V3)                          ==
+ * =============================================================================
+ */
+export function IdentityWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <ClerkProvider appearance={ { baseTheme: {{ clerk_theme | default('dark') }} } }>
+      <header className="flex justify-between items-center p-6 border-b border-zinc-900 bg-black/50 backdrop-blur-xl">
+        <div className="flex items-center gap-4">
+           <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse" />
+           <h1 className="text-sm font-black italic tracking-tighter uppercase">Citadel_OS</h1>
+        </div>
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button className="text-xs font-bold uppercase tracking-widest px-4 py-2 border border-cyan-900 hover:bg-cyan-950 transition-all">
+              Initiate_Handshake
+            </button>
+          </SignInButton>
+        </SignedOut>
+        <SignedIn>
+          <UserButton afterSignOutUrl="/" />
+        </SignedIn>
+      </header>
+      <main>
+        {children}
+      </main>
+    </ClerkProvider>
+  );
+}
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Clerk Identity Stratum[/bold cyan] has achieved Convergence."
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Identity Infrastructure -> 0)[/]"
+    proclaim: "[yellow]ACTION REQUIRED:[/yellow] Inscribe [bold]CLERK_SECRET_KEY[/] and [bold]NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY[/] in .env"

@@ -1,7 +1,7 @@
 # Path: src/velm/artisans/create/builder.py
 # --------------------------------------------------------------------------------------
 # LIF: ∞ | ROLE: SUPREME_REALITY_CONDUCTOR | RANK: OMEGA_SOVEREIGN
-# AUTH: Ω_BUILDER_V3000_SINGULARITY_RESONANCE_2026_FINALIS
+# AUTH: @#()!#(()()0
 
 import os
 import sys
@@ -29,16 +29,18 @@ from typing import (
 
 import requests
 from rich.prompt import Confirm
-from jinja2 import Template
+
+# [THE JINJA SCHISM CURE]: Jinja2 is dead. The SGF Alchemist reigns supreme.
+# We no longer import `jinja2.Template`.
 
 # --- THE DIVINE UPLINKS ---
-from ...semantic_injection import resolve_semantic_directive
+from ...codex import resolve_codex_directive
 from ...contracts.data_contracts import ScaffoldItem, GnosticLineType
 from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 from ...interfaces.requests import CreateRequest
 from ...artisans.template_engine import TemplateEngine
 from ...parser_core.parser import parse_structure
-from ...semantic_injection.loader import SemanticRegistry
+from ...codex.loader import CodexRegistry
 from ...prophecy import prophesy_initial_gnosis
 from ...core.alchemist import get_alchemist
 from ...logger import Scribe
@@ -68,7 +70,7 @@ class GnosticBuilder:
 
     1.  **The Alchemical Fission (THE CURE):** Every source of content—CLI, Stdin,
         URL, or Clipboard—is now automatically transfixed by the Divine Alchemist.
-        `{{ now() }}` and `{{ uuid() }}` resolve even in --raw mode.
+        `{{ now() }}` and `{{ uuid() }}` resolve even in --raw mode via SGF Amnesty.
     2.  **The Skeleton Eater:** Implements Recursive Skeleton Evaporation in the
         Staging Realm, preventing "Ghost Directories" from clobbering reality.
     3.  **The Duality Engine:** Intelligently detects if a source is "Flat Matter"
@@ -91,25 +93,25 @@ class GnosticBuilder:
         (API keys, secrets) and issues a Warning before inscription.
     12. **Bicameral Metadata Mirror:** Preserves file modification times and
         permissions across the Staging -> Root translocation.
-    13. **Vessel Encapsulation:** [NEW] Can wrap multi-file creations into a single
+    13. **Vessel Encapsulation:** Can wrap multi-file creations into a single
         compressed `.vessel` shard for transport.
-    14. **Neural Shadowing:** [NEW] Automatically populates the `.scaffold/shadow`
+    14. **Neural Shadowing:** Automatically populates the `.scaffold/shadow`
         registry for immediate, bit-perfect diffing.
-    15. **Substrate Heat Tomography:** [NEW] Checks IO load before heavy template
+    15. **Substrate Heat Tomography:** Checks IO load before heavy template
         rendering to pace execution.
-    16. **Blueprint Ouroboros:** [NEW] Handles double-transmutation escapes when
+    16. **Blueprint Ouroboros:** Handles double-transmutation escapes when
         creating files that are themselves .scaffold scripts.
     17. **Case-Identity Suture:** Forcefully reconciles Windows Drive Letter
         case anomalies (C: vs c:), defeating the 260-char wall.
-    18. **Gnostic Vow Verification:** [NEW] Validates creations against
-        `%% contract` schemas if defined in the active context.
-    19. **Atomic Path Sieve:** [NEW] Surgically strips "Tree Art" (├──) from paths
+    18. **Gnostic Vow Verification:** Validates creations against `%% contract`
+        schemas if defined in the active context.
+    19. **Atomic Path Sieve:** Surgically strips "Tree Art" (├──) from paths
         provided by AI prompts.
-    20. **Semantic Collision Prediction:** [NEW] Uses the Cortex to predict if
+    20. **Semantic Collision Prediction:** Uses the Cortex to predict if
         creation will break existing bonds/imports.
-    21. **Isomorphic Path Translation:** [NEW] Resolves `~/` and `%APPDATA%`
+    21. **Isomorphic Path Translation:** Resolves `~/` and `%APPDATA%`
         correctly across Iron and Ether substrates.
-    22. **The Logic-Gate Filter:** [NEW] Supports `@filter` directives within
+    22. **The Logic-Gate Filter:** Supports `@filter` directives within
         content blocks to prune lines based on runtime variables.
     23. **Haptic Ocular Pulse:** Broadcasts "MATTER_MANIFESTED" signals to the
         React HUD for 1:1 visual parity with physical work.
@@ -119,6 +121,8 @@ class GnosticBuilder:
 
     # [PHYSICS CONSTANTS]
     MAX_CELESTIAL_SIZE_BYTES: Final[int] = 10 * 1024 * 1024  # 10MB
+
+    # [ASCENSION 19]: ATOMIC PATH SIEVE REGEX
     PATH_ART_REGEX: Final[re.Pattern] = re.compile(r'^[\u2500-\u257f\|\+\\`\s\t-]+')
 
     def __init__(self, project_root: Path, engine: Any):
@@ -127,7 +131,9 @@ class GnosticBuilder:
         self.project_root = project_root.resolve()
         self.engine = engine
         self.template_engine = TemplateEngine(project_root=self.project_root)
-        self.alchemist = get_alchemist()
+
+        # [THE OMEGA SUTURE]: Summon the SGF-Powered Alchemist
+        self.alchemist = get_alchemist(engine=self.engine)
 
         # [ASCENSION 6]: Materialize the Celestial Cache
         self.cache_dir = self.project_root / ".scaffold" / "cache" / "celestial"
@@ -158,7 +164,7 @@ class GnosticBuilder:
         # 2. TRIAGE INTENT SOURCE
         if request.of:
             # PATH A: SEMANTIC (component:Button)
-            SemanticRegistry.awaken()
+            CodexRegistry.awaken()
             items.extend(self._forge_semantic_items(request))
         elif request.kit:
             # PATH B: PATTERN KITS (api-bundle)
@@ -181,11 +187,17 @@ class GnosticBuilder:
                 item.path = self._purify_logical_path(item.path)
                 item.path = self._force_relative(item.path)
 
+                # [ASCENSION 21]: Isomorphic Path Translation
+                item.path = self._resolve_isomorphic_path(item.path)
+
             # [ASCENSION 11]: Entropy Sieve (Security Scan)
             self._scry_for_secrets(item)
 
             # [ASCENSION 9]: Permission Consecration
             self.consecrate_permissions(item)
+
+            # [ASCENSION 20]: Semantic Collision Prediction
+            self._predict_semantic_collision(item)
 
             refined_items.append(item)
 
@@ -203,7 +215,7 @@ class GnosticBuilder:
         =============================================================================
         == THE UNIFIED CONTENT RESOLVER (V-Ω-TOTALITY)                             ==
         =============================================================================
-        [ASCENSION 1]: Adjudicates the source of the soul with absolute priority.
+        Adjudicates the source of the soul with absolute priority.
         """
         # 1. CLI Explicit Flag (--content "...")
         if request.content is not None:
@@ -222,6 +234,7 @@ class GnosticBuilder:
             if not CLIPBOARD_AVAILABLE:
                 raise ArtisanHeresy("The 'pyperclip' shard is unmanifest. Cannot conduct Paste Rite.")
             content = pyperclip.paste()
+
             # [ASCENSION 13]: AI Markdown Fence Excision
             if "```" in content:
                 content = re.sub(r'^```\w*\n', '', content)
@@ -235,8 +248,11 @@ class GnosticBuilder:
         return None, "template_or_void"
 
     def _forge_items_from_source(self, path_str: str, request: CreateRequest) -> List[ScaffoldItem]:
-        """[THE GNOSTIC TRIAGE: ASCENDED V3000]"""
-
+        """
+        =============================================================================
+        == THE GNOSTIC TRIAGE: ASCENDED V3000 (SGF-POWERED)                        ==
+        =============================================================================
+        """
         # 1. GEOMETRIC NORMALIZATION
         path_obj = Path(path_str).resolve()
         path_obj = self._force_relative(path_obj)
@@ -248,18 +264,31 @@ class GnosticBuilder:
             if ext: path_obj = path_obj.with_suffix(ext)
 
         # 3. [THE CURE]: RESOLVE & TRANSMUTE
-        # We determine the raw content soul.
         raw_soul, origin = self._resolve_content_source(request, path_obj)
 
         if raw_soul is not None:
-            # [THE SINGULARITY FIX]: Immediate Alchemical Fission
-            # This ensures that `{{ now() }}` is resolved even in --raw mode.
+            # =========================================================================
+            # == [ASCENSION 1]: IMMEDIATE ALCHEMICAL FISSION (SGF POWER)             ==
+            # =========================================================================
+            # Even in --raw mode, we pass the content through the Sovereign Gnostic
+            # Forge. Because the SGF grants Absolute Amnesty, raw Python code won't
+            # break it, but `{{ now() }}` will still resolve flawlessly!
+
+            # [ASCENSION 15]: Substrate Heat Tomography
+            self._throttle_metabolism_if_feverish()
+
             try:
-                # Merge topology for this specific file into variables for the render
                 local_vars = {**request.variables, **self._calculate_topology(path_obj)}
-                final_soul = self.alchemist.transmute(raw_soul, local_vars)
+
+                # [ASCENSION 16]: Blueprint Ouroboros (Protect .scaffold files from evaluating themselves)
+                if path_obj.suffix in ('.scaffold', '.symphony') and getattr(request, 'raw', False):
+                    final_soul = raw_soul  # Stay the hand
+                else:
+                    # [THE STRIKE]: SGF Transmutation
+                    final_soul = self.alchemist.transmute(raw_soul, local_vars)
+
             except Exception as e:
-                Logger.warn(f"L0: Alchemical Fission failed. Preserving raw matter. Error: {e}")
+                Logger.warn(f"L0: SGF Fission failed. Preserving raw matter. Error: {e}")
                 final_soul = raw_soul
 
             if is_explicit_dir:
@@ -284,6 +313,7 @@ class GnosticBuilder:
 
             if gnosis:
                 content = gnosis.content
+
                 # [ASCENSION 3]: THE DUALITY CHECK
                 is_structural = (
                         str(gnosis.full_path).endswith(('.scaffold', '.arch')) or
@@ -293,11 +323,12 @@ class GnosticBuilder:
                 content = self._mimic_style(path_obj, content)
 
                 if is_structural:
-                    # RITE: RECURSIVE SUB-PARSE
+                    # RITE: RECURSIVE SUB-PARSE (Uses ApotheosisParser)
                     _, sub_items, _, _, _, _ = parse_structure(
                         file_path=Path(f"virtual/template/{path_obj.name}"),
                         content_override=content,
-                        pre_resolved_vars=context
+                        pre_resolved_vars=context,
+                        engine=self.engine
                     )
 
                     for sub in sub_items:
@@ -308,9 +339,11 @@ class GnosticBuilder:
                     return sub_items
 
                 else:
-                    # RITE: FLAT RENDERING
+                    # RITE: FLAT RENDERING (Uses Native SGF)
                     try:
                         rendered = self.alchemist.transmute(content, context)
+                        # [ASCENSION 22]: The Logic-Gate Filter
+                        rendered = self._apply_logic_filters(rendered, context)
                     except Exception as e:
                         Logger.warn(f"Rendering Fracture on '{path_obj.name}': {e}")
                         rendered = content
@@ -400,11 +433,11 @@ class GnosticBuilder:
             'dot_path': '.'.join(parts).replace(target_path.suffix, ''),
             'dir_name': target_path.parent.name,
             'slug': target_path.stem.replace('_', '-').lower(),
-            'iso_now': datetime.now().isoformat()
+            'iso_now': datetime.now(timezone.utc).isoformat()
         }
 
     def _cast_variables(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """[ASCENSION 10]: Type Alchemist."""
+        """[ASCENSION 10]: Metabolic Type-Casting."""
         new_ctx = {}
         for k, v in context.items():
             if not isinstance(v, str):
@@ -462,20 +495,62 @@ class GnosticBuilder:
                 Logger.warn(f"Security Alert: High-entropy secret perceived in '{item.path}'.")
 
     def consecrate_permissions(self, item: ScaffoldItem):
-        """[ASCENSION 9]: Permission Consecration."""
+        """[ASCENSION 9 & 12]: Permission Consecration."""
         if item.is_dir or not item.content: return
         if item.content.startswith("#!"):
             item.permissions = "755"
 
-    def _inject_environmental_gnosis(self, request: CreateRequest):
-        """[ASCENSION 7]: DNA Grafting."""
-        detected = prophesy_initial_gnosis(self.project_root)
-        for k, v in detected.items():
-            if k not in request.variables: request.variables[k] = v
+    def _throttle_metabolism_if_feverish(self):
+        """[ASCENSION 15]: Substrate Heat Tomography."""
+        try:
+            import psutil
+            if psutil.cpu_percent(interval=None) > 90.0:
+                time.sleep(0.05)  # Yield
+        except ImportError:
+            pass
 
-        request.variables.setdefault('author', os.getenv('USER', 'architect'))
-        request.variables.setdefault('project_name', self.project_root.name)
-        request.variables.setdefault('year', str(datetime.now().year))
+    def _resolve_isomorphic_path(self, path: Path) -> Path:
+        """[ASCENSION 21]: Isomorphic Path Translation."""
+        p_str = str(path)
+        if p_str.startswith('~/'):
+            return Path.home() / p_str[2:]
+        if '%APPDATA%' in p_str and os.name == 'nt':
+            return Path(p_str.replace('%APPDATA%', os.environ.get('APPDATA', '')))
+        return path
+
+    def _predict_semantic_collision(self, item: ScaffoldItem):
+        """[ASCENSION 20]: Semantic Collision Prediction."""
+        if not item.path or not item.path.exists(): return
+        if self.engine and hasattr(self.engine, 'cortex'):
+            try:
+                # Ask Cortex if modifying this file shatters dependents
+                dependents = self.engine.cortex.get_dependents(str(item.path))
+                if dependents:
+                    Logger.warn(
+                        f"Architectural Warning: Overwriting '{item.path}' impacts {len(dependents)} dependent shards.")
+            except Exception:
+                pass
+
+    def _apply_logic_filters(self, content: str, context: Dict[str, Any]) -> str:
+        """[ASCENSION 22]: The Logic-Gate Filter."""
+        # Syntactic sugar to remove lines starting with `@filter(condition)`
+        if '@filter' not in content: return content
+
+        lines = []
+        for line in content.splitlines():
+            match = re.match(r'^\s*@filter\((.*?)\)\s*(.*)', line)
+            if match:
+                condition, rest = match.groups()
+                try:
+                    # SGF-powered boolean resolution
+                    res = self.alchemist.transmute(f"{{{{ {condition} }}}}", context)
+                    if str(res).lower() in ('true', 'yes', '1'):
+                        lines.append(rest)
+                except Exception:
+                    pass
+            else:
+                lines.append(line)
+        return '\n'.join(lines)
 
     # =========================================================================
     # == THE RITE OF TEACHING (LAZARUS)                                      ==
@@ -522,11 +597,12 @@ class GnosticBuilder:
     def _forge_semantic_items(self, request: CreateRequest) -> List[ScaffoldItem]:
         items = []
         for directive in request.of:
-            resolved_content = resolve_semantic_directive(directive, request.variables)
+            resolved_content = resolve_codex_directive(directive, request.variables)
             _, sub_items, _, _, _, _ = parse_structure(
                 file_path=Path(f"semantic/{directive.replace(':', '_')}.scaffold"),
                 content_override=resolved_content,
-                pre_resolved_vars=request.variables
+                pre_resolved_vars=request.variables,
+                engine=self.engine  # Pass the soul forward
             )
             items.extend(sub_items)
         return items

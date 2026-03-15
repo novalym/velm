@@ -1,4 +1,4 @@
-# scaffold/core/simulation/conductor/gnostic_comparator.py
+# velm/core/simulation/conductor/gnostic_comparator.py
 
 import difflib
 import json

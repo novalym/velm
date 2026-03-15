@@ -1,4 +1,4 @@
-# scaffold/core/cli/grimoire/_utility_rites.py
+# velm/core/cli/grimoire/_utility_rites.py
 """Rites of the Instrumentarium: Tooling, settings, and alchemical utilities."""
 from ..cli_utils import add_common_flags, add_variable_flags
 import argparse
@@ -26,6 +26,16 @@ RITES = {
         "help": "The Artisan of the Forge. Manage your private boilerplate library.",
         "flags": [add_common_flags],
         "args": [("template_command", {"help": "The forge management rite (list, add, edit, pull)."})],
+    },
+    "codex": {
+            "module_path": "artisans.codex_oracle.artisan",
+            "artisan_class_name": "CodexOracleArtisan",
+            "request_class_name": "CodexOracleRequest",
+            "help": "The Codex Oracle. Radiates the JSON Schema of all available Domains for Visual UIs.",
+            "flags":[
+                add_common_flags,
+                lambda p: p.add_argument('--json', dest='json_mode', action='store_true', default=True, help='Output pure JSON schema.')
+            ]
     },
     "alias": {
         "module_path": "artisans.alias.artisan",

@@ -60,7 +60,7 @@ class GnosticStreamInterceptor(io.StringIO):
         self.console = console
         self.is_wasm = is_wasm
         self._buffer = io.StringIO()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def write(self, s: str) -> int:
         if not s: return 0

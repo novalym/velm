@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/sentinel_watcher.py
+# Path: velm/core/kernel/sentinel_watcher.py
 # ----------------------------------------------
 
 
@@ -89,7 +89,7 @@ class SafetyCapacitor:
     def __init__(self, max_ops_per_minute: int = 50):
         self.max_ops = max_ops_per_minute
         self.history = deque()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def can_act(self) -> bool:
         with self._lock:
@@ -135,10 +135,10 @@ class GnosticEventDistiller(threading.Thread):
         self.gardener = SentinelGardener(self.root, self.cortex)
         # [ASCENSION 13]: Initializing the Internal Mentor
         # We forge a dedicated engine instance for background jurisprudence.
-        from ..runtime.engine import ScaffoldEngine
+        from ..runtime.engine import VelmEngine
         from ...artisans.lint.artisan import LintArtisan
 
-        self.internal_engine = ScaffoldEngine(project_root=self.root, silent=True)
+        self.internal_engine = VelmEngine(project_root=self.root, silent=True)
         self.mentor = LintArtisan(self.internal_engine)
 
         # Track paths affected in the current batch

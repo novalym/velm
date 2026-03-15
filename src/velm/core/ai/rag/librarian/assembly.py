@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/librarian/assembly.py
+# Path: velm/core/ai/rag/librarian/assembly.py
 # ------------------------------------------------
 
 from typing import List, Dict

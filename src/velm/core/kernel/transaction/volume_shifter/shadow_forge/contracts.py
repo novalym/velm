@@ -18,7 +18,7 @@ class ForgeMetrics:
     """
 
     def __init__(self):
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._hardlinks: int = 0
         self._copies: int = 0
         self._dirs: int = 0

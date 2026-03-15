@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/chronicle/archivist.py
+# Path: velm/core/kernel/chronicle/archivist.py
 import json
 import shutil
 from pathlib import Path

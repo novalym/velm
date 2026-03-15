@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/archivist/contracts.py
+# Path: velm/core/kernel/archivist/contracts.py
 # -------------------------------------------------
 
 from dataclasses import dataclass, field

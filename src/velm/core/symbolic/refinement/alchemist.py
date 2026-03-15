@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/refinement/alchemist.py
+# Path: src/velm/core/symbolic/refinement/alchemist.py
 # --------------------------------------------------------
 # LIF: ∞ | ROLE: LINGUISTIC_TRANSFIGURATOR | RANK: LEGENDARY
 # AUTH: Ω_ALCHEMIST_TOTALITY_V100

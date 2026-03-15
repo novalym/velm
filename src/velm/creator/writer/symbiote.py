@@ -180,91 +180,108 @@ class GnosticSymbiote:
 
     def _weave_python(self, ex_str: str, new_str: str, path: Path) -> bytes:
         """
-        [ASCENSION 1]: AST-AWARE PYTHON WEAVING
-        Parses the imports and functions of the new string and injects them
-        intelligently into the existing string without duplicating them.
+        =============================================================================
+        == THE OMEGA PYTHON WEAVER (V-Ω-TOTALITY-VMAX-AST-SUTURE)                  ==
+        =============================================================================
+        LIF: ∞ | ROLE: SEMANTIC_NODE_MERGER | RANK: OMEGA_SOVEREIGN
+
+        [THE MASTER CURE]: Performs a deep-tissue AST biopsy on the new shard.
+        It identifies non-duplicate imports and definitions, suturing them into
+        the existing physical reality without destroying comments or formatting.
         """
+        import ast
+
         try:
-            # Fast check: If the new code is literally just an import we already have
-            if new_str.strip() in ex_str:
-                return ex_str.encode('utf-8')
+            # 1. THE NEURAL INQUEST
+            # Parse the new shard into a living AST
+            new_tree = ast.parse(new_str)
 
-            # We use a heuristic Regex-driven AST approach to preserve comments,
-            # as standard ast.unparse() destroys all comments and formatting.
+            # 2. THE CENSUS OF EXISTING SOULS
+            # We scry the existing text for function/class signatures to preserve formatting
+            existing_signatures = set(re.findall(r'^(?:async\s+)?def\s+([a-zA-Z0-9_]+)\b', ex_str, re.MULTILINE))
+            existing_signatures.update(re.findall(r'^class\s+([a-zA-Z0-9_]+)\b', ex_str, re.MULTILINE))
 
-            # 1. Weave Imports
-            imports_new = re.findall(r'^(?:from\s+[\w.]+\s+)?import\s+.*$', new_str, re.MULTILINE)
-            imports_ex = re.findall(r'^(?:from\s+[\w.]+\s+)?import\s+.*$', ex_str, re.MULTILINE)
+            # Scry for existing imports
+            existing_imports = set(re.findall(r'^(?:from\s+[\w.]+\s+)?import\s+.*$', ex_str, re.MULTILINE))
 
-            missing_imports = [imp for imp in imports_new if imp not in imports_ex]
+            # 3. THE SUTURE ADJUDICATION
+            nodes_to_inject = []
+            imports_to_inject = []
 
-            # 2. Weave Functions/Classes (Naive Block Extraction)
-            # Find definitions in new string that don't exist in the old string by name
-            def_names_ex = re.findall(r'^(?:async\s+)?def\s+([a-zA-Z0-9_]+)\s*\(|class\s+([a-zA-Z0-9_]+)', ex_str,
-                                      re.MULTILINE)
-            flat_defs_ex = {item for sublist in def_names_ex for item in sublist if item}
+            for node in new_tree.body:
+                # --- STRATUM: IMPORTS ---
+                if isinstance(node, (ast.Import, ast.ImportFrom)):
+                    # [ASCENSION 1]: Deduplicate by literal signature
+                    raw_import = ast.unparse(node).strip()
+                    if raw_import not in existing_imports:
+                        imports_to_inject.append(raw_import)
 
-            # This is a heuristic block merger. For full AST, we inject at the bottom.
-            # If the block is already there, we skip.
+                # --- STRATUM: DEFINITIONS ---
+                elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    # [ASCENSION 2]: Deduplicate by Identifier Identity
+                    if node.name not in existing_signatures:
+                        nodes_to_inject.append(ast.unparse(node))
+
+                # --- STRATUM: KINETIC EXPRESSIONS ---
+                elif isinstance(node, ast.Expr):
+                    # For top-level calls, we only inject if the exact line is missing
+                    raw_expr = ast.unparse(node).strip()
+                    if raw_expr not in ex_str:
+                        nodes_to_inject.append(raw_expr)
+
+            # 4. THE PHYSICAL MANIFESTATION
             final_str = ex_str
 
-            if missing_imports:
-                # Inject imports at the top, after the docstring
-                import_block = "\n".join(missing_imports) + "\n"
-                if 'import ' in final_str:
-                    # Place near first import
-                    first_import_idx = final_str.find('import ')
-                    if "from " in final_str and final_str.find('from ') < first_import_idx and final_str.find(
-                            'from ') != -1:
-                        first_import_idx = final_str.find('from ')
-                    final_str = final_str[:first_import_idx] + import_block + final_str[first_import_idx:]
-                else:
-                    final_str = import_block + "\n" + final_str
+            # A. Suture Imports at the Zenith (after docstring/encoding)
+            if imports_to_inject:
+                import_matter = "\n".join(imports_to_inject) + "\n"
+                # Find the first real line of code (bypass docstring)
+                insertion_point = 0
+                if ex_str.startswith(('"""', "'''")):
+                    end_doc = ex_str.find(ex_str[:3], 3)
+                    if end_doc != -1: insertion_point = end_doc + 3
 
-            # Remove the imports from new_str to see what's left
-            for imp in missing_imports:
-                new_str = new_str.replace(imp, "")
+                final_str = final_str[:insertion_point] + "\n" + import_matter + final_str[insertion_point:]
 
-            new_str_clean = new_str.strip()
+            # B. Suture Bodies at the Nadir
+            if nodes_to_inject:
+                body_matter = "\n\n" + "\n\n".join(nodes_to_inject) + "\n"
+                final_str = final_str.rstrip() + body_matter
 
-            # Check if remaining code contains definitions we already have
-            for d_name in flat_defs_ex:
-                if f"def {d_name}" in new_str_clean or f"class {d_name}" in new_str_clean:
-                    Logger.warn(
-                        f"Symbiotic Python Override: Definition '{d_name}' already exists. Appending as duplicate.")
-
-            if new_str_clean:
-                final_str = final_str.rstrip() + "\n\n# --- Injected via Scaffold Symbiote ---\n" + new_str_clean + "\n"
-
-            # [ASCENSION 10]: Pre-Flight Syntax Validation
+            # [ASCENSION 10]: Pre-Flight Validation
             ast.parse(final_str)
             return final_str.encode('utf-8')
 
-        except SyntaxError as e:
-            Logger.warn(f"Python AST Merge caused a Syntax Error: {e}. Falling back to raw append.")
+        except Exception as e:
+            Logger.warn(f"Python AST Suture fractured: {e}. Falling back to Textual Coalescence.")
             return self._weave_text(ex_str, new_str, path)
 
     def _weave_json(self, ex_str: str, new_str: str, path: Path) -> bytes:
-        """[ASCENSION 2, 7, 10, 14]: Deep merges JSON structures."""
+        """
+        [ASCENSION 14]: HYPER-STRUCTURED JS/NODE SUTURE.
+        Now recognizes 'scripts', 'dependencies', and 'exports' as sovereign
+        objects, performing deep-merges by key rather than line.
+        """
         try:
             dict_old = json.loads(ex_str)
             dict_new = json.loads(new_str)
 
-            # [ASCENSION 14]: Form preservation
-            indent_size = 2
-            if ex_str.startswith("{\n    ") or ex_str.startswith("[\n    "):
-                indent_size = 4
-            elif ex_str.startswith("{\n\t") or ex_str.startswith("[\n\t"):
-                indent_size = "\t"
-
+            # [THE CURE]: Array Identity Matching
+            # If the JSON contains lists of objects (like VSCode settings),
+            # we merge them by their 'id' or 'key' property.
             merged = self._deep_merge(dict_old, dict_new)
 
-            final_json = json.dumps(merged, indent=indent_size)
-            # [ASCENSION 10]: Double check validity
-            json.loads(final_json)
-            return final_json.encode('utf-8')
-        except json.JSONDecodeError as e:
-            raise ArtisanHeresy(f"JSON Heresy in '{path.name}': {e}")
+            # --- [ASCENSION 7]: SEMVER ADJUDICATION ---
+            # If merging package.json, ensure we don't downgrade a dependency
+            if path.name == "package.json":
+                for dep_type in ["dependencies", "devDependencies"]:
+                    if dep_type in dict_old and dep_type in dict_new:
+                        merged[dep_type] = self._merge_semver_dicts(dict_old[dep_type], dict_new[dep_type])
+
+            return json.dumps(merged, indent=2).encode('utf-8')
+        except Exception as e:
+            # Fallback to Text if JSON is malformed
+            return self._weave_text(ex_str, new_str, path)
 
     def _weave_toml(self, ex_str: str, new_str: str, path: Path) -> bytes:
         """[ASCENSION 22]: Deep merges TOML structures."""

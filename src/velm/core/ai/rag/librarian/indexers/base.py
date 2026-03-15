@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/librarian/indexers/base.py
+# Path: velm/core/ai/rag/librarian/indexers/base.py
 # -----------------------------------------------------
 
 from abc import ABC, abstractmethod

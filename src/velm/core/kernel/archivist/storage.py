@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/archivist/storage.py
+# Path: velm/core/kernel/archivist/storage.py
 # -----------------------------------------------
 
 import tarfile

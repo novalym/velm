@@ -1,8 +1,6 @@
-# Path: scaffold/core/runtime/telemetry.py
-# ----------------------------------------
-# LIF: INFINITY | ROLE: SENSORY_ORCHESTRATOR | RANK: LEGENDARY
-# AUTH: Ω_TELEMETRY_TOTALITY_V700
-# =========================================================================================
+# Path: core/runtime/telemetry.py
+# -------------------------------
+
 
 import time
 import uuid
@@ -15,14 +13,15 @@ import threading
 import math
 from typing import Any, List, Optional, Dict, Union, Set, Final
 from datetime import datetime, timezone
+from pathlib import Path
 
 # --- CORE UPLINKS ---
-from ...interfaces.base import ScaffoldResult, Artifact
+from ...interfaces.base import ScaffoldResult, Artifact, ScaffoldSeverity
 from ...contracts.heresy_contracts import Heresy, HeresySeverity
 from ...logger import Scribe
 
 # =============================================================================
-# == THE REDACTION GRIMOIRE                                                  ==
+# == THE REDACTION GRIMOIRE (V-Ω-SOVEREIGN-EDITION)                          ==
 # =============================================================================
 
 # [ASCENSION 1]: THE GNOSTIC WHITELIST
@@ -32,7 +31,8 @@ GNOSTIC_WHITELIST: Final[Set[str]] = {
     "trace_id", "session_id", "event", "level", "source", "method",
     "industry", "tone", "area_code", "timezone", "shard_value", "author",
     "updated_at", "last_interaction", "created_at", "phone_number",
-    "client_novalym_id", "message_sent", "id", "path", "action", "type"
+    "client_novalym_id", "message_sent", "id", "path", "action", "type",
+    "scaffold_items", "raw_items", "post_run_commands", "edicts", "heresies"
 }
 
 # [ASCENSION 7]: SERVICE-SPECIFIC PATTERNS
@@ -48,16 +48,17 @@ SECRET_REGEX = re.compile('|'.join(SECRET_PATTERNS))
 class TelemetryScribe:
     """
     =============================================================================
-    == THE TELEMETRIC SCRIBE (V-Ω-TOTALITY-V700)                              ==
+    == THE TELEMETRIC SCRIBE (V-Ω-TOTALITY-V750-HEALED-SOVEREIGN)              ==
     =============================================================================
     LIF: ∞ | ROLE: SENSORY_ORCHESTRATOR | RANK: LEGENDARY
+    AUTH_CODE: Ω_SCRIBE_V750_OBJECT_SOVEREIGNTY_FINALIS
 
     The definitive factory for forging Result Vessels.
     It transmutes raw logic into high-fidelity, safety-checked Gnosis.
     """
 
-    _ENTROPY_CACHE: Dict[str, bool] = {}
-    _CACHE_LOCK = threading.Lock()
+    _ENTROPY_CACHE: Dict[str, float] = {}
+    _CACHE_LOCK = threading.RLock()
 
     @staticmethod
     def forge_success(
@@ -124,7 +125,7 @@ class TelemetryScribe:
         # --- 4. HAPTIC SIGNALING ---
         # [ASCENSION 5]: UI Hints based on semantic weight
         ui_hints = kwargs.pop("ui_hints", {})
-        success_tokens = ["COMPLETE", "SUCCESS", "BORN", "ETCHED", "STRUCK", "SYNCED"]
+        success_tokens = ["COMPLETE", "SUCCESS", "BORN", "ETCHED", "STRUCK", "SYNCED", "RESONANT"]
         if any(token in message.upper() for token in success_tokens):
             ui_hints.setdefault("vfx", "bloom")
             ui_hints.setdefault("confetti", True)
@@ -136,12 +137,15 @@ class TelemetryScribe:
             for art in artifacts:
                 # We use object.__setattr__ to bypass Pydantic's frozen model protection
                 normalized_path = str(art.path).replace('\\', '/')
-                object.__setattr__(art, 'metadata', {
-                    **art.metadata,
-                    "os_path": str(art.path),
-                    "posix_path": normalized_path,
-                    "uri": f"file:///{normalized_path.lstrip('/')}"
-                })
+                try:
+                    object.__setattr__(art, 'metadata', {
+                        **art.metadata,
+                        "os_path": str(art.path),
+                        "posix_path": normalized_path,
+                        "uri": f"file:///{normalized_path.lstrip('/')}"
+                    })
+                except Exception:
+                    pass
 
         # --- 6. FINAL MANIFESTATION ---
         return ScaffoldResult(
@@ -159,80 +163,73 @@ class TelemetryScribe:
     @staticmethod
     def forge_failure(
             message: str,
+            *,
             suggestion: Optional[str] = None,
             details: Optional[str] = None,
-            data: Any = None,
-            severity: Optional[HeresySeverity] = None,
+            data: Optional[Any] = None,
+            severity: Any = None,
             **kwargs
     ) -> ScaffoldResult:
         """
         =============================================================================
-        == THE OMEGA FAILURE FORGE (V-Ω-TOTALITY-V715-RECONSTRUCTED)               ==
+        == THE OMEGA FAILURE FORGE (V-Ω-TOTALITY-V715-UNBREAKABLE)                 ==
         =============================================================================
         @gnosis:title The Rite of Lamentation (Failure Materializer)
         @gnosis:summary The final, unbreakable factory for failure vessels.
-        @gnosis:LIF INFINITY
-
-        ### THE 12 ASCENSIONS OF THIS RITE:
-        1.  **Surgical Parameter Distillation (THE FIX):** Pops 'vitals', 'traceback',
-            'ui_hints', and 'error' from kwargs immediately. This annihilates the
-            "Multiple Values" TypeError collision across all timelines.
-        2.  **Metabolic Data Fusion:** Surgically merges caller-provided vitals with
-            real-time hardware load metrics, creating a unified forensic snapshot.
-        3.  **Heresy Fingerprinting:** Generates a deterministic Merkle-hash of the
-            error message to allow the HUD to group identical fractures.
-        4.  **Achronal Trace Suture:** Guaranteed binding of the distributed
-            trace_id to the failure manifest, even if the primary thread is panic-locked.
-        5.  **NoneType Sarcophagus:** Transmutes null inputs into structured
-            Gnostic "VOID" markers to prevent downstream serialization failures.
-        6.  **Recursive Redaction Gaze:** Forces all failure data through the
-            Entropy Sieve to ensure no secrets leak during emergency state-dumps.
-        7.  **Haptic Distress Signaling:** Injects 'vfx: shake_red' and high-priority
-            tints into the result to alert the Ocular HUD.
-        8.  **Contextual Anatomy Capture:** Inscribes the active thread name and
-            PID into the Heresy metadata for deep-system forensics.
-        9.  **Socratic Advice Inheritance:** Preserves and prioritizes the
-            Architect's explicit suggestions for system redemption.
-        10. **Isomorphic Date Anchoring:** Enforces UTC ISO-8601 parity for all
-            failure timestamps, ensuring relational integrity in the Chronicle.
-        11. **Identity Provenance:** Captures the GNOSTIC_ACTIVE_ARTISAN env var
-            to attribute the fracture to the specific logical stratum.
-        12. **The Finality Vow:** A mathematical guarantee that the Engine will
-            always speak its pain. Silence is no longer an option.
         """
-        import hashlib
-        import threading
+        import sys
+        import traceback as tb_module
+        from ...contracts.heresy_contracts import Heresy, HeresySeverity
 
-        # --- 1. THE CURE: SURGICAL PARAMETER DISTILLATION ---
-        # We extract potentially colliding keywords from the stream.
-        # This prevents the "Multiple Values" TypeError in the ScaffoldResult constructor.
+
+        # --- 1. SURGICAL PARAMETER DISTILLATION ---
+        sieve = ["suggestion", "details", "data", "severity", "message", "success", "trace_id", "timestamp"]
+        for key in sieve:
+            kwargs.pop(key, None)
+
         provided_vitals = kwargs.pop("vitals", {})
         provided_traceback = kwargs.pop("traceback", None)
         provided_ui_hints = kwargs.pop("ui_hints", {})
         provided_error = kwargs.pop("error", None)
 
-        # --- 2. HERESY FINGERPRINTING & CONSTRUCTION ---
-        final_severity = severity or HeresySeverity.CRITICAL
-        fingerprint_raw = f"{message}:{details or ''}:{final_severity.value}"
-        heresy_id = hashlib.md5(fingerprint_raw.encode()).hexdigest()[:8]
+        # --- 2. THE SEVERITY ALCHEMIST ---
+        raw_severity = severity or kwargs.pop("scaffold_severity", None)
+        final_severity: ScaffoldSeverity = ScaffoldSeverity.ERROR
 
-        heresy = Heresy(
-            message=message,
-            line_num=0,
-            line_content=f"Stratum-0::{os.environ.get('GNOSTIC_ACTIVE_ARTISAN', 'Runtime')}",
-            severity=final_severity,
-            suggestion=suggestion or "Consult the Gnostic Documentation for this Rite.",
-            details=details,
-            code=f"FRACTURE_{heresy_id.upper()}",
-            metadata={
-                "thread": threading.current_thread().name,
-                "pid": os.getpid(),
-                "trace_id": os.environ.get("GNOSTIC_REQUEST_ID", "local")
-            }
-        )
+        if raw_severity is not None:
+            val_str = str(raw_severity).upper()
+            if "CRITICAL" in val_str or "FATAL" in val_str:
+                final_severity = ScaffoldSeverity.CRITICAL
+            elif "WARN" in val_str:
+                final_severity = ScaffoldSeverity.WARNING
+            elif "INFO" in val_str:
+                final_severity = ScaffoldSeverity.INFO
+            elif "HINT" in val_str:
+                final_severity = ScaffoldSeverity.HINT
 
-        # --- 3. METABOLIC FUSION ---
-        # We merge system-level telemetry with caller metrics.
+        # --- 3. AUTOMATIC HERESY INCEPTION ---
+        heresies = kwargs.pop('heresies', [])
+        heresy_id = hashlib.md5(f"{message}:{details or ''}:{final_severity.value}".encode()).hexdigest()[:8]
+
+        if not heresies:
+            h_severity = HeresySeverity.CRITICAL if final_severity == ScaffoldSeverity.CRITICAL else HeresySeverity.WARNING
+            heresies = [Heresy(
+                message=message or "PHANTOM_PARADOX_HERESY",
+                details=details or "Forensic evidence unmanifested.",
+                severity=h_severity,
+                suggestion=suggestion or "Consult the Gnostic Grimoire (velm help).",
+                file_path=kwargs.get("path") or kwargs.get("file_path"),
+                code=f"FRACTURE_{heresy_id.upper()}",
+                line_num=0,
+                line_content=f"Stratum-0::{os.environ.get('GNOSTIC_ACTIVE_ARTISAN', 'Runtime')}",
+                metadata={
+                    "thread": threading.current_thread().name,
+                    "pid": os.getpid(),
+                    "trace_id": os.environ.get("GNOSTIC_REQUEST_ID", "local")
+                }
+            )]
+
+        # --- 4. METABOLIC FUSION & HAPTICS ---
         system_load = TelemetryScribe.capture_system_load()
         merged_vitals = {
             **system_load,
@@ -240,11 +237,10 @@ class TelemetryScribe:
             **(provided_vitals if isinstance(provided_vitals, dict) else {})
         }
 
-        # --- 4. HAPTIC & LINGUISTIC PURIFICATION ---
         ui_hints = {
-            "vfx": "shake_red" if final_severity == HeresySeverity.CRITICAL else "glow_amber",
+            "vfx": "shake_red" if final_severity == ScaffoldSeverity.CRITICAL else "glow_amber",
             "sound": "fracture_alert",
-            "priority": final_severity.value,
+            "priority": final_severity.name if hasattr(final_severity, 'name') else str(final_severity),
             **provided_ui_hints
         }
 
@@ -252,19 +248,22 @@ class TelemetryScribe:
         clean_data = TelemetryScribe._scrub_payload(data)
 
         # --- 5. FINAL MANIFESTATION ---
-        # We construct the result with absolute precision, avoiding the **kwargs trap.
         return ScaffoldResult(
             success=False,
-            message=message,
+            message=message or "KINETIC_SILENCE_HERESY",
+            severity=final_severity,
             suggestion=suggestion,
-            heresies=[heresy],
+            details=details,
             data=clean_data,
             error=provided_error or details or message,
+            heresies=heresies,
             ui_hints=ui_hints,
             vitals=merged_vitals,
             traceback=provided_traceback,
             source=os.environ.get("GNOSTIC_ACTIVE_ARTISAN", "Kernel"),
-            **kwargs  # Pass any remaining non-colliding meta
+            trace_id=kwargs.pop("trace_id", f"tr-fail-{uuid.uuid4().hex[:4]}"),
+            timestamp=time.time(),
+            **kwargs
         )
 
     # =========================================================================
@@ -274,80 +273,105 @@ class TelemetryScribe:
     @staticmethod
     def _scrub_payload(data: Any, depth: int = 0) -> Any:
         """
-        [ASCENSION 2 & 4]: SEMANTIC ENTROPY ADJUDICATION
-        Performs high-fidelity, recursive scrubbing with architectural awareness.
+        =============================================================================
+        == THE OMEGA ENTROPY SIEVE (V-Ω-TOTALITY-V750-OBJECT-SOVEREIGNTY)          ==
+        =============================================================================[THE MASTER CURE]: This function is now mathematically warded against the
+        destruction of Living Matter. It will NEVER convert a Pydantic Object into
+        a dictionary. Objects pass through the veil intact, preserving their souls
+        and annihilating the KINETIC DISCONNECT anomaly.
         """
         if data is None: return None
         if depth > 10: return "[MAX_DEPTH_REACHED]"  # Circular guard
 
         try:
-            # --- CASE: STRING (VALUATION) ---
+            # --- CASE I: THE OBJECT SOVEREIGNTY WARD (THE FIX) ---
+            # If the data is a Pydantic Model or a complex internal object, it is Sacred Matter.
+            # We explicitly bypass redaction to protect internal structures like
+            # ScaffoldItem from having their paths corrupted by entropy checks.
+            # We check for telltale signs of Pydantic V1/V2 and internal dataclasses.
+            if (hasattr(data, "model_fields") or
+                    hasattr(data, "__pydantic_fields__") or
+                    hasattr(data, "model_config") or
+                    hasattr(data, "action_taken") or
+                    isinstance(data, Path)):
+                return data
+
+            # --- CASE II: STRING (VALUATION) ---
             if isinstance(data, str):
                 return TelemetryScribe._adjudicate_string_safety(data)
 
-            # --- CASE: DICTIONARY (THE HUB) ---
+            # --- CASE III: DICTIONARY (THE HUB) ---
             if isinstance(data, dict):
                 clean_dict = {}
                 for k, v in data.items():
                     key_str = str(k).lower()
 
-                    # [ASCENSION 1]: THE WHITELIST BYPASS
-                    # If the key is an architectural bone, we protect it.
+                    # 1. The Whitelist Bypass
                     if key_str in GNOSTIC_WHITELIST:
                         clean_dict[k] = TelemetryScribe._scrub_payload(v, depth + 1)
                         continue
 
-                    # [ASCENSION 4]: KEY-VALUE BIFURCATION
-                    # We check if the key implies a secret (e.g. "password", "api_key")
+                    # 2. Key-Value Bifurcation (Explicit Secret Markers)
                     if TelemetryScribe._is_suspicious_key(key_str):
-                        # For suspicious keys, we ALWAYS redact the VALUE
                         clean_dict[k] = "[REDACTED_SENSITIVE_MATTER]"
                     else:
-                        # Otherwise, recursively scrub the value
                         clean_dict[k] = TelemetryScribe._scrub_payload(v, depth + 1)
                 return clean_dict
 
-            # --- CASE: LIST ---
+            # --- CASE IV: LIST ---
             if isinstance(data, list):
                 return [TelemetryScribe._scrub_payload(i, depth + 1) for i in data]
 
-            # --- CASE: COMPLEX OBJECT (PYDANTIC) ---
-            if hasattr(data, "model_dump"):
-                return TelemetryScribe._scrub_payload(data.model_dump(mode='json'), depth + 1)
-
+            # Fallback for integers, booleans, and unaffected primitives
             return data
-        except Exception:
-            return "[SCRIBE_FRACTURE]"
+
+        except Exception as paradox:
+            return f"[SCRIBE_FRACTURE: {str(paradox)}]"
 
     @staticmethod
     def _is_suspicious_key(key: str) -> bool:
         """Determines if a key name implies high-entropy secrets."""
-        # We look for specific secret markers that ARE NOT in the whitelist.
         secret_markers = {'password', 'secret', 'private', 'token', 'api_key', 'credential', 'auth_token'}
-        # Clean the key of underscores/dashes for better matching
         normalized = key.replace('_', '').replace('-', '')
         return any(marker in normalized for marker in secret_markers)
 
     @staticmethod
     def _adjudicate_string_safety(value: str) -> str:
         """
-        [ASCENSION 2]: SHANNON ENTROPY CHECK
-        Decides if a string should be redacted based on its information density.
+        =============================================================================
+        == THE GAZE OF SHANNON (V-Ω-TOTALITY-V750-PATH-AMNESTY)                    ==
+        =============================================================================
+        Decides if a string should be redacted based on its information density.[THE CURE]: Implements the 'Path Amnesty Ward'. Geometric coordinates
+        often lack spaces and trigger high entropy. They are now explicitly protected.
         """
-        if not value or len(value) < 8: return value
+        if not value or len(value) < 12:
+            return value  # Secrets are structurally longer than 11 characters
 
         # 1. Hard Pattern Match (Stripe/JWT/etc)
         if SECRET_REGEX.search(value):
             return "[REDACTED_CREDENTIAL]"
 
-        # 2. Entropy Calculation
-        # Human language (English) has an entropy of ~1.0 to 2.5 per char.
-        # Random keys/hashes have an entropy of ~3.5 to 5.0.
+        # 2. THE PATH AMNESTY WARD (THE FIX)
+        # We grant absolute immunity to strings that resonate as filenames or URIs.
+        if '/' in value or '\\' in value:
+            return value
+
+        lower_val = value.lower()
+        amnesty_suffixes = (
+            '.py', '.json', '.yml', '.yaml', '.ts', '.tsx', '.md',
+            '.scaffold', '.lock', '.env', '.html', '.css', '.js', '.sh', '.rs', '.go',
+            '.png', '.jpg', '.jpeg', '.svg', '.toml', '.xml', '.txt', '.csv', '.lock',
+            '.gitignore', '.dockerignore'
+        )
+        if lower_val.endswith(amnesty_suffixes):
+            return value
+
+        # 3. Entropy Calculation
         entropy = TelemetryScribe._calculate_entropy(value)
 
-        # [ASCENSION 8]: Environment-aware sensitivity
         is_dev = os.environ.get("SCAFFOLD_ENV") == "development"
-        threshold = 4.2 if is_dev else 3.8
+        # We raise the threshold slightly in DEV to reduce false positives
+        threshold = 4.3 if is_dev else 3.9
 
         if entropy > threshold and not any(char == ' ' for char in value):
             return f"[REDACTED_HIGH_ENTROPY_MATTER]"
@@ -356,12 +380,12 @@ class TelemetryScribe:
 
     @staticmethod
     def _calculate_entropy(text: str) -> float:
-        """Calculates the Shannon entropy of a string."""
+        """Calculates the Shannon entropy of a string with thread-safe O(1) caching."""
         if not text: return 0.0
 
-        # [ASCENSION 5]: MEMOIZED ENTROPY
-        if text in TelemetryScribe._ENTROPY_CACHE:
-            return TelemetryScribe._ENTROPY_CACHE[text]
+        with TelemetryScribe._CACHE_LOCK:
+            if text in TelemetryScribe._ENTROPY_CACHE:
+                return TelemetryScribe._ENTROPY_CACHE[text]
 
         prob = [float(text.count(c)) / len(text) for c in dict.fromkeys(list(text))]
         entropy = - sum([p * math.log(p) / math.log(2.0) for p in prob])
@@ -380,11 +404,8 @@ class TelemetryScribe:
         == THE METABOLIC SAMPLING RITE (V-Ω-TOTALITY-V20000.11-GHOST-PROOF)        ==
         =============================================================================
         LIF: ∞ | ROLE: SYSTEM_VITALITY_SCRIER | RANK: OMEGA_SOVEREIGN
-        AUTH: Ω_TELEMETRY_V20000_SINK_WARD_2026_FINALIS
 
-        [ARCHITECTURAL MANIFESTO]
-        This rite is the final defense against the 'UniversalSink' serialization heresy.
-        It enforces strict type-coercion at the source, ensuring that no complex
+        Enforces strict type-coercion at the source, ensuring that no complex
         Python souls ever contaminate the JSON-RPC stream to the Ocular Membrane.
         """
         import time
@@ -392,24 +413,15 @@ class TelemetryScribe:
         import sys
         import gc
         import platform
-        from datetime import datetime, timezone
 
-        # [ASCENSION 1]: THE METABOLIC SIEVE (GHOST BUSTER)
-        # A surgical local function to incinerate ghosts and ensure primitive purity.
         def _coerce(val: Any, default: float = 0.0) -> float:
             try:
                 # [THE FIX]: AGGRESSIVE GHOST DETECTION
-                # The UniversalSink might mock __float__, but Pydantic inspects the type first.
-                # We check the type name explicitly.
                 val_type = type(val).__name__
                 if "UniversalSink" in val_type or "Mock" in val_type:
                     return default
-
-                # If it's a primitive, use it.
                 if isinstance(val, (int, float)):
                     return float(val)
-
-                # Fallback to float conversion
                 return float(val)
             except (TypeError, ValueError, AttributeError):
                 return default
@@ -420,83 +432,53 @@ class TelemetryScribe:
             "load": [0.0, 0.0, 0.0],
             "ts": time.time(),
             "substrate": "VOID",
-            "aura": "#64748b"  # Default Slate (Cold)
+            "aura": "#64748b"
         }
 
         try:
-            # --- MOVEMENT I: SENSORY ADJUDICATION ---
-            # [ASCENSION 2]: SUBSTRATE-AWARE TRIAGE
             try:
-                # [THE HIGH PATH]: IRON CORE (NATIVE)
                 import psutil
                 process = psutil.Process()
-
-                # [ASCENSION 3]: ATOMIC SENSING
-                # We force instant coercion to prevent UniversalSink leakage.
                 vitals["cpu"] = _coerce(psutil.cpu_percent(interval=None))
-
-                # RSS memory is a pure integer, safe for the sieve.
                 vitals["ram"] = round(_coerce(process.memory_info().rss) / 1024 / 1024, 2)
 
-                # Load average is not manifest on Windows Iron.
                 if hasattr(os, 'getloadavg'):
                     vitals["load"] = [_coerce(x) for x in os.getloadavg()]
                 else:
                     vitals["load"] = [vitals["cpu"] / 100.0] * 3
-
                 vitals["substrate"] = "IRON"
 
             except (ImportError, AttributeError, Exception):
-                # [THE WASM PATH]: ETHEREAL PLANE (ETHER)
-                # [ASCENSION 4]: CHRONOMETRIC DRIFT TOMOGRAPHY
-                # We measure the lag of a 1ms sleep to infer CPU pressure in WASM.
+                # ETHER PLANE (WASM) - Achronal Drift Tomography
                 t0 = time.perf_counter()
                 time.sleep(0.001)
                 t1 = time.perf_counter()
                 drift_ms = (t1 - t0) * 1000
 
-                # Heuristic: 10ms drift = 90% saturation in the browser event loop.
                 vitals["cpu"] = round(min(100.0, (drift_ms / 10.0) * 95.0), 1)
-
-                # [ASCENSION 5]: HEAP OBJECT TOMOGRAPHY
-                # We scry the object count and apply the Gnostic Mass coefficient.
-                # 100k objects ~ 15MB Gnostic Mass in the WASM heap.
                 object_density = len(gc.get_objects())
                 vitals["ram"] = round(float(object_density * 0.00015), 2)
-
                 vitals["load"] = [vitals["cpu"] / 100.0] * 3
                 vitals["substrate"] = "ETHER"
 
-            # --- MOVEMENT II: HAPTIC AURA INJECTION ---
-            # [ASCENSION 6]: THERMODYNAMIC HUD FEEDBACK
-            # Map load factor to a visual color for the React Ocular membrane.
+            # Haptic Aura Injection
             load_factor = vitals["cpu"]
             if load_factor > 90.0:
-                vitals["aura"] = "#ef4444"  # Red (Panic)
+                vitals["aura"] = "#ef4444"
             elif load_factor > 75.0:
-                vitals["aura"] = "#f59e0b"  # Amber (Fever)
+                vitals["aura"] = "#f59e0b"
             elif load_factor > 15.0:
-                vitals["aura"] = "#64ffda"  # Teal (Resonant)
+                vitals["aura"] = "#64ffda"
             else:
-                vitals["aura"] = "#3b82f6"  # Blue (Zen)
+                vitals["aura"] = "#3b82f6"
 
-            # --- MOVEMENT III: METADATA GRAFTING ---
-            # [ASCENSION 7]: PROVENANCE ANCHORING
+            # Metadata Grafting
             vitals["machine"] = str(platform.node())
             vitals["node"] = str(platform.machine())
             vitals["python_v"] = sys.version.split()[0]
-
-            # [ASCENSION 8]: GARBAGE CYCLE TELEMETRY
-            # We count only the young generation to keep scrying latency low.
             vitals["gc_gen"] = gc.get_count()[0]
 
         except Exception:
-            # [ASCENSION 9]: FAULT-ISOLATED SILENCE
-            # Vital scrying must never be the cause of a Kernel Panic.
             pass
 
-        # [ASCENSION 12]: THE FINALITY VOW
-        # We return a bit-perfect, primitive-only dictionary.
         return vitals
-
-# == SCRIPTURE SEALED: THE SCRIBE IS NOW SOVEREIGN AND INTELLIGENT ==

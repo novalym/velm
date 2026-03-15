@@ -1,0 +1,102 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/metabolic-reaper-daemon
+# ==============================================================================
+# @id:           system/metabolic-reaper-daemon
+# @version:      3.0.0
+# @tier:         body
+# @summary:      Autonomic maintenance daemon that purges stagnant caches, orphaned artifacts, and Docker volumes to prevent system entropy.
+# @vibe:         [reaper, cleanup, maintenance, entropy, daemon, lustration, background]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:metabolic-reclamation, capability:entropy-warden]
+# @requires:     [capability:python-core, capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["docker>=7.0.0", "psutil>=5.9.0", "pydantic>=2.6.0"]
+#   env:         ["REAP_INTERVAL_SECONDS", "STAGNATION_THRESHOLD_DAYS"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "maintenance-daemon"
+#   priority:    900
+#   alias:       "reaper"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ reaper_interval = {{ interval | default(3600) }}
+$$ stagnation_days = {{ threshold_days | default(7) }}
+
+# --- II. THE REAPER CORE (The Mind of Purity) ---
+
+src/{{ package_name }}/core/system/
+    __init__.py :: "from .reaper import GnosticReaper\n"
+    
+    reaper.py :: """
+import os
+import time
+import shutil
+import logging
+import docker
+from pathlib import Path
+from pydantic import BaseModel
+
+Logger = logging.getLogger("System:Reaper")
+
+class GnosticReaper:
+    \"\"\"
+    =============================================================================
+    == THE METABOLIC REAPER (V-Ω-ENTROPY-RECLAIMER)                            ==
+    =============================================================================
+    LIF: ∞ | ROLE: PURITY_ENFORCER
+    
+    1.  Abyssal Scrying: Locates stagnant matter in .scaffold/cache.
+    2.  Docker Purgation: Reclaims orphaned images and volumes.
+    \"\"\"
+    def __init__(self, root: Path):
+        self.root = root
+        self.cache_dir = root / ".scaffold" / "cache"
+        self.docker_client = docker.from_env()
+
+    def scry_decay(self):
+        now = time.time()
+        max_age = {{ stagnation_days }} * 86400
+        decayed = []
+        
+        if self.cache_dir.exists():
+            for item in self.cache_dir.rglob("*"):
+                if item.is_file() and (now - item.stat().st_atime) > max_age:
+                    decayed.append(item)
+        return decayed
+
+    def conduct_lustration(self):
+        targets = self.scry_decay()
+        for path in targets:
+            try:
+                path.unlink()
+                Logger.info(f"💀 Reaped stagnant soul: {path.name}")
+            except Exception: pass
+        
+        # [ASCENSION 15]: DOCKER SUBSTRATE RECLAMATION
+        try:
+            reclaimed = self.docker_client.volumes.prune()
+            Logger.info(f"🐳 Docker: Reclaimed {reclaimed.get('SpaceReclaimed', 0)} bytes.")
+        except Exception: pass
+"""
+
+# --- III. THE CONTROL PLANE ---
+Makefile += """
+# --- MAINTENANCE RITES ---
+reap: ## execute a manual lustration of project entropy
+    @poetry run python -c "from src.{{ package_name }}.core.system.reaper import GnosticReaper; from pathlib import Path; GnosticReaper(Path('.')).conduct_lustration()"
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Metabolic Reaper Daemon[/bold cyan] is manifest."
+    proclaim: "Stagnation Threshold: [bold yellow]{{ stagnation_days }} Days[/bold yellow]"
+    
+    >> mkdir -p .scaffold/cache src/{{ package_name }}/core/system
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Technical Rot -> 0)[/]"
+    proclaim: "[bold green]✅ The Manifold is warded against Gnostic Decay.[/bold green]"

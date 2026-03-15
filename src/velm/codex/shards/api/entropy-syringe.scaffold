@@ -1,0 +1,153 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/ENTROPY-SYRINGE
+# ==============================================================================
+# @id:           api/entropy-syringe
+# @version:      3.0.0-Ω
+# @tier:         mind
+# @summary:      A Chaos Engineering Syringe for controlled fault injection. 
+#                Surgically injects latency, CPU metabolic pressure, and 
+#                stochastic fractures into the API to verify architectural 
+#                resilience, warded by HMAC-SHA256 cryptographic signatures.
+# @vibe:         [chaos-engineering, resilience, testing, entropy, security]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:chaos-injector, capability:fault-injection-service, capability:stress-test-utility]
+# @requires:     [capability:api-heart, capability:cryptographic-authority]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["SCAFFOLD_CHAOS_SECRET", "CHAOS_LOG_LEVEL"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        middleware-shield
+#   priority:    4
+#   alias:       "syringe"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ chaos_secret = "{{ secret(64, 'hex') }}"
+
+# --- II. THE SCRIPTURE OF FORM (The Chaos Mind) ---
+
+src/{{ package_name }}/middleware/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .chaos import EntropySyringeMiddleware\n"
+
+    chaos.py :: """
+import os
+import asyncio
+import random
+import time
+import hmac
+import hashlib
+import logging
+from typing import Callable, Optional, Dict, Any
+from fastapi import Request, Response, HTTPException, status
+from starlette.middleware.base import BaseHTTPMiddleware
+
+Logger = logging.getLogger("API:EntropySyringe")
+
+class EntropySyringeMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE ENTROPY SYRINGE (V-Ω-TOTALITY)                                ==
+    =============================================================================
+    LIF: ∞ | ROLE: ARCHITECTURAL_STRESS_TESTER | RANK: OMEGA_SENTINEL
+    
+    The Conductor of Chaos.
+    1.  Cryptographic Ward: Validates 'X-Chaos-Signature' via HMAC-SHA256.
+    2.  Multi-Vector Entropy: Latency, CPU Thrash, and Existential Fracture.
+    3.  Trace ID Binding: Links chaos events to the Forensic Ledger.
+    4.  Substrate Isolation: Chaos is only manifest when willed via headers.
+    \"\"\"
+    def __init__(self, app):
+        super().__init__(app)
+        # [ASCENSION 1]: Retrieve the Secret from the Gnostic Vault
+        self.secret = os.getenv("SCAFFOLD_CHAOS_SECRET", "{{ chaos_secret }}").encode()
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # --- MOVEMENT I: PERCEPTION ---
+        # We scry the header aperture for the Vow of Chaos
+        chaos_vow = request.headers.get("X-Inject-Entropy", "none")
+        
+        if chaos_vow == "none":
+            return await call_next(request)
+            
+        # --- MOVEMENT II: JURISPRUDENCE ---
+        # [ASCENSION 1]: Cryptographic Adjudication.
+        # Only those who possess the Secret may bend reality.
+        signature = request.headers.get("X-Chaos-Signature", "")
+        if not self._verify_vow_integrity(chaos_vow, signature):
+            Logger.critical(f"🛑 [CHAOS] Unauthorized injection attempt from {request.client.host}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="Profane Chaos Intent: Signature invalid."
+            )
+
+        # --- MOVEMENT III: INJECTION ---
+        # [ASCENSION 2]: THE TRINITY OF ENTROPY
+        trace_id = getattr(request.state, "trace_id", "tr-chaos")
+        Logger.warning(f"🌪️ [CHAOS] [{trace_id}] Syringe Active: Injecting {chaos_vow}")
+        
+        # Vector A: Temporal Distortion (Latency)
+        if "latency" in chaos_vow:
+            delay = random.uniform(0.5, 3.0)
+            await asyncio.sleep(delay)
+            
+        # Vector B: Metabolic Pressure (CPU Thrash)
+        if "thrash" in chaos_vow:
+            self._thrash_metabolism()
+            
+        # Vector C: Existential Fracture (500 Error)
+        if "fracture" in chaos_vow and random.random() < 0.3:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                detail="Chaos Syringe: Stochastic Substrate Fracture."
+            )
+        
+        # --- MOVEMENT IV: KINETIC FLOW ---
+        response = await call_next(request)
+        
+        # [ASCENSION 4]: Ocular HUD Feedback
+        response.headers["X-Chaos-Applied"] = chaos_vow
+        response.headers["X-Gnostic-Aura"] = "#f59e0b" # Warning Amber
+        
+        return response
+
+    def _verify_vow_integrity(self, payload: str, signature: str) -> bool:
+        \"\"\"Proves the Architect's authority via HMAC-SHA256.\"\"\"
+        expected = hmac.new(self.secret, payload.encode(), hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, signature)
+
+    def _thrash_metabolism(self):
+        \"\"\"Simulates a high-mass computational block on the current thread.\"\"\"
+        # [ASCENSION 9]: Controlled thrash (100ms)
+        end_time = time.perf_counter() + 0.1
+        while time.perf_counter() < end_time:
+            # We spin the iron to simulate heavy math/encryption
+            _ = 2**1000
+"""
+
+# --- III. THE ENVIRONMENTAL DNA ---
+.env.example += """
+
+# == CHAOS ENGINEERING STRATUM ==
+# Never expose the Chaos Secret in Production logs.
+SCAFFOLD_CHAOS_SECRET={{ chaos_secret }}
+"""
+
+# --- IV. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Entropy Syringe[/bold cyan] is manifest and armed."
+    proclaim: "Role: [bold green]MIDDLEWARE-SHIELD[/bold green]"
+    proclaim: "Secret: [dim]Enshrined in .env[/dim]"
+    
+    # [THE CURE]: No 'poetry add' needed; the Engine handles the metabolism.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Architectural Complacency -> 0)[/]"
+    proclaim: "[bold green]✅ Disaster Simulation is now a Sovereign Capability.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Syringe materialization fractured.[/bold red]"

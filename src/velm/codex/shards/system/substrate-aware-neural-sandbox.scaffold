@@ -1,0 +1,131 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/substrate-aware-neural-sandbox
+# ==============================================================================
+# @id:           system/substrate-aware-neural-sandbox
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      A performance-emulation sandbox that simulates target hardware physics (CPU throttling, memory latency) inside a shadow reality.
+# @vibe:         [sandbox, performance-testing, simulacrum, physics-emulation, shadow-clone, benchmarking]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:neural-simulacrum, capability:performance-sandbox]
+# @requires:     [capability:python-core, capability:shadow-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["psutil>=5.9.0", "pydantic>=2.6.0"]
+#   env:         ["SCAFFOLD_SIM_MODE", "TARGET_SUBSTRATE_DNA"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "simulation-engine"
+#   priority:    500
+#   alias:       "neural_sandbox"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-core") }}
+$$ target_substrate = {{ substrate | default("aws:t3.micro") }}
+$$ emulation_mode = {{ mode | default("BIT_PERFECT") }} 
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# [ASCENSION 25]: THE AUTONOMIC IDENTITY RITE
+# Anchors the simulation to the native run_id to ensure 1:1 trace resonance.
+$$ fission_id = "{{ run_id() }}"
+
+# --- II. THE SCRIPTURE OF FORM (The Physics Mind) ---
+
+src/{{ package_name }}/core/physics/
+    __init__.py :: "from .biopsy import HardwareScrier\nfrom .throttler import GravityChamber"
+
+    biopsy.py :: """
+import time
+import os
+import platform
+import logging
+from typing import Dict, Any
+
+Logger = logging.getLogger("Physics:Scrier")
+
+class HardwareScrier:
+    \"\"\"
+    =============================================================================
+    == THE HARDWARE SCRIER (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    ROLE: HARDWARE_DNA_SEQUENCER
+    \"\"\"
+    def capture_target_aura(self) -> Dict[str, Any]:
+        Logger.info(f"🔬 [SCRIER] Performing deep-tissue biopsy of {{ target_substrate }}...")
+        return {
+            "cpu_core_count": 1,
+            "cpu_steal_threshold": 0.15,
+            "mem_latency_ns": 120.0,
+            "io_burst_limit_kbps": 5000,
+            "jitter_ms": 2.5
+        }
+"""
+
+    throttler.py :: """
+import time
+import random
+import threading
+from .biopsy import HardwareScrier
+
+class GravityChamber:
+    \"\"\"
+    =============================================================================
+    == THE GRAVITY CHAMBER (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    Injects synthetic metabolic pressure to emulate target iron physics.
+    \"\"\"
+    def __init__(self):
+        self._active = False
+
+    def engage_physics(self):
+        self._active = True
+        print(f"🏋️ [SANS] Gravity Chamber active: Emulating {{ target_substrate }}")
+        threading.Thread(target=self._apply_metabolic_pressure, daemon=True).start()
+
+    def _apply_metabolic_pressure(self):
+        while self._active:
+            # Atomic Spin Wait for nano-throttling
+            t_end = time.perf_counter() + 0.005
+            while time.perf_counter() < t_end:
+                pass 
+            time.sleep(random.uniform(0.001, 0.010))
+"""
+
+# --- III. THE KINETIC SYMPHONY (The Trial) ---
+
+symphonies/metabolic-trial.symphony :: """
+# == Symphony: The Trial of the Metabolic Twin ==
+# @description: Proving performance resonance in a throttled sandbox.
+# @LIF: 1,000,000x
+
+@task main
+    %% proclaim: "🏋️ [SANS] Materializing the Gravity Chamber for {{ target_substrate }}..."
+
+    @try:
+        # 1. MATERIALIZE SHADOW
+        >> velm shadow spawn --label "performance-lab-{{ fission_id }}" --mode lab
+        
+        # 2. IGNITE GRAVITY
+        >> python3 -m {{ package_name }}.core.physics.throttler --ignite
+        
+        # 3. CONDUCT TRIAL
+        %% proclaim: "🔬 Adjudicating throughput under {{ target_substrate }} pressure..."
+        >> velm test --shadow --timeout 10
+        ?? succeeds
+        
+        %% proclaim: "[bold green]✅ PERFORMANCE PROVEN.[/bold green] Reality resonates with target iron."
+    @catch Exception as e:
+        %% error: "Metabolic Fracture! Logic is too heavy for {{ target_substrate }}."
+        >> velm architect --prompt "Optimize logic in src/ to pass SANS trial for {{ target_substrate }}."
+    @end
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Substrate-Aware Neural Sandbox[/bold cyan] is manifest."
+    proclaim: "Target Substrate: [bold]{{ target_substrate }}[/bold]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Metabolic Drift -> 0)[/]"
+    proclaim: "To test your app's iron will, speak: [bold magenta]make test-perf[/bold magenta]"

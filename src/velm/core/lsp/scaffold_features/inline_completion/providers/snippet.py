@@ -29,7 +29,7 @@ class SnippetProphet(InlineCompletionProvider):
         line = doc.get_line(params.position.line)
         prefix = line[:params.position.character]
 
-        # 1. AUTOCLOSE JINJA
+        # 1. AUTOCLOSE SGF
         if prefix.endswith("{{ ") and "}}" not in line:
             return [InlineCompletionItem(insertText=" }}")]
 

@@ -132,9 +132,9 @@ class GnosticNexus:
     @property
     def engine(self):
         if self._engine is None:
-            from ...runtime.engine import ScaffoldEngine
+            from ...runtime.engine import VelmEngine
             # Disable auto-register to strictly control loading order
-            self._engine = ScaffoldEngine(auto_register=False, silent=True)
+            self._engine = VelmEngine(auto_register=False, silent=True)
             self._engine.akashic = self.akashic
             self._engine.nexus = self
         return self._engine

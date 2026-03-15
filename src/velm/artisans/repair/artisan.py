@@ -215,9 +215,9 @@ class RepairArtisan(BaseArtisan[RepairRequest]):
                 target_idx = request.line_num - 1
                 if 0 <= target_idx < len(lines):
                     target_line = lines[target_idx]
-                    jinja_match = re.search(r'\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)', target_line)
-                    if jinja_match:
-                        found = jinja_match.group(1)
+                    sgf_match = re.search(r'\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)', target_line)
+                    if sgf_match:
+                        found = sgf_match.group(1)
                         if found not in bad_words: return found
             except:
                 pass

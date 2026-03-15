@@ -12,7 +12,7 @@ from ...persona.manager import PersonaManager
 from ....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
 
 if TYPE_CHECKING:
-    from ..engine import ScaffoldEngine
+    from ..engine import VelmEngine
 
 
 class PersonaWardenMiddleware(Middleware):
@@ -25,7 +25,7 @@ class PersonaWardenMiddleware(Middleware):
     Supports ephemeral assumption via request variables.
     """
 
-    def __init__(self, engine: Optional['ScaffoldEngine'] = None):
+    def __init__(self, engine: Optional['VelmEngine'] = None):
         """
         [THE RITE OF INCEPTION - REALIGNED]
         Now accepts the engine instance to prevent the '2 were given' heresy.

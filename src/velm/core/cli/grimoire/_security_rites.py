@@ -1,4 +1,4 @@
-# scaffold/core/cli/grimoire/_security_rites.py
+# velm/core/cli/grimoire/_security_rites.py
 """Rites of security, compliance, and celestial projection."""
 from ..cli_utils import add_common_flags, add_simulation_flags
 import argparse

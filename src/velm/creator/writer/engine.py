@@ -12,8 +12,9 @@ import mimetypes
 import stat
 import re
 import sys
+import gc
 from pathlib import Path
-from typing import Dict, Any, Union, Optional, Final
+from typing import Dict, Any, Union, Optional, Final, List
 
 from .validator import PathValidator
 from .normalizer import ContentNormalizer
@@ -31,90 +32,97 @@ Logger = Scribe("GnosticWriter")
 class GnosticWriter:
     """
     =================================================================================
-    == THE GOD-ENGINE OF INSCRIPTION (V-Ω-TOTALITY-V320000-ALIEN-FORGE-FINALIS)    ==
+    == THE GOD-ENGINE OF INSCRIPTION (V-Ω-TOTALITY-V450000-HEALER-EDITION)         ==
     =================================================================================
     LIF: ∞ | ROLE: KINETIC_TRANSMUTATOR | RANK: OMEGA_SOVEREIGN_PRIME
-    AUTH: Ω_WRITER_V320000_XATTR_CHMOD_SUTURE_2026
+    AUTH: Ω_WRITER_V45000_AUTO_IMPORT_HEALER_FINALIS_2026
 
-    This is the sovereign artisan that transmutes Gnostic Intent into Physical Reality.
-    It acts as the **Unified Facade** for the writing subsystem, orchestrating a
-    pantheon of specialist artisans with alien-like speed and precision.
+    The Sovereign Artisan that transmutes Gnostic Intent into Physical Reality.
+    This ascension includes the **Auto-Import Healer** to cure the 'Unresolved Reference'
+    heresy and the **Spatial Anchor Fix** to solve the weaving drift.
 
-    ### THE PANTHEON OF 32 LEGENDARY ASCENSIONS:
-    1.  **The Achronal Pre-Flight Lock:** Ensures the target path isn't physically
-        locked by the OS (WinError 32) before initiating the alchemical pipeline.
-    2.  **MIME-Type Inference:** Divines the exact MIME type using `mimetypes` and
-        stores it in the metadata for the Daemon's static server to consume.
-    3.  **The Shadow Revert:** If the atomic write shatters midway, the `AtomicScribe`
-        mathematically guarantees the original soul remains untainted.
-    4.  **The AST Format Enforcer (Black/Prettier):** Automatically invokes formatting
-        daemons (`black` for Python, `prettier` for TS/JS) on the final bytes.
-    5.  **Symlink Holography:** Framework laid to deduplicate identical files
-        using hardlinks in the `.scaffold/cache` for massive workspace cloning.
-    6.  **The Execution Context Suture:** Automatically forces `chmod +x` if the
-        content begins with a Shebang (`#!`), regardless of willed permissions.
-    7.  **The "Virtual Only" Ward:** Honors `SCAFFOLD_VIRTUAL_ONLY=1` to perfectly
-        simulate the entire I/O pipeline in memory without touching platters.
-    8.  **The Git LFS Oracle:** If a binary is massive (>50MB), it automatically
-        flags it for Git LFS tracking to protect the repository soul.
-    9.  **Cryptographic Sealing:** Forges SHA-256 hashes for military-grade integrity.
-    10. **The Homoglyph Exorcist:** Detects invisible zero-width characters in the
-        payload content and warns the Architect of potential visual spoofing.
-    11. **Intelligent Caching (Idempotency):** Skips processing entirely if `content`
-        and `metadata` are physically identical to a previous write.
-    12. **Lineage Stamping (Extended Attributes):** Embeds `trace_id` into the file's
-        physical OS metadata (xattr on POSIX, ADS on Windows) to track provenance.
-    13. **The Permissions Mask (Umask):** Applies the OS `umask` correctly to willed perms.
-    14. **The Immutable File Flag:** Employs `chattr +i` (POSIX) to make physical files
-        completely un-deletable by the OS if requested by the Architect.
-    15. **The Secret Excision Rite:** If `STRICT_SEC=1`, automatically purges secrets
-        from the written string instead of just warning about them.
-    16. **The File Magic Diviner:** Scries the first 4 bytes of binary content to
-        validate that the magic number matches the file extension (e.g. \x89PNG).
-    17. **The Quota Enforcer:** Validates free disk space dynamically before the write.
-    18. **The Live Reload Trigger:** Touches a `.scaffold.reload` signal file if
-        frontend configuration changes.
-    19. **Cross-Platform Path Translation:** Normalizes internal paths within content.
-    20. **The Gnostic Diff Optimizer:** Truncates massive diffs (>1000 lines) to
-        prevent memory OOMs during logging.
-    21. **The Symbiotic Coalescence:** Defers to the `GnosticSymbiote` when overwriting,
-        enabling non-destructive file merging.
-    22. **The Null-Byte Annihilator:** Cleans text files of null bytes before saving.
-    23. **The Integrity Warden:** Verifies `@hash` definitions.
-    24. **The Base64 Alchemist:** Zero-copy byte decoding for maximum RAM efficiency.
-    25. **WASM-Aware Substrate Check:** Degrades gracefully when running in Pyodide/Browser.
-    26. **Thread-Safe I/O Locks:** Uses targeted mutexes for overlapping transmutations.
-    27. **Atomic Garbage Lustration:** Explicitly deletes large string buffers from memory.
-    28. **Windows Alternate Data Stream (ADS) Support:** Writes trace data to NTFS streams.
-    29. **The Absolute Posix Standard:** Enforces forward-slashes even on native NT platforms.
-    30. **The Empty-Soul Amnesty:** Permits 0-byte file creation for lockfiles.
-    31. **Metadata Subversion Guard:** Prevents unauthorized overriding of internal timestamps.
-    32. **The Finality Vow:** A mathematical guarantee of an unbreakable `GnosticWriteResult`.
+    ### THE PANTHEON OF 35 LEGENDARY ASCENSIONS:
+    1.  **Spatial Context Injection (THE CURE):** Calculates `__current_dir__` relative
+        to the Project Root, ensuring nested `logic.weave` calls anchor correctly.
+    2.  **The Auto-Import Healer (THE FIX):** Scans generated Python code for missing
+        standard symbols (`BaseHTTPMiddleware`, `FastAPI`) and injects them automatically.
+    3.  **Windows IO Shield:** Retries atomic operations on `WinError 32` to prevent
+        chronicle locking collisions.
+    4.  **Achronal Context Pinning:** Uses `set_active_context` to bind the spatial
+        variables to the thread before invoking the Alchemist.
+    5.  **MIME-Type Inference:** Divines exact MIME types for Ocular HUD.
+    6.  **The Shadow Revert:** Atomic rollback capability via `AtomicScribe`.
+    7.  **AST Format Enforcer:** Invokes `black`/`prettier` on final bytes.
+    8.  **Symlink Holography:** Deduplicates identical files via hardlinks.
+    9.  **Execution Context Suture:** Auto-applies `chmod +x` for shebangs.
+    10. **Virtual Only Ward:** Supports RAM-only simulation mode.
+    11. **Git LFS Oracle:** Detects massive binaries for LFS tracking.
+    12. **Cryptographic Sealing:** SHA-256 Merkle integrity checks.
+    13. **Homoglyph Exorcist:** Purges zero-width characters.
+    14. **Idempotency Merkle-Gaze:** Skips writes if content hash matches.
+    15. **Lineage Stamping:** Embeds trace_id in OS metadata.
+    16. **Permission Mask:** Honors system umask.
+    17. **Immutable File Flag:** Supports `chattr +i` locking.
+    18. **Secret Excision:** Redacts high-entropy secrets in strict mode.
+    19. **File Magic Diviner:** Validates binary signatures (PNG, ZIP).
+    20. **Quota Enforcer:** Checks disk space before writing.
+    21. **Live Reload Pulse:** Touches `.reload_pulse` for UI updates.
+    22. **Cross-Platform Path Translation:** Normalizes slashes.
+    23. **Gnostic Diff Optimizer:** Truncates massive diff logs.
+    24. **Symbiotic Coalescence:** Non-destructive merging via Symbiote.
+    25. **Null-Byte Annihilator:** Cleans C-string terminators.
+    26. **Integrity Warden:** Validates `@hash` directives.
+    27. **Base64 Alchemist:** Handles `is_binary` template fields.
+    28. **WASM-Awareness:** Degrades gracefully in browser.
+    29. **Thread-Safe Mutex:** Protects concurrent I/O.
+    30. **Garbage Lustration:** Aggressive `del` for memory safety.
+    31. **ADS Support:** Writes metadata to Windows Alternate Data Streams.
+    32. **Absolute Posix Standard:** Enforces forward slashes.
+    33. **Empty-Soul Amnesty:** Allows 0-byte lockfiles.
+    34. **Metadata Guard:** Protects internal timestamps.
+    35. **The Finality Vow:** Guaranteed valid return vessel.
     =================================================================================
     """
 
-    # [ASCENSION 8]: The threshold for triggering the LFS Oracle (50MB)
     LFS_MASS_THRESHOLD: Final[int] = 50 * 1024 * 1024
-
-    # [ASCENSION 10]: The Homoglyph & Zero-Width Exorcist Map
     HOMOGLYPH_PATTERN: Final[re.Pattern] = re.compile(r'[\u200b\u200c\u200d\u2060\uFEFF]')
+
+    # [ASCENSION 2]: THE AUTO-IMPORT GRIMOIRE
+    # Maps common missing symbols to their import statements.
+    IMPORT_HEALING_MAP: Final[Dict[str, str]] = {
+        "BaseHTTPMiddleware": "from starlette.middleware.base import BaseHTTPMiddleware",
+        "FastAPI": "from fastapi import FastAPI",
+        "Depends": "from fastapi import Depends",
+        "APIRouter": "from fastapi import APIRouter",
+        "HTTPException": "from fastapi import HTTPException",
+        "Request": "from fastapi import Request",
+        "Response": "from fastapi import Response",
+        "BaseModel": "from pydantic import BaseModel",
+        "Field": "from pydantic import Field",
+        "List": "from typing import List",
+        "Dict": "from typing import Dict",
+        "Optional": "from typing import Optional",
+        "Any": "from typing import Any",
+        "Path": "from pathlib import Path",
+        "os": "import os",
+        "sys": "import sys",
+        "json": "import json",
+        "time": "import time"
+    }
 
     def __init__(self, registers):
         self.Logger = Logger
         self.regs = registers
         self.sanctum_root = Path(self.regs.sanctum.root)
 
-        # Summon the Pantheon
         self.normalizer = ContentNormalizer(is_windows=(os.name == 'nt'))
         self.atomic = AtomicScribe(self.sanctum_root)
         self.differ = DifferentialEngine()
         self.symbiote = GnosticSymbiote()
 
-        # Substrate Divination
         self.is_windows = os.name == 'nt'
         self.is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
-        # Gnostic Links
         from ...core.alchemist import get_alchemist
         self.alchemist = get_alchemist()
 
@@ -145,49 +153,32 @@ class GnosticWriter:
     ) -> GnosticWriteResult:
         """
         =================================================================================
-        == THE OMEGA INSCRIPTION RITE: TOTALITY (V-Ω-TOTALITY-V320000-FINALIS)         ==
-        =================================================================================
-        LIF: ∞ | ROLE: MATTER_MATERIALIZER | RANK: OMEGA_SOVEREIGN_PRIME
-        AUTH: Ω_WRITE_V320000_RELOAD_SUTURE_2026_FINALIS
-
-        [THE MANIFESTO]
-        The supreme implementation of the WRITE opcode. It transmutes Gnostic Intent
-        into physical or virtual Matter. It is the final barrier against structural
-        entropy and the primary source of truth for the Ocular HUD.
+        == THE OMEGA INSCRIPTION RITE (V-Ω-TOTALITY-HEALER)                            ==
         =================================================================================
         """
-        import time
-        import os
-        import shutil
-        import base64
-        import binascii
-        import hashlib
-        from pathlib import Path
-        from ...contracts.data_contracts import GnosticWriteResult, InscriptionAction
-        from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
-
         _start_ts = time.perf_counter()
         trace_id = getattr(self.regs, 'trace_id', 'tr-void')
 
         # --- MOVEMENT I: THE WARD OF FORM ---
-        # 1. Geometric Validation
         from .validator import PathValidator
         PathValidator.adjudicate(logical_path)
 
-        # 2. Coordinate Resolution
-        # [THE CURE]: Correctly resolves to Staging Area if warded by a transaction.
         target_path = self._resolve_target(logical_path)
 
-        # 3.[ASCENSION 1]: Achronal Pre-Flight Lock
+        # [ASCENSION 3]: Windows IO Shield (Pre-Check)
         if target_path.exists() and not self.is_wasm and not os.access(target_path, os.W_OK):
             if not self.regs.force:
-                raise ArtisanHeresy(
-                    f"Substrate Lock Heresy: Path '{target_path.name}' is physically warded by the OS.",
-                    severity=HeresySeverity.CRITICAL,
-                    suggestion="Check for open handles or run as a Sovereign user."
-                )
+                # Try to heal the lock before failing
+                try:
+                    os.chmod(target_path, stat.S_IWRITE)
+                except Exception:
+                    pass
+                if not os.access(target_path, os.W_OK):
+                    raise ArtisanHeresy(
+                        f"Substrate Lock Heresy: Path '{target_path.name}' is physically warded.",
+                        severity=HeresySeverity.CRITICAL
+                    )
             else:
-                # [ASCENSION 14]: Attempt to strip Immutable flag if force is applied
                 self._lift_immutable_ward(target_path)
 
         # --- MOVEMENT II: THE ALCHEMICAL TRANSMUTATION ---
@@ -197,32 +188,56 @@ class GnosticWriter:
         is_binary_flag = metadata.get('is_binary', False)
         is_binary_content = isinstance(content, bytes)
 
+        # Initialize context tracking
+        previous_context = None
+
         try:
-            # [ASCENSION 2]: Multimodal Ingestion
+            # [ASCENSION 1]: SPATIAL CONTEXT INJECTION (THE CURE)
+            local_gnosis = self.regs.gnosis.copy()
+
+            posix_logical = str(logical_path).replace('\\', '/')
+            local_gnosis["__current_file__"] = posix_logical
+
+            # Calculate the relative directory from the project root
+            # This allows logic.weave to know where it is relative to the project
+            parent_dir = str(logical_path.parent).replace('\\', '/')
+            if parent_dir == ".": parent_dir = ""
+
+            local_gnosis["__current_dir__"] = parent_dir
+            local_gnosis["__import_anchor__"] = parent_dir  # Explicit anchor for std_logic
+
+            # [ASCENSION 4]: CONTEXT PINNING
+            try:
+                from ...codex.loader.proxy import set_active_context, get_active_context
+                previous_context = get_active_context()
+                set_active_context(local_gnosis)
+            except ImportError:
+                pass
+
             if is_binary_content:
                 final_content_bytes = content
-                # [ASCENSION 8 & 16]: Magic Number Divination & LFS
                 self._divine_magic_number(final_content_bytes, logical_path)
                 self._adjudicate_lfs_ward(final_content_bytes, logical_path)
             elif is_binary_flag:
-                # [ASCENSION 24]: The Base64 Alchemist
-                transmuted_str = self.alchemist.transmute(content, self.regs.gnosis)
+                transmuted_str = self.alchemist.transmute(content, local_gnosis)
                 try:
                     final_content_bytes = base64.b64decode(transmuted_str, validate=True)
                 except binascii.Error:
                     raise ArtisanHeresy("Binary Transmutation Failed: Base64 Matter is corrupt.")
             else:
-                # Standard Textual Inception
-                str_content = self.alchemist.transmute(str(content), self.regs.gnosis)
+                safe_content = "" if content is None else str(content)
 
-                # [ASCENSION 9]: Unicode Normalization (NFC)
+                # The Divine Strike
+                str_content = self.alchemist.transmute(safe_content, local_gnosis)
+
+                # [ASCENSION 2]: THE AUTO-IMPORT HEALER (THE FIX)
+                if logical_path.suffix == '.py':
+                    str_content = self._heal_python_imports(str_content)
+
                 from unicodedata import normalize
                 str_content = normalize('NFC', str_content)
-
-                # [ASCENSION 10 & 22]: The Homoglyph & Null-Byte Exorcist
                 str_content = self.HOMOGLYPH_PATTERN.sub('', str_content).replace('\x00', '')
 
-                # [ASCENSION 3 & 15]: Shannon Entropy Veil (Security Scan & Excision)
                 from .security import SecretSentinel
                 if os.environ.get("SCAFFOLD_STRICT_SEC") == "1":
                     str_content, alerts = SecretSentinel.excise(str_content, logical_path.name)
@@ -230,24 +245,25 @@ class GnosticWriter:
                 else:
                     security_alerts = SecretSentinel.scan(str_content, logical_path.name)
 
-                # Normalize line endings and indentation
                 str_content = self.normalizer.sanctify(logical_path, str_content)
                 final_content_bytes = str_content.encode('utf-8')
 
-                # [ASCENSION 27]: Atomic Garbage Lustration
                 del str_content
 
         except Exception as alchemy_heresy:
             if isinstance(alchemy_heresy, ArtisanHeresy): raise alchemy_heresy
             raise ArtisanHeresy(f"Alchemical Paradox during materialization: {alchemy_heresy}")
 
-        # [ASCENSION 4]: THE AST FORMAT ENFORCER
-        final_content_bytes = self._enforce_ast_formatting(logical_path, final_content_bytes)
+        finally:
+            try:
+                from ...codex.loader.proxy import set_active_context
+                set_active_context(previous_context)
+            except Exception:
+                pass
 
-        # --- MOVEMENT III: THE INTEGRITY WARDEN ---
+        final_content_bytes = self._enforce_ast_formatting(logical_path, final_content_bytes)
         new_hash = hashlib.sha256(final_content_bytes).hexdigest()
 
-        # [ASCENSION 23]: SHA-Verification
         if expected_hash := metadata.get('expected_hash'):
             if new_hash != expected_hash.split(':')[-1]:
                 raise ArtisanHeresy(
@@ -256,18 +272,14 @@ class GnosticWriter:
                     severity=HeresySeverity.CRITICAL
                 )
 
-        # =========================================================================
-        # == MOVEMENT IV: THE SYMBIOTIC COALESCENCE                              ==
-        # =========================================================================
+        # --- MOVEMENT IV: THE SYMBIOTIC COALESCENCE ---
         action = InscriptionAction.CREATED
 
         if target_path.exists() and target_path.is_file():
             try:
                 old_bytes = target_path.read_bytes()
 
-                # [ASCENSION 11]: Idempotency Merkle-Gaze
                 if hashlib.sha256(old_bytes).hexdigest() == new_hash:
-                    # Permissions check
                     current_mode = oct(target_path.stat().st_mode)[-3:]
                     target_mode = oct(self._resolve_permissions(metadata.get('permissions')))[-3:]
 
@@ -276,7 +288,6 @@ class GnosticWriter:
                         return self._forge_result(logical_path, True, action, 0, new_hash, None, security_alerts,
                                                   _start_ts)
 
-                # [ASCENSION 21]: THE SYMBIOTIC SUTURE
                 mutation_op = metadata.get('mutation_op')
                 if not mutation_op and not is_binary_flag and not is_binary_content:
                     final_content_bytes = self.symbiote.merge_matter(old_bytes, final_content_bytes, logical_path)
@@ -285,58 +296,44 @@ class GnosticWriter:
                 else:
                     action = InscriptionAction.TRANSFIGURE
 
-                # [ASCENSION 20]: Gnostic Diff Optimization
                 if not is_binary_flag:
                     try:
                         old_text = old_bytes.decode('utf-8', errors='replace')
                         new_text = final_content_bytes.decode('utf-8', errors='replace')
                         diff = self.differ.compute_diff(old_text, new_text, logical_path.name)
                         if diff and len(diff.splitlines()) > 1000:
-                            diff = "\n".join(diff.splitlines()[:1000]) + "\n...[DIFF TRUNCATED TO PREVENT OOM]"
+                            diff = "\n".join(diff.splitlines()[:1000]) + "\n...[DIFF TRUNCATED]"
                     except Exception:
                         pass
-
-                # Free old memory
                 del old_bytes
-
             except Exception as weave_error:
                 self.Logger.warn(f"Symbiosis failed for '{logical_path.name}': {weave_error}")
 
         # --- MOVEMENT V: THE SIMULATION WARD ---
-        # [ASCENSION 7]: Virtual Only Substrate
         if self.regs.is_simulation or os.environ.get("SCAFFOLD_VIRTUAL_ONLY") == "1":
             dry_action = InscriptionAction.DRY_RUN_CREATED if action == InscriptionAction.CREATED else InscriptionAction.DRY_RUN_TRANSFIGURED
             return self._forge_result(logical_path, True, dry_action, len(final_content_bytes), new_hash, diff,
                                       security_alerts, _start_ts)
 
-        # =========================================================================
-        # == MOVEMENT VI: THE ATOMIC INSCRIPTION                                 ==
-        # =========================================================================
+        # --- MOVEMENT VI: THE ATOMIC INSCRIPTION ---
         try:
-            # [ASCENSION 17]: Metabolic Quota Enforcer
             if not self.is_wasm and hasattr(shutil, 'disk_usage'):
                 free_space = shutil.disk_usage(self.sanctum_root).free
-                if free_space < len(final_content_bytes) + (1024 * 1024 * 100):  # 100MB buffer
+                if free_space < len(final_content_bytes) + (1024 * 1024 * 100):
                     raise ArtisanHeresy("Metabolic Exhaustion: Platter Saturated.", severity=HeresySeverity.CRITICAL)
 
-            # [ASCENSION 6 & 13]: Permission & Shebang Adjudication
             mode = self._resolve_permissions(metadata.get('permissions'))
             if final_content_bytes.startswith(b"#!"):
-                mode |= 0o111  # Consecrate with executable will
+                mode |= 0o111
 
-            # [ASCENSION 3 & 12]: THE FINALITY VOW (ATOMIC WRITE)
+            # [ASCENSION 3]: Windows IO Shield (Retry Loop in AtomicScribe)
             bytes_written = self.atomic.inscribe(target_path, final_content_bytes, mode)
 
-            # [ASCENSION 12 & 28]: Lineage Stamping (Extended Attributes & ADS)
             self._stamp_lineage(target_path, trace_id)
 
-            # [ASCENSION 14]: Apply Immutable Lock if willed
             if metadata.get("immutable"):
                 self._apply_immutable_ward(target_path)
 
-            # =========================================================================
-            # == [ASCENSION 18]: THE OCULAR RELOAD PULSE (THE CURE)                  ==
-            # =========================================================================
             if logical_path.suffix in ('.tsx', '.jsx', '.css', '.html', '.json', '.py'):
                 try:
                     pulse_coordinate = self.sanctum_root / ".scaffold" / ".reload_pulse"
@@ -345,8 +342,8 @@ class GnosticWriter:
                 except Exception:
                     pass
 
-            if action == InscriptionAction.SYMBIOTIC_MERGE:
-                self.Logger.success(f"Symbiosis Resonant: '{logical_path.name}' integrated purely.")
+            # Force GC to release file handles immediately (WinError 32 mitigation)
+            gc.collect()
 
             return self._forge_result(logical_path, True, action, bytes_written, new_hash, diff, security_alerts,
                                       _start_ts)
@@ -356,12 +353,52 @@ class GnosticWriter:
             return self._forge_result(logical_path, False, InscriptionAction.FAILED_IO, 0, None, None,
                                       [str(physical_paradox)], _start_ts)
 
-    # =========================================================================
-    # == THE ALIEN FACULTIES (ASCENSIONS)                                    ==
-    # =========================================================================
+    def _heal_python_imports(self, content: str) -> str:
+        """
+        [ASCENSION 2]: THE AUTO-IMPORT HEALER.
+        Scans for known symbols and injects missing imports.
+        """
+        lines = content.splitlines()
+        existing_imports = set()
+
+        # 1. Harvest existing imports
+        for line in lines:
+            if line.strip().startswith(("import ", "from ")):
+                existing_imports.add(line.strip())
+
+        # 2. Scan for missing symbols
+        injected_imports = []
+        for symbol, import_stmt in self.IMPORT_HEALING_MAP.items():
+            # Heuristic: Check if symbol is used but not imported
+            # This regex checks for the symbol word boundary
+            if re.search(rf"\b{symbol}\b", content):
+                # Check if already imported (naive check)
+                is_present = False
+                for imp in existing_imports:
+                    if symbol in imp:  # Very naive, but covers "from x import Symbol" and "import Symbol"
+                        is_present = True
+                        break
+
+                if not is_present:
+                    injected_imports.append(import_stmt)
+
+        if not injected_imports:
+            return content
+
+        # 3. Inject at the top (after shebang/encoding)
+        insert_idx = 0
+        for i, line in enumerate(lines):
+            if line.startswith("#") or not line.strip():
+                insert_idx = i + 1
+            else:
+                break
+
+        for imp in reversed(injected_imports):
+            lines.insert(insert_idx, imp)
+
+        return "\n".join(lines) + "\n"
 
     def _divine_magic_number(self, data: bytes, path: Path):
-        """[ASCENSION 16]: Verifies binary integrity via Magic Numbers."""
         if len(data) < 4: return
         magic = data[:4]
         ext = path.suffix.lower()
@@ -369,20 +406,14 @@ class GnosticWriter:
             self.Logger.warn(f"Magic Number Mismatch: '{path.name}' claims to be PNG but lacks signature.")
         elif ext == '.zip' and magic[:2] != b'PK':
             self.Logger.warn(f"Magic Number Mismatch: '{path.name}' claims to be ZIP but lacks signature.")
-        elif ext == '.pdf' and magic != b'%PDF':
-            self.Logger.warn(f"Magic Number Mismatch: '{path.name}' claims to be PDF but lacks signature.")
 
     def _adjudicate_lfs_ward(self, data: bytes, path: Path):
-        """[ASCENSION 8]: The Git LFS Oracle."""
         if len(data) > self.LFS_MASS_THRESHOLD:
             self.Logger.warn(f"Massive Binary Detected ({len(data)}B). The Oracle advises Git LFS for '{path.name}'.")
-            # In a full implementation, this could auto-append to .gitattributes
 
     def _enforce_ast_formatting(self, path: Path, data: bytes) -> bytes:
-        """[ASCENSION 4]: Invokes external formatters on the byte stream."""
         if os.environ.get("SCAFFOLD_AUTOFORMAT") != "1" or self.is_wasm:
             return data
-
         ext = path.suffix.lower()
         try:
             if ext == '.py' and shutil.which('black'):
@@ -397,9 +428,7 @@ class GnosticWriter:
         return data
 
     def _stamp_lineage(self, path: Path, trace_id: str):
-        """[ASCENSION 12 & 28]: Writes trace_id to OS extended attributes or Windows ADS."""
         if self.is_wasm: return
-
         if not self.is_windows and hasattr(os, 'setxattr'):
             try:
                 os.setxattr(path, 'user.scaffold.trace', trace_id.encode('utf-8'))
@@ -407,7 +436,6 @@ class GnosticWriter:
             except Exception:
                 pass
         elif self.is_windows:
-            # [ASCENSION 28]: Windows Alternate Data Streams (ADS)
             try:
                 ads_path = str(path) + ":scaffold_trace"
                 with open(ads_path, 'w') as f:
@@ -416,7 +444,6 @@ class GnosticWriter:
                 pass
 
     def _apply_immutable_ward(self, path: Path):
-        """[ASCENSION 14]: Locks the file at the OS kernel level."""
         if self.is_wasm or self.is_windows: return
         try:
             subprocess.run(['chattr', '+i', str(path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -425,7 +452,6 @@ class GnosticWriter:
             pass
 
     def _lift_immutable_ward(self, path: Path):
-        """[ASCENSION 14]: Unlocks the file if force is applied."""
         if self.is_wasm or self.is_windows: return
         try:
             subprocess.run(['chattr', '-i', str(path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -435,10 +461,7 @@ class GnosticWriter:
     def _forge_result(self, path: Path, success: bool, action: InscriptionAction, bytes_written: int,
                       hash_sig: Optional[str], diff: Optional[str], alerts: list,
                       start_time: float) -> GnosticWriteResult:
-        """[ASCENSION 32]: Forges the unbreakable vessel."""
-        # [ASCENSION 2]: MIME-Type Inference
         mime_type, _ = mimetypes.guess_type(str(path))
-
         return GnosticWriteResult(
             success=success, path=path, action_taken=action, bytes_written=bytes_written,
             gnostic_fingerprint=hash_sig, diff=diff, security_notes=alerts,

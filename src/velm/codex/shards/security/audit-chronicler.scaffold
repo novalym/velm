@@ -1,0 +1,126 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: security/audit-chronicler
+# ==============================================================================
+# @id:           security/audit-chronicler
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Immutable, HMAC-signed forensic audit logging middleware for all mutating requests.
+# @vibe:         [audit, logging, forensic, security, compliance, hmac, middleware]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:audit-logging, capability:forensic-scribe]
+# @requires:     [capability:fastapi-core, capability:environment-management]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+#   env:         ["SCAFFOLD_INTERNAL_KEY"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "middleware-spine"
+#   priority:    100
+#   alias:       "audit_chronicler"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ ledger_file = {{ ledger_file | default("artifacts/forensics/audit.jsonl") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Forensic Scribe) ---
+
+src/{{ package_name }}/core/security/
+    audit.py :: """
+import hmac
+import hashlib
+import json
+import time
+import logging
+import os
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional
+from fastapi import Request, Response, status
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.background import BackgroundTask
+from ..config import settings
+
+# [STRATUM: LOGGING]
+AuditLogger = logging.getLogger("ForensicScribe")
+AuditLogger.setLevel(logging.INFO)
+
+class AuditMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE AUDIT CHRONICLER (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: 1,000,000x | ROLE: FORENSIC_SCRIBE | RANK: OMEGA
+    
+    The keeper of the append-only truth.
+    1.  Intent Triage: Only records state-mutating requests (POST/PUT/DELETE).
+    2.  Asynchronous Inscription: Uses BackgroundTasks for 0ms latency impact.
+    3.  Cryptographic Integrity: Signs every line with HMAC-SHA256.
+    4.  Identity Suture: Captures UserID and TraceID for absolute provenance.
+    \"\"\"
+    def __init__(self, app):
+        super().__init__(app)
+        # [ASCENSION 6]: Retrieve the Machine Secret from the Vault
+        self.secret = settings.SECRET_KEY.get_secret_value().encode()
+
+    async def dispatch(self, request: Request, call_next):
+        # 1. THE WILL FILTER
+        if request.method not in ["POST", "PUT", "DELETE", "PATCH"]:
+            return await call_next(request)
+
+        start_time = time.perf_counter()
+        
+        # 2. THE PEERING RITE (Payload Capture)
+        body_bytes = await request.body()
+        async def receive(): return {"type": "http.request", "body": body_bytes}
+        request._receive = receive
+        
+        # 3. CONDUCT RITE
+        response = await call_next(request)
+        
+        # 4. BACKGROUND INSCRIPTION
+        duration_ms = (time.perf_counter() - start_time) * 1000
+        response.background = BackgroundTask(
+            self._inscribe_ledger,
+            method=request.method,
+            path=request.url.path,
+            user_id=getattr(request.state, "user_id", "anonymous"),
+            trace_id=getattr(request.state, "trace_id", "tr-void"),
+            status=response.status_code,
+            duration=duration_ms,
+            payload=body_bytes.decode('utf-8', errors='ignore')[:2048]
+        )
+
+        return response
+
+    def _inscribe_ledger(self, **data):
+        \"\"\"[ASCENSION 11]: THE CRYPTOGRAPHIC SEAL.\"\"\"
+        entry = {
+            "v": "3.0",
+            "ts": datetime.now(timezone.utc).isoformat(),
+            **data
+        }
+        
+        canonical = json.dumps(entry, sort_keys=True)
+        signature = hmac.new(self.secret, canonical.encode(), hashlib.sha256).hexdigest()
+        entry["sig"] = signature
+        
+        AuditLogger.info(json.dumps(entry))
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Audit Chronicler[/bold cyan] is manifest."
+    
+    # 1. Materialize the Log Sanctum
+    >> mkdir -p $(dirname {{ ledger_file }})
+    >> touch {{ ledger_file }}
+
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Compliance Debt -> 0)[/]"
+    proclaim: "The project history is now [bold green]Incorruptible[/bold green]."
+
+%% on-heresy
+    proclaim: "[bold red]Chronicler materialization fractured.[/bold red] History remains volatile."

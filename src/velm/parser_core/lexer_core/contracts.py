@@ -119,7 +119,7 @@ class TokenType(Enum):
     SEED_PATH = auto()  # Path after <<
     CONTENT = auto()  # Parsed content
     PLACEHOLDER = auto()  # {{ ... }}
-    JINJA_CONSTRUCT = auto()  # {% ... %}
+    SGF_CONSTRUCT = auto()  # {% ... %}
 
     # Semantic Arguments
     KEY_VALUE_PAIR = auto()  # key="val"

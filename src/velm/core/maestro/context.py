@@ -53,7 +53,7 @@ class ContextForge:
         self.regs = registers
         self.alchemist = alchemist
         self._scry_cache: Dict[str, Tuple[float, List[str]]] = {}
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
         # [ASCENSION 10]: Capture Biometric Identity
         try:

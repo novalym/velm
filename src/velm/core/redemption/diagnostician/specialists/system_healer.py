@@ -1,4 +1,4 @@
-# Path: scaffold/core/redemption/diagnostician/specialists/system_healer.py
+# Path: velm/core/redemption/diagnostician/specialists/system_healer.py
 # -------------------------------------------------------------------------
 
 import shutil

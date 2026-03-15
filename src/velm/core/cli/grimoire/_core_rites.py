@@ -1,4 +1,4 @@
-# Gnostic Codex: scaffold/core/cli/grimoire/_core_rites.py
+# Gnostic Codex: velm/core/cli/grimoire/_core_rites.py
 # --------------------------------------------------------
 # LIF: 100,000,000,000 (THE APOTHEOSIS OF WILL)
 #
@@ -10,6 +10,7 @@
 # allowing for absolute, explicit control over the nature of creation.
 
 """The foundational rites of creation and execution."""
+from ..cli_shims import _handle_generic_failure_herald, run_lsp_server
 from ..cli_utils import add_common_flags, add_simulation_flags, add_variable_flags
 import argparse
 
@@ -113,6 +114,7 @@ RITES = {
             lambda p: p.add_argument('--no-edicts', action='store_true', help='Suppress execution of %% post-run edicts (Maestro Silence).')
         ],
         "args": [("blueprint_path", {"nargs": "?", "default": ".", "help": "Path to the .scaffold blueprint or an archetype name."})],
+        "herald": _handle_generic_failure_herald,
     },
     "init": {
             "module_path": "artisans.init",
@@ -321,6 +323,6 @@ RITES = {
             "request_class_name": "BaseRequest", # Dummy request, we don't use Dispatcher
             "help": "Starts the Gnostic Language Server (Stdio Mode).",
             "flags": [],
-            "handler": lambda engine, args: _run_lsp_mode()
+            "handler": lambda engine, args: run_lsp_server(engine, args)
     },
 }

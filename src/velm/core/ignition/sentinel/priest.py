@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/sentinel/priest.py
+# Path: velm/core/ignition/diviner/sentinel/priest.py
 # -------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: SENTINEL_PRIEST_V1
 

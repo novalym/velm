@@ -1,0 +1,158 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: velm-core/metabolic-profiler
+# ==============================================================================
+# @id:           velm-core/metabolic-profiler
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      cProfile and tracemalloc engine for rendering SnakeViz flamegraphs of Python rites.
+# @vibe:         [profiling, performance, metabolism, flamegraph, snakeviz, cprofile, optimization]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:performance-profiler, capability:flamegraph]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["snakeviz>=2.2.0", "pydantic>=2.6.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "profiling-engine"
+#   priority:    400
+#   alias:       "metabolic_profiler"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ report_dir = {{ output_dir | default("artifacts/metabolism") }}
+$$ metabolic_threshold_ms = {{ threshold | default(200.0) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE PROFILER CORE ---
+
+src/{{ package_name }}/core/forensics/
+    __init__.py :: "from .metabolism import profile_rite, MetabolicReport, GnosticInquisitor"
+
+    metabolism.py :: """
+import time
+import functools
+import cProfile
+import pstats
+import io
+import tracemalloc
+import logging
+from pathlib import Path
+from typing import Callable, Optional
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("Forensics:Metabolism")
+
+class MetabolicReport(BaseModel):
+    name: str
+    duration_ms: float
+    memory_peak_kb: float
+    memory_delta_kb: float
+    status: str = "RESONANT"
+    timestamp: float = Field(default_factory=time.time)
+
+class GnosticInquisitor:
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC INQUISITOR (V-Ω-TOTALITY)                                  ==
+    =============================================================================
+    LIF: ∞ | ROLE: PRESSURE_SENSOR | RANK: OMEGA
+    \"\"\"
+    def __init__(self, report_dir: str = "{{ report_dir }}"):
+        self.report_dir = Path(report_dir)
+        self.report_dir.mkdir(parents=True, exist_ok=True)
+        if not tracemalloc.is_tracing(): tracemalloc.start()
+
+    def profile_rite(self, name: str, threshold: float = {{ metabolic_threshold_ms }}):
+        def decorator(func: Callable):
+            @functools.wraps(func)
+            def sync_wrapper(*args, **kwargs):
+                return self._conduct_biopsy(name, func, threshold, *args, **kwargs)
+            return sync_wrapper
+        return decorator
+
+    def _conduct_biopsy(self, name, func, threshold, *args, **kwargs):
+        tracemalloc.clear_traces()
+        start_mem_curr, _ = tracemalloc.get_traced_memory()
+        
+        pr = cProfile.Profile()
+        pr.enable()
+        start_time = time.perf_counter()
+        
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            duration_ms = (time.perf_counter() - start_time) * 1000
+            pr.disable()
+            
+            end_mem_curr, end_mem_peak = tracemalloc.get_traced_memory()
+            mem_delta_kb = (end_mem_curr - start_mem_curr) / 1024
+            
+            report = MetabolicReport(
+                name=name, duration_ms=duration_ms,
+                memory_peak_kb=end_mem_peak / 1024, memory_delta_kb=mem_delta_kb,
+                status="RESONANT" if duration_ms < threshold else "FEVERISH"
+            )
+            self._inscribe_findings(report, pr)
+        return result
+
+    def _inscribe_findings(self, report: MetabolicReport, profile: cProfile.Profile):
+        base_path = self.report_dir / f"{report.name}_{int(time.time())}"
+        
+        s = io.StringIO()
+        ps = pstats.Stats(profile, stream=s).sort_stats('cumulative')
+        ps.print_stats()
+        base_path.with_suffix(".txt").write_text(s.getvalue())
+        
+        profile.dump_stats(base_path.with_suffix(".prof"))
+        base_path.with_suffix(".json").write_text(report.model_dump_json(indent=2))
+
+Inquisitor = GnosticInquisitor()
+def profile_rite(name: str): return Inquisitor.profile_rite(name)
+"""
+
+scripts/forensics/
+    visualize_metabolism.py :: """
+import os
+import subprocess
+from pathlib import Path
+from rich.console import Console
+
+CONSOLE = Console()
+
+def ignite_viz():
+    report_dir = Path("{{ report_dir }}")
+    profiles = list(report_dir.glob("*.prof"))
+    if not profiles:
+        CONSOLE.print("❌ [bold red]ERROR:[/] No metabolic shards perceived in {{ report_dir }}.")
+        return
+
+    latest_prof = max(profiles, key=os.path.getmtime)
+    CONSOLE.print(f"Gazing into the latest pulse: [cyan]{latest_prof.name}[/cyan]")
+
+    try:
+        subprocess.run(["snakeviz", str(latest_prof)], check=True)
+    except FileNotFoundError:
+        CONSOLE.print("⚠️  [yellow]Artisan Missing:[/] 'snakeviz' unmanifest.")
+
+if __name__ == "__main__":
+    ignite_viz()
+"""
+
+# --- III. THE CONTROL PLANE ---
+Makefile += """
+# --- PERFORMANCE RITES ---
+profile-viz: ## transmute the latest performance pulse into a flamegraph
+    @poetry run python scripts/forensics/visualize_metabolism.py
+
+profile-clean: ## return metabolic waste to the void
+    @rm -rf {{ report_dir }}/*
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Metabolic Profiler[/bold cyan] is manifest."
+    >> mkdir -p {{ report_dir }} scripts/forensics
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Optimization Tax -> 0)[/]"

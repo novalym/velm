@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/providers/__init__.py
+# Path: velm/core/ai/providers/__init__.py
 # --------------------------------------------
 from typing import Dict, Type
 from .base import BaseProvider

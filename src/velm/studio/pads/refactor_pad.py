@@ -20,7 +20,7 @@ from ...artisans.transmute import TransmuteArtisan
 from ...contracts.data_contracts import ScaffoldItem, GnosticLineType
 from ...contracts.heresy_contracts import ArtisanHeresy
 from ...core.blueprint_scribe import BlueprintScribe
-from ...core.runtime import ScaffoldEngine
+from ...core.runtime import VelmEngine
 from ...interfaces.requests import TransmuteRequest
 from ...logger import Scribe
 
@@ -244,13 +244,13 @@ class RefactorPad(App[Optional[str]]):
             after_items: List[ScaffoldItem],
             meta_gnosis: Dict[str, Any],
             project_root: Path,
-            engine: Optional[ScaffoldEngine] = None
+            engine: Optional[VelmEngine] = None
     ):
         self.before_items = before_items
         self.initial_after_items = after_items
         self.meta_gnosis = meta_gnosis
         self.project_root = project_root
-        self.engine = engine or ScaffoldEngine(project_root=project_root)
+        self.engine = engine or VelmEngine(project_root=project_root)
 
         self.gnostic_chronicle: Dict[str, Path] = {}
         self.original_paths: Set[str] = set()

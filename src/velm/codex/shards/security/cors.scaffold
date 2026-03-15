@@ -1,0 +1,85 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: security/cors
+# ==============================================================================
+# @id:           security/cors
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Substrate-aware CORS middleware enforcing strict domain limits in production.
+# @vibe:         [cors, security, middleware, fastapi, headers]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:cors-protection]
+# @requires:     [capability:fastapi-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+#   env:         ["FRONTEND_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "middleware-spine"
+#   priority:    20
+#   alias:       "cors_governor"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ allowed_origins = {{ allowed_origins | default(["http://localhost:3000", "http://localhost:8000"]) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Origin Shield) ---
+
+src/{{ package_name }}/core/security/
+    cors.py :: """
+import os
+import logging
+from typing import List
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+Logger = logging.getLogger("Security:CORS")
+
+def wire_cors_governor(app: FastAPI):
+    \"\"\"
+    =============================================================================
+    == THE CORS GOVERNOR (V-Ω-TOTALITY)                                        ==
+    =============================================================================
+    LIF: 100,000x | ROLE: ORIGIN_ADJUDICATOR | RANK: OMEGA
+    \"\"\"
+    
+    # --- MOVEMENT I: ORIGIN RESOLUTION ---
+    origins = {{ allowed_origins }}
+    
+    # [ASCENSION 5]: Production DNA Inception
+    production_domain = os.getenv("FRONTEND_URL")
+    if os.getenv("SCAFFOLD_ENV") == "production":
+        if production_domain:
+            origins = [production_domain]
+            Logger.info(f"CORS: Consecrating production origin: {production_domain}")
+        else:
+            Logger.warning("CORS: Production environment detected but FRONTEND_URL is void. Falling back to local.")
+
+    # --- MOVEMENT II: THE KINETIC SUTURE ---
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        # [ASCENSION 9]: Forensic Transparency
+        expose_headers=[
+            "X-Gnostic-Trace", 
+            "X-Metabolic-Tax-MS", 
+            "X-Titan-Latency",
+            "X-Nov-Trace"
+        ]
+    )
+    
+    Logger.info(f"🛡️  CORS Governor resonant for {len(origins)} origins.")
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]CORS Governor[/bold cyan] has been waked and warded."
+    proclaim: "Origin Logic: [white]core/security/cors.py[/]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Frontend Friction -> 0)[/]"

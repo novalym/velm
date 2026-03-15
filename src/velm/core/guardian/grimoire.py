@@ -1,4 +1,4 @@
-# Path: scaffold/core/guardian/grimoire.py
+# Path: velm/core/guardian/grimoire.py
 # ----------------------------------------
 
 from .contracts import ThreatLevel

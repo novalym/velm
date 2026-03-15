@@ -6,11 +6,11 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-from ...core.runtime import ScaffoldEngine
+from ...core.runtime import VelmEngine
 from ...interfaces.requests import AnalyzeRequest, TransmuteRequest, GenesisRequest
 
 
-def forge_gateway(engine: ScaffoldEngine, static_dir: Path):
+def forge_gateway(engine: VelmEngine, static_dir: Path):
     """
     =============================================================================
     == THE GNOSTIC GATEWAY FORGE (V-Ω-TOTALITY-V5000.1)                        ==

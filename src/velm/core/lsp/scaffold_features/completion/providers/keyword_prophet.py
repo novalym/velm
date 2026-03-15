@@ -141,7 +141,7 @@ class KeywordProphet(CompletionProvider):
     def provide(self, ctx: CompletionContext) -> List[CompletionItem]:
         try:
             # [ASCENSION 6]: CONTEXTUAL SILENCE
-            if ctx.is_inside_comment or (ctx.is_inside_string and not ctx.is_inside_jinja):
+            if ctx.is_inside_comment or (ctx.is_inside_string and not ctx.is_inside_sgf):
                 return []
 
             # [ASCENSION 1]: PERCENT-RESONANCE FIX

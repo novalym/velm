@@ -1,4 +1,4 @@
-# Path: scaffold/core/observatory/health.py
+# Path: velm/core/observatory/health.py
 # -----------------------------------------
 import os
 import subprocess

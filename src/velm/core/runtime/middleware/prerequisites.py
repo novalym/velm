@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/prerequisites.py
+# Path: velm/core/runtime/middleware/prerequisites.py
 # -------------------------------------------------------
 
 import os

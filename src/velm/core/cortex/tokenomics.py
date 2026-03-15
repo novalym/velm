@@ -1,4 +1,4 @@
-# Path: scaffold/core/cortex/tokenomics
+# Path: velm/core/cortex/tokenomics
 # --------------------------------------------------
 
 # Try to import tiktoken, handle failure gracefully

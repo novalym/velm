@@ -1,0 +1,168 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/global-anycast-citadel
+# ==============================================================================
+# @id:           cloud/global-anycast-citadel
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      AWS Global Accelerator and WAF provisioning for zero-latency, multi-region anycast routing.
+# @vibe:         [aws, anycast, global-accelerator, waf, edge, routing, multi-region, security]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:anycast-routing, capability:edge-security]
+# @requires:     [capability:terraform-core, capability:aws-credentials]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+#   env:         ["AWS_REGION", "DOMAIN_NAME"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   terraform:   ["resource 'aws_globalaccelerator_accelerator' 'citadel'"]
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-terraform"
+#   priority:    910
+#   alias:       "global_anycast"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-global") }}
+$$ primary_region = {{ region_a | default("us-east-1") }}
+$$ secondary_region = {{ region_b | default("eu-central-1") }}
+$$ domain_name = {{ domain | default("citadel.novalym.systems") }}
+
+# [ASCENSION 1]: GLOBAL IDENTITY ANCHOR
+# Forges the unique Merkle-fingerprint for the global distribution.
+$$ global_id = {{ (project_slug + "-global-perimeter") | hash('md5') }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+# [ASCENSION 2]: The Abyssal Filter Suture
+.gitignore += """
+# --- Anycast Terraform Gnosis ---
+infra/anycast/.terraform/
+infra/anycast/*.tfstate
+infra/anycast/*.tfstate.backup
+infra/anycast/.terraform.lock.hcl
+"""
+
+infra/anycast/
+    # [ASCENSION 3]: THE ANYCAST FOUNDATION (TERRAFORM)
+    anycast-perimeter.tf :: """
+resource "aws_globalaccelerator_accelerator" "citadel" {
+  name            = "{{ project_slug }}-anycast"
+  ip_address_type = "IPV4"
+  enabled         = true
+
+  # [ASCENSION 5]: Forensic Flow Logging
+  attributes {
+    flow_logs_enabled   = true
+    flow_logs_s3_bucket = aws_s3_bucket.forensic_logs.id
+    flow_logs_s3_prefix = "anycast-logs/"
+  }
+}
+
+# [ASCENSION 4]: THE BIFURCATION SUTURE
+# Connects the Global Anycast IP to the Regional Endpoints.
+resource "aws_globalaccelerator_listener" "ingress" {
+  accelerator_arn = aws_globalaccelerator_accelerator.citadel.id
+  port_range {
+    from_port = 80
+    to_port   = 80
+  }
+  port_range {
+    from_port = 443
+    to_port   = 443
+  }
+  protocol = "TCP"
+}
+
+# --- REGION A (The US Heart) ---
+resource "aws_globalaccelerator_endpoint_group" "region_a" {
+  listener_arn = aws_globalaccelerator_listener.ingress.arn
+  endpoint_group_region = "{{ primary_region }}"
+  endpoint_configuration {
+    endpoint_id = var.region_a_lb_arn
+    weight      = 128
+    client_ip_preservation_enabled = true
+  }
+  
+  # Autonomic Health Vigil
+  health_check_port     = 80
+  health_check_protocol = "HTTP"
+  health_check_path     = "/health"
+}
+
+# --- REGION B (The EU Mind) ---
+resource "aws_globalaccelerator_endpoint_group" "region_b" {
+  listener_arn = aws_globalaccelerator_listener.ingress.arn
+  endpoint_group_region = "{{ secondary_region }}"
+  endpoint_configuration {
+    endpoint_id = var.region_b_lb_arn
+    weight      = 128
+    client_ip_preservation_enabled = true
+  }
+}
+
+# --- S3 VAULT (For Logs) ---
+resource "aws_s3_bucket" "forensic_logs" {
+  bucket = "{{ project_slug }}-anycast-logs-{{ global_id[:8] }}"
+}
+    """
+
+    # [ASCENSION 6]: THE WAF MALICE INQUISITOR
+    waf-rules.json :: """
+{
+  "name": "{{ project_slug }}-waf",
+  "scope": "GLOBAL",
+  "defaultAction": { "allow": {} },
+  "rules": [
+    {
+      "name": "BanishHostileRealms",
+      "priority": 1,
+      "statement": {
+        "geo_match_statement": { "country_codes": ["XX", "YY"] }
+      },
+      "action": { "block": {} },
+      "visibilityConfig": { "cloudWatchMetricsEnabled": true, "metricName": "GeoBlock", "sampledRequestsEnabled": true }
+    },
+    {
+      "name": "FloodGuard",
+      "priority": 2,
+      "statement": {
+        "rate_based_statement": { "limit": 2000, "aggregate_key_type": "IP" }
+      },
+      "action": { "block": {} },
+      "visibilityConfig": { "cloudWatchMetricsEnabled": true, "metricName": "FloodGuard", "sampledRequestsEnabled": true }
+    }
+  ]
+}
+    """
+
+    variables.tf :: """
+variable "region_a_lb_arn" { 
+  type = string 
+  description = "The ARN of the primary Application Load Balancer."
+}
+variable "region_b_lb_arn" { 
+  type = string 
+  description = "The ARN of the secondary Application Load Balancer."
+}
+    """
+
+# --- III. THE SURGICAL WEAVE ---
+Makefile += """
+# --- ANYCAST RITES ---
+anycast-up: ## materialize the global edge perimeter via Global Accelerator
+  @echo "🌐 Provisioning Global Anycast Citadel..."
+  @cd infra/anycast && terraform init && terraform apply -auto-approve
+
+anycast-status: ## scry the status of the global accelerator
+  @aws globalaccelerator list-accelerators --query 'Accelerators[?Name==`{{ project_slug }}-anycast`]'
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Global Anycast Citadel[/bold cyan] is manifest."
+    proclaim: "Perimeter: [bold green]AWS Global Accelerator + WAF[/bold green]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Total Network Sovereignty)[/]"
+    proclaim: "[bold yellow]ACTION REQUIRED:[/bold yellow] You must provide the ARNs of your regional load balancers to Terraform."
+    proclaim: "To strike the edge: [bold magenta]make anycast-up[/bold magenta]"

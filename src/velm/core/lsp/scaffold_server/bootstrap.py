@@ -1,4 +1,4 @@
-# Path: scaffold/core/lsp/scaffold_server/bootstrap.py
+# Path: velm/core/lsp/scaffold_server/bootstrap.py
 # -------------------------------------------
 # LIF: INFINITY | ROLE: ALPHA_INVOCATOR | RANK: SOVEREIGN
 # auth_code: Ω_BOOTSTRAP_TOTALITY_V12_FINAL
@@ -107,7 +107,7 @@ def main():
         from ..base.features.diagnostics.manager import DiagnosticManager
 
         # Engine Core
-        from ...runtime.engine import ScaffoldEngine
+        from ...runtime.engine import VelmEngine
 
         # [ASCENSION 7]: IDENTITY ASSUMPTION
         try:
@@ -118,7 +118,7 @@ def main():
 
         # --- MOVEMENT IV: SOUL MATERIALIZATION ---
         # [ASCENSION 8]: SINGLETON ENGINE IGNITION
-        engine = ScaffoldEngine(
+        engine = VelmEngine(
             project_root=project_root,
             log_level="DEBUG" if args.verbose else "INFO",
             silent=True,

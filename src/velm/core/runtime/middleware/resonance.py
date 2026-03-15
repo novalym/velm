@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/resonance.py
+# Path: velm/core/runtime/middleware/resonance.py
 # ---------------------------------------------------
 import os
 import subprocess

@@ -1,4 +1,4 @@
-# Path: scaffold/core/system/manager.py
+# Path: velm/core/system/manager.py
 # -------------------------------------
 
 import os

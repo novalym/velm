@@ -100,9 +100,13 @@ class PathSentinel:
     # [FACULTY 4]: THE INQUISITOR'S PHALANX
     # Code signatures that should never appear in a file path.
     MATTER_LEAK_SIGNATURES: Final[List[str]] = [
-        "def ", "class ", "import ", "from ", "return ", "if ", "else", "for ",
-        "{{", "}}", "{%", "<script", "<html>", "<body>", "---", "const ", "let ",
-        "=>", "function", "var ", "async ", "await "
+        r"\bdef\b", r"\bclass\b", r"\bimport\b", r"\bfrom\b", r"\breturn\b",
+        r"\bif\b", r"\belse\b", r"\bfor\b", r"\bwhile\b",
+        r"\{\{", r"\}\}", r"\{%",
+        r"<script", r"<html>", r"<body>", r"---",
+        r"\bconst\b", r"\blet\b", r"\bexport\b",
+        r"=>", r"\bfunction\b", r"\bvar\b", r"\basync\b", r"\bawait\b",
+        r"==", r"\("  # [STRIKE]: Absolute indicators of Logic/Will
     ]
 
     # [FACULTY 7]: THE TRAVERSAL WARD

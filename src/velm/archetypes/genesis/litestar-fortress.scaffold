@@ -1,0 +1,60 @@
+# Path: src/velm/archetypes/litestar-fortress.scaffold
+# ---------------------------------------------------------------------------------
+# == GNOSTIC ARCHETYPE: LITESTAR_FORTRESS (V-Ω-TITANIUM)                        ==
+# ---------------------------------------------------------------------------------
+# @description: The definitive Torso for hyper-performance Litestar applications.
+# @category: Backend
+# @difficulty: Grand Architect
+# @tags: litestar, async, high-performance, modular-architecture
+# ---------------------------------------------------------------------------------
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default("core") }}
+$$ project_slug = {{ project_name | slug }}
+
+# --- II. THE SCRIPTURE OF FORM (THE RECEPTOR HUBS) ---
+
+# [THE HUB: ASYNC ENTRYPOINT]
+src/{{ package_name }}/app.py :: """
+from litestar import Litestar
+from litestar.di import Provide
+
+# [LIFECYCLE_ANCHOR]: Wires startup/shutdown rites.
+# @scaffold:lifecycle_anchor
+
+# [DEPENDENCY_ANCHOR]: Wires global providers.
+# @scaffold:dependencies_anchor
+
+app = Litestar(
+    route_handlers=[
+        # [ROUTER_ANCHOR]: LitestarStrategy sutures handlers and controllers here.
+        # @scaffold:router_anchor
+    ],
+    dependencies={},
+    plugins=[],
+    on_startup=[],
+    on_shutdown=[]
+)
+\"\"\"
+
+# [THE SUBSTRATE: DEPENDENCIES]
+pyproject.toml :: """
+[tool.poetry]
+name = "{{ project_slug }}"
+version = "0.1.0"
+description = "A high-performance fortress forged by Velm."
+
+[tool.poetry.dependencies]
+python = "^3.11"
+litestar = "^2.0.0"
+uvicorn = "^0.27.0"
+pydantic = "^2.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+\"\"\"
+
+# --- III. THE KINETIC WILL ---
+%% post-run
+    proclaim: "Litestar Fortress manifest. The async core is ready for expansion."

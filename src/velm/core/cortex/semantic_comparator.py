@@ -1,4 +1,4 @@
-# Path: scaffold/core/cortex/semantic_comparator.py
+# Path: velm/core/cortex/semantic_comparator.py
 # -------------------------------------------------
 
 from dataclasses import dataclass, field

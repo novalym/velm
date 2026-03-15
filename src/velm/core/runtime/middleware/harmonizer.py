@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/harmonizer.py
+# Path: velm/core/runtime/middleware/harmonizer.py
 # ----------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: #!@GEOMETRIC_PURITY_V18_FINAL
 # PEP 8 Adherence: STRICT // Gnostic Alignment: TOTAL
@@ -85,7 +85,7 @@ class PathNormalizationMiddleware(Middleware):
             return path_str
 
         # [ASCENSION 15]: THE ALCHEMICAL SHIELD
-        # Shield Jinja2 and Scaffold sigils.
+        # Shield SGF and Scaffold sigils.
         if any(path_str.strip().startswith(sig) for sig in self.ALCHEMICAL_SIGILS):
             return path_str
 

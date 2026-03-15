@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/cortex/vector.py
+# Path: src/velm/core/cortex/vector.py
 # ----------------------------------------
 from __future__ import annotations
 import uuid
@@ -77,7 +77,7 @@ class GnosticEncoder:
         self.local_model = None
         self.mode: Literal["AZURE", "OPENAI", "LOCAL", "DORMANT"] = "DORMANT"
         self.model_name = "text-embedding-3-small"
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
         # [ASCENSION 4]: L1 VECTOR CACHE (THE MIND'S EYE)
         # Caches the vectors of frequent queries to save API/CPU costs.

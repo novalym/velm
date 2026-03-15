@@ -1,0 +1,214 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/auroraless-fortress
+# ==============================================================================
+# @id:           cloud/auroraless-fortress
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      AWS Aurora Serverless v2 PostgreSQL database provisioned via Terraform with strict KMS encryption.
+# @vibe:         [aws, aurora, serverless, postgresql, terraform, rds, kms]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:aws-aurora, capability:cloud-database]
+# @requires:     [capability:terraform-core, capability:aws-credentials]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+#   env:         ["AWS_REGION", "DATABASE_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   terraform:   ["resource 'aws_rds_cluster' 'aurora_v2'", "resource 'aws_kms_key' 'db_key'"]
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-terraform"
+#   priority:    900
+#   alias:       "aurora_fortress"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ db_name       = {{ project_slug | default("aurora-citadel") | snake }}
+$$ aws_region    = {{ aws_region | default("us-east-1") }}
+$$ environment   = {{ env | default("staging") }}
+$$ package_name  = {{ package_name | default(project_slug | snake) }}
+
+# [THE FIX]: Using 'vault_secrets' to prevent collision with Request.secrets
+$$ vault_secrets = "@crypto/password(32)"
+
+# --- II. THE SCRIPTURE OF FORM (Physical Matter) ---
+
+# [ASCENSION 10]: THE ABYSSAL SHIELD
+.gitignore += """
+# == Terraform Abyss (Auroraless) ==
+infra/database/.terraform/
+infra/database/*.tfstate
+infra/database/*.tfstate.backup
+infra/database/.terraform.lock.hcl
+"""
+
+infra/database/
+    # [ASCENSION 2]: THE GNOSTIC PROVIDER
+    providers.tf :: """
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    aws = { source  = "hashicorp/aws", version = "~> 5.0" }
+    random = { source  = "hashicorp/random", version = "~> 3.5" }
+  }
+}
+provider "aws" { region = var.aws_region }
+"""
+
+    # [ASCENSION 3]: THE GNOSTIC VARIABLES
+    variables.tf :: """
+variable "aws_region" { type = string; default = "{{ aws_region }}" }
+variable "db_name" { type = string; default = "{{ db_name }}" }
+variable "environment" { type = string; default = "{{ environment }}" }
+"""
+
+    # [ASCENSION 4]: THE MASTER SYMPHONY
+    main.tf :: """
+module "context" {
+  source = "./modules/context"
+  project_name = var.db_name
+  environment  = var.environment
+}
+
+module "kms" {
+  source     = "./modules/kms"
+  tags       = module.context.tags
+  alias_name = "alias/${var.db_name}-${var.environment}-db"
+}
+
+module "network" {
+  source      = "./modules/network"
+  tags        = module.context.tags
+  environment = var.environment
+}
+
+module "persistence" {
+  source       = "./modules/persistence"
+  vpc_id       = module.network.vpc_id
+  subnet_ids   = module.network.private_subnet_ids
+  tags         = module.context.tags
+  project_name = var.db_name
+  kms_key_arn  = module.kms.key_arn
+  db_pass      = "{{ vault_secrets }}"
+}
+"""
+
+    # [ASCENSION 5]: THE MODULAR ORGANS
+    modules/context/main.tf :: """
+locals {
+  global_tags = {
+    Project     = var.project_name
+    Environment = var.environment
+    ManagedBy   = "VELM-God-Engine"
+  }
+}
+output "tags" { value = local.global_tags }
+"""
+    modules/context/variables.tf :: "variable \"project_name\" { type = string }\nvariable \"environment\" { type = string }"
+
+    modules/kms/main.tf :: """
+resource "aws_kms_key" "db_key" {
+  description = "KMS key for Aurora Serverless encryption"
+  enable_key_rotation = true
+  tags = var.tags
+}
+resource "aws_kms_alias" "db_alias" {
+  name = var.alias_name
+  target_key_id = aws_kms_key.db_key.key_id
+}
+output "key_arn" { value = aws_kms_key.db_key.arn }
+"""
+    modules/kms/variables.tf :: "variable \"tags\" { type = map(string) }\nvariable \"alias_name\" { type = string }"
+
+    modules/network/main.tf :: """
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+  enable_dns_support = true
+  enable_dns_hostnames = true
+  tags = merge(var.tags, { Name = "vpc-db-${var.environment}" })
+}
+data "aws_availability_zones" "available" { state = "available" }
+resource "aws_subnet" "private" {
+  count = 3
+  vpc_id = aws_vpc.main.id
+  cidr_block = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+  tags = merge(var.tags, { Name = "private-db-${count.index}" })
+}
+output "vpc_id" { value = aws_vpc.main.id }
+output "private_subnet_ids" { value = aws_subnet.private[*].id }
+"""
+    modules/network/variables.tf :: "variable \"environment\" { type = string }\nvariable \"tags\" { type = map(string) }"
+
+    modules/persistence/main.tf :: """
+resource "aws_rds_cluster" "aurora_v2" {
+  cluster_identifier = "${var.project_name}-cluster"
+  engine = "aurora-postgresql"
+  engine_mode = "provisioned"
+  engine_version = "15.5"
+  database_name = "appdb"
+  master_username = "gnostic_admin"
+  master_password = var.db_pass
+  vpc_security_group_ids = [aws_security_group.db_sg.id]
+  db_subnet_group_name = aws_db_subnet_group.main.name
+  storage_encrypted = true
+  kms_key_id = var.kms_key_arn
+  serverlessv2_scaling_configuration { max_capacity = 16.0; min_capacity = 0.5 }
+  tags = var.tags
+}
+resource "aws_rds_cluster_instance" "aurora_v2_instance" {
+  cluster_identifier = aws_rds_cluster.aurora_v2.id
+  instance_class = "db.serverless"
+  engine = aws_rds_cluster.aurora_v2.engine
+  engine_version = aws_rds_cluster.aurora_v2.engine_version
+  performance_insights_enabled = true
+  tags = var.tags
+}
+resource "aws_db_proxy" "main" {
+  name = "${var.project_name}-proxy"
+  engine_family = "POSTGRESQL"
+  vpc_subnet_ids = var.subnet_ids
+  vpc_security_group_ids = [aws_security_group.db_sg.id]
+  role_arn = aws_iam_role.proxy_role.arn
+  auth { auth_scheme = "SECRETS"; iam_auth = "DISABLED"; secret_arn = aws_secretsmanager_secret.db_secret.arn }
+}
+resource "aws_db_subnet_group" "main" { name = "${var.project_name}-subnets"; subnet_ids = var.subnet_ids }
+resource "aws_security_group" "db_sg" { 
+  vpc_id = var.vpc_id
+  ingress { protocol = "tcp"; from_port = 5432; to_port = 5432; cidr_blocks = ["10.0.0.0/16"] }
+}
+resource "aws_secretsmanager_secret" "db_secret" { name = "${var.project_name}/db-vault" }
+resource "aws_secretsmanager_secret_version" "db_secret_version" {
+  secret_id = aws_secretsmanager_secret.db_secret.id
+  secret_string = jsonencode({ username = "gnostic_admin", password = var.db_pass })
+}
+resource "aws_iam_role" "proxy_role" { 
+  name = "${var.project_name}-proxy-role"
+  assume_role_policy = jsonencode({ Version = "2012-10-17", Statement = [{ Action = "sts:AssumeRole", Effect = "Allow", Principal = { Service = "rds.amazonaws.com" } }] })
+}
+resource "aws_iam_role_policy" "proxy_policy" {
+  name = "${var.project_name}-proxy-policy"; role = aws_iam_role.proxy_role.id
+  policy = jsonencode({ Version = "2012-10-17", Statement = [{ Action = "secretsmanager:GetSecretValue", Effect = "Allow", Resource = aws_secretsmanager_secret.db_secret.arn }] })
+}
+"""
+    modules/persistence/variables.tf :: """
+variable "vpc_id" { type = string }
+variable "subnet_ids" { type = list(string) }
+variable "tags" { type = map(string) }
+variable "project_name" { type = string }
+variable "kms_key_arn" { type = string }
+variable "db_pass" { type = string }
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Auroraless Fortress[/] Shard is woven."
+    
+    # Forge local .env for application mind
+    >> echo "DATABASE_URL=postgresql://gnostic_admin:{{ vault_secrets }}@localhost:5432/appdb" >> .env
+    
+    proclaim: "To materialize the iron: [bold cyan]cd infra/database && terraform init && terraform apply[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Data Stratum weaving failed.[/bold red]"

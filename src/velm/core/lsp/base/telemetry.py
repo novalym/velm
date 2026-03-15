@@ -124,7 +124,7 @@ class MetricAccumulator:
         self.request_count = 0
         self.error_count = 0
         self.start_time = time.time()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def record(self, bytes_rx: Any = 0, bytes_tx: Any = 0, is_err: bool = False):
         """

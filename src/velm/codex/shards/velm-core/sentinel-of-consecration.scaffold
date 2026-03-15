@@ -1,0 +1,133 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: velm-core/sentinel-of-consecration
+# ==============================================================================
+# @id:           velm-core/sentinel-of-consecration
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Deep-tissue environmental auditor that ensures host iron has the mandatory binaries for Velm operation.
+# @vibe:         [sentinel, consecration, environment, audit, binaries, os, validation]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:environment-validator, capability:binary-auditor]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      [] # Core stdlib only
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "system-validator"
+#   priority:    0
+#   alias:       "consecration_sentinel"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tool_name = "consecrator"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE ORACLE OF BINARIES ---
+
+scripts/forensics/
+    binary_oracle.py :: """
+import os
+import shutil
+import platform
+import subprocess
+import sys
+from pathlib import Path
+
+# =============================================================================
+# == THE GNOSTIC CENSUS (V-Ω-TOTALITY)                                       ==
+# =============================================================================
+ARTISANS = {
+    "docker": {"desc": "Vessel Orchestration", "v_cmd": "--version"},
+    "poetry": {"desc": "Pythonic Sovereignty", "v_cmd": "--version"},
+    "git":    {"desc": "Temporal Chronicle",    "v_cmd": "--version"},
+    "node":   {"desc": "Ocular Logic (JS/TS)",  "v_cmd": "-v"}
+}
+
+def scry_environment():
+    print("🔍 [SENTINEL] Initiating Multi-Strata Tomography of the Iron...")
+    os_type = platform.system().lower()
+    missing = []
+    found = []
+
+    for bin_name, meta in ARTISANS.items():
+        path = shutil.which(bin_name)
+        
+        if path:
+            try:
+                v_out = subprocess.check_output([path, meta["v_cmd"]], stderr=subprocess.STDOUT).decode().strip()
+                v_short = v_out.split('\\n')[0][:30]
+                found.append(f"✅ {bin_name:<10} | [green]RESONANT[/] | {v_short}")
+            except:
+                found.append(f"⚠️  {bin_name:<10} | [yellow]TAINTED[/]  | Version Scry Failed")
+        else:
+            missing.append(bin_name)
+
+    print("\\n".join(found))
+    
+    if missing:
+        print(f"\\n⚠️  [VOID_DETECTED] {len(missing)} artisans are unmanifest in the Core.")
+        _forge_consecration_script(missing, os_type)
+        sys.exit(1)
+    else:
+        print("\\n✨ [TITANIUM] The Iron Core is whole. No consecration required.")
+        sys.exit(0)
+
+def _forge_consecration_script(missing: list, os_type: str):
+    script_name = "consecrate_machine.sh" if os_type != "windows" else "consecrate_machine.ps1"
+    script_path = Path(script_name)
+    lines = []
+
+    if os_type == "windows":
+        lines.append("$ErrorActionPreference = 'Stop'")
+        for tool in missing:
+            if tool == "docker": lines.append("winget install Docker.DockerDesktop")
+            elif tool == "git":   lines.append("winget install Git.Git")
+            elif tool == "poetry":lines.append("(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -")
+    else:
+        lines.append("#!/bin/bash")
+        for tool in missing:
+            lines.append(f"sudo apt-get update && sudo apt-get install -y {tool}")
+
+    script_path.write_text('\\n'.join(lines), encoding='utf-8')
+    print(f"📜 [SENTINEL] Redemption Scripture forged: [bold cyan]{script_name}[/bold cyan]")
+
+if __name__ == "__main__":
+    scry_environment()
+"""
+
+# --- III. THE KINETIC SYMPHONY ---
+consecrate.symphony :: """
+# == Symphony: The Rite of Environmental Consecration ==
+@task main
+    %% proclaim: "🛡️ [SENTINEL] Initiating Multi-Strata Tomography of the Iron..."
+    @try:
+        >> python3 scripts/forensics/binary_oracle.py
+        %% proclaim: "[bold green]✅ IRON IS PURE.[/bold green]"
+    @catch:
+        %% let has_sh = ?? file_exists: "consecrate_machine.sh"
+        @if {{ has_sh }}:
+            %% proclaim: "🔥 Igniting the Consecration..."
+            >> chmod +x consecrate_machine.sh
+            >> ./consecrate_machine.sh
+            >> rm -f consecrate_machine.*
+        @endif
+    @end
+"""
+
+# --- IV. THE UNIVERSAL SUTURE ---
+Makefile += """
+consecrate: ## conduct the rite of environmental hardening
+    @velm run consecrate.symphony
+
+scry-iron: ## perform a non-destructive biopsy of the host machine
+    @poetry run python scripts/forensics/binary_oracle.py
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Sentinel of Consecration[/bold cyan] is manifest."
+    >> mkdir -p scripts/forensics
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Environment Drift -> 0)[/]"

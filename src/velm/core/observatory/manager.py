@@ -1,4 +1,4 @@
-# Path: scaffold/core/observatory/manager.py
+# Path: velm/core/observatory/manager.py
 # ------------------------------------------
 import hashlib
 import time

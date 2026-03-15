@@ -1,4 +1,4 @@
-# path: scaffold/core/kernel/sentinel_gardener.py
+# path: velm/core/kernel/sentinel_gardener.py
 
 import re
 from pathlib import Path

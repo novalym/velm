@@ -1,0 +1,143 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/ephemeral-reality-forge
+# ==============================================================================
+# @id:           cloud/ephemeral-reality-forge
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Dynamic Traefik-based routing engine for spawning isolated ephemeral preview environments per Git branch.
+# @vibe:         [preview-environments, traefik, ephemeral, ci-cd, routing, docker, branch-deploy]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:preview-environments, capability:dynamic-routing]
+# @requires:     [capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["docker>=7.0.0"]
+#   env:         ["BASE_DOMAIN", "ADMIN_EMAIL"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "edge_proxy": { "image": "traefik:v3.0" } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-routing"
+#   priority:    900
+#   alias:       "ephemeral_forge"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-app") }}
+$$ base_domain = {{ domain | default("preview.novalym.systems") }}
+$$ admin_email = {{ email | default("admin@novalym.systems") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+preview-engine/
+    # [ASCENSION 1]: THE DYNAMIC REALITY ROUTER (Traefik)
+    # Automatically scries the Docker socket to route traffic to new branch vessels.
+    docker-compose.router.yml :: """
+version: '3.8'
+services:
+  edge_proxy:
+    image: traefik:v3.0
+    container_name: {{ project_slug }}-reality-router
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # [ASCENSION 2]: Autonomic SSL Inception
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email={{ admin_email }}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Traefik Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - multiversal_mesh
+
+networks:
+  multiversal_mesh:
+    external: true
+    name: multiversal_mesh
+"""
+
+    # [ASCENSION 3]: THE BRANCH VESSEL TEMPLATE
+    # Used by the Reaper/CI to spawn an isolated reality.
+    branch-vessel.yml :: """
+version: '3.8'
+services:
+  app-${REALITY_ID}:
+    image: ${IMAGE_TAG}
+    container_name: ${REALITY_ID}-core
+    labels:
+      - "traefik.enable=true"
+      # [ASCENSION 4]: Dynamic DNS Mapping
+      - "traefik.http.routers.${REALITY_ID}.rule=Host(`${REALITY_ID}.{{ base_domain }}`)"
+      - "traefik.http.routers.${REALITY_ID}.entrypoints=websecure"
+      - "traefik.http.routers.${REALITY_ID}.tls.certresolver=myresolver"
+    environment:
+      - DATABASE_URL=postgres://db:5432/${REALITY_ID_SNAKE}
+    networks:
+      - multiversal_mesh
+
+networks:
+  multiversal_mesh:
+    external: true
+"""
+
+# [ASCENSION 5]: THE REALITY CONTROLLER (THE REAPER)
+scripts/
+    reaper.py :: """
+import subprocess
+import json
+import logging
+import sys
+
+logging.basicConfig(level=logging.INFO)
+Logger = logging.getLogger("Reality:Reaper")
+
+def scry_and_reap():
+    \"\"\"
+    [ASCENSION 6]: THE LAW OF FINITUDE
+    Finds running preview containers whose Git branches have been deleted,
+    and returns them to the void.
+    \"\"\"
+    try:
+        # Get active reality IDs from docker
+        out = subprocess.check_output(['docker', 'ps', '--format', '{{json .Names}}']).decode()
+        containers = [json.loads(line) for line in out.splitlines() if line]
+        
+        # In a real CI env, we query `git ls-remote` to check branch existence
+        Logger.info("Reaper active. Scrying for orphaned realities...")
+        # Placeholder for exact git deletion logic
+    except Exception as e:
+        Logger.error(f"Reaper fracture: {e}")
+
+if __name__ == "__main__":
+    scry_and_reap()
+"""
+
+# --- III. THE SURGICAL WEAVE ---
+Makefile += """
+# --- PREVIEW RITES ---
+router-up: ## Awaken the Traefik dynamic router
+  @docker network create multiversal_mesh 2>/dev/null || true
+  @docker-compose -f preview-engine/docker-compose.router.yml up -d
+
+reap: ## Annihilate orphaned preview environments
+  @python3 scripts/reaper.py
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    >> mkdir -p preview-engine/letsencrypt
+    
+    proclaim: "The [bold cyan]Ephemeral Reality Forge[/bold cyan] is manifest."
+    proclaim: "Primary Anchor: [bold]{{ base_domain }}[/bold]"
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Parallel PR Testing)[/]"
+    proclaim: "To start the edge router: [bold magenta]make router-up[/bold magenta]"

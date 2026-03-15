@@ -1,0 +1,124 @@
+# ==============================================================================
+# == GNOSTIC DNA TRAIT: traits/ouroboros-guardian
+# ==============================================================================
+# @id:           traits/ouroboros-guardian
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Substrate-aware Git pre-commit hook that enforces structural integrity via Velm verification.
+# @vibe:         [trait, git, hooks, pre-commit, integrity, validation, security]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:git-hook, capability:commit-warden]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+#   env:         ["SCAFFOLD_BYPASS"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "git-hook-installer"
+#   priority:    0
+#   alias:       "ouroboros_guardian"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ bypass_token = {{ bypass_key | default("GNOSTIC_OVERRIDE") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Sentinel Hooks) ---
+
+.scaffold/hooks/
+    # [ASCENSION 2]: THE POSIX INQUISITOR (Shell)
+    pre-commit.sh :: """
+#!/bin/bash
+# =============================================================================
+# == THE OUROBOROS GUARDIAN: POSIX SENTINEL (V-Ω-TOTALITY)                   ==
+# =============================================================================
+# LIF: ∞ | ROLE: INTEGRITY_ADJUDICATOR | RANK: OMEGA
+
+# [ASCENSION 11]: THE BYPASS SARCOPHAGUS
+if [[ "$SCAFFOLD_BYPASS" == "{{ bypass_token }}" ]]; then
+    echo "⚠️  [GUARDIAN] Gnostic Override detected. Staying the Hand of Law..."
+    exit 0
+fi
+
+echo "🔍 [GUARDIAN] Adjudicating reality before commitment..."
+
+# [ASCENSION 3]: THE RITE OF VERIFICATION
+velm verify --strict --silent
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ [HERESY DETECTED] Reality has drifted from Gnostic Law."
+    echo "   The Merkle-Root of the Iron does not resonate with the Chronicle."
+    echo ""
+    echo "👉 [RECONCILIATION RITE]:"
+    echo "   Speak 'velm adopt' to enshrine current drift as Law,"
+    echo "   OR speak 'velm transmute' to return Iron to its willed Form."
+    echo ""
+    exit 1
+fi
+
+echo "✅ [RESONANT] Matter matches Law. Proceeding to enshrine."
+exit 0
+"""
+    %% 755
+
+    # [ASCENSION 5]: THE NT INQUISITOR (PowerShell)
+    GnosticWarden.ps1 :: """
+# =============================================================================
+# == THE OUROBOROS GUARDIAN: WINDOWS SENTINEL (V-Ω-TOTALITY)                 ==
+# =============================================================================
+if ($env:SCAFFOLD_BYPASS -eq "{{ bypass_token }}") {
+    Write-Host "⚠️ [GUARDIAN] Gnostic Override detected." -ForegroundColor Yellow
+    exit 0
+}
+
+Write-Host "🔍 [GUARDIAN] Adjudicating Windows reality..." -ForegroundColor Cyan
+
+# Perform the Inquest
+$verify = velm verify --strict --silent
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ [HERESY DETECTED] Architectural Drift." -ForegroundColor Red
+    Write-Host "   Execute 'velm adopt' or 'velm transmute' to heal."
+    exit 1
+}
+
+Write-Host "✅ [RESONANT] Matter matches Law." -ForegroundColor Green
+exit 0
+"""
+
+# --- III. THE SURGICAL WEAVE ---
+Makefile += """
+# --- INTEGRITY RITES ---
+protect: ## install the Ouroboros Guardian to prevent architectural drift
+    @chmod +x .scaffold/hooks/pre-commit.sh
+    @mkdir -p .git/hooks
+    @ln -sf ../../.scaffold/hooks/pre-commit.sh .git/hooks/pre-commit
+    @echo "🛡️  Ouroboros Guardian waked and warded at .git/hooks/pre-commit"
+
+unprotect: ## return the chronicle to an unwarded state
+    @rm -f .git/hooks/pre-commit
+    @echo "🌑 Guardian entering dormancy. Reality is now vulnerable."
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    # Inject bypass key to vault
+    >> echo "SCAFFOLD_BYPASS={{ bypass_token }}" >> .env
+    
+    proclaim: "The [bold cyan]Ouroboros Guardian Trait[/bold cyan] is manifest."
+    proclaim: "Sentinel Locus: [white].scaffold/hooks/[/]"
+    
+    # [ASCENSION 2]: Automatic Consecration
+    @if {{ dir_exists('.git') }}:
+        proclaim: "Phase I: Consecrating the Git Hooks..."
+        >> make protect
+        ?? succeeds
+    @else:
+        proclaim: "[bold yellow]WARNING:[/bold yellow] .git sanctum not found. Guardian is latent."
+    @endif
+    
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Accidental Drift -> 0)[/]"
+    proclaim: "✅ [bold red]REALITY LOCKED[/bold red]. The circle is closed."

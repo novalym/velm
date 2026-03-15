@@ -1,0 +1,115 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/docker-swarm-substrate
+# ==============================================================================
+# @id:           system/docker-swarm-substrate
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Automated Docker Swarm cluster orchestration featuring the Grep-Phalanx ignition rite and replicated stack manifests.
+# @vibe:         [docker, swarm, orchestration, high-availability, replication, cluster, iron]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:docker-swarm, capability:replicated-substrate]
+# @requires:     [capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   env:         ["MANAGER_IP", "REPLICA_COUNT"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "stack": "docker-stack.yml" }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-orchestrator"
+#   priority:    1000
+#   alias:       "swarm_substrate"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug   = {{ project_slug | default("resonant-swarm") }}
+$$ replica_count  = {{ replicas | default(3) }}
+$$ manager_ip     = {{ manager_ip | default("127.0.0.1") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Replicated Body) ---
+
+docker-stack.yml :: """
+version: '3.8'
+services:
+  app:
+    image: {{ project_slug }}:latest
+    networks:
+      - gnostic_overlay
+    deploy:
+      mode: replicated
+      replicas: {{ replica_count }}
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+networks:
+  gnostic_overlay:
+    driver: overlay
+    attachable: true
+"""
+
+scripts/
+    swarm_ignite.sh :: """
+#!/bin/bash
+# =============================================================================
+# == THE SWARM IGNITION RITE (V-Ω-ATOMIC-GREP-PHALANX-SUTURED)               ==
+# =============================================================================
+set -e
+
+echo "🐝 [SWARM] Adjudicating Node State..."
+
+# =========================================================================
+# == [THE MASTER CURE]: THE GREP-PHALANX                                 ==
+# =========================================================================
+# We no longer use Go-Templates for discovery because they leak into the 
+# Engine's recursive parsing passes. We use a raw text-stream probe instead.
+# This is 100% Jinja-safe and substrate-robust.
+# =========================================================================
+LOCAL_NODE_STATE=$(docker info 2>&1 | grep "Swarm: " | cut -d' ' -f2 | tr -d '[:space:]')
+
+# 1. THE VOID CHECK
+if [ "$LOCAL_NODE_STATE" == "active" ]; then
+    echo "✅ Node is already a Sovereign Manager. Proceeding..."
+else
+    # 2. THE STRIKE
+    echo "🌀 Initiating Swarm Inception on {{ manager_ip }}..."
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+        docker swarm init || echo "⚠️  Swarm already active."
+    else
+        docker swarm init --advertise-addr {{ manager_ip }} || echo "⚠️  Swarm already waked."
+    fi
+    echo "✨ [RESONANT] Cluster Heart waked."
+fi
+
+# 3. THE MESH FORGE
+echo "🌐 Forging the Gnostic Overlay Mesh..."
+if ! docker network ls --filter name=gnostic_overlay -q | grep -q . ; then
+    docker network create --driver overlay --attachable gnostic_overlay
+    echo "🔗 Overlay Mesh manifest."
+else
+    echo "✅ Overlay Mesh already resonant."
+fi
+
+echo "✅ [TOTALITY] Swarm Substrate is resonant."
+"""
+    %% 755
+
+# --- III. THE CONTROL PLANE ---
+Makefile += """
+
+# --- SWARM RITES ---
+swarm-init: ## conduct the rite of cluster ignition
+    @chmod +x scripts/swarm_ignite.sh
+    @./scripts/swarm_ignite.sh
+
+swarm-deploy: ## materialize the replicated stack upon the swarm iron
+    @docker stack deploy -c docker-stack.yml {{ project_slug }}
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Docker Swarm Substrate[/bold cyan] is manifest."
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Cluster Complexity -> 0)[/]"
+    proclaim: "[bold green]✅ The Replicated Multiverse is Ready.[/bold green]"

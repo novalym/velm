@@ -1,0 +1,83 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: data/sqlalchemy-persistence-layer
+# ==============================================================================
+# @id:           data/sqlalchemy-persistence-layer
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      SQLAlchemy 2.0 Declarative Base and foundational User model for async Postgres interactions.
+# @vibe:         [database, orm, sqlalchemy, models, persistence, postgres, async]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:persistence-layer, capability:sqlalchemy-models,capability:database-orm]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["sqlalchemy>=2.0.28", "asyncpg>=0.29.0", "greenlet>=3.0.3"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "persistence-models"
+#   priority:    300
+#   alias:       "sqlalchemy_base"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-data") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ table_name = {{ table_name | default("users") }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+src/{{ package_name }}/models/
+    __init__.py :: "from .base import Base\nfrom .user import User\n"
+
+    # [1] THE DECLARATIVE SOUL
+    base.py :: """
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncAttrs
+
+class Base(AsyncAttrs, DeclarativeBase):
+    \"\"\"
+    =============================================================================
+    == THE DECLARATIVE BASE (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: ∞ | ROLE: METADATA_HUB | RANK: OMEGA_SOVEREIGN
+    
+    The Axis Mundi of the Data Stratum. 
+    All persistent entities must inherit from this Mind.
+    \"\"\"
+    pass
+"""
+
+    # [2] THE USER SHARD
+    user.py :: """
+from uuid import UUID, uuid4
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+from .base import Base
+
+class User(Base):
+    \"\"\"
+    [SCHEMA_EVOLUTION]: The SQLAlchemyEvolutionStrategy scries this 
+    Base inheritance and righteously sutures it to the Metadata Hub.
+    \"\"\"
+    __tablename__ = "{{ table_name }}"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True)
+    is_active: Mapped[bool] = mapped_column(default=True)
+
+    def __repr__(self) -> str:
+        return f"<User(username={self.username})>"
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "Persistence Stratum waked in 'src/{{ package_name }}/models/'."
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Data Schism -> 0)[/]"
+    proclaim: "The [bold cyan]SQLAlchemyEvolutionStrategy[/bold cyan] is now scrying for drift."
+
+%% on-heresy
+    proclaim: "[bold red]Persistence layer materialization fractured.[/bold red]"
+    >> rm -rf src/{{ package_name }}/models

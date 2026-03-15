@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/compliance.py
+# Path: velm/core/runtime/middleware/compliance.py
 # ----------------------------------------------------
 
 import os

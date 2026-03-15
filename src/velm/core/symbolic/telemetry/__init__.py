@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/telemetry/__init__.py
+# Path: src/velm/core/symbolic/telemetry/__init__.py
 # --------------------------------------------------------
 # LIF: ∞ | ROLE: TELEMETRY_GATEWAY | RANK: SOVEREIGN
 # AUTH: Ω_TELEMETRY_INIT_TOTALITY

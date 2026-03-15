@@ -63,7 +63,7 @@ class HierophantOfUnbreakableReality:
         """
         The Rite of Inception. Anchors the Hierophant to the physical root.
         """
-        self._lock = RLock()
+        self._lock = threading.RLock()
         self.root_path = root_path.resolve()
 
         # [STACK]: Stores (CurrentAbsolutePath, IndentLevel)

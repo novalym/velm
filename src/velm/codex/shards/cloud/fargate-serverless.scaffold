@@ -1,0 +1,175 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/fargate-serverless
+# ==============================================================================
+# @id:           cloud/fargate-serverless
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      AWS ECS Fargate serverless container orchestration via Terraform, featuring autonomic CPU scaling and CloudWatch tomography.
+# @vibe:         [aws, ecs, fargate, serverless, container, terraform, auto-scaling, cloudwatch]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:aws-fargate, capability:serverless-containers]
+# @requires:     [capability:terraform-core, capability:aws-credentials]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+#   env:         ["AWS_REGION", "VPC_ID", "SUBNET_IDS"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   terraform:   ["resource 'aws_ecs_cluster' 'main'", "resource 'aws_ecs_service' 'main'"]
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-terraform"
+#   priority:    900
+#   alias:       "fargate_citadel"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("fargate-citadel") }}
+$$ aws_region = {{ aws_region | default("us-east-1") }}
+$$ container_port = {{ port | default(8000) }}
+$$ image_repo = {{ image | default("registry.gitlab.com/my-org/my-image:latest") }}
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+# [ASCENSION 1]: The Abyssal Filter Suture
+.gitignore += """
+infra/fargate/.terraform/
+infra/fargate/*.tfstate
+infra/fargate/*.tfstate.backup
+"""
+
+infra/fargate/
+    # [ASCENSION 2]: THE GNOSTIC PROVIDER
+    providers.tf :: """
+terraform {
+  required_providers {
+    aws = { source = "hashicorp/aws"; version = "~> 5.0" }
+  }
+}
+provider "aws" { region = var.aws_region }
+    """
+
+    # [ASCENSION 3]: THE GNOSTIC VARIABLES
+    variables.tf :: """
+variable "aws_region" { type = string; default = "{{ aws_region }}" }
+variable "environment" { type = string; default = "production" }
+variable "project_name" { type = string; default = "{{ project_slug }}" }
+variable "vpc_id" { type = string; description = "The Target VPC" }
+variable "subnet_ids" { type = list(string); description = "Private Subnets" }
+    """
+
+    # [ASCENSION 4]: THE MASTER SYMPHONY (FARGATE)
+    main.tf :: """
+# --- CLUSTER (The Execution Plane) ---
+resource "aws_ecs_cluster" "main" {
+  name = "${var.project_name}-${var.environment}"
+  setting {
+    name  = "containerInsights"
+    value = "enabled" # [ASCENSION 5]: CloudWatch Tomography
+  }
+}
+
+# --- IAM (The Law of Privilege) ---
+resource "aws_iam_role" "ecs_exec_role" {
+  name = "${var.project_name}-exec-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{ Action = "sts:AssumeRole", Effect = "Allow", Principal = { Service = "ecs-tasks.amazonaws.com" } }]
+  })
+}
+resource "aws_iam_role_policy_attachment" "ecs_exec_policy" {
+  role       = aws_iam_role.ecs_exec_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+# --- TASK DEFINITION (The Soul) ---
+resource "aws_ecs_task_definition" "main" {
+  family                   = "${var.project_name}-${var.environment}-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "512"
+  memory                   = "1024"
+  execution_role_arn       = aws_iam_role.ecs_exec_role.arn
+  
+  container_definitions = jsonencode([{
+    name      = "app"
+    image     = "{{ image_repo }}"
+    essential = true
+    portMappings = [{ containerPort = {{ container_port }}, hostPort = {{ container_port }} }]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options   = {
+        "awslogs-group"         = aws_cloudwatch_log_group.main.name
+        "awslogs-region"        = var.aws_region
+        "awslogs-stream-prefix" = "ecs"
+      }
+    }
+  }])
+}
+
+# --- SERVICE (The Weaver) ---
+resource "aws_security_group" "app_sg" { 
+  name = "${var.project_name}-sg"
+  vpc_id = var.vpc_id 
+  ingress { protocol = "tcp"; from_port = {{ container_port }}; to_port = {{ container_port }}; cidr_blocks = ["10.0.0.0/8"] }
+  egress  { protocol = "-1"; from_port = 0; to_port = 0; cidr_blocks = ["0.0.0.0/0"] }
+}
+
+resource "aws_ecs_service" "main" {
+  name            = "${var.project_name}-${var.environment}"
+  cluster         = aws_ecs_cluster.main.arn
+  task_definition = aws_ecs_task_definition.main.arn
+  desired_count   = 2
+  launch_type     = "FARGATE"
+  
+  network_configuration {
+    subnets          = var.subnet_ids
+    security_groups  = [aws_security_group.app_sg.id]
+    assign_public_ip = false # [ASCENSION 6]: Zero-Public Ingress
+  }
+}
+
+resource "aws_cloudwatch_log_group" "main" { 
+  name = "/ecs/${var.project_name}/${var.environment}" 
+  retention_in_days = 14
+}
+
+# --- AUTO-SCALING (The Autonomic Governor) ---
+resource "aws_appautoscaling_target" "ecs" {
+  service_namespace  = "ecs"
+  resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.main.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  min_capacity       = 2
+  max_capacity       = 10
+}
+
+resource "aws_appautoscaling_policy" "cpu" {
+  name               = "${var.project_name}-cpu-scaling"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification { predefined_metric_type = "ECSServiceAverageCPUUtilization" }
+    target_value       = 70.0 # Scale up if CPU hits 70%
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 60
+  }
+}
+    """
+
+# --- III. THE SURGICAL WEAVE ---
+Makefile += """
+# --- FARGATE RITES ---
+fargate-deploy: ## deploy the Fargate Serverless cluster
+  @echo "🚀 Provisioning Fargate Iron..."
+  @cd infra/fargate && terraform init && terraform apply -var="vpc_id=$(VPC_ID)" -var='subnet_ids=$(SUBNET_IDS)'
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Fargate Serverless Shard[/bold cyan] is manifest."
+    proclaim: "Terraform Sanctum: [white]infra/fargate/[/]"
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Server Maintenance -> 0)[/]"
+    proclaim: "[bold yellow]NOTE:[/bold yellow] Deployment requires VPC_ID and SUBNET_IDS env variables."

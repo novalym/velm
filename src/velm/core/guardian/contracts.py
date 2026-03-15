@@ -1,4 +1,4 @@
-# Path: scaffold/core/guardian/contracts.py
+# Path: velm/core/guardian/contracts.py
 # -----------------------------------------
 
 from enum import Enum, auto
@@ -7,13 +7,21 @@ from typing import List, Optional
 
 
 class ThreatLevel(Enum):
-    """The Gnostic measure of danger."""
-    SAFE = 0  # Pure intent
-    LOW = 10  # Minor risk (e.g., read operations)
-    MEDIUM = 50  # Significant state change
-    HIGH = 80  # Dangerous (e.g., chmod, network)
-    CRITICAL = 100  # Existential threat (e.g., rm -rf /, secrets)
+    """
+    =============================================================================
+    == THE SCALES OF JURISPRUDENCE (V-Ω-TOTALITY)                              ==
+    =============================================================================
+    Defines the mathematical weight of architectural danger.
+    """
+    SAFE = 0  # Pure intent: Read-only, idempotent scrying.
+    LOW = 10  # Minor risk: Standard file creation, metadata mutation.
 
+    # [ASCENSION]: THE SHADOWED INTENT
+    SUSPICIOUS = 30  # Unusual patterns: Unquoted variables, complex pipes, or shadowed symbols.
+
+    MEDIUM = 50  # Significant state change: Tool execution, dependency weaving, environment shifts.
+    HIGH = 80  # Dangerous: Physical permission mutation (chmod), celestial network egress.
+    CRITICAL = 100  # Existential threat: Annihilation rites (rm -rf), secret exposure, kernel-level overrides.
 
 @dataclass
 class SecurityViolation:

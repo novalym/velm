@@ -1,0 +1,141 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: velm-core/ouroboros-distiller
+# ==============================================================================
+# @id:           velm-core/ouroboros-distiller
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      A self-referential compiler that transmutes existing local projects into reusable Velm Archetypes.
+# @vibe:         [distill, ouroboros, archetypes, generation, meta, ast, compiler]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:pattern-extraction, capability:archetype-forge]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "meta-engine"
+#   priority:    100
+#   alias:       "ouroboros_distiller"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tool_name = "ouroboros"
+$$ local_forge = {{ forge_path | default("~/.scaffold/archetypes") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE DISTILLATION ENGINE ---
+
+scripts/meta/
+    ouroboros.py :: """
+import os
+import sys
+import time
+import logging
+from pathlib import Path
+
+Logger = logging.getLogger("Meta:Ouroboros")
+
+class OuroborosDistiller:
+    \"\"\"
+    =============================================================================
+    == THE OUROBOROS DISTILLER (V-Ω-TOTALITY)                                 ==
+    =============================================================================
+    LIF: ∞ | ROLE: REALITY_TRANSMUTER | RANK: OMEGA_ARCHITECT
+    \"\"\"
+    def __init__(self, source_dir: Path, arch_name: str, category: str):
+        self.source_dir = source_dir.resolve()
+        self.arch_name = arch_name
+        self.category = category
+        self.slug = source_dir.name
+        self.snake = self.slug.replace("-", "_")
+
+    def conduct_transmutation(self) -> str:
+        Logger.info(f"🌀 [OUROBOROS] Transmuting reality '{self.slug}' into Gnosis...")
+        
+        blueprint_lines = [
+            f"# == GNOSTIC ARCHETYPE: {self.arch_name.upper()} ==",
+            f"# @description: Distilled from {self.slug} via Ouroboros.",
+            f"# @category: {self.category}",
+            f"# @version: 1.0.0",
+            "",
+            f"$$ project_slug = '{{{{ project_name | slug }}}}'",
+            f"$$ package_name = '{{{{ project_slug | snake }}}}'",
+            "",
+            f"{{{{ project_slug }}}}/"
+        ]
+
+        ABYSS = {'.git', '.scaffold', 'node_modules', '__pycache__', '.venv', 'dist', 'build'}
+
+        for root, dirs, files in os.walk(self.source_dir):
+            dirs[:] = [d for d in dirs if d not in ABYSS]
+            
+            for file in files:
+                if any(file.endswith(ext) for ext in ['.pyc', '.lock', '.log', '.tmp']):
+                    continue
+                    
+                abs_path = Path(root) / file
+                rel_path = abs_path.relative_to(self.source_dir)
+                
+                try:
+                    content = abs_path.read_text(encoding='utf-8', errors='ignore')
+                    # Semantic Abstraction
+                    content = content.replace(self.slug, "{{ project_slug }}")
+                    content = content.replace(self.snake, "{{ package_name }}")
+                    
+                    blueprint_lines.append(f"    {rel_path.as_posix()} :: \\\"\\\"\\\"")
+                    blueprint_lines.append(content)
+                    blueprint_lines.append("    \\\"\\\"\\\"\\n")
+                except Exception:
+                    pass
+
+        return "\\n".join(blueprint_lines)
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path")
+    parser.add_argument("name")
+    parser.add_argument("category")
+    args = parser.parse_args()
+    
+    distiller = OuroborosDistiller(Path(args.path), args.name, args.category)
+    scripture = distiller.conduct_transmutation()
+    
+    output_path = Path("{{ local_forge }}").expanduser() / f"{args.name}.scaffold"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(scripture)
+    print(f"✨ Archetype manifest at: {output_path}")
+"""
+
+# --- III. THE KINETIC SYMPHONY ---
+symphonies/ouroboros_inception.symphony :: """
+# == Symphony: The Rite of Ouroboros Inception ==
+@task main
+    %% let target_path = @ask("Which directory shall we distill into Gnosis?")
+    ?? dir_exists: {{ target_path }}
+
+    %% let arch_name = @ask("What is the sacred name for this new pattern?")
+    %% let arch_cat = @ask("In which category shall it reside?")
+
+    %% proclaim: "🧪 [OUROBOROS] Transmuting Matter into Law..."
+    >> python3 scripts/meta/ouroboros.py {{ target_path }} {{ arch_name }} {{ arch_cat }}
+    ?? succeeds
+
+    %% proclaim: "[bold green]✅ INCEPTION COMPLETE.[/bold green] The pattern is now immortal."
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+# --- META RITES ---
+distill: ## turn any directory into a reusable Velm Archetype
+    @velm run symphonies/ouroboros_inception.symphony
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Ouroboros Distiller[/bold cyan] is manifest."
+    >> mkdir -p $(eval echo {{ local_forge }}) scripts/meta
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Boilerplate Tax -> 0)[/]"

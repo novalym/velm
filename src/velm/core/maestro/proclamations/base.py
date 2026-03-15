@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, TYPE_CHECKING
 from ....logger import Scribe
 
 if TYPE_CHECKING:
-    from ....core.runtime.engine import ScaffoldEngine
+    from ....core.runtime.engine import VelmEngine
     from ....core.alchemist import DivineAlchemist
 
 class ProclamationScribe(ABC):
@@ -21,7 +21,7 @@ class ProclamationScribe(ABC):
     regardless of the ontological shape of its assigned Engine.
     """
 
-    def __init__(self, engine: 'ScaffoldEngine', alchemist: 'DivineAlchemist'):
+    def __init__(self, engine: 'VelmEngine', alchemist: 'DivineAlchemist'):
         self.engine = engine
         self.alchemist = alchemist
         self.logger = Scribe(self.__class__.__name__)

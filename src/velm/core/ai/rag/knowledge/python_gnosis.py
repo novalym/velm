@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/knowledge/python_gnosis.py
+# Path: velm/core/ai/rag/knowledge/python_gnosis.py
 # -----------------------------------------------------
 
 PYTHON_SHARDS = [

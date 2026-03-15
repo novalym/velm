@@ -10,8 +10,8 @@ from typing import List, Optional, Set, Dict, Any, Tuple
 # --- THE GEOMETRIC CONSTANTS ---
 INDENT_SIZE = 4
 SIGIL_COMMENT = '#'
-SIGIL_JINJA_OPEN = '{{'
-SIGIL_JINJA_CLOSE = '}}'
+SIGIL_SGF_OPEN = '{{'
+SIGIL_SGF_CLOSE = '}}'
 SIGIL_SOUL_OPS = {'::', '<<', '->', '+=', '-=', '~=', '^='}
 SIGIL_HEADERS = {'$$', 'let', 'def', 'const'}
 
@@ -33,7 +33,7 @@ class AuraContext:
     depth: int = 0
 
     # Flags of Essence
-    is_inside_jinja: bool = False
+    is_inside_sgf: bool = False
     is_inside_string: bool = False
     is_inside_comment: bool = False
     is_inside_header: bool = False
@@ -78,11 +78,11 @@ class BlockAuraPerceiver:
         in_string_char: Optional[str] = None
         in_comment: bool = False
         comment_start_idx = -1
-        jinja_depth = 0
+        sgf_depth = 0
 
         cursor_in_string = False
         cursor_in_comment = False
-        cursor_in_jinja = False
+        cursor_in_sgf = False
 
         soul_op_idx = -1
         vow_op_idx = -1
@@ -92,7 +92,7 @@ class BlockAuraPerceiver:
             if i == char_idx:
                 cursor_in_string = (in_string_char is not None)
                 cursor_in_comment = in_comment
-                cursor_in_jinja = (jinja_depth > 0)
+                cursor_in_sgf = (sgf_depth > 0)
 
             # 2. Comment Absolutism Gating
             if in_comment: continue
@@ -118,9 +118,9 @@ class BlockAuraPerceiver:
 
                 # 5. Jinja & Operators
                 elif char == '{' and i + 1 < len(raw_line) and raw_line[i + 1] == '{':
-                    jinja_depth += 1
+                    sgf_depth += 1
                 elif char == '}' and i + 1 < len(raw_line) and raw_line[i + 1] == '}':
-                    jinja_depth = max(0, jinja_depth - 1)
+                    sgf_depth = max(0, sgf_depth - 1)
 
                 if i + 1 < len(raw_line):
                     chunk = raw_line[i:i + 2]
@@ -220,7 +220,7 @@ class BlockAuraPerceiver:
             parent_block=parent_block,
             ancestry=ancestry,
             depth=current_depth,
-            is_inside_jinja=cursor_in_jinja,
+            is_inside_sgf=cursor_in_sgf,
             is_inside_string=cursor_in_string,
             is_inside_comment=False,
             is_inside_header=is_definition,

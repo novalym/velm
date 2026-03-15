@@ -1,4 +1,4 @@
-# Path: scaffold/core/io_controller/trash.py
+# Path: velm/core/io_controller/trash.py
 # ------------------------------------------
 
 import shutil

@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/engine/__init__.py
+# Path: velm/core/ai/engine/__init__.py
 # -----------------------------------------
 from .core import AIEngine
 

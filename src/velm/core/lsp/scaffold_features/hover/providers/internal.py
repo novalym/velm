@@ -34,7 +34,7 @@ class InternalHoverProvider(HoverProvider):
 
     ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
     1.  **Direct Memory Coupling:** Bypasses TCP/Socket layers. 0ms transport overhead.
-    2.  **Shared Engine Soul:** Pass the LSP's living `ScaffoldEngine` instance
+    2.  **Shared Engine Soul:** Pass the LSP's living `VelmEngine` instance
         directly to the Artisan, ensuring perfect state synchronization.
     3.  **Atomic Request Synthesis:** Uses `HoverRequest.model_validate` to forge
         the plea with strict Pydantic V2 validation.

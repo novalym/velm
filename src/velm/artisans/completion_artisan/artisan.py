@@ -70,7 +70,7 @@ class ProphecyContext:
     indent_str: str
     scope_depth: int
     language_id: str
-    is_inside_jinja: bool
+    is_inside_sgf: bool
     is_inside_comment: bool
     trigger_character: Optional[str]
     trigger_kind: int
@@ -303,7 +303,7 @@ class CompletionArtisan(BaseArtisan[CompletionRequest]):
         indent_match = re.match(r'^(\s*)', line_text)
         indent_str = indent_match.group(1) if indent_match else ""
 
-        is_jinja = '{{' in line_prefix and '}}' not in line_prefix
+        is_sgf = '{{' in line_prefix and '}}' not in line_prefix
         is_comment = line_prefix.strip().startswith('#')
 
         # Language Divination
@@ -327,7 +327,7 @@ class CompletionArtisan(BaseArtisan[CompletionRequest]):
             indent_str=indent_str,
             scope_depth=len(indent_str) // 4,
             language_id=lang,
-            is_inside_jinja=is_jinja,
+            is_inside_sgf=is_sgf,
             is_inside_comment=is_comment,
             trigger_character=trigger_char,
             trigger_kind=getattr(request, 'trigger_kind', 1),

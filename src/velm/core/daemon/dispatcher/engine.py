@@ -44,7 +44,7 @@ def _warm_acolyte_inception(project_root_str: str):
     os.environ["SCAFFOLD_SILENT_WORKER"] = "1"
 
     try:
-        from ....core.runtime.engine import ScaffoldEngine
+        from ....core.runtime.engine import VelmEngine
         from ....logger import configure_logging
 
         # [ASCENSION 11]: The Silence Vow
@@ -55,7 +55,7 @@ def _warm_acolyte_inception(project_root_str: str):
 
         # --- ENGINE MATERIALIZATION ---
         # We initialize a 'Thin' version of the engine (no Hive, no watchdog)
-        _worker_engine = ScaffoldEngine(
+        _worker_engine = VelmEngine(
             project_root=anchor_path,
             auto_register=True,
             silent=True

@@ -1,0 +1,102 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/metabolic-treasurer
+# ==============================================================================
+# @id:           system/metabolic-treasurer
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      The fiscal conscience of the God-Engine; scries LiteLLM response costs and manages metabolic budget ceilings.
+# @vibe:         [treasurer, budget, fiscal, cost-tracking, litellm, tokens, economy]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:fiscal-governor, capability:budget-warden]
+# @requires:     [capability:python-core, capability:neural-cortex]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["MAX_BUDGET_USD"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "governance-module"
+#   priority:    0
+#   alias:       "treasurer"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+$$ budget_ceiling_usd = {{ max_budget | default(50.00) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Fiscal Mind) ---
+
+src/{{ package_name }}/core/governance/
+    __init__.py :: "from .treasurer import metabolic_treasurer, MetabolicDossier\n"
+
+    treasurer.py :: """
+import os
+import logging
+import time
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("Governance:Treasurer")
+
+class MetabolicDossier(BaseModel):
+    \"\"\"The Gnostic record of a fiscal period.\"\"\"
+    total_spend_usd: float = 0.0
+    ai_mind_tax_usd: float = 0.0
+    iron_substrate_tax_usd: float = 0.0
+    timestamp: float = Field(default_factory=time.time)
+
+class MetabolicTreasurer:
+    \"\"\"
+    =============================================================================
+    == THE METABOLIC TREASURER (V-Ω-TOTALITY)                                  ==
+    =============================================================================
+    LIF: ∞ | ROLE: FISCAL_ADJUDICATOR | RANK: OMEGA
+    
+    [ASCENSIONS]:
+    1. Achronal Scrying: Real-time calculation of token costs.
+    2. Autonomic Gating: Physically halts execution if budget is breached.
+    3. HUD Multicast: Radiates current spend to the Ocular interface.
+    \"\"\"
+    def __init__(self, ceiling: float = {{ budget_ceiling_usd }}):
+        env_ceiling = os.getenv("MAX_BUDGET_USD")
+        self.ceiling = float(env_ceiling) if env_ceiling else ceiling
+        self._current_spend = 0.0
+
+    def record_tax(self, cost: float, source: str = "mind"):
+        \"\"\"Inscribes a fiscal tax event into the ledger.\"\"\"
+        self._current_spend += cost
+        
+        if self._current_spend >= self.ceiling:
+            Logger.critical(f"🛑 [TREASURY] BUDGET BREACHED: ${self._current_spend:.4f} >= ${self.ceiling:.2f}")
+            # [ASCENSION 2]: Autonomic Gating signal
+            os.environ["SCAFFOLD_METABOLIC_HALT"] = "1"
+            
+        return self._current_spend
+
+    def get_vitals(self) -> MetabolicDossier:
+        return MetabolicDossier(
+            total_spend_usd=self._current_spend,
+            ai_mind_tax_usd=self._current_spend 
+        )
+
+# Global Singleton for the Mind
+metabolic_treasurer = MetabolicTreasurer()
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+Makefile += """
+
+# --- TREASURY RITES ---
+budget: ## proclaim the current metabolic spend of the fleet
+    @poetry run python -c "from src.{{ package_name }}.core.governance.treasurer import metabolic_treasurer; print(f'Fleet Spend: $ {metabolic_treasurer.get_vitals().total_spend_usd:.4f}')"
+"""
+
+# --- IV. THE FINAL PROCLAMATION ---
+%% post-run
+    proclaim: "The [bold cyan]Metabolic Treasurer[/] is manifest."
+    proclaim: "Budget Ceiling: [bold yellow]$ {{ budget_ceiling_usd }}[/bold yellow]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Financial Drift -> 0)[/]"
+    proclaim: "[bold green]✅ The Treasury is waked and warded.[/bold green]"

@@ -1,0 +1,181 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/edge-pulse-citadel
+# ==============================================================================
+# @id:           cloud/edge-pulse-citadel
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Cloudflare Workers edge deployment with HMAC signed origin-routing and caching.
+# @vibe:         [cloudflare, edge, worker, serverless, cdn, hmac, security, proxy]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:edge-compute, capability:cloudflare-worker]
+# @requires:     [capability:node-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   node:        ["wrangler>=3.0.0", "typescript>=5.0.0", "@cloudflare/workers-types>=4.0.0"]
+#   env:         ["BACKEND_URL", "EDGE_SIGNING_SECRET"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "middleware-shield"
+#   priority:    100
+#   alias:       "edge_pulse_warden"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ backend_url = "https://api.{{ project_slug | default('my-app') }}.com"
+$$ cache_ttl_seconds = 3600
+$$ worker_name = "{{ project_slug | default('my-app') }}-edge"
+$$ edge_secret = "{{ crypto.random(64) }}"
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE PERIMETER SANCTUM (EDGE CODE) ---
+edge/
+    package.json :: """
+    {
+      "name": "{{ worker_name }}",
+      "private": true,
+      "scripts": {
+        "dev": "wrangler dev",
+        "deploy": "wrangler deploy"
+      },
+      "devDependencies": {
+        "wrangler": "^3.0.0",
+        "typescript": "^5.0.0",
+        "@cloudflare/workers-types": "^4.0.0"
+      }
+    }
+    """
+
+    tsconfig.json :: """
+    {
+      "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "lib": ["ESNext"],
+        "types": ["@cloudflare/workers-types"]
+      }
+    }
+    """
+
+    # [ASCENSION 1]: THE CELESTIAL BLUEPRINT
+    wrangler.toml :: """
+    name = "{{ worker_name }}"
+    main = "src/index.ts"
+    compatibility_date = "{{ time.strftime('%Y-%m-%d') }}"
+
+    [vars]
+    BACKEND_URL = "{{ backend_url }}"
+    CACHE_TTL = "{{ cache_ttl_seconds }}"
+    """
+
+    src/
+        index.ts :: """
+        import { handleRequest } from './handler';
+        export interface Env { BACKEND_URL: string; CACHE_TTL: string; SIGNING_SECRET: string; }
+        export default {
+            async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+                try { return await handleRequest(request, env, ctx); } 
+                catch (e) { return new Response("Paradox at the Edge.", { status: 500 }); }
+            },
+        };
+        """
+
+        # [ASCENSION 2]: HMAC Request Signing
+        handler.ts :: """
+        import { Env } from './index';
+
+        async function signRequest(request: Request, secret: string): Promise<void> {
+            const timestamp = Date.now().toString();
+            const url = new URL(request.url);
+            const dataToSign = `${timestamp}.${request.method}.${url.hostname}${url.pathname}`;
+            
+            const key = await crypto.subtle.importKey(
+                "raw", new TextEncoder().encode(secret),
+                { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+            );
+            
+            const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(dataToSign));
+            const sigHex = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+            request.headers.set("X-Gnostic-Timestamp", timestamp);
+            request.headers.set("X-Gnostic-Signature", sigHex);
+        }
+
+        export async function handleRequest(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+            const url = new URL(request.url);
+            
+            // [ASCENSION 3]: The Cache Gaze
+            if (request.method === "GET") {
+                const cache = caches.default;
+                let cached = await cache.match(request);
+                if (cached) return cached;
+            }
+
+            const backendReq = new Request(`${env.BACKEND_URL}${url.pathname}`, request);
+            if (env.SIGNING_SECRET) await signRequest(backendReq, env.SIGNING_SECRET);
+            
+            const response = await fetch(backendReq);
+
+            if (request.method === "GET" && response.ok) {
+                const cacheable = response.clone();
+                cacheable.headers.set("Cache-Control", `public, max-age=${env.CACHE_TTL}`);
+                ctx.waitUntil(caches.default.put(request, cacheable));
+            }
+            return response;
+        }
+        """
+
+# --- III. THE SURGICAL WEAVE (BACKEND TRUST) ---
+# [ASCENSION 4]: Python Backend Transmutation
+@if {{ is_python | lower == "true" }}
+src/{{ package_name }}/core/
+    edge_warden.py :: """
+import hmac
+import hashlib
+import time
+from fastapi import Request, HTTPException, status
+import os
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class EdgePulseMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE EDGE PULSE WARDEN (V-Ω-TOTALITY)                                    ==
+    =============================================================================
+    LIF: ∞ | ROLE: PERIMETER_SHIELD
+    \"\"\"
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path.startswith("/api"):
+            await self.verify_edge_signature(request)
+        return await call_next(request)
+
+    async def verify_edge_signature(self, request: Request):
+        \"\"\"[ASCENSION 5]: An unbreakable cryptographic ward against origin-bypass.\"\"\"
+        secret = os.getenv("EDGE_SIGNING_SECRET", "{{ edge_secret }}")
+        
+        timestamp_str = request.headers.get("X-Gnostic-Timestamp")
+        signature = request.headers.get("X-Gnostic-Signature")
+
+        if not timestamp_str or not signature:
+            raise HTTPException(status_code=403, detail="Missing Edge Signature")
+
+        if abs(time.time() * 1000 - int(timestamp_str)) > 30000:
+            raise HTTPException(status_code=403, detail="Temporal Paradox Detected")
+
+        data = f"{timestamp_str}.{request.method}.{request.url.hostname}{request.url.path}"
+        expected = hmac.new(secret.encode(), data.encode(), hashlib.sha256).hexdigest()
+
+        if not hmac.compare_digest(expected, signature):
+            raise HTTPException(status_code=403, detail="Profane Signature")
+"""
+@endif
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    # Inject secret into wrangler
+    >> cd edge && echo "SIGNING_SECRET={{ edge_secret }}" > .dev.vars
+    
+    proclaim: "The [bold cyan]Edge Pulse Citadel[/bold cyan] is manifest."
+    proclaim: "Zero-Trust Secret: [bold yellow]{{ edge_secret[:12] }}...[/bold yellow]"
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Origin Bypass -> 0)[/]"

@@ -18,7 +18,7 @@ class RunTestsTool(BaseTool):
     }
 
     def execute(self, **kwargs) -> str:
-        # We dispatch a `RunRequest` back to the ScaffoldEngine
+        # We dispatch a `RunRequest` back to the VelmEngine
         # This is dogfooding at its purest.
 
         target = "pytest"  # Heuristic: find the test command

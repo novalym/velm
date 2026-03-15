@@ -1,4 +1,4 @@
-# Path: scaffold/core/state/snapshot.py
+# Path: velm/core/state/snapshot.py
 from pathlib import Path
 import json
 from .contracts import GnosticState

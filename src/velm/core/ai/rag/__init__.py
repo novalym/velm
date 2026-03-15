@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/__init__.py
+# Path: velm/core/ai/rag/__init__.py
 # --------------------------------------
 
 """

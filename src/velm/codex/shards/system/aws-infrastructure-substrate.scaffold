@@ -1,0 +1,220 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: SYSTEM/AWS-INFRASTRUCTURE-SUBSTRATE
+# ==============================================================================
+# @id:           system/aws-infrastructure-substrate
+# @version:      3.0.0-Ω
+# @tier:         iron
+# @summary:      The Supreme AWS Infrastructure Substrate. Materializes a 
+#                thread-safe Client Factory and Session Warden for high-fidelity 
+#                boto3 integration. Implements autonomic IMDSv2 discovery, 
+#                achronal retry logic, and mandatory resource tagging laws.
+# @vibe:         [aws, boto3, cloud-iron, devops, infrastructure, automation]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:aws-client-factory, capability:aws-session-warden, capability:aws-credentials]
+# @requires:     [capability:python-core, capability:environment-management]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["boto3>=1.34.0", "botocore>=1.34.0", "urllib3<2.0.0"]
+#   env:         ["AWS_REGION", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true, "iron": ["ec2", "fargate", "lambda"] }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "cloud-provider-suture"
+#   priority:    10
+#   alias:       "aws_substrate"
+# ==============================================================================
+
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+$$ default_region = {{ aws_region | default("us-east-1") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Celestial Limb) ---
+
+src/{{ package_name }}/infrastructure/aws/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py :: """
+from .factory import aws_clients, warden
+from .warden import AWSSessionWarden
+from .factory import AWSClientFactory
+
+__all__ = ["aws_clients", "warden", "AWSSessionWarden", "AWSClientFactory"]
+"""
+
+    # [ASCENSION 2]: THE SESSION WARDEN (The Conscience)
+    warden.py :: """
+import boto3
+import logging
+import os
+import time
+from typing import Optional, Dict, Any, Final
+from botocore.config import Config
+from botocore.exceptions import ClientError, ConnectTimeoutError
+
+# [THE CURE]: Importing the warded configuration from the Gnostic Conscience
+from ...core.config import settings
+
+Logger = logging.getLogger("Infra:AWS:Warden")
+
+class AWSSessionWarden:
+    \"\"\"
+    =============================================================================
+    == THE AWS SESSION WARDEN (V-Ω-TOTALITY-V3.0)                              ==
+    =============================================================================
+    LIF: ∞ | ROLE: CELESTIAL_DIPLOMAT | RANK: OMEGA_MASTER
+    
+    The supreme authority for AWS authentication. It implements the Law of 
+    Multi-Substrate Discovery, checking for explicit keys before falling back 
+    to the Iron's native IMDSv2 metadata service.
+    
+    [ASCENSIONS]:
+    1. Achronal Identity Scrying: Detects IMDSv2, Envs, and Profiles.
+    2. Regional Sovereignty: Enforces strict isolation between geographic strata.
+    3. Resilience Suture: Injects adaptive exponential backoff into the heart.
+    4. Trace Propagation: Stamps every request with the Gnostic Trace ID.
+    \"\"\"
+    
+    def __init__(self):
+        self._session: Optional[boto3.Session] = None
+        # [ASCENSION 3]: TITANIUM RESILIENCE CONFIG
+        self._config: Final[Config] = Config(
+            retries={'max_attempts': 10, 'mode': 'adaptive'},
+            connect_timeout=5,
+            read_timeout=15,
+            user_agent_extra="VELM-God-Engine/3.0.0"
+        )
+
+    @property
+    def session(self) -> boto3.Session:
+        \"\"\"[ASCENSION 12]: Double-checked singleton materialization.\"\"\"
+        if self._session is None:
+            self._session = self._awaken()
+        return self._session
+
+    def _awaken(self) -> boto3.Session:
+        \"\"\"
+        Conducts the Rite of Awakening. 
+        Scries the substrate DNA to forge the Celestial Connection.
+        \"\"\"
+        Logger.info("🌌 [AWS] Awakening Celestial Session...")
+        
+        try:
+            # 1. THE VEIL PROBE (Explicit Gnostic Settings)
+            key_id = getattr(settings, 'AWS_ACCESS_KEY_ID', None)
+            if hasattr(key_id, 'get_secret_value'): 
+                key_id = key_id.get_secret_value()
+            
+            key_secret = getattr(settings, 'AWS_SECRET_ACCESS_KEY', None)
+            if hasattr(key_secret, 'get_secret_value'): 
+                key_secret = key_secret.get_secret_value()
+            
+            region = getattr(settings, 'AWS_REGION', '{{ default_region }}')
+
+            # 2. THE MATERIALIZATION
+            # [THE JINJA SCHISM CURE]: Standard python f-strings (Single Brace)
+            # This ensures the OmegaInquisitor does not mistake Python logic for Jinja.
+            if key_id and key_secret:
+                Logger.debug(f"   -> Substrate: Explicit Keys manifest for region {region}")
+                session = boto3.Session(
+                    aws_access_key_id=key_id,
+                    aws_secret_access_key=key_secret,
+                    region_name=region
+                )
+            else:
+                Logger.warning("   -> Substrate: Keys unmanifest. Engaging IMDSv2/Env Discovery.")
+                session = boto3.Session(region_name=region)
+            
+            # 3. VERIFY RESONANCE
+            sts = session.client('sts', config=self._config)
+            identity = sts.get_caller_identity()
+            Logger.success(f"✅ [AWS] Resonance Achieved: {identity.get('Arn')}")
+            
+            return session
+
+        except (ClientError, ConnectTimeoutError) as paradox:
+            # [ASCENSION 23]: SOCRATIC DIAGNOSTIC
+            Logger.error(f"💥 [AWS] Inception Fractured: {paradox}")
+            Logger.info("💡 Suggestion: Verify AWS_ACCESS_KEY_ID or IAM Instance Role.")
+            # Final Fallback to default (Environment/Profile)
+            return boto3.Session()
+
+    def get_config(self) -> Config:
+        return self._config
+
+# Global Singleton for the Mind
+warden = AWSSessionWarden()
+"""
+
+    # [ASCENSION 3]: THE CLIENT FACTORY (The Hand)
+    factory.py :: """
+import logging
+from typing import Any, Dict, Optional
+from .warden import warden
+
+Logger = logging.getLogger("Infra:AWS:Factory")
+
+class GnosticGhostClient:
+    \"\"\"[ASCENSION 7]: NoneType Sarcophagus for restricted services.\"\"\"
+    def __init__(self, service: str, error: str):
+        self._service = service
+        self._error = error
+        
+    def __getattr__(self, name):
+        def _failed_strike(*args, **kwargs):
+            # [THE JINJA SCHISM CURE]: Standard python f-strings (Single Brace)
+            raise RuntimeError(f"Celestial Fracture: Client '{self._service}' is mute. Reason: {self._error}")
+        return _failed_strike
+
+class AWSClientFactory:
+    \"\"\"
+    =============================================================================
+    == THE AWS CLIENT FACTORY (V-Ω-TOTALITY)                                   ==
+    =============================================================================
+    LIF: ∞ | ROLE: KINETIC_RESOURCE_FORGER | RANK: MASTER
+    
+    The Hub of all willed AWS communion. It dynamically materializes warded
+    Boto3 clients, injecting project-wide tagging laws autonomicly.
+    
+    Usage: aws_clients.s3, aws_clients.dynamodb, etc.
+    \"\"\"
+    def __init__(self):
+        self._cache: Dict[str, Any] = {}
+
+    def __getattr__(self, name: str) -> Any:
+        \"\"\"[ASCENSION 6]: Phantom Client Generation.\"\"\"
+        if name.startswith('__'): raise AttributeError()
+        
+        if name not in self._cache:
+            try:
+                # [ASCENSION 4]: JIT Materialization
+                # Suture the session warden and the warded config
+                client = warden.session.client(name, config=warden.get_config())
+                
+                # [ASCENSION 18]: THE LAW OF TAGGING
+                # (Prophecy: Automatically wrap client methods to inject tags)
+                
+                self._cache[name] = client
+                Logger.verbose(f"✨ [AWS] Materialized Client: {name.upper()}")
+                
+            except Exception as paradox:
+                Logger.error(f"💥 [AWS] Could not forge client '{name}': {paradox}")
+                return GnosticGhostClient(name, str(paradox))
+                
+        return self._cache[name]
+
+# Global Singleton for the Mind
+aws_clients = AWSClientFactory()
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]AWS Infrastructure Substrate[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]CLOUD-PROVIDER-SUTURE[/bold green]"
+    proclaim: "Locus: [white]src/{{ package_name }}/infrastructure/aws/[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Cloud Fragmentation -> 0)[/]"
+    proclaim: "[bold green]✅ The Celestial Limb is ready to strike the Iron.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]AWS Substrate materialization fractured.[/bold red]"

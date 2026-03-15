@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/seekers/magic_seeker.py
+# Path: velm/core/ignition/diviner/seekers/magic_seeker.py
 # -----------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_MAGIC_SEEKER_V7
 

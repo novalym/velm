@@ -1,4 +1,4 @@
-# Path: scaffold/core/jurisprudence/vows/base.py
+# Path: velm/core/jurisprudence/vows/base.py
 # ----------------------------------------------
 
 import os

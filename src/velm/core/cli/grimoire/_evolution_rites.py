@@ -1,4 +1,4 @@
-# scaffold/core/cli/grimoire/_evolution_rites.py
+# velm/core/cli/grimoire/_evolution_rites.py
 """Rites of architectural transmutation and refactoring."""
 import argparse
 from ..cli_utils import add_common_flags, add_simulation_flags, add_variable_flags

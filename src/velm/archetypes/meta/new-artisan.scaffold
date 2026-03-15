@@ -117,13 +117,13 @@ src/velm/core/cli/grimoire_data.py += """
 # [4] THE TEST SHADOW (Adjudication)
 tests/artisans/test_{{ artisan_snake }}.py :: """
 import pytest
-from velm.core.runtime import ScaffoldEngine
+from velm.core.runtime import VelmEngine
 from velm.interfaces.requests import {{ artisan_pascal }}Request
 
 def test_{{ artisan_snake }}_inception():
     \"\"\"Verifies the artisan can be summoned and executed in a void context.\"\"\"
     # 1. Awaken Engine
-    engine = ScaffoldEngine(silent=True)
+    engine = VelmEngine(silent=True)
     
     # 2. Forge Plea
     request = {{ artisan_pascal }}Request(

@@ -1,4 +1,4 @@
-# scaffold/core/runtime/plugin_interface.py
+# velm/core/runtime/plugin_interface.py
 
 from typing import Type, Any
 

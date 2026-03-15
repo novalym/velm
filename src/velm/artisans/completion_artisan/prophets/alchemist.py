@@ -38,7 +38,7 @@ class AlchemistProphet(BaseProphet):
         try:
             # [ASCENSION 1]: CONTEXTUAL GATING
             # Only speak if inside {{ ... }}
-            if not ctx.is_inside_jinja:
+            if not ctx.is_inside_sgf:
                 return []
 
             # [ASCENSION 11]: STRING GUARD

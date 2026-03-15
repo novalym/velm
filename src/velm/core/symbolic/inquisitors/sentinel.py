@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/inquisitors/sentinel.py
+# Path: src/velm/core/symbolic/inquisitors/sentinel.py
 # ---------------------------------------------------------
 # LIF: 10,000,000,000 | ROLE: COMPLIANCE_WARDEN | RANK: LEGENDARY
 # AUTH: Ω_SENTINEL_TOTALITY_V100

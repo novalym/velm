@@ -1,4 +1,4 @@
-# scaffold/core/simulation/prophecy.py
+# velm/core/simulation/prophecy.py
 
 from typing import List, Dict, Optional, Any
 from pydantic import BaseModel, Field

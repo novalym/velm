@@ -1,0 +1,112 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: security/privacy-shroud
+# ==============================================================================
+# @id:           security/privacy-shroud
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      MultiFernet encryption module and SQLAlchemy TypeDecorators for seamless, rotated data encryption at rest.
+# @vibe:         [encryption, cryptography, fernet, privacy, pii, sqlalchemy, models, security]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:data-encryption, capability:crypto-utils]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["cryptography>=42.0.0", "pydantic-settings>=2.2.0"]
+#   env:         ["SCAFFOLD_ENCRYPTION_KEYS", "SCAFFOLD_BLIND_INDEX_PEPPER"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "crypto-module"
+#   priority:    10
+#   alias:       "privacy_shroud"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ init_key = "{{ crypto.random(43, 'base64') }}"
+$$ init_pepper = "{{ crypto.random(32, 'hex') }}"
+
+# --- II. THE CIPHER SANCTUM (Logic Core) ---
+src/{{ package_name }}/core/security/
+    __init__.py += """
+from .shroud import shroud_matter, resurrect_truth, forge_blind_index
+"""
+            
+    config.py += """
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List
+from pydantic import SecretStr
+
+class ShroudSettings(BaseSettings):
+    SCAFFOLD_ENCRYPTION_KEYS: List[SecretStr]
+    SCAFFOLD_BLIND_INDEX_PEPPER: SecretStr
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+security_config = ShroudSettings()
+"""
+
+    shroud.py :: """
+import hmac
+import hashlib
+import logging
+from typing import Union
+from cryptography.fernet import Fernet, MultiFernet
+from .config import security_config
+
+Logger = logging.getLogger("Security:Shroud")
+
+# [ASCENSION 4]: Rotational Keyring Initialization
+_keys = [k.get_secret_value().encode() for k in security_config.SCAFFOLD_ENCRYPTION_KEYS]
+_fernets = [Fernet(k) for k in _keys]
+_vault = MultiFernet(_fernets)
+
+def shroud_matter(cleartext: Union[str, bytes]) -> str:
+    \"\"\"Encrypts a cleartext soul into a ciphered husk.\"\"\"
+    if not cleartext: return ""
+    data = cleartext.encode() if isinstance(cleartext, str) else cleartext
+    return _vault.encrypt(data).decode()
+
+def resurrect_truth(ciphered_text: str) -> str:
+    \"\"\"Restores the cleartext soul from the ciphered husk.\"\"\"
+    if not ciphered_text: return ""
+    try:
+        return _vault.decrypt(ciphered_text.encode()).decode()
+    except Exception as e:
+        Logger.error(f"Resurrection Failure: {e}")
+        return "[REDACTED_VOID]"
+
+def forge_blind_index(cleartext: str) -> str:
+    \"\"\"Forges a searchable HMAC-SHA256 hash.\"\"\"
+    if not cleartext: return ""
+    key = security_config.SCAFFOLD_BLIND_INDEX_PEPPER.get_secret_value().encode()
+    msg = str(cleartext).strip().lower().encode()
+    return hmac.new(key, msg, hashlib.sha256).hexdigest()
+"""
+
+    types.py :: """
+from sqlalchemy import String, TypeDecorator
+from .shroud import shroud_matter, resurrect_truth
+
+class ShroudedString(TypeDecorator):
+    \"\"\"A Gnostic TypeDecorator for SQLAlchemy. Shrouds on Ingress, resurrects on Egress.\"\"\"
+    impl = String
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None: return None
+        return shroud_matter(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None: return None
+        return resurrect_truth(value)
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    # Pre-inject keys
+    >> echo "SCAFFOLD_ENCRYPTION_KEYS=['{{ init_key }}']\nSCAFFOLD_BLIND_INDEX_PEPPER='{{ init_pepper }}'" >> .env
+
+    proclaim: "The [bold cyan]Privacy Shroud[/bold cyan] is manifest and warded."
+    proclaim: "LIF-Multiplier: [bold green]100,000x (Compliance Debt -> 0)[/]"

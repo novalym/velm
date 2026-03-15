@@ -1,0 +1,129 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/TRAFFIC-MIRROR
+# ==============================================================================
+# @id:           api/traffic-mirror
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A high-fidelity Multiversal Mirror for live traffic shadowing. 
+#                Intercepts API intent and asynchronously duplicates it to a 
+#                shadow reality, enabling zero-risk validation of refactored logic.
+# @vibe:         [mirror, shadow, reliability, observability, async-io, testing]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:traffic-shadowing, capability:multiversal-mirror, capability:risk-mitigation]
+# @requires:     [capability:api-heart, capability:network-access]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["httpx>=0.27.0"]
+#   env:         ["SHADOW_TARGET_URL", "MIRROR_TIMEOUT"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        middleware-shield
+#   priority:    1000
+#   alias:       "mirror"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ shadow_url   = {{ shadow_url | default("https://shadow.novalym.systems") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Mirror Logic) ---
+
+src/{{ package_name }}/middleware/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .mirror import TrafficMirrorMiddleware\n"
+
+    mirror.py :: """
+import httpx
+import asyncio
+import logging
+from typing import Callable, Optional
+from fastapi import Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.background import BackgroundTask
+
+Logger = logging.getLogger("API:TrafficMirror")
+
+class TrafficMirrorMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE MULTIVERSAL MIRROR (V-Ω-TOTALITY)                                   ==
+    =============================================================================
+    LIF: ∞ | ROLE: SHADOW_ROUTER | RANK: OMEGA_SENTINEL
+    
+    [ASCENSIONS]:
+    1. Zero-Blocking Asynchrony: Mirroring is offloaded to a BackgroundTask.
+    2. Body Stream Resurrection: Perfectly captures and restores request bodies.
+    3. Trace ID Propagation: Injects the Silver Cord into the mirrored intent.
+    4. Substrate Isolation: 0ms impact on the Prime response time.
+    \"\"\"
+    def __init__(self, app):
+        super().__init__(app)
+        self.shadow_url = os.getenv("SHADOW_TARGET_URL", "{{ shadow_url }}")
+        # Persistent client to avoid TCP handshake tax on every strike
+        self.client = httpx.AsyncClient(timeout=3.0)
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # --- MOVEMENT I: THE PEEKING RITE (STREAM RESURRECTION) ---
+        # Reading the body consumes it. We must resurrect it for the Prime logic.
+        body_bytes = b""
+        if request.method in ["POST", "PUT", "PATCH", "DELETE"]:
+            body_bytes = await request.body()
+            
+            async def receive():
+                return {"type": "http.request", "body": body_bytes}
+            request._receive = receive
+
+        # --- MOVEMENT II: KINETIC STRIKE (PRIME REALITY) ---
+        # Execute the primary logic immediately to minimize latency.
+        response = await call_next(request)
+        
+        # --- MOVEMENT III: ACHRONAL SHADOW MIRRORING ---
+        # We teleport the intent to the shadow realm in the background.
+        if self.shadow_url != "VOID":
+            headers = dict(request.headers)
+            headers["X-Reality-Phase"] = "SHADOW"
+            headers["X-Gnostic-Trace"] = request.state.trace_id
+            
+            response.background = BackgroundTask(
+                self._mirror_strike, 
+                method=request.method,
+                path=request.url.path,
+                query=str(request.query_params),
+                headers=headers,
+                body=body_bytes
+            )
+        
+        return response
+
+    async def _mirror_strike(self, method: str, path: str, query: str, headers: dict, body: bytes):
+        \"\"\"Conducts the duplicate strike against the shadow iron.\"\"\"
+        target = f"{self.shadow_url}{path}"
+        if query: target += f"?{query}"
+        
+        try:
+            # [STRIKE]: Fire and forget. We don't await the result.
+            await self.client.request(
+                method=method,
+                url=target,
+                headers=headers,
+                content=body
+            )
+        except Exception as e:
+            # The Mirror is a silent guardian; failure must not compromise Prime.
+            Logger.debug(f"🪞 [MIRROR] Shadow strike fractured: {e}")
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Traffic Mirror[/bold cyan] is manifest and warded."
+    proclaim: "Role: [bold green]MIDDLEWARE-SHIELD[/bold green]"
+    proclaim: "Target: [bold yellow]{{ shadow_url }}[/bold yellow]"
+    
+    # [THE CURE]: No 'poetry add' needed. The Parser handled the DNA.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Production Risk -> 0)[/]"
+
+%% on-heresy
+    proclaim: "[bold red]Mirror materialization fractured.[/bold red]"

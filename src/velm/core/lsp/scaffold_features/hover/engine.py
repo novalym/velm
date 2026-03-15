@@ -1,4 +1,4 @@
-# Path: scaffold/core/lsp/scaffold_features/hover/engine.py
+# Path: velm/core/lsp/scaffold_features/hover/engine.py
 # ---------------------------------------------------------
 
 import time

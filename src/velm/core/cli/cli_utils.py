@@ -1,4 +1,4 @@
-# Path: scaffold/core/cli/cli_utils.py
+# Path: velm/core/cli/cli_utils.py
 # ------------------------------------
 # LIF: 10,000,000,000 (THE ARSENAL OF ARGUMENTS)
 # ROLE: Provides reusable argument groups for the CLI Grimoire.

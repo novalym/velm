@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/sutures/__init__.py
+# Path: src/velm/core/symbolic/sutures/__init__.py
 # --------------------------------------------------------
 # LIF: ∞ | ROLE: DECISION_GATEWAY_REGISTRY | RANK: SOVEREIGN
 # AUTH: Ω_SUTURES_INIT_TOTALITY

@@ -1,4 +1,4 @@
-# Path: scaffold/core/observatory/store.py
+# Path: velm/core/observatory/store.py
 # ----------------------------------------
 import json
 import threading

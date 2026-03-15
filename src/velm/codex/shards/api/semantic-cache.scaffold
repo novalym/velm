@@ -1,0 +1,150 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/SEMANTIC-CACHE
+# ==============================================================================
+# @id:           api/semantic-cache
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A Semantic Cache Warden for zero-latency intent recall. 
+#                Intercepts API requests, hashes their intent (Path + Body), 
+#                and serves cached JSON responses directly from Redis, 
+#                annihilating redundant computations across the server nodes.
+# @vibe:         [caching, redis, performance, memoization, async-core, latency]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:semantic-caching, capability:response-memoization, capability:latency-reduction]
+# @requires:     [capability:api-heart, capability:redis-client]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["redis>=5.0.1"]
+#   env:         ["CACHE_TTL_SECONDS", "REDIS_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        middleware-shield
+#   priority:    5
+#   alias:       "cache_warden"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ default_ttl  = {{ ttl | default(3600) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Caching Mind) ---
+
+src/{{ package_name }}/middleware/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .cache import SemanticCacheMiddleware\n"
+
+    cache.py :: """
+import hashlib
+import json
+import logging
+import os
+import asyncio
+from typing import Callable, Optional
+from fastapi import Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
+
+Logger = logging.getLogger("API:SemanticCache")
+
+class SemanticCacheMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE SEMANTIC CACHE WARDEN (V-Ω-TOTALITY)                                ==
+    =============================================================================
+    LIF: ∞ | ROLE: TIME_DILATION_ENGINE | RANK: OMEGA_SCRIBE
+    
+    [ASCENSIONS]:
+    1. Intent Merkle-Hashing: Hashes Path + Body for deterministic recall.
+    2. Stream Resurrection: Consumes and restores request/response bodies.
+    3. Idempotency Law: Strictly warded against non-idempotent mutations.
+    4. Substrate Isolation: Fail-open logic if Redis is unmanifest.
+    \"\"\"
+    def __init__(self, app):
+        super().__init__(app)
+        self.ttl = int(os.getenv("CACHE_TTL_SECONDS", "{{ default_ttl }}"))
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # --- MOVEMENT I: IDEMPOTENCY ADJUDICATION ---
+        # We only cache read-intents or deterministic computations.
+        if request.method not in ("GET", "POST"):
+            return await call_next(request)
+            
+        # [THE CURE]: Scrying for the willed Redis client in the app state.
+        redis = getattr(request.app.state, "redis_client", None)
+        if not redis:
+            return await call_next(request)
+
+        # --- MOVEMENT II: THE PEEKING RITE (INTENT HASHING) ---
+        # 1. Capture Body (and resurrect the stream for the core logic)
+        body_bytes = await request.body()
+        async def receive():
+            return {"type": "http.request", "body": body_bytes}
+        request._receive = receive
+
+        # 2. Forge the Merkle-Anchor
+        # Intent = Method + Path + Query + Body
+        intent_payload = f"{request.method}:{request.url.path}:{request.url.query}:{body_bytes.hex()}"
+        intent_hash = hashlib.sha256(intent_payload.encode()).hexdigest()
+        cache_key = f"gnosis:cache:{intent_hash}"
+
+        # --- MOVEMENT III: THE RECALL (CACHE PROBE) ---
+        try:
+            cached_matter = await redis.get(cache_key)
+            if cached_matter:
+                Logger.info(f"⚡ [CACHE] Resonance Achieved. Recall ID: {intent_hash[:12]}")
+                return Response(
+                    content=cached_matter,
+                    media_type="application/json",
+                    headers={
+                        "X-Cache-Status": "HIT",
+                        "X-Gnostic-Trace": request.state.trace_id
+                    }
+                )
+        except Exception as paradox:
+            Logger.debug(f"Cache Probe fractured: {paradox}")
+
+        # --- MOVEMENT IV: KINETIC EXECUTION ---
+        response = await call_next(request)
+        
+        # --- MOVEMENT V: THE INSCRIPTION (STATE SEALING) ---
+        # [ASCENSION 2]: We only cache successful, JSON-based revelations.
+        if response.status_code == 200 and "application/json" in response.headers.get("Content-Type", ""):
+            try:
+                # We must consume the response stream, cache it, and rebuild it.
+                res_body = b""
+                async for chunk in response.body_iterator:
+                    res_body += chunk
+                
+                # [STRIKE]: Inscribing to the Redis Lattice in the background
+                asyncio.create_task(redis.setex(cache_key, self.ttl, res_body))
+                
+                # Reconstruct and return the original response
+                new_response = Response(
+                    content=res_body,
+                    status_code=response.status_code,
+                    headers=dict(response.headers),
+                    media_type=response.media_type
+                )
+                new_response.headers["X-Cache-Status"] = "MISS"
+                return new_response
+                
+            except Exception as e:
+                Logger.debug(f"Inscription fractured: {e}")
+
+        return response
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Semantic Cache Warden[/bold cyan] is manifest and warded."
+    proclaim: "Role: [bold green]MIDDLEWARE-SHIELD[/bold green]"
+    proclaim: "TTL: [bold yellow]{{ default_ttl }} seconds[/bold yellow]"
+    
+    # [THE CURE]: No 'poetry add' needed; the Engine's new Suture handled the mass.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Computation Entropy -> 0)[/]"
+    proclaim: "[bold green]✅ The Akasha is now Cached.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Cache materialization fractured.[/bold red]"

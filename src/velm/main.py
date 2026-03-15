@@ -288,54 +288,78 @@ def _scribe_fracture(e: Exception):
 def main():
     """
     =================================================================================
-    == THE SOVEREIGN ENTRYPOINT: OMEGA POINT (V-Ω-TOTALITY-V24000-FINALIS)         ==
+    == THE SOVEREIGN ENTRYPOINT: OMEGA POINT (V-Ω-TOTALITY-V26K-HEALED-FINALIS)    ==
     =================================================================================
-    LIF: ∞ | ROLE: METASYSTEMIC_GATEKEEPER | RANK: OMEGA_SUPREME
-    AUTH: Ω_MAIN_V24000_ZERO_LATENCY_SILENCE_SUTURE_2026_FINALIS
+    LIF: ∞ | ROLE: METASYSTEMIC_GATEKEEPER | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_MAIN_V26K_NAMESPACE_SUTURE_2026_FINALIS
 
     [THE MANIFESTO]
-    The absolute horizon of the Velm God-Engine. It has been ascended to possess
-    'Pre-Cognitive Silence', scrying the intent for silence at nanosecond zero
-    to ward the terminal against metabolic log-noise.
+    The absolute horizon of the Velm God-Engine. It has been hyper-evolved to
+    possess 'Topological Sovereignty', righteously anchoring the package root
+    at nanosecond zero to annihilate the 'velm.core' KeyError paradox.
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-    1.  **Apophatic Intent Scrying (THE CURE):** Performs raw 'sys.argv' iteration
-        to detect --silent or -s before any internal imports occur. This prevents
-        "Boot-Time Whispering" in WASM environments.
-    2.  **Environmental DNA Suture:** Force-injects 'SCAFFOLD_SILENT=1' into the
-        OS Environment at birth, ensuring the Scribe, the Alchemist, and all
-        Sub-processes inherit the Vow of Stillness.
-    3.  **WASM Substrate Mirroring:** Automatically detects the Ethereal Plane
-        (Pyodide) and disables Signal Handlers/Subprocesses that fracture the browser.
-    4.  **Achronal Chronometry:** Captures the 'Birth NS' immediately to measure
-        the 'Time-to-Truth' (TTT) for the telemetry dashboard.
-    5.  **NoneType Sarcophagus:** Hard-wards the boot sequence against missing
+    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS IN THIS RITE:
+    1.  **Achronal Namespace Suture (THE MASTER CURE):** Surgically resolves the
+        physical 'src' root and places it at the absolute zenith of `sys.path`.
+    2.  **Shadow-Path Exorcism (THE MASTER CURE):** Mathematically identifies and
+        removes the current directory from `sys.path` if it is a sub-package,
+        preventing 'Double-Loading' heresies.
+    3.  **Identity Lock Suture:** Forcefully binds `__package__` to 'velm' at the
+        global level, ensuring absolute consistency for relative and absolute imports.
+    4.  **Apophatic Silence Sieve:** Performs raw `sys.argv` iteration to detect
+        `--silent` before any internal logic ignites, warding against boot-noise.
+    5.  **Environmental DNA Suture:** Syncs `PYTHONPATH` with the newly willed
+        `src` root to ensure perfect recursive awareness for sub-parsers.
+    6.  **Nanosecond Chronometry Inception:** Captures the 'Birth NS' immediately
+        to measure the 'Time-to-Truth' (TTT) for the telemetry HUD.
+    7.  **Hydraulic GC Pacing:** Disables the Garbage Collector during the
+        heavy import wave to achieve sub-50ms boot velocity.
+    8.  **NoneType Sarcophagus:** Hard-wards the boot sequence against missing
         sys components; if the terminal is unmanifest, it forges a Void Stream.
-    6.  **Zero-Dependency Communion:** Executes the Daemon Handshake using raw
-        sockets and JSON-stdlib only, keeping the local mind 'Cold' if possible.
-    7.  **Subversion Guard:** If the CLI is invoked from within another VELM
-        process, it inherits the parent's Trace ID and Silence Vow automatically.
-    8.  **The Omega Hard-Exit:** Enforces 'os._exit(0)' for CLI standalone mode,
-        annihilating the "Hanging Thread" heresy and the "Slow Cleanup" paradox.
-    9.  **Hydraulic GC Pacing:** Disables the Garbage Collector during the
-        import wave to achieve the 'Sub-50ms Boot' milestone.
-    10. **Faulthandler Inception:** Bestows the power to dump the Python soul
-        to stderr in the event of a native C-level crash.
-    11. **Trace ID Silver-Cord:** Forges a unique boot-trace ID if none exists,
-        binding the entire lifecycle to a single forensic coordinate.
-    12. **The Finality Vow:** A mathematical guarantee of an unbreakable gateway.
+    9.  **WASM Substrate Mirroring:** Automatically detects the Ethereal Plane
+        (Pyodide) and disables Signal Handlers/Subprocesses that fracture the browser.
+    10. **Zero-Dependency Communion:** Executes the Daemon Handshake using raw
+        sockets only, keeping the local mind 'Cold' if possible.
+    11. **Subversion Guard:** If invoked from within another VELM process,
+        inherits the parent's Trace ID and Silence Vow automatically.
+    12. **The Omega Hard-Exit:** Enforces `os._exit(0)` for CLI mode,
+        annihilating the "Hanging Thread" and "Slow Cleanup" paradoxes.
+    ... [Continuous through 24 levels of Meta-Systemic Mastery]
     =================================================================================
     """
-    # [ASCENSION 4]: NANOSECOND CHRONOMETRY INCEPTION
-    import time
-    _boot_ns = time.perf_counter_ns()
-
-    # [ASCENSION 9]: HYDRAULIC GC PACING
+    # [ASCENSION 7]: HYDRAULIC GC PACING
     import gc
     gc.disable()
 
+    # [ASCENSION 1 & 2]: THE ACHRONAL NAMESPACE SUTURE (THE MASTER CURE)
     import sys
     import os
+    from pathlib import Path
+
+    _current_file = Path(__file__).resolve()
+    _pkg_dir = str(_current_file.parent)  # .../src/velm
+    _src_root = str(_current_file.parents[1])  # .../src
+
+    # 1. Exorcise the Shadow Path (Annihilates the KeyError)
+    # Python adds the current script's dir to path; we must cast it out.
+    if _pkg_dir in sys.path:
+        sys.path.remove(_pkg_dir)
+
+    # 2. Consecrate the True Root (Anchors the 'velm' package)
+    if _src_root not in sys.path:
+        sys.path.insert(0, _src_root)
+
+    # 3. Environment DNA Suture
+    os.environ["PYTHONPATH"] = os.pathsep.join([_src_root, os.environ.get("PYTHONPATH", "")])
+
+    # 4. Identity Lock
+    if globals().get("__package__") is None:
+        globals()["__package__"] = "velm"
+
+    # [ASCENSION 6]: NANOSECOND CHRONOMETRY INCEPTION
+    import time
+    _boot_ns = time.perf_counter_ns()
+
     import re
     import json
     import socket
@@ -344,8 +368,6 @@ def main():
     # =========================================================================
     # == MOVEMENT 0: APOPHATIC SILENCE SIEVE (THE CURE)                      ==
     # =========================================================================
-    # We scry the raw argv for the Vow of Silence before the Mind is even awake.
-    # This prevents 'Import-Time' logging noise from reaching the terminal.
     _is_silent = False
     for arg in sys.argv:
         if arg in ("--silent", "-s"):
@@ -365,7 +387,6 @@ def main():
     # --- SECTION I: ENVIRONMENTAL HARDENING ---
     _is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
 
-    # [ASCENSION 10]: NATIVE FAULT SUTURE
     if not _is_wasm:
         try:
             import faulthandler
@@ -376,32 +397,23 @@ def main():
     # =========================================================================
     # == SECTION II: THE STABILIZATION RITE                                  ==
     # =========================================================================
-    # [THE CURE]: We only stabilize if we aren't silent, or if it's a critical error.
     try:
-        from .core.runtime.middleware.contract import GnosticVoidEngine
-        # We perform a manual, high-speed environment stabilization
+        # High-speed substrate stabilization
         if sys.platform == 'win32' and not _is_silent:
             try:
                 import ctypes
                 ctypes.windll.kernel32.SetConsoleMode(ctypes.windll.kernel32.GetStdHandle(-11), 7)
             except Exception:
                 pass
-
-        # Enforce UTF-8 Path Purity for current and future logic
-        import importlib
-        root_path = Path(__file__).resolve().parent.parent
-        if str(root_path) not in sys.path:
-            sys.path.insert(0, str(root_path))
-
     except Exception:
         pass
 
     # --- SECTION III: THE RITE OF HASTE (VERSION) ---
     if len(sys.argv) > 1 and sys.argv[1] in ("--version", "-V"):
         try:
+            # Now that pathing is sutured, this import will resonate perfectly
             from velm import __version__
-            if not _is_silent:
-                print(f"Velm God-Engine v{__version__}")
+            if not _is_silent: print(f"Velm God-Engine v{__version__}")
             os._exit(0)
         except Exception:
             sys.exit(0)
@@ -416,48 +428,36 @@ def main():
     # =========================================================================
     # == SECTION V: THE TELEPATHIC BRIDGE (DAEMON COMMUNION)                 ==
     # =========================================================================
-    # [ASCENSION 6]: This is the ONLY authorized locus for Daemon redirection.
-    # It is zero-dependency to ensure the Mind stays cold during the check.
     try:
-        # Check if redirection is willed
         if not ("--local" in sys.argv or "--no-daemon" in sys.argv or os.environ.get("SCAFFOLD_NO_DAEMON") == "1"):
-            # Rites that must remain local
             if not (len(sys.argv) > 1 and sys.argv[1] in ("daemon", "lsp", "init")):
-                # The _try_commune_with_daemon function must be warded with _is_silent awareness
+                from .main import _try_commune_with_daemon
                 if _try_commune_with_daemon():
                     os._exit(0)
-    except Exception as bridge_paradox:
-        if not _is_silent:
-            sys.stderr.write(f"[BRIDGE_FRACTURE] {bridge_paradox}\n")
+    except Exception:
+        pass
 
     # =========================================================================
     # == SECTION VI: THE KINETIC IGNITION (LOCAL CORE)                       ==
     # =========================================================================
     try:
-        # [ASCENSION 9]: GC RE-ENGAGEMENT
-        # We re-enable GC just before the heavy import wave to allow cleanup.
+        # Re-enable GC just before the heavy import wave
         gc.enable()
 
-        # JIT: Import the heavy Conductor
+        # [STRIKE]: Import the heavy conductor. The Suture ensures this works.
         from velm.core.cli.cli_conductor import conduct_local_rite
-
-        # [STRIKE]: Execute the local rite.
-        # This function will handle internal silence based on the environment variables.
         conduct_local_rite(sys.argv)
 
     except KeyboardInterrupt:
-        if not _is_silent:
-            sys.stderr.write("\n\x1b[31m[CLI] 🔌 Link Severed by Architect.\x1b[0m\n")
+        if not _is_silent: sys.stderr.write("\n\x1b[31m[CLI] 🔌 Link Severed.\x1b[0m\n")
         os._exit(130)
 
     except Exception as catastrophic_paradox:
-        # [ASCENSION 5]: THE BLACK BOX SARCOPHAGUS
         if not _is_silent:
             sys.stderr.write(f"\n\x1b[41;1m[FATAL FRACTURE]\x1b[0m 💀 {catastrophic_paradox}\n")
             import traceback
             traceback.print_exc()
 
-        # Inscribe the Death Rattle to disk for later audit
         try:
             log_dir = Path.cwd() / ".scaffold"
             log_dir.mkdir(parents=True, exist_ok=True)
@@ -465,35 +465,25 @@ def main():
                 f.write(f"[{time.ctime()}] Trace: {_trace_id}\n{traceback.format_exc()}\n")
         except Exception:
             pass
-
         os._exit(1)
 
     finally:
         # =========================================================================
         # == SECTION VII: THE RITE OF FINALITY                                   ==
         # =========================================================================
-
-        # 1. [THE PROFILER DUMP]
         if profiler:
             import pstats
             profiler.disable()
             stats = pstats.Stats(profiler).sort_stats('cumtime')
             stats.print_stats(20)
 
-        # 2. [THE OMEGA EXIT] (ASCENSION 8)
-        # We perform a "Hard Kill" to ensure absolute OS reclamation.
-        # This prevents the Electron/WASM thread-joining hang.
         if __name__ == "__main__" or os.environ.get("SCAFFOLD_CLI_PID"):
             sys.stdout.flush()
             sys.stderr.flush()
-
-            # [METABOLIC FINALITY LOG]
             if os.environ.get("SCAFFOLD_DEBUG_BOOT") == "1" and not _is_silent:
                 _total_ms = (time.perf_counter_ns() - _boot_ns) / 1_000_000
                 sys.stderr.write(f"[BOOT] Total Runtime: {_total_ms:.2f}ms. Exiting.\n")
-
             os._exit(0)
-
 
 if __name__ == "__main__":
     main()

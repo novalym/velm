@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/seekers/__init__.py
+# Path: velm/core/ignition/diviner/seekers/__init__.py
 # --------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_SEEKER_GATEWAY_V7
 

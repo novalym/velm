@@ -1,0 +1,200 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: intelligence/agentic-servitor
+# ==============================================================================
+# @id:           intelligence/agentic-servitor
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      ReAct-based autonomous agent engine with structured Pydantic reasoning and tool registries.
+# @vibe:         [agent, react, autonomous, pydantic, reasoning, tools, servitor]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:autonomous-agent, capability:reasoning-engine]
+# @requires:     [capability:python-core, capability:neural-cortex]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["openai>=1.12.0", "pydantic>=2.6.0", "structlog>=24.1.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "agentic-mind"
+#   priority:    400
+#   alias:       "agent_servitor"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+# [ASCENSION 1]: Agency Configuration DNA
+$$ project_slug = {{ project_slug | default("servitor-reality") }}
+$$ agent_model = {{ model | default("smart") }} # Resolves to gpt-4o or claude-3-5
+$$ worker_concurrency = {{ concurrency | default(2) }}
+$$ require_human_authorization = {{ strict_mode | default(true) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Agentic Mind) ---
+
+src/{{ package_name }}/agents/
+    __init__.py :: "from .engine import AgenticMind\nfrom .contracts import AgentPlan, AgentAction"
+
+    # [ASCENSION 4]: THE GNOSTIC CONTRACTS (The Language of Thought)
+    # Defines the structure of the Agent's internal reasoning.
+    contracts.py :: """
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional, Literal
+
+class AgentAction(BaseModel):
+    \"\"\"A single kinetic strike willed by the Agent.\"\"\"
+    tool_name: str
+    arguments: Dict[str, Any]
+    thought: str = Field(..., description="The rationale for this specific action.")
+
+class AgentPlan(BaseModel):
+    \"\"\"The multi-step strategic roadmap.\"\"\"
+    thought: str = Field(..., description="High-level reasoning for the mission.")
+    actions: List[AgentAction]
+    is_complete: bool = False
+    final_revelation: Optional[str] = None
+"""
+
+    # [ASCENSION 3]: THE KINETIC PHALANX (Tools)
+    # The tools the Agent uses to touch the mortal realm.
+    tools/
+        __init__.py :: "from .base import tool_registry, GnosticTool"
+        
+        base.py :: """
+import functools
+from typing import Callable, Dict, List, Any
+from pydantic import BaseModel
+
+class GnosticTool(BaseModel):
+    name: str
+    description: str
+    func: Callable
+    schema: Dict[str, Any]
+
+class ToolRegistry:
+    \"\"\"[ASCENSION 1]: Apophatic Tool Discovery.\"\"\"
+    def __init__(self):
+        self.tools: Dict[str, GnosticTool] = {}
+
+    def register(self, func: Callable):
+        name = func.__name__
+        self.tools[name] = GnosticTool(
+            name=name,
+            description=func.__doc__ or "No description provided.",
+            func=func,
+            schema=self._generate_schema(func)
+        )
+        return func
+
+    def _generate_schema(self, func):
+        # (Prophecy: Automatic JSON Schema extraction from type hints)
+        return {}
+
+tool_registry = ToolRegistry()
+"""
+        system.py :: """
+import os
+import subprocess
+from .base import tool_registry
+
+@tool_registry.register
+def read_scripture(path: str) -> str:
+    \"\"\"Reads the content of a file at the given path.\"\"\"
+    with open(path, 'r') as f:
+        return f.read()
+
+@tool_registry.register
+def strike_iron(command: str) -> str:
+    \"\"\"Executes a shell command warded by the OS environment.\"\"\"
+    # [ASCENSION 5]: Substrate-Aware Shell
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    return f"STDOUT: {result.stdout}\\nSTDERR: {result.stderr}"
+"""
+
+    # [ASCENSION 2]: THE REACT ENGINE (The Brain)
+    # Orchestrates the Perceive -> Plan -> Act loop.
+    engine.py :: """
+import logging
+import json
+from typing import List, Optional
+from .contracts import AgentPlan, AgentAction
+from .tools.base import tool_registry
+# [THE CURE]: Links directly to the Neural Cortex Shard
+from ..core.ai.gateway import neural_gateway 
+
+Logger = logging.getLogger("Agency:Mind")
+
+class AgenticMind:
+    \"\"\"
+    =============================================================================
+    == THE AGENTIC MIND (V-Ω-TOTALITY)                                        ==
+    =============================================================================
+    LIF: ∞ | ROLE: AUTONOMOUS_CONQUEROR | RANK: OMEGA
+    
+    1.  Structured Reasoning: Uses Pydantic for Plan/Action schema.
+    2.  Guardian's Veto: Pauses for Architect's Vow before execution.
+    3.  Akashic Suture: Synchronizes thought-stream with the HUD.
+    \"\"\"
+    def __init__(self, system_prompt: str):
+        self.history = [{"role": "system", "content": system_prompt}]
+        self.max_turns = 10
+
+    async def fulfill_mission(self, mission: str):
+        self.history.append({"role": "user", "content": f"MISSION: {mission}"})
+        
+        for turn in range(self.max_turns):
+            # --- MOVEMENT I: THE PLAN (Reasoning) ---
+            plan = await self._forge_plan()
+            
+            if plan.is_complete:
+                Logger.success(f"🏁 Mission Accomplished: {plan.final_revelation}")
+                return plan.final_revelation
+
+            # --- MOVEMENT II: THE VETO (Jurisprudence) ---
+            # [ASCENSION 2]: Human-in-the-loop Veto
+            if {{ require_human_authorization | lower }} == "true":
+                await self._seek_architect_approval(plan)
+
+            # --- MOVEMENT III: THE STRIKE (Action) ---
+            for action in plan.actions:
+                observation = await self._execute_tool(action)
+                self.history.append({
+                    "role": "function",
+                    "name": action.tool_name,
+                    "content": str(observation)
+                })
+
+    async def _forge_plan(self) -> AgentPlan:
+        # [ASCENSION 4]: Schema-Aware Reasoning
+        # The Neural Cortex handles the LiteLLM invocation
+        response = await neural_gateway.think(
+            prompt=json.dumps(self.history),
+            model="{{ agent_model }}",
+        )
+        return AgentPlan.model_validate_json(response.content)
+
+    async def _execute_tool(self, action: AgentAction):
+        tool = tool_registry.tools.get(action.tool_name)
+        if not tool: return f"Error: Tool {action.tool_name} unmanifest."
+        
+        Logger.info(f"🛠️ [ACTION] Executing {action.tool_name}...")
+        return tool.func(**action.arguments)
+
+    async def _seek_architect_approval(self, plan: AgentPlan):
+        print(f"⚠️ [VETO] Agent wants to: {plan.thought}")
+        input("Press Enter to grant the Vow of Execution...")
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold magenta]Agentic Servitor[/bold magenta] is manifest."
+    proclaim: "Mind Locus: [white]src/{{ package_name }}/agents/engine.py[/]"
+    proclaim: "Tool Locus: [white]src/{{ package_name }}/agents/tools/[/]"
+    
+    # The Parser aggregates 'openai', 'pydantic', 'structlog' automatically.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Cognitive Friction -> 0)[/]"
+    proclaim: "[bold green]The Agent is now waked. Feed it a mission to begin the conquest.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Agency materialization fractured.[/bold red] Reality remains manual."
+    >> rm -rf src/{{ package_name }}/agents

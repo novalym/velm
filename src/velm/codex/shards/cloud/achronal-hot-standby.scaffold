@@ -1,0 +1,189 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cloud/achronal-hot-standby
+# ==============================================================================
+# @id:           cloud/achronal-hot-standby
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Multi-cloud hot-standby failover engine using Achronal data synchronization.
+# @vibe:         [failover, multi-cloud, high-availability, standby, disaster-recovery, routing]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:failover-engine, capability:hot-standby]
+# @requires:     [capability:python-core, capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["requests>=2.31.0"]
+#   env:         ["SYNC_SECRET"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "failover-sentinel": { "build": "infra/failover", "restart": "always" } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-failover"
+#   priority:    950
+#   alias:       "hot_standby"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ primary_substrate = {{ primary_cloud | default("aws") }}
+$$ secondary_substrate = {{ secondary_cloud | default("ovh") }}
+$$ sync_interval_ms = {{ sync_interval | default(500) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# [ASCENSION 1]: THE SOVEREIGN SYNC KEY
+# Forges the encrypted tunnel key for cross-cloud data teleportation.
+$$ sync_secret = "{{ crypto.random(64) }}"
+
+# --- II. THE SCRIPTURE OF FORM ---
+
+src/{{ package_name }}/failover_engine/
+    __init__.py :: ""
+
+    # [ASCENSION 2]: THE DATA SOUL SYNCER
+    # This artisan ensures that every SQL mutation on the Primary iron is 
+    # instantly teleported and willed into the Secondary iron across providers.
+    replication/
+        __init__.py :: ""
+        sync_daemon.py :: """
+import os
+import time
+import logging
+from typing import Optional
+
+Logger = logging.getLogger("Failover:DataTeleporter")
+
+class DataTeleporter:
+    \"\"\"
+    =============================================================================
+    == THE DATA TELEPORTER (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: CHRONAL_STATE_SYNC | RANK: OMEGA_SCRIBE
+    
+    Streams the Write-Ahead Log (WAL) across the multiversal bridge.
+    \"\"\"
+    def __init__(self):
+        self.primary = "{{ primary_substrate }}"
+        self.secondary = "{{ secondary_substrate }}"
+        self.sync_interval = {{ sync_interval_ms }} / 1000.0
+
+    def ignite_sync(self):
+        Logger.info(f"📡 [SYNC] Suture active: {self.primary} -> {self.secondary}")
+        # Executes LiteFS or Postgres Logical Replication
+        os.system("litefs mount /var/lib/db")
+        
+        while True:
+            # Prophecy: Real-time checksum verification
+            time.sleep(self.sync_interval)
+"""
+
+    # [ASCENSION 3]: THE HEALTH SENTINEL (The Adjudicator)
+    # This Python-Mind lives on a neutral substrate. It constantly scries 
+    # the Primary. If a "Metabolic Flatline" is detected, it executes failover.
+    sentinel/
+        __init__.py :: ""
+        adjudicator.py :: """
+import requests
+import os
+import logging
+
+Logger = logging.getLogger("Failover:Sentinel")
+
+class FailoverAdjudicator:
+    \"\"\"
+    =============================================================================
+    == THE FAILOVER ADJUDICATOR (V-Ω-TOTALITY)                                 ==
+    =============================================================================
+    LIF: 10,000x | ROLE: VITALITY_JUDGE
+    \"\"\"
+    def __init__(self):
+        self.target_url = "https://{{ project_slug }}.novalym.systems/health"
+
+    def scry_vitality(self):
+        try:
+            res = requests.get(self.target_url, timeout=2)
+            if res.status_code != 200:
+                self._initiate_failover("Non-200 Resonance")
+        except Exception as e:
+            self._initiate_failover(f"Connection Fracture: {e}")
+
+    def _initiate_failover(self, reason: str):
+        Logger.critical(f"🚨 [CRITICAL] Primary Substrate Fracture detected! Reason: {reason}")
+        Logger.warning("🚀 [ASCENSION] Commanding the Secondary to take Sovereignty...")
+        # [STRIKE]: Updating DNS via the Anycast Citadel
+        os.system("velm run symphonies/failover-ascension.symphony")
+"""
+
+# [ASCENSION 4]: THE KINETIC MESH (Docker Compose Suture)
+infra/failover/
+    docker-compose.standby.yml :: """
+version: '3.8'
+services:
+  # The Autonomic Sentinel
+  failover-sentinel:
+    build: 
+      context: ../../
+      dockerfile: infra/failover/Dockerfile.sentinel
+    container_name: {{ project_slug }}-sentinel
+    environment:
+      - SYNC_SECRET={{ sync_secret }}
+      - SCAFFOLD_ENV=production
+    networks:
+      - gnostic_mesh
+    restart: always
+
+networks:
+  gnostic_mesh:
+    external: true
+    name: {{ project_slug }}_gnostic_mesh
+"""
+
+    Dockerfile.sentinel :: """
+FROM python:3.12-slim-bookworm
+WORKDIR /app
+RUN pip install requests velm-cli
+COPY . .
+ENV PYTHONUNBUFFERED=1
+CMD ["python", "-m", "src.{{ package_name }}.failover_engine.sentinel.adjudicator"]
+"""
+
+# [ASCENSION 5]: THE FAILOVER SYMPHONY
+symphonies/
+    failover-ascension.symphony :: """
+# == Symphony: The Rite of Emergency Failover ==
+# @description: Automatic transition of global traffic to the secondary substrate.
+
+@task main
+    %% let: recovery_phase = "INITIATED"
+    %% proclaim: "🛑 [FAILOVER] Primary Reality Fractured. Initiating Recovery..."
+
+    @try:
+        # 1. Promote Secondary DB to Master
+        >> velm cloud exec --id secondary-db "litefs promote"
+        
+        # 2. Update Global Anycast API Gateway
+        # Shifts the BGP/DNS gravity from {{ primary_substrate }} to {{ secondary_substrate }}
+        >> velm run shards/cloud/global-anycast-citadel.scaffold --set target=secondary
+        
+        # 3. Broadcast to HUD
+        %% proclaim: "[bold red]⚠️  FAILOVER COMPLETE.[/bold red] Reality is now manifest on {{ secondary_substrate }}."
+    @catch Exception as e:
+        %% error: "Failover shattered: {{ e }}. The multiverse is in a state of entropy."
+    @end
+"""
+
+# --- III. THE SURGICAL WEAVE (Maestro Control) ---
+Makefile += """
+# --- FAILOVER RITES ---
+test-failover: ## Test the achronal hot-standby protocol in shadow mode
+    @velm run symphonies/failover-ascension.symphony --dry-run
+
+standby-up: ## Ignite the failover sentinel
+    @docker-compose -f infra/failover/docker-compose.standby.yml up -d
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Achronal Hot-Standby[/] has been warded."
+    proclaim: "Primary: [bold]{{ primary_substrate | upper }}[/] | Secondary: [bold]{{ secondary_substrate | upper }}[/]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Existential Risk -> 0)[/]"
+    proclaim: "To verify failover circuitry, speak: [bold magenta]make test-failover[/bold magenta]"

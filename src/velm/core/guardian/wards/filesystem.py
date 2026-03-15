@@ -1,4 +1,4 @@
-# Path: scaffold/core/guardian/wards/filesystem.py
+# Path: velm/core/guardian/wards/filesystem.py
 # ------------------------------------------------
 
 import re

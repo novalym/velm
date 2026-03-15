@@ -1,0 +1,156 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: velm-core/architectural-mri
+# ==============================================================================
+# @id:           velm-core/architectural-mri
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Deep-tissue topological linter that enforces directional import flows across application strata.
+# @vibe:         [mri, architecture, linter, topology, layers, hex-arch, forensics]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:architecture-linter, capability:topological-inquisitor,capability:architecture-reflection]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["rich>=13.7.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "architecture-linter"
+#   priority:    100
+#   alias:       "architectural_mri"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-engine") }}
+$$ enforce_strict = {{ enforce_strict | default(true) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE LAWS OF PHYSICS (Layer Configuration) ---
+.scaffold/
+    layers.json :: """
+{
+  "hierarchy": [
+    { "name": "api", "level": 0, "alias": "Ocular", "desc": "The Outer Membrane" },
+    { "name": "services", "level": 1, "alias": "Mind", "desc": "The Orchestration Layer" },
+    { "name": "repositories", "level": 2, "alias": "Limb", "desc": "The Persistence Layer" },
+    { "name": "core", "level": 3, "alias": "Soul", "desc": "The Pure Invariants" },
+    { "name": "utils", "level": 4, "alias": "Substrate", "desc": "The Ground" }
+  ],
+  "laws": {
+    "gravity": "descending",
+    "allow_neighbor_communion": false,
+    "ouroboros_forbidden": true
+  }
+}
+"""
+
+# --- III. THE INQUISITOR'S EYE ---
+scripts/forensics/
+    mri_scan.py :: """
+import json
+import os
+import sys
+import subprocess
+from pathlib import Path
+from typing import List, Dict, Optional
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+
+CONSOLE = Console()
+
+class ArchitecturalMRI:
+    \"\"\"
+    =============================================================================
+    == THE ARCHITECTURAL MRI (V-Ω-TOTALITY)                                    ==
+    =============================================================================
+    LIF: ∞ | ROLE: TOPOGRAPHICAL_INQUISITOR | RANK: OMEGA
+    \"\"\"
+    def __init__(self):
+        self.root = Path(os.getcwd())
+        self.layers_path = self.root / ".scaffold" / "layers.json"
+        
+    def conduct_biopsy(self):
+        CONSOLE.rule("[bold cyan]MRI Scan: Architectural Inquest[/bold cyan]")
+        
+        if not self.layers_path.exists():
+            CONSOLE.print("❌ [bold red]ERROR:[/] Layer Grimoire unmanifest.", style="red")
+            sys.exit(1)
+
+        config = json.loads(self.layers_path.read_text())
+        hierarchy = {l['name']: l['level'] for l in config["hierarchy"]}
+        
+        try:
+            result = subprocess.run(
+                ["velm", "graph", "--format", "json"],
+                capture_output=True, text=True, check=True
+            )
+            graph = json.loads(result.stdout)
+        except Exception as e:
+            CONSOLE.print(f"💥 [MRI] Gnostic Graph fractured: {e}", style="bold red")
+            sys.exit(1)
+
+        heresies = []
+        for node, deps in graph.get("nodes", {}).items():
+            src_layer = self._divine_layer(node, list(hierarchy.keys()))
+            if not src_layer: continue
+
+            for dep in deps:
+                dst_layer = self._divine_layer(dep, list(hierarchy.keys()))
+                if not dst_layer: continue
+
+                # Law of Gravity: src_level <= dst_level
+                if hierarchy[src_layer] > hierarchy[dst_layer]:
+                    heresies.append({
+                        "src": node, "src_layer": src_layer,
+                        "dst": dep, "dst_layer": dst_layer,
+                        "type": "GRAVITATIONAL_LEAK"
+                    })
+
+        self._proclaim_results(heresies)
+
+    def _divine_layer(self, path_str: str, layers: List[str]) -> Optional[str]:
+        for layer in layers:
+            if f"/{layer}/" in path_str or f"\\\\{layer}\\\\" in path_str or path_str.startswith(layer):
+                return layer
+        return None
+
+    def _proclaim_results(self, heresies: List[Dict]):
+        if not heresies:
+            CONSOLE.print(Panel("✅ [bold green]ARCHITECTURAL ALIGNMENT IS PURE[/bold green]\\nAll layers resonate with Gnostic Law.", border_style="green"))
+            return
+
+        table = Table(title="[bold red]Lattice Fractures (Layer Violations)[/]", border_style="red", expand=True)
+        table.add_column("Locus (Source)", style="cyan")
+        table.add_column("Source Layer", justify="center")
+        table.add_column("Profane Import (Target)", style="magenta")
+        table.add_column("Target Layer", justify="center")
+
+        for h in heresies:
+            table.add_row(h['src'], h['src_layer'].upper(), h['dst'], h['dst_layer'].upper())
+
+        CONSOLE.print(table)
+        CONSOLE.print(f"\\n⚠️  [bold red]HERESY DETECTED:[/] {len(heresies)} violations of the hierarchy.")
+        if "{{ enforce_strict | lower }}" == "true":
+            sys.exit(1)
+
+if __name__ == "__main__":
+    ArchitecturalMRI().conduct_biopsy()
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+# --- ARCHITECTURAL RITES ---
+mri-scan: ## perform a deep-tissue biopsy of code layers
+    @poetry run python scripts/forensics/mri_scan.py
+
+mri-graph: ## visualize the MRI layers as a Mermaid diagram
+    @velm graph --format mermaid --focus layers
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Architectural MRI[/bold cyan] is waked and warded."
+    >> mkdir -p scripts/forensics
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Architectural Debt -> 0)[/]"

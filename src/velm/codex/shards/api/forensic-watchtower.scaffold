@@ -1,0 +1,147 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/FORENSIC-WATCHTOWER
+# ==============================================================================
+# @id:           api/forensic-watchtower
+# @version:      3.0.0
+# @tier:         body
+# @summary:      A zero-latency Forensic Watchtower for distributed auditing. 
+#                Injects high-entropy Trace IDs and utilizes Background Tasks 
+#                to perform bit-perfect request/response logging without 
+#                impacting user-facing performance.
+# @vibe:         [forensics, audit-trail, tracing, async-io, security, observability]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:forensic-audit-trail, capability:trace-id-authority, capability:zero-latency-logging]
+# @requires:     [capability:api-heart, capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["fastapi>=0.109.0", "pydantic>=2.6.0"]
+#   env:         ["FORENSIC_LOG_CHANNEL", "SCAFFOLD_TRACE_ID"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        middleware-shield
+#   priority:    5
+#   alias:       "watchtower"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ log_channel  = {{ log_channel | default("forensics") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Forensic Mind) ---
+
+src/{{ package_name }}/middleware/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .watchtower import ForensicAuditMiddleware, get_forensic_context\n"
+
+    watchtower.py :: """
+import time
+import uuid
+import json
+import logging
+import os
+from typing import Dict, Any, Callable, Optional
+from fastapi import Request, Response, Header, Depends
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.background import BackgroundTask
+
+# Dedicated output stream for machine-readable JSON logs
+WatchtowerLogger = logging.getLogger("{{ log_channel }}")
+
+# =============================================================================
+# == THE COGNITIVE DEPENDENCY                                                ==
+# =============================================================================
+# @scaffold:dependency(name="forensic_context")
+async def get_forensic_context(
+    x_gnostic_trace: str = Header(None, alias="X-Gnostic-Trace"),
+    request: Request = None
+) -> Dict[str, Any]:
+    \"\"\"
+    [NEURAL_MESH]: Extracts the Silver Cord and environmental DNA for
+    downstream logic shards.
+    \"\"\"
+    return {
+        "trace_id": x_gnostic_trace or getattr(request.state, "trace_id", "tr-unbound"),
+        "client_ip": request.client.host if request and request.client else "unknown",
+        "timestamp": time.time(),
+        "is_simulated": os.getenv("SCAFFOLD_SIMULATION") == "True"
+    }
+
+class ForensicAuditMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE FORENSIC WATCHTOWER (V-Ω-TOTALITY)                                  ==
+    =============================================================================
+    LIF: ∞ | ROLE: OMNISCIENT_RECORDER | RANK: OMEGA_SENTINEL
+    
+    The All-Seeing Eye of Ingress.
+    1.  Zero-Latency Execution: Logging is offloaded to the BackgroundTask queue.
+    2.  Trace ID Propagation: Forges a UUIDv4 anchor if the client is silent.
+    3.  Stream Resurrection: Clones the request body without shattering the Mind.
+    4.  Causal Analysis: Records the precise metabolic tax (ms) of the rite.
+    \"\"\"
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        start_time = time.perf_counter()
+        
+        # [ASCENSION 2]: THE SILVER CORD INCEPTION
+        # Ensure every thought has a traceable identity.
+        trace_id = request.headers.get("X-Gnostic-Trace") or f"tr-{uuid.uuid4().hex[:8].upper()}"
+        request.state.trace_id = trace_id
+
+        # [ASCENSION 3]: THE PEEKING RITE (STREAM RESURRECTION)
+        # We must read the body to log it, then forge a new receiver so the 
+        # API logic can read it again later.
+        body_bytes = b""
+        if request.method in ["POST", "PUT", "PATCH"]:
+            body_bytes = await request.body()
+            async def receive():
+                return {"type": "http.request", "body": body_bytes}
+            request._receive = receive
+
+        # --- THE KINETIC STRIKE (EXECUTION) ---
+        response = await call_next(request)
+        
+        # --- METABOLIC TOMOGRAPHY ---
+        duration_ms = (time.perf_counter() - start_time) * 1000
+
+        # [ASCENSION 1]: BACKGROUND INSCRIPTION
+        # We package the Gnosis and hand it to the background threads.
+        log_payload = {
+            "v": "3.0",
+            "trace_id": trace_id,
+            "method": request.method,
+            "path": request.url.path,
+            "status": response.status_code,
+            "latency_ms": round(duration_ms, 2),
+            "client_ip": request.client.host if request.client else "void",
+            # Truncate body mass to protect the log strata from bloat
+            "body_preview": body_bytes.decode('utf-8', errors='ignore')[:1024]
+        }
+        
+        response.headers["X-Gnostic-Trace"] = trace_id
+        response.headers["X-Metabolic-Tax-MS"] = f"{duration_ms:.2f}"
+        
+        # [STRIKE]: Inscribe in the background
+        response.background = BackgroundTask(self._inscribe_dossier, log_payload)
+
+        return response
+
+    def _inscribe_dossier(self, payload: dict):
+        \"\"\"Writes the JSON soul to the forensic stream.\"\"\"
+        WatchtowerLogger.info(json.dumps(payload))
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Forensic Watchtower[/bold cyan] is manifest and vigilant."
+    proclaim: "Role: [bold green]MIDDLEWARE-SHIELD[/bold green]"
+    proclaim: "Audit Stream: [bold yellow]{{ log_channel }}[/bold yellow]"
+    
+    # [THE CURE]: No 'poetry add' needed; the Engine's new Suture handled the mass.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Systemic Blindness -> 0)[/]"
+    proclaim: "[bold green]✅ Every Thought is now Chronicled.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Watchtower materialization fractured.[/bold red]"

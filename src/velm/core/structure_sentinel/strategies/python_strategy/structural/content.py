@@ -1,4 +1,4 @@
-# Path: scaffold/core/structure_sentinel/strategies/python_strategy/structural/content.py
+# Path: velm/core/structure_sentinel/strategies/python_strategy/structural/content.py
 # ---------------------------------------------------------------------------------------
 
 import ast

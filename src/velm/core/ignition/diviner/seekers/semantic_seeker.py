@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/seekers/semantic_seeker.py
+# Path: velm/core/ignition/diviner/seekers/semantic_seeker.py
 # -------------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_SEMANTIC_SEEKER_V7
 

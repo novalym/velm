@@ -2,7 +2,7 @@ import json
 from typing import List, Dict, Any
 
 from .contracts import GnosticInquest
-from ...core.runtime import ScaffoldEngine
+from ...core.runtime import VelmEngine
 from ...interfaces.requests import QueryRequest
 from ...logger import Scribe
 
@@ -15,7 +15,7 @@ class InquestConductor:
     tongue of the God-Engine, bestowing a pure dictionary upon the QueryRequest.
     """
 
-    def __init__(self, engine: ScaffoldEngine):
+    def __init__(self, engine: VelmEngine):
         self.engine = engine
 
     def conduct(self, inquests: List[GnosticInquest]) -> Dict[str, Any]:

@@ -77,7 +77,7 @@ class CloudTelemetryRadiator:
         """[THE RITE OF INCEPTION]: Binds the Radiator to the Engine's Soul."""
         self.engine = engine
         self.console = get_console()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
         # --- METABOLIC MEMORY ---
         self._last_pulse_ts: float = 0.0

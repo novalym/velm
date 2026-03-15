@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/archivist/manifest.py
+# Path: velm/core/kernel/archivist/manifest.py
 # ------------------------------------------------
 
 import json

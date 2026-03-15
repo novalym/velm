@@ -1,4 +1,4 @@
-# Path: scaffold/core/jurisprudence/adjudicator.py
+# Path: velm/core/jurisprudence/adjudicator.py
 # ------------------------------------------------
 
 import inspect

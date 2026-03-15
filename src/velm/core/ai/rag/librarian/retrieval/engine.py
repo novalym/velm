@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/librarian/retrieval/engine.py
+# Path: velm/core/ai/rag/librarian/retrieval/engine.py
 # --------------------------------------------------------
 
 from typing import List, Dict

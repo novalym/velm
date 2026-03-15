@@ -1,4 +1,4 @@
-# Path: scaffold/core/maestro/handlers/hosts.py
+# Path: velm/core/maestro/handlers/hosts.py
 # ---------------------------------------------
 # LIF: ∞ | ROLE: CELESTIAL_NAME_WEAVER | RANK: OMEGA_SOVEREIGN
 # AUTH: Ω_HOSTS_V9005_TOTALITY_FINALIS_2026
@@ -32,7 +32,7 @@ class HostsHandler(BaseRiteHandler):
     names into the physical substrate's DNS resolver.
 
     ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-    1.  **Alchemical Variable Hydration (THE CURE):** Transmutes Jinja2
+    1.  **Alchemical Variable Hydration (THE CURE):** Transmutes SGF
         placeholders within the entry (e.g. '{{ local_ip }} {{ app_slug }}.local').
     2.  **Achronal Reversal Logic (UNDO):** Forges a bit-perfect `InverseOp`
         capable of surgically removing the exact willed line during rollbacks.

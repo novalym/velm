@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/heuristics/base.py
+# Path: velm/core/ignition/diviner/heuristics/base.py
 # -------------------------------------------------------
 from abc import ABC, abstractmethod
 from pathlib import Path

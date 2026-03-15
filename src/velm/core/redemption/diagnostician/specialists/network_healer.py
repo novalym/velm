@@ -1,4 +1,4 @@
-# Path: scaffold/core/redemption/diagnostician/specialists/network_healer.py
+# Path: velm/core/redemption/diagnostician/specialists/network_healer.py
 # --------------------------------------------------------------------------
 
 import platform

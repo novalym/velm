@@ -1,4 +1,4 @@
-# Path: scaffold/core/assembler/weavers/python_weaver.py
+# Path: velm/core/assembler/weavers/python_weaver.py
 # ----------------------------------------------------
 
 import ast

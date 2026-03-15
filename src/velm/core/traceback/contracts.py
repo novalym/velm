@@ -1,4 +1,4 @@
-# Path: scaffold/core/traceback/contracts.py
+# Path: velm/core/traceback/contracts.py
 # ------------------------------------------
 # LIF: ∞ | ROLE: FORENSIC_LEDGER_SCHEMA | RANK: OMEGA_SOVEREIGN
 # AUTH: Ω_CONTRACTS_V9001_TOTALITY_SUTURE_2026

@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/knowledge/__init__.py
+# Path: velm/core/ai/rag/knowledge/__init__.py
 # ------------------------------------------------
 
 from typing import List, Dict, Any

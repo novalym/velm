@@ -74,7 +74,7 @@ class ScaffoldBeautifier(FormattingProvider):
             # 2. File operators
             line_content = re.sub(r'\s*(::|<<|->|\+=|-=|~=|\^=)\s*', r' \1 ', line_content)
 
-            # [ASCENSION 2]: Jinja2 Alchemical Spacing
+            # [ASCENSION 2]: SGF Alchemical Spacing
             # {{var}} -> {{ var }}
             line_content = re.sub(r'\{\{\s*(.*?)\s*\}\}', r'{{ \1 }}', line_content)
             # |filter -> | filter

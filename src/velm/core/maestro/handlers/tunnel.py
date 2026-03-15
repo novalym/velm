@@ -1,4 +1,4 @@
-# Path: scaffold/core/maestro/handlers/tunnel.py
+# Path: velm/core/maestro/handlers/tunnel.py
 # ----------------------------------------------
 # LIF: ∞ | ROLE: WORMHOLE_WEAVER | RANK: OMEGA_SOVEREIGN
 # AUTH: Ω_TUNNEL_V9005_TOTALITY_FINALIS_2026

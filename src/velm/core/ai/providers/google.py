@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/providers/google.py
+# Path: velm/core/ai/providers/google.py
 # ------------------------------------------
 
 import os

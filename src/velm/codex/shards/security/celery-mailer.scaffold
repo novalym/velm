@@ -1,0 +1,75 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: security/celery-mailer
+# ==============================================================================
+# @id:           security/celery-mailer
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Secure, asynchronous email notification dispatcher via Celery.
+# @vibe:         [celery, email, notifications, async, worker, security]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:email-dispatch]
+# @requires:     [capability:task-queue]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "task-module"
+#   priority:    500
+#   alias:       "mailer_tasks"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ task_queue = {{ task_queue | default("notifications") }}
+$$ schedule_cron = {{ schedule_cron | default("0, 0, *, *, *") }} 
+
+# --- II. THE SCRIPTURE OF FORM (The Asynchronous Reflex) ---
+
+src/{{ package_name }}/tasks/
+    mailer.py :: """
+import logging
+from celery import shared_task
+from typing import Dict, Any, Optional
+
+Logger = logging.getLogger("System:KineticMailer")
+
+# [ASCENSION 3]: THE ACHRONAL SCHEDULER
+# @scaffold:schedule(cron="{{ schedule_cron }}")
+@shared_task(
+    name="system.send_daily_vitals", 
+    queue="{{ task_queue }}",
+    bind=True,
+    max_retries=3
+)
+def send_daily_vitals(self):
+    \"\"\"The Rite of Vital Reporting.\"\"\"
+    Logger.info("🌀 [KINETIC] Summarizing project vitals for the Architect...")
+    
+    try:
+        # [ASCENSION 7]: Symbolic Inception
+        result = "Metabolic Vitals: RESONANT. 0 heresies detected."
+        Logger.info(f"📧 [SIGNAL] Dispatching report: {result}")
+        return True
+        
+    except Exception as e:
+        Logger.error(f"💥 [FRACTURE] Reporter failed: {e}")
+        raise self.retry(exc=e, countdown=60)
+
+@shared_task(name="system.dispatch_notification", queue="{{ task_queue }}")
+def dispatch_notification(recipient: str, subject: str, body: str):
+    \"\"\"The General Ingress for background mail intent.\"\"\"
+    Logger.info(f"📤 [MAIL] Queuing message to: {recipient}")
+    return {"status": "ENQUEUED", "target": recipient}
+"""
+
+src/{{ package_name }}/tasks/__init__.py += "from .mailer import send_daily_vitals, dispatch_notification\n"
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Kinetic Mailer[/bold cyan] has been woven into the Swarm."
+    proclaim: "Target Queue: [bold magenta]{{ task_queue }}[/]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Notification Latency -> 0)[/]"

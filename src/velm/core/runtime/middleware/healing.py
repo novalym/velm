@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/healing.py
+# Path: velm/core/runtime/middleware/healing.py
 # -------------------------------------------------
 
 import subprocess

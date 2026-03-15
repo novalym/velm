@@ -5,8 +5,8 @@ import re
 from typing import Dict, Any, Optional
 
 from ...logger import Scribe
-from ...semantic_injection.directives.ui_knowledge.registry import ComponentRegistry
-from ...semantic_injection.loader import SemanticRegistry
+from ...codex.atoms.ui_knowledge.registry import ComponentRegistry
+from ...codex.loader import CodexRegistry
 
 Logger = Scribe("UIScribe")
 
@@ -54,8 +54,8 @@ def proclaim_gnosis() -> Dict[str, Any]:
     # --- MOVEMENT I: THE RITE OF PRIOR AWAKENING ---
     # We must awaken the Semantic Cortex to ensure all @ComponentRegistry.register
     # decorators have been conducted and the Gnosis is whole.
-    if not SemanticRegistry._is_loaded:
-        SemanticRegistry.awaken()
+    if not CodexRegistry._is_loaded:
+        CodexRegistry.awaken()
 
     all_components = []
 

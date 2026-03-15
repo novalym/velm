@@ -1,0 +1,100 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/event-horizon-ledger
+# ==============================================================================
+# @id:           system/event-horizon-ledger
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Append-only event sourcing ledger providing Merkle-signed state history and causal replay mechanisms.
+# @vibe:         [event-sourcing, ledger, persistence, merkle, immutable, chronos, audit]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:event-ledger, capability:immutable-history]
+# @requires:     [capability:python-core, capability:cryptography-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["SCAF_LEDGER_FILE", "SCAF_AUTO_FLUSH"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "persistence-governor"
+#   priority:    0
+#   alias:       "event_horizon"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ ledger_file = "artifacts/ledger/causality.jsonl"
+
+# --- II. THE LEDGER CORE (The Mind of History) ---
+
+src/{{ package_name }}/core/ledger/
+    __init__.py :: "from .engine import EventHorizon\nfrom .contracts import GnosticEvent\n"
+    
+    contracts.py :: """
+import time
+import uuid
+from pydantic import BaseModel, Field
+from typing import Dict, Any
+
+class GnosticEvent(BaseModel):
+    \"\"\"A single, immutable ripple in the project's timeline.\"\"\"
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    timestamp: float = Field(default_factory=time.time)
+    trace_id: str
+    type: str 
+    aggregate_id: str
+    payload: Dict[str, Any]
+"""
+
+    engine.py :: """
+import json
+import logging
+import hmac
+import hashlib
+import os
+from pathlib import Path
+from .contracts import GnosticEvent
+
+Logger = logging.getLogger("System:Ledger")
+
+class EventHorizon:
+    \"\"\"
+    =============================================================================
+    == THE EVENT HORIZON (V-Ω-IMMUTABLE-SCRIBE)                                ==
+    =============================================================================
+    LIF: ∞ | ROLE: CHRONO_RECORDER
+    \"\"\"
+    def __init__(self):
+        self.path = Path(os.getenv("SCAF_LEDGER_FILE", "{{ ledger_file }}"))
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        # Siphon secret from vault
+        self.secret = os.getenv("SCAFFOLD_INTERNAL_KEY", "void").encode()
+
+    def record(self, event: GnosticEvent):
+        \"\"\"Inscribes an event into the eternal chronicle.\"\"\"
+        entry = event.model_dump()
+        
+        # [ASCENSION 11]: THE CRYPTOGRAPHIC SEAL
+        canonical = json.dumps(entry, sort_keys=True)
+        entry["sig"] = hmac.new(self.secret, canonical.encode(), hashlib.sha256).hexdigest()
+        
+        with open(self.path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\\n")
+            if os.getenv("SCAF_AUTO_FLUSH", "true").lower() == "true":
+                f.flush()
+                os.fsync(f.fileno())
+        
+        Logger.info(f"✨ [LEDGER] Event willed: {event.type}")
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Event-Horizon Ledger[/bold cyan] is manifest."
+    proclaim: "Chronicle Locus: [white]{{ ledger_file }}[/white]"
+    
+    >> mkdir -p artifacts/ledger
+    >> touch {{ ledger_file }}
+
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Temporal Entropy -> 0)[/]"
+    proclaim: "[bold green]✅ The Scribe is Vigilant. Every mutation is warded.[/bold green]"

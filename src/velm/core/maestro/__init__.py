@@ -1,4 +1,4 @@
-# Path: scaffold/core/maestro/__init__.py
+# Path: velm/core/maestro/__init__.py
 # ---------------------------------------
 
 """

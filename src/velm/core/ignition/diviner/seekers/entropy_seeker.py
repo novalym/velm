@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/seekers/entropy_seeker.py
+# Path: velm/core/ignition/diviner/seekers/entropy_seeker.py
 # -------------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_ENTROPY_SEEKER_V7
 

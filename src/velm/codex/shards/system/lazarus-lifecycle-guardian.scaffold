@@ -1,0 +1,112 @@
+# ==============================================================================
+# == GNOSTIC DNA TRAIT: system/lazarus-lifecycle-guardian
+# ==============================================================================
+# @id:           system/lazarus-lifecycle-guardian
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Substrate-aware lifecycle warden that traps OS termination signals to orchestrate a perfect, warded reality dissolution.
+# @vibe:         [lifecycle, signal, shutdown, guardian, cleanup, aysncio, lazarus]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:lifecycle-warden, capability:shutdown-orchestrator]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      [] # Stdlib only
+#   env:         ["SHUTDOWN_TIMEOUT_SECONDS"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "lifecycle-governor"
+#   priority:    0
+#   alias:       "lifecycle_guardian"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+$$ shutdown_timeout = {{ timeout | default(30) }}
+
+# --- II. THE GUARDIAN CORE (The Mind of Dissolution) ---
+
+src/{{ package_name }}/core/system/
+    __init__.py :: "from .lifecycle import LifecycleGuardian, on_shutdown\n"
+    
+    lifecycle.py :: """
+import signal
+import sys
+import asyncio
+import logging
+import time
+import os
+from typing import List, Callable, Awaitable, Union
+
+Logger = logging.getLogger("System:Lazarus")
+
+class LifecycleGuardian:
+    \"\"\"
+    =============================================================================
+    == THE LAZARUS GUARDIAN (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: ∞ | ROLE: SYSTEM_REAPER | RANK: SOVEREIGN
+    \"\"\"
+    _hooks: List[Callable] = []
+    _is_shutting_down: bool = False
+
+    @classmethod
+    def arm(cls):
+        \"\"\"Arms interceptors across POSIX and NT substrates.\"\"\"
+        signals = [signal.SIGINT, signal.SIGTERM]
+        for s in signals:
+            if sys.platform != "win32":
+                try:
+                    loop = asyncio.get_event_loop()
+                    loop.add_signal_handler(s, lambda: asyncio.create_task(cls.dissolve(s)))
+                except Exception:
+                    signal.signal(s, lambda sig, frame: asyncio.create_task(cls.dissolve(sig)))
+            else:
+                signal.signal(s, lambda sig, frame: asyncio.create_task(cls.dissolve(sig)))
+        
+        Logger.info("🛡️ Lazarus Lifecycle Guardian waked and warded.")
+
+    @classmethod
+    def register_hook(cls, func: Callable):
+        if func not in cls._hooks: cls._hooks.append(func)
+
+    @classmethod
+    async def dissolve(cls, sig: int):
+        if cls._is_shutting_down: sys.exit(1)
+        cls._is_shutting_down = True
+        
+        Logger.warning(f"💀 Signal {sig} perceived. Initiating Graceful Unraveling...")
+        
+        tasks = []
+        for hook in cls._hooks:
+            if asyncio.iscoroutinefunction(hook): tasks.append(hook())
+            else:
+                loop = asyncio.get_event_loop()
+                tasks.append(loop.run_in_executor(None, hook))
+
+        if tasks:
+            timeout = int(os.getenv("SHUTDOWN_TIMEOUT_SECONDS", "{{ shutdown_timeout }}"))
+            try:
+                await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), timeout=timeout)
+            except asyncio.TimeoutError:
+                Logger.error("💥 Dissolution Timeout. Shattering timeline.")
+
+        Logger.info("✨ Reality dissolved cleanly. Peace achieved.")
+        sys.exit(0)
+
+def on_shutdown(func: Callable):
+    LifecycleGuardian.register_hook(func)
+    return func
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Lazarus Lifecycle Guardian[/bold cyan] is manifest."
+    proclaim: "Shutdown Horizon: [bold yellow]{{ shutdown_timeout }}s[/bold yellow]"
+    
+    # Notice: Zero manual dependency injection. The Genome is pure.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Process Corruption -> 0)[/]"
+    proclaim: "[bold green]✅ The application is now capable of a perfect death.[/bold green]"

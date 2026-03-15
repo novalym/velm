@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/ai/contracts.py
+# Path: src/velm/core/ai/contracts.py
 # -----------------------------------
 # LIF: INFINITY | ROLE: DATA_CONTRACT_SOVEREIGNTY | RANK: IMMORTAL
 # AUTH: Ω_GNOSTIC_CONTRACTS_V5_TOTALITY

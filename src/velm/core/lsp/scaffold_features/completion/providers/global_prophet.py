@@ -61,7 +61,7 @@ class GlobalProphet(CompletionProvider):
         is_var_trigger = (
                 ctx.trigger_character == '$' or
                 ctx.line_prefix.endswith('$') or
-                ctx.is_inside_jinja
+                ctx.is_inside_sgf
         )
 
         if not is_var_trigger:

@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/seekers/environmental_seeker.py
+# Path: velm/core/ignition/diviner/seekers/environmental_seeker.py
 # --------------------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: Ω_ENV_SEEKER_V7
 

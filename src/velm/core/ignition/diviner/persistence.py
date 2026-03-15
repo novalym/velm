@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/persistence.py
+# Path: velm/core/ignition/diviner/persistence.py
 # ----------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: DIVINER_PERSISTENCE_V1
 

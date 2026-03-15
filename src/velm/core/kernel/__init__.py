@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/__init__.py
+# Path: velm/core/kernel/__init__.py
 # --------------------------------------
 
 """

@@ -1,0 +1,129 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/VERSION-SWITCHBOARD
+# ==============================================================================
+# @id:           api/version-switchboard
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      The Chronomantic Orchestrator for multi-era API routing. It 
+#                materializes discrete versioned hubs (v1, v2) and enforces 
+#                RFC 8594 deprecation logic, ensuring a smooth transition 
+#                between the Legacy Past and the Resonant Future.
+# @vibe:         [versioning, routing, evolution, legacy-support, switchboard]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:api-versioning-hub, capability:chronal-switchboard, capability:deprecation-warden]
+# @requires:     [capability:api-heart]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["fastapi>=0.109.0"]
+#   env:         ["API_VERSION_POLICY", "SUNSET_DATE"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        fastapi-router
+#   priority:    5
+#   alias:       "switchboard"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ api_prefix   = {{ api_prefix | default("/api") }}
+$$ sunset_date   = {{ sunset_date | default("2026-12-31T23:59:59Z") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Chronomancer's Station) ---
+
+src/{{ package_name }}/api/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py += "from .switchboard import api_router\n"
+
+    switchboard.py :: """
+import logging
+import time
+from typing import Callable, Optional
+from fastapi import APIRouter, Request, Response, Header
+
+Logger = logging.getLogger("API:Switchboard")
+
+# =============================================================================
+# == THE CHRONAL ROUTERS (V-Ω)                                               ==
+# =============================================================================
+# [NEURAL_LINK]: These routers act as gravitational anchors for specific 
+# generations of the project's logic shards.
+
+# V1: THE LEGACY REALITY (Maintain but Stay)
+v1_router = APIRouter(prefix="/v1", tags=["Legacy (V1)"])
+
+# V2: THE RESONANT REALITY (Current Mind)
+v2_router = APIRouter(prefix="/v2", tags=["Active (V2)"])
+
+# @scaffold:router(prefix="{{ api_prefix }}", tags=["Orchestrator"])
+api_router = APIRouter()
+
+# --- THE RITE OF DEPRECATION ---
+# [ASCENSION 2]: RFC 8594 Sunset Headers
+async def deprecation_ward(request: Request, call_next: Callable) -> Response:
+    \"\"\"
+    Performs the Rite of Graceful Exit.
+    Injects Sunset and Deprecation markers into legacy traffic.
+    \"\"\"
+    response = await call_next(request)
+    
+    # [STRIKE]: Adjudicate if the path falls within the Legacy Stratum
+    if "{{ api_prefix }}/v1" in request.url.path:
+        # RFC 8594 Compliance
+        response.headers["Deprecation"] = "true"
+        response.headers["Sunset"] = "{{ sunset_date }}"
+        response.headers["Link"] = '<https://docs.novalym.systems/api/v2>; rel="successor-version"'
+        
+    return response
+
+# --- THE DYNAMIC SUTURE ---
+
+def get_versioned_router(version: str) -> APIRouter:
+    \"\"\"
+    [ASCENSION 1]: The Dynamic Suture.
+    Allows other shards (e.g. users, products) to request the correct 
+    router coordinate mathematically.
+    \"\"\"
+    if version == "v1": return v1_router
+    if version == "v2": return v2_router
+    
+    # [ASCENSION 12]: NoneType Sarcophagus
+    # If the willed era is unmanifest, we default to the Prime Mind.
+    Logger.warning(f"⚠️ [SWITCHBOARD] Era '{version}' unmanifest. Defaulting to V2.")
+    return v2_router
+
+# =============================================================================
+# == MOVEMENT III: HUB ASSEMBLY                                              ==
+# =============================================================================
+
+# Bind the versioned sub-universes to the primary hub
+api_router.include_router(v1_router)
+api_router.include_router(v2_router)
+
+# [ASCENSION 11]: Header-Based Intelligence
+@api_router.get("/resonance", tags=["Vitality"])
+async def check_version_resonance(x_api_version: Optional[str] = Header("v2")):
+    \"\"\"Proclaims the active era willed by the client.\"\"\"
+    return {
+        "status": "RESONANT",
+        "active_era": x_api_version,
+        "timestamp": time.time(),
+        "sunset_horizon": "{{ sunset_date }}"
+    }
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Version Switchboard[/bold cyan] is manifest and warded."
+    proclaim: "Role: [bold green]API-VERSIONING-HUB[/bold green]"
+    proclaim: "Locus: [white]src/{{ package_name }}/api/switchboard.py[/]"
+    
+    # [THE CURE]: No physical installs required; the Genome has been sutured.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Architectural Debt -> 0)[/]"
+    proclaim: "[bold green]✅ The Evolution Path is Secure.[/bold green]"
+    proclaim: "Legacy Sunset: [bold red]{{ sunset_date }}[/bold red]"
+
+%% on-heresy
+    proclaim: "[bold red]Switchboard materialization fractured.[/bold red]"

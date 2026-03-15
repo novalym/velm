@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/strategies.py
+# Path: velm/core/ignition/diviner/strategies.py
 # --------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: @)(!@(!()@ // Ω_STRATEGIES_SINGULARITY_V122_FINAL
 # SYSTEM: IDEABOX QUANTUM // MODULE: IGNITION.DIVINER

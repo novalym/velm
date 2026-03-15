@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/inquisitors/chronos.py
+# Path: src/velm/core/symbolic/inquisitors/chronos.py
 # --------------------------------------------------------
 # LIF: ∞ | ROLE: TEMPORAL_ADJUDICATOR | RANK: SOVEREIGN
 # AUTH: Ω_CHRONOS_TOTALITY_V100

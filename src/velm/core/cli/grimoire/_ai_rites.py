@@ -1,5 +1,6 @@
-# scaffold/core/cli/grimoire/_ai_rites.py
+# velm/core/cli/grimoire/_ai_rites.py
 """The sacred rites for communing with the higher realms of intelligence."""
+from ..cli_shims import _handle_generic_failure_herald
 from ..cli_utils import add_common_flags, add_variable_flags, add_simulation_flags
 import argparse
 
@@ -110,8 +111,43 @@ RITES = {
         "artisan_class_name": "DreamArtisan",
         "request_class_name": "DreamRequest",
         "help": "The Oneiromancer. Transmutes natural language into a Gnostic Blueprint.",
-        "flags": [add_common_flags],
-        "args": [("prompt", {"help": "The natural language description of the desired architecture."})],
+        "description": (
+            "===============================================================================\n"
+            "== THE ONEIROMANCER: REALITY INCEPTION (V-Ω-TOTALITY-V2000)                  ==\n"
+            "===============================================================================\n"
+            "The `dream` rite is the supreme gateway of the God-Engine. It perceives your\n"
+            "natural language intent and transmutates it into a perfectly woven structure\n"
+            "of Matter (Files) and Will (Edicts). It utilizes the Neural Cortex to bridge\n"
+            "the gap between thought and manifest reality.\n\n"
+            "LIF: ∞ | ROLE: INTENT_REALIZATION_ENGINE | RANK: OMEGA_SOVEREIGN"
+        ),
+        "flags": [
+            add_common_flags,     # --root, --verbose, --trace
+            add_variable_flags,   # --set key=val (The Alchemical Suture)
+            add_simulation_flags, # --dry-run, --preview (The Shadow Chamber)
+
+            # [ASCENSION 2]: THE VOW OF SILENCE
+            lambda p: p.add_argument(
+                '--no-edicts',
+                action='store_true',
+                help="Maestro's Silence: Materialize Form but stay the hand of shell execution."
+            ),
+
+            # [ASCENSION 5]: THE NEURAL HINT
+            lambda p: p.add_argument(
+                '--model',
+                dest='model_hint',
+                choices=['fast', 'smart', 'creative'],
+                default='smart',
+                help="Summon a specific Neural Mind for the inception strike."
+            )
+        ],
+        "args": [
+            ("prompt", {
+                "help": "The natural language plea for the project's evolution (e.g. 'A FastAPI app with Redis')."
+            })
+        ],
+        "herald": _handle_generic_failure_herald,
     },
     "muse": {
         "module_path": "artisans.muse",

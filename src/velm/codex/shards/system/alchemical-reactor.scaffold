@@ -1,0 +1,108 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/alchemical-reactor
+# ==============================================================================
+# @id:           system/alchemical-reactor
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      The core Jinja2-powered alchemical engine that transmutates Gnostic Scripture into Physical Matter.
+# @vibe:         [alchemy, jinja2, transmutation, templates, core, engine]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:matter-transmuter, capability:alchemical-hub]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["jinja2>=3.1.3", "pydantic>=2.6.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "core-engine-component"
+#   priority:    0
+#   alias:       "alchemical_reactor"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-core") }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+
+# --- II. THE SCRIPTURE OF FORM (The Transmutation Mind) ---
+
+src/{{ package_name }}/core/alchemy/
+    __init__.py :: "from .reactor import DivineAlchemist, transmutation_hub, TransmutationResult\n"
+
+    # [ASCENSION 1]: THE DIVINE ALCHEMIST
+    reactor.py :: """
+import logging
+import re
+import time
+from typing import Any, Dict, Optional
+from jinja2 import Environment, BaseLoader, select_autoescape, TemplateSyntaxError, StrictUndefined
+from pydantic import BaseModel
+
+Logger = logging.getLogger("Alchemy:Reactor")
+
+class TransmutationResult(BaseModel):
+    \"\"\"The warded result of an alchemical strike.\"\"\"
+    success: bool
+    output: str
+    error: Optional[str] = None
+    tax_ms: float = 0.0
+
+class DivineAlchemist:
+    \"\"\"
+    =============================================================================
+    == THE DIVINE ALCHEMIST (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: ∞ | ROLE: MATTER_TRANSMUTER | RANK: OMEGA
+    
+    1. Achronal Evaluation: Transmutes strings in memory with 0ms disk tax.
+    2. Strict Variable Ward: Fails closed if undefined variables are perceived.
+    3. Custom Filter Suture: Supports 'snake', 'pascal', and 'slug' filters.
+    \"\"\"
+    def __init__(self, strict: bool = True):
+        self.env = Environment(
+            loader=BaseLoader(),
+            autoescape=select_autoescape(),
+            undefined=StrictUndefined if strict else None
+        )
+        self._register_standard_filters()
+
+    def transmute(self, scripture: str, gnosis: Dict[str, Any]) -> TransmutationResult:
+        \"\"\"Conducts the Rite of Transmutation with metabolic timing.\"\"\"
+        start_ts = time.perf_counter()
+        
+        try:
+            template = self.env.from_string(scripture)
+            output = template.render(**gnosis)
+            
+            return TransmutationResult(
+                success=True,
+                output=output,
+                tax_ms=(time.perf_counter() - start_ts) * 1000
+            )
+        except (TemplateSyntaxError, Exception) as e:
+            Logger.error(f"Alchemical Fracture: {e}")
+            return TransmutationResult(
+                success=False, 
+                output=scripture, 
+                error=str(e),
+                tax_ms=(time.perf_counter() - start_ts) * 1000
+            )
+
+    def _register_standard_filters(self):
+        \"\"\"[ASCENSION 3]: Injects the UCL standard filters.\"\"\"
+        self.env.filters["snake"] = lambda s: str(s).lower().replace("-", "_").replace(" ", "_")
+        self.env.filters["slug"] = lambda s: str(s).lower().replace("_", "-").replace(" ", "-")
+        self.env.filters["pascal"] = lambda s: "".join(x.title() for x in re.split(r'[^a-zA-Z0-9]', str(s)))
+
+# Global Singleton
+transmutation_hub = DivineAlchemist()
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Alchemical Reactor[/] is manifest."
+    proclaim: "Reactor Locus: [white]src/{{ package_name }}/core/alchemy/reactor.py[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Static Code -> Fluid Gnosis)[/]"
+    proclaim: "[bold green]✅ The Reactor is Waked.[/bold green]"

@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/remote.py
+# Path: velm/core/runtime/remote.py
 # -----------------------------------------
 
 import base64

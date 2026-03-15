@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/librarian/__init__.py
+# Path: velm/core/ai/rag/librarian/__init__.py
 # ------------------------------------------------
 
 from .master import TheLibrarian

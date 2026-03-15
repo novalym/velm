@@ -1,4 +1,4 @@
-# Path: scaffold/core/guardian/wards/syntax.py
+# Path: velm/core/guardian/wards/syntax.py
 # --------------------------------------------
 
 import shlex

@@ -1,0 +1,96 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/gnostic-telemetry-beacon
+# ==============================================================================
+# @id:           system/gnostic-telemetry-beacon
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Autonomic hardware sensor providing periodic CPU, RAM, and IO biopsies radiated across the synaptic lattice.
+# @vibe:         [telemetry, beacon, heartbeat, psutil, monitoring, hardware, vitals]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:hardware-tomography, capability:vital-heartbeat]
+# @requires:     [capability:python-core, capability:synaptic-bus]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["psutil>=5.9.0", "pydantic>=2.6.0"]
+#   env:         ["SCAF_PULSE_INTERVAL"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "telemetry-beacon"
+#   priority:    10
+#   alias:       "gnostic_beacon"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ pulse_interval = {{ interval | default(5) }}
+
+# --- II. THE BEACON CORE (The Mind's Sensory Array) ---
+
+src/{{ package_name }}/core/telemetry/
+    __init__.py :: "from .beacon import TelemetryBeacon\n"
+    
+    # [ASCENSION 3]: THE METABOLIC SCRIER (Logic)
+    beacon.py :: """
+import asyncio
+import time
+import os
+import logging
+import psutil
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("Telemetry:Beacon")
+
+class VitalSigns(BaseModel):
+    ts: float = Field(default_factory=time.time)
+    cpu_load: float
+    ram_usage_pct: float
+    status: str = "RESONANT"
+
+class TelemetryBeacon:
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC BEACON (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    ROLE: SYSTEM_BIOLOGIST
+    
+    1.  Substrate Tomography: Scries CPU and RAM.
+    2.  Achronal Broadcasting: Radiates vitals to the Synaptic Hub.
+    \"\"\"
+    def __init__(self, bus: Any):
+        self.bus = bus
+        self.interval = int(os.getenv("SCAF_PULSE_INTERVAL", "{{ pulse_interval }}"))
+        self._stop = asyncio.Event()
+
+    async def ignite(self):
+        Logger.info(f"🛰️ Beacon ignited. Pulse: {self.interval}s")
+        while not self._stop.is_set():
+            try:
+                vitals = VitalSigns(
+                    cpu_load=psutil.cpu_percent(),
+                    ram_usage_pct=psutil.virtual_memory().percent
+                )
+                # [STRIKE]: Project to the Synaptic Lattice
+                await self.bus.broadcast(
+                    topic="system/vitals", 
+                    event_type="METABOLIC_PULSE",
+                    data=vitals.model_dump()
+                )
+            except Exception as e:
+                Logger.error(f"💥 Beacon Fracture: {e}")
+            await asyncio.sleep(self.interval)
+
+    def extinguish(self):
+        self._stop.set()
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Gnostic Telemetry Beacon[/bold cyan] is manifest."
+    proclaim: "Pulse logic waked in [white]core/telemetry/beacon.py[/white]"
+    
+    >> mkdir -p src/{{ package_name }}/core/telemetry
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (System Blindness -> 0)[/]"
+    proclaim: "[bold green]✅ The machine can now feel its own heartbeat.[/bold green]"

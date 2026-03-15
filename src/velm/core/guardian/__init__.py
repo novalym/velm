@@ -1,4 +1,4 @@
-# Path: scaffold/core/guardian/__init__.py
+# Path: velm/core/guardian/__init__.py
 # ----------------------------------------
 
 """

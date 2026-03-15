@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/refinement/__init__.py
+# Path: src/velm/core/symbolic/refinement/__init__.py
 # --------------------------------------------------------
 # LIF: ∞ | ROLE: LINGUISTIC_REFINEMENT_GATEWAY | RANK: SOVEREIGN
 # AUTH: Ω_REFINEMENT_INIT_TOTALITY

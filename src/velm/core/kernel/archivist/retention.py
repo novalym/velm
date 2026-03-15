@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/archivist/retention.py
+# Path: velm/core/kernel/archivist/retention.py
 # -------------------------------------------------
 
 from pathlib import Path

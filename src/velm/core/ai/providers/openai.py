@@ -1,5 +1,5 @@
 """
-Path: src/scaffold/core/ai/providers/openai.py
+Path: src/velm/core/ai/providers/openai.py
 =============================================================================
 == THE HIGH PRIEST OF OPENAI (TELEMETRY ENABLED)                           ==
 =============================================================================

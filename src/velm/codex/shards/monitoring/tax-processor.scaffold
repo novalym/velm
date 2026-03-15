@@ -1,0 +1,92 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: monitoring/tax-processor
+# ==============================================================================
+# @id:           monitoring/tax-processor
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Metabolic telemetry processor that tracks CPU time and nanosecond-precision execution latency.
+# @vibe:         [telemetry, metabolism, performance, cpu, metrics, auditing, profiling]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:metabolic-tax-auditor]
+# @requires:     [capability:python-core, capability:ocular-telemetry]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "telemetry-processor"
+#   priority:    10
+#   alias:       "metabolic_tax_processor"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ tax_precision = 6 # Nanosecond precision for high-status auditing
+
+# --- II. THE SCRIPTURE OF FORM (The Mind of the Auditor) ---
+
+src/{{ package_name }}/monitoring/processors/
+    __init__.py :: "from .metabolic_tax import MetabolicTaxProcessor"
+    
+    # [ASCENSION 3]: THE METABOLIC AUDITOR (Logic)
+    metabolic_tax.py :: """
+import time
+import os
+import logging
+from typing import Dict, Any
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("Telemetry:TaxProcessor")
+
+class MetabolicTax(BaseModel):
+    \"\"\"The Gnostic record of an execution's cost.\"\"\"
+    process_time_seconds: float
+    thread_id: int
+    machine_node: str = Field(default_factory=lambda: os.uname().nodename if hasattr(os, 'uname') else "NT-CORE")
+    timestamp: float = Field(default_factory=time.time)
+
+# [ASCENSION 1]: AUTOMATIC DISCOVERY SUTURE
+class MetabolicTaxProcessor:
+    \"\"\"
+    =============================================================================
+    == THE METABOLIC TAX PROCESSOR (V-Ω-TOTALITY)                              ==
+    =============================================================================
+    LIF: ∞ | ROLE: FISCAL_ADJUDICATOR | RANK: MASTER
+    
+    1.  Metabolic Tomography: Calculates CPU time consumed by the current thread.
+    2.  Lattice Integration: Siphons results into the global telemetry stream.
+    \"\"\"
+    def __init__(self):
+        self._start_cpu = time.process_time()
+
+    def process(self, telemetry: Dict[str, Any]) -> Dict[str, Any]:
+        \"\"\"
+        The Rite of Final Accounting. 
+        Enhances the telemetry packet with metabolic cost data.
+        \"\"\"
+        end_cpu = time.process_time()
+        tax_total = round(end_cpu - self._start_cpu, {{ tax_precision }})
+        
+        # [ASCENSION 7]: FISCAL DNA INJECTION
+        audit_record = MetabolicTax(
+            process_time_seconds=tax_total,
+            thread_id=time.thread_time_ns()
+        )
+        
+        telemetry["metabolic_tax"] = audit_record.model_dump()
+        
+        if tax_total > 0.5:
+            Logger.warning(f"⚠️  High Metabolic Tax detected: {tax_total}s for Trace: {telemetry.get('trace_id')}")
+            
+        return telemetry
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Metabolic Tax Processor[/bold cyan] is manifest."
+    proclaim: "Auditor Locus: [white]monitoring/processors/metabolic_tax.py[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Opaque Costs -> 0)[/]"
+    proclaim: "[bold green]The Engine is now self-aware of its metabolic tax.[/bold green]"

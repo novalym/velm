@@ -1,0 +1,156 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: velm-core/forensic-chronocycle
+# ==============================================================================
+# @id:           velm-core/forensic-chronocycle
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Achronal autopsy engine for parsing engine crash dumps and generating actionable cures.
+# @vibe:         [forensics, autopsy, chronocycle, error-handling, debugging, telemetry, crash-reports]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:forensic-analyzer, capability:crash-autopsy]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["rich>=13.7.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "forensic-tool"
+#   priority:    500
+#   alias:       "forensic_chronocycle"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ tool_name = "chronocycle"
+$$ crash_vault = {{ vault_path | default(".scaffold/crashes") }}
+$$ report_path = {{ report_name | default("FORENSIC_REPORT.md") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE CORONER'S TOOLS ---
+
+scripts/forensics/
+    autopsy.py :: """
+import json
+import os
+from pathlib import Path
+from datetime import datetime
+import platform
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+CONSOLE = Console()
+
+class GnosticCoroner:
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC CORONER (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: PARADOX_ADJUDICATOR | RANK: OMEGA
+    \"\"\"
+    def __init__(self, vault_path: str = "{{ crash_vault }}"):
+        self.vault = Path(vault_path)
+        self.report_file = Path("{{ report_path }}")
+
+    def conduct_inquest(self):
+        CONSOLE.rule("[bold magenta]Ω | Initiating Chronocycle Autopsy[/bold magenta]")
+        
+        if not self.vault.exists():
+            CONSOLE.print("❌ [bold red]ERROR:[/] The Crash Vault is a void.", style="red")
+            return
+
+        reports = sorted(list(self.vault.glob("crash_*.json")), key=os.path.getmtime, reverse=True)
+        if not reports:
+            CONSOLE.print("❓ [yellow]Observation:[/] No recent fractures found.")
+            return
+
+        latest_fracture = reports[0]
+        CONSOLE.print(f"🕵️  Gazing into fracture: [cyan]{latest_fracture.name}[/cyan]")
+
+        try:
+            data = json.loads(latest_fracture.read_text(encoding='utf-8'))
+            error_msg = data.get("error", "")
+            traceback = data.get("traceback", "")
+            
+            is_parser_leak = any(x in error_msg for x in ["WinError 123", "<", ">", "|"])
+            is_timeout = "Timeout" in error_msg or "Deadline" in error_msg
+
+            report_lines = [
+                f"# ⚖️ GNOSTIC FORENSIC REPORT: {latest_fracture.stem.upper()}",
+                f"> **Locus of Fracture:** `{latest_fracture.name}`",
+                f"> **Temporal Coordinate:** {datetime.now().isoformat()}",
+                f"> **Substrate:** {platform.system()}",
+                "", "## I. THE NATURE OF THE PARADOX",
+                f"```text\\n{error_msg}\\n```", ""
+            ]
+
+            diagnosis = "UNKNOWN_ARCHITECTURAL_DRIFT"
+            cure = "Re-conduct the rite with `--verbose` to illuminate the shadow."
+            
+            if is_parser_leak:
+                diagnosis = "INDENTATION_FLOOR_COLLAPSE"
+                cure = "Increase the indentation of the code block in your .scaffold file by 4 spaces."
+            elif "Memory" in error_msg or "tokens" in error_msg:
+                diagnosis = "METABOLIC_TAX_OVERFLOW"
+                cure = "Reduce the 'token_budget' in your request."
+
+            report_lines.extend([
+                f"### 🚩 DIAGNOSIS: {diagnosis}", f"**CURE:** {cure}", "",
+                "## II. FORENSIC TRACEBACK",
+                f"```python\\n{traceback[-3000:]}\\n```"
+            ])
+
+            self.report_file.write_text("\\n".join(report_lines), encoding='utf-8')
+            
+            table = Table(box=None, expand=True)
+            table.add_column("Stratum", style="cyan")
+            table.add_column("Revelation", style="white")
+            table.add_row("Diagnosis", f"[bold red]{diagnosis}[/]")
+            table.add_row("Cure", f"[bold green]{cure}[/]")
+            CONSOLE.print(Panel(table, title="[bold green]Adjudication Result[/]", border_style="green"))
+            
+        except Exception as e:
+            CONSOLE.print(f"💥 [bold red]Autopsy Failed:[/] {e}", style="red")
+
+if __name__ == "__main__":
+    GnosticCoroner().conduct_inquest()
+"""
+
+# --- III. THE KINETIC SYMPHONY ---
+symphonies/
+    chronocycle.symphony :: """
+# == Symphony: The Rite of Post-Mortem Redemption ==
+@task main
+    %% proclaim: "🛡️ [SENTINEL] Awakening the Coroner. Scrying the .scaffold vault..."
+    @try:
+        >> python3 scripts/forensics/autopsy.py
+        ?? succeeds
+        
+        @on_os windows:
+            >> start {{ report_path }}
+        @else:
+            >> open {{ report_path }} || cat {{ report_path }}
+        @endif
+        
+        %% proclaim: "[bold green]✅ ADJUDICATION COMPLETE.[/bold green]"
+    @catch Exception as e:
+        %% error: "Autopsy fractured: {{ e }}."
+    @end
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+# --- FORENSIC RITES ---
+autopsy: ## diagnose and heal the last engine crash
+    @velm run symphonies/chronocycle.symphony
+
+clean-crashes: ## return all crash artifacts to the void
+    @rm -rf {{ crash_vault }}/*.json
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Forensic Chronocycle[/bold cyan] is waked."
+    >> mkdir -p {{ crash_vault }} scripts/forensics symphonies
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Debugging Tax -> 0)[/]"

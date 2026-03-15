@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/knowledge/rust_gnosis.py
+# Path: velm/core/ai/rag/knowledge/rust_gnosis.py
 # ---------------------------------------------------
 
 RUST_SHARDS = [

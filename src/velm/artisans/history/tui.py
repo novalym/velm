@@ -58,7 +58,7 @@ class HistoryAltarApp(App[None]):
     selected_rite: var[Optional[RiteGnosis]] = var(None)
     is_hologram_active: var[bool] = var(False)
 
-    def __init__(self, history: List[RiteGnosis], project_root: Path, engine: "ScaffoldEngine"):
+    def __init__(self, history: List[RiteGnosis], project_root: Path, engine: "VelmEngine"):
         super().__init__()
         self.history = history
         self.project_root = project_root

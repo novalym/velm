@@ -664,7 +664,8 @@ class WeaveRequest(BaseRequest):
     fragment_name: Optional[str] = Field(None, description="The name of the archetype to weave.")
     target_directory: Optional[str] = Field(None, description="The destination sanctum.")
     list: bool = Field(False, description="If True, proclaim the Grimoire of Archetypes.")
-
+    no_edicts: bool = Field(False,
+                            description="The Vow of Stillness: Stay the hand of the Maestro, preventing post-run commands.")
     # Distillation Options
     distill_path: Optional[str] = None
     archetype_name: Optional[str] = None
@@ -672,7 +673,10 @@ class WeaveRequest(BaseRequest):
     # Strategies
     is_recursive: bool = False
     conflict_strategy: str = "overwrite"
-
+    non_interactive: bool = Field(
+        False,
+        description="The Vow of Silence. Suppresses all interactive prompts, accepting default Gnosis."
+    )
     # [THE DIVINE HEALING: THE VOW OF SILENCE]
     # This attribute is restored to the vessel, allowing the Conductor to
     # adjudicate the final proclamation without triggering an AttributeError.
@@ -2401,6 +2405,10 @@ class ExciseRequest(BaseRequest):
     Plea to surgically remove all artifacts from the filesystem that were born
     from a specific blueprint origin.
     """
+    non_interactive: bool = Field(
+        False,
+        description="The Vow of Silence. Suppresses all interactive prompts, accepting default Gnosis."
+    )
     blueprint_origin: str = Field(..., description="The blueprint origin to excise (e.g., 'my-feature.scaffold' or 'kit/auth').")
 
 
@@ -2495,6 +2503,10 @@ class AdoptRequest(BaseRequest):
     output_file: str = Field(
         default="scaffold.scaffold",
         description="The scripture where the new Gnostic Law shall be inscribed."
+    )
+    non_interactive: bool = Field(
+        False,
+        description="The Vow of Silence. Suppresses all interactive prompts, accepting default Gnosis."
     )
     full: bool = Field(
         default=False,
@@ -2901,7 +2913,97 @@ class BuildRequest(BaseRequest):
 
 
 class DreamRequest(BaseRequest):
-    prompt: str
+    """
+    =================================================================================
+    == THE DREAM REQUEST VESSEL (V-Ω-TOTALITY-V2000-HEALED-FINALIS)                ==
+    =================================================================================
+    LIF: ∞ | ROLE: INTENT_TRANSPORT_VESSEL | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_DREAM_REQUEST_V2K_SUTURE_FINALIS_2026
+
+    The supreme data contract for materializing reality from Natural Language.
+    It carries the "Who, What, Where, and How" of the Architect's Dream.
+    =================================================================================
+    """
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        populate_by_name=True,
+        extra='allow'  # Permits third-party Gnosis injection
+    )
+
+    # --- I. THE PRIMARY PLEA (THE MIND) ---
+    prompt: str = Field(
+        ...,
+        description="The natural language intent for the project's evolution."
+    )
+
+    # --- II. THE KINETIC CONSTRAINTS (THE WILL) ---
+    no_edicts: bool = Field(
+        default=False,
+        description="Maestro's Silence: If True, stays the hand of shell command execution."
+    )
+
+    dry_run: bool = Field(
+        default=False,
+        description="Shadow Reality: If True, performs a zero-side-effect simulation."
+    )
+
+    force: bool = Field(
+        default=False,
+        description="The Vow of Will: If True, bypasses all structural and safety wards."
+    )
+
+    # --- III. THE ALCHEMICAL RESERVOIR (THE GNOSIS) ---
+    variables: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Injected Gnosis variables for the Alchemist's Reactor."
+    )
+
+    # --- IV. THE FORENSIC SILVER CORD (THE IDENTITY) ---
+    trace_id: str = Field(
+        default_factory=lambda: f"tr-dream-{uuid.uuid4().hex[:8].upper()}",
+        description="The unique causal ID linking this dream to the Akasha."
+    )
+
+    project_root: Path = Field(
+        default_factory=lambda: Path(os.getcwd()).resolve(),
+        description="The geometric anchor point for the project's reality."
+    )
+
+    # --- V. THE METABOLIC METADATA (THE BODY) ---
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Forensic metadata (novalym_id, session_id, telemetry)."
+    )
+
+    adrenaline_mode: bool = Field(
+        default=False,
+        description="If True, disables GC and raises CPU priority for the strike."
+    )
+
+    non_interactive: bool = Field(
+        default=False,
+        description="The Vow of Silence: Disables all Socratic interactive gates."
+    )
+
+    # --- VI. THE NEURAL HINTS (THE SPIRIT) ---
+    model_hint: str = Field(
+        default="smart",
+        description="Suggests the target Neural Mind (e.g., 'fast', 'smart', 'creative')."
+    )
+
+    # =========================================================================
+    # == THE RITE OF GEOMETRIC NORMALIZATION                                 ==
+    # =========================================================================
+    @field_validator('project_root', mode='before')
+    @classmethod
+    def _normalize_topography(cls, v: Any) -> Path:
+        """Enforces POSIX standards on the spatial anchor."""
+        if v is None:
+            return Path(os.getcwd()).resolve()
+        return Path(str(v).replace('\\', '/')).resolve()
+
+    def __repr__(self) -> str:
+        return f"<Ω_DREAM_REQUEST trace={self.trace_id[:12]} prompt='{self.prompt[:30]}...'>"
 
 
 class GraphRequest(BaseRequest):
@@ -6081,3 +6183,113 @@ class PolyglotRequest(BaseRequest):
             raise ValueError(f"Unmanifest Tongue: '{v}'. Use 'velm runtimes codex' to see manifest souls.")
         return tongue
 
+
+class DriftCommand(str, Enum):
+    """The kinetic verbs of the Drift Artisan."""
+    CHECK = "check"  # Proclaim drift status (CI/CD mode)
+    PLAN = "plan"  # Generate the execution plan
+    APPLY = "apply"  # Execute the plan blindly
+    HEAL = "heal"  # Auto-merge safe whitespace/semantic drifts
+    INTERACTIVE = "interactive"  # Enter the Holographic Chamber (TUI)
+
+
+class DriftRequest(BaseRequest):
+    """
+    =================================================================================
+    == THE PLEA OF STATE RECONCILIATION (V-Ω-TOTALITY-V100000-IAC-CORE)            ==
+    =================================================================================
+    @gnosis:title DriftRequest
+    @gnosis:summary The definitive contract for Infrastructure-as-Code state parity.
+    @gnosis:LIF INFINITY
+
+    This vessel carries the Architect's will to the Drift Artisan, commanding it to
+    compare the Ancient Vow (Lockfile), the New Will (Blueprint), and the Mortal
+    Realm (Disk) to find the absolute truth.
+    =================================================================================
+    """
+    model_config = ConfigDict(extra='allow', populate_by_name=True)
+
+    # --- I. THE KINETIC COMMAND ---
+    command: DriftCommand = Field(
+        default=DriftCommand.PLAN,
+        description="The specific reconciliation rite to conduct."
+    )
+
+    # --- II. THE LOCUS OF TRUTH ---
+    blueprint_path: str = Field(
+        default="scaffold.scaffold",
+        description="The Gnostic scripture of intent to compare reality against."
+    )
+
+    target_path: Optional[str] = Field(
+        default=None,
+        description="Surgically limit the Gaze to a specific directory or file."
+    )
+
+    # --- III. THE VOWS OF EXECUTION ---
+    strict: bool = Field(
+        default=False,
+        description="The CI/CD Ward. If True, the rite FRACTURES (exit 1) if any unhandled drift is perceived."
+    )
+
+    auto_approve: bool = Field(
+        default=False,
+        description="Bypass the Guardian's Veto during the 'apply' rite."
+    )
+
+    # --- IV. THE GNOSTIC CHRONICLE ---
+    out_file: Optional[str] = Field(
+        default=None,
+        description="Path to export the deterministic Execution Plan as pure JSON."
+    )
+
+
+class TestRequest(BaseRequest):
+    """
+    =============================================================================
+    == THE INQUISITOR'S PLEA (V-Ω-TOTALITY-V5000-VERIFICATION)                 ==
+    =============================================================================
+    LIF: ∞ | ROLE: ADJUDICATION_VESSEL | RANK: OMEGA_SOVEREIGN
+
+    The sacred contract for verifying the integrity of the codebase.
+    It carries the will for Unit Tests, Integration Trials, and Coverage Tomography.
+
+    ### THE PANTHEON OF ASCENSIONS:
+    1.  **Polyglot Framework Selection:** Supports 'auto', 'pytest', 'jest', 'cargo', 'go', 'vitest'.
+    2.  **Surgical Targeting:** Can target specific files, folders, or individual test nodes (::test_name).
+    3.  **Metabolic Constraints:** `fail_fast` to halt on the first heresy.
+    4.  **Parallel Execution:** `parallel` boolean to summon the swarm (xdist/workers).
+    5.  **Watch Mode:** `watch` boolean to enter the Eternal Vigil (auto-test on change).
+    6.  **Coverage Mapping:** `coverage` boolean to generate forensic heatmaps of code usage.
+    7.  **Snapshot Update:** `update_snapshots` to bless the current state as the new Truth.
+    """
+    model_config = ConfigDict(extra='allow')
+
+    # --- I. THE TARGET ---
+    target: Optional[str] = Field(
+        default=None,
+        description="Specific file, folder, or test node to adjudicate. Defaults to 'tests/' or '.'."
+    )
+
+    # --- II. THE METHOD ---
+    framework: str = Field(
+        default="auto",
+        description="The testing engine to summon (auto, pytest, jest, vitest, cargo, go)."
+    )
+
+    # --- III. THE MODIFIERS ---
+    watch: bool = Field(False, description="Enter the Eternal Vigil (Watch Mode).")
+    coverage: bool = Field(False, description="Generate forensic coverage tomography.")
+    fail_fast: bool = Field(False, description="Halt the Inquisition upon the first Heresy.")
+    parallel: bool = Field(False, description="Summon the Swarm (Parallel Execution).")
+    verbose: bool = Field(False, description="Show full stdout during the trial.")
+
+    # --- IV. ADVANCED GNOSTICISM ---
+    update_snapshots: bool = Field(False,
+                                   description="Bless the current output as the new Truth (Jest/Pytest-Snapshot).")
+    markers: List[str] = Field(default_factory=list, description="Filter tests by Gnostic Markers (e.g. 'not slow').")
+
+    # --- V. INFRASTRUCTURE ---
+    docker_service: Optional[str] = Field(None, description="Run the test inside a specific docker-compose service.")
+
+    

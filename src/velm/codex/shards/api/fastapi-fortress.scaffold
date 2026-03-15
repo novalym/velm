@@ -1,0 +1,136 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/FASTAPI-FORTRESS
+# ==============================================================================
+# @id:           api/fastapi-fortress
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      The high-performance heart of the API stratum. It materializes a 
+#                production-ready FastAPI instance with autonomic lifecycle 
+#                management, metabolic telemetry, and a warded redemption gate.
+# @vibe:         [fastapi, rest, backend, asynchronous, high-performance, warded]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:api-heart, capability:rest-service, capability:web-server, capability:fastapi-core]
+# @requires:     [capability:python-mind, capability:environment-dna]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["fastapi>=0.109.0", "uvicorn[standard]>=0.27.0", "loguru>=0.7.0"]
+#   env:         ["DEBUG", "PORT", "SCAFFOLD_ENV"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        fastapi-heart
+#   priority:    1
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ api_title = {{ api_title | default(project_name + " API") }}
+$$ default_port = {{ port | default(8000) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Heart) ---
+
+src/{{ package_name }}/
+    # [ASCENSION 1]: THE PRIMARY ENTRYPOINT
+    # This is the "Mind of the Node". It is waked by the Maestro.
+    main.py :: """
+import time
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
+from loguru import logger
+
+# [STRATUM: CONFIG]
+# Link to the Gnostic Conscience (Settings)
+from .core.config import settings
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    \"\"\"
+    =============================================================================
+    == THE LIFESPAN VIGIL (V-Ω-TOTALITY)
+    =============================================================================
+    Orchestrates the Awakening and Dissolution of the application mind.
+    \"\"\"
+    logger.info("🚀 {{ api_title }} Awakening...")
+    # SUTURE_POINT: Initialize DB Pools / Neural Links
+    yield
+    logger.info("🌑 {{ api_title }} Dissolving reality...")
+    # SUTURE_POINT: Graceful shutdown of kinetic connections
+
+app = FastAPI(
+    title="{{ api_title }}",
+    version="3.0.0-Ω",
+    lifespan=lifespan,
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None
+)
+
+# [ASCENSION 2]: THE METABOLIC TOMOGRAPHY
+# Calculates the exact CPU/IO tax of every incoming plea.
+@app.middleware("http")
+async def metabolic_telemetry_middleware(request: Request, call_next):
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    process_time = (time.perf_counter() - start_time) * 1000
+    response.headers["X-Metabolic-Tax-MS"] = f"{process_time:.3f}"
+    return response
+
+# [ASCENSION 3]: THE GNOSTIC APERTURE (HEALTH)
+@app.get("/health", tags=["Vitality"])
+async def health_check():
+    \"\"\"Adjudicates the physical and logical resonance of the node.\"\"\"
+    return {
+        "status": "RESONANT",
+        "timestamp": time.time(),
+        "version": app.version,
+        "trace": getattr(settings, "trace_id", "tr-void")
+    }
+
+# [ASCENSION 4]: THE REDEMPTION GATE (ERROR HANDLING)
+# Transmutes unhandled paradoxes into structured Gnostic Heresies.
+@app.exception_handler(Exception)
+async def universal_heresy_handler(request: Request, exc: Exception):
+    logger.error(f"UNHANDLED_PARADOX: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False, 
+            "error": "INTERNAL_FRACTURE", 
+            "message": str(exc) if settings.DEBUG else "A temporal paradox has occurred."
+        }
+    )
+
+# [THE MASTER SUTURE]: Direct Dispatch for Shard Wiring
+# Future shards will be autonomicly grafted here by the FastAPIStrategy.
+# @scaffold:suture_point(hubs)
+"""
+
+# --- III. THE OPERATIONAL CONTROL PLANE ---
+
+# [ASCENSION 9]: Global Conductor Suture
+# We inject the lifecycle into the project's Makefile.
+Makefile += """
+
+# --- KINETIC RITES: API ---
+dev: ## ignite the local development server with auto-reload
+    @poetry run uvicorn src.{{ package_name }}.main:app --reload --port {{ default_port }}
+
+start: ## conduct the production strike on the local Iron
+    @poetry run uvicorn src.{{ package_name }}.main:app --host 0.0.0.0 --port {{ default_port }} --workers 4
+"""
+
+# --- IV. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]FastAPI Fortress[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]FASTAPI-HEART[/bold green]"
+    proclaim: "Heart Locus: [white]src/{{ package_name }}/main.py[/]"
+    
+    # [THE CURE]: We NO LONGER need to 'poetry add' here! 
+    # The Parser has already aggregated our metabolism into pyproject.toml.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Architectural Debt -> 0)[/]"
+    proclaim: "[bold green]✅ The Heart is beating.[/bold green]"
+    proclaim: "To ignite the server, speak: [bold cyan]make dev[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]API materialization fractured.[/bold red]"

@@ -1,0 +1,98 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/gnostic-hub
+# ==============================================================================
+# @id:           system/gnostic-hub
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      Multiversal synchronization bridge connecting local reality to the SCAF-Hub celestial registry.
+# @vibe:         [hub, registry, sync, multiversal, celestial, cloud-registry, catalog]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:celestial-bridge, capability:shard-registry]
+# @requires:     [capability:python-core, capability:network-conduit]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["SCAF_HUB_URI", "SCAF_SYNC_COOLDOWN"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "multiversal-synchronizer"
+#   priority:    10
+#   alias:       "gnostic_hub"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-reality") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ hub_uri = {{ hub_uri | default("https://github.com/novalym/velm-grimoire") }}
+$$ sync_cooldown_min = {{ sync_interval | default(5) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Celestial Brain) ---
+
+src/{{ package_name }}/core/hub/
+    __init__.py :: "from .bridge import GnosticHubBridge, ShardVessel\n"
+
+    bridge.py :: """
+import os
+import json
+import time
+import logging
+import urllib.request
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("System:GnosticHub")
+
+class ShardVessel(BaseModel):
+    \"\"\"The Gnostic record of a remote shard's soul.\"\"\"
+    id: str
+    version: str
+    provides: List[str]
+    requires: List[str]
+    merkle_root: str
+
+class GnosticHubBridge:
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC HUB BRIDGE (V-Ω-TOTALITY)                                  ==
+    =============================================================================
+    LIF: ∞ | ROLE: MULTIVERSAL_SYNCHRONIZER | RANK: OMEGA
+    
+    The hand that connects the project to the Hive.
+    \"\"\"
+    def __init__(self):
+        self.hub_uri = os.getenv("SCAF_HUB_URI", "{{ hub_uri }}")
+        self.local_cache = Path(".scaffold/cache/hub_index.json")
+        self.sync_cooldown = int(os.getenv("SCAF_SYNC_COOLDOWN", str({{ sync_cooldown_min }} * 60)))
+
+    def sync_celestial_gnosis(self, force: bool = False):
+        \"\"\"Pulls the master index from the Aether.\"\"\"
+        if not force and self._is_cache_resonant():
+            return
+
+        Logger.info(f"📡 [HUB] Reaching out to the Celestial Hub: {self.hub_uri}...")
+        try:
+            url = f"{self.hub_uri}/raw/main/registry/index.json"
+            with urllib.request.urlopen(url, timeout=5) as response:
+                content = response.read().decode('utf-8')
+                self._enshrine_cache(content)
+                Logger.info("✨ [RESONANT] Celestial Registry manifest and warded.")
+        except Exception as e:
+            Logger.warning(f"💥 [HUB] Celestial Link Fractured: {e}. Clinging to local memory.")
+
+    def _is_cache_resonant(self) -> bool:
+        if not self.local_cache.exists(): return False
+        return (time.time() - self.local_cache.stat().st_mtime) < self.sync_cooldown
+
+    def _enshrine_cache(self, content: str):
+        self.local_cache.parent.mkdir(parents=True, exist_ok=True)
+        self.local_cache.write_text(content, encoding='utf-8')
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Gnostic Hub Shard[/bold cyan] is manifest."
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Systemic Amnesia -> 0)[/]"
+    proclaim: "[bold green]✅ The Hive-Mind Link is Active.[/bold green]"

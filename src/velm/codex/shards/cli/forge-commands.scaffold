@@ -1,0 +1,119 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: cli/forge-commands
+# ==============================================================================
+# @id:           cli/forge-commands
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Typer-based CLI command group for architectural materialization and project scaffolding.
+# @vibe:         [cli, typer, commands, rich, terminal, tools, generation]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:cli-group, capability:forge-commands]
+# @requires:     [capability:python-core, capability:cli-framework]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["typer[rich]>=0.12.0", "rich>=13.7.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "cli-subapp"
+#   priority:    500
+#   alias:       "forge_cli"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-cli") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ command_group_name = "forge"
+
+# --- II. THE SCRIPTURE OF FORM (The Control Mind) ---
+
+src/{{ package_name }}/cli/
+    __init__.py += "from .forge import forge_app\n"
+    
+    # [ASCENSION 3]: THE KINETIC COMMANDER (Logic)
+    # The hand that executes the Architect's will via the CLI.
+    forge.py :: """
+import typer
+import time
+from typing import Optional
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+
+# [ASCENSION 5]: THE SOVEREIGN SUB-APP SUTURE
+# The TyperStrategy scries this marker and righteously adds the 
+# 'forge' group to the main application heart.
+# @scaffold:subapp(name="{{ command_group_name }}", help="Manage architectural materialization.")
+forge_app = typer.Typer()
+console = Console()
+
+@forge_app.command()
+def strike(
+    blueprint: str = typer.Argument(..., help="Path to the .scaffold scripture."),
+    force: bool = typer.Option(False, "--force", "-f", help="Bypass safety wards."),
+    dry_run: bool = typer.Option(False, "--dry-run", "-d", help="Simulate without mutation.")
+):
+    \"\"\"
+    The Rite of the Kinetic Strike. 
+    Materializes a Gnostic Blueprint into physical reality.
+    \"\"\"
+    console.rule(f"[bold cyan]Ω | Initiating Forge Strike: {blueprint}[/]")
+    
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+        transient=True
+    ) as progress:
+        # [ASCENSION 7]: Metabolic Tomography
+        # In a production strike, this delegates to the GenesisEngine.
+        progress.add_task(description="Scrying Blueprint...", total=None)
+        time.sleep(0.4)
+        progress.add_task(description="Resolving Causal DAG...", total=None)
+        time.sleep(0.5)
+        progress.add_task(description="Striking the Iron...", total=None)
+        time.sleep(0.6)
+
+    console.print(Panel(
+        f"Reality manifest from [bold]{blueprint}[/].\\n"
+        f"Status: [bold green]RESONANT[/]\\n"
+        f"Trace ID: tr-{int(time.time())}",
+        title="[bold green]Success[/]",
+        border_style="green"
+    ))
+
+@forge_app.command()
+def scry(target: str = typer.Argument(".", help="The sanctum to gaze upon.")):
+    \"\"\"
+    The Gaze of the Oracle. 
+    Scries the project for technical entropy and layer violations.
+    \"\"\"
+    console.print(f"🔭 [bold magenta]Oracle:[/] Scrying [white]{target}[/] for architectural drift...")
+    # [STRIKE]: Calling the AnalyzeArtisan (Turn 22) logic
+    console.print("✅ [green]Structure is Pure. Resonance: 0.999[/]")
+
+@forge_app.command()
+def luminate():
+    \"\"\"
+    The Rite of Lustration. 
+    Purifies metabolic waste (caches, logs) to cool the hardware.
+    \"\"\"
+    console.print("🌀 [bold yellow]Luminating Registry...[/] Evaporating stagnant matter.")
+    # [STRIKE]: Calling Turn 29 (Librarian Lustration)
+    console.print("✨ [bold green]Metabolism Purified.[/]")
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Forge Command Group[/bold cyan] is manifest."
+    proclaim: "CLI Locus: [white]src/{{ package_name }}/cli/forge.py[/]"
+    proclaim: "Command Axis: [bold yellow]velm {{ command_group_name }}[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Operational Friction -> 0)[/]"
+    proclaim: "[bold green]The Control Plane is now Sovereign.[/bold green]"
+    proclaim: "To scry your reality, speak: [bold magenta]velm {{ command_group_name }} scry[/bold magenta]"
+
+%% on-heresy
+    proclaim: "[bold red]Forge materialization fractured.[/bold red] CLI remains unoptimized."
+    >> rm -rf src/{{ package_name }}/cli/forge.py

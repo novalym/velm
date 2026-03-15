@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/context.py
+# Path: velm/core/runtime/context.py
 # -------------------------------------
 # LIF: INFINITY | AUTH_CODE: Ω_CONTEXT_SINGULARITY_V12
 # SYSTEM: SCAFFOLD_RUNTIME | ROLE: REALITY_ANCHOR

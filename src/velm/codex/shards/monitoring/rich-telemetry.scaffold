@@ -1,0 +1,108 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: monitoring/rich-telemetry
+# ==============================================================================
+# @id:           monitoring/rich-telemetry
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      High-status visual telemetry engine using the Rich library for cinematic terminal rendering.
+# @vibe:         [rich, terminal, telemetry, visuals, logging, progress, colors]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:rich-logging, capability:ocular-telemetry]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["rich>=13.7.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "telemetry-provider"
+#   priority:    0
+#   alias:       "rich_scribe"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+
+# --- II. THE SCRIPTURE OF FORM (The Ocular Mind) ---
+
+src/{{ package_name }}/core/telemetry/
+    __init__.py :: "from .rich_scribe import LuminousScribe, scribe\n"
+
+    # [ASCENSION 1]: THE LUMINOUS SCRIBE
+    # This artisan transmutes raw data into high-status visual light.
+    rich_scribe.py :: """
+import sys
+import os
+from typing import Any, Dict
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
+from rich.text import Text
+
+class LuminousScribe:
+    \"\"\"
+    =============================================================================
+    == THE LUMINOUS SCRIBE (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: VISUAL_REVELATOR | RANK: MASTER
+    
+    [ASCENSIONS]:
+    1. Achronal Progress: Multi-threaded progress bars for parallel rites.
+    2. Syntax-Aware Gaze: Renders code blocks with bit-perfect highlighting.
+    3. Haptic Panels: Forges warded border styles based on Gnostic severity.
+    4. Substrate Sensing: Detects TTY depth to optimize color saturation.
+    \"\"\"
+    def __init__(self):
+        # [ASCENSION 4]: Substrate Sensing
+        use_color = os.environ.get("FORCE_COLOR") == "1" or os.environ.get("SCAFFOLD_ENV") == "WASM"
+        self.console = Console(force_terminal=use_color if use_color else None)
+
+    def proclaim_panel(self, content: str, title: str = "Revelation", style: str = "cyan"):
+        \"\"\"Inscribes a message within a warded visual boundary.\"\"\"
+        self.console.print(Panel(
+            Text.from_markup(content), 
+            title=f"[bold]{title}[/]", 
+            border_style=style, 
+            padding=(1, 2)
+        ))
+
+    def scry_data(self, data: Dict[str, Any], title: str = "Gnostic Dossier"):
+        \"\"\"Renders a structured dictionary as a bit-perfect table.\"\"\"
+        table = Table(title=title, border_style="dim", expand=True)
+        table.add_column("Key", style="bold yellow")
+        table.add_column("Matter", style="white")
+        
+        # [ASCENSION 8]: NoneType Sarcophagus
+        for k, v in data.items():
+            val_str = str(v) if v is not None else "[dim]0xVOID[/]"
+            table.add_row(str(k), val_str)
+        
+        self.console.print(table)
+
+    def conduct_progress(self, task_name: str):
+        \"\"\"Forges a high-status progress context for kinetic operations.\"\"\"
+        return Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(bar_width=None, pulse_style="magenta"),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            TimeElapsedColumn(),
+            console=self.console,
+            transient=True
+        )
+
+# Global Singleton
+scribe = LuminousScribe()
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Rich Telemetry Shard[/] is manifest."
+    proclaim: "Visual Locus: [white]core/telemetry/rich_scribe.py[/]"
+    
+    # Notice: No pyproject.toml injection needed. The Genome handles `rich`.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Visual Friction -> 0)[/]"
+    proclaim: "[bold green]✅ The Eye is open.[/bold green] Your project is now Ocular."

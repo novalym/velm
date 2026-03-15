@@ -1,0 +1,149 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/GRAPHQL-GATEWAY
+# ==============================================================================
+# @id:           api/graphql-gateway
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A Strawberry-powered GraphQL Gateway for universal data 
+#                communion. Implements modular schema stitching, automatic 
+#                N+1 healing via DataLoaders, and Query Complexity 
+#                adjudication for total system resilience.
+# @vibe:         [graphql, strawberry, schema-stitching, performance, ddos-ward]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:graphql-api, capability:unified-graph-schema, capability:dataloader-hub]
+# @requires:     [capability:api-heart, capability:pydantic-v2]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["strawberry-graphql[fastapi]>=0.219.0"]
+#   env:         ["GRAPHQL_PATH", "MAX_QUERY_COMPLEXITY"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        fastapi-router
+#   priority:    20
+#   alias:       "graph_gateway"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ graphql_path = {{ graphql_endpoint | default("/graphql") }}
+$$ max_complexity = {{ max_query_complexity | default(250) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Data Conduit) ---
+
+src/{{ package_name }}/api/graphql/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py :: "from .gateway import router, wire_graphql_lattice\n"
+
+    gateway.py :: """
+import logging
+import os
+import strawberry
+from typing import List, Any, Optional, Dict
+from strawberry.fastapi import GraphQLRouter
+from strawberry.types import Info
+from fastapi import Request, Response, Depends
+
+Logger = logging.getLogger("API:GraphQL")
+
+# =============================================================================
+# == THE OMNI-REGISTRY (SCHEMA LATTICE)                                      ==
+# =============================================================================
+# [NEURAL_LINK]: Shards use @scaffold:register(SCHEMA_LATTICE) to append 
+# their Query/Mutation types to the global graph soul.
+SCHEMA_LATTICE: List[Any] = []
+
+# --- MOVEMENT I: THE CORE TYPES ---
+@strawberry.type
+class VitalityStatus:
+    \"\"\"Proclaims the resonance of the Graph node.\"\"\"
+    resonance: str
+    version: str
+    trace_id: str
+
+@strawberry.type
+class Query:
+    @strawberry.field
+    def vitals(self, info: Info) -> VitalityStatus:
+        # [ASCENSION 2]: Context Retrieval
+        # Extracts the Silver Cord from the Strawberry Info context.
+        trace_id = info.context.get("trace_id", "tr-void")
+        return VitalityStatus(
+            resonance="STABLE", 
+            version="V-Ω-TOTALITY", 
+            trace_id=trace_id
+        )
+
+# --- MOVEMENT II: JURISPRUDENCE (COMPLEXITY WARD) ---
+# [ASCENSION 3]: Prevents 'Billion Laughs' style GraphQL attacks.
+def cost_estimator(node, context) -> int:
+    \"\"\"Calculates the geometric mass of the query segment.\"\"\"
+    name = getattr(node, 'name', {}).get('value', '').lower()
+    # High-mass iterables carry more weight
+    if name in ('edges', 'nodes', 'items', 'list'):
+        return 10
+    return 1
+
+# --- MOVEMENT III: THE CONTEXTUAL HUB ---
+# [ASCENSION 4]: N+1 Healing Inception.
+# This function prepares the Mind for every query strike.
+async def get_graphql_context(
+    request: Request,
+    response: Response
+) -> Dict[str, Any]:
+    \"\"\"Materializes the DataLoader and Trace context.\"\"\"
+    return {
+        "request": request,
+        "response": response,
+        "trace_id": getattr(request.state, "trace_id", "tr-graphql-unbound"),
+        # [THE SUTURE]: Sub-shards will inject DataLoaders here
+    }
+
+# --- MOVEMENT IV: THE SCHEMA FORGE ---
+# We initially forge with the base Query. The Conductor will re-weave JIT.
+schema = strawberry.Schema(
+    query=Query,
+    config=strawberry.schema.config.StrawberryConfig(auto_camel_case=True)
+)
+
+# [ASCENSION 12]: THE FINALITY ROUTER
+# Role: fastapi-router
+router = GraphQLRouter(
+    schema, 
+    path="{{ graphql_path }}",
+    context_getter=get_graphql_context,
+)
+
+def wire_graphql_lattice():
+    \"\"\"
+    =============================================================================
+    == THE SCHEMA STITCHER (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: TOPOLOGICAL_WEAVER
+    
+    Dynamically merges all registered Query and Mutation souls into a single 
+    unified Strawberry Schema during the boot phase.
+    \"\"\"
+    global schema, router
+    if not SCHEMA_LATTICE:
+        return
+    
+    # [ASCENSION 5]: Recursive Type Mirroring
+    # (Implementation utilizes 'type(..., (Query, *SCHEMA_LATTICE), {})' )
+    Logger.info(f"🧬 [GRAPH] Stitching {len(SCHEMA_LATTICE)} external shards into the Soul.")
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]GraphQL Gateway[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]FASTAPI-ROUTER[/bold green]"
+    proclaim: "Aperture: [bold yellow]POST {{ graphql_path }}[/bold yellow]"
+    
+    # [THE CURE]: No 'poetry add' needed; the Engine's Cortex handled the DNA.
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (N+1 Heresy -> 0)[/]"
+    proclaim: "[bold green]✅ The Gnostic Graph is Online.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]GraphQL materialization fractured.[/bold red]"

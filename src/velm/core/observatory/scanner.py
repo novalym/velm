@@ -1,4 +1,4 @@
-# Path: scaffold/core/observatory/scanner.py
+# Path: velm/core/observatory/scanner.py
 # ------------------------------------------
 import os
 from pathlib import Path

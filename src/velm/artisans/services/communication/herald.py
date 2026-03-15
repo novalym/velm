@@ -14,7 +14,7 @@ from typing import Any, Dict, Tuple, Optional
 
 # --- CORE SCAFFOLD UPLINKS ---
 # We assume the engine's alchemist is passed or accessible
-from velm.core.runtime.engine import ScaffoldEngine
+from velm.core.runtime.engine import VelmEngine
 
 Logger = logging.getLogger("Herald:Alchemist")
 
@@ -30,7 +30,7 @@ class TheHerald:
     Responsible for transmuting raw Gnosis into resonant communication matter.
     """
 
-    def __init__(self, engine: ScaffoldEngine):
+    def __init__(self, engine: VelmEngine):
         self.engine = engine
         self.logger = Logger
 

@@ -14,7 +14,7 @@ from rich.text import Text
 from rich.style import Style
 from rich.console import Group
 
-from ... import __version__ as scaffold_ver
+from ... import __version__ as velm_ver
 
 
 class TelemetryScribe:
@@ -150,7 +150,7 @@ class TelemetryScribe:
 
             t.add_row("Python:", py_ver)
             t.add_row("System:", os_name)
-            t.add_row("Scaffold:", f"v{scaffold_ver}")
+            t.add_row("Velm:", f"v{velm_ver}")
 
         return t
 

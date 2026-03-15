@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/exceptions.py
+# Path: velm/core/ignition/diviner/exceptions.py
 # --------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: DIVINER_EXCEPTIONS_V2
 

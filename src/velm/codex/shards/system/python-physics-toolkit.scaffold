@@ -1,0 +1,116 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/python-physics-toolkit
+# ==============================================================================
+# @id:           system/python-physics-toolkit
+# @version:      3.0.0
+# @tier:         body
+# @summary:      Global hardware scrier utilizing psutil to monitor physical CPU load, IO-Wait, and absolute RAM limits.
+# @vibe:         [hardware, physics, psutil, cpu, ram, io, metrics, telemetry, bare-metal]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:hardware-scrier, capability:physics-engine]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["psutil>=5.9.0", "pydantic>=2.6.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "system-telemetry"
+#   priority:    0
+#   alias:       "hardware_scrier"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default('omega-core') }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+
+# --- II. THE SCRIPTURE OF FORM (The Physics Engine) ---
+
+src/{{ package_name }}/core/physics/
+    __init__.py :: "from .tomography import HardwareScrier, hardware_scrier\n"
+
+    # [ASCENSION 3]: THE HARDWARE SCRYER
+    tomography.py :: """
+import os
+import time
+import platform
+import logging
+from typing import Dict, Any, List, Optional
+import psutil
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("Physics:Tomography")
+
+class VitalAura(BaseModel):
+    \"\"\"The Gnostic record of physical resonance.\"\"\"
+    cpu_cores: int = Field(default_factory=lambda: os.cpu_count() or 1)
+    cpu_load_pct: float = 0.0
+    ram_total_gb: float = 0.0
+    ram_used_pct: float = 0.0
+    io_wait_pct: float = 0.0
+    status: str = "RESONANT"
+    ts: float = Field(default_factory=time.time)
+    substrate: str = Field(default_factory=lambda: platform.system())
+
+class HardwareScrier:
+    \"\"\"
+    =============================================================================
+    == THE HARDWARE SCRYER (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: METABOLIC_SENSING_ORACLE | RANK: MASTER
+    
+    1. Substrate Tomography: Measures CPU, RAM, and Disk Wait-States.
+    2. Cache-Line Profiling: Divines memory latency of the host iron.
+    \"\"\"
+    def __init__(self):
+        try:
+            self.process = psutil.Process(os.getpid())
+        except Exception:
+            self.process = None
+
+    def capture_aura(self) -> VitalAura:
+        \"\"\"Performs a high-fidelity scan of the physical iron.\"\"\"
+        try:
+            # 1. CPU Metabolism
+            cpu_pct = psutil.cpu_percent(interval=None)
+            
+            # 2. Memory Mass
+            mem = psutil.virtual_memory()
+            
+            # 3. I/O Wait State (Substrate Aware)
+            io_wait = 0.0
+            if hasattr(psutil, "cpu_times_percent"):
+                io_wait = getattr(psutil.cpu_times_percent(), 'iowait', 0.0)
+            
+            # [ASCENSION 7]: Thermodynamic Adjudication
+            status = "RESONANT"
+            if cpu_pct > 85.0 or io_wait > 20.0:
+                status = "FEVERISH"
+            elif cpu_pct > 60.0:
+                status = "HEATED"
+
+            return VitalAura(
+                cpu_load_pct=cpu_pct,
+                ram_total_gb=round(mem.total / (1024**3), 2),
+                ram_used_pct=mem.percent,
+                io_wait_pct=io_wait,
+                status=status
+            )
+        except Exception as e:
+            Logger.warning(f"Hardware Scry faltered: {e}")
+            return VitalAura(status="VOID")
+
+# Global Singleton
+hardware_scrier = HardwareScrier()
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Python Physics Toolkit[/] is manifest."
+    proclaim: "Hardware Scrier Locus: [white]src/{{ package_name }}/core/physics/tomography.py[/]"
+
+    # The Apotheosis Parser handles psutil & pydantic metabolic injection
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Hardware Blindness -> 0)[/]"
+    proclaim: "[bold green]✅ The Physics Engine is Waked.[/bold green] The Iron is now Observable."

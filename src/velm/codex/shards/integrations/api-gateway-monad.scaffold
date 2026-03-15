@@ -1,0 +1,194 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: integrations/api-gateway-monad
+# ==============================================================================
+# @id:           integrations/api-gateway-monad
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      A sovereign, unified ingress orchestrator using Caddy. Manages automatic SSL and achronal trace-id injection.
+# @vibe:         [gateway, ingress, caddy, ssl-auto, proxy, mesh, microservices, warded]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:ingress-authority, capability:api-gateway]
+# @requires:     [capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+#   env:         ["PUBLIC_DOMAIN", "API_VESSEL", "UI_VESSEL", "API_PORT", "UI_PORT"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "gateway": { "image": "caddy:2.7-alpine" } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-compose"
+#   priority:    800
+#   alias:       "caddy_ingress"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug  = {{ project_slug | default("omega-citadel") }}
+$$ public_domain = {{ domain | default("citadel.local") }}
+$$ api_vessel    = {{ api_host | default("api") }}
+$$ ui_vessel     = {{ ui_host | default("web") }}
+$$ api_port       = {{ api_port | default(8000) }}
+$$ ui_port        = {{ ui_port | default(3000) }}
+$$ package_name  = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Aperture Law) ---
+
+infra/gateway/
+    # [ASCENSION 2]: THE GNOSTIC INGRESS POLICY
+    # Wards the perimeter and ensures persistence across substrate reboots.
+    Caddyfile :: """
+{
+    # --- GLOBAL CONSTITUTION ---
+    admin 0.0.0.0:2019
+    debug
+    storage file_system /data
+}
+
+# [ASCENSION 3]: THE SOVEREIGN DOMAIN HANDLER
+{{ public_domain }} {
+    
+    # --- GNOSTIC CHRONICLE ---
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+
+    # --- THE PERIMETER SHIELD (Security Headers) ---
+    header {
+        X-Frame-Options DENY
+        X-Content-Type-Options nosniff
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';"
+        -Server
+    }
+
+    # [ASCENSION 10]: HYDRAULIC COMPRESSION
+    encode zstd gzip
+
+    # --- STRATUM I: THE INTELLIGENCE LAYER (/api/*) ---
+    handle_path /api/* {
+        reverse_proxy {{ api_vessel }}:{{ api_port }} {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Gnostic-Trace {uuid}
+        }
+    }
+
+    # --- STRATUM II: THE OCULAR LAYER (/*) ---
+    handle {
+        reverse_proxy {{ ui_vessel }}:{{ ui_port }}
+    }
+
+    # [ASCENSION 12]: THE METRIC RADIATOR
+    metrics /metrics
+
+    # --- THE REDEMPTION (Custom Error Sanctum) ---
+    handle_errors {
+        rewrite * /{err.status_code}.html
+        file_server
+    }
+}
+"""
+
+    # [ASCENSION 6]: THE CELESTIAL MESH (Docker Overlay)
+    # The physical manifestation of the Gateway vessel.
+    docker-compose.gateway.yml :: """
+version: '3.8'
+
+services:
+  gateway:
+    image: caddy:2.7-alpine
+    container_name: {{ project_slug }}-gateway
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2019:2019" # Admin Aperture
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - gateway_data:/data
+      - gateway_config:/config
+      - /var/log/caddy:/var/log/caddy
+    networks:
+      - gnostic_mesh
+    environment:
+      - DOMAIN={{ public_domain }}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2019/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  gnostic_mesh:
+    external: true
+    name: {{ project_slug }}_gnostic_mesh
+
+volumes:
+  gateway_data:
+  gateway_config:
+"""
+
+# --- III. THE KINETIC LIMBS (Health Sentinel) ---
+src/{{ package_name }}/core/gateway/
+    __init__.py :: ""
+    
+    # [ASCENSION 6]: THE ROUTE SCRIER
+    scrier.py :: """
+import socket
+import logging
+import time
+from typing import List, Tuple
+
+Logger = logging.getLogger("Gateway:Scrier")
+
+class GatewayScrier:
+    \"\"\"Performs a network-level Gaze to ensure the mesh backends are breathing.\"\"\"
+    BACKENDS: List[Tuple[str, int]] = [
+        ("{{ api_vessel }}", {{ api_port }}),
+        ("{{ ui_vessel }}", {{ ui_port }})
+    ]
+
+    @classmethod
+    def verify_resonance(cls) -> bool:
+        all_stable = True
+        for host, port in cls.BACKENDS:
+            try:
+                with socket.create_connection((host, port), timeout=1.0):
+                    print(f"✅ Backend {host}:{port} is RESONANT.")
+            except:
+                print(f"❌ Backend {host}:{port} is FRACTURED.")
+                all_stable = False
+        return all_stable
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(0 if GatewayScrier.verify_resonance() else 1)
+"""
+
+# --- IV. THE CONTROL PLANE (Maestro Integration) ---
+Makefile += """
+
+# --- GATEWAY RITES ---
+gateway-up: ## ignite the API Gateway Monad and forge the mesh
+    @echo "🔭 Awakening the Ingress Aperture..."
+    @docker network create {{ project_slug }}_gnostic_mesh 2>/dev/null || true
+    @docker-compose -f infra/gateway/docker-compose.gateway.yml up -d
+    @echo "✅ Gateway manifest at http://{{ public_domain }}"
+
+gateway-down: ## return the Gateway to the void
+    @docker-compose -f infra/gateway/docker-compose.gateway.yml down
+
+gateway-check: ## conduct a health inquest on the ingress lattice
+    @poetry run python src/{{ package_name }}/core/gateway/scrier.py
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]API Gateway Monad[/bold cyan] shard has been integrated."
+    proclaim: "Aperture Domain: [bold yellow]http://{{ public_domain }}[/]"
+    proclaim: "To ignite the Aperture: [bold cyan]make gateway-up[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Gateway weaving fractured.[/bold red]"

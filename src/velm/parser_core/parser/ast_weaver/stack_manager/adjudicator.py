@@ -27,7 +27,7 @@ class SiblingAdjudicator:
         if not stack_node.item:
             return False
 
-        valid_types = (GnosticLineType.LOGIC, GnosticLineType.JINJA_CONSTRUCT)
+        valid_types = (GnosticLineType.LOGIC, GnosticLineType.SGF_CONSTRUCT)
 
         # Fast fail if either item is not a logic gate
         if stack_node.item.line_type not in valid_types: return False
@@ -40,7 +40,7 @@ class SiblingAdjudicator:
             return False
 
         # --- THE LOGIC MATRIX ---
-        # [ASCENSION 9]: Jinja-Aware Boundary Detection
+        # [ASCENSION 9]: SGF-Aware Boundary Detection
 
         # IF is closed by ELIF, ELSE, ENDIF
         if start_type in ("IF", "ELIF") and end_type in ("ELIF", "ELSE", "ENDIF"):
@@ -78,8 +78,8 @@ class SiblingAdjudicator:
             return s
 
         # 2. Try Regex on Jinja expression (Fallback)
-        if item.jinja_expression:
-            match = re.search(r'{%[-]?\s*(\w+)', item.jinja_expression)
+        if item.sgf_expression:
+            match = re.search(r'{%[-]?\s*(\w+)', item.sgf_expression)
             if match:
                 return match.group(1).upper()
 

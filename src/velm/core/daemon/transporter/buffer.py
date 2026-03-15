@@ -1,4 +1,4 @@
-# Path: scaffold/core/daemon/transporter/buffer.py
+# Path: velm/core/daemon/transporter/buffer.py
 # ------------------------------------------------
 # LIF: INFINITY | AUTH_CODE: Ω_BUFFER_PYTHON_TYPE_SAFE_V999
 # SYSTEM: KINETIC_STORAGE | ROLE: MEMORY_VESSEL

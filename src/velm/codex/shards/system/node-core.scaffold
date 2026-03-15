@@ -1,0 +1,89 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/node-core
+# ==============================================================================
+# @id:           system/node-core
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      The foundational Node.js environment manifest featuring TypeScript, Vitest, and ESNext module resolution.
+# @vibe:         [node, typescript, vitest, esm, tsconfig, package-json, ocular-foundation]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:node-runtime, capability:typescript-substrate]
+# @requires:     []
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   node:        ["typescript>=5.3.3", "tsx>=4.7.1", "tsup>=8.0.2", "vitest>=1.3.1", "eslint>=8.56.0", "prettier>=3.2.5"]
+#   env:         ["NODE_VERSION"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "node-substrate"
+#   priority:    0
+#   alias:       "node_core"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("resonant-node") }}
+$$ node_version = {{ node_v | default("20") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Base Topography) ---
+
+package.json :: """
+{
+  "name": "{{ project_slug }}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">={{ node_version }}"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup src/index.ts --format esm",
+    "test": "vitest",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write ."
+  }
+}
+"""
+
+tsconfig.json :: """
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"]
+}
+"""
+
+.gitignore += """
+# == The Abyss (Node) ==
+node_modules/
+dist/
+build/
+.npm/
+.eslintcache
+.prettiercache
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Node Core Substrate[/] is manifest."
+    proclaim: "Target Node: [bold yellow]>= {{ node_version }}[/bold yellow]"
+    
+    # [THE CURE]: The Apotheosis Parser aggregates NPM mass from @metabolism.
+    # We only trigger the physical install if the node_modules sanctum is void.
+    @if {{ not dir_exists('node_modules') }}
+        proclaim: "Phase I: Materializing the Ocular dependencies..."
+        >> npm install
+    @endif
+    
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Node Foundation Established)[/]"

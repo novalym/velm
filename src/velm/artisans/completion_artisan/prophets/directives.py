@@ -37,7 +37,7 @@ class DirectiveProphet(BaseProphet):
 
             # [ASCENSION 5]: CONTEXTUAL GATING
             # Directives live at the root or block level, never inside Jinja or Comments.
-            if ctx.is_inside_jinja or ctx.is_inside_comment:
+            if ctx.is_inside_sgf or ctx.is_inside_comment:
                 return []
 
             # Identify the trigger

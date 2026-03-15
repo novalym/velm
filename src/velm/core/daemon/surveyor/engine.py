@@ -77,7 +77,7 @@ class GrandSurveyor:
             max_workers=min(32, cpu_count * 4),
             thread_name_prefix="SentinelWorker"
         )
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def conduct_survey(self, root_uri: str) -> Dict[str, Any]:
         """

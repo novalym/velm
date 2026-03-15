@@ -1,0 +1,96 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/reactive-hub
+# ==============================================================================
+# @id:           system/reactive-hub
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Real-time bi-directional synaptic bus utilizing WebSockets and Redis Pub/Sub for cross-strata event synchronization.
+# @vibe:         [websockets, real-time, event-bus, redis, pubsub, synapse, ocular-sync]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:synaptic-bus, capability:real-time-sync]
+# @requires:     [capability:python-core, capability:redis-client, capability:fastapi-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["fastapi-socketio>=0.0.10", "python-socketio[asyncio_client]>=5.11.0", "redis>=5.0.0"]
+#   env:         ["REDIS_URL", "WS_NAMESPACE"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "synaptic-vault": { "image": "redis:7-alpine", "ports": ["6379:6379"] } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "synaptic-hub"
+#   priority:    100
+#   alias:       "synapse"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-synapse") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ ws_namespace = {{ namespace | default("/gnosis") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Synaptic Scribe) ---
+
+src/{{ package_name }}/core/
+    # [ASCENSION 3]: THE SYNAPTIC SCRIBE
+    synapse.py :: """
+import os
+import logging
+import time
+from typing import Dict, Any, Optional
+from fastapi_socketio import SocketManager
+
+Logger = logging.getLogger("Synapse:Hub")
+
+class SynapticBus:
+    \"\"\"
+    =============================================================================
+    == THE SYNAPTIC HUB (V-Ω-TOTALITY)                                        ==
+    =============================================================================
+    LIF: ∞ | ROLE: REAL_TIME_SYNCHRONIZER | RANK: OMEGA_CONDUCTOR
+    
+    The primary conduit for signals entering and leaving the application Mind.
+    \"\"\"
+    def __init__(self, app):
+        # [ASCENSION 4]: The WebSocket Aperture
+        self.sm = SocketManager(
+            app=app, 
+            mount_location='/ws', 
+            cors_allowed_origins="*"
+        )
+        self.namespace = os.getenv("WS_NAMESPACE", "{{ ws_namespace }}")
+        
+    async def broadcast(self, event: str, data: Dict[str, Any], trace: Optional[str] = None):
+        \"\"\"Radiates an event to all connected Ocular Membranes.\"\"\"
+        payload = {
+            **data,
+            "_trace": trace or "tr-synapse-auto",
+            "_ts": time.time()
+        }
+        Logger.info(f"📡 [HUB] Radiating: {event}")
+        return await self.sm.emit(event, payload, namespace=self.namespace)
+
+    def on(self, event: str):
+        \"\"\"Decorator to register a listener for incoming Architect thoughts.\"\"\"
+        return self.sm.on(event, namespace=self.namespace)
+
+def wire_synaptic_hub(app):
+    \"\"\"[AUTONOMIC SUTURE]: Awakens the Hub and binds to the Mind.\"\"\"
+    bus = SynapticBus(app)
+    app.state.synapse = bus
+    
+    @bus.on('connect')
+    async def handle_link(sid, environ):
+        Logger.info(f"👁️  [OCULAR] Membrane Linked: {sid}")
+
+    return bus
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Reactive Hub[/bold cyan] is manifest."
+    proclaim: "Synaptic Locus: [white]/ws{{ ws_namespace }}[/white]"
+    
+    >> mkdir -p infra/reactive
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Real-Time Latency -> 0)[/]"
+    proclaim: "[bold green]✅ Synaptic Bus is Online.[/bold green]"

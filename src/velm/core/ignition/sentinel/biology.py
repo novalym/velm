@@ -1,4 +1,4 @@
-# Path: scaffold/core/ignition/diviner/sentinel/biology.py
+# Path: velm/core/ignition/diviner/sentinel/biology.py
 # --------------------------------------------------------
 # LIF: INFINITY // AUTH_CODE: SENTINEL_BIOLOGY_V1
 

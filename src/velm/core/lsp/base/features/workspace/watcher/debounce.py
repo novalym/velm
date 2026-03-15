@@ -2,7 +2,7 @@
 # -----------------------------------------------------
 import threading
 import time
-from typing import List, Callable
+from typing import List, Callable, Optional
 from ..models import FileEvent
 
 class FluxDebouncer:
@@ -12,7 +12,7 @@ class FluxDebouncer:
         self.window = window_ms / 1000.0
         self._buffer: List[FileEvent] = []
         self._timer: Optional[threading.Timer] = None
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def add(self, events: List[FileEvent]):
         with self._lock:

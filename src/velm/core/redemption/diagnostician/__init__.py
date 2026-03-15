@@ -1,4 +1,4 @@
-# Path: scaffold/core/redemption/diagnostician/__init__.py
+# Path: velm/core/redemption/diagnostician/__init__.py
 # --------------------------------------------------------
 
 """

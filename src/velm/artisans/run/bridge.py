@@ -4,7 +4,7 @@ from .polyglot_bridge import PolyglotBridge
 # ★★★ THE SACRED VESSEL IS SUMMONED ★★★
 from ...contracts.data_contracts import ExecutionPlan
 from ...contracts.heresy_contracts import ArtisanHeresy
-from ...core.runtime import ScaffoldEngine
+from ...core.runtime import VelmEngine
 from ...interfaces.base import ScaffoldResult
 from ...interfaces.requests import (
     RunRequest, PatchRequest, SymphonyRequest, TransmuteRequest,
@@ -29,7 +29,7 @@ class DelegationBridge:
         "form": {"req": TransmuteRequest, "path_key": "path_to_scripture"},
     }
 
-    def __init__(self, engine: ScaffoldEngine, logger: Scribe):
+    def __init__(self, engine: VelmEngine, logger: Scribe):
         self.engine = engine
         self.logger = logger
         # The Polyglot Bridge is now an attribute of the Delegation Bridge

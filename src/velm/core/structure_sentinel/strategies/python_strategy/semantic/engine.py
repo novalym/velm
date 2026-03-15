@@ -1,9 +1,15 @@
-# Path: src/velm/core/structure_sentinel/strategies/python_strategy/semantic/engine.py
-# ------------------------------------------------------------------------------------
+# Path: core/structure_sentinel/strategies/python_strategy/semantic/engine.py
+# ---------------------------------------------------------------------------
+# LIF: INFINITY // AUTH_CODE: Ω_SEMANTIC_V100M_GRANULAR_SUTURE_FINALIS
+# PEP 8 Adherence: STRICT // Gnostic Alignment: TOTAL
+# =========================================================================================
 
 from __future__ import annotations
 import time
 import traceback
+import threading
+import collections
+import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple, TYPE_CHECKING, Final
 
@@ -23,79 +29,55 @@ if TYPE_CHECKING:
 class SemanticFaculty(BaseFaculty):
     """
     =================================================================================
-    == THE OMEGA SEMANTIC FACULTY (V-Ω-TOTALITY-V9000-SYMBOLIC-SINGULARITY)        ==
+    == THE OMEGA SEMANTIC FACULTY (V-Ω-TOTALITY-V100M-GRANULAR-SYNC)               ==
     =================================================================================
     LIF: ∞ | ROLE: HIGH_PRIEST_OF_MEANING | RANK: OMEGA_SOVEREIGN
     AUTH_CODE: Ω_SEMANTIC_V9000_TOTAL_ALIGNMENT_FINALIS
 
     The Divine Librarian of the Python Stratum. It is the absolute authority on
     the Gnostic Namespace. It harvests the 'Soul of the Code' and weaves it into
-    the 'Scriptures of Export' (__init__.py), ensuring that every unit of logic
-    is discoverable, navigable, and transactionally secure.
+    the 'Scriptures of Export' (__init__.py).
 
-    ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
-
-    1.  **Unified Gnostic Covenant (THE FIX):** It accepts the `SharedContext` as a
-        singular unit of truth. This annihilates the 'AttributeError' by inheriting
-        the Scribe and Geometer instruments from the Base line.
-
-    2.  **Transactional Symbolic Suture (THE CURE):** Every transfiguration of
-        an `__init__.py` is conducted via the inherited `_write` method, ensuring
-        automatic Ledger registration and physical materialization upon commit.
-
-    3.  **Bicameral Content Fusion:** It scans the Ephemeral Realm (Staging) for
-        pre-existing `__init__.py` content willed by the Structural Faculty,
-        preventing the 'Double Birth' paradox.
-
-    4.  **Multi-Vector Symbol Harvesting:** Wields the `SymbolHarvester` to perform
-        both AST (High Gaze) and Regex (Low Gaze) analysis, capturing Classes,
-        Functions, and Constants even in nascent or fractured files.
-
-    5.  **The Loom of Imports:** Utilizes the `ImportWeaver` to surgically inject
-        `from .module import Symbol` edicts, respecting the Architect's existing
-        stylistic choices and formatting.
-
-    6.  **The Shield of Exports (__all__):** Commands the `ApiGuardian` to manage
-        the `__all__` list with mathematical precision—sorting, deduplicating,
-        and enforcing public boundaries.
-
-    7.  **Future-Sight Enforcement:** Automatically ensures that every package
-        it consecrates contains `from __future__ import annotations`, paving
-        the way for modern type-resonance.
-
-    8.  **Contextual Docstring Prophet:** During the birth of a new package, it
-        injects a semantically aware docstring based on the directory name
-        and project-level Gnosis.
-
-    9.  **Idempotent Matter Fingerprinting:** It hashes the proposed change; if
-        the new soul matches the current staged reality, the strike is stayed
-        to preserve metabolic energy.
-
-    10. **The Abyssal Filter:** Inherits the `LayoutGeometer`'s aversion to
-        internal or profane sanctums (e.g., `__pycache__`, `tests`),
-        refusing to export their contents.
-
-    11. **Fault-Isolated Weaving:** Wraps individual symbol injections in a
-        protective ward. A failure to export one symbol is recorded, but the
-        Librarian continues the Great Work for the rest of the package.
-
-    12. **The Finality Vow:** A mathematical guarantee that after this rite,
-        the package's `__init__.py` is a perfect reflection of its children's
-        public souls.
+    ### THE PANTHEON OF 13 LEGENDARY ASCENSIONS (THE METABOLIC CURE):
+    1.  **Granular Inode Mutex (THE MASTER CURE):** Implements `_file_locks` to
+        ward specific `__init__.py` files. This allows 24 threads to write to 24
+        different packages simultaneously, but forces sequential safety for files
+        in the *same* package. The Freeze is Annihilated.
+    2.  **Unified Gnostic Covenant:** Accepts `SharedContext` as a singular unit of
+        truth to prevent AttributeError.
+    3.  **Transactional Symbolic Suture:** Every transfiguration is conducted via
+        `_write`, ensuring Ledger registration.
+    4.  **Bicameral Content Fusion:** Scans the Ephemeral Realm (Staging) for
+        pre-existing content before writing, preventing the 'Double Birth' paradox.
+    5.  **Multi-Vector Symbol Harvesting:** Wields AST and Regex gaze simultaneously.
+    6.  **The Loom of Imports:** Surgically injects `from .module import Symbol`.
+    7.  **The Shield of Exports (__all__):** Manages the `__all__` list with
+        mathematical precision—sorting, deduplicating, and enforcing boundaries.
+    8.  **Future-Sight Enforcement:** Automatically ensures `from __future__`
+        imports are present.
+    9.  **Contextual Docstring Prophet:** Injects semantic docstrings for new packages.
+    10. **Idempotent Matter Fingerprinting:** Hashes the proposed change and aborts
+        if the file is already resonant.
+    11. **The Abyssal Filter:** Inherits the `LayoutGeometer`'s aversion to
+        profane sanctums.
+    12. **Fault-Isolated Weaving:** Wraps injections in a protective ward.
+    13. **The Finality Vow:** A mathematical guarantee of valid Python syntax.
     =================================================================================
     """
 
-    def __init__(self, logger: 'Scribe'):
-        """
-        [THE RITE OF INCEPTION]
-        Births the Librarian with the full endowment of the BaseFaculty.
-        """
-        super().__init__(logger)
+    _GLOBAL_FILE_LOCKS: Dict[str, threading.RLock] = collections.defaultdict(threading.RLock)
+    _GLOBAL_LOCKS_MUTEX = threading.Lock()
 
-        # Specialist Instruments
+    def __init__(self, logger: 'Scribe'):
+        super().__init__(logger)
         self.harvester = SymbolHarvester()
         self.weaver = ImportWeaver(logger)
         self.guardian = ApiGuardian(logger)
+
+    def _get_target_lock(self, target_path: Path) -> threading.RLock:
+        path_key = str(target_path.resolve())
+        with self._GLOBAL_LOCKS_MUTEX:
+            return self._GLOBAL_FILE_LOCKS[path_key]
 
     def register_symbols(
             self,
@@ -110,7 +92,7 @@ class SemanticFaculty(BaseFaculty):
         Perceives symbols in a source file and weaves them into the package namespace.
         """
         # 1. THE GAZE OF PERCEPTION (READ SOURCE)
-        # We use the inherited _read which understands the Staging/Physical divide.
+        # We read the content outside the lock to maintain high concurrency.
         content = self._read(file_path, context)
         if not content:
             return
@@ -125,21 +107,27 @@ class SemanticFaculty(BaseFaculty):
         # The target is ALWAYS the __init__.py in the same sanctum as the file.
         init_path = file_path.parent / "__init__.py"
 
-        # 4. CONDUCT THE INJECTION
-        # We pass the sovereign context down to the internal helper.
-        self._conduct_injection_rite(init_path, file_path.stem, symbols, context)
+        # 4. [THE CURE]: ACQUIRE SURGICAL LOCK
+        # Ensure no other thread is mutating this exact __init__.py simultaneously
+        file_lock = self._get_target_lock(init_path)
+
+        # We use a context manager to guarantee release even if the weaver shatters
+        with file_lock:
+            self._conduct_injection_rite(init_path, file_path.stem, symbols, context)
 
     def _conduct_injection_rite(self, init_path: Path, module_name: str, symbols: List[str], context: "SharedContext"):
         """
         Surgically weaves symbols into the __init__.py soul via the transactional hand.
+        WARNING: Must be called from within a granular lock.
         """
         # --- MOVEMENT I: MATTER RETRIEVAL ---
         # [ASCENSION 3]: We read the current __init__.py soul, favoring Staging.
+        # We re-read inside the lock to ensure we have the absolute latest version.
         original_content = self._read(init_path, context)
         current_content = original_content
 
         # [FACULTY 8]: VOID CONSECRATION
-        # If the __init__.py is a void, we forge its primordial form using inherited tools.
+        # If the __init__.py is a void, we forge its primordial form.
         if not current_content.strip():
             # Scry for project metadata from the transaction's context
             gnosis = getattr(context.transaction, 'context', {}) if context.transaction else {}
@@ -178,7 +166,7 @@ class SemanticFaculty(BaseFaculty):
             return
 
         self.logger.success(
-            f"   -> Semantic Integration: [cyan]{module_name}[/] -> [white]{init_path.name}[/]"
+            f"   -> Semantic Integration: [cyan]{module_name}[/] -> [white]{init_path.name}[/] #SUCCESS"
         )
 
         # [ASCENSION 2]: Perform the write through the BaseFaculty hand.
@@ -200,6 +188,7 @@ class SemanticFaculty(BaseFaculty):
 
         for i, line in enumerate(lines):
             stripped = line.strip()
+            # Skip blanks and comments
             if not stripped:
                 insert_idx = i + 1
                 continue
@@ -207,10 +196,12 @@ class SemanticFaculty(BaseFaculty):
                 insert_idx = i + 1
                 continue
 
+            # Detect Docstrings
             if not in_docstring:
                 if stripped.startswith(('"""', "'''")):
                     in_docstring = True
                     docstring_quote = stripped[:3]
+                    # Handle single-line docstring
                     if stripped.count(docstring_quote) >= 2 and len(stripped) > 3:
                         insert_idx = i + 1
                         break
@@ -223,14 +214,16 @@ class SemanticFaculty(BaseFaculty):
                     break
                 continue
 
+            # If we hit code, stop.
             break
 
         lines.insert(insert_idx, "from __future__ import annotations")
 
+        # Add breathing room
         if insert_idx + 1 < len(lines) and lines[insert_idx + 1].strip():
             lines.insert(insert_idx + 1, "")
 
         return "\n".join(lines)
 
     def __repr__(self) -> str:
-        return f"<Ω_SEMANTIC_FACULTY status=RESONANT mode=SINGULAR_CONTEXT version=9000.0>"
+        return f"<Ω_SEMANTIC_FACULTY status=RESONANT mode=GRANULAR_SUTURE version=100000.0>"

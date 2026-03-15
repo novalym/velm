@@ -1,0 +1,148 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/resilient-mesh-guard
+# ==============================================================================
+# @id:           system/resilient-mesh-guard
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      A high-fidelity circuit breaker and bulkhead system that prevents cascading failures through state-machine adjudication.
+# @vibe:         [resilience, bulkhead, circuit-breaker, stability, self-healing, sentinel]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:system-bulkhead, capability:resilience-mesh]
+# @requires:     [capability:python-core, capability:gnostic-vessels]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["FAILURE_THRESHOLD", "RESET_TIMEOUT_SECONDS"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "middleware-shield"
+#   priority:    50
+#   alias:       "resilience_guard"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+# [ASCENSION 1]: Causal Parameter Anchoring
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ failure_threshold = {{ failure_threshold | default(5) }}
+$$ reset_timeout_seconds = {{ reset_timeout | default(30) }}
+
+# --- II. THE RESILIENCE CORE (The Mind of the Bulkhead) ---
+
+src/{{ package_name }}/core/resilience/
+    __init__.py :: "from .breaker import CircuitBreaker, resilience_guard\nfrom .contracts import BreakerState\n"
+    
+    # [ASCENSION 3]: THE LAWS OF STABILITY (Contracts)
+    contracts.py :: """
+import time
+from enum import Enum
+from typing import Optional
+from pydantic import BaseModel, Field
+
+class BreakerState(str, Enum):
+    CLOSED = "CLOSED"      # Healthy: Intent flows freely.
+    OPEN = "OPEN"          # Fractured: Intent is blocked to preserve metabolism.
+    HALF_OPEN = "HALF"     # Probing: Testing the resonance of the target.
+
+class BreakerVitals(BaseModel):
+    \"\"\"A forensic snapshot of the Bulkhead's state.\"\"\"
+    name: str
+    state: BreakerState
+    failures: int
+    last_fracture_ts: Optional[float] = None
+    timestamp: float = Field(default_factory=time.time)
+"""
+
+    # [ASCENSION 4]: THE CIRCUIT BREAKER (The Shield)
+    breaker.py :: """
+import time
+import logging
+import asyncio
+import functools
+import threading
+import os
+from typing import Dict, Any, Optional, Callable
+from .contracts import BreakerState, BreakerVitals
+
+Logger = logging.getLogger("Resilience:Breaker")
+
+class CircuitBreaker:
+    \"\"\"
+    =============================================================================
+    == THE CIRCUIT BREAKER (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: SYSTEM_BULKHEAD | RANK: OMEGA
+    
+    Ensures the Law of Isolation.
+    1.  Metabolic Triage: Blocks calls to fractured external dependencies.
+    2.  Autonomic Recovery: Transitions to HALF-OPEN after a cooling period.
+    \"\"\"
+    _registry: Dict[str, 'CircuitBreaker'] = {}
+    _lock = threading.RLock()
+
+    def __init__(self, name: str, threshold: int = {{ failure_threshold }}, timeout: int = {{ reset_timeout_seconds }}):
+        self.name = name
+        self.threshold = int(os.getenv("FAILURE_THRESHOLD", str(threshold)))
+        self.timeout = int(os.getenv("RESET_TIMEOUT_SECONDS", str(timeout)))
+        self.state = BreakerState.CLOSED
+        self.failures = 0
+        self.last_failure_time = 0.0
+        self._consecutive_successes = 0
+
+    async def strike(self, func: Callable, *args, **kwargs):
+        \"\"\"Executes a kinetic rite warded by the Bulkhead.\"\"\"
+        if self.state == BreakerState.OPEN:
+            if time.time() - self.last_failure_time > self.timeout:
+                self.state = BreakerState.HALF_OPEN
+                Logger.warning(f"⚠️  [RESILIENCE] Circuit {self.name} probing target...")
+            else:
+                raise RuntimeError(f"🚫 Circuit {self.name} is OPEN. Preservation Mode active.")
+
+        try:
+            result = await func(*args, **kwargs)
+            self._handle_success()
+            return result
+        except Exception as e:
+            self._handle_failure(e)
+            raise e
+
+    def _handle_success(self):
+        if self.state == BreakerState.HALF_OPEN:
+            self._consecutive_successes += 1
+            if self._consecutive_successes >= 3:
+                self.state = BreakerState.CLOSED
+                self.failures = 0
+                Logger.info(f"✅ [RESILIENCE] Circuit {self.name} RESTORED.")
+        elif self.state == BreakerState.CLOSED:
+            self.failures = 0
+
+    def _handle_failure(self, e: Exception):
+        self.failures += 1
+        self.last_failure_time = time.time()
+        self._consecutive_successes = 0
+        
+        if self.failures >= self.threshold or self.state == BreakerState.HALF_OPEN:
+            self.state = BreakerState.OPEN
+            Logger.critical(f"🛑 [RESILIENCE] Circuit {self.name} TRIPPED (OPEN).")
+
+def resilience_guard(name: str):
+    \"\"\"Luminous decorator to wrap external API or DB calls.\"\"\"
+    with CircuitBreaker._lock:
+        if name not in CircuitBreaker._registry:
+            CircuitBreaker._registry[name] = CircuitBreaker(name)
+    
+    cb = CircuitBreaker._registry[name]
+    def decorator(func: Callable):
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs):
+            return await cb.strike(func, *args, **kwargs)
+        return wrapper
+    return decorator
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Resilience Mesh Guard[/bold cyan] is manifest."
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Cascading Failure Risk -> 0)[/]"
+    proclaim: "[bold green]✅ System Bulkheads Active.[/bold green]"

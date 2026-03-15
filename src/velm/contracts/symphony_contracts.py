@@ -178,7 +178,7 @@ class Edict(BaseModel):
     # --- Vessels for Metaphysics (State: %%) ---
     state_key: str = ""
     state_value: str = ""
-
+    metadata: Dict[str, Any] = Field(default_factory=dict)
     # --- Vessels for Polyglot Reality (py:, js:, etc) ---
     language: Optional[str] = None
     script_block: Optional[str] = None

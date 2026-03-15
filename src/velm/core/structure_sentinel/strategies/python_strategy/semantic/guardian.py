@@ -1,10 +1,9 @@
-# Path: scaffold/core/structure_sentinel/strategies/python_strategy/semantic/guardian.py
-# --------------------------------------------------------------------------------------
-
+# Path: velm/core/structure_sentinel/strategies/python_strategy/semantic/guardian.py
+# ----------------------------------------------------------------------------------
 
 import ast
 import re
-from typing import List, Set, Optional
+from typing import List, Set, Optional, Tuple
 
 from ..base_faculty import BaseFaculty
 from ..contracts import SharedContext
@@ -13,159 +12,262 @@ from ..contracts import SharedContext
 class ApiGuardian(BaseFaculty):
     """
     =============================================================================
-    == THE SHIELD OF EXPORTS (V-Ω-AST-STYLISTIC-SURGEON-ULTIMA)                ==
+    == THE SHIELD OF EXPORTS (V-Ω-AST-STYLISTIC-SURGEON-ULTIMA-V48)            ==
     =============================================================================
-    LIF: 10,000,000,000,000
+    LIF: ∞^∞ | ROLE: EXPORT_INTERFACE_ARCHITECT | RANK: OMEGA_SOVEREIGN_PRIME
+    AUTH_CODE: !#()@()@@#()@#())
 
-    Manages the `__all__` list with surgical precision.
-    It ensures the module's public interface is explicit, sorted, and
-    formatted for the ages.
+    The supreme authority over the Python Public Interface. It manages the `__all__`
+    list with surgical precision. It ensures the module's public interface is
+    explicit, sorted, and flawlessly PEP-8 compliant.
+
+    It entirely abandons fragile regex replacements for pure AST parsing, while
+    maintaining a Titanium-Grade fallback for fractured scriptures.
+    =============================================================================
     """
 
     # Matches: # SCAFFOLD: __all__ (tolerant of whitespace)
     ANCHOR_REGEX = re.compile(r'#\s*SCAFFOLD:\s*__all__', re.IGNORECASE)
 
+    # Matches existing __all__ definitions for the Regex Fallback (SyntaxError scenarios)
+    FALLBACK_REGEX = re.compile(r'^__all__\s*(?::\s*list\[str\]\s*)?=\s*\[(.*?)\]', re.MULTILINE | re.DOTALL)
+
     def guard(self, content: str, new_symbols: List[str], context: SharedContext) -> str:
         """
-        The Rite of Export Guarding.
-        Ensures all `new_symbols` are present in `__all__`.
+        =========================================================================
+        == THE RITE OF EXPORT GUARDING (V-Ω-TOTALITY)                          ==
+        =========================================================================
+        Ensures all `new_symbols` are present in the `__all__` array.
         """
-        if not new_symbols:
+        # [ASCENSION 16]: The Dunder Shield. Filter out internal methods immediately.
+        pure_symbols = [s for s in new_symbols if not (s.startswith('__') and s.endswith('__'))]
+
+        if not pure_symbols:
             return content
 
-        # [FACULTY 8] The Syntax Ward
         try:
+            # [ASCENSION 1]: The Absolute AST Sieve
             tree = ast.parse(content)
-        except SyntaxError:
-            self.logger.warn("Syntax Heresy perceived in scripture. The Guardian stays its hand.")
-            return content
+        except SyntaxError as e:
+            # [ASCENSION 15]: The Syntax Healer Fallback
+            self.logger.warn(f"Syntax Heresy perceived ({e}). Engaging Regex Fallback Sieve for __all__.")
+            return self._regex_fallback_guard(content, pure_symbols)
 
-        # [FACULTY 5] The AST Surgeon
-        # Check if __all__ ALREADY exists as code
-        all_node = self._find_dunder_all_node(tree)
+        # 1. Scry for existing __all__ declarations
+        all_node, is_type_hinted = self._find_dunder_all_node(tree)
         current_exports = self._extract_current_exports(all_node) if all_node else set()
 
-        # [FACULTY 7] The Merge Strategy
-        symbols_to_add = {s for s in new_symbols if s not in current_exports}
+        # 2. Mathematical Difference
+        symbols_to_add = {s for s in pure_symbols if s not in current_exports}
 
-        # [FACULTY 9] Idempotency Check
-        # If all symbols are present and the node exists, we do nothing.
+        # [ASCENSION 9]: Idempotent Deduplicator Check
         if not symbols_to_add and all_node:
+            self.logger.verbose("   -> Export Idempotency: All symbols already manifest in __all__.")
             return content
 
-        # [FACULTY 4] The Sorting Hat
-        final_exports = sorted(list(current_exports) + list(symbols_to_add))
+        # [ASCENSION 6]: Isort-Parity Sorting Hat
+        # Sort case-insensitive to match standard Ruff/Isort behavior perfectly
+        final_exports = sorted(list(current_exports | symbols_to_add), key=lambda x: (x.lower(), x))
 
+        # 3. The Surgical Suture
         if all_node:
-            self.logger.verbose(f"   -> Merging {len(symbols_to_add)} new symbol(s) into existing `__all__`.")
-            return self._rewrite_existing_all(content, all_node, final_exports)
+            self.logger.verbose(f"   -> Merging {len(symbols_to_add)} new symbol(s) into existing AST `__all__`.")
+            return self._rewrite_existing_all(content, all_node, final_exports, is_type_hinted)
         else:
-            self.logger.verbose(f"   -> Forging new `__all__` with {len(final_exports)} symbol(s)...")
-            return self._forge_new_all(content, final_exports)
+            self.logger.verbose(f"   -> Forging new `__all__` list with {len(final_exports)} symbol(s)...")
+            return self._forge_new_all(content, final_exports, tree)
 
-    def _find_dunder_all_node(self, tree: ast.AST) -> Optional[ast.AST]:
-        """Scans the AST for the `__all__` assignment."""
+    def _find_dunder_all_node(self, tree: ast.AST) -> Tuple[Optional[ast.AST], bool]:
+        """
+        Scans the AST for the explicit `__all__` assignment.
+        Returns (Node, is_type_hinted).
+        """
+        # [ASCENSION 21]: Module-Level Guard. We only iterate the root body.
         for node in tree.body:
+            # Standard Assignment: __all__ = [...]
             if isinstance(node, ast.Assign):
                 for target in node.targets:
                     if isinstance(target, ast.Name) and target.id == "__all__":
-                        return node
-        return None
+                        return node, False
+
+            # [ASCENSION 7]: Type-Hinted Assignment: __all__: list[str] = [...]
+            elif isinstance(node, ast.AnnAssign):
+                if isinstance(node.target, ast.Name) and node.target.id == "__all__":
+                    return node, True
+
+        return None, False
 
     def _extract_current_exports(self, node: ast.AST) -> Set[str]:
-        """Extracts strings from `__all__ = [...]`."""
+        """
+        [ASCENSION 8, 13]: The Tuple/List Polymorphism & Constant Resolver.
+        Extracts strings from `__all__ = [...]` or `__all__ = (...)`.
+        """
         exports = set()
-        if isinstance(node, ast.Assign) and isinstance(node.value, (ast.List, ast.Tuple)):
-            for elt in node.value.elts:
+        value_node = getattr(node, 'value', None)
+
+        if value_node and isinstance(value_node, (ast.List, ast.Tuple)):
+            for elt in value_node.elts:
                 if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
                     exports.add(elt.value)
-                elif isinstance(elt, ast.Str):  # Python < 3.8
+                elif isinstance(elt, ast.Str):  # Fallback for Python < 3.8
                     exports.add(elt.s)
         return exports
 
-    def _rewrite_existing_all(self, content: str, node: ast.AST, final_exports: List[str]) -> str:
-        """Surgically replaces the existing assignment."""
+    def _rewrite_existing_all(self, content: str, node: ast.AST, final_exports: List[str], is_type_hinted: bool) -> str:
+        """Surgically replaces the existing assignment using line boundaries."""
         lines = content.splitlines(keepends=True)
-        new_stmt = self._forge_vertical_all(final_exports)
 
-        # AST line numbers are 1-based
+        # [ASCENSION 14]: The Comment Resurrector
+        # Extract any inline comment that was attached to the first line of the __all__ statement
         start_line = node.lineno - 1
-        end_line = node.end_lineno if hasattr(node, 'end_lineno') else start_line + 1
+        end_line = getattr(node, 'end_lineno', node.lineno)
 
-        # [FACULTY 10] Preserve Indentation (unlikely for module level __all__, but safe)
+        existing_first_line = lines[start_line]
+        inline_comment = ""
+        if '#' in existing_first_line:
+            # Safe extraction assuming the comment isn't inside a string
+            # (A true AST parser would preserve this via tokens, but regex is sufficient here)
+            comment_match = re.search(r'(#.*)$', existing_first_line)
+            if comment_match:
+                inline_comment = f"  {comment_match.group(1)}"
+
+        # Preserve Indentation (if inside a class/func, though rare for __all__)
         indent = lines[start_line][:len(lines[start_line]) - len(lines[start_line].lstrip())]
+
+        # Forge the new statement
+        new_stmt = self._forge_vertical_all(final_exports, is_type_hinted, inline_comment)
+
         if indent:
             new_stmt = "\n".join([indent + l for l in new_stmt.splitlines()]) + "\n"
 
         lines[start_line:end_line] = [new_stmt]
         return "".join(lines)
 
-    def _forge_new_all(self, content: str, final_exports: List[str]) -> str:
+    def _forge_new_all(self, content: str, final_exports: List[str], tree: ast.AST) -> str:
         """
-        Creates a new __all__ assignment.
-        Hunts for the # SCAFFOLD: __all__ anchor.
+        [ASCENSION 4 & 5]: The Docstring Ceiling Preservation & Legacy Anchor.
+        Creates a new __all__ assignment. Injects at the exact optimal geometric location.
         """
-        new_stmt = self._forge_vertical_all(final_exports)
+        new_stmt = self._forge_vertical_all(final_exports, is_type_hinted=False, inline_comment="")
         lines = content.splitlines(keepends=True)
 
-        # [THE ANCHOR SEEKER V2]
-        # Use regex to find the marker robustly
-        anchor_idx = -1
+        insert_idx = -1
+
+        # 1. Attempt to find the Legacy `# SCAFFOLD: __all__` marker
         for i, line in enumerate(lines):
             if self.ANCHOR_REGEX.search(line):
-                anchor_idx = i
+                insert_idx = i
                 break
 
-        if anchor_idx != -1:
-            # [THE FIX: BREATHING ROOM & ANNIHILATION]
-            # 1. We check if there's already a blank line before the marker.
-            #    If not, we add one to separate from imports.
+        if insert_idx != -1:
+            # We found the explicit marker. Replace it.
+            leading_whitespace = lines[insert_idx][:len(lines[insert_idx]) - len(lines[insert_idx].lstrip())]
+
+            # [ASCENSION 18]: The Blank Line Breather
             prefix = ""
-            if anchor_idx > 0 and lines[anchor_idx - 1].strip():
+            if insert_idx > 0 and lines[insert_idx - 1].strip():
                 prefix = "\n"
 
-            # 2. We preserve the indentation of the marker.
-            leading_whitespace = lines[anchor_idx][:len(lines[anchor_idx]) - len(lines[anchor_idx].lstrip())]
-
             if leading_whitespace:
-                # Indent every line of the new statement
                 indented_stmt = "\n".join([leading_whitespace + l for l in new_stmt.splitlines()]) + "\n"
-                # Replace the marker line entirely
-                lines[anchor_idx] = prefix + indented_stmt
+                lines[insert_idx] = prefix + indented_stmt
             else:
-                # Replace the marker line entirely
-                lines[anchor_idx] = prefix + new_stmt
-
+                lines[insert_idx] = prefix + new_stmt
             return "".join(lines)
 
-        # [FACULTY 11] The Fallback Append (If no marker found)
-        if lines and not lines[-1].endswith('\n'):
-            lines[-1] += '\n'
+        # 2. No marker. We must find the optimal geometric insertion point.
+        # We place it AFTER all imports, __future__, and docstrings, but BEFORE any logic.
+        insert_idx = 0
 
-        # Ensure a gap from previous content
-        if lines and lines[-1].strip():
-            lines.append("\n")
+        # [ASCENSION 19 & 20]: Shebang & Future-Sight Bypass
+        if lines and lines[0].startswith("#!"):
+            insert_idx = 1
+        if len(lines) > insert_idx and "-*- coding:" in lines[insert_idx]:
+            insert_idx += 1
 
-        lines.append(new_stmt)
+        for idx, node in enumerate(tree.body):
+            # If it's a docstring
+            if isinstance(node, ast.Expr) and isinstance(getattr(node, 'value', None), ast.Constant) and isinstance(
+                    getattr(node.value, 'value', None), str):
+                if idx == 0:
+                    insert_idx = max(insert_idx, getattr(node, 'end_lineno', node.lineno))
+            # If it's an import
+            elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                insert_idx = max(insert_idx, getattr(node, 'end_lineno', node.lineno))
+            # The moment we hit actual code (Class, Def, Assign), we break.
+            else:
+                break
+
+        # [ASCENSION 18]: The Blank Line Breather
+        prefix = "\n" if insert_idx > 0 and lines[insert_idx - 1].strip() else ""
+        suffix = "\n" if insert_idx < len(lines) and lines[insert_idx].strip() else ""
+
+        # Inject!
+        lines.insert(insert_idx, prefix + new_stmt + suffix)
         return "".join(lines)
 
-    def _forge_vertical_all(self, exports: List[str]) -> str:
+    def _forge_vertical_all(self, exports: List[str], is_type_hinted: bool, inline_comment: str) -> str:
         """
-        [FACULTY 1] The Vertical Scroll.
-        Forges:
-        __all__ = [
-            "SymbolA",
-            "SymbolB",
-        ]
+        =========================================================================
+        == THE VERTICAL SCROLL OPTIMIZER (V-Ω-PEP8-HORIZON)                    ==
+        =========================================================================[ASCENSION 2 & 3 & 17]: Intelligently formats the __all__ array.
+        If it's small, it stays inline. If it expands beyond the 88-character
+        horizon, it flows vertically with the sacred trailing comma.
         """
-        stmt = "__all__ = [\n"
+        if not exports:
+            base = "__all__: list[str] =[]\n" if is_type_hinted else "__all__ =[]\n"
+            return base.replace("\n", f"{inline_comment}\n")
+
+        prefix = "__all__: list[str] =[" if is_type_hinted else "__all__ =["
+
+        # Attempt inline format
+        inline_attempt = prefix + ", ".join(f'"{sym}"' for sym in exports) + "]"
+
+        # Check against PEP-8 88 character limit (plus the comment)
+        if len(inline_attempt) + len(inline_comment) <= 88:
+            return f"{inline_attempt}{inline_comment}\n"
+
+        # Vertical flow with trailing commas
+        stmt = f"{prefix}{inline_comment}\n"
         for sym in exports:
             stmt += f'    "{sym}",\n'
         stmt += "]\n"
+
         return stmt
 
+    def _regex_fallback_guard(self, content: str, new_symbols: List[str]) -> str:
+        """
+        [ASCENSION 15]: THE SYNTAX HEALER FALLBACK
+        If the file has a SyntaxError (user mid-typing), AST parse will fail.
+        We drop to a highly precise Regex extraction and injection to save the
+        manifestation.
+        """
+        match = self.FALLBACK_REGEX.search(content)
+        if not match:
+            # Cannot safely infer without AST. Return raw.
+            return content
+
+        raw_list = match.group(1)
+        # Extract existing symbols safely
+        current_exports = set(re.findall(r'["\']([^"\']+)["\']', raw_list))
+
+        symbols_to_add = {s for s in new_symbols if s not in current_exports}
+        if not symbols_to_add:
+            return content
+
+        final_exports = sorted(list(current_exports | symbols_to_add), key=lambda x: (x.lower(), x))
+
+        # Determine prefix based on existing match
+        full_match = match.group(0)
+        is_type_hinted = "list[str]" in full_match
+
+        new_stmt = self._forge_vertical_all(final_exports, is_type_hinted, "")
+
+        # Suture back into the content
+        return content[:match.start()] + new_stmt.rstrip() + content[match.end():]
+
     def _validate_syntax(self, content: str, context: str):
-        """[FACULTY 12] The Paranoid Validator."""
+        """[ASCENSION 23]: The Paranoid Validator."""
         try:
             ast.parse(content)
         except SyntaxError as e:

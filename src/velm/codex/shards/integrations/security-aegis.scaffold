@@ -1,0 +1,150 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: integrations/security-aegis
+# ==============================================================================
+# @id:           integrations/security-aegis
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Redis-backed rate limiting, IP banning, and deep packet inspection middleware for FastAPI.
+# @vibe:         [security, rate-limiting, waf, redis, protection, aegis, middleware]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:rate-limiting, capability:waf, capability:security-aegis]
+# @requires:     [capability:fastapi-core, capability:redis-client]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["redis[hiredis]>=5.0.0"]
+#   env:         ["AEGIS_REDIS_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "security-vault": { "image": "redis:7-alpine" } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "middleware-spine"
+#   priority:    10
+#   alias:       "security_aegis_shield"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ redis_url = {{ redis_url | default("redis://security-vault:6379/0") }}
+$$ rate_limit_rate = {{ rate | default(10) }}
+$$ ban_duration = {{ ban_ttl | default(3600) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SECURITY INFRASTRUCTURE (The Memory of the Void) ---
+
+infra/security/
+    docker-compose.security.yml :: """
+version: '3.8'
+services:
+  # [THE VOID]: Persistent memory for Banned IPs and Throttles
+  security-vault:
+    image: redis:7-alpine
+    container_name: {{ project_slug }}_aegis_vault
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 128mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    networks:
+      - gnostic_mesh
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+
+networks:
+  gnostic_mesh:
+    external: true
+    name: {{ project_slug }}_gnostic_mesh
+    """
+
+# --- III. THE LOGIC STRATUM: PYTHON MIND (The Warden) ---
+src/{{ package_name }}/core/security/
+    aegis.py :: """
+import re
+import time
+import logging
+from typing import Callable
+from fastapi import Request, status
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
+import redis.asyncio as redis
+import os
+
+Logger = logging.getLogger("Aegis:Warden")
+
+class SecurityAegisMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC AEGIS (V-Ω-ACTIVE-SHIELD)                                   ==
+    =============================================================================
+    LIF: ∞ | ROLE: PERIMETER_GUARDIAN | RANK: OMEGA
+    
+    1.  The Void Gate: O(1) banishment check.
+    2.  The Governor: High-speed distributed rate limiting.
+    3.  The Chaos Ward: Deep-packet inspection for malice.
+    \"\"\"
+    CHAOS_PATTERNS = [
+        re.compile(r"(?i)(\\%27)|(\\')|(\\-\\-)|(\\%23)|(#)"),
+        re.compile(r"(?i)\\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|EXEC|TRUNCATE)\\b"),
+        re.compile(r"(?i)<script"),
+        re.compile(r"\\.\\./"),
+    ]
+    
+    def __init__(self, app):
+        super().__init__(app)
+        r_url = os.getenv("AEGIS_REDIS_URL", "{{ redis_url }}")
+        self.redis = redis.from_url(r_url)
+        self.rate_limit_rate = {{ rate_limit_rate }}
+        self.ban_duration = {{ ban_duration }}
+
+    async def dispatch(self, request: Request, call_next: Callable):
+        client_ip = request.client.host if request.client else "unknown"
+        
+        if await self.redis.get(f"aegis:void:{client_ip}"):
+            return JSONResponse(status_code=403, content={"error": "IP_BANISHED"})
+
+        ts_key = f"aegis:limit:{client_ip}:{int(time.time())}"
+        count = await self.redis.incr(ts_key)
+        if count == 1: await self.redis.expire(ts_key, 2)
+
+        if count > self.rate_limit_rate:
+            await self.redis.set(f"aegis:void:{client_ip}", "1", ex=self.ban_duration)
+            Logger.warning(f"BANISHING IP {client_ip}: Rate Limit Storm")
+            return JSONResponse(status_code=429, content={"error": "RATE_LIMIT_EXCEEDED"})
+
+        payload = f"{request.url.path}?{request.url.query}"
+        if any(sig.search(payload) for sig in self.CHAOS_PATTERNS):
+            await self.redis.set(f"aegis:void:{client_ip}", "1", ex=self.ban_duration)
+            Logger.critical(f"BANISHING IP {client_ip}: Hostile Pattern Detected")
+            return JSONResponse(status_code=403, content={"error": "IP_BANISHED"})
+
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        return response
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+# --- SECURITY RITES ---
+security-up: ## ignite the Security Aegis vault (Redis)
+    @echo "🔭 Awakening the Aegis Vault..."
+    @docker network create {{ project_slug }}_gnostic_mesh 2>/dev/null || true
+    @docker-compose -f infra/security/docker-compose.security.yml up -d
+
+security-down: ## return the Security Aegis vault to the void
+    @docker-compose -f infra/security/docker-compose.security.yml down
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Security Aegis[/bold cyan] has been waked and warded."
+    proclaim: "Guardian Locus: [white]core/security/aegis.py[/]"
+    
+    >> mkdir -p infra/security src/{{ package_name }}/core/security
+    
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Perimeter Breach -> 0)[/]"
+    proclaim: "[bold green]The Perimeter is now Sovereign.[/bold green] Your application has an immune system."
+    proclaim: "To activate the shield's memory: [bold cyan]make security-up[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Aegis materialization fractured.[/bold red] Perimeter remains vulnerable."

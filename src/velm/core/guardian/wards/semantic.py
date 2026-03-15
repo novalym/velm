@@ -1,4 +1,4 @@
-# Path: scaffold/core/guardian/wards/semantic.py
+# Path: velm/core/guardian/wards/semantic.py
 # ----------------------------------------------
 
 import shlex

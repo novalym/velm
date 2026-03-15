@@ -67,7 +67,7 @@ class IPWarden:
 
     def __init__(self):
         self._access_log = defaultdict(lambda: deque(maxlen=BURST_LIMIT_IP + 10))
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._bans: Dict[str, float] = {}
 
     def inspect(self, ip: str) -> bool:

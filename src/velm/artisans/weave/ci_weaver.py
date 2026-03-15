@@ -5,7 +5,7 @@ import yaml
 from pathlib import Path
 from typing import Optional
 
-from ...core.runtime import ScaffoldEngine
+from ...core.runtime import VelmEngine
 from ...interfaces.base import Artifact
 from ...utils import atomic_write, get_human_readable_size
 from ...contracts.heresy_contracts import ArtisanHeresy
@@ -19,7 +19,7 @@ class CIWeaver:
     A specialist artisan that forges CI/CD pipeline scriptures.
     """
 
-    def __init__(self, engine: ScaffoldEngine):
+    def __init__(self, engine: VelmEngine):
         self.engine = engine
         self.logger = engine.logger
         self.project_root = engine.project_root

@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/librarian/ranking.py
+# Path: velm/core/ai/rag/librarian/ranking.py
 # -----------------------------------------------
 
 import time

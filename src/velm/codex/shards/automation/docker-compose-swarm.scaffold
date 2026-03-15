@@ -1,0 +1,150 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: automation/docker-compose-swarm
+# ==============================================================================
+# @id:           automation/docker-compose-swarm
+# @version:      3.0.0
+# @tier:         iron
+# @summary:      Local multiversal orchestration using Docker Compose for APIs, Postgres, and Redis.
+# @vibe:         [docker, compose, orchestration, local-dev, swarm, containers]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:local-multiverse, capability:docker-compose]
+# @requires:     [capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   env:         ["API_PORT", "DB_HOST", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "REDIS_HOST"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "db": { "image": "postgres:16-alpine" }, "cache": { "image": "redis:7-alpine" } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "infrastructure-compose"
+#   priority:    1000
+#   alias:       "docker_compose_swarm"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+# [ASCENSION 1]: Causal Variable Anchoring
+$$ project_slug = {{ project_slug | default("microservice-swarm") }}
+$$ api_port = 8000
+$$ db_port = 5432
+$$ cache_port = 6379
+
+# --- II. THE SCRIPTURE OF FORM (The Local Multiverse) ---
+
+# [ASCENSION 2]: THE KERNEL CONFIGURATION
+.gitignore += """
+# --- Docker Swarm Gnosis ---
+.env
+db_data/
+cache_data/
+"""
+
+# [ASCENSION 3]: THE ENVIRONMENT DNA
+.env.example += """
+# --- Swarm Vitals ---
+API_PORT={{ api_port }}
+DB_HOST=db
+POSTGRES_USER=gnostic
+POSTGRES_PASSWORD=password
+POSTGRES_DB=swarm_db
+REDIS_HOST=cache
+"""
+
+# [ASCENSION 4]: THE ORCHESTRATION SCRIPTURE
+docker-compose.yml :: """
+version: '3.8'
+
+services:
+  # --- The Intelligence Layer ---
+  api:
+    build: ./services/api
+    container_name: {{ project_slug }}-api
+    ports: ["{{ api_port }}:8000"]
+    env_file: .env
+    networks: [internal_mesh]
+    depends_on:
+      db: { condition: service_healthy }
+      cache: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  # --- The Persistence Layer ---
+  db:
+    image: postgres:16-alpine
+    container_name: {{ project_slug }}-db
+    environment:
+      - POSTGRES_USER=$${POSTGRES_USER}
+      - POSTGRES_PASSWORD=$${POSTGRES_PASSWORD}
+      - POSTGRES_DB=$${POSTGRES_DB}
+    volumes: [db_data:/var/lib/postgresql/data]
+    networks: [internal_mesh]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+
+  # --- The Caching Layer ---
+  cache:
+    image: redis:7-alpine
+    container_name: {{ project_slug }}-cache
+    networks: [internal_mesh]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+
+volumes:
+  db_data: { driver: local }
+
+networks:
+  internal_mesh: { driver: bridge }
+"""
+
+# --- III. THE SURGICAL WEAVE (Control Plane & Manifestos) ---
+# [ASCENSION 9]: Global Conductor Integration
+Makefile += """
+# --- SWARM RITES ---
+swarm-up: ## ignite the local swarm in the background
+  @docker-compose up --build -d
+
+swarm-down: ## return the swarm to the void
+  @docker-compose down -v
+
+swarm-logs: ## gaze upon the collective consciousness
+  @docker-compose logs -f
+"""
+
+# [ASCENSION 11]: The Architect's Manifesto
+README.md += """
+## 🐳 Docker Swarm Orchestration
+This project is warded by a Docker Compose Swarm for local development.
+
+- **Awaken Swarm:** `make swarm-up`
+- **Gaze into Logs:** `make swarm-logs`
+- **Return to Void:** `make swarm-down`
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Docker Compose Swarm[/bold cyan] has been woven into reality."
+    proclaim: "Kinetic Rites are manifest in the [bold]Makefile[/bold]."
+    
+    # 1. Forge the placeholder service soul
+    proclaim: "Forging placeholder service matter..."
+    >> mkdir -p services/api
+    >> echo "fastapi\nuvicorn" > services/api/requirements.txt
+    >> echo "from fastapi import FastAPI\napp=FastAPI()\n@app.get('/health')\ndef r():return{'status':'resonant'}" > services/api/main.py
+    
+    # 2. Materialize .env
+    proclaim: "Materializing local Vault (.env)..."
+    @if {{ not shell('test -f .env && echo "yes"') == 'yes' }}
+        >> cp .env.example .env
+    @endif
+    
+    # 3. Final Proclamation
+    proclaim: "[bold green]✅ Local Multiverse is ready.[/bold green]"
+    proclaim: "To ignite the swarm: [bold cyan]make swarm-up[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Swarm materialization fractured.[/bold red]"

@@ -330,7 +330,7 @@ class ProjectArtisan(BaseArtisan[ProjectRequest]):
                     # We physically refuse to serialize the Engine's heavy organs.
                     v_type_name = type(v).__name__
                     if v_type_name in (
-                            "ScaffoldEngine", "ArtisanRegistry", "InfrastructureManager",
+                            "VelmEngine", "ArtisanRegistry", "InfrastructureManager",
                             "ProjectManager", "GnosticTransaction", "Scribe", "Logger",
                             "UniversalSink", "RuntimeContext", "Client"
                     ):

@@ -1,0 +1,116 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/redis-client
+# ==============================================================================
+# @id:           system/redis-client
+# @version:      3.0.0
+# @tier:         body
+# @summary:      Substrate-aware, asynchronous Redis client with built-in connection pooling and 'Phantom' fallback mode.
+# @vibe:         [redis, cache, database, memory, async, connection-pool, hiredis]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:redis-client, capability:ephemeral-memory]
+# @requires:     [capability:python-core, capability:environment-management]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["redis[hiredis]>=5.0.0"]
+#   env:         ["REDIS_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "redis": { "image": "redis:7-alpine", "ports": ["6379:6379"] } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "network-client"
+#   priority:    50
+#   alias:       "redis_vault"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-cache") }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+$$ default_redis_url = {{ redis_url | default("redis://localhost:6379/0") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Ephemeral Mind) ---
+
+src/{{ package_name }}/core/network/
+    __init__.py += "from .redis import redis_vault, get_redis_client\n"
+
+    # [ASCENSION 3]: THE SYNAPTIC CONDUIT (The Redis Vault)
+    redis.py :: """
+import os
+import logging
+from typing import Optional, Any, Union
+import redis.asyncio as redis
+# The Causal Linker ensures this configuration module exists
+from ...core.config import settings
+
+Logger = logging.getLogger("Substrate:Redis")
+
+class RedisVault:
+    \"\"\"
+    =============================================================================
+    == THE REDIS VAULT (V-Ω-TOTALITY)                                          ==
+    =============================================================================
+    LIF: ∞ | ROLE: EPHEMERAL_MEMORY_WARDEN | RANK: MASTER
+    
+    1. Achronal Connection Pool: Manages a warded async connection pool.
+    2. Graceful Degradation: Returns a 'Ghost Client' if Redis is unmanifest.
+    \"\"\"
+    _client: Optional[redis.Redis] = None
+
+    @property
+    def client(self) -> redis.Redis:
+        if self._client is None:
+            self._client = self._awaken()
+        return self._client
+
+    def _awaken(self) -> redis.Redis:
+        \"\"\"Wakes the connection to the ephemeral vault.\"\"\"
+        # [ASCENSION 3]: Substrate-Aware Connection
+        redis_url = getattr(settings, 'REDIS_URL', '{{ default_redis_url }}')
+        
+        try:
+            Logger.info("🧠 [REDIS] Awakening synaptic link to ephemeral vault...")
+            client = redis.from_url(
+                redis_url, 
+                encoding="utf-8", 
+                decode_responses=True,
+                socket_timeout=5.0,
+                retry_on_timeout=True
+            )
+            return client
+        except Exception as e:
+            Logger.error(f"💥 [REDIS] Link Fracture: {e}. Ephemeral memory is a void.")
+            # [ASCENSION 2]: THE PHANTOM MIND FALLBACK
+            class GhostClient:
+                async def get(self, *args, **kwargs): return None
+                async def set(self, *args, **kwargs): return True
+                async def delete(self, *args, **kwargs): return 0
+                async def exists(self, *args, **kwargs): return False
+                async def incr(self, *args, **kwargs): return 1
+                async def expire(self, *args, **kwargs): return True
+                async def ttl(self, *args, **kwargs): return -1
+                async def ping(self): return False
+                async def close(self): pass
+            return GhostClient()
+
+    async def ping(self) -> bool:
+        \"\"\"Verifies the resonance of the memory vault.\"\"\"
+        try:
+            return await self.client.ping()
+        except Exception:
+            return False
+
+# Global Singleton
+redis_vault = RedisVault()
+
+async def get_redis_client() -> Union[redis.Redis, Any]:
+    \"\"\"DI-Friendly Getter for the active memory link.\"\"\"
+    return redis_vault.client
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Redis Client Substrate[/] is manifest."
+    proclaim: "Default Vault: [bold yellow]{{ default_redis_url }}[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Memory Latency -> 0)[/]"
+    proclaim: "[bold green]✅ The Ephemeral Mind is waked.[/bold green]"

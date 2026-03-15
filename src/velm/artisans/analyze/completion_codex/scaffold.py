@@ -262,8 +262,8 @@ class ScaffoldCompletionScribe:
                 return self.prophesy_directive_context(stripped_content)
 
             # Gaze 2: The Gaze of the Alchemist (`{{...}}`)
-            jinja_start = content_prefix.rfind('{{')
-            if jinja_start != -1 and content_prefix.rfind('}}') < jinja_start:
+            sgf_start = content_prefix.rfind('{{')
+            if sgf_start != -1 and content_prefix.rfind('}}') < sgf_start:
                 return self.prophesy_variable_context(content_prefix)
 
             # Gaze 3: The Gaze of the Root (Anticipation)
@@ -288,9 +288,9 @@ class ScaffoldCompletionScribe:
         [THE ABSORBED ALCHEMIST]
         Prophesies variables, filters, and attributes.
         """
-        jinja_start = line_prefix.rfind('{{')
-        if jinja_start == -1: return []
-        expression_prefix = line_prefix[jinja_start + 2:].strip()
+        sgf_start = line_prefix.rfind('{{')
+        if sgf_start == -1: return []
+        expression_prefix = line_prefix[sgf_start + 2:].strip()
 
         # 1. Filters (|)
         pipe_pos = expression_prefix.rfind('|')
@@ -537,8 +537,8 @@ def get_scaffold_completions(
         # --- MOVEMENT 0: THE SUMMONS OF THE GOD-ENGINE ---
         active_engine = None
         try:
-            from ....core.runtime.engine import ScaffoldEngine
-            # active_engine = ScaffoldEngine.get_instance()
+            from ....core.runtime.engine import VelmEngine
+            # active_engine = VelmEngine.get_instance()
         except Exception:
             pass
 
@@ -560,8 +560,8 @@ def get_scaffold_completions(
         # --- MOVEMENT III: THE GRAND SYMPHONY OF GNOSTIC TRIAGE ---
 
         # Gaze 1: The Gaze of the Alchemist's Soul (`{{ ... }}`)
-        jinja_start = line_prefix.rfind('{{')
-        if jinja_start != -1 and line_prefix.rfind('}}') < jinja_start:
+        sgf_start = line_prefix.rfind('{{')
+        if sgf_start != -1 and line_prefix.rfind('}}') < sgf_start:
             return scribe.prophesy_variable_context(line_prefix)
 
         # Gaze 1b: Triggered by '{' (Potential Alchemist start)

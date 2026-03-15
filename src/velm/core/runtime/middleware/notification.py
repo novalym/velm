@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/notification.py
+# Path: velm/core/runtime/middleware/notification.py
 # ------------------------------------------------------
 
 import os

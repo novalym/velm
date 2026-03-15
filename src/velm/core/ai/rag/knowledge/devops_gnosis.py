@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/knowledge/devops_gnosis.py
+# Path: velm/core/ai/rag/knowledge/devops_gnosis.py
 # -----------------------------------------------------
 
 DEVOPS_SHARDS = [

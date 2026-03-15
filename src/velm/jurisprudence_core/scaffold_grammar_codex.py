@@ -26,8 +26,8 @@ SCAFFOLD_SIGILS = {
     "PERMISSIONS": "%%",
     "VARIABLE_DEF": "$$",
     "COMMENT": "#",
-    "JINJA_START": "{%",
-    "JINJA_VAR": "{{",
+    "SGF_START": "{%",
+    "SGF_VAR": "{{",
     "SYMLINK": "->",  # [NEW]
     "TRAIT_DEF": "%% trait",  # [NEW]
     "TRAIT_USE": "%% use"  # [NEW]

@@ -235,7 +235,128 @@ def _prophesy_runtime_python_version(oracle: 'OracleOfTheLivingSoul') -> str:
     return f"{v.major}.{v.minor}"
 
 
+def _prophesy_is_python(oracle: 'OracleOfTheLivingSoul') -> bool:
+    """
+    =================================================================================
+    == THE ORACLE OF THE PYTHONIC SOUL (V-Ω-TOTALITY-V500-FORENSIC-SCRY)           ==
+    =================================================================================
+    LIF: ∞ | ROLE: LINGUISTIC_PERCEPTION_ENGINE | RANK: OMEGA_SOVEREIGN
 
+    Performs a deep-tissue biopsy of the project sanctum to identify the Python
+    reality. It scries for modern and legacy markers, lockfiles, and environment
+    DNA to achieve 100% resonance.
+    """
+    root = oracle.project_root
+
+    # --- STRATUM I: THE CONSECRATED MANIFESTS (Primary Markers) ---
+    PRIMARY_SIGNATURES = {
+        "pyproject.toml",  # The Modern Law (PEP 518)
+        "requirements.txt",  # The Ancestral Scroll
+        "setup.py",  # The Physical Forge
+        "setup.cfg",  # The Declarative Law
+        "environment.yml"  # The Conda Nebula
+    }
+
+    # --- STRATUM II: THE KINETIC LOCKS (Secondary Markers) ---
+    LOCK_SIGNATURES = {
+        "poetry.lock",  # The Poetry Suture
+        "uv.lock",  # The High-Speed UV Lock
+        "pdm.lock",  # The PDM Matrix
+        "Pipfile.lock"  # The Pipenv Sarcophagus
+    }
+
+    # --- STRATUM III: THE METABOLIC PHANTOMS (Environment DNA) ---
+    def _scry_metabolism() -> bool:
+        # Detect virtual environment anchors and caches
+        return (root / ".venv").is_dir() or \
+            (root / "venv").is_dir() or \
+            (root / "__pycache__").is_dir() or \
+            (root / ".pytest_cache").is_dir()
+
+    # --- THE RITE OF ADJUDICATION ---
+    return any((root / s).exists() for s in PRIMARY_SIGNATURES) or \
+        any((root / s).exists() for s in LOCK_SIGNATURES) or \
+        _scry_metabolism() or \
+        any(root.glob("*.py")) or \
+        any(root.glob("*.pyi"))  # Type Stubs
+
+
+def _prophesy_is_node(oracle: 'OracleOfTheLivingSoul') -> bool:
+    """
+    =================================================================================
+    == THE ORACLE OF THE OCULAR REALM (V-Ω-TOTALITY-V500-JS-SENSE)                 ==
+    =================================================================================
+    LIF: ∞ | ROLE: LINGUISTIC_PERCEPTION_ENGINE | RANK: OMEGA_SOVEREIGN
+
+    Divines the presence of the JavaScript/Node.js reality by scrying for
+    Package Ecosystems and Transpiler Laws.
+    """
+    root = oracle.project_root
+
+    # --- STRATUM I: THE MANIFEST OF WILL ---
+    if (root / "package.json").exists():
+        return True
+
+    # --- STRATUM II: THE ECOSYSTEM PHALANX (Lockfiles) ---
+    ECOSYSTEM_LOCKS = {
+        "package-lock.json",  # NPM Suture
+        "yarn.lock",  # Yarn Spool
+        "pnpm-lock.yaml",  # PNPM Matrix
+        "bun.lockb"  # The Bun Kinetic Speed
+    }
+
+    # --- STRATUM III: THE LAWS OF FORM (Configs) ---
+    CONFIG_LAWS = {
+        "tsconfig.json",  # The TypeScript Constitution
+        "jsconfig.json",  # The JS Atlas
+        "vite.config.ts",  # The Vite Forge
+        "webpack.config.js",  # The Webpack Labyrinth
+        "next.config.js",  # The Next.js Ocular
+        ".nvmrc"  # The Version Anchor
+    }
+
+    return any((root / s).exists() for s in ECOSYSTEM_LOCKS) or \
+        any((root / s).exists() for s in CONFIG_LAWS) or \
+        (root / "node_modules").is_dir() or \
+        any(root.glob("*.ts")) or \
+        any(root.glob("*.tsx"))
+
+
+def _prophesy_is_rust(oracle: 'OracleOfTheLivingSoul') -> bool:
+    """
+    =================================================================================
+    == THE ORACLE OF THE IRON CORE (V-Ω-TOTALITY-V500-RUST-SENSE)                  ==
+    =================================================================================
+    LIF: ∞ | ROLE: LINGUISTIC_PERCEPTION_ENGINE | RANK: OMEGA_SOVEREIGN
+
+    Senses the presence of the Rust Iron Core. It looks for the Immutable Laws
+    of Cargo and the specific geometry of the Iron Soul.
+    """
+    root = oracle.project_root
+
+    # --- STRATUM I: THE IMMUTABLE LAW ---
+    if (root / "Cargo.toml").exists():
+        return True
+
+    # --- STRATUM II: THE FORENSIC ARTIFACTS ---
+    IRON_MARKERS = {
+        "Cargo.lock",  # The Deterministic Seal
+        "rust-toolchain",  # The Version Ward
+        "rust-toolchain.toml",  # The Modern Toolchain Law
+        "rustfmt.toml"  # The Geometric Scribe
+    }
+
+    # --- STRATUM III: THE SOUL'S GEOMETRY ---
+    def _scry_soul_geometry() -> bool:
+        src = root / "src"
+        if src.is_dir():
+            return (src / "main.rs").is_file() or \
+                (src / "lib.rs").is_file()
+        return False
+
+    return any((root / s).exists() for s in IRON_MARKERS) or \
+        _scry_soul_geometry() or \
+        (root / "target").is_dir()  # The Binary Matter Residue
 # =================================================================================
 # == III. THE GNOSTIC CANON (THE STANDARD LIBRARY OF ARCHITECTURE)               ==
 # =================================================================================
@@ -287,7 +408,6 @@ ARCHITECTURAL_CANON: List[GnosticPrimitive] = [
         validation_rule="min_length(3)" # Simple validation for now
     ),
 
-    # ... The symphony will continue in the next proclamation ...
 ]
 
 # =================================================================================
@@ -392,7 +512,6 @@ ARCHITECTURAL_CANON.extend([
         validation_rule="port_or_env_var"  # A future law
     ),
 
-    # ... The symphony will conclude in the final proclamation ...
 ])
 
 # =================================================================================
@@ -461,7 +580,32 @@ ARCHITECTURAL_CANON.extend([
         description="Whether to grant the AI Co-Architect the authority to synthesize code.",
         prophecy_rite=lambda o: False,  # Consent must be explicit.
         default_value=False
-    )
+    ),
+GnosticPrimitive(
+        key="is_python",
+        gnosis_type="boolean",
+        category="Substrate",
+        description="True if the project is manifest in the Python reality.",
+        prophecy_rite=_prophesy_is_python,
+        default_value=False
+    ),
+    GnosticPrimitive(
+        key="is_node",
+        gnosis_type="boolean",
+        category="Substrate",
+        description="True if the project is manifest in the Node/JS reality.",
+        prophecy_rite=_prophesy_is_node,
+        default_value=False
+    ),
+    GnosticPrimitive(
+        key="is_rust",
+        gnosis_type="boolean",
+        category="Substrate",
+        description="True if the project is manifest in the Rust Iron reality.",
+        prophecy_rite=_prophesy_is_rust,
+        default_value=False
+    ),
+
 ])
 
 # =================================================================================

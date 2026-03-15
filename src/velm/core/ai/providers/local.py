@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/providers/local.py
+# Path: velm/core/ai/providers/local.py
 # -----------------------------------------
 import os
 import requests

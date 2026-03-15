@@ -385,7 +385,7 @@ class SystemWatchdog:
         =============================================================================
         Physically commands the organs to flush waste.
         """
-        # 1. ALCHEMIST (Jinja2)
+        # 1. ALCHEMIST (SGF)
         if hasattr(self.engine, 'alchemist') and hasattr(self.engine.alchemist, 'env'):
             try:
                 self.engine.alchemist.env.cache.clear()

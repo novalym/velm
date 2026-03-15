@@ -1,4 +1,4 @@
-# Path: scaffold/core/state/ledger.py
+# Path: velm/core/state/ledger.py
 # -----------------------------------
 
 import threading

@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/librarian/analysis.py
+# Path: velm/core/ai/rag/librarian/analysis.py
 # ------------------------------------------------
 
 import re

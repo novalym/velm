@@ -1,4 +1,4 @@
-# Path: scaffold/core/maestro/handlers/raw.py
+# Path: velm/core/maestro/handlers/raw.py
 # -------------------------------------------
 # LIF: ∞ | ROLE: SOVEREIGN_KINETIC_CONDUIT | RANK: OMEGA_SOVEREIGN
 # AUTH: Ω_RAW_HANDLER_V9005_TOTALITY_FINALIS_2026
@@ -33,7 +33,7 @@ class RawHandler(BaseRiteHandler):
 
     ### THE PANTHEON OF 12 LEGENDARY ASCENSIONS:
     1.  **Apophatic Sigil De-Suture (THE FIX):** Surgically removes the 'raw:'
-        prefix while preserving the command's internal quoting and Jinja soul.
+        prefix while preserving the command's internal quoting and SGF soul.
     2.  **Achronal Undo Inference:** Communes with the `MaestroReverser` to
         prophesy the inverse strike (Undo) before the matter is manifest.
     3.  **Volumetric Reality Alignment:** Automatically inherits the redirected

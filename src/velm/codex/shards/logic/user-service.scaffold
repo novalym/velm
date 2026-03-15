@@ -1,0 +1,121 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: logic/user-service
+# ==============================================================================
+# @id:           logic/user-service
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A sovereign Domain-Driven Design (DDD) service for managing User lifecycles and activation.
+# @vibe:         [ddd, logic, user, service, domain, lifecycle, activation]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:user-domain-logic, capability:business-logic]
+# @requires:     [capability:python-core, capability:persistence-layer, capability:distributed-event-bus]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "service-logic"
+#   priority:    500
+#   alias:       "user_service"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ enable_event_broadcasting = {{ broadcast_events | default(true) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Mind of the Domain) ---
+
+src/{{ package_name }}/services/
+    __init__.py :: "from .user_service import GnosticUserService, IUserService"
+
+    # [ASCENSION 2]: THE SOVEREIGN SERVICE ENGINE (Logic)
+    # This artisan defines the 'Causal Vow' (Interface) and the 'Strike' (Impl).
+    user_service.py :: """
+import logging
+import time
+from abc import ABC, abstractmethod
+from typing import Dict, Any
+from uuid import UUID
+from pydantic import BaseModel, Field
+
+# --- THE GNOSTIC CONTRACTS ---
+class UserActivationSignal(BaseModel):
+    \"\"\"The Gnostic record of a soul awakening.\"\"\"
+    user_id: UUID
+    timestamp: float = Field(default_factory=time.time)
+    trace_id: str
+
+class IUserService(ABC):
+    \"\"\"
+    =============================================================================
+    == THE USER LIFECYCLE INTERFACE (V-Ω-CONTRACT)                             ==
+    =============================================================================
+    Defines the sacred rites allowed upon the User Domain.
+    \"\"\"
+    @abstractmethod
+    async def activate_user(self, user_id: UUID, trace_id: str) -> bool:
+        pass
+
+    @abstractmethod
+    async def scry_user_status(self, user_id: UUID) -> Dict[str, Any]:
+        pass
+
+# [ASCENSION 6]: AUTOMATIC DI SUTURE
+# The DISovereignStrategy scries this role and righteously binds 
+# the interface to this implementation in the Application Container.
+class GnosticUserService(IUserService):
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC USER SERVICE (V-Ω-TOTALITY)                                 ==
+    =============================================================================
+    LIF: ∞ | ROLE: BUSINESS_MIND | RANK: MASTER
+    
+    1.  Inversion of Control: Decoupled from physical I/O via Interface Vows.
+    2.  Event Propagation: Radiates state changes to the Achronal Lattice.
+    3.  Forensic Logging: Every mutation is warded by a Trace ID.
+    \"\"\"
+    def __init__(self, repository: Any, event_bus: Any):
+        # [ASCENSION 36]: Dependency Injection Suture
+        self.repository = repository
+        self.event_bus = event_bus
+        self.logger = logging.getLogger("Logic:UserService")
+
+    async def activate_user(self, user_id: UUID, trace_id: str) -> bool:
+        \"\"\"The Rite of Awakening.\"\"\"
+        self.logger.info(f"🌀 [LOGIC] Initiating user activation: {user_id} [Trace: {trace_id}]")
+        
+        # --- MOVEMENT I: PERCEPTION ---
+        user = await self.repository.get_by_id(user_id)
+        if not user:
+            self.logger.error(f"❌ [LOGIC] Identity Void: User {user_id} unmanifested.")
+            return False
+
+        # --- MOVEMENT II: TRANSMUTATION ---
+        user.is_active = True
+        await self.repository.save(user)
+
+        # --- MOVEMENT III: RADIATION ---
+        if {{ enable_event_broadcasting | lower }} == "true":
+            signal = UserActivationSignal(user_id=user_id, trace_id=trace_id)
+            await self.event_bus.broadcast("identity.user_activated", signal.model_dump())
+            self.logger.info(f"📡 [LOGIC] Activation signal willed to the lattice.")
+
+        return True
+
+    async def scry_user_status(self, user_id: UUID) -> Dict[str, Any]:
+        \"\"\"The Gaze of the Oracle.\"\"\"
+        user = await self.repository.get_by_id(user_id)
+        return {
+            "id": str(user_id),
+            "status": "RESONANT" if user and user.is_active else "VOID",
+            "mortal_time": time.time()
+        }
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Sovereign User Service[/bold cyan] is manifest."
+    proclaim: "Interface: [bold yellow]IUserService[/]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Logic Entanglement -> 0)[/]"

@@ -1,4 +1,4 @@
-# Path: scaffold/core/guardian/sentry.py
+# Path: velm/core/guardian/sentry.py
 # --------------------------------------
 
 from pathlib import Path

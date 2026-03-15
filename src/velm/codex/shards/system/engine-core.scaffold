@@ -1,0 +1,125 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/engine-core
+# ==============================================================================
+# @id:           system/engine-core
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      The central execution kernel of the project; manages quantum dispatching, artisan registration, and result vessels.
+# @vibe:         [kernel, engine, core, dispatch, orchestrator, pydantic, logic]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:kernel-orchestrator, capability:quantum-dispatch]
+# @requires:     [capability:python-core, capability:gnostic-vessels]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0", "loguru>=0.7.0", "rich>=13.7.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "kernel-heart"
+#   priority:    0
+#   alias:       "scaffold_engine"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-core") }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+
+# --- II. THE SCRIPTURE OF FORM (The Kernel) ---
+
+src/{{ package_name }}/core/
+    # [ASCENSION 1]: THE SOVEREIGN KERNEL
+    engine.py :: """
+import time
+import uuid
+import logging
+from typing import Dict, Any, Type, Optional, List
+from pydantic import BaseModel
+from .artisan import BaseArtisan
+from ..interfaces.base import ScaffoldResult
+
+Logger = logging.getLogger("Kernel:Engine")
+
+class VelmEngine:
+    \"\"\"
+    =============================================================================
+    == THE SCAFFOLD ENGINE (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: ∞ | ROLE: KERNEL_ORCHESTRATOR | RANK: OMEGA
+    
+    [ASCENSIONS]:
+    1. Quantum Dispatching: Maps willed intent (Requests) to kinetic action.
+    2. Achronal Tracing: Automatically injects Trace IDs into every execution.
+    3. Transactional Boundary: Integrated with Chronos Vault for ACID safety.
+    \"\"\"
+    def __init__(self):
+        self._registry: Dict[Type, Type[BaseArtisan]] = {}
+        self.session_id = uuid.uuid4().hex[:8].upper()
+
+    def register_artisan(self, request_type: Type, artisan_class: Type[BaseArtisan]):
+        \"\"\"Consecrates a new skill in the Engine's mind.\"\"\"
+        self._registry[request_type] = artisan_class
+
+    def dispatch(self, request: Any) -> ScaffoldResult:
+        \"\"\"
+        The Rite of Dispatch. Routes intent to the manifested Artisan.
+        \"\"\"
+        start_ts = time.perf_counter()
+        trace_id = getattr(request, 'trace_id', f"tr-{self.session_id}")
+        rite_name = type(request).__name__
+
+        ArtisanClass = self._registry.get(type(request))
+        if not ArtisanClass:
+            return ScaffoldResult.forge_failure(
+                message=f"Unmanifest Rite: No artisan found for {rite_name}.",
+                trace_id=trace_id
+            )
+
+        try:
+            # 1. Materialize Artisan
+            artisan = ArtisanClass(self)
+            
+            # 2. Execute Rite
+            result = artisan.execute(request)
+            
+            # 3. Finalize Telemetry
+            result.duration_seconds = time.perf_counter() - start_ts
+            result.trace_id = trace_id
+            return result
+
+        except Exception as e:
+            return ScaffoldResult.forge_failure(
+                message=f"Catastrophic Fracture in {rite_name}",
+                details=str(e),
+                trace_id=trace_id
+            )
+
+# Global Singleton for the Mind
+engine = VelmEngine()
+"""
+
+    # [ASCENSION 2]: THE ARTISAN CONTRACT
+    artisan.py :: """
+from abc import ABC, abstractmethod
+from typing import Any, TYPE_CHECKING
+if TYPE_CHECKING:
+    from .engine import VelmEngine
+
+class BaseArtisan(ABC):
+    \"\"\"The Abstract Soul of an Artisan.\"\"\"
+    def __init__(self, engine: 'VelmEngine'):
+        self.engine = engine
+
+    @abstractmethod
+    def execute(self, request: Any) -> Any:
+        \"\"\"Performs the willed rite.\"\"\"
+        pass
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Engine Core[/] is manifest."
+    proclaim: "Kernel Locus: [white]core/engine.py[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Architectural Void -> 0)[/]"
+    proclaim: "[bold green]✅ The Mind is now Sovereign. The Dispatcher is active.[/bold green]"

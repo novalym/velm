@@ -1,0 +1,242 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: integrations/gnostic-docs
+# ==============================================================================
+# @id:           integrations/gnostic-docs
+# @version:      3.0.0
+# @tier:         body
+# @summary:      MkDocs Material dynamic documentation engine with Mermaid.js causal graphing.
+# @vibe:         [docs, mkdocs, documentation, material, mermaid, diagrams, static-site]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:documentation, capability:static-docs]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["mkdocs-material>=9.5.0", "mkdocs-mermaid2-plugin>=1.1.1", "mkdocs-minify-plugin>=0.7.2", "mkdocs-git-revision-date-localized-plugin>=1.2.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "documentation-engine"
+#   priority:    500
+#   alias:       "gnostic_docs"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_title = {{ project_name | title | default("Omega Reality") }}
+$$ description = {{ description | default("A living scripture of the project's Gnostic soul.") }}
+$$ docs_port = {{ port | default(8001) }}
+$$ theme_accent = {{ color | default("#64ffda") }}
+$$ git_org = {{ git_org | default("novalym") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE ARK SANCTUM (The Block-Level Configuration) ---
+
+ark/
+    # [ASCENSION 2]: THE BRAIN (MkDocs Configuration)
+    mkdocs.yml :: """
+# == The Ark of the Covenant (Gnostic Configuration) ==
+site_name: {{ project_title }} Codex
+site_description: {{ description }}
+site_author: {{ author | default('The Architect') }}
+remote_branch: gh-pages
+
+repo_url: https://github.com/{{ git_org }}/{{ project_slug }}
+edit_uri: edit/main/ark/docs/
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  palette:
+    # [ASCENSION 3]: Substrate-Aware Theming
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Space Grotesk
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+extra_css:
+  - stylesheets/gnosis.css
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+  - mermaid2:
+      arguments:
+        theme: 'dark'
+  - git-revision-date-localized:
+      type: datetime
+      fallback_to_build_date: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid
+  - pymdownx.highlight:
+      anchor_linenums: true
+      pygments_lang_class: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+nav:
+  - 'Home': 'index.md'
+  - 'Architecture':
+    - 'Topography': 'architecture/topography.md'
+    - 'Causal Web (Graph)': 'architecture/graph.md'
+  - 'About': 'about.md'
+"""
+
+    docs/
+        # [ASCENSION 4]: THE SACRED TEXTS
+        index.md :: """
+# Welcome to the {{ project_title }} Codex
+
+> "{{ description }}"
+
+This living scripture is synchronized with the project's soul via the **Velm God-Engine**. 
+
+## 🚀 Quick Inception
+1. **Awaken the Codex**: `make docs-serve`
+2. **Gaze upon truth**: http://localhost:{{ docs_port }}
+
+## 🏛️ Project Vitals
+- **Status:** [RESONANT]
+- **Engine:** VELM V3.0
+- **Architect:** {{ author | default('The Architect') }}
+"""
+
+        architecture/
+            topography.md :: """
+# Architectural Topography
+
+The {{ project_title }} architecture adheres to the **Gnostic Principle of Separation**.
+"""
+
+            graph.md :: """
+# The Causal Web
+
+The following graph is a real-time reflection of the project's dependency topology.
+
+```mermaid
+%% CAUSAL_WEB_START %%
+graph TD
+  A[Architect] -->|Intent| B(Velm Engine)
+  B -->|Manifest| C{The Reality}
+  C -->|Dossier| D[The Codex]
+  D -->|Perception| A
+%% CAUSAL_WEB_END %%
+```
+"""
+
+        about.md :: """
+# About the Scribe
+This work was willed by **{{ author | default('The Architect') }}**.
+"""
+
+    stylesheets/
+        gnosis.css :: """
+:root {
+  --md-primary-fg-color: #020202;
+  --md-primary-fg-color--light: #050505;
+  --md-primary-fg-color--dark: #000000;
+  --md-accent-fg-color: {{ theme_accent }};
+}
+
+.md-header {
+  background-color: #000000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+}
+
+::selection {
+  background-color: {{ theme_accent }};
+  color: black;
+}
+
+.mermaid {
+  background: rgba(255,255,255,0.02);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+"""
+
+# --- III. THE SCRYING ARTISAN ---
+scripts/analytical/
+    scry_ark.py :: """
+import os
+import subprocess
+import re
+from pathlib import Path
+
+def scry_topology():
+    print("🔍 [SCRIBE] Scrying the Causal Web...")
+    try:
+        result = subprocess.run(["velm", "graph", "--format", "mermaid"], capture_output=True, text=True, check=True)
+        mermaid_scripture = result.stdout.strip()
+        
+        target_path = Path("ark/docs/architecture/graph.md")
+        if not target_path.exists(): return
+        
+        content = target_path.read_text()
+        pattern = f"%% CAUSAL_WEB_START %%.*?%% CAUSAL_WEB_END %%"
+        new_block = f"%% CAUSAL_WEB_START %%\\n{mermaid_scripture}\\n%% CAUSAL_WEB_END %%"
+        
+        updated_content = re.sub(pattern, new_block, content, flags=re.DOTALL)
+        target_path.write_text(updated_content)
+        print("✨ [SCRIBE] Living Chronicle updated with latest topology.")
+    except Exception as e:
+        print(f"⚠️  [SCRIBE] Scrying failed: {e}. Chronicle remains static.")
+
+if __name__ == "__main__":
+    scry_topology()
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+
+# --- DOCUMENTATION RITES ---
+docs-serve: ## launch the living Codex with real-time topology scrying
+  @poetry run python scripts/analytical/scry_ark.py
+  @cd ark && poetry run mkdocs serve -a localhost:{{ docs_port }}
+
+docs-build: ## forge the final static scripture
+  @poetry run python scripts/analytical/scry_ark.py
+  @cd ark && poetry run mkdocs build
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Gnostic Documentation Citadel[/bold cyan] is materializing in 'ark/'."
+    proclaim: "Codex Coordinate: [bold yellow]http://localhost:{{ docs_port }}[/]"
+    
+    # 1. Initialize the Ark Hierarchy
+    >> mkdir -p ark/docs/architecture ark/docs/stylesheets scripts/analytical
+    
+    # 2. Final Proclamation
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Documentation Debt -> 0)[/]"
+    proclaim: "[bold green]✅ Living Chronicle manifest.[/bold green] Your project now has a Voice."
+    proclaim: "To awaken the Codex, speak: [bold cyan]make docs-serve[/bold cyan]"

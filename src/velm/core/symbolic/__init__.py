@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/__init__.py
+# Path: src/velm/core/symbolic/__init__.py
 # ---------------------------------------------
 # LIF: ∞ | ROLE: GNOSTIC_API_GATEWAY | RANK: SOVEREIGN
 # AUTH: Ω_SYMBOLIC_INIT_TOTALITY_FINALIS
@@ -56,19 +56,19 @@ from .telemetry import TelemetryLens
 
 # [ASCENSION 1]: TYPE-GUARDED ORCHESTRATION
 if TYPE_CHECKING:
-    from ...core.runtime.engine import ScaffoldEngine
+    from ...core.runtime.engine import VelmEngine
 
 Logger = logging.getLogger("Scaffold:SymbolicGateway")
 
 # [ASCENSION 2]: GLOBAL SINGLETON MANAGEMENT
 # We maintain a weak-reference cache to prevent engine duplication.
-# WeakRef ensures that if the parent ScaffoldEngine dies, the Symbolic Engine
+# WeakRef ensures that if the parent VelmEngine dies, the Symbolic Engine
 # is also garbage collected, preventing memory leaks.
 _ENGINE_CACHE: weakref.WeakKeyDictionary[Any, GnosticSymbolicEngine] = weakref.WeakKeyDictionary()
 _LOCK = threading.Lock()
 
 
-def get_symbolic_engine(scaffold_engine: ScaffoldEngine) -> GnosticSymbolicEngine:
+def get_symbolic_engine(scaffold_engine: VelmEngine) -> GnosticSymbolicEngine:
     """
     [THE RITE OF SOVEREIGN SUMMONS]
     Materializes or retrieves the GnosticSymbolicEngine bound to a core engine.
@@ -90,7 +90,7 @@ def get_symbolic_engine(scaffold_engine: ScaffoldEngine) -> GnosticSymbolicEngin
 def scry_industrial_intent(
         text: str,
         strata: Dict[str, Any],
-        engine: ScaffoldEngine,
+        engine: VelmEngine,
         trace_id: Optional[str] = None,
         context: Optional[Dict[str, Any]] = None
 ) -> SymbolicManifest:
@@ -111,7 +111,7 @@ def scry_industrial_intent(
 
 def prepare_vision_inquest(
         strata: Dict[str, Any],
-        engine: ScaffoldEngine,
+        engine: VelmEngine,
         trace_id: str
 ) -> Dict[str, Any]:
     """

@@ -1,4 +1,4 @@
-# Path: scaffold/core/blueprint_scribe/metadata_scribe.py
+# Path: velm/core/blueprint_scribe/metadata_scribe.py
 # -------------------------------------------------------
 import getpass
 import hashlib

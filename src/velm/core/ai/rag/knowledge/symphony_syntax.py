@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/knowledge/symphony_syntax.py
+# Path: velm/core/ai/rag/knowledge/symphony_syntax.py
 # -------------------------------------------------------
 
 SYMPHONY_SHARDS = [

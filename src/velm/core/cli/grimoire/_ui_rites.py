@@ -1,4 +1,4 @@
-# scaffold/core/cli/grimoire/_ui_rites.py
+# velm/core/cli/grimoire/_ui_rites.py
 """Rites that govern the user interface and interaction with the Architect."""
 from ..cli_utils import add_common_flags
 

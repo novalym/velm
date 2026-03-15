@@ -1,4 +1,4 @@
-# Path: scaffold/core/redemption/diagnostician/specialists/fs_healer.py
+# Path: velm/core/redemption/diagnostician/specialists/fs_healer.py
 # ---------------------------------------------------------------------
 
 import sys

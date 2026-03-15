@@ -1,4 +1,4 @@
-# Path: src/scaffold/core/symbolic/sutures/vision_gate.py
+# Path: src/velm/core/symbolic/sutures/vision_gate.py
 # ----------------------------------------------------------
 # LIF: ∞ | ROLE: OPTICAL_ADJUDICATOR | RANK: SOVEREIGN
 # AUTH: Ω_VISION_GATE_TOTALITY_V105_HEALED
@@ -15,7 +15,7 @@ from ..contracts import AdjudicationIntent, SymbolicManifest, VisualInquest
 from ....interfaces.requests import IntelligenceRequest
 
 if TYPE_CHECKING:
-    from ....core.runtime.engine import ScaffoldEngine
+    from ....core.runtime.engine import VelmEngine
 
 Logger = logging.getLogger("Scaffold::Symbolic::VisionGate")
 
@@ -63,7 +63,7 @@ class VisionGate:
     =============================================================================
     """
 
-    def __init__(self, engine: ScaffoldEngine):
+    def __init__(self, engine: VelmEngine):
         """
         [THE RITE OF BINDING]
         """

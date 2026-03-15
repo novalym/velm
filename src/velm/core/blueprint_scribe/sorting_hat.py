@@ -1,4 +1,4 @@
-# Path: scaffold/core/blueprint_scribe/sorting_hat.py
+# Path: velm/core/blueprint_scribe/sorting_hat.py
 # ---------------------------------------------------
 from typing import List
 from ...contracts.data_contracts import _GnosticNode

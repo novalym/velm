@@ -1,4 +1,4 @@
-# Path: scaffold/core/kernel/transaction/contracts.py
+# Path: velm/core/kernel/transaction/contracts.py
 # ---------------------------------------------------
 # =========================================================================================
 # == THE OMEGA TRANSACTIONAL CONTRACTS (V-Ω-TOTALITY-V2000.5-FINALIS)                    ==

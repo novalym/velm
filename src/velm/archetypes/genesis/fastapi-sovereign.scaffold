@@ -1,0 +1,72 @@
+# Path: src/velm/archetypes/fastapi-sovereign.scaffold
+# ---------------------------------------------------------------------------------
+# == GNOSTIC ARCHETYPE: FASTAPI_SOVEREIGN (V-Ω-TOTALITY)                         ==
+# ---------------------------------------------------------------------------------
+# @description: The definitive Torso for high-status FastAPI applications.
+# @category: Backend
+# @difficulty: Master
+# @tags: fastapi, sqlalchemy, di, framework-core
+# ---------------------------------------------------------------------------------
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_name = {{ project_name | default("Sovereign Reality") }}
+$$ package_name = {{ project_name | snake }}
+$$ default_port = 8000
+
+# --- II. THE SCRIPTURE OF FORM (THE HUB ANCHORS) ---
+
+# 1. THE CENTRAL NERVOUS SYSTEM
+src/{{ package_name }}/main.py :: """
+import time
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, APIRouter
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # @scaffold:lifecycle_startup_anchor
+    yield
+    # @scaffold:lifecycle_shutdown_anchor
+
+app = FastAPI(title="{{ project_name }}", lifespan=lifespan)
+
+# @scaffold:middleware_anchor
+
+v1_router = APIRouter(prefix="/v1")
+# @scaffold:router_anchor
+
+app.include_router(v1_router)
+
+@app.get("/health")
+async def health(): return {"status": "RESONANT"}
+\"\"\"
+
+# 2. THE GNOSTIC MIND (DI HUB)
+src/{{ package_name }}/core/container.py :: """
+import punq
+from functools import lru_cache
+
+container = punq.Container()
+# @scaffold:di_anchor
+
+@lru_cache()
+def get_container(): return container
+\"\"\"
+
+# 3. THE PERSISTENCE ANCHOR (DB HUB)
+src/{{ package_name }}/models/base.py :: """
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.schema import MetaData
+
+class Base(DeclarativeBase):
+    metadata = MetaData(naming_convention={
+        "ix": "ix_%(column_0_label)s",
+        "uq": "uq_%(table_name)s_%(column_0_name)s",
+        "pk": "pk_%(table_name)s"
+    })
+
+# @scaffold:model_import_anchor
+\"\"\"
+
+# --- III. THE KINETIC WILL ---
+%% post-run
+    proclaim: "Sovereign Torse manifest. The receptor hubs are primed for weaving."

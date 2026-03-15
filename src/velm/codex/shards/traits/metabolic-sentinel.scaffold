@@ -1,0 +1,143 @@
+# ==============================================================================
+# == GNOSTIC DNA TRAIT: traits/metabolic-sentinel
+# ==============================================================================
+# @id:           traits/metabolic-sentinel
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      A background trait that monitors CPU/RAM heat and emits alerts to the application's nervous system.
+# @vibe:         [trait, telemetry, metabolism, cpu, ram, memory, watchdog, sentry]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:system-watchdog, capability:metabolic-sensor]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["psutil>=5.9.0", "pydantic>=2.6.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "system-trait"
+#   priority:    0
+#   alias:       "metabolic_watchdog"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+# [ASCENSION 1]: Achronal Health Thresholds
+$$ heartbeat_interval = {{ interval | default(5.0) }}
+$$ memory_threshold_mb = {{ mem_limit | default(1024) }}
+$$ cpu_fever_threshold = 90.0
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Mind's Pulse) ---
+
+src/{{ package_name }}/core/metabolism/
+    __init__.py :: "from .watchdog import MetabolicWatchdog, VitalSigns"
+    
+    # [ASCENSION 3]: THE METABOLIC GOVERNOR (Logic)
+    watchdog.py :: """
+import os
+import time
+import psutil
+import logging
+import asyncio
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
+
+# Root-Aware Imports for Neural Signaling
+# from ..system.signal import signal_hub # Prophecy: Link to Hub if manifest
+
+Logger = logging.getLogger("Metabolism:Watchdog")
+
+class VitalSigns(BaseModel):
+    \"\"\"The Gnostic Vessel for a single metabolic snapshot.\"\"\"
+    status: str = "RESONANT"
+    cpu_load: float
+    ram_usage_mb: float
+    ram_percent: float
+    thread_count: int
+    timestamp: float = Field(default_factory=time.time)
+
+class MetabolicWatchdog:
+    \"\"\"
+    =============================================================================
+    == THE METABOLIC WATCHDOG (V-Ω-TOTALITY)                                  ==
+    =============================================================================
+    LIF: ∞ | ROLE: SYSTEM_BIOLOGIST | RANK: MASTER
+    
+    1.  Metabolic Tomography: Deep-scries the physical iron for signs of fatigue.
+    2.  Fever Detection: Identifies CPU saturation and RAM exhaustion.
+    \"\"\"
+    def __init__(self, mem_limit: int = {{ memory_threshold_mb }}):
+        self.mem_limit = mem_limit
+        self.process = psutil.Process(os.getpid())
+        self.fever_mode = False
+
+    def scry_vitals(self) -> VitalSigns:
+        \"\"\"Performs a biological biopsy of the project mind.\"\"\"
+        # [ASCENSION 8]: Non-blocking CPU Scry
+        cpu = psutil.cpu_percent(interval=None)
+        mem_info = self.process.memory_info()
+        rss_mb = mem_info.rss / 1024 / 1024
+        
+        # [ASCENSION 2]: Threshold Adjudication
+        status = "RESONANT"
+        if cpu > {{ cpu_fever_threshold }} or rss_mb > self.mem_limit:
+            status = "FEVERISH"
+            if not self.fever_mode:
+                self._radiate_fever_alert(cpu, rss_mb)
+                self.fever_mode = True
+        else:
+            self.fever_mode = False
+
+        return VitalSigns(
+            status=status,
+            cpu_load=cpu,
+            ram_usage_mb=rss_mb,
+            ram_percent=psutil.virtual_memory().percent,
+            thread_count=len(self.process.threads())
+        )
+
+    def _radiate_fever_alert(self, cpu, mem):
+        Logger.critical(f"🛑 [METABOLISM] FEVER DETECTED: CPU {cpu}% | RAM {mem}MB")
+
+    async def run_vigil(self):
+        \"\"\"The Eternal Pulse.\"\"\"
+        while True:
+            vitals = self.scry_vitals()
+            await asyncio.sleep({{ heartbeat_interval }})
+"""
+
+# --- III. THE KINETIC SYMPHONY (Workflows) ---
+
+symphonies/
+    health_inquest.symphony :: """
+# == Symphony: Gnostic Metabolic Inquest ==
+# @description: Performs a panoptic health scry across all strata.
+# @LIF: 1000x
+
+@task main
+    %% let: inquest_status = "SCRYING"
+    %% proclaim: "🔬 [SENTINEL] Initiating Panoptic Health Scry..."
+
+    @try:
+        # 1. CONDUCT BIOPSY
+        >> python3 -c "from src.{{ package_name }}.core.metabolism.watchdog import MetabolicWatchdog; print(MetabolicWatchdog().scry_vitals().model_dump_json())" as vitals
+        
+        # 2. ADJUDICATE RESONANCE
+        ?? grep: "RESONANT" in {{ vitals }}
+        
+        %% proclaim: "[bold green]✅ METABOLISM NOMINAL.[/bold green] The mind is at peace."
+    @catch Exception as e:
+        %% error: "METABOLIC_FRACTURE detected: {{ e }}."
+    @end
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Metabolic Sentinel Trait[/bold cyan] is manifest."
+    proclaim: "Watchdog Locus: [white]src/{{ package_name }}/core/metabolism/watchdog.py[/]"
+    
+    >> mkdir -p src/{{ package_name }}/core/metabolism symphonies
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Runtime Panic -> 0)[/]"
+    proclaim: "[bold green]Homeostasis verified. The machine can now feel its own heat.[/bold green]"

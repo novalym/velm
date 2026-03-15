@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/middleware/auth.py
+# Path: velm/core/runtime/middleware/auth.py
 # ----------------------------------------------
 
 import os

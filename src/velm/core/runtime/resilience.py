@@ -1,4 +1,4 @@
-# Path: scaffold/core/runtime/resilience.py
+# Path: velm/core/runtime/resilience.py
 # -----------------------------------------
 import traceback
 from typing import Optional, Union, Any, Callable

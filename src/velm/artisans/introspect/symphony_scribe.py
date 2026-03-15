@@ -15,8 +15,7 @@ from ...jurisprudence_core.symphony_grammar_codex import (
     POLYGLOT_PARAMETERS,
     POLYGLOT_METADATA  # etc.
 )
-from ...semantic_injection.loader import SemanticRegistry
-
+from ...codex.loader import CodexRegistry
 # +++ THE APOTHEOSIS IS COMPLETE +++
 
 # This becomes a module-level constant for hyper-performance and purity.
@@ -152,11 +151,11 @@ def proclaim_gnosis(lite: bool = True) -> Dict[str, Any]:
 
     # --- MOVEMENT II: THE GAZE UPON THE SEMANTIC CORTEX ---
     def _gaze_upon_semantic_cortex() -> Dict:
-        SemanticRegistry.awaken()
+        CodexRegistry.awaken()
         domains = []
 
-        for name in sorted(SemanticRegistry.list_domains().keys()):
-            domain_instance = SemanticRegistry.get_domain(name)
+        for name in sorted(CodexRegistry.list_domains().keys()):
+            domain_instance = CodexRegistry.get_domain(name)
             if not domain_instance: continue
 
             domain_help = "Gnostic Domain: " + name

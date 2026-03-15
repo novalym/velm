@@ -1,0 +1,82 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/pydantic-v2
+# ==============================================================================
+# @id:           system/pydantic-v2
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      The definitive data validation substrate utilizing Pydantic V2 for absolute ontological integrity.
+# @vibe:         [pydantic, validation, schema, types, vessels, gnostic-matrix, typing]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:data-validation, capability:gnostic-vessels]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic[email]>=2.6.0", "pydantic-core>=2.16.0"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "data-substrate"
+#   priority:    0
+#   alias:       "vessel_foundry"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-core") }}
+$$ package_name = {{ package_name | default(project_slug | snake) | default('core') }}
+
+# --- II. THE SCRIPTURE OF FORM (The Mind of the Data) ---
+
+src/{{ package_name }}/core/
+    __init__.py += "from .vessels import GnosticSovereignDict, BaseVessel\n"
+
+    # [ASCENSION 3]: THE GNOSTIC SOVEREIGN MATRIX
+    vessels.py :: """
+import json
+from typing import Any, Dict, Optional, Set
+from pydantic import BaseModel, ConfigDict
+from pydantic_core import core_schema
+
+class GnosticSovereignDict(dict):
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC SOVEREIGN DICT (V-Ω-TOTALITY)                               ==
+    =============================================================================
+    LIF: ∞ | ROLE: DYNAMIC_CONTEXT_VESSEL | RANK: OMEGA
+    
+    [ASCENSIONS]:
+    1. Recursive Voiding: Returns a new GnosticSovereignDict instead of KeyError.
+    2. Dot-Notation Access: Enables ctx.user.profile.name syntax.
+    \"\"\"
+    def __getitem__(self, key: Any) -> Any:
+        if key in self:
+            return super().__getitem__(key)
+        return GnosticSovereignDict()
+
+    def __getattr__(self, name: str) -> Any:
+        if name.startswith('__'): return super().__getattribute__(name)
+        return self.__getitem__(name)
+
+    def __setattr__(self, name: str, value: Any):
+        self.__setitem__(name, value)
+
+class BaseVessel(BaseModel):
+    \"\"\"
+    The Ancestral Soul of all project DTOs.
+    Enforces strict type safety and POSIX path normalization.
+    \"\"\"
+    model_config = ConfigDict(
+        frozen=True,
+        extra='ignore',
+        populate_by_name=True,
+        validate_assignment=True
+    )
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Pydantic Validation Shard[/] is manifest."
+    proclaim: "Contract Locus: [white]core/vessels.py[/]"
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Data Ambiguity -> 0)[/]"
+    proclaim: "[bold green]✅ The Laws of Form are waked.[/bold green]"

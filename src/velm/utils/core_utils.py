@@ -21,6 +21,8 @@ from pathlib import Path
 from queue import Queue
 from typing import Dict, Any, Optional, Union, List, Tuple, Iterator, TYPE_CHECKING, Set
 
+import unicodedata
+
 try:
     PATHSPEC_AVAILABLE = True
     import pathspec
@@ -61,12 +63,7 @@ from ..contracts.communion_contracts import GnosticPlea, GnosticPleaType
 from ..logger import Scribe, get_console
 from ..help_registry import register_gnosis
 from .. import __version__
-JINJA_AVAILABLE = False
-try:
-    from jinja2 import Environment, meta, TemplateSyntaxError
-    JINJA_AVAILABLE = True
-except ImportError as e:
-    print(f"Import error! reason: {e}")
+
 Logger = Scribe("Utils")
 
 # --- THE GRIMOIRE OF TEXTUAL EXTENSIONS (V-Ω-EXPANDED) ---
@@ -126,7 +123,7 @@ def _determine_sanctum(path: Path, project_root: Path) -> str:
 def perform_alchemical_resolution(
         dossier: 'GnosticDossier',
         initial_gnosis: Dict[str, Any],
-        raw_definitions: Dict[str, str],
+        raw_definitions: Dict[str, Any],
         overrides: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
@@ -143,57 +140,50 @@ def perform_alchemical_resolution(
 
     ### THE PANTHEON OF 12 ASCENDED FACULTIES:
 
-    1.  **The Gnostic Differentiator:** It is now a pure artisan of Gnosis. It no
-        longer presumes to know the raw scripture of the blueprint. It receives the
-        pure, pre-forged `GnosticDossier` and `raw_definitions`, separating its will
-        from the perception of form.
+    1.  **The Gnostic Differentiator (THE CURE):** It possesses **Type-Agnostic Sight**.
+        It checks `isinstance(val, str)` before scanning for Jinja sigils (`{{`).
+        Primitives (int, bool) are instantly recognized as Pure Matter and bypass
+        the Alchemist's reactor, annihilating the `TypeError: int is not iterable`.
 
-    2.  **The Gaze of the Native Soul (Type Inference):** It possesses a divine Gaze.
-        It perceives static literals (`true`, `123`, `["a"]`) and transmutes them into
-        their pure Pythonic souls (`bool`, `int`, `list`), annihilating the Heresy of
-        the Profane String.
+    2.  **The Gaze of the Native Soul (Type Inference):** It perceives static literals
+        (`true`, `123`, `["a"]`) within strings and transmutes them into their pure
+        Pythonic souls, annihilating the Heresy of the Profane String.
 
     3.  **The Law of Scriptural Supremacy:** It enforces the sacred, 4-tier hierarchy
-        of Gnostic truth: Overrides > Scripture > Initial Gnosis > Defaults, ensuring
-        the Architect's will is always absolute.
+        of Gnostic truth: Overrides > Scripture > Initial Gnosis > Defaults.
 
     4.  **The Alchemical Inquisitor:** Its `transmute` rite is shielded by an unbreakable
-        ward. If a Jinja expression fails, it no longer shatters the symphony. It
-        forges a luminous `Heresy` vessel and inscribes it upon the `dossier`.
+        ward. If a Jinja expression fails, it forges a luminous `Heresy` vessel
+        instead of shattering the symphony.
 
     5.  **The Ward of the Gnostic Ouroboros:** Its Gaze for circular dependencies is
-        now that of a Forensic Inquisitor. It proclaims a luminous `Heresy` detailing
-        exactly which variables are stalled and which souls they await, transforming
-        a cryptic failure into a divine lesson.
+        now that of a Forensic Inquisitor, detailing exactly which variables are stalled.
 
-    6.  **The Gnostic Chronocacher (Inherited):** It wields the `DivineAlchemist`, whose
-        own Gaze is cached, making repeated transmutations of the same scripture
-        instantaneous.
+    6.  **The Gnostic Chronocacher (Inherited):** Wields the cached Gaze of the
+        `DivineAlchemist` for instant transmutation.
 
-    7.  **The Polyglot Mind:** It understands the Gnostic Graph (`dossier.dependencies`)
-        and can resolve a complex, tangled web of derivations in the optimal order.
+    7.  **The Polyglot Mind:** Understands the Gnostic Graph to resolve complex
+        webs of derivation.
 
-    8.  **The Luminous Voice:** Its every thought—every transmutation, every judgment—is
-        proclaimed to the `AlchemicalEngine` Scribe for hyper-diagnostic insight.
+    8.  **The Luminous Voice:** Proclaims every transmutation to the Scribe.
 
-    9.  **The Unbreakable Contract:** Its signature is pure, its dependencies explicit.
-        It returns a single, pure vessel of Gnosis: the final, resolved dictionary.
+    9.  **The Unbreakable Contract:** Returns a single, pure vessel of Gnosis.
 
-    10. **The Supreme Edict's Ward:** It ensures that `overrides` are eternally supreme,
-        immune to being overwritten by any other Gnostic source.
+    10. **The Supreme Edict's Ward:** Ensures `overrides` are eternally supreme.
 
-    11. **The Recursive Gaze (Future Prophecy):** Its architecture, which separates the
-        Gaze for dependencies from the act of transmutation, is perfectly forged for a
-        future ascension to a full topological sort for even greater performance.
+    11. **The Recursive Gaze:** Architected for future topological sorting.
 
-    12. **The Sovereign Soul:** It is a pure, self-contained artisan, its Gnosis now
-        enshrined in `core_utils`, available to all in the cosmos.
+    12. **The Sovereign Soul:** A self-contained artisan of resolution.
     =================================================================================
     """
+    import json
+    import hashlib
+    from typing import Dict, Any, Set
+
+    # Lazy imports to prevent circular gravity during module initialization
     from ..core.alchemist import get_alchemist
     from ..logger import Scribe
     from ..contracts.heresy_contracts import Heresy, HeresySeverity
-    import json  # For the Gaze of the Native Soul
 
     alchemist = get_alchemist()
     Logger = Scribe("AlchemicalEngine")
@@ -209,55 +199,72 @@ def perform_alchemical_resolution(
 
     # --- MOVEMENT II: THE RITE OF SCRIPTURAL SUPREMACY & THE GAZE OF THE NATIVE SOUL ---
     # We iterate over ALL variables defined in the blueprint's scripture.
-    for var_name, raw_val_str in raw_definitions.items():
+    for var_name, raw_val in raw_definitions.items():
         # [FACULTY 10] The Supreme Edict's Ward
         if var_name in overrides:
             resolved_vars[var_name] = overrides[var_name]
             continue
 
-        # [FACULTY 2] The Gaze of the Native Soul
-        is_dynamic = '{{' in raw_val_str or '{%' in raw_val_str
+        # [FACULTY 1] The Gnostic Differentiator (THE CURE)
+        # We must only attempt to scry for Jinja sigils if the soul is a String.
+        if isinstance(raw_val, str):
+            is_dynamic = '{{' in raw_val or '{%' in raw_val
+            val_str = raw_val.strip()
+        else:
+            # Primitives (int, bool, list, dict) are by definition Static.
+            is_dynamic = False
+            val_str = str(raw_val)
 
         # We check if this variable's soul depends on others.
         if var_name in dossier.dependencies and dossier.dependencies[var_name]:
-            unresolved_vars[var_name] = raw_val_str
+            # If it has dependencies, we treat it as a string for the reactor to solve
+            unresolved_vars[var_name] = str(raw_val)
         elif is_dynamic:
             # It has Jinja but no *known* dependencies. A simple transmutation.
             try:
-                resolved_vars[var_name] = alchemist.transmute(raw_val_str, resolved_vars)
+                resolved_vars[var_name] = alchemist.transmute(val_str, resolved_vars)
             except Exception as e:
                 dossier.heresies.append(Heresy(
                     message=f"Alchemical paradox transmuting '{var_name}'",
-                    details=str(e), line_num=0, line_content=f"$$ {var_name} = {raw_val_str}",
+                    details=str(e), line_num=0, line_content=f"$$ {var_name} = {val_str}",
                     severity=HeresySeverity.CRITICAL
                 ))
         else:
-            # It is Static. We perceive its true Native Soul.
-            val_str = raw_val_str.strip()
-            transmuted_val: Any = val_str
+            # It is Static or Primitive. We perceive its true Native Soul.
+            # If it was already a primitive (int/bool), use it directly.
+            if not isinstance(raw_val, str):
+                transmuted_val = raw_val
+            else:
+                # [FACULTY 2] The Gaze of the Native Soul (String Inference)
+                transmuted_val = val_str
+                lower_val = val_str.lower()
 
-            # Gnostic Triage for Types
-            lower_val = val_str.lower()
-            if lower_val == 'true':
-                transmuted_val = True
-            elif lower_val == 'false':
-                transmuted_val = False
-            elif val_str.lstrip('-').isdigit():
-                transmuted_val = int(val_str)
-            elif (val_str.startswith('[') and val_str.endswith(']')) or \
-                    (val_str.startswith('{') and val_str.endswith('}')):
-                try:
-                    transmuted_val = json.loads(val_str.replace("'", '"'))
-                except Exception:
-                    pass
-            elif (val_str.startswith('"') and val_str.endswith('"')) or \
-                    (val_str.startswith("'") and val_str.endswith("'")):
-                transmuted_val = val_str[1:-1]
+                if lower_val == 'true':
+                    transmuted_val = True
+                elif lower_val == 'false':
+                    transmuted_val = False
+                elif val_str.lstrip('-').isdigit():
+                    try:
+                        transmuted_val = int(val_str)
+                    except ValueError:
+                        pass
+                elif (val_str.startswith('[') and val_str.endswith(']')) or \
+                        (val_str.startswith('{') and val_str.endswith('}')):
+                    try:
+                        # Safe JSON parsing for inline lists/dicts
+                        transmuted_val = json.loads(val_str.replace("'", '"'))
+                    except Exception:
+                        pass
+                elif (val_str.startswith('"') and val_str.endswith('"')) or \
+                        (val_str.startswith("'") and val_str.endswith("'")):
+                    transmuted_val = val_str[1:-1]
 
             resolved_vars[var_name] = transmuted_val
             type_name = type(transmuted_val).__name__
-            Logger.verbose(
-                f"   -> Scriptural Supremacy: '$$ {var_name}' set to '[yellow]{transmuted_val}[/yellow]' (Type: {type_name}).")
+            # Only verbose log if it's not a standard string, to reduce noise
+            if type_name != 'str':
+                Logger.verbose(
+                    f"   -> Scriptural Supremacy: '$$ {var_name}' set to '[yellow]{transmuted_val}[/yellow]' (Type: {type_name}).")
 
     # --- MOVEMENT III: THE RITE OF ITERATIVE DERIVATION ---
     max_iterations = len(unresolved_vars) + 2
@@ -940,7 +947,7 @@ def _sanctify_makefile_content(content: str) -> str:
     3.  **The Target Recognition:** Identifies lines ending in `:` as Targets.
     4.  **The Variable Guard:** Protects lines with `=`, `:=`, `?=`, `+=` from tabbing.
     5.  **The Directive Preservation:** Protects `include`, `ifeq`, `else`, `endif`.
-    6.  **The Continuation Binder:** Handles `\` line continuations correctly.
+    6.  **The Continuation Binder:** Handles line continuations correctly.
     7.  **The Comment Sanctuary:** Preserves `#` comments in their relative positions.
     8.  **The Trailing Void Annihilator:** Strips profane trailing whitespace from all lines.
     9.  **The Newline Covenant:** Enforces `\n` endings.
@@ -1917,46 +1924,6 @@ def compare_sanctum_chronicles(
     return diff
 
 
-@register_gnosis("transmute_scripture_with_gnosis")
-def transmute_scripture_with_gnosis(
-        template_path: Path,
-        context: Dict[str, Any],
-        output_path: Path
-) -> bool:
-    """
-    =================================================================================
-    == THE UNIVERSAL ALCHEMIST (THE JINJA GOD-ENGINE)                              ==
-    =================================================================================
-    LIF: 100,000,000,000,000
-
-    This is the Scaffold platform's one true, universal templating engine. It
-    summons the divine power of the Jinja2 artisan—the master of a sacred,
-    Turing-complete templating language—and wraps it with our own Unbreakable
-    Vows of atomic writing and luminous error proclamation. It can be used by
-    any future artisan to forge complex, logical scriptures far beyond the
-    simple alchemy of `{{ var | modifier }}`.
-    =================================================================================
-    """
-    try:
-        from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError, UndefinedError
-    except ImportError:
-        Logger.error("The Universal Alchemist requires the 'Jinja2' artisan. `pip install Jinja2`")
-        return False
-
-    try:
-        env = Environment(loader=FileSystemLoader(template_path.parent), autoescape=False)
-        template = env.get_template(template_path.name)
-        rendered_content = template.render(context)
-
-        atomic_write(output_path, rendered_content, Logger, output_path.parent)
-        return True
-    except (TemplateSyntaxError, UndefinedError) as e:
-        Logger.error(f"Alchemical Heresy in '{template_path.name}': {e.message} on line {e.lineno}")
-        return False
-    except Exception as e:
-        Logger.error(f"A catastrophic paradox occurred during universal transmutation: {e}")
-        return False
-
 
 @register_gnosis("conduct_rite_with_luminous_progress")
 def conduct_rite_with_luminous_progress(
@@ -2743,7 +2710,7 @@ def is_valid_path_segment(path_segment: str) -> bool:
         arise from copy-paste errors or corrupt input (e.g., the `\a` bell character).
     3.  **[GC 3: Purity After Stripping]**: Ensures the path segment is not empty
         after all profane characters and whitespace are stripped.
-    4.  **[GC 4: Absolute Path Forbiddance]**: Explicitly disallows absolute paths (`/`, `C:\`)
+    4.  **[GC 4: Absolute Path Forbiddance]**: Explicitly disallows absolute paths
         within a segment, as blueprint paths should always be relative.
     5.  **[GC 5: Path Traversal Forbiddance]**: Forbids `..` segments to prevent directory traversal attacks.
     6.  **[GC 6: Platform-Specific Profanity]**: Can be extended to include platform-specific
@@ -3189,6 +3156,7 @@ def unbreakable_ward_of_annihilation(path_to_delete: Path, project_root: Path, r
     if any attempt is made to annihilate a sacred sanctum.
     =================================================================================
     """
+    from ..contracts.heresy_contracts import ArtisanHeresy
     if not isinstance(path_to_delete, Path) or not isinstance(project_root, Path):
         raise ArtisanHeresy(
             "A profound type heresy was perceived by the Unbreakable Ward. Annihilation stayed.",

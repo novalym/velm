@@ -1,0 +1,108 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/achronal-fleet-commander
+# ==============================================================================
+# @id:           system/achronal-fleet-commander
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      The central intelligence for multiversal fleet orchestration; aggregates vitals and conducts synchronized swarm strikes across the project cosmos.
+# @vibe:         [commander, fleet, multirepo, dashboard, management, orchestration, command-center, high-status]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:fleet-authority, capability:global-observatory]
+# @requires:     [capability:neural-backbone, capability:project-manager, capability:gnostic-hub]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0", "rich>=13.7.0"]
+#   env:         ["SCAF_FLEET_NAME", "SCAF_OBSERVATORY_PORT"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "fleet-orchestrator"
+#   priority:    0
+#   alias:       "fleet_commander"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ fleet_name = {{ fleet_name | default("omega-fleet") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# [ASCENSION 4]: THE COMMANDER'S SEAL
+$$ fleet_id = {{ (fleet_name + machine_id) | hash('sha256') }}
+
+# --- II. THE SCRIPTURE OF FORM (The High Mind) ---
+
+src/{{ package_name }}/core/fleet/
+    __init__.py :: "from .scrier import FleetScrier\nfrom .commander import GlobalCommander\n"
+
+    scrier.py :: """
+import json
+import logging
+from typing import List, Dict, Any
+from ..observatory.manager import ProjectManager
+
+Logger = logging.getLogger("Fleet:Scrier")
+
+class FleetScrier:
+    \"\"\"
+    =============================================================================
+    == THE FLEET SCRIER (V-Ω-TOTALITY)                                        ==
+    =============================================================================
+    LIF: ∞ | ROLE: MULTIVERSAL_STATUS_ORCHESTRATOR
+    
+    The eyes of the Admiral. It scries managed vessels to build 
+    the Global Gnostic Dossier.
+    \"\"\"
+    def __init__(self):
+        self.pm = ProjectManager()
+
+    def get_fleet_dossier(self) -> Dict[str, Any]:
+        Logger.info(f"📡 [FLEET] Scrying status for '{{ fleet_name }}'...")
+        return {
+            "fleet_id": "{{ fleet_id }}",
+            "fleet_name": "{{ fleet_name }}",
+            "vessels": [p.model_dump() for p in self.pm.list_projects()],
+            "status": "RESONANT"
+        }
+"""
+
+    commander.py :: """
+import os
+import logging
+from typing import List
+
+Logger = logging.getLogger("Fleet:Commander")
+
+class GlobalCommander:
+    \"\"\"
+    =============================================================================
+    == THE GLOBAL COMMANDER (V-Ω-KINETIC-ORCHESTRATOR)                         ==
+    =============================================================================
+    Allows the Architect to broadcast a single Rite across the multiverse.
+    \"\"\"
+    def broadcast_rite(self, intent: str, strategy: str = "rolling"):
+        \"\"\"
+        [ASCENSION 15]: SWARM STRIKE ORCHESTRATION.
+        \"\"\"
+        Logger.warning(f"⚡ [COMMANDER] Broadcasting Rite: '{intent}'")
+        # [STRIKE]: Executes 'velm workspace exec' across all nodes
+        os.system(f"velm workspace exec '{intent}'")
+"""
+
+# --- III. THE CONTROL PLANE ---
+Makefile += """
+# --- FLEET RITES ---
+fleet-status: ## scry the vitality of the entire multiversal fleet
+    @poetry run python -c "from src.{{ package_name }}.core.fleet.scrier import FleetScrier; print(FleetScrier().get_fleet_dossier())"
+
+fleet-strike: ## broadcast a rite to all vessels (e.g. make fleet-strike intent='luminate')
+    @poetry run python -c "from src.{{ package_name }}.core.fleet.commander import GlobalCommander; GlobalCommander().broadcast_rite('$(intent)')"
+"""
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Achronal Fleet Commander[/bold cyan] is manifest."
+    proclaim: "Fleet Identity: [bold]{{ fleet_name }}[/bold]"
+    
+    >> mkdir -p src/{{ package_name }}/core/fleet
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Total Organizational Sovereignty)[/]"

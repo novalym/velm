@@ -1,4 +1,4 @@
-# Path: scaffold/core/ai/rag/knowledge/security_gnosis.py
+# Path: velm/core/ai/rag/knowledge/security_gnosis.py
 # -------------------------------------------------------
 
 SECURITY_SHARDS = [

@@ -70,7 +70,7 @@ def handle_language_server(args: Any):
         # [ASCENSION 3]: RENAME PROCESS
         try:
             import setproctitle
-            setproctitle.setproctitle(f"scaffold: oracle-lsp [{project_root.name}]")
+            setproctitle.setproctitle(f"velm: oracle-lsp [{project_root.name}]")
         except ImportError:
             pass
 

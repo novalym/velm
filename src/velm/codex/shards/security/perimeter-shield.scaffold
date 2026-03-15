@@ -1,0 +1,94 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: security/perimeter-shield
+# ==============================================================================
+# @id:           security/perimeter-shield
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Trace ID injection and latency tomography middleware, acting as the absolute ingress gate.
+# @vibe:         [shield, trace, perimeter, middleware, observability, security]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:perimeter-shield, capability:trace-injection]
+# @requires:     [capability:fastapi-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      []
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "middleware-spine"
+#   priority:    5
+#   alias:       "perimeter_shield"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-citadel") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ shield_priority = {{ shield_priority | default(10) }}
+$$ strict_trace = {{ strict_trace | default(false) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Nervous System) ---
+src/{{ package_name }}/middleware/
+    shield.py :: """
+import time
+import uuid
+import logging
+from fastapi import Request, HTTPException, status
+from starlette.middleware.base import BaseHTTPMiddleware
+
+Logger = logging.getLogger("Security:Perimeter")
+
+class ActiveDefenseMiddleware(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE PERIMETER SHIELD (V-Ω-TOTALITY)                                     ==
+    =============================================================================
+    LIF: 1,000,000x | ROLE: FORENSIC_GATEKEEPER | RANK: OMEGA
+    
+    The first point of contact for all external intent.
+    1.  Identity Suture: Injects or validates the X-Gnostic-Trace.
+    2.  Metabolic Tomography: Calculates the exact CPU tax of the plea.
+    3.  Forensic Signaling: Stamps the result for the Ocular HUD.
+    \"\"\"
+    async def dispatch(self, request: Request, call_next):
+        # --- MOVEMENT I: THE SILVER CORD (TRACE INJECTION) ---
+        trace_id = request.headers.get("X-Gnostic-Trace")
+        
+        if not trace_id:
+            if {{ strict_trace | lower }}:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Perimeter Violation: Anonymous intent is forbidden in this sanctum."
+                )
+            trace_id = f"tr-{uuid.uuid4().hex[:8].upper()}"
+
+        request.state.trace_id = trace_id
+        
+        # --- MOVEMENT II: THE RITE OF EXECUTION ---
+        start_time = time.perf_counter()
+        
+        try:
+            response = await call_next(request)
+        except Exception as e:
+            Logger.error(f"[{trace_id}] Ingress Fracture: {e}")
+            raise e
+        
+        # --- MOVEMENT III: METABOLIC FINALITY ---
+        process_time = (time.perf_counter() - start_time) * 1000
+        
+        # --- MOVEMENT IV: THE VEIL OF TRUTH ---
+        response.headers["X-Gnostic-Trace"] = trace_id
+        response.headers["X-Metabolic-Tax-MS"] = f"{process_time:.3f}"
+        
+        if process_time > 500:
+            response.headers["X-Gnostic-Warning"] = "HEAVY_METABOLISM"
+            
+        return response
+"""
+
+# --- III. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Perimeter Shield[/bold cyan] has been waked."
+    proclaim: "Forensic Locus: [white]middleware/shield.py[/]"
+    proclaim: "Trace Policy: [bold]{{'STRICT' if strict_trace else 'PERMISSIVE'}}[/]"
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Total Forensic Visibility)[/]"

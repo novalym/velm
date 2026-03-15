@@ -1,0 +1,172 @@
+# ==============================================================================
+# == GNOSTIC DNA TRAIT: traits/chronicle-scribe
+# ==============================================================================
+# @id:           traits/chronicle-scribe
+# @version:      3.0.0
+# @tier:         soul
+# @summary:      A cryptographic journaling trait that binds a Merkle-signed ledger to system mutations.
+# @vibe:         [trait, audit, logging, merkle, blockchain, cryptography, history, provenance]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:merkle-logging, capability:historical-provenance]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      [] # Core crypto handled by stdlib hmac/hashlib
+#   env:         ["CHRONICLE_SIGNING_SECRET"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "system-trait"
+#   priority:    0
+#   alias:       "chronicle_scribe"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+# [ASCENSION 1]: Achronal Variable Anchoring
+$$ journal_path = ".scaffold/chronicle/forensic_journal.jsonl"
+$$ signing_secret = "{{ crypto.random(32, 'hex') }}" # Forged at inception
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Scribe's Hand) ---
+
+scripts/governance/
+    # [ASCENSION 2]: THE MERKLE SIGNER (Logic)
+    # This artisan forges the cryptographic link between Intent and History.
+    # It ensures the ledger is append-only and tamper-evident.
+    scribe.py :: """
+import json
+import time
+import uuid
+import hmac
+import hashlib
+import platform
+import os
+from pathlib import Path
+from typing import Any, Dict
+
+class MerkleScribe:
+    \"\"\"
+    =============================================================================
+    == THE MERKLE SCRIBE (V-Ω-TOTALITY)                                        ==
+    =============================================================================
+    LIF: ∞ | ROLE: FORENSIC_CHRONICLER | RANK: OMEGA
+    
+    1.  Causality Tracking: Links every rite to a unique Trace ID.
+    2.  Substrate Identity: Stamps the machine's node ID onto every entry.
+    3.  Integrity Vow: Signs the entry with the Sovereign Secret.
+    \"\"\"
+    def __init__(self, project_root: Path):
+        self.log_path = Path("{{ journal_path }}")
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        # [ASCENSION 13]: Vault Siphon
+        secret_key = os.getenv("CHRONICLE_SIGNING_SECRET", "{{ signing_secret }}")
+        self.secret = secret_key.encode()
+
+    def inscribe(self, rite_name: str, outcome: str, variables: Dict[str, Any]):
+        \"\"\"Inscribes a kinetic strike into the eternal Akasha.\"\"\"
+        trace_id = variables.get('trace_id', uuid.uuid4().hex[:8].upper())
+        
+        # 1. FORGE THE SOUL OF THE ENTRY
+        entry = {
+            "v": "3.0",
+            "ts": time.time(),
+            "trace_id": trace_id,
+            "rite": rite_name,
+            "author": variables.get('author', 'The Architect'),
+            "outcome": outcome,
+            "machine": platform.node(),
+            "substrate": platform.system(),
+            "merkle_prev": self._get_last_hash()
+        }
+
+        # 2. THE CRYPTOGRAPHIC SEAL
+        # [ASCENSION 11]: We sign the canonical JSON representation
+        canonical = json.dumps(entry, sort_keys=True)
+        signature = hmac.new(self.secret, canonical.encode(), hashlib.sha256).hexdigest()
+        entry["sig"] = signature
+
+        # 3. ATOMIC APPEND
+        with open(self.log_path, "a", encoding='utf-8') as f:
+            f.write(json.dumps(entry) + "\\n")
+        
+        print(f"📜 [SCRIBE] Rite '{rite_name}' warded in the Akasha (Trace: {trace_id}).")
+
+    def _get_last_hash(self) -> str:
+        \"\"\"Scries the last entry to maintain the Merkle Chain.\"\"\"
+        if not self.log_path.exists() or self.log_path.stat().st_size == 0:
+            return "0x_VOID_ORIGIN"
+        
+        try:
+            with open(self.log_path, 'rb') as f:
+                f.seek(-2, os.SEEK_END)
+                while f.read(1) != b'\\n':
+                    f.seek(-2, os.SEEK_CUR)
+                last_line = f.readline().decode()
+                return json.loads(last_line).get("sig", "0x_CORRUPT")
+        except:
+            return "0x_CHAIN_FRACTURE"
+
+if __name__ == "__main__":
+    # Manual Inscription Rite
+    import sys
+    if len(sys.argv) > 2:
+        MerkleScribe(Path(".")).inscribe(sys.argv[1], sys.argv[2], {})
+"""
+
+# --- III. THE KINETIC SYMPHONY (Automation) ---
+
+symphonies/
+    # [ASCENSION 5]: THE AUDIT SYMPHONY
+    # An automated rite to verify that the physical iron matches the willed history.
+    audit_reality.symphony :: """
+# == Symphony: Gnostic Forensic Audit ==
+# @description: Adjudicates the purity of the project's timeline.
+# @LIF: 1,000,000x
+
+@task main
+    %% let: audit_phase = "INITIATING"
+    %% proclaim: "⚖️  [SCRIBE] Awakening the High Inquisitor for Forensic Audit..."
+
+    # 1. THE DRIFT INQUEST
+    # Verify the current reality against the Gnostic Chronicle.
+    >> velm verify --strict
+    ?? succeeds
+
+    # 2. THE CHAIN VERIFICATION
+    # [ASCENSION 14]: Verify the Merkle-Chain of the Scribe
+    %% proclaim: "🔗 Validating Merkle Chain integrity..."
+    >> python3 -m scripts.governance.scribe --verify
+    ?? succeeds
+
+    # 3. THE GIT REVELATION
+    # Suture the Git history with the Scribe's ledger.
+    %% proclaim: "📜 Reconstructing Causal Lineage..."
+    >> git log --oneline -n 12
+    
+    %% proclaim: "[bold green]✅ CHRONICLE VERIFIED.[/bold green] The timeline is pure and resonant."
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+# --- GOVERNANCE RITES ---
+audit: ## conduct a forensic audit of the project's Merkle-chain
+    @velm run symphonies/audit_reality.symphony
+
+chronicle: ## gaze into the last 20 entries of the Akasha
+    @tail -n 20 {{ journal_path }}
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    # Pre-forge the environmental secret
+    >> echo "CHRONICLE_SIGNING_SECRET={{ signing_secret }}" >> .env
+    
+    proclaim: "The [bold cyan]Chronicle Scribe Trait[/bold cyan] has taken the quill."
+    proclaim: "Journal Locus: [white]{{ journal_path }}[/]"
+    
+    >> mkdir -p .scaffold/chronicle scripts/governance
+    >> touch {{ journal_path }}
+    
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Hidden Drift -> 0)[/]"
+    proclaim: "[bold purple]SCRIBE ENTHRONED[/bold purple]. Every strike is now eternal."

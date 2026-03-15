@@ -109,7 +109,7 @@ class ArchetypeArtisan(BaseArtisan[ArchetypeRequest]):
     # This URL points to the auto-generated index from the GitHub Action.
     REPO_USER = "novalym"
     REPO_NAME = "velm-grimoire"
-    CELESTIAL_INDEX_URL = f"https://raw.githubusercontent.com/{REPO_USER}/{REPO_NAME}/main/index.json"
+    CELESTIAL_INDEX_URL = f"https://raw.githubusercontent.com/{REPO_USER}/{REPO_NAME}/main/registry/index.json"
 
     # [LOCAL SANCTUMS]
     GLOBAL_FORGE = Path.home() / ".scaffold" / "archetypes"

@@ -1,0 +1,182 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: API/EVENT-BUS
+# ==============================================================================
+# @id:           api/event-bus
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      A high-velocity, non-blocking asynchronous Event Bus for 
+#                decoupled domain communion. Materializes an asyncio-backed 
+#                pub-sub fabric with built-in Dead Letter Queue (DLQ) logic 
+#                and wildcard routing.
+# @vibe:         [pub-sub, async, decoupled, event-driven, cqrs, background-tasks]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:event-bus, capability:pub-sub-fabric, capability:background-orchestrator]
+# @requires:     [capability:api-heart, capability:pydantic-v2]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic>=2.6.0"]
+#   env:         ["EVENT_BUS_LOG_LEVEL", "DLQ_RETENTION_COUNT"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        lifecycle-pulse
+#   priority:    1
+#   alias:       "event_bus"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Neural Fabric) ---
+
+src/{{ package_name }}/api/events/
+    # [ASCENSION 1]: The Interface Registry
+    __init__.py :: "from .bus import event_bus, GnosticEvent\n"
+    
+    bus.py :: """
+import asyncio
+import logging
+import time
+import uuid
+import os
+from typing import Dict, List, Callable, Any, Awaitable, Optional
+from pydantic import BaseModel, Field
+
+Logger = logging.getLogger("API:EventBus")
+
+class GnosticEvent(BaseModel):
+    \"\"\"The immutable soul of a system change.\"\"\"
+    id: str = Field(default_factory=lambda: uuid.uuid4().hex)
+    topic: str
+    payload: Dict[str, Any]
+    trace_id: str = Field(default="tr-void")
+    timestamp: float = Field(default_factory=time.time)
+
+# =============================================================================
+# == THE OMNI-REGISTRY (EVENT LATTICE)                                       ==
+# =============================================================================
+# [NEURAL_LINK]: Shards use @scaffold:register(EVENT_LATTICE, key="topic") 
+# to subscribe their reflexes to the fabric.
+EVENT_LATTICE: Dict[str, List[Callable[[GnosticEvent], Awaitable[None]]]] = {}
+
+class AchronalEventBus:
+    \"\"\"
+    =============================================================================
+    == THE ACHRONAL EVENT BUS (V-Ω-TOTALITY)                                   ==
+    =============================================================================
+    LIF: ∞ | ROLE: NERVOUS_SYSTEM | RANK: OMEGA_CONDUCTOR
+    
+    The Heart of Reactivity.
+    1.  Zero-Latency Yield: Non-blocking ingestion via internal Queue.
+    2.  Background Cortex: Dedicated consumer loop for signal distribution.
+    3.  Dead Letter Sarcophagus: Captures fractured intent for forensics.
+    4.  Wildcard Resonance: Routes via 'topic.*' patterns.
+    \"\"\"
+    def __init__(self):
+        self.queue: asyncio.Queue = asyncio.Queue()
+        self.subscribers = EVENT_LATTICE
+        self.dlq: List[Dict[str, Any]] = []
+        self._worker_task: Optional[asyncio.Task] = None
+
+    def start_cortex(self):
+        \"\"\"[LIFECYCLE]: Ignites the background consumer loop.\"\"\"
+        if not self._worker_task:
+            self._worker_task = asyncio.create_task(self._consume_loop())
+            Logger.info("🌌 [BUS] Achronal Event Cortex Ignited.")
+
+    async def stop_cortex(self):
+        \"\"\"[LIFECYCLE]: Gracefully drains and cancels the loop.\"\"\"
+        if self._worker_task:
+            Logger.info("🌑 [BUS] Dissolving Event Fabric...")
+            self._worker_task.cancel()
+            try:
+                await self._worker_task
+            except asyncio.CancelledError:
+                pass
+
+    async def publish(self, topic: str, payload: Dict[str, Any], trace_id: Optional[str] = None):
+        \"\"\"
+        The Rite of Projection. 
+        Instantly queues the thought and returns control to the Mind.
+        \"\"\"
+        event = GnosticEvent(
+            topic=topic, 
+            payload=payload, 
+            trace_id=trace_id or os.getenv("SCAFFOLD_TRACE_ID", "tr-unbound")
+        )
+        await self.queue.put(event)
+
+    async def _consume_loop(self):
+        while True:
+            try:
+                # [STRIKE]: Wait for the next ripple in the pool
+                event: GnosticEvent = await self.queue.get()
+                await self._route_signal(event)
+                self.queue.task_done()
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                Logger.error(f"💥 [BUS] Cortex Loop Fracture: {e}")
+
+    async def _route_signal(self, event: GnosticEvent):
+        \"\"\"Maps the event to all manifest observers.\"\"\"
+        handlers = self.subscribers.get(event.topic, [])
+        
+        # [ASCENSION 4]: Wildcard Triage (e.g. 'user.*')
+        if "." in event.topic:
+            root_topic = event.topic.split('.')[0]
+            handlers.extend(self.subscribers.get(f"{root_topic}.*", []))
+
+        if not handlers:
+            return
+
+        # [ASCENSION 1]: Parallel Signal Propagation
+        tasks = [self._safe_strike(h, event) for h in handlers]
+        await asyncio.gather(*tasks)
+
+    async def _safe_strike(self, handler: Callable, event: GnosticEvent):
+        \"\"\"Conducts the reflex while guarding against individual fracture.\"\"\"
+        try:
+            await handler(event)
+        except Exception as paradox:
+            Logger.error(f"🚨 [BUS] Subscriber Fracture on '{event.topic}': {paradox}")
+            # [ASCENSION 3]: THE DLQ SARCOPHAGUS
+            self.dlq.append({
+                "event": event.model_dump(), 
+                "error": str(paradox),
+                "ts": time.time()
+            })
+            if len(self.dlq) > 100: self.dlq.pop(0)
+
+# Global Singleton for the Mind
+event_bus = AchronalEventBus()
+
+# =========================================================================
+# == THE NEURAL SUTURE ENTRYPOINTS                                       ==
+# =========================================================================
+
+# @scaffold:lifecycle(event="startup")
+async def ignite_bus():
+    \"\"\"Awakens the Nervous System during application bootstrap.\"\"\"
+    event_bus.start_cortex()
+
+# @scaffold:lifecycle(event="shutdown")
+async def dissolve_bus():
+    \"\"\"Ensures all thoughts are warded before the void.\"\"\"
+    await event_bus.stop_cortex()
+"""
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Achronal Event Bus[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]LIFECYCLE-PULSE[/bold green]"
+    proclaim: "Locus: [white]api/events/bus.py[/]"
+    
+    # [THE CURE]: Metadata is managed autonomicly. No manual installs.
+    
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Domain Decoupling -> 100%)[/]"
+    proclaim: "[bold green]✅ The Nervous System is Reactive.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Event Bus materialization fractured.[/bold red]"

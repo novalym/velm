@@ -1,4 +1,4 @@
-# Path: scaffold/core/observatory/contracts.py
+# Path: velm/core/observatory/contracts.py
 # --------------------------------------------
 from enum import Enum
 from pathlib import Path

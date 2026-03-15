@@ -1,4 +1,4 @@
-# Path: scaffold/core/alchemist/__init__.py
+# Path: velm/core/alchemist/__init__.py
 # -----------------------------------------
 
 """

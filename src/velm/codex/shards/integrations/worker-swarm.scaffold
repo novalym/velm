@@ -1,0 +1,196 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: integrations/worker-swarm
+# ==============================================================================
+# @id:           integrations/worker-swarm
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Distributed Celery worker swarm backed by Redis with Flower dashboard for asynchronous processing.
+# @vibe:         [celery, worker, async, background-tasks, redis, distributed, swarm, queue]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:task-queue, capability:background-workers]
+# @requires:     [capability:python-core, capability:docker-engine]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["celery[redis]>=5.4.0", "redis>=5.0.1"]
+#   env:         ["CELERY_BROKER_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:
+#   docker:      { "services": { "worker": { "command": "celery worker" }, "flower": { "image": "mher/flower" } } }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "task-orchestrator"
+#   priority:    600
+#   alias:       "celery_swarm"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-swarm") }}
+$$ redis_url = {{ redis_url | default("redis://redis-vault:6379/0") }}
+$$ swarm_concurrency = {{ concurrency | default(8) }}
+$$ dashboard_port = {{ flower_port | default(5555) }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SWARM INFRASTRUCTURE ---
+
+infra/swarm/
+    # [ASCENSION 2]: THE SYNAPTIC MESH (Docker Compose)
+    docker-compose.swarm.yml :: """
+version: '3.8'
+services:
+  redis-vault:
+    image: redis:7-alpine
+    container_name: {{ project_slug }}-swarm-brain
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 512mb
+    ports:
+      - "6379:6379"
+    networks:
+      - gnostic_mesh
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+
+  worker:
+    build: 
+      context: ../../
+      dockerfile: infra/swarm/Dockerfile.worker
+    container_name: {{ project_slug }}-worker
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-{{ redis_url }}}
+      - ENVIRONMENT=production
+    env_file: ../../.env
+    depends_on:
+      redis-vault:
+        condition: service_healthy
+    networks:
+      - gnostic_mesh
+    deploy:
+      replicas: 2 
+      resources:
+        limits: { memory: 512M }
+
+  flower:
+    image: mher/flower:latest
+    container_name: {{ project_slug }}-flower
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-{{ redis_url }}}
+    ports:
+      - "{{ dashboard_port }}:5555"
+    networks:
+      - gnostic_mesh
+
+networks:
+  gnostic_mesh:
+    external: true
+    name: {{ project_slug }}_gnostic_mesh
+"""
+
+    # [ASCENSION 3]: THE WORKER VESSEL
+    Dockerfile.worker :: """
+FROM python:3.12-slim-bookworm
+WORKDIR /app
+RUN pip install poetry
+COPY pyproject.toml poetry.lock* ./
+RUN poetry config virtualenvs.create false && poetry install --no-root --only main
+COPY src /app/src
+ENV PYTHONUNBUFFERED=1
+CMD ["celery", "-A", "src.{{ package_name }}.worker.celery_app", "worker", "--loglevel=info", "--concurrency={{ swarm_concurrency }}"]
+"""
+
+# --- III. THE LOGIC STRATUM ---
+src/{{ package_name }}/worker/
+    __init__.py :: ""
+    
+    # [ASCENSION 4]: THE SWARM CONDUCTOR
+    celery_app.py :: """
+import os
+from celery import Celery
+from celery.schedules import crontab
+
+app = Celery(
+    '{{ project_slug }}',
+    broker=os.getenv('CELERY_BROKER_URL', '{{ redis_url }}'),
+    backend=os.getenv('CELERY_BROKER_URL', '{{ redis_url }}'),
+    include=['src.{{ package_name }}.worker.tasks']
+)
+
+app.conf.update(
+    task_serializer='json',
+    accept_content=['json'],
+    result_serializer='json',
+    timezone='UTC',
+    enable_utc=True,
+    beat_schedule={
+        'swarm-heartbeat-every-minute': {
+            'task': '{{ project_slug }}.heartbeat',
+            'schedule': 60.0,
+        },
+    }
+)
+"""
+
+    # [ASCENSION 7]: THE GNOSTIC TASKS
+    tasks.py :: """
+import time
+import logging
+from .celery_app import app
+
+Logger = logging.getLogger("Swarm:Task")
+
+@app.task(name="{{ project_slug }}.conduct_heavy_rite", bind=True, max_retries=3)
+def conduct_heavy_rite(self, payload: dict):
+    try:
+        Logger.info(f"🌀 [SWARM] Conducting Rite: {payload.get('rite_id')}...")
+        time.sleep(5) 
+        return {"status": "SUCCESS", "revelation": "Matter transfigured."}
+    except Exception as e:
+        Logger.error(f"❌ Rite fractured: {e}")
+        raise self.retry(exc=e, countdown=2 ** self.request.retries)
+
+@app.task(name="{{ project_slug }}.heartbeat")
+def swarm_heartbeat():
+    Logger.info("💓 [SWARM] Heartbeat: Resonant.")
+"""
+
+    dispatcher.py :: """
+from .celery_app import app as celery_app
+
+class SwarmDispatcher:
+    \"\"\"The Gnostic interface to the Worker Swarm.\"\"\"
+    @staticmethod
+    def dispatch(rite_name: str, payload: dict):
+        return celery_app.send_task(
+            "{{ project_slug }}.conduct_heavy_rite",
+            args=[{"rite_id": rite_name, **payload}]
+        )
+"""
+
+# --- IV. THE CONTROL PLANE ---
+Makefile += """
+
+# --- SWARM RITES ---
+swarm-up: ## ignite the Worker Swarm and its nervous system
+    @echo "🔭 Awakening the Multitude..."
+    @docker network create {{ project_slug }}_gnostic_mesh 2>/dev/null || true
+    @docker-compose -f infra/swarm/docker-compose.swarm.yml up -d
+    @echo "✅ Swarm manifest. Dashboard at http://localhost:{{ dashboard_port }}"
+
+swarm-down: ## return the Swarm to the void
+    @docker-compose -f infra/swarm/docker-compose.swarm.yml down
+
+swarm-logs: ## gaze upon the swarm's collective consciousness
+    @docker-compose -f infra/swarm/docker-compose.swarm.yml logs -f worker
+"""
+
+# --- V. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Worker Swarm[/bold cyan] is materializing."
+    
+    >> mkdir -p infra/swarm src/{{ package_name }}/worker
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Blocking I/O -> 0)[/]"
+    proclaim: "[bold green]The project now possesses a distributed, asynchronous soul.[/bold green]"
+    proclaim: "To ignite the multitude: [bold cyan]make swarm-up[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Swarm inception fractured.[/bold red] Reality remains synchronous."
+

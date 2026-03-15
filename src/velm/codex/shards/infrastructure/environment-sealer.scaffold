@@ -1,0 +1,178 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: infrastructure/environment-sealer
+# ==============================================================================
+# @id:           infrastructure/environment-sealer
+# @version:      3.0.0
+# @tier:         mind
+# @summary:      Pydantic-Settings environment constitution, secret masking, and leak-sentinel validation.
+# @vibe:         [env, secrets, pydantic-settings, dotenv, security, config, validation]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:environment-management, capability:secrets-ward]
+# @requires:     [capability:python-core]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["pydantic-settings>=2.2.0", "python-dotenv>=1.0.1", "rich>=13.7.0"]
+#   env:         ["ENVIRONMENT", "SECRET_KEY", "DATABASE_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:    {}
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "config-module"
+#   priority:    100
+#   alias:       "env_sealer"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+# [ASCENSION 1]: The Vows of Security
+$$ default_port = {{ port | default(8000) }}
+$$ project_slug = {{ project_slug | default('secret-keeper') }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Security Citadel) ---
+
+# [ASCENSION 2]: THE KERNEL CONFIGURATION
+# Wards the `.env` file from ever touching the Gnostic Chronicle (Git).
+.gitignore += """
+# == The Abyss (Warded by the Gnostic Veil) ==
+.env
+.env.*
+!.env.example
+"""
+
+# [ASCENSION 3]: THE BLUEPRINT OF GNOSIS
+# The public-facing scripture that proclaims the required secrets.
+.env.example :: """
+# =============================================================================
+# == GNOSTIC SECRETS MANIFEST: {{ project_slug | upper }}
+# =============================================================================
+# This file defines the required DNA for the application.
+# Copy to .env and inscribe the true values.
+
+# --- System Vitals ---
+ENVIRONMENT=development
+LOG_LEVEL=INFO
+PORT={{ default_port }}
+
+# --- Persistence Stratum ---
+DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/{{ package_name }}
+
+# --- Gnostic Integrity (Security) ---
+# Forge high-entropy keys via 'make secrets'
+SECRET_KEY=
+"""
+
+# [ASCENSION 5]: THE MAESTRO CONTROL PLANE
+Makefile += """
+
+# --- GNOSTIC VEIL RITES ---
+secrets: ## forge new high-entropy secrets in the .env vault
+    @echo "⚒️  Transmuting entropy into secrets..."
+    @poetry run python scripts/security/forge_keys.py
+
+verify-env: ## adjudicate the current .env against the Gnostic Conscience
+    @echo "🔍 Validating environment DNA..."
+    @poetry run python -m {{ package_name }}.core.config
+"""
+
+# [ASCENSION 6]: THE SOURCE CODE (The Conscience & The Hand)
+src/{{ package_name }}/core/
+    config.py :: """
+import logging
+from pydantic import Field, ValidationError, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from rich.console import Console
+from rich.panel import Panel
+
+console = Console()
+
+class Settings(BaseSettings):
+    \"\"\"
+    =============================================================================
+    == THE GNOSTIC CONSCIENCE (V-Ω-TOTALITY)                                   ==
+    =============================================================================
+    Enforces the Law of the Environment. If a secret is unmanifest, reality 
+    collapses to prevent profane execution.
+    \"\"\"
+    ENVIRONMENT: str = Field("development", pattern="^(development|production|staging)$")
+    SECRET_KEY: SecretStr
+    DATABASE_URL: str
+    
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore"
+    )
+
+def scry_settings() -> Settings:
+    try:
+        return Settings()
+    except ValidationError as e:
+        console.print(Panel(f"[bold red]ENVIRONMENTAL HERESY DETECTED[/]\\n\\n{e}", title="[bold red]FATAL_FRACTURE[/]", border_style="red"))
+        import sys; sys.exit(1)
+
+settings = scry_settings()
+"""
+
+scripts/security/
+    forge_keys.py :: """
+    import secrets
+    from pathlib import Path
+    
+    def forge():
+        env_path = Path(".env")
+        if not env_path.exists():
+            Path(".env.example").read_text()
+            env_path.write_text(Path(".env.example").read_text())
+        
+        content = env_path.read_text()
+        if "SECRET_KEY=" in content and not content.endswith("SECRET_KEY="):
+             print("⚠️  SECRET_KEY already manifest.")
+        else:
+             new_key = secrets.token_urlsafe(32)
+             new_content = content.replace("SECRET_KEY=", f"SECRET_KEY={new_key}")
+             env_path.write_text(new_content)
+             print("✨ SECRET_KEY forged.")
+    
+    if __name__ == "__main__": forge()
+    """
+
+    # [ASCENSION 7]: THE LEAK SENTINEL
+    leak_sentinel.py :: """
+    import sys
+    from pathlib import Path
+
+    def audit():
+        gitignore = Path(".gitignore")
+        if not gitignore.exists() or ".env" not in gitignore.read_text():
+            print("::error ::CRITICAL SECURITY FRACTURE: .env is not in .gitignore!")
+            sys.exit(1)
+        print("✅ [SENTINEL] .env is shielded by .gitignore.")
+
+    if __name__ == "__main__": audit()
+    """
+
+# --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+%% post-run
+    proclaim: "The [bold cyan]Environment Sealer[/bold cyan] is manifest."
+    proclaim: "Gnostic Conscience: [white]core/config.py[/]"
+    
+    # 1. Materialize .env
+    proclaim: "Materializing the local Vault (.env)..."
+    @if {{ not file_exists('.env') }}
+        >> cp .env.example .env
+    @endif
+    
+    # 2. Security Audit
+    proclaim: "Conducting Leak Sentinel Inquest..."
+    >> python scripts/security/leak_sentinel.py
+    ?? succeeds
+
+    # 3. Final Proclamation
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Accidental Secret Leak -> 0)[/]"
+    proclaim: "[bold green]✅ The Gnostic Veil is Active.[/bold green]"
+    proclaim: "To forge cryptography keys: [bold cyan]make secrets[/bold cyan]"
+
+%% on-heresy
+    proclaim: "[bold red]Sealer Inception Fractured.[/bold red] Secrets remain vulnerable."
+    >> rm -rf scripts/security/

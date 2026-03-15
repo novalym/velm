@@ -65,7 +65,7 @@ class PathDetector(BaseDetector):
     RX_INVISIBLE_SPACE = re.compile(r'[\u200B-\u200D\uFEFF]')
 
     # [ASCENSION 5]: Variable-Aware Path Logic
-    RX_JINJA_VAR = re.compile(r'\{\{.*?\}\}')
+    RX_SGF_VAR = re.compile(r'\{\{.*?\}\}')
     RX_ABSOLUTE_ANCHOR = re.compile(r'^([a-zA-Z]:|[\\/])')
 
     def detect(self, content: str, variables: Dict, items: List[ScaffoldItem],
@@ -200,7 +200,7 @@ class PathDetector(BaseDetector):
                 if not segment: continue
 
                 # Strip variables for static check
-                static_segment = self.RX_JINJA_VAR.sub('', segment)
+                static_segment = self.RX_SGF_VAR.sub('', segment)
                 if not static_segment: continue
 
                 stem = static_segment.split('.')[0].upper()
@@ -244,7 +244,7 @@ class PathDetector(BaseDetector):
             if not item.is_dir and '.' in segments[-1]:
                 # Scripture check (Snake Case)
                 filename = segments[-1].split('.')[0]
-                if not filename.islower() and '_' not in filename and not self.RX_JINJA_VAR.search(filename):
+                if not filename.islower() and '_' not in filename and not self.RX_SGF_VAR.search(filename):
                     diagnostics.append(self._forge_diagnostic(
                         key="STYLISTIC_HERESY_PATH",
                         line=line_idx,

@@ -48,7 +48,7 @@ class VaultHandler(BaseRiteHandler):
     8.  **Achronal Trace ID Suture:** Permanent binding of the distributed
         trace_id to the vault interaction for forensic audit.
     9.  **JIT Variable Hydration:** Allows the use of `@vault("name")` inside
-        Jinja2 templates, with the handler performing the alchemical resolution.
+        SGF templates, with the handler performing the alchemical resolution.
     10. **Typo-Resistant Normalization:** Automatically heals malformed pleas
         (e.g. '@vault( KEY )' -> 'KEY').
     11. **Metabolic Tax Metering:** Measures the duration of the scry and

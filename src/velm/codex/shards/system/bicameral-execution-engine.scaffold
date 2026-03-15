@@ -1,0 +1,97 @@
+# ==============================================================================
+# == GNOSTIC DNA SHARD: system/bicameral-execution-engine
+# ==============================================================================
+# @id:           system/bicameral-execution-engine
+# @version:      3.0.0
+# @tier:         body
+# @summary:      A schema evolution engine utilizing Alembic to bridge the Gnostic Mind (Models) with the Iron (Database Substrate).
+# @vibe:         [migration, alembic, evolution, database, schema, postgres, sql]
+# ------------------------------------------------------------------------------
+# @provides:     [capability:schema-evolution, capability:database-migration]
+# @requires:     [capability:python-core, capability:persistence-layer]
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["alembic>=1.13.0", "asyncpg>=0.29.0"]
+#   env:         ["DATABASE_URL"]
+# ------------------------------------------------------------------------------
+# @substrate:    { "agnostic": true }
+# ------------------------------------------------------------------------------
+# @suture:
+#   role:        "migration-engine"
+#   priority:    200
+#   alias:       "bicameral_engine"
+# ==============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ project_slug = {{ project_slug | default("omega-core") }}
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ db_url = {{ db_url | default("postgresql+asyncpg://gnostic:manifest@localhost:5432/reality") }}
+
+# --- II. THE SCRIPTURE OF FORM (The Migration Core) ---
+
+alembic.ini :: """
+[alembic]
+script_location = migrations
+prepend_sys_path = .
+version_locations = %(here)s/migrations/versions
+sqlalchemy.url = {{ db_url }}
+
+[logging]
+default_level = INFO
+"""
+
+migrations/
+    # [ASCENSION 3]: THE BICAMERAL BRIDGE
+    env.py :: """
+import os
+import sys
+from logging.config import fileConfig
+from sqlalchemy import engine_from_config, pool
+from alembic import context
+
+# Spatial Re-anchoring
+sys.path.insert(0, os.getcwd())
+from src.{{ package_name }}.core.database import Base # The Linker ensures this exists
+
+config = context.config
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+target_metadata = Base.metadata
+
+def run_migrations_online():
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    with connectable.connect() as connection:
+        context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
+        with context.begin_transaction():
+            context.run_migrations()
+
+run_migrations_online()
+"""
+
+# --- III. THE KINETIC LIMBS ---
+scripts/
+    evolve_reality.sh :: """
+#!/bin/bash
+set -e
+echo "🌀 [TITAN] Initiating Bicameral Evolution..."
+read -p "Proclaim migration reason: " REASON
+alembic revision --autogenerate -m "$REASON"
+alembic upgrade head
+echo "✅ [RESONANT] Physical schema in parity with the Gnostic Mind."
+"""
+    %% 755
+
+# --- IV. THE MAESTRO'S WILL ---
+%% post-run
+    proclaim: "The [bold cyan]Bicameral Evolution Engine[/bold cyan] is manifest."
+    proclaim: "Migration Locus: [white]migrations/[/]"
+    
+    >> mkdir -p migrations/versions
+    
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Schema Drift -> 0)[/]"
