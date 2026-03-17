@@ -133,7 +133,7 @@ class HeuristicGrimoire:
         # =========================================================================
         # [ASCENSION 25]: We perform a secondary NER scan but righteously merge it
         # with the 'Willed Gnosis' from the Conductor. Will always overrules Matter.
-        extracted_vars = self.ner.extract(prompt)
+        extracted_vars = self.ner.scry(prompt)
         if willed_gnosis:
             # Shield the willed identity from clobbering
             for key, val in willed_gnosis.items():

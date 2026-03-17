@@ -26,8 +26,6 @@ if TYPE_CHECKING:
 # =========================================================================================
 # == THE PANTHEON OF SPECIALIZED HANDLERS (THE CURE)                                     ==
 # =========================================================================================
-# Architect, these imports are now mathematically verified to exist within the
-# `scaffold_scribes/directive_scribe/handlers/` directory.
 try:
     from .handlers.base import BaseDirectiveHandler
     from .handlers.macro import MacroHandler
@@ -132,6 +130,7 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
     _IS_WARMED = False
 
     # [ASCENSION 3]: ZERO-ALLOCATION FAST PATHS
+    # Directives that definitively take zero arguments.
     ZERO_ARG_DIRECTIVES: Final[Set[str]] = {
         'else', 'endif', 'endfor', 'endmacro', 'endtask', 'endagent',
         'endtest', 'endfunc', 'endvow', 'catch', 'finally', 'endtry'
@@ -174,8 +173,7 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
 
             # Consecrate the Pantheon Classes into the Global Cache
             cls._register_class(['macro', 'endmacro', 'call', 'return'], MacroHandler)
-            cls._register_class(
-                ['if', 'elif', 'else', 'endif', 'for', 'endfor', 'break', 'continue', 'try', 'catch', 'finally',
+            cls._register_class(['if', 'elif', 'else', 'endif', 'for', 'endfor', 'break', 'continue', 'try', 'catch', 'finally',
                  'endtry'], LogicHandler)
             cls._register_class(['import', 'from'], ImportHandler)
             cls._register_class(['task', 'endtask', 'needs', 'cache', 'matrix', 'pipeline'], TaskHandler)
@@ -184,8 +182,7 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
             cls._register_class(['test', 'endtest', 'assert', 'vow', 'assert_file', 'assert_var', 'mock', 'snapshot'],
                                 TestHandler)
             cls._register_class(['py_func', 'endfunc', 'inject_vow', 'endvow'], PythonHandler)
-            cls._register_class(
-                ['message', 'msg', 'warn', 'error', 'success', 'todo', 'filter', 'weave', 'tag', 'stamp', 'uuid',
+            cls._register_class(['message', 'msg', 'warn', 'error', 'success', 'todo', 'filter', 'weave', 'tag', 'stamp', 'uuid',
                  'seed', 'calc', 'push', 'merge', 'alias', 'mask', 'type', 'case', 'require_env', 'pause', 'bell',
                  'copy', 'open', 'debug'], MetaHandler)
 
@@ -213,7 +210,7 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
 
         raw_directive = vessel.directive_type.lower().strip()
 
-        # [ASCENSION 15]: Isomorphic Directive Transmutation
+        #[ASCENSION 15]: Isomorphic Directive Transmutation
         directive = "elif" if raw_directive == "elseif" else raw_directive
 
         line_num = i + 1 + self.parser.line_offset
@@ -222,7 +219,7 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
         trace_id = getattr(self.parser, 'trace_id', 'tr-unbound')
 
         # --- MOVEMENT I: THE LOCAL CACHE PROBE ---
-        # [ASCENSION 9]: Zero locks. Pure dictionary retrieval.
+        #[ASCENSION 9]: Zero locks. Pure dictionary retrieval.
         handler = self._local_handlers.get(directive)
 
         if handler:
@@ -244,7 +241,7 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
                 # --- MOVEMENT II: ATOMIC ARGUMENT LEXING ---
                 # [ASCENSION 3]: Fast-path for known parameter-less directives
                 if directive in self.ZERO_ARG_DIRECTIVES:
-                    args = []
+                    args =[]
                 else:
                     # Strip the directive prefix safely
                     raw_scrip = vessel.raw_scripture.strip()
@@ -266,10 +263,10 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
 
                 # --- MOVEMENT IV: METABOLIC TOMOGRAPHY ---
                 duration_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
-                if self.Logger.is_verbose and duration_ms > 5.0 and not getattr(self.parser, '_silent', False):
+                if self.Logger.is_verbose and duration_ms > 10.0 and not getattr(self.parser, '_silent', False):
                     self.Logger.debug(f"L{line_num}: Scaffold @{directive} expanded in {duration_ms:.2f}ms.")
 
-                # [ASCENSION 17]: Merkle-State Evolution Sieve
+                #[ASCENSION 17]: Merkle-State Evolution Sieve
                 if hasattr(self.parser, '_evolve_state_hash'):
                     self.parser._evolve_state_hash(f"scaffold_directive_{directive}")
 
@@ -295,7 +292,7 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
         heal the string by appending the missing quote before giving up.
         """
         if not args_str or not args_str.strip():
-            return []
+            return[]
 
         clean_args_str = args_str.strip()
 
@@ -303,7 +300,7 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
         if clean_args_str in self.__class__._GLOBAL_SHLEX_CACHE:
             return self.__class__._GLOBAL_SHLEX_CACHE[clean_args_str]
 
-        args = []
+        args =[]
 
         # Scenario A: Function-style invocation -> @macro("arg1", "arg2")
         if '(' in clean_args_str and clean_args_str.endswith(')'):
@@ -352,7 +349,7 @@ class ScaffoldDirectiveScribe(ScaffoldBaseScribe):
         Forges a high-status Heresy from a failed handler strike, preventing a
         full Kernel panic and allowing the parsing to continue.
         """
-        # [ASCENSION 13]: Respect silent flags during sub-parser nested weaves
+        #[ASCENSION 13]: Respect silent flags during sub-parser nested weaves
         if not getattr(self.parser, '_silent', False):
             self.Logger.critical(f"L{line_num}: Scaffold Directive '@{directive}' shattered: {error}")
 

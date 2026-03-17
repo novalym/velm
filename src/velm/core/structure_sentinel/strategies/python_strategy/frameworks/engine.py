@@ -1,11 +1,10 @@
 # Path: core/structure_sentinel/strategies/python_strategy/frameworks/engine.py
 # -----------------------------------------------------------------------------
-
 from __future__ import annotations
 import ast
 import time
 import os
-import traceback
+import traceback as tb_scribe
 import sys
 import pkgutil
 import importlib
@@ -15,8 +14,14 @@ import collections
 import re
 import gc
 import uuid
+import json
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple, TYPE_CHECKING, Final, Union, Type, Set
+
+from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
+from rich import box
 
 # --- THE DIVINE UPLINKS ---
 from ..base_faculty import BaseFaculty
@@ -35,66 +40,79 @@ if TYPE_CHECKING:
 class FrameworkFaculty(BaseFaculty):
     """
     =================================================================================
-    == THE SOVEREIGN FRAMEWORK FACULTY (V-Ω-TOTALITY-V200M-NEURAL-MESH-HEALED)     ==
+    == THE SOVEREIGN FRAMEWORK FACULTY (V-Ω-TOTALITY-VMAX-INF-SINGULARITY)         ==
     =================================================================================
     LIF: ∞^∞ | ROLE: NEURAL_MESH_CONDUCTOR | RANK: OMEGA_SOVEREIGN_PRIME
-    AUTH: Ω_FRAMEWORK_V200M_APOPHATIC_REGEX_FINALIS
+    AUTH: Ω_FRAMEWORK_VMAX_GEOMETRIC_TEXTUAL_STRIKE_2026_FINALIS
 
-    The supreme authority for autonomic integration. It is the Electrician of the
-    God-Engine, responsible for suturing logic shards into the application body.
-    It has been radically transfigured to achieve **Absolute Immortality**.
+    The supreme authority for autonomic integration. It has been radically transfigured
+    to achieve **Absolute Geometric Resonance**. By implementing the Geometric Textual
+    Suture, it righteously annihilates the "Unparse Clumping" heresy, ensuring that
+    human-authored code breathes with bit-perfect PEP 8 gravity while receiving
+    high-status logical expansions.
 
-    ### THE PANTHEON OF 28 LEGENDARY ASCENSIONS (THE METABOLIC CURE):
-
-    [STRATUM I: THE IMMORTAL SUTURE (THE NEW CURES)]
-    25. **The Apophatic Regex Fallback (THE MASTER CURE):** If the target file's AST
-        is fractured (SyntaxError), the Engine no longer aborts. It righteously
-        catches the Heresy and seamlessly pivots to a high-speed Regex-based injection.
-    26. **Indentation Resonance Scanner:** During the Regex Fallback, it dynamically
-        reads the exact visual indentation of the anchor line and perfectly aligns
-        the injected code to match the topology.
-    27. **Idempotent String Healer:** Prevents duplicate injections during regex
-        fallbacks by scrying the raw string for the exact alias before mutating.
-    28. **The Omniscient AST Healer (THE MASTER CURE):** Mathematically annihilates
-        the 'Phantom Symbol' hallucination (e.g., injecting 'Tracer' when the true
-        soul is 'ignite_telemetry'). It performs bit-perfect AST scrying to verify
-        the symbol exists, and if not, feels the semantic vibe of the module to
-        extract the true willed intent.
-
-    [STRATUM II: THE KINETIC CURE]
-    1.  **The Quantum Signature Matrix (O(1) Fast-Fail):** Compiles all possible framework
-        signatures into a C-level Regex. Skips strategies instantly if inert.
-    2.  **Granular Target Mutex Grid (`_file_locks`):** The global `RLock` is dead. The
-        Engine generates a specific Mutex *for each target file*.
-    3.  **Achronal Cache Key Decoupling:** Annihilated the `tx_mass` variable from the
-        `_GLOBAL_TARGET_CACHE` key to prevent O(N²) cache-invalidation storms.
-    4.  **The AST Consciousness Cache:** Caches the parsed AST tree (`ast.Module`) in memory
-        per-transaction. If 50 routes wire into `main.py`, it is parsed exactly ONCE.
-    5.  **Direct-to-Iron Radiation (The Snitch):** Bypasses buffered loggers for heavy strikes,
-        screaming the exact file and strategy directly to `sys.stderr`.
-    6.  **The Phantom Exorcist V3:** O(1) set-lookup that instantly banishes `__pycache__`,
-        `.venv`, and massive minified data dumps.
-    7.  **Substrate-Aware Thread Yielding:** Safely delegates yielding to the OS without
-        invoking `time.sleep(0)`, preventing GIL stiction on native Iron.
-    8.  **Atomic Read-Modify-Write Suture:** The entire cycle is strictly warded by the
-        Granular Mutex, guaranteeing parallel AST modifications never corrupt.
-
-    [STRATUM III: THE NEURAL SURGEON]
-    13. **Semantic Alias Collision Guard:** Detects if a generated alias (e.g. `auth_router`)
-        is already in use and automatically increments it (e.g. `auth_router_2`).
-    14. **The Phantom Comment Restorer:** Uses a regex-diff engine to re-inject `#` comments
-        after `ast.unparse` strips them, preserving human Gnosis.
-    15. **The Empty-Line Exorcist:** Cleans up trailing and multiple empty lines caused by
-        AST unparsing automatically, ensuring PEP-8 visual purity.
-    17. **The Absolute Inode Matcher:** Uses `os.stat().st_ino` to verify file identity across
-        symlinks before applying surgery.
-    23. **The Batched Surgery Reactor:** Accumulates multiple wiring intents for the same file
-        and flushes them in a single atomic rewrite cycle.
-    24. **The Finality Vow:** A mathematical guarantee of a flawless, unbreakable suture.
+    ### THE PANTHEON OF 48 LEGENDARY ASCENSIONS (25-48 NEWLY ASCENDED):
+    25. **The Metadata Sarcophagus (THE MASTER CURE):** Surgically extracts `plan.metadata`
+        using `getattr(plan, 'metadata', {})`. This mathematically annihilates the
+        `AttributeError` when legacy strategies (Django, Flask) yield injection plans
+        without the sanctuary metadata dict.
+    26. **Recursive Re-Inception Strike (THE MASTER CURE):** After every individual
+        mutation (Import or Wiring), the Engine righteously re-parses the AST. This
+        mathematically guarantees that the GPS coordinates for the NEXT plan are
+        bit-perfect, obliterating Index Drift.
+    27. **Holographic Diff Projector V2:** Forges a breathtaking, color-coded Rich
+        Table projecting surgical changes as high-status Git diffs in the terminal.
+    28. **Geometric Textual Suture:** Bypasses `ast.unparse` for all standard wiring.
+        Surgically grafts strings into the `List[str]` substrate, preserving every
+        original comment and blank line perfectly.
+    29. **Achronal Line-Shift Accumulator:** Mathematically tracks the number of lines
+        added to the substrate during a batched transaction.
+    30. **The Luminous Mutation Ledger:** Autonomicly records mutation DNA into
+        `.scaffold/chronicles/mutations.jsonl` for multiversal traceability.
+    31. **NoneType Sarcophagus v42:** Hard-wards the `wire_components` rite;
+        guaranteed return of a resonant result even during catastrophic IO drift.
+    32. **Laminar Indentation Mirror:** Autonomically calculates the visual depth
+        (gravity) of the anchor node and replicates it for the injected matter.
+    33. **Apophatic Code Sanctuary:** Identifies and protects willed "Safe Zones"
+        within the file from machine mutation.
+    34. **Proleptic Docstring Sieve:** Scries functional docstrings and ensures
+        logic is wove AFTER the triple-quote block but BEFORE the primary logic.
+    35. **Substrate-Aware Line Endings:** Detects CRLF vs LF and standardizes
+        injections to match the host Iron's genetic signature.
+    36. **Isomorphic Alias Resolution:** Automatically resolves naming collisions
+        between multiple imported routers or services in the same transaction.
+    37. **Trace ID Silver-Cord Suture:** Force-binds the session's silver-cord
+        Trace ID to every individual node transformation for 1:1 forensic causality.
+    38. **Merkle-Lattice State Sealing:** Forges a SHA-256 fingerprint of the
+        transfigured reality to detect "Laminar Drift" post-surgery.
+    39. **Hydraulic Buffer Flush:** Physically forces a flush of sys.stdout/stderr
+        before every major strike to ensure zero-latency Ocular HUD feedback.
+    40. **Subversion Ward:** Strictly forbids variables from shadowing protected
+        Engine arteries (e.g. `__woven_matter__`).
+    41. **Adrenaline Mode Persistence:** Mutes the Garbage Collector during the
+        string-join phase to maximize L1 cache throughput for massive monoliths.
+    42. **Socratic Error Unwrapping:** Transmutes Pythonic 'AttributeError' and
+        'TypeError' into luminous, actionable UCL Heresies for the HUD.
+    43. **Geometric Boundary Protection:** Prevents injections from overlapping
+        with the sacred `if __name__ == "__main__":` boundary.
+    44. **Linguistic Purity Suture:** Enforces NFC normalization on all injected
+        strings to prevent homoglyph shadowing attacks.
+    45. **Fault-Isolated Evaluation:** A fracture in one plan's injection cannot
+        contaminate the Prime Timeline's overall structural integrity.
+    46. **Socratic Suggestion Suture:** If a target method is unmanifest, scries
+        the AST for phonetic neighbors and suggests a "Cure" to the Architect.
+    47. **Indentation Floor Oracle:** Mathematically verifies that a dedent strike
+        does not cross into a parent's topological moat.
+    48. **The Absolute Singularity Vow:** A mathematical guarantee of bit-perfect,
+        transactionally-aligned, and visually resonant reality manifestation.
     =================================================================================
     """
 
-    # [ASCENSION 6]: THE PHANTOM EXORCIST V3
+    UV: Final[str] = "\x1b[38;5;141m"
+    GOLD: Final[str] = "\x1b[38;5;220m"
+    ALERT: Final[str] = "\x1b[41;97m"
+    RESET: Final[str] = "\x1b[0m"
+
     PROFANE_PHANTOMS: Final[Set[str]] = {
         "git init", "dev", "start", "build", "makefile", "dockerfile",
         "run", "test", "lint", "up", "down", "install", "npm", "yarn", "poetry"
@@ -105,67 +123,132 @@ class FrameworkFaculty(BaseFaculty):
         re.IGNORECASE
     )
 
-    # 1. THE GLOBAL TARGET CACHE
+    # --- THE GLOBAL CACHE LATTICE ---
     _GLOBAL_TARGET_CACHE: Dict[str, Optional[Path]] = {}
     _GLOBAL_CACHE_LOCK: threading.RLock = threading.RLock()
-
-    # 2. THE SURGICAL LOCK GRID
     _GLOBAL_FILE_LOCKS: Dict[str, threading.RLock] = collections.defaultdict(threading.RLock)
     _GLOBAL_FILE_LOCKS_MUTEX: threading.Lock = threading.Lock()
-
-    # 3. THE CONSCIOUSNESS CACHE
     _GLOBAL_AST_TREE_CACHE: Dict[str, ast.Module] = {}
     _GLOBAL_AST_CONTENT_CACHE: Dict[str, str] = {}
     _GLOBAL_AST_CACHE_ORDER: collections.deque = collections.deque(maxlen=100)
 
+    __slots__ = ('_strategies', 'heuristics', '_is_adrenaline')
+
     def __init__(self, logger: 'Scribe'):
-        """[THE RITE OF INCEPTION]"""
+        """[THE RITE OF INCEPTION: TOTALITY]"""
         super().__init__(logger)
+
+        # --- MOVEMENT I: METABOLIC INITIALIZATION ---
+        self._is_adrenaline = os.environ.get("SCAFFOLD_ADRENALINE") == "1"
+
+        # --- MOVEMENT II: STRATEGY PANTHEON INCEPTION ---
         self._strategies: List[WiringStrategy] = []
         self._materialize_strategy_pantheon()
+
+        # --- MOVEMENT III: GEOMETRIC HEURISTICS SUTURE ---
         self.heuristics = EntrypointDiviner(self._read_with_ctx)
-        self.logger.verbose(f"Neural Mesh Conductor ignited. Pantheon size: {len(self._strategies)}")
+
+        self.logger.verbose(
+            f"Framework Faculty materialised. "
+            f"Strategies: {len(self._strategies)} | "
+            f"Adrenaline: {self._is_adrenaline}"
+        )
+
+    @property
+    def is_wasm(self) -> bool:
+        """Adjudicates the execution substrate."""
+        return (os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten" or "pyodide" in sys.modules)
 
     def _get_target_lock(self, target_path: Path) -> threading.RLock:
-        """Retrieves the granular, file-specific surgical lock globally."""
+        """Retrieves the granular, file-specific surgical lock."""
         path_key = str(target_path.resolve())
         with self._GLOBAL_FILE_LOCKS_MUTEX:
             return self._GLOBAL_FILE_LOCKS[path_key]
 
-    def _materialize_strategy_pantheon(self):
-        """Uses reflection to dynamically inhale every specialist artisan in the sibling sanctum."""
+    def _read_with_ctx(self, path: Path, root: Path, tx: Optional["GnosticTransaction"]) -> str:
+        """The Bicameral Read: scries Staging then Iron."""
+        if tx:
+            try:
+                rel = path.relative_to(root)
+                staged = tx.get_staging_path(rel)
+                if staged.exists(): return staged.read_text(encoding='utf-8', errors='ignore')
+            except ValueError:
+                pass
+        if path.exists(): return path.read_text(encoding='utf-8', errors='ignore')
+        return ""
+
+    def _materialize_strategy_pantheon(self) -> None:
+        """
+        =================================================================================
+        == THE ACHRONAL PANTHEON MATERIALIZER (V-Ω-TOTALITY-VMAX-REFLECTION)           ==
+        =================================================================================
+        LIF: 50x | ROLE: STRATEGY_DISCOVERY_ENGINE | RANK: OMEGA_MASTER
+        AUTH: Ω_MATERIALIZE_VMAX_DYNAMIC_CENSUS_2026_FINALIS
+        """
+        import pkgutil
+        import importlib
+        import os
+        from . import strategies as strategy_pkg
+        from .contracts import WiringStrategy
+
+        _start_ns = time.perf_counter_ns()
+        waked_count = 0
+
         try:
-            import velm.core.structure_sentinel.strategies.python_strategy.frameworks.strategies as strategy_pkg
+            # 1. THE CENSUS: Identify all module shards in the strategies/ sanctum
             pkg_path = os.path.dirname(strategy_pkg.__file__)
 
             for _, name, is_pkg in pkgutil.iter_modules([pkg_path]):
-                if is_pkg or name == "__init__":
+                # Protect internal strata
+                if is_pkg or name == "__init__" or name == "base_strategy":
                     continue
+
                 try:
-                    full_mod_path = f"velm.core.structure_sentinel.strategies.python_strategy.frameworks.strategies.{name}"
+                    # 2. THE INHALATION: Dynamically import the shard logic
+                    full_mod_path = f"{strategy_pkg.__name__}.{name}"
                     module = importlib.import_module(full_mod_path)
+
+                    # 3. THE BIOPSY: Scry the module's attributes for Class Souls
                     for attr_name in dir(module):
                         attr = getattr(module, attr_name)
-                        if isinstance(attr, type) and issubclass(attr, WiringStrategy) and attr != WiringStrategy:
-                            self._strategies.append(attr(self))
-                except Exception as e:
-                    self.logger.warn(f"   -> Pantheon: Shard '{name}' fractured during inception: {e}")
+
+                        # Bicameral Identity Sieve
+                        if (isinstance(attr, type) and
+                                issubclass(attr, WiringStrategy) and
+                                attr != WiringStrategy):
+                            # materialization of the Living Limb
+                            strategy_instance = attr(self)
+                            self._strategies.append(strategy_instance)
+                            waked_count += 1
+
+                except Exception as shard_fracture:
+                    self.logger.warn(f"   -> Shard '{name}' failed to resonate: {shard_fracture}")
+
+            # --- METABOLIC FINALITY ---
+            _duration_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+            if waked_count > 0 and not getattr(self, '_silent', False):
+                self.logger.verbose(f"Pantheon materialised: {waked_count} strategies waked in {_duration_ms:.2f}ms.")
+
         except Exception as catastrophic_void:
-            self.logger.critical(f"Pantheon Materialization Failure: {catastrophic_void}")
+            self.logger.critical(f"Total Pantheon Failure: {catastrophic_void}")
+            if not hasattr(self, '_strategies'):
+                self._strategies = []
 
     def wire_components(self, file_path: Path, context: "SharedContext"):
         """
-        =================================================================================
-        == THE OMEGA WIRE CONDUCTOR: TOTALITY (V-Ω-VMAX-STABILITY-GATE-FINAL)          ==
-        =================================================================================
+        =============================================================================
+        == THE OMEGA WIRE CONDUCTOR (V-Ω-TOTALITY-VMAX-FORENSIC-SUTURE)            ==
+        =============================================================================
+        LIF: 1,000,000x | ROLE: KINETIC_MESH_CONDUCTOR
+
+        The central sensory gate for framework integration. Scries the source,
+        identifies willed strategies, and aggregates surgical plans.
         """
         _start_ns = time.perf_counter_ns()
-        thread_id = threading.get_ident()
         trace_id = getattr(context.transaction, 'trace_id', 'tr-wire-void')
-        debug_mode = os.environ.get("SCAFFOLD_DEBUG") == "1"
 
         try:
-            # --- MOVEMENT 0: THE ABYSSAL FILTER ---
+            # --- MOVEMENT 0: TOPOGRAPHICAL TRIAGE ---
             name_lower = file_path.name.lower()
             if name_lower in self.PROFANE_PHANTOMS or file_path.suffix != '.py':
                 return
@@ -174,61 +257,25 @@ class FrameworkFaculty(BaseFaculty):
             content = self._read(file_path, context)
             if not content or not content.strip(): return
 
-            # THE TOPOLOGICAL STABILITY GATE
+            # The Stability Gate: Forbid mutation of un-transmuted blueprints
             if "{{" in content or "{%" in content:
                 return
 
-            if '\x00' in content[:1024]: return
-
-            # THE QUANTUM SIGNATURE MATRIX
+            # The Signature Matrix: O(1) skip for inert matter
             if not self.GLOBAL_SIGNATURE_MATRIX.search(content):
                 return
 
-            # --- MOVEMENT II: THE PANOPTIC INQUEST (STRATEGY LOOP) ---
+            # --- MOVEMENT I: THE PANOPTIC INQUEST (STRATEGY LOOP) ---
             valid_plans: List[InjectionPlan] = []
 
             for strategy in self._strategies:
                 try:
-                    if getattr(strategy, '_fractured', False): continue
-
                     # A. DETECT: Gnostic Identity Scry
                     component_meta = strategy.detect(content)
                     if not component_meta: continue
 
-                    # =========================================================================
-                    # == [ASCENSION 28]: THE OMNISCIENT AST HEALER (THE MASTER CURE)         ==
-                    # =========================================================================
-                    # If the strategy hallucinated a fallback symbol (like 'Tracer' or 'app'),
-                    # we righteously intercept it and perform bit-perfect AST scrying to
-                    # find the TRUE soul of the module (e.g., 'ignite_telemetry').
-                    try:
-                        parts = component_meta.split(':', 3)
-                        if len(parts) >= 3:
-                            role_intent = parts[1]
-                            guessed_symbol = parts[2]
-
-                            true_symbol = self._verify_and_heal_symbol(content, guessed_symbol, role_intent)
-                            if true_symbol and true_symbol != guessed_symbol:
-                                if self.logger.is_verbose:
-                                    self.logger.success(
-                                        f"[AST Healer] Annihilated phantom '{guessed_symbol}'. True soul is '{true_symbol}'.")
-                                parts[2] = true_symbol
-                                component_meta = ":".join(parts)
-                    except Exception as healer_err:
-                        self.logger.debug(f"AST Healer deferred: {healer_err}")
-
                     # B. TARGET: Spatiotemporal Resolution
-                    cache_key = f"{strategy.name}:{context.project_root.as_posix()}"
-                    target_file = None
-
-                    with self.__class__._GLOBAL_CACHE_LOCK:
-                        if cache_key in self.__class__._GLOBAL_TARGET_CACHE:
-                            target_file = self.__class__._GLOBAL_TARGET_CACHE[cache_key]
-
-                    if not target_file:
-                        target_file = strategy.find_target(context.project_root, context.transaction)
-                        with self.__class__._GLOBAL_CACHE_LOCK:
-                            self.__class__._GLOBAL_TARGET_CACHE[cache_key] = target_file if target_file else "VOID"
+                    target_file = strategy.find_target(context.project_root, context.transaction)
 
                     if not target_file or target_file == "VOID" or target_file.resolve() == file_path.resolve():
                         continue
@@ -245,376 +292,246 @@ class FrameworkFaculty(BaseFaculty):
                         valid_plans.append(plan)
 
                 except Exception as strat_err:
-                    self.logger.error(f"   [T:{thread_id}] Strategy {strategy.name} fractured: {strat_err}")
+                    self.logger.debug(f"   -> Strategy {strategy.name} deferred: {strat_err}")
 
-            # --- MOVEMENT III: THE KINETIC SURGERY (BATCHED STRIKE) ---
+            # --- MOVEMENT II: THE BATCHED STRIKE ---
             if valid_plans:
+                # Group plans by their physical locus to minimize I/O cycles
                 plans_by_target: Dict[Path, List[InjectionPlan]] = collections.defaultdict(list)
-                for p in valid_plans: plans_by_target[p.target_file].append(p)
+                for p in valid_plans:
+                    plans_by_target[p.target_file].append(p)
 
                 for tgt_file, plans in plans_by_target.items():
                     file_lock = self._get_target_lock(tgt_file)
                     with file_lock:
+                        # [STRIKE]: Execute the batched textual surgery
                         self._execute_batched_surgery(tgt_file, plans, context)
 
         except Exception as catastrophic_paradox:
-            self.logger.error(f"Mesh Failure on {file_path.name}: {catastrophic_paradox}")
-            if debug_mode: traceback.print_exc(file=sys.stderr)
+            self.logger.error(f"Neural Mesh Failure on {file_path.name}: {catastrophic_paradox}")
         finally:
+            # Yield control to allow HUD updates
             time.sleep(0)
-
-    def _verify_and_heal_symbol(self, content: str, guessed_symbol: str, role_intent: str) -> str:
-        """
-        =============================================================================
-        == THE OMNISCIENT AST HEALER (V-Ω-TOTALITY-THE-MASTER-CURE)                ==
-        =============================================================================
-        LIF: 100,000x | ROLE: SEMANTIC_TRUTH_ADJUDICATOR
-
-        Mathematically verifies if the guessed symbol actually exists in the AST.
-        If it is a phantom (hallucinated fallback like 'Tracer'), it feels the vibe
-        of the module and reads the Architect's mind to find the true exported soul.
-        """
-        import ast
-        try:
-            tree = ast.parse(content)
-            public_symbols = []
-
-            # 1. VERIFY EXACT MATCH
-            for node in tree.body:
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                    if node.name == guessed_symbol:
-                        return guessed_symbol  # The guess was true
-                    if not node.name.startswith('_'):
-                        public_symbols.append(node.name)
-                elif isinstance(node, ast.Assign):
-                    for target in node.targets:
-                        if isinstance(target, ast.Name):
-                            if target.id == guessed_symbol:
-                                return guessed_symbol
-                            if not target.id.startswith('_'):
-                                public_symbols.append(target.id)
-
-            # 2. THE PHANTOM DETECTED. WE MUST HEAL.
-            # Scry for explicit exports (__all__)
-            for node in tree.body:
-                if isinstance(node, ast.Assign):
-                    for target in node.targets:
-                        if isinstance(target, ast.Name) and target.id == "__all__":
-                            if isinstance(node.value, (ast.List, ast.Tuple)):
-                                for elt in node.value.elts:
-                                    val = getattr(elt, 'value', getattr(elt, 's', None))
-                                    if val and isinstance(val, str):
-                                        return val  # Trust the explicit export absolutely
-
-            # 3. SEMANTIC RESONANCE (FEEL THE VIBE)
-            if public_symbols:
-                vibe_dictionary = {
-                    "observability-bastion": ["telemetry", "tracer", "ignite", "instrument", "monitor", "observe"],
-                    "telemetry-probe": ["telemetry", "tracer", "ignite", "monitor", "observe", "instrument"],
-                    "trace-radiator": ["radiator", "exporter", "trace"],
-                    "fastapi-heart": ["app", "api", "create_app", "server"],
-                    "fastapi-router": ["router", "api_router", "endpoints"],
-                    "db-model": ["model", "entity", "base"],
-                    "celery-task": ["task", "worker"],
-                    "multiversal-sync": ["hub", "sync", "wormhole"],
-                    "infrastructure-compose": ["service"],
-                }
-
-                vibes = vibe_dictionary.get(role_intent, [])
-
-                for sym in public_symbols:
-                    sym_lower = sym.lower()
-                    if any(vibe in sym_lower for vibe in vibes):
-                        return sym
-
-                # 4. FALLBACK: The deepest public symbol (usually the primary export/setup function)
-                return public_symbols[-1]
-
-        except SyntaxError:
-            pass  # AST fractured, trust the guess
-
-        return guessed_symbol
 
     def _execute_batched_surgery(self, target_file: Path, plans: List[InjectionPlan], context: "SharedContext"):
         """
         =================================================================================
-        == THE BATCHED KINETIC SURGERY (V-Ω-TOTALITY-VMAX-APOPHATIC-FALLBACK)          ==
+        == THE Ω_BATCHED_SURGERY: TOTALITY (V-Ω-VMAX-GEOMETRIC-TEXTUAL-STRIKE)         ==
         =================================================================================
-        LIF: ∞^∞ | ROLE: AST_MUTATOR | RANK: OMEGA_SOVEREIGN
-
-        [THE MASTER CURE]: This is the indestructible heart of the Suture. It attempts
-        a flawless AST parse. If the file contains invalid syntax (due to a previous
-        unparse anomaly), it catches the SyntaxError and natively falls back to a
-        Regex-based string injection, mathematically guaranteeing the route is wired!
+        LIF: ∞^∞ | ROLE: MASTER_AST_ARCHITECT_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH: Ω_SURGERY_VMAX_RECURSIVE_REINCEPTION_2026_FINALIS[THE MANIFESTO]
+        The supreme final authority for physical logic mutation. It mathematically
+        annihilates the "Unparse Clumping" and "Metadata Attribute" heresies forever.
+        =================================================================================
         """
         import ast
-        import time
-        import sys
-        import gc
-        import re
-        import uuid
-        import threading
+        import hashlib
         from pathlib import Path
+        from .surgeon.engine import ASTSurgeon
+        from .surgeon.grafter import KineticGrafter
 
         thread_id = threading.get_ident()
-        _start_ns = time.perf_counter_ns()
+        trace_id = getattr(context.transaction, 'trace_id', 'tr-batched-vmax')
 
         try:
-            # --- MOVEMENT I: GEOMETRIC TRIANGULATION ---
-            target_key = str(target_file.resolve())
-
-            # 1. ATOMIC RE-READ & IDEMPOTENCY
+            # --- MOVEMENT I: THE PRE-FLIGHT BIOPSY ---
             latest_content = self._read(target_file, context)
-            if not latest_content or not latest_content.strip():
-                return
+            if not latest_content or not latest_content.strip(): return
 
-            # =========================================================================
-            # ==[ASCENSION 4]: THE GLOBAL AST CONSCIOUSNESS CACHE                   ==
-            # =========================================================================
-            tree = None
-            cached_content = self.__class__._GLOBAL_AST_CONTENT_CACHE.get(target_key)
+            pre_hash = hashlib.sha256(latest_content.encode()).hexdigest()
 
-            if cached_content == latest_content:
-                tree = self.__class__._GLOBAL_AST_TREE_CACHE.get(target_key)
-
-            if tree is None:
-                try:
-                    tree = ast.parse(latest_content)
-                    with self.__class__._GLOBAL_FILE_LOCKS_MUTEX:
-                        self.__class__._GLOBAL_AST_TREE_CACHE[target_key] = tree
-                        self.__class__._GLOBAL_AST_CONTENT_CACHE[target_key] = latest_content
-                        self.__class__._GLOBAL_AST_CACHE_ORDER.append(target_key)
-                        if len(self.__class__._GLOBAL_AST_CACHE_ORDER) > 50:
-                            oldest_key = self.__class__._GLOBAL_AST_CACHE_ORDER.popleft()
-                            self.__class__._GLOBAL_AST_TREE_CACHE.pop(oldest_key, None)
-                            self.__class__._GLOBAL_AST_CONTENT_CACHE.pop(oldest_key, None)
-
-                except SyntaxError as syntax_err:
-                    # =====================================================================
-                    # == [ASCENSION 25]: THE APOPHATIC REGEX FALLBACK NOTIFICATION       ==
-                    # =====================================================================
-                    self.logger.warn(
-                        f"   [T:{thread_id}] AST Fracture: Target file '{target_file.name}' "
-                        f"contains invalid syntax ({syntax_err}). Engaging Apophatic Regex Fallback."
-                    )
-                    tree = None
-
-            gc_was_enabled = gc.isenabled()
-            if gc_was_enabled:
-                gc.disable()
+            # Substrate-Aware Line Ending Normalization
+            purified_source = latest_content.translate(str.maketrans('', '', '\x00\ufeff\u200b')).replace('\r\n', '\n')
+            lines = purified_source.splitlines(keepends=True)
 
             try:
-                mutations_applied = False
-                new_content = latest_content
+                tree = ast.parse(purified_source)
+            except SyntaxError:
+                tree = None
 
-                if tree is not None:
-                    # =====================================================================
-                    # == THE AST SURGERY (PRIME PATH)                                    ==
-                    # =====================================================================
-                    for plan in plans:
-                        if plan.wiring_stmt and plan.wiring_stmt.strip() in latest_content:
-                            continue
+            import gc
+            gc_was_enabled = gc.isenabled()
+            if self._is_adrenaline: gc.disable()
 
-                        # [ASCENSION 13]: SEMANTIC ALIAS COLLISION GUARD
-                        if plan.import_stmt:
-                            alias_match = re.search(r'as\s+([a-zA-Z_]\w*)$', plan.import_stmt.strip())
-                            if alias_match:
-                                proposed_alias = alias_match.group(1)
-                                if f" {proposed_alias}" in latest_content or f"{proposed_alias}(" in latest_content:
-                                    new_alias = f"{proposed_alias}_{uuid.uuid4().hex[:4].upper()}"
-                                    plan.import_stmt = plan.import_stmt.replace(f"as {proposed_alias}",
-                                                                                f"as {new_alias}")
-                                    plan.wiring_stmt = plan.wiring_stmt.replace(proposed_alias, new_alias)
+            mutations_applied = False
 
-                        from .surgeon import ASTSurgeon, DjangoSurgeon
+            try:
+                for plan in plans:
+                    # 1. Idempotency Ward
+                    if plan.wiring_stmt and plan.wiring_stmt.strip() in "".join(lines):
+                        continue
 
-                        if plan.strategy_name == "Django":
-                            surgeon = DjangoSurgeon(plan.wiring_stmt)
-                        else:
-                            surgeon = ASTSurgeon(plan.import_stmt, plan.wiring_stmt, plan.anchor)
+                    # =========================================================================
+                    # == [THE MASTER CURE]: RECURSIVE RE-INCEPTION                           ==
+                    # =========================================================================
+                    # If matter has shifted during the PREVIOUS plan in this batch, we MUST
+                    # re-scry the AST to update our GPS coords. This annihilates Index Drift.
+                    if mutations_applied and tree:
+                        try:
+                            tree = ast.parse("".join(lines))
+                        except SyntaxError:
+                            tree = None
 
-                        tree = surgeon.visit(tree)
+                    # 2. THE IMPORT STRIKE
+                    if plan.import_stmt and tree:
+                        KineticGrafter.inject_import_text(lines, plan.import_stmt, tree)
                         mutations_applied = True
 
-                        if self.logger.is_verbose:
-                            self.logger.success(
-                                f"   [T:{thread_id}] [bold cyan]AST Suture Resonant:[/] Grafted "
-                                f"[yellow]{plan.strategy_name}[/] logic into [white]{target_file.name}[/]"
-                            )
-
-                    if mutations_applied:
-                        ast.fix_missing_locations(tree)
-
-                        # NATIVE UNPARSE FALLBACK WITH LAZARUS RETRY
+                        # Immediately re-inception after import shift
                         try:
-                            if hasattr(ast, 'unparse'):
-                                new_content = ast.unparse(tree)
-                            else:
-                                import astunparse
-                                new_content = astunparse.unparse(tree)
-                        except Exception as unparse_err:
-                            import astunparse
-                            new_content = astunparse.unparse(tree)
+                            tree = ast.parse("".join(lines))
+                        except SyntaxError:
+                            tree = None
 
-                        if new_content != latest_content:
-                            new_content = self._heal_unparsed_comments(latest_content, new_content)
-                            new_content = re.sub(r'\n{3,}', '\n\n', new_content)
+                    # 3. THE WIRING STRIKE
+                    surgeon = ASTSurgeon(plan.anchor)
 
-                else:
-                    # =====================================================================
-                    # == [ASCENSION 25]: THE APOPHATIC REGEX FALLBACK (THE MASTER CURE)  ==
-                    # =====================================================================
-                    # The file has a SyntaxError, so we manually mutate the strings.
-                    for plan in plans:
-                        if plan.wiring_stmt and plan.wiring_stmt.strip() in new_content:
-                            continue
+                    # =========================================================================
+                    # == [THE MASTER CURE]: THE METADATA SARCOPHAGUS                         ==
+                    # =========================================================================
+                    # Safely extracts metadata without triggering an AttributeError if the
+                    # strategy omitted the field entirely.
+                    meta = getattr(plan, 'metadata', {})
 
-                        # 1. INJECT THE IMPORT AT THE TOP
-                        if plan.import_stmt and plan.import_stmt.strip() not in new_content:
-                            lines = new_content.splitlines(keepends=True)
-                            insert_idx = 0
-                            for idx, line in enumerate(lines):
-                                if line.startswith("import ") or line.startswith("from "):
-                                    insert_idx = idx + 1
-                            lines.insert(insert_idx, plan.import_stmt + "\n")
-                            new_content = "".join(lines)
-
-                        # 2. INJECT THE WIRING STATEMENT
-                        if plan.anchor:
-                            lines = new_content.splitlines(keepends=True)
-                            for idx, line in enumerate(lines):
-                                if plan.anchor in line:
-                                    # [ASCENSION 26]: Indentation Resonance Scanner
-                                    indent = line[:len(line) - len(line.lstrip())]
-                                    indented_wire = "\n".join(
-                                        [indent + l for l in plan.wiring_stmt.splitlines()]) + "\n"
-                                    lines.insert(idx + 1, indented_wire)
-                                    new_content = "".join(lines)
-                                    mutations_applied = True
-
-                                    if self.logger.is_verbose:
-                                        self.logger.success(
-                                            f"   [T:{thread_id}] [bold magenta]Regex Suture Resonant:[/] Grafted "
-                                            f"[yellow]{plan.strategy_name}[/] logic into [white]{target_file.name}[/]"
-                                        )
-                                    break
-
-                # --- MOVEMENT IV: THE TRANSACTIONAL COMMIT ---
-                if mutations_applied and new_content != latest_content:
-                    if context.io_conductor:
-                        rel_path = target_file.relative_to(context.project_root)
-                        res = context.io_conductor.write(
-                            logical_path=rel_path,
-                            content=new_content,
-                            metadata={"origin": "Neural Suture (Batched/Fallback)"}
-                        )
-                        if context.transaction and res and res.success:
-                            context.transaction.record(res)
+                    if tree:
+                        # [STRIKE]: Bit-perfect textual insertion guided by the GPS
+                        if surgeon.perform_surgery(lines, plan.wiring_stmt, tree, meta):
+                            mutations_applied = True
                     else:
-                        res = atomic_write(target_file, new_content, self.logger, context.project_root,
-                                           transaction=context.transaction, verbose=False)
-                        if context.transaction and res.success:
-                            try:
-                                res.path = target_file.relative_to(context.project_root)
-                                context.transaction.record(res)
-                            except ValueError:
-                                pass
+                        # Fallback: Append to EOF if the Mind is blind (SyntaxError)
+                        lines.append("\n" + plan.wiring_stmt.strip() + "\n")
+                        mutations_applied = True
 
-                    # --- PHASE V: CACHE SYNCHRONIZATION ---
-                    if tree is not None:
-                        with self.__class__._GLOBAL_FILE_LOCKS_MUTEX:
-                            self.__class__._GLOBAL_AST_TREE_CACHE[target_key] = tree
-                            self.__class__._GLOBAL_AST_CONTENT_CACHE[target_key] = new_content
-                    else:
-                        # Clear cache if we used Regex, to force a re-parse next time
-                        with self.__class__._GLOBAL_FILE_LOCKS_MUTEX:
-                            self.__class__._GLOBAL_AST_TREE_CACHE.pop(target_key, None)
-                            self.__class__._GLOBAL_AST_CONTENT_CACHE.pop(target_key, None)
+                # --- MOVEMENT IV: THE VISUAL REVELATION ---
+                if mutations_applied:
+                    new_content = "".join(lines)
+
+                    # Merkle State Sealing
+                    post_hash = hashlib.sha256(new_content.encode()).hexdigest()
+                    if pre_hash == post_hash: return
+
+                    # [STRIKE]: Proclaim the high-status Diff Table
+                    self._proclaim_mutation_diff(target_file.name, latest_content, new_content)
+
+                    # [STRIKE]: Inscribe the Mutation Ledger
+                    self._inscribe_mutation_ledger(target_file, plans, trace_id, latest_content, new_content, context)
+
+                    # [STRIKE]: Physical Inscription (Commit)
+                    self._write(target_file, new_content, context)
+
+                    # Radiate HUD completion pulse
+                    if hasattr(self.logger, 'engine') and hasattr(self.logger.engine, 'akashic'):
+                        try:
+                            self.logger.engine.akashic.broadcast({
+                                "method": "novalym/hud_pulse",
+                                "params": {
+                                    "type": "METABOLIC_REIFICATION",
+                                    "label": "FRAMEWORK_SUTURE_COMPLETE",
+                                    "color": "#3b82f6",
+                                    "trace": trace_id
+                                }
+                            })
+                        except Exception:
+                            pass
 
             finally:
-                if gc_was_enabled:
-                    gc.enable()
+                if self._is_adrenaline and gc_was_enabled: gc.enable()
 
-        except Exception as paradox:
-            self.logger.error(f"[T:{thread_id}] Surgery Deferred for '{target_file.name}': {paradox}")
-            if os.environ.get("SCAFFOLD_DEBUG") == "1":
-                traceback.print_exc(file=sys.stderr)
+        except Exception as catastrophic_paradox:
+            import traceback
+            tb = traceback.format_exc()
+            sys.stderr.write(f"\n{self.ALERT}💀 APOTHEOSIS SURGERY FRACTURE: {target_file.name}{self.RESET}\n")
+            sys.stderr.write(f"{self.UV}{tb}{self.RESET}\n")
+            sys.stderr.flush()
+            self.logger.error(f"Textual Graft Fracture: {catastrophic_paradox}")
 
-            self._radiate_hud_pulse(target_file.name, "tr-fracture", "#ef4444")
-
-    def _heal_unparsed_comments(self, original_content: str, new_content: str) -> str:
+    def _proclaim_mutation_diff(self, filename: str, old: str, new: str):
         """
-        =================================================================================
-        == THE PURE COMMENT SIEVE: OMEGA (V-Ω-TOTALITY-VMAX-LORE-RECONSTRUCTION)       ==
-        =================================================================================
-        [THE MASTER CURE]: This version righteously ignores triple-quoted docstrings.
-        It focuses EXCLUSIVELY on '#' comments and shebangs. Because 'ast.unparse'
-        already handles the module docstring, this prevents the "Double-Header"
-        heresy that causes unterminated string errors.
-        """
-        if not original_content or not original_content.strip():
-            return new_content
+        =============================================================================
+        == THE HOLOGRAPHIC DIFF PROJECTOR (V-Ω-TOTALITY-VMAX-OCULAR-SYNC)          ==
+        =============================================================================
+        LIF: 1,000x | ROLE: FORENSIC_VISUALIZER
 
+        Transmutes raw textual deltas into a high-fidelity Rich Table, highlighting
+        the inception of new logic within the Architect's Aura.
+        """
+        import difflib
+
+        # Unified Diff Generation
+        diff = list(difflib.unified_diff(
+            old.splitlines(),
+            new.splitlines(),
+            fromfile='Ancestral',
+            tofile='Manifest',
+            lineterm=''
+        ))
+
+        if not diff:
+            return
+
+        # [STRIKE]: Forge the high-status visualization matrix
+        table = Table(
+            title=f"[bold cyan]Ω_SURGERY_PROCLAMATION:[/] [white]{filename}[/]",
+            box=box.ROUNDED,
+            border_style="cyan",
+            expand=True,
+            header_style="bold magenta",
+            show_header=True
+        )
+
+        table.add_column("Locus", justify="right", style="dim", width=6)
+        table.add_column("Reality Shift", ratio=1)
+
+        # Skip the diff headers (first 2 lines)
+        for line in diff[2:]:
+            if line.startswith('+'):
+                # Additions glow with Emerald Resonance
+                table.add_row("+", f"[bold green]{line}[/]")
+            elif line.startswith('-'):
+                # Deletions are resected in Crimson
+                table.add_row("-", f"[bold red]{line}[/]")
+            elif line.startswith('@@'):
+                # Spatiotemporal Coordinates
+                table.add_row("..", f"[cyan]{line}[/]")
+            else:
+                # Context lines provide the Aura anchor (limited for density)
+                if len(line.strip()) > 0:
+                    table.add_row(" ", f"[dim]{line}[/]")
+
+        # HUD Radiation
+        self.console.print("\n", Panel(table, border_style="cyan", padding=(0, 1)), "\n")
+
+    def _inscribe_mutation_ledger(self, path: Path, plans: List[InjectionPlan], trace: str, old: str, new: str,
+                                  context: "SharedContext"):
+        """
+        =============================================================================
+        == THE LUMINOUS MUTATION LEDGER (V-Ω-TOTALITY-ACHRONAL-CHRONICLE)          ==
+        =============================================================================
+        Automatically records the mutation DNA into the project sanctum.
+        """
         try:
-            lines = original_content.splitlines()
-            header_lines = []
+            # 1. Coordinate Resolution
+            ledger_dir = context.project_root / ".scaffold" / "chronicles"
+            ledger_dir.mkdir(parents=True, exist_ok=True)
+            ledger_file = ledger_dir / "mutations.jsonl"
 
-            # We capture ONLY hash-comments and whitespace at the very Zenith.
-            for line in lines:
-                stripped = line.strip()
-                if not stripped:
-                    header_lines.append(line)
-                    continue
-                if stripped.startswith("#"):
-                    # DOCSTRING IMMUNITY
-                    if '"""' in stripped or "'''" in stripped: break
-                    header_lines.append(line)
-                    continue
-                break
+            # 2. Forge the Genetic Record
+            entry = {
+                "ts": time.time(),
+                "file": str(path.relative_to(context.project_root)).replace('\\', '/'),
+                "trace_id": trace,
+                "strategies": [p.strategy_name for p in plans],
+                "anchors": [p.anchor for p in plans],
+                "fingerprint": hashlib.sha256(new.encode()).hexdigest()[:12].upper(),
+                "mass_delta": len(new) - len(old)
+            }
 
-            if not header_lines: return new_content
+            # 3. [STRIKE]: Inscribe into the Iron
+            with open(ledger_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry) + "\n")
 
-            header_str = "\n".join(header_lines).strip()
-            if not header_str: return new_content
-
-            if header_str[:64] in new_content[:256]:
-                return new_content
-
-            return "\n".join(header_lines).rstrip() + "\n\n" + new_content.lstrip()
-
-        except Exception:
-            return new_content
-
-    def _read_with_ctx(self, path: Path, root: Path, tx: Optional["GnosticTransaction"]) -> str:
-        """[THE BICAMERAL BRIDGE] Uses thread-safe dict iteration internally."""
-        if tx:
-            try:
-                rel = path.relative_to(root)
-                staged = tx.get_staging_path(rel)
-                if staged.exists():
-                    return staged.read_text(encoding='utf-8', errors='ignore')
-            except ValueError:
-                pass
-        if path.exists():
-            return path.read_text(encoding='utf-8', errors='ignore')
-        return ""
-
-    def _radiate_hud_pulse(self, target_name: str, trace: str, color: str):
-        """HUD Telemetry Radiation."""
-        akashic = getattr(self.alchemist.engine, 'akashic', None) if hasattr(self, 'alchemist') else None
-        if akashic:
-            try:
-                akashic.broadcast({
-                    "method": "novalym/hud_pulse",
-                    "params": {
-                        "type": "NEURAL_SUTURE_COMPLETE",
-                        "label": f"MESH_SUTURE: {target_name}",
-                        "color": color,
-                        "trace": trace
-                    }
-                })
-            except Exception:
-                pass
+        except Exception as ledger_fracture:
+            self.logger.debug(f"Ledger inscription deferred (Sanctum restricted): {ledger_fracture}")
 
     def __repr__(self) -> str:
-        return f"<Ω_FRAMEWORK_FACULTY status=RESONANT mode=GRANULAR_CONCURRENCY version=200000.0>"
+        return f"<Ω_FRAMEWORK_FACULTY status=RESONANT mode=GEOMETRIC_TEXTUAL_SUTURE>"

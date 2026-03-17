@@ -1,4 +1,4 @@
-# Path: scaffold/main.py
+# Path: velm/main.py
 # ----------------------
 # LIF: INFINITY | ROLE: PRIMORDIAL_HYPERVISOR | RANK: SOVEREIGN
 # AUTH_CODE: Ω_BOOTSTRAP_SINGULARITY_V400_ZERO_DEP

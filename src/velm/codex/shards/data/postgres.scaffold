@@ -1,0 +1,147 @@
+# Path: codex/shards/data/postgres.scaffold
+# -----------------------------------------
+
+# =============================================================================
+# == GNOSTIC DNA SHARD: data/postgres-infrastructure
+# =============================================================================
+# @id:           data/postgres-infrastructure
+# @version:      3.5.0-Ω
+# @tier:         iron
+# @summary:      The Supreme Persistence Substrate. Manages Async Engine, 
+#                Docker Iron, and Lifespan Metabolic Rites.
+# @vibe:         [postgres, docker, infrastructure, async, persistence, iron]
+# -----------------------------------------------------------------------------
+# @provides:[capability:postgres-iron, capability:async-db-engine, capability:persistence-engine]
+# @requires:     [data/sqlalchemy-persistence-layer]
+# -----------------------------------------------------------------------------
+# @metabolism:
+#   python:["asyncpg>=0.29.0", "psycopg2-binary>=2.9.9", "sqlalchemy[asyncio]>=2.0.27"]
+#   env:["DATABASE_URL", "DB_PASSWORD", "DB_USER", "DB_NAME", "DB_PORT"]
+# -----------------------------------------------------------------------------
+# @substrate:
+#   docker:
+#     db:
+#       image: "postgres:16-alpine"
+#       container_name: "{{ project_slug }}-postgres"
+#       environment:
+#         - POSTGRES_USER=${DB_USER:-postgres}
+#         - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
+#         - POSTGRES_DB=${DB_NAME:-reality}
+#       ports:
+#         - "${DB_PORT:-5432}:5432"
+#       volumes:
+#         - db_mass:/var/lib/postgresql/data
+#       healthcheck:
+#         test:["CMD-SHELL", "pg_isready -U postgres"]
+#         interval: 5s
+#         timeout: 5s
+#         retries: 5
+# -----------------------------------------------------------------------------
+# @suture:
+#   role:        "lifespan-manager"
+#   priority:    100
+#   alias:       "database_lifespan"
+# =============================================================================
+
+# --- I. THE ALTAR OF GNOSTIC WILL ---
+$$ package_name = {{ package_name | default(project_slug | snake) }}
+
+# --- II. THE SCRIPTURE OF FORM (The Mental Cortex) ---
+src/{{ package_name }}/core/
+    database.py :: """
+import logging
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+from fastapi import FastAPI
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from .config import settings
+
+Logger = logging.getLogger("Infrastructure:Postgres")
+
+# [Trace: {{ trace_id }}][Gnostic Suture]
+# The Absolute Engine Anchor
+engine = None
+SessionLocal = None
+
+@asynccontextmanager
+async def database_lifespan(app: FastAPI):
+    \"\"\"
+    =============================================================================
+    == THE RITE OF ENGINE IGNITION AND DISSOLUTION (V-Ω-TOTALITY)              ==
+    =============================================================================
+    LIF: ∞ | ROLE: PERSISTENCE_LIFESPAN_MANAGER
+    
+    This is the beating heart of the Database. Managed autonomously by the 
+    Matryoshka Suture. It connects upon wake and gracefully releases upon death.
+    \"\"\"
+    global engine, SessionLocal
+    
+    # --- THE AWAKENING ---
+    Logger.info("🔗 [DATABASE] Piercing the Veil... Connecting to Postgres Iron.")
+    
+    try:
+        engine = create_async_engine(
+            str(settings.DATABASE_URL),
+            echo=settings.DEBUG,
+            pool_pre_ping=True,
+            pool_size=20,
+            max_overflow=10
+        )
+        
+        SessionLocal = async_sessionmaker(
+            bind=engine,
+            class_=AsyncSession,
+            expire_on_commit=False,
+            autoflush=False
+        )
+        
+        # Suture the engine to the app state for multiversal access
+        app.state.db_engine = engine
+        app.state.SessionLocal = SessionLocal
+        
+        Logger.info("✨ [DATABASE] Engine Resonant. Connection Pool Materialized.")
+        
+        # Yield control to the main application lifespan
+        yield
+        
+    finally:
+        # --- THE DISSOLUTION ---
+        if engine:
+            Logger.info("🌑 [DATABASE] Dissolving pools... Releasing the Iron.")
+            await engine.dispose()
+            Logger.info("✅ [DATABASE] Connection Pool returned to the Void.")
+
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    \"\"\"[THE GNOSTIC APERTURE]: Dependency provider for FastAPI routes.
+    Yields a warded AsyncSession bound to the current Transaction.
+    \"\"\"
+    if not SessionLocal:
+        raise RuntimeError("Database Engine Unmanifest. Cannot yield session.")
+        
+    async with SessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            raise e
+        finally:
+            await session.close()
+"""
+
+# --- III. THE CONSCIENCE EVOLUTION (Environment DNA) ---
+.env.example += """
+# --- STRATUM: PERSISTENCE (POSTGRES) ---
+DB_USER     = postgres
+DB_PASSWORD = {{ crypto.random(32) }}
+DB_NAME     = reality
+DB_PORT     = 5432
+DATABASE_URL = postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
+"""
+
+# --- IV. THE MAESTRO'S FINALITY ---
+%% post-run
+    proclaim: "The [bold cyan]Postgres Substrate[/bold cyan] has been waked and warded."
+    proclaim: "Iron: [white]Docker Service 'db'[/]"
+    proclaim: "Mind: [white]core/database.py (Async Engine)[/]"
+    proclaim: "LIF-Multiplier: [bold green]INFINITY (Persistence Solved via Matryoshka Suture)[/]"

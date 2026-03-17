@@ -16,7 +16,7 @@ from ....alchemist import get_alchemist, DivineAlchemist
 from .....utils import atomic_write
 from .structural.content import ContentScribe
 from .structural.layout import LayoutGeometer
-
+from .....logger import get_console
 if TYPE_CHECKING:
     from .contracts import SharedContext
     from .....logger import Scribe
@@ -92,7 +92,7 @@ class BaseFaculty(ABC):
         Births the faculty with the full Gnostic instrumentarium and the Parser soul.
         """
         self.logger = logger
-
+        self.console = get_console()
         # [ASCENSION 1 & 2]: THE PARSER SUTURE
         self.parser: ApotheosisParser = self._enshrine_parser()
 

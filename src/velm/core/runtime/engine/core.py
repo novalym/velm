@@ -137,6 +137,7 @@ from contextlib import contextmanager
 from ..context import RuntimeContext
 from ..registry import ArtisanRegistry
 from ..telemetry import TelemetryScribe
+from ..vessels import GnosticSovereignDict
 from ....contracts.heresy_contracts import HeresySeverity
 from ....interfaces.base import ScaffoldResult, Artifact
 from ....interfaces.requests import BaseRequest
@@ -189,37 +190,72 @@ class VelmEngine:
             cortex: Any = None,
             auto_register: bool = True,
             silent: bool = False,
-            # [ASCENSION]: We now accept the nexus for akashic linking
             nexus: Any = None
     ):
         """
-        =============================================================================
-        == THE RITE OF INCEPTION: APOPHATIC VELOCITY (V-Ω-TOTALITY-V100000)        ==
-        =============================================================================
-        LIF: ∞ | ROLE: KERNEL_BOOTLOADER | RANK: OMEGA_SINGULARITY
+        =================================================================================
+        == THE Ω_ENGINE_INCEPTION: TOTALITY (V-Ω-TOTALITY-VMAX-24-ASCENSIONS)          ==
+        =================================================================================
+        LIF: ∞^∞ | ROLE: KERNEL_BOOTLOADER_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH_CODE: Ω_INIT_VMAX_SUBSTRATE_SUTURE_2026_FINALIS_!#()@()@#)(
 
         [THE MANIFESTO]
-        Initializes pointer slots only. Performs ZERO synchronous I/O or heavy module
-        imports. The Engine is born as a weightless phantom, materializing its organs
-        only upon the moment of absolute kinetic necessity.
+        The supreme definitive authority for Kernel awakening. This version
+        righteously annihilates the "Attribute Mirage" by enforcing the Law of
+        Substrate Perception and Chromatic Forensic Authority.
+        =================================================================================
         """
-        # 1. CONSECRATION (Identity & Thread Safety)
+        import time
+        import threading
+        import os
+        import sys
+        import secrets
+        import platform
+
+        # --- MOVEMENT 0: METABOLIC CHRONOMETRY ---
         self._creation_time = time.perf_counter()
+        self._start_ns = time.perf_counter_ns()
         self._silent = silent
         self._log_level = log_level
         self._lock = threading.RLock()
 
-        # 2. LOGGING CONSECRATION (JIT AWARE & WASM SAFE)
+        # =========================================================================
+        # == [ASCENSION 1 & 2]: THE MASTER CURE (SUBSTRATE & CHROMATIC SUTURE)    ==
+        # =========================================================================
+        # 1. Perception of the Plane (WASM/IRON)
+        self._is_wasm = (
+                os.environ.get("SCAFFOLD_ENV") == "WASM" or
+                sys.platform == "emscripten" or
+                "pyodide" in sys.modules
+        )
+
+        # 2. Inscription of the Chromatic Sigils (Forensic Colors)
+        self.ALERT = "\x1b[41;1m"  # Inverse Red (Panic)
+        self.RESET = "\x1b[0m"  # Restoration (Void)
+        self.GOLD = "\x1b[38;5;220m"  # Sovereignty (Success)
+        self.UV = "\x1b[38;5;141m"  # Ultraviolet (Tracing)
+        self.TEAL = "\x1b[38;5;86m"  # Resonance (Logic)
+
+        # --- MOVEMENT I: IDENTITY & TRACE ---
+        # [ASCENSION 3 & 9]: High-Entropy Session Inception
+        self.session_id = secrets.token_hex(4).upper()
+        self.trace_id = f"tr-kernel-{self.session_id}"
+
+        # [ASCENSION 6]: Ouroboros Loop Guard
+        self._trace_stack = []
+        self._recursion_lock = threading.Lock()
+
+        # --- MOVEMENT II: LOGGING CONSECRATION ---
+        # [ASCENSION 2]: Substrate-Aware Visual Cortex
         if not silent:
+            from ....logger import configure_logging, get_console
             configure_logging(verbose=(log_level == "DEBUG"), json_mode=json_logs)
 
-            # [THE CURE]: GNOSTIC CONSOLE CONFIGURATION (WASM-AWARE)
-            if os.environ.get("SCAFFOLD_ENV") == "WASM":
+            if self._is_wasm:
                 try:
                     from rich.console import Console
-                    # Force width=80 to ensure panels don't collapse or expand infinitely in non-TTY
+                    # Force responsive geometry for XTerm.js stage
                     self.console = Console(force_terminal=True, color_system="truecolor", width=80)
-                    # Critical: Patch the global logger console so all Scribes use this forced instance
                     import velm.logger
                     velm.logger._console = self.console
                 except ImportError:
@@ -227,12 +263,13 @@ class VelmEngine:
             else:
                 self.console = get_console()
         else:
+            from ....logger import get_console
             self.console = get_console()
 
         self.logger = Scribe("QuantumEngine")
 
-        # 3. CONTEXTUAL ANCHORS (LAZY DELAYED)
-        # We store the raw root; the Context organ will materialize it upon first Gaze.
+        # --- MOVEMENT III: CONTEXTUAL ANCHORS (LAZY) ---
+        # [ASCENSION 10]: Geometric Path Normalization
         self._project_root_raw = project_root
         self._context = None
         self._registry = None
@@ -240,12 +277,12 @@ class VelmEngine:
         self.cortex = cortex
         self.nexus = nexus
 
-        # [THE CURE]: THE AKASHIC SUTURE (LAZY)
+        # [ASCENSION 4]: THE AKASHA SUTURE
         self._akashic = None
         self._akashic_initialized = False
 
-        # 4. INTERNAL ORGANS (VOID SLOTS FOR O(1) BOOT)
-        # These were previously eager. They are now mathematically pure voids.
+        # --- MOVEMENT IV: THE ORGAN MANIFOLD (VOID SLOTS) ---
+        # [ASCENSION 8]: NoneType Sarcophagus - Bit-perfect O(1) boot
         self._bootstrap = None
         self._transactions = None
         self._predictor = None
@@ -262,24 +299,25 @@ class VelmEngine:
         self._traceback_handler = None
         self._pipeline = None
 
-        # 5. KINETIC STATE
+        # --- MOVEMENT V: KINETIC STATE ---
         self.last_reality: Optional[ScaffoldResult] = None
         self._kernel_locks: Dict[str, threading.Lock] = {}
         self._hooks: List[Callable[[ScaffoldResult], None]] = []
+        self._adrenaline_active = False
 
-        # 6. FAST-PATH AWAKENING
-        # Triggers the bootstrap, which uses the Apophatic `fast_register` to load
-        # the entire Grimoire in ~2ms without parsing any external ASTs.
+        # --- MOVEMENT VI: FAST-PATH AWAKENING ---
+        # [ASCENSION 12]: THE FINALITY VOW
         if auto_register:
             try:
+                # [STRIKE]: Apophatic Skill Awakening
                 self.bootstrap.register_capabilities()
             except Exception as e:
-                self.logger.error(f"Apophatic Awakening fracture: {e}")
+                # Self-Healing Triage
+                self.logger.error(f"Inception Drift: {e}")
 
         if not silent and log_level == "DEBUG":
-            # Safe accessor to prevent forcing Context materialization just for a log
-            session_id = self._context.session_id if self._context else "PRE-INIT"
-            self.logger.verbose(f"Quantum Engine Manifest. Session: {session_id}")
+            self.logger.verbose(
+                f"Ω_KERNEL_RESONANT :: Session:{self.session_id} :: Substrate:{'WASM' if self._is_wasm else 'IRON'}")
 
     # =========================================================================
     # == STRATUM II: LAZY FACULTIES (DOUBLE-CHECKED JIT MATERIALIZATION)     ==
@@ -659,58 +697,222 @@ class VelmEngine:
         with self.dispatcher.levitate_context(temporary_root):
             yield
 
+    def _radiate_gnostic_revelation(self, result: ScaffoldResult, trace_id: str):
+        """
+        =================================================================================
+        == THE Ω_GNOSTIC_REVELATION: TOTALITY (V-Ω-TOTALITY-VMAX-HUD-SUTURE)          ==
+        =================================================================================
+        LIF: 100x | ROLE: OCULAR_SYNCHRONIZER_PRIME | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_RADIATE_VMAX_DNA_PROJECTION_2026_FINALIS_!#()@()@#)(
+
+        [THE MANIFESTO]
+        The supreme final authority for data radiation. This rite righteously
+        bridges the "Gnosis Gap" by projecting the project's reified DNA (.env)
+        and structural soul directly into the Ocular Membrane at 144Hz.
+        =================================================================================
+        """
+        import time
+        import json
+        from pathlib import Path
+
+        # --- MOVEMENT 0: THE VOID GUARD ---
+        if not self.akashic:
+            return
+
+        _start_ns = time.perf_counter_ns()
+        self.logger.verbose(f"[{trace_id[:8]}] Radiating Gnostic Revelation to Ocular Stage...")
+
+        try:
+            # =========================================================================
+            # == MOVEMENT I: [ASCENSION 1] - GENOMIC DNA PROJECTION                  ==
+            # =========================================================================
+            # We extract the "Conscience" (Environment DNA) from the result data.
+            # This allows the UI to see the waked secrets and warded ports instantly.
+            dream_telemetry = result.data.get("_dream_telemetry", {})
+
+            # Suture the reified variables (The Conscience)
+            # We filter out internal invariants to maximize Gnostic Density.
+            genome = {
+                k.upper(): v for k, v in self.context.variables.items()
+                if not k.startswith('__') and k not in ("trace_id", "session_id")
+            }
+
+            # --- MOVEMENT II: HAPTIC COUPLING (VISUALS) ---
+            # [ASCENSION 2]: Divine the Aura based on resonance
+            aura = "#64ffda" if result.success else "#ef4444"
+            vfx = "bloom" if result.success else "shake_red"
+            sound = "consecration_complete" if result.success else "fracture_alert"
+
+            # --- MOVEMENT III: PHYSICAL ARTIFACT NORMALIZATION ---
+            # [ASCENSION 7]: Force POSIX slashes for browser-clickable links
+            artifacts = []
+            for art in result.artifacts:
+                artifacts.append({
+                    "path": str(art.path).replace('\\', '/'),
+                    "type": art.type,
+                    "action": art.action,
+                    "size": getattr(art, 'size_bytes', 0)
+                })
+
+            # =========================================================================
+            # == MOVEMENT IV: THE OCULAR STRIKE (THE BROADCAST)                      ==
+            # =========================================================================
+            # [ASCENSION 11]: JSON-RPC 2.0 Gnostic Suture
+            payload = {
+                "method": "novalym/hud_revelation",
+                "params": {
+                    "type": "ARCHITECTURAL_MANIFESTATION",
+                    "status": "RESONANT" if result.success else "FRACTURED",
+                    "label": "REALITY_CONVERGED",
+                    "project_id": result.data.get("project_id", "NOVA"),
+                    "trace": trace_id,
+                    "aura": aura,
+                    "haptics": {
+                        "vfx": vfx,
+                        "sound": sound,
+                        "priority": "HIGH" if not result.success else "NORMAL"
+                    },
+                    "metrics": {
+                        "duration_ms": result.duration_seconds * 1000 if result.duration_seconds else 0,
+                        "atom_count": len(result.artifacts),
+                        "will_count": len(result.heresies),
+                        "merkle_seal": result.data.get("merkle_root", "0xVOID")
+                    },
+                    "vitals": result.vitals,  # Hardware DNA from the strike
+                    "genome": genome,  # THE REIFIED .ENV DNA
+                    "artifacts": artifacts,  # Clickable file manifest
+                    "timestamp": time.time()
+                },
+                "jsonrpc": "2.0"
+            }
+
+            # [STRIKE]: Project the Revelation to the React HUD
+            self.akashic.broadcast(payload)
+
+            # --- MOVEMENT V: METABOLIC FINALITY ---
+            _tax_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+            if not self._silent:
+                self.logger.success(f"   -> [REVELATION] HUD Synced in {_tax_ms:.2f}ms. Reality is now Ocular.")
+
+        except Exception as radiation_fracture:
+            # [ASCENSION 20]: FAULT-ISOLATED REDEMPTION
+            # Telemetry failure must never shatter the physical materialization.
+            self.logger.debug(f"Ocular Radiation deferred: {radiation_fracture}")
+
+
     # =========================================================================
     # == EXECUTION DELEGATES                                                 ==
     # =========================================================================
+    def transmute(
+        self,
+        template: str,
+        variables: Optional[Dict[str, Any]] = None,
+        _depth: int = 0,
+        **kwargs
+    ) -> str:
+        """
+        =============================================================================
+        == THE RITE OF UNIVERSAL REIFICATION: OMEGA (V-Ω-TOTALITY-VMAX-VARIADIC)   ==
+        =============================================================================
+        LIF: ∞ | ROLE: MATTER_REIFIER_PRIME | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_TRANSMUTE_VMAX_VARIADIC_SUTURE_2026_FINALIS_!#()@()
+
+        [THE MANIFESTO]
+        The supreme definitive authority for reifying intent directly from the
+        Kernel. This version righteously implements **Variadic Parameter Amnesty**,
+        mathematically annihilating the 'Unexpected Keyword' heresy.
+
+        [THE MASTER CURE]: It captures the recursive '_depth' coordinate and any
+        auxiliary Gnostic metadata, fusing them with the Engine's Global Conscience
+        before striking the Alchemical Anvil.
+        =============================================================================
+        """
+        # [ASCENSION 5]: NoneType Sarcophagus
+        if not template or not isinstance(template, str):
+            return ""
+
+        # --- MOVEMENT I: GNOSTIC CONVERGENCE ---
+        # 1. Start with the Absolute Mind (Global Variables)
+        # We use GnosticSovereignDict to maintain case-insensitive resonance.
+        active_vars = self.context.variables.copy()
+
+        # 2. [ASCENSION 2]: Causal Override Suture
+        # Overlay local variables provided by the specific call-site (e.g. Loop variables).
+        if variables:
+            active_vars.update(variables)
+
+        # 3. [ASCENSION 3]: Trace ID Silver-Cord Preservation
+        if "trace_id" not in active_vars:
+            active_vars["trace_id"] = getattr(self, "trace_id", "tr-engine-transmute")
+
+        # --- MOVEMENT II: THE KINETIC DELEGATION ---
+        # [STRIKE]: Calling the Divine Alchemist through the JIT bridge.
+        # We pass the '_depth' and 'kwargs' to the SGF Engine to maintain
+        # recursion-limit integrity and telemetry flow.
+        try:
+            return self.alchemist.transmute(
+                template,
+                active_vars,
+                _depth=_depth,
+                **kwargs
+            )
+        except Exception as alchemical_fracture:
+            # [ASCENSION 18]: Fault-Isolated Redemption
+            # If the SGF reactor panics, we return the raw template to prevent
+            # the "Void Erasure" anomaly while the error is logged.
+            self.logger.debug(f"Alchemical Strike deferred: {alchemical_fracture}")
+            return template
 
     def dispatch(self,
                  request: Union[BaseRequest, Dict[str, Any], str],
                  params: Optional[Dict[str, Any]] = None,
                  **kwargs) -> ScaffoldResult:
         """
-        =============================================================================
-        == THE DISPATCH APOTHEOSIS (V-Ω-TOTALITY-V28-UNBREAKABLE)                  ==
-        =============================================================================
-        LIF: ∞ | ROLE: KINETIC_SUPREME_CONDUCTOR | RANK: OMEGA
+        =================================================================================
+        == THE OMEGA DISPATCH APOTHEOSIS (V-Ω-TOTALITY-V72-INDESTRUCTIBLE-FINALIS)     ==
+        =================================================================================
+        LIF: ∞^∞ | ROLE: KINETIC_SUPREME_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH_CODE: Ω_DISPATCH_V72_SINGULARITY_RESONANCE_2026_FINALIS_!#()@()@#)(
 
-        The central nervous system of the God-Engine. It routes intent to action,
-        ensuring metabolic safety, transactional integrity, and forensic traceability.
-
-        ### THE PANTHEON OF LEGENDARY ASCENSIONS:
-        1.  **The Omega Suture (THE FIX):** Force-injects the `_request_context` into
-            the Artisan immediately before execution. This heals the 'AttributeError'
-            heresy where `self.failure()` tries to read a trace ID from a void request.
-        2.  **Global Memory Suture:** Explicitly serializes the final result to the
-            `__GNOSTIC_TRANSFER_CELL__` to guarantee WASM/JS bridge resonance.
-        3.  **Achronal Import Healing:** Emergency local imports ensure the engine
-            can speak even if module-level imports fracture.
-        4.  **Forensic Stderr Snitch:** Bypasses logging buffers to dump raw
-            tracebacks to stderr at the exact microsecond of collapse.
-        5.  **The NoneType Sarcophagus:** Transmutes 'None' returns from Middleware
-            into structured Failure vessels.
+        [THE MANIFESTO]
+        The supreme definitive authority for transmuting Intent into Reality. This
+        version righteously implements the **Laminar Reference Suture**,
+        mathematically annihilating the Anomaly 236-ONTOLOGICAL-ERASURE.
+        It conducts reality strikes across the Iron/Ether divide with bit-perfect
+        transactional finality.
+        =================================================================================
         """
-        # [ASCENSION 19 & 20]: ACHRONAL IMPORT HEALING & FORENSIC SNITCH
+        # [ASCENSION 48-72]: THE PANTHEON OF RELIABILITY & PERFORMANCE
         import sys
         import time
         import uuid
         import inspect
         import traceback as tb_scribe
         import json
+        import hashlib
         import importlib
+        import gc
+        import os
         from pathlib import Path
-        try:
-            from typing import Final, Any, Dict, List, Union, Optional
-        except ImportError:
-            Final = Any  # Emergency type-shim
+        from datetime import datetime, timezone
 
-        start_time = time.perf_counter()
+        _start_ns = time.perf_counter_ns()
         jit_overhead_ms = 0.0
         rite_name = "UnknownRite"
         trace_id = "tr-unbound"
         request_obj = None
 
+        # --- THE CHROMATIC SIGILS ---
+        UV = "\x1b[38;5;141m"
+        GOLD = "\x1b[38;5;220m"
+        RESET = "\x1b[0m"
+
         try:
-            # --- MOVEMENT I: TRANSMUTATION (INPUT NORMALIZATION) ---
+            # =========================================================================
+            # == MOVEMENT I: TRANSMUTATION & SEMANTIC TRIAGE                         ==
+            # =========================================================================
+            # [ASCENSION 39]: Semantic Alias Transmutation
+            # We resolve "fix code" -> RefactorRequest or "create api" -> GenesisRequest JIT.
             try:
                 if isinstance(request, str):
                     # [ASCENSION 2]: SEMANTIC INTENT DIVINER
@@ -731,9 +933,9 @@ class VelmEngine:
                 self.logger.error(f"Input Transmutation Fracture: {transmutation_fracture}")
                 return self.failure(f"Invalid Plea: {str(transmutation_fracture)}")
 
-            # --- MOVEMENT II: CAUSAL IDENTITY (TRACE ANCHORING) ---
+            # --- MOVEMENT II: CAUSAL IDENTITY (TRACE STITCHING) ---
+            # [ASCENSION 50]: Achronal Trace-ID Silver-Cord
             meta = getattr(request_obj, 'metadata', {})
-            # [ASCENSION 26]: POLYGLOT TYPE MIRROR FOR META
             meta_dict = meta.model_dump(mode='json') if hasattr(meta, 'model_dump') else (
                 meta if isinstance(meta, dict) else {})
 
@@ -744,7 +946,7 @@ class VelmEngine:
                     f"tr-{uuid.uuid4().hex[:8].upper()}"
             )
 
-            # [ASCENSION 7]: FORGE THE SILVER CORD
+            # [STRIKE]: Force-Bind the Silver Cord to the Request Soul
             if not hasattr(request_obj, 'trace_id') or getattr(request_obj, 'trace_id') in [None, "None", "tr-void"]:
                 try:
                     object.__setattr__(request_obj, 'trace_id', trace_id)
@@ -754,32 +956,43 @@ class VelmEngine:
             request_type = type(request_obj)
             rite_name = request_type.__name__
 
-            # [ASCENSION 4]: RECURSIVE DEPTH SENTINEL
+            # [ASCENSION 4]: RECURSIVE DEPTH SENTINEL (Ouroboros Ward)
             if hasattr(self.dispatcher, '_recursion_depths'):
                 with self.dispatcher._recursion_lock:
                     depth = self.dispatcher._recursion_depths.get(trace_id, 0)
                     if depth > self.dispatcher.MAX_DISPATCH_DEPTH:
                         return self.failure(
-                            f"Recursion Flood: Trace {trace_id} depth > {self.dispatcher.MAX_DISPATCH_DEPTH}")
+                            f"Topological Overflow: Trace {trace_id} depth > {self.dispatcher.MAX_DISPATCH_DEPTH}")
+                    self.dispatcher._recursion_depths[trace_id] = depth + 1
 
-            is_heavy = any(
-                k in rite_name for k in ['Genesis', 'Transmute', 'Analyze', 'Refactor', 'Manifest', 'Inception'])
+            is_heavy = any(k in rite_name for k in
+                           ['Genesis', 'Transmute', 'Analyze', 'Refactor', 'Manifest', 'Inception', 'Dream'])
 
-            # --- MOVEMENT III: THERMODYNAMIC ADJUDICATION ---
-            # [ASCENSION 13]: HYDRAULIC BACKPRESSURE
-            if is_heavy and self.watchdog.get_vitals().get("load_percent", 0) > 90.0:
-                self.logger.warn(f"[{trace_id}] Metabolic Fever Detected. Shedding heavy rite: {rite_name}")
-                return self.failure("Metabolic Congestion: System too hot for heavy inception.")
+            # =========================================================================
+            # == MOVEMENT III: THERMODYNAMIC ADJUDICATION (FEVER CHECK)              ==
+            # =========================================================================
+            # [ASCENSION 49 & 64]: Substrate Heat Tomography
+            system_vitals = self.watchdog.get_vitals()
+            load_factor = system_vitals.get("load_percent", 0.0)
 
+            if is_heavy and load_factor > 92.0:
+                self.logger.warn(
+                    f"[{trace_id}] Metabolic Fever Detected ({load_factor:.1f}%). Shedding heavy rite: {rite_name}")
+                return self.failure("Metabolic Congestion: System too hot for heavy inception.", vitals=system_vitals)
+
+            # [ASCENSION 11]: ADRENALINE MODE INCEPTION
             self._neuro_optimize(heavy_mode=is_heavy)
 
-            # --- MOVEMENT IV: COGNITIVE MEMORY & FOCUS ---
+            # --- MOVEMENT IV: COGNITIVE MEMORY & ANCHORING ---
             if hasattr(request_obj, 'project_root') and request_obj.project_root:
+                # [ASCENSION 36]: Hydraulic I/O Pacing (Anchor Focus)
                 self.memory.record_focus(str(request_obj.project_root))
 
-            # --- MOVEMENT V: THE RITE OF RE-INCEPTION (JIT / HOT-SWAP) ---
+            # =========================================================================
+            # == MOVEMENT V: THE RITE OF RE-INCEPTION (JIT / HOT-SWAP)               ==
+            # =========================================================================
             # [ASCENSION 24]: CIRCUIT BREAKER INTEGRATION
-            if hasattr(self, 'healer') and not self.healer.circuit_breaker.check_state(rite_name):
+            if not self.healer.circuit_breaker.check_state(rite_name):
                 return self.failure(f"Subsystem Quarantined: {rite_name} is currently fracturing.")
 
             artisan_info = self.registry.get_artisan_for(request_type)
@@ -793,22 +1006,24 @@ class VelmEngine:
                     details=f"The Gnostic Registry returned None for {request_type}."
                 )
 
-            # [ASCENSION 5]: JIT LATENCY AUDIT
+            # [ASCENSION 5 & 43]: ZERO-LATENCY JIT HOT-SWAP
             if isinstance(artisan_info, tuple):
                 module_path, class_name = artisan_info
                 jit_start = time.perf_counter()
-                if os.environ.get("SCAFFOLD_HOT_SWAP") == "1":
+
+                # Check for Hot-Swap signal or Adrenaline optimization
+                if os.environ.get("SCAFFOLD_HOT_SWAP") == "1" or not self._is_wasm:
                     with self.kernel_lock("jit_reception"):
                         try:
-                            # [ASCENSION 23]: PLUGIN WEAVING SUPPORT
+                            # [ASCENSION 54]: Pure JIT reload
                             to_purge = [m for m in sys.modules if m.startswith(module_path)]
-                            for m in to_purge:
-                                sys.modules.pop(m, None)
+                            for m in to_purge: sys.modules.pop(m, None)
+
                             module = importlib.import_module(module_path)
                             artisan_instance = getattr(module, class_name)(self)
                         except Exception as syntax_heresy:
-                            # [ASCENSION 20]: IMMEDIATE SNITCH
-                            sys.stderr.write(f"\n[TITAN:JIT_FRACTURE] {class_name}\n")
+                            # [ASCENSION 20]: FORENSIC SNITCH
+                            sys.stderr.write(f"\n{UV}[TITAN:JIT_FRACTURE]{RESET} {class_name}\n")
                             tb_scribe.print_exc(file=sys.stderr)
                             return self.failure(f"Syntax Heresy in {class_name}", details=tb_scribe.format_exc())
 
@@ -820,51 +1035,50 @@ class VelmEngine:
             else:
                 artisan_instance = artisan_info(self) if isinstance(artisan_info, type) else artisan_info
 
-            # [ASCENSION 33]: DEPENDENCY INJECTION SUTURE
+            # =========================================================================
+            # == MOVEMENT VI: [THE MASTER CURE] - LAMINAR REFERENCE SUTURE           ==
+            # =========================================================================
+            # [THE MANIFESTO]: We must bridge the 236-ONTOLOGICAL-ERASURE.
+            # We surgically sync the Artisan's variables to the Engine's Absolute Context.
             if hasattr(artisan_instance, 'engine'):
                 object.__setattr__(artisan_instance, 'engine', self)
 
-            # --- MOVEMENT VI: HYBRID KINETIC EXECUTION ---
+            # --- MOVEMENT VII: HYBRID KINETIC EXECUTION ---
             def _conduct_rite(req: BaseRequest) -> Union[ScaffoldResult, Any]:
+                # [ASCENSION 27]: OMNISCIENT BROADCAST (Progress)
                 if self.akashic:
                     self.akashic.broadcast({
                         "method": "scaffold/progress",
-                        "params": {"message": f"Executing {rite_name}...", "percentage": 25, "trace": trace_id}
+                        "params": {"message": f"Conducting {rite_name}...", "percentage": 33, "trace": trace_id}
                     })
 
-                # [ASCENSION 6]: ECHO CHAMBER INSCRIBER
+                # [ASCENSION 6]: ECHO CHAMBER (Deterministic Replay)
                 if is_heavy and not req.dry_run:
                     self.dispatcher._chronicle_replay_capability(req, rite_name)
 
-                # [ASCENSION 22]: TRANSACTIONAL ATOMICITY
+                # =====================================================================
+                # == [ASCENSION 22 & 58]: TRANSACTIONAL ATOMICITY                    ==
+                # =====================================================================
                 with self.transactions.atomic_rite(f"{rite_name}:{req.request_id}") as tx_id:
+                    # [ASCENSION 51]: REFERENCE SINGULARITY SUTURE
+                    # We ensure the context utilizes the Prime Sovereign vessels.
                     if req.context is None:
-                        try:
-                            from ...runtime.vessels import GnosticSovereignDict
-                            req.context = GnosticSovereignDict()
-                        except:
-                            req.context = {}
+                        req.context = GnosticSovereignDict()
+
                     req.context['transaction_id'] = tx_id
+                    req.context['trace_id'] = trace_id
 
-                    # =========================================================
-                    # == [THE OMEGA SUTURE]: REQUEST BINDING                 ==
-                    # =========================================================
-                    # We surgically implant the request into the Artisan's soul
-                    # BEFORE execution. This prevents the 'request is None'
-                    # heresy during a crash report.
+                    # Suture Matter Reservoirs from Engine -> Request Context
+                    for res_key in ('__woven_matter__', '__woven_commands__'):
+                        if res_key in self.context.variables:
+                            req.context[res_key] = self.context.variables[res_key]
+
+                    # [THE OMEGA SUTURE]: REQUEST BINDING
+                    # Forcefully implant the Request into the Artisan's soul.
                     try:
-                        # Attempt to set the protected attribute directly
                         object.__setattr__(artisan_instance, '_request_context', req)
-                    except (AttributeError, TypeError):
-                        # Fallback for standard Python objects
-                        artisan_instance._request_context = req
-
-                    # We also set '_current_request' for legacy compatibility
-                    try:
-                        object.__setattr__(artisan_instance, '_current_request', req)
                     except:
-                        pass
-                    # =========================================================
+                        artisan_instance._request_context = req
 
                     # [ASCENSION 25]: SYNCHRONOUS COROUTINE BRIDGE
                     raw_result = artisan_instance.execute(req)
@@ -879,120 +1093,119 @@ class VelmEngine:
                                 return asyncio.run(raw_result)
                         except RuntimeError:
                             return asyncio.run(raw_result)
+
                     return raw_result
 
-            # Pipeline Ignition
+            # Pipeline Ignition (Middleware Chain)
             result = self.pipeline.execute(request_obj, _conduct_rite)
 
             # [ASCENSION 21]: NONETYPE SARCOPHAGUS
             if result is None:
                 result = self.failure(f"Void Revelation: Artisan {rite_name} produced no matter.")
 
-            # --- MOVEMENT VII: POST-PROCESS & TELEMETRY ---
+            # --- MOVEMENT VIII: FORENSIC CONVERGENCE & TELEMETRY ---
             try:
+                # 1. TEMPORAL ACCOUNTING
                 if result and hasattr(result, 'duration_seconds'):
                     if not result.duration_seconds:
-                        result.duration_seconds = time.perf_counter() - start_time
+                        result.duration_seconds = (time.perf_counter_ns() - _start_ns) / 1_000_000_000
 
-                if jit_overhead_ms > 0 and result:
-                    result.ui_hints["jit_ms"] = jit_overhead_ms
-
+                # 2. INTELLECTUAL OBSERVATION
                 if hasattr(self, 'predictor'):
                     self.predictor.observe_outcome(request_obj, result)
 
                 self.memory.record_rite(rite_name, result.success if result else False)
                 self.last_reality = result
 
-                # [ASCENSION 8]: HAPTIC FEEDBACK SYNTHESIS
+                # 3. [ASCENSION 8]: HAPTIC FEEDBACK SYNTHESIS
                 self.dispatcher._synthesize_haptics(result)
 
-                # [ASCENSION 28]: ARTIFACT BLOOM (Optional)
-                if result.success and not request_obj.dry_run and is_heavy:
-                    self._scan_for_unclaimed_artifacts(request_obj, result, start_time)
+                # =====================================================================
+                # == [ASCENSION 52]: OCULAR RETINAL SUTURE (HUD SYNC)                ==
+                # =====================================================================
+                # [THE MASTER CURE]: If the rite was an inception (Genesis/Dream),
+                # we radiate the reified manifest DNA directly to the Ocular HUD.
+                if result.success and is_heavy:
+                    self._radiate_gnostic_revelation(result, trace_id)
 
-                # [ASCENSION 27]: OMNISCIENT BROADCAST
+                # 4. [ASCENSION 28]: ARTIFACT BLOOM
+                if result.success and not request_obj.dry_run and is_heavy:
+                    self._scan_for_unclaimed_artifacts(request_obj, result, _start_ns / 1_000_000_000)
+
+                # 5. [ASCENSION 27]: OMNISCIENT BROADCAST (Finality)
                 if result and self.akashic:
                     self.dispatcher._multicast_revelation(request_obj, result, rite_name)
 
-                for hook in self._hooks:
-                    try:
-                        hook(result)
-                    except Exception:
-                        pass
+                # [ASCENSION 31]: Merkle-State Fingerprinting
+                if result.success:
+                    self.context.variables['__last_merkle_seal__'] = result.data.get('merkle_root', "0xVOID")
 
             except Exception as post_heresy:
-                # [ASCENSION 20]: IMMEDIATE SNITCH
-                sys.stderr.write(f"\n[TITAN:POST_PROCESS_FRACTURE] {rite_name}\n")
+                sys.stderr.write(f"\n{UV}[TITAN:POST_PROCESS_FRACTURE]{RESET} {rite_name}\n")
                 tb_scribe.print_exc(file=sys.stderr)
                 raise post_heresy
 
             # =========================================================================
-            # == [ASCENSION 1]: THE GNOSTIC MEMORY SUTURE (GLOBAL)                  ==
+            # == MOVEMENT IX: [ASCENSION 1] - THE GNOSTIC MEMORY SUTURE (GLOBAL)     ==
             # =========================================================================
-            # We explicitly inject the finalized result directly into the Global Transfer Cell.
-            # This guarantees that the WASM worker ALWAYS retrieves a valid JSON string,
-            # completely annihilating the 'result is null' Javascript TypeError across all rites.
-            if os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten":
+            # [STRIKE]: Explicitly inject results into the Ethereal Cell for JS resonance.
+            if self._is_wasm:
                 try:
-                    # [ASCENSION 26]: POLYGLOT TYPE MIRROR (Recursively safe dump)
                     payload = self.dispatcher._mirror_type_safety(
-                        result.model_dump(mode='json') if hasattr(result, 'model_dump') else
-                        (result if isinstance(result, dict) else {"success": True, "data": str(result)})
+                        result.model_dump(mode='json') if hasattr(result, 'model_dump') else result
                     )
-
-                    # [ASCENSION 1]: The Actual Suture
                     sys.modules['__main__'].__dict__['__GNOSTIC_TRANSFER_CELL__'] = json.dumps(payload)
-                except Exception as e:
-                    self.logger.error(f"Global Memory Suture fractured: {e}")
-                    # Fallback Suture
-                    safe_payload = {"success": False, "error": f"Suture Fracture: {str(e)}", "trace_id": trace_id}
-                    sys.modules['__main__'].__dict__['__GNOSTIC_TRANSFER_CELL__'] = json.dumps(safe_payload)
+                except:
+                    pass
 
             return result
 
         except Exception as catastrophic_paradox:
-            # --- MOVEMENT VIII: FORENSIC EMERGENCY DUMP ---
-            # [ASCENSION 20]: IMMEDIATE SNITCH
-            sys.stderr.write(f"\n" + "!" * 80 + "\n")
-            sys.stderr.write(f"🔥 CATASTROPHIC DISPATCH FRACTURE: {rite_name}\n")
-            sys.stderr.write(f"📍 TRACE ID: {trace_id}\n")
-            sys.stderr.write(f"📍 ERROR: {type(catastrophic_paradox).__name__}: {str(catastrophic_paradox)}\n")
+            # =========================================================================
+            # == MOVEMENT X: FORENSIC EMERGENCY DUMP (THE REAPER)                    ==
+            # =========================================================================
+            # [ASCENSION 20 & 4]: IMMEDIATE SNITCH & SURGICAL UNWRAPPING
+            trace = tb_scribe.format_exc()
+            sys.stderr.write(f"\n{self.ALERT}💀 CATASTROPHIC DISPATCH FRACTURE: {rite_name}{self.RESET}\n")
+            sys.stderr.write(f"{UV}Trace ID:{RESET} {trace_id}\n")
+            sys.stderr.write(f"{UV}Error:{RESET}    {catastrophic_paradox}\n")
             sys.stderr.write("-" * 80 + "\n")
             tb_scribe.print_exc(file=sys.stderr)
-            sys.stderr.write("!" * 80 + "\n\n")
+            sys.stderr.write("-" * 80 + "\n\n")
             sys.stderr.flush()
 
             self._emergency_dump(catastrophic_paradox, rite_name, trace_id)
-            self.logger.critical(f"Catastrophic Dispatch Fracture in {rite_name}: {catastrophic_paradox}")
 
-            fail_duration = time.perf_counter() - start_time
-            if request_obj:
-                err_res = self.healer.handle_panic(catastrophic_paradox, request_obj, fail_duration)
-            else:
-                err_res = ScaffoldResult(
-                    success=False,
-                    message=f"Request Transmutation Failed: {catastrophic_paradox}",
-                    error=str(catastrophic_paradox),
-                    traceback=tb_scribe.format_exc()
-                )
+            fail_duration = (time.perf_counter_ns() - _start_ns) / 1_000_000_000
 
-            # =========================================================================
-            # == [ASCENSION 1]: THE GNOSTIC MEMORY SUTURE (FRACTURE PATH)           ==
-            # =========================================================================
-            # Ensure even a catastrophic paradox provides a clean JSON failure to JS.
-            if os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten":
+            # [ASCENSION 34]: Apophatic Error Unwrapping
+            err_res = self.healer.handle_panic(catastrophic_paradox, request_obj or request, fail_duration)
+
+            # Ensure the Ethereal Plane receives the fracture
+            if self._is_wasm:
                 try:
                     payload = err_res.model_dump(mode='json') if hasattr(err_res, 'model_dump') else err_res
                     sys.modules['__main__'].__dict__['__GNOSTIC_TRANSFER_CELL__'] = json.dumps(payload)
-                except Exception:
+                except:
                     pass
 
             return err_res
 
         finally:
-            # Metabolic Normalization
-            if 'is_heavy' in locals() and is_heavy:
-                self._neuro_optimize(heavy_mode=False)
+            # [ASCENSION 4]: Recursion unwind
+            if hasattr(self.dispatcher, '_recursion_depths'):
+                with self.dispatcher._recursion_lock:
+                    if trace_id in self.dispatcher._recursion_depths:
+                        self.dispatcher._recursion_depths[trace_id] = max(0, self.dispatcher._recursion_depths[
+                            trace_id] - 1)
+
+            # [ASCENSION 11]: Metabolic Normalization
+            self._neuro_optimize(heavy_mode=False)
+
+            # [ASCENSION 60]: THE FINALITY VOW
+            if not self._silent:
+                _total_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+                self.logger.info(f"Rite {rite_name} concluded in {_total_ms:.2f}ms. [RESONANT]")
 
     def _resolve_request_vessel(self, command: str, params: Dict[str, Any]) -> 'BaseRequest':
         """
@@ -1110,8 +1323,6 @@ class VelmEngine:
                 # If even raw inception fails, the heresy is fatal.
                 raise ValueError(f"Schema Mismatch for '{clean_key}': {validation_heresy}")
 
-    def __repr__(self) -> str:
-        return f"<Ω_REQUEST_RESOLVER status=RESONANT mode=ISOMORPHIC_IDENTITY_SUTURE version=VMAX_2026>"
 
     def _neuro_optimize(self, heavy_mode: bool):
         """
@@ -1127,7 +1338,6 @@ class VelmEngine:
         import time
 
         # [ASCENSION 14]: SUBSTRATE SENSING
-        is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
         trace_id = getattr(self.context, 'session_id', 'tr-unbound')
 
         try:
@@ -1137,7 +1347,7 @@ class VelmEngine:
                 os.environ["SCAFFOLD_ADRENALINE"] = "1"
 
                 # [ASCENSION 14]: Windows High-Status Ward
-                if os.name == 'nt' and not is_wasm:
+                if os.name == 'nt' and not self._is_wasm:
                     try:
                         import ctypes
                         ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x00008000)
@@ -1156,14 +1366,14 @@ class VelmEngine:
                 gc.enable()
                 os.environ.pop("SCAFFOLD_ADRENALINE", None)
 
-                if os.name == 'nt' and not is_wasm:
+                if os.name == 'nt' and not self._is_wasm:
                     try:
                         import ctypes
                         ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x00000020)
                     except (ImportError, AttributeError):
                         pass
 
-                if is_wasm:
+                if self._is_wasm:
                     time.sleep(0)  # [ASCENSION 13]: Hydraulic Yield
 
                 # --- MOVEMENT III: THE MEMORY WALL INQUEST ---
@@ -1526,7 +1736,7 @@ class VelmEngine:
             # [ASCENSION 12]: THE FINALITY VOW
             revelation = {
                 "session": {
-                    "id": self.context.session_id,
+                    "id": self.context._session_id,
                     "logic_version": "V36-TOTALITY-HEALED",
                     "status": "RESONANT",
                     "merkle_state_hash": getattr(self.registry, '_state_hash', '0xVOID'),
@@ -1626,8 +1836,7 @@ class VelmEngine:
         """
         self.shutdown_manager.execute()
 
-    def __repr__(self) -> str:
-        return f"<QuantumEngine session={self.context.session_id[:8]} root={self.project_root.name}>"
+
 
     @context.setter
     def context(self, value):
@@ -1636,3 +1845,6 @@ class VelmEngine:
     @predictor.setter
     def predictor(self, value):
         self._predictor = value
+
+    def __repr__(self) -> str:
+        return f"<QuantumEngine session={self.context._session_id[:8]} root={self.project_root.name}>"

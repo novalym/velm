@@ -83,6 +83,7 @@ class SutureVow(BaseModel):
 # == STRATUM II: THE MASTER VESSEL (SHARD GNOSIS)                            ==
 # =============================================================================
 
+
 class ShardGnosis(BaseModel):
     """
     [THE ATOM OF KNOWLEDGE]
@@ -109,7 +110,6 @@ class ShardGnosis(BaseModel):
     vibe: Union[str, List[str]] = Field(default_factory=list, description="Lexical gravity keywords.")
 
     # --- II. THE GENOMIC QUADRANTS (v3.0) ---
-    # [ASCENSION 1]: Total Suture of the new DNA specification.
     metabolism: MetabolicMass = Field(default_factory=MetabolicMass)
     substrate: SubstrateIron = Field(default_factory=SubstrateIron)
     suture: SutureVow = Field(default_factory=SutureVow)
@@ -117,6 +117,9 @@ class ShardGnosis(BaseModel):
     # --- III. CAUSAL CONSTRAINTS (THE DAG DNA) ---
     provides: List[str] = Field(default_factory=list, description="Capabilities granted.")
     requires: List[str] = Field(default_factory=list, description="Gaps required.")
+
+    # [ASCENSION 1]: APOPHATIC EXCOMMUNICATION (THE FIX)
+    excludes: List[str] = Field(default_factory=list, description="Mathematically forbidden overlaps.")
 
     # --- IV. KINETIC STATE (THE LINKER SUTURE) ---
     is_explicitly_willed: bool = Field(False, description="True if requested by the Architect.")
@@ -136,6 +139,7 @@ class ShardGnosis(BaseModel):
     merkle_hash: str = Field(default="0xVOID", description="Fingerprint of the physical code.")
     source_stratum: str = Field(default="LOCAL", description="Origin: CELESTIAL | LOCAL | IRON")
     timestamp: float = Field(default_factory=time.time)
+    ocular_ui: List[Dict[str, Any]] = Field(default_factory=list, alias="ocular-ui")
 
     # =========================================================================
     # == THE RITES OF HARMONIZATION (VALIDATORS)                             ==
@@ -153,7 +157,7 @@ class ShardGnosis(BaseModel):
         """[THE CURE]: Syncs 'description' and 'summary' to prevent v2/v3 schism."""
         return v or info.data.get('description', "")
 
-    @field_validator('provides', 'requires', mode='before')
+    @field_validator('provides', 'requires', 'excludes', mode='before')
     @classmethod
     def _ensure_list(cls, v: Any) -> List[str]:
         """Transmutes profane strings into pure Gnostic Lists."""

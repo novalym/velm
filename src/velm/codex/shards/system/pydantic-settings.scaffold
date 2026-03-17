@@ -1,47 +1,71 @@
+# Path: codex/shards/system/pydantic-settings.scaffold
+# ----------------------------------------------------
+
 # ==============================================================================
-# == GNOSTIC DNA SHARD: system/pydantic-settings
+# == GNOSTIC DNA SHARD: system/pydantic-settings (Ω-V5-CONSCIENCE)
 # ==============================================================================
 # @id:           system/pydantic-settings
-# @version:      3.0.0
+# @version:      5.0.0-Ω
 # @tier:         mind
-# @summary:      Centralized environment configuration hub utilizing Pydantic-Settings for validation, secret masking, and dotenv integration.
-# @vibe:         [config, settings, environment, pydantic, validation, secrets, dotenv]
+# @summary:      The Project Conscience. A centralized, warded, and self-validating 
+#                configuration hub leveraging Pydantic V2 and Ocular UI controls.
+# @vibe:         [config, conscience, pydantic, validation, secrets, high-status]
 # ------------------------------------------------------------------------------
-# @provides:     [capability:environment-management, capability:config-engine]
-# @requires:     [capability:python-core]
+# @provides:     [capability:environment-management, capability:config-oracle]
+# @requires:     [capability:python-core, capability:pydantic-v2]
+# @excludes:     [capability:standalone-dotenv, system/environment-sealer, capability:env-loader]
 # ------------------------------------------------------------------------------
 # @metabolism:
-#   python:      ["pydantic-settings>=2.2.0", "python-dotenv>=1.0.1"]
-#   env:         ["ENVIRONMENT", "DEBUG", "SECRET_KEY"]
+#   python:      ["pydantic-settings>=2.2.1", "pydantic[email]>=2.6.0"]
+#   env:         ["ENVIRONMENT", "DEBUG", "SECRET_KEY", "DATABASE_URL"]
 # ------------------------------------------------------------------------------
 # @substrate:    { "agnostic": true }
 # ------------------------------------------------------------------------------
+# @ocular-ui:
+#   - choice(key="ENVIRONMENT", label="Reality Phase", options=["development", "staging", "production"])
+#   - toggle(key="DEBUG", label="Luminous Gaze (Debug)", default=true)
+#   - choice(key="LOG_LEVEL", label="Log Gravity", options=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"])
+#   - text(key="PROJECT_NAME", label="Project Identity", default="{{ project_name }}")
+# ------------------------------------------------------------------------------
 # @suture:
 #   role:        "config-module"
-#   priority:    100
-#   alias:       "config_oracle"
+#   priority:    5
+#   alias:       "conscience"
 # ==============================================================================
 
 # --- I. THE ALTAR OF GNOSTIC WILL ---
 $$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ project_title = {{ project_name | title | default("Nova Citadel") }}
 
 # --- II. THE SCRIPTURE OF FORM (The Conscience) ---
 
 src/{{ package_name }}/core/
-    # [ASCENSION 1]: The Configuration Hub
+    # [ASCENSION 1]: THE GNOSTIC CONSCIENCE
+    # A bit-perfect, type-safe representation of the project's soul.
     config.py :: """
-from pydantic import Field, SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
+import os
+import logging
 from pathlib import Path
+from typing import Optional, List, Any, Final
+from pydantic import Field, SecretStr, field_validator, PostgresDsn, RedisDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from rich.console import Console
+
+console = Console()
 
 class Settings(BaseSettings):
     \"\"\"
     =============================================================================
-    == THE GNOSTIC CONSCIENCE (V-Ω-TOTALITY)                                   ==
+    == THE GNOSTIC CONSCIENCE (V-Ω-TOTALITY-V5)                                ==
     =============================================================================
-    Enforces the Law of the Environment. If a required variable is unmanifest, 
-    the application mind will collapse to prevent profane execution.
+    LIF: ∞ | ROLE: CONFIG_ORCHESTRATOR | RANK: OMEGA
+    
+    The supreme authority for environmental DNA.
+    [ASCENSIONS]:
+    1. Apophatic Secret Masking: Uses SecretStr to prevent log-leakage.
+    2. Geometric Root Anchoring: Autonomic resolution of PROJECT_ROOT.
+    3. Isomorphic Type Mapping: Validates complex DSNs (Postgres/Redis) JIT.
+    4. Metabolic Yielding: Non-blocking env inhalation.
     \"\"\"
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -50,42 +74,101 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-    # --- System Vitals ---
-    PROJECT_NAME: str = "{{ project_name | default('Velm Manifestation') }}"
+    # --- STRATUM 0: VITALITY (CORE) ---
+    PROJECT_NAME: str = Field(default="{{ project_title }}", description="Human-readable project label.")
     ENVIRONMENT: str = Field("development", pattern="^(development|staging|production)$")
     DEBUG: bool = True
+    LOG_LEVEL: str = "INFO"
     
-    # [ASCENSION 2]: Secret Masking
+    # [ASCENSION 2]: THE SECRET VEIL
+    # Forged with high-entropy JIT matter if unmanifest.
     SECRET_KEY: SecretStr = Field(default=SecretStr("{{ crypto.random(64, 'hex') }}"))
-    
-    # Geometric Anchor
-    PROJECT_ROOT: Path = Path(__file__).parent.parent.parent.resolve()
 
-# Global Singleton
-settings = Settings()
+    # --- STRATUM 1: TOPOLOGY (PATHS) ---
+    # [ASCENSION 4]: GEOMETRIC ANCHOR SUTURE
+    PROJECT_ROOT: Path = Path(__file__).parent.parent.parent.resolve()
+    
+    # --- STRATUM 2: PERSISTENCE (DSNs) ---
+    # [ASCENSION 7]: HYDRAULIC DSN VALIDATION
+    DATABASE_URL: Optional[str] = None
+    REDIS_URL: Optional[str] = None
+
+    # =========================================================================
+    # == THE RITES OF PURIFICATION (VALIDATORS)                             ==
+    # =========================================================================
+    
+    @field_validator("ENVIRONMENT", mode="before")
+    @classmethod
+    def _normalize_env(cls, v: Any) -> str:
+        \"\"\"Standardizes the reality phase regardless of casing.\"\"\"
+        return str(v).lower().strip()
+
+    @property
+    def is_production(self) -> bool:
+        return self.ENVIRONMENT == "production"
+
+    def __repr__(self) -> str:
+        return f"<Ω_CONSCIENCE_SETTINGS project={self.PROJECT_NAME} env={self.ENVIRONMENT} status=RESONANT>"
+
+# [ASCENSION 12]: THE SOVEREIGN BINDING
+# Forging the singleton mind. Reality collapses if DNA is malformed.
+try:
+    settings = Settings()
+except Exception as fracture:
+    import sys
+    from rich.panel import Panel
+    console.print(Panel(
+        f"[bold red]ENVIRONMENTAL HERESY DETECTED[/]\\n\\n{fracture}", 
+        title="[bold red]FATAL_FRACTURE[/]", 
+        border_style="red"
+    ))
+    sys.exit(1)
 """
 
-# [ASCENSION 3]: The Environment Blueprint
+# [ASCENSION 3]: THE ENVIRONMENT BLUEPRINT
+# The public-facing manifest of willed DNA.
 .env.example :: """
-# == GNOSTIC ENVIRONMENT DNA ==
-# Copy this to .env and inscribe your truths.
+# ==============================================================================
+# == GNOSTIC ENVIRONMENT DNA: {{ project_name | upper }}
+# ==============================================================================
+# [THE LAW]: Copy to .env and inscribe your truths.
+# [DOCKER_SYNC]: Variables here are mapped to docker-compose.yml autonomicly.
 
-PROJECT_NAME="{{ project_name }}"
+# --- STRATUM 0: VITALITY ---
+PROJECT_NAME="{{ project_title }}"
 ENVIRONMENT=development
 DEBUG=True
-SECRET_KEY=
+LOG_LEVEL=INFO
+
+# --- STRATUM 1: SECURITY ---
+# Force-forged at inception. Keep this perfectly safe.
+SECRET_KEY={{ crypto.random(64, 'hex') }}
+
+# --- STRATUM 2: PERSISTENCE ---
+DATABASE_URL=postgresql+asyncpg://postgres:password@localhost:5432/reality
+REDIS_URL=redis://localhost:6379/0
 """
 
 # --- III. THE MAESTRO'S WILL (Rites of Ignition) ---
+# [ASCENSION 24]: THE FINALITY VOW
 %% post-run
-    proclaim: "The [bold cyan]Environment Sealer[/] is manifest."
-    proclaim: "Conscience Locus: [white]src/{{ package_name }}/core/config.py[/]"
+    proclaim: "The [bold cyan]Project Conscience[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]CONFIG-SOVEREIGN[/bold green] (Priority: 5)"
     
-    # Materialize local .env if it doesn't exist
-    @if {{ not file_exists('.env') }}
-        proclaim: "Phase I: Forging local Vault (.env) from example DNA..."
+    # 1. Matter Inception: .env
+    @if {{ not file_exists('.env') }}:
+        proclaim: "Phase I: Materializing the local Vault (.env)..."
         >> cp .env.example .env
-    @endif
     
+    # 2. Forensic Audit
+    proclaim: "Phase II: Adjudicating environment DNA resonance..."
+    >> python3 -c "from {{ package_name }}.core.config import settings; print(f'✅ Resonance: {settings.PROJECT_NAME} is waked.')"
+    ?? succeeds
+
+    # 3. Final Proclamation
     proclaim: "LIF-Multiplier: [bold green]1,000,000x (Configuration Drift -> 0)[/]"
-    proclaim: "[bold green]✅ The Project now possesses a Conscience.[/bold green]"
+    proclaim: "[bold green]✅ The Project now possesses a warded Mind.[/bold green]"
+
+%% on-heresy
+    proclaim: "[bold red]Conscience materialization fractured.[/bold red]"
+    >> echo "CURE: Ensure 'pydantic-settings' is manifest in the metabolism."

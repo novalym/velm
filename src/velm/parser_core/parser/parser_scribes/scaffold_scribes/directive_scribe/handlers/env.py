@@ -7,7 +7,7 @@ import platform
 import subprocess
 import socket
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Final, Dict
 
 from .base import BaseDirectiveHandler
 from .......contracts.data_contracts import GnosticVessel, ScaffoldItem, GnosticLineType
@@ -36,34 +36,84 @@ class EnvHandler(BaseDirectiveHandler):
     - @watch: Registers a file watcher.
     =================================================================================
     """
+    _KINETIC_RITES: Final[Dict[str, str]] = {
+        "on_os": "_conduct_os_guard",
+        "inside": "_conduct_inside_block",
+        "kill_port": "_conduct_kill_port",
+        "virtual": "_conduct_virtual_marker",
+        "api": "_conduct_api_definition",
+        "pre_flight": "_conduct_pre_flight",
+        "cron": "_conduct_cron_registration",
+        "watch": "_conduct_watch_registration",
+        # --- THE SUBSTRATE-AS-INTENT APOTHEOSIS ---
+        "database": "_conduct_database_inception",
+        "db": "_conduct_database_inception",  # Semantic Alias
+        "cache": "_conduct_cache_inception",
+        "gateway": "_conduct_gateway_inception",
+        "compute": "_conduct_compute_inception"
+    }
 
     def conduct(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
-        directive = vessel.directive_type.lower()
+        """
+        =================================================================================
+        == THE OMEGA CONDUCT RITE: TOTALITY (V-Ω-VMAX-KINETIC-DISPATCH)                ==
+        =================================================================================
+        LIF: ∞^∞ | ROLE: SUBSTRATE_DISPATCHER_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH_CODE: Ω_CONDUCT_VMAX_JUMP_TABLE_2026_FINALIS_!#()@()@#)(
 
-        if directive == "on_os":
-            return self._conduct_os_guard(vessel)
+        [THE MANIFESTO]
+        The supreme definitive authority for environmental dispatching. This version
+        righteously annihilates the "Logic Stiction" of legacy parsers. It is the
+        High-Energy Switchboard that transmutes Directive Intent into Physical Iron.
+        =================================================================================
+        """
+        import time
+        import difflib
 
-        elif directive == "inside":
-            return self._conduct_inside_block(lines, i, vessel)
+        _start_ns = time.perf_counter_ns()
+        directive = vessel.directive_type.lower().strip()
 
-        elif directive == "kill_port":
-            return self._conduct_kill_port(vessel)
+        # --- MOVEMENT I: THE LATTICE LOOKUP (THE STRIKE) ---
+        # [ASCENSION 1]: Zero-Stiction Routing.
+        method_name = self._KINETIC_RITES.get(directive)
 
-        elif directive == "virtual":
-            return self._conduct_virtual_marker(vessel)
+        if method_name:
+            handler = getattr(self, method_name, None)
+            if handler:
+                try:
+                    # [STRIKE]: Execute the specialized Substrate-as-Intent rite.
+                    # We pass the full line-state for recursive contexting where needed.
+                    return handler(lines, i, vessel) if "lines" in handler.__code__.co_varnames else handler(vessel)
 
-        elif directive == "api":
-            return self._conduct_api_definition(vessel)
+                except Exception as strike_fracture:
+                    # [ASCENSION 23]: Fault-Isolated Redemption
+                    self.Logger.error(f"L{vessel.line_num}: Rite '@{directive}' shattered: {strike_fracture}")
+                    # Bubble up the heresy for the Healer
+                    raise strike_fracture
 
-        elif directive == "pre_flight":
-            return self._conduct_pre_flight(vessel)
+        # --- MOVEMENT II: THE SOCRATIC PROPHET (FALLBACK) ---
+        # [ASCENSION 3]: If the rite is unmanifest, we scry for phonetic resonance.
+        if directive not in self._KINETIC_RITES:
+            all_known = list(self._KINETIC_RITES.keys())
+            matches = difflib.get_close_matches(directive, all_known, n=1, cutoff=0.7)
 
-        elif directive == "cron":
-            return self._conduct_cron_registration(vessel)
+            suggestion = f" Did you mean '[bold cyan]@{matches[0]}[/bold cyan]'?" if matches else ""
 
-        elif directive == "watch":
-            return self._conduct_watch_registration(vessel)
+            # [ASCENSION 12]: THE NONE-TYPE SARCOPHAGUS
+            # We record the Heresy but mathematically guarantee the loop advances by returning i+1.
+            self.parser._proclaim_heresy(
+                "UNKNOWN_ENV_DIRECTIVE",
+                vessel,
+                details=f"The Environmental Stratum does not recognize '@{directive}'.{suggestion}",
+                severity=HeresySeverity.WARNING
+            )
 
+        # --- MOVEMENT III: METABOLIC FINALITY ---
+        _tax_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+        if _tax_ms > 2.0:
+            self.Logger.verbose(f"L{vessel.line_num}: Environmental Strike '@{directive}' tax: {_tax_ms:.2f}ms")
+
+        # [ASCENSION 24]: THE FINALITY VOW
         return i + 1
 
     def _conduct_inside_block(self, lines: List[str], i: int, vessel: GnosticVessel) -> int:
@@ -331,4 +381,167 @@ class EnvHandler(BaseDirectiveHandler):
             })
             self.Logger.verbose(f"L{vessel.line_num}: Watcher set: {pattern}")
 
+        return vessel.line_num - self.parser.line_offset + 1
+
+    def _conduct_database_inception(self, vessel: GnosticVessel) -> int:
+        """
+        =================================================================================
+        == THE RITE OF DATABASE INCEPTION: OMEGA (V-Ω-TOTALITY-VMAX-24-ASCENSIONS)     ==
+        =================================================================================
+        LIF: ∞^∞ | ROLE: AUTONOMIC_IRON_MATERIALIZER | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH_CODE: Ω_DB_INCEPTION_VMAX_SUBSTRATE_LAW_2026_FINALIS_!#()@()@#)(
+
+        [THE MANIFESTO]
+        The absolute final authority for physical substrate materialization. This rite
+        mathematically annihilates the Terraform Debt by making the Iron a side-effect
+        of the Code. Every @database decree is warded, waked, and transactionally sealed.
+        =================================================================================
+        """
+        import time
+        import uuid
+        import json
+        import hashlib
+        from pathlib import Path
+        from .......contracts.symphony_contracts import EdictType
+        from .......contracts.heresy_contracts import HeresySeverity
+
+        _start_ns = time.perf_counter_ns()
+        line_num = vessel.line_num
+        trace_id = getattr(self.parser, 'trace_id', f"tr-infra-{uuid.uuid4().hex[:6].upper()}")
+
+        # --- MOVEMENT 0: THE VOID GUARD ---
+        raw_args = vessel.name.strip().strip('()')
+        if not raw_args:
+            # [ASCENSION 14]: NoneType Zero-G Amnesty - Use the "Citadel Standard"
+            raw_args = "engine='postgres', tier='dev', size='standard'"
+
+        # =========================================================================
+        # == MOVEMENT I: PARAMETRIC ALCHEMY (THE LAMINAR SIEVE)                  ==
+        # =========================================================================
+        # [ASCENSION 1 & 22]: Multi-pass extraction and lowercase normalization.
+        params = self._lex_arguments(raw_args)
+
+        # [ASCENSION 18]: Substrate Region Divination
+        default_region = self.parser.variables.get("cloud_region") or "us-east-1"
+
+        # [ASCENSION 7]: Metabolic Treasurer Link
+        budget_guard = self.parser.variables.get("budget_ceiling_usd", 50.0)
+
+        dna = {
+            "engine": "postgres",
+            "tier": "dev",
+            "size": "db-s1-8",
+            "region": default_region,
+            "version": "16",
+            "provider": self.parser.variables.get("cloud_provider", "aws"),
+            "storage": "20gb",
+            "encrypted": "true"
+        }
+
+        for p in params:
+            if '=' in p:
+                k, v = p.split('=', 1)
+                key = k.strip().lower()
+                val = v.strip().strip('"\'')
+                if key in dna: dna[key] = val
+
+        # =========================================================================
+        # == MOVEMENT II: THE PAULI EXCLUSION GUARD (TOPOLOGICAL ENTROPY)        ==
+        # =========================================================================
+        # [ASCENSION 8]: We mathematically forbid "Metabolic Gluttony".
+        if self.parser.variables.get("__primary_db_manifested__"):
+            self.Logger.warn(f"L{line_num}: Secondary DB decree '{dna['engine']}' stayed to prevent Gluttony.")
+            return vessel.line_num - self.parser.line_offset + 1
+
+        # =========================================================================
+        # == MOVEMENT III: THE KINETIC SUTURE (THE QUATERNITY STRIKE)            ==
+        # =========================================================================
+        # [ASCENSION 2 & 5]: THE ANTIDOTE SUTURE.
+        # We forge the Strike and the Antidote simultaneously for transactional peace.
+
+        # 1. THE STRIKE: Provisioning the Iron
+        # [ASCENSION 12]: Propagate Simulation flags
+        is_sim = self.parser.variables.get("dry_run", False) or self.parser.variables.get("preview", False)
+        sim_flag = "--dry-run" if is_sim else ""
+
+        provision_cmd = (
+            f"velm cloud provision "
+            f"--engine {dna['engine']} "
+            f"--size {dna['size']} "
+            f"--region {dna['region']} "
+            f"--provider {dna['provider']} "
+            f"--max-budget {budget_guard} "
+            f"--trace {trace_id} "
+            f"{sim_flag} --json"
+        )
+
+        # 2. THE ANTIDOTE: Returning the matter to the Void (Rollback)
+        antidote_cmd = (
+            f"velm cloud terminate "
+            f"--engine {dna['engine']} "
+            f"--provider {dna['provider']} "
+            f"--trace {trace_id} "
+            f"--force"
+        )
+
+        # [ASCENSION 16]: Socratic Failure Prophecy
+        redemption_rites = ["CLOUD_CAPACITY_HEALER", "AUTH_HANDSHAKE_SUTURE", "REGION_FAILOVER_STRATEGY"]
+
+        # =========================================================================
+        # == MOVEMENT IV: [THE MASTER CURE] - ZENITH INJECTION                   ==
+        # =========================================================================
+        # [ASCENSION 6]: Zenith Priority. We inject at Index 0.
+        # [ASCENSION 15]: Merkle Fingerprinting for Edict Integrity
+        edict_hash = hashlib.sha256(f"{provision_cmd}:{trace_id}".encode()).hexdigest()[:8]
+
+        quaternity = (provision_cmd, line_num, antidote_cmd, redemption_rites)
+
+        # Strike the timeline
+        self.parser.post_run_commands.insert(0, quaternity)
+
+        # =========================================================================
+        # == MOVEMENT V: GNOSIS PERCOLATION (THE MIND)                           ==
+        # =========================================================================
+        # [ASCENSION 3 & 4]: We update the Mind-State before the walk continues.
+        # [ASCENSION 21]: Atomic Merkle Evolution
+        slug = self.parser.variables.get("project_slug", "nova")
+        db_url_key = f"{slug}_db_url"
+
+        # [ASCENSION 19]: Geometric Path Anchor Suture
+        # The URL is warded as a vault secret before it is even born.
+        db_url_placeholder = f"postgresql://@vault({db_url_key})"
+
+        self.parser.variables["DATABASE_URL"] = db_url_placeholder
+        self.parser.variables["__primary_db_manifested__"] = True
+        self.parser.variables["__db_engine__"] = dna['engine']
+        self.parser.variables["__db_merkle_seal__"] = edict_hash
+
+        # =========================================================================
+        # == MOVEMENT VI: OCULAR RADIATION (HAPTIC HUD PULSE)                    ==
+        # =========================================================================
+        # [ASCENSION 11]: Radiate the Inception event to the React Stage.
+        if self.parser.engine and hasattr(self.parser.engine, 'akashic'):
+            try:
+                self.parser.engine.akashic.broadcast({
+                    "method": "novalym/hud_pulse",
+                    "params": {
+                        "type": "INFRA_STRIKE_INITIATED",
+                        "label": f"INCEPTION: {dna['engine'].upper()}",
+                        "message": f"Materializing {dna['size']} in {dna['region']} [Budget: ${budget_guard}]",
+                        "color": "#f59e0b",  # Gold/Amber Aura
+                        "trace": trace_id
+                    }
+                })
+            except Exception:
+                pass
+
+        # [ASCENSION 14]: Metabolic Tomography Finalization
+        _tax_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+        self.Logger.success(
+            f"L{line_num}: Substrate Law Enforced. "
+            f"[Iron:{dna['engine'].upper()}] willed into {dna['provider'].upper()} ({_tax_ms:.2f}ms)."
+        )
+
+        # [ASCENSION 24]: THE FINALITY VOW
+        # Returning control to the conductor, loop is advanced.
         return vessel.line_num - self.parser.line_offset + 1

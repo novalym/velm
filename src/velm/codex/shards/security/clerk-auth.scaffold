@@ -1,61 +1,89 @@
 # ==============================================================================
-# == GNOSTIC DNA SHARD: security/clerk-auth
+# == GNOSTIC DNA SHARD: security/clerk-auth (Ω-AEGIS-EDITION)
 # ==============================================================================
 # @id:           security/clerk-auth
-# @version:      3.0.0
+# @version:      5.0.0-Ω
 # @tier:         mind
-# @summary:      Full-stack Clerk identity integration for FastAPI and React/Next.js.
-# @vibe:         [auth, clerk, identity, jwt, security, react, nextjs, sso]
+# @summary:      The Supreme Identity Citadel. Materializes a warded Clerk 
+#                SSO membrane with Ocular UI controls and Achronal JWT Adjudication.
+# @vibe:         [auth, clerk, identity, security, total-sovereignty, high-status]
 # ------------------------------------------------------------------------------
 # @provides:     [capability:auth-provider, capability:identity-management]
-# @requires:     [capability:fastapi-core]
+# @requires:     [capability:fastapi, capability:pydantic-v2]
+# @excludes:     [security/fastapi-auth, security/internal-secret-vault]
 # ------------------------------------------------------------------------------
 # @metabolism:
-#   python:      ["clerk-backend-api>=1.0.0"]
-#   node:        ["@clerk/nextjs", "@clerk/themes"]
+#   python:      ["clerk-backend-api>=1.0.0", "python-jose[cryptography]", "httpx"]
+#   node:        ["@clerk/nextjs", "@clerk/themes", "framer-motion"]
 #   env:         ["CLERK_SECRET_KEY", "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"]
 # ------------------------------------------------------------------------------
-# @substrate:    { "agnostic": true }
+# @substrate:    [python, node] 
+# ------------------------------------------------------------------------------
+# @ocular-ui:
+#   - toggle(key="strict_identity_hardening", label="Aegis Hardening", default=True)
+#   - slider(key="session_dilatation_hours", label="Temporal Persistence", min=1, max=168, default=24)
+#   - choice(key="clerk_aura", label="Membrane Theme", options=["dark", "shades_of_purple", "neobrutalism"])
 # ------------------------------------------------------------------------------
 # @suture:
 #   role:        "auth-gate"
-#   priority:    50
-#   alias:       "clerk_identity"
-# ==============================================================================
+#   priority:    10
+#   alias:       "citadel_auth"
+# ============================================================================== 
 
 # --- I. THE ALTAR OF GNOSTIC WILL ---
-$$ project_slug       = {{ project_slug | default("omega-citadel") }}
-$$ vault_package_name = {{ package_name | default(project_slug | snake) }}
-$$ clerk_theme        = {{ clerk_theme | default("dark") }}
+$$ clerk_secret = "{{ env('CLERK_SECRET_KEY') | default('sk_test_VOID') }}"
+$$ clerk_pub    = "{{ env('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY') | default('pk_test_VOID') }}"
+$$ hardened     = {{ strict_identity_hardening | default(true) }}
 
-# --- II. THE SCRIPTURE OF FORM (The Mind & The Eye) ---
+# --- II. THE SCRIPTURE OF FORM (The Pythonic Mind) ---
 
-src/{{ vault_package_name }}/core/security/
-    __init__.py += "from .passport import get_current_user\n"
+src/{{ package_name }}/core/security/
+    # [ASCENSION 1]: THE GNOSTIC PASSPORT CONTRACT
+    # Defines the soul of the user within the Pydantic V2 Stratum.
+    contracts.py :: """
+from pydantic import Field, EmailStr
+from typing import Optional, Dict, Any
+from ..vessels import BaseVessel
 
+class UserSoul(BaseVessel):
+    \"\"\"The verified identity of an authenticated Architect.\"\"\"
+    id: str = Field(..., alias="sub")
+    email: EmailStr
+    username: Optional[str] = None
+    role: str = "acolyte"
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    
+    @property
+    def is_sovereign(self) -> bool:
+        return self.role == "architect"
+"""
+
+    # [ASCENSION 2]: THE CLERK ADJUDICATOR
+    # Professional-grade SDK integration warded by async context.
     passport.py :: """
 import logging
 import os
+from functools import lru_cache
 from typing import Optional
 from fastapi import Request, HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from clerk_backend_api import Clerk
+from .contracts import UserSoul
 
-Logger = logging.getLogger("Security:Passport")
+Logger = logging.getLogger("Security:Citadel")
 
-# [ASCENSION 3]: THE CLERK ENGINE
-# The Causal Linker automatically enforces env var presence.
-clerk_client = Clerk(bearer_auth=os.getenv("CLERK_SECRET_KEY", "void"))
+# [ASCENSION 5]: THE SILICON CORD (SDK Ignition)
+clerk_client = Clerk(bearer_auth=os.getenv("CLERK_SECRET_KEY", "{{ clerk_secret }}"))
 security = HTTPBearer()
 
-async def get_current_user(res: HTTPAuthorizationCredentials = Depends(security)):
+async def get_active_soul(res: HTTPAuthorizationCredentials = Depends(security)) -> UserSoul:
     \"\"\"
     =============================================================================
-    == THE PASSPORT GUARD (V-Ω-TOTALITY)                                      ==
+    == THE PASSPORT ADJUDICATOR (V-Ω-TOTALITY)                                 ==
     =============================================================================
-    LIF: ∞ | ROLE: IDENTITY_ADJUDICATOR | RANK: OMEGA
+    LIF: ∞ | ROLE: IDENTITY_ADJUDICATOR | RANK: OMEGA_MASTER
     
-    Surgically verifies the Gnostic JWT issued by the Celestial Identity Provider.
+    Surgically verifies the Gnostic Seal (JWT) issued by the Celestial Provider.
     \"\"\"
     token = res.credentials
     try:
@@ -65,55 +93,166 @@ async def get_current_user(res: HTTPAuthorizationCredentials = Depends(security)
         
         # Inhale full user Gnosis from the Hub
         user = clerk_client.users.get(user_id)
-        return user
+        
+        # [ASCENSION 12]: METADATA SUTURE
+        # Maps Clerk public_metadata directly to our internal Jurisprudence
+        role = user.public_metadata.get("role", "acolyte")
+        
+        return UserSoul(
+            sub=user_id,
+            email=user.email_addresses[0].email_address,
+            username=user.username,
+            role=role,
+            metadata=user.public_metadata,
+            trace_id=os.getenv("SCAFFOLD_TRACE_ID", "tr-auth-resonant")
+        )
     except Exception as e:
         Logger.error(f"❌ [AUTH] Identity Fracture: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Profane Identity: The provided token does not resonate with the Citadel."
+            detail="Profane Identity: The provided seal does not resonate with the Citadel.",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 """
 
+    # [ASCENSION 3]: THE PERIMETER MEMBRANE
+    # A high-performance middleware that warded the API Strata.
+    guard.py :: """
+import time
+from fastapi import Request, status
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from ...logger import Scribe
+
+Logger = Scribe("Security:Membrane")
+
+class IdentityMembrane(BaseHTTPMiddleware):
+    \"\"\"
+    =============================================================================
+    == THE IDENTITY MEMBRANE (V-Ω-TOTALITY-V5)                                 ==
+    =============================================================================
+    LIF: 1,000,000x | ROLE: PERIMETER_ADJUDICATOR
+    
+    1.  Geometric Bypass: Automatically permits /health and /docs.
+    2.  Hardened Vow: If 'Aegis Hardening' is active, rejects all anonymous intent.
+    3.  Achronal Timing: Injects 'X-Auth-Latency' into the response headers.
+    \"\"\"
+    async def dispatch(self, request: Request, call_next):
+        start_ts = time.perf_counter()
+        path = request.url.path
+        
+        # [ASCENSION 4]: THE BYPASS ORACLE
+        if path.startswith(("/docs", "/redoc", "/openapi.json", "/health", "/api/v1/public")):
+            return await call_next(request)
+
+        # [ASCENSION 7]: THE HARDENED VOW
+        # Conditioned by the Ocular UI Slider 'strict_identity_hardening'
+        if {{ hardened | lower }} == "true":
+            if "authorization" not in request.headers:
+                return JSONResponse(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    content={
+                        "error": "AEGIS_VIOLATION",
+                        "message": "Anonymous intent is forbidden in this warded sanctum.",
+                        "trace_id": getattr(request.state, "trace_id", "tr-void")
+                    }
+                )
+
+        response = await call_next(request)
+        
+        # Inscribe metabolic tax of auth check
+        duration = (time.perf_counter() - start_ts) * 1000
+        response.headers["X-Auth-Latency-MS"] = f"{duration:.2f}"
+        
+        return response
+"""
+
+# --- III. THE SCRIPTURE OF FORM (The Ocular Eye) ---
+
 frontend/src/components/auth/
-    ClerkProvider.tsx :: """
+    # [ASCENSION 9]: THE OCULAR IDENTITY MEMBRANE
+    # A professional Next.js wrapper that links the theme aura to the Mind.
+    CitadelProvider.tsx :: """
+'use client';
+
 import React from 'react';
 import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
-import { {{ clerk_theme }} } from '@clerk/themes';
+import { {{ clerk_aura | default('dark') }} } from '@clerk/themes';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /**
  * =============================================================================
- * == THE OCULAR IDENTITY MEMBRANE (V-Ω-TOTALITY-V3)                          ==
+ * == THE CITADEL PROVIDER (V-Ω-TOTALITY-V5)                                  ==
  * =============================================================================
+ * Theme: {{ clerk_aura }}
+ * Hardening: {{ hardened }}
  */
-export function IdentityWrapper({ children }: { children: React.ReactNode }) {
+export function CitadelProvider({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider appearance={ { baseTheme: {{ clerk_theme | default('dark') }} } }>
-      <header className="flex justify-between items-center p-6 border-b border-zinc-900 bg-black/50 backdrop-blur-xl">
-        <div className="flex items-center gap-4">
-           <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse" />
-           <h1 className="text-sm font-black italic tracking-tighter uppercase">Citadel_OS</h1>
-        </div>
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button className="text-xs font-bold uppercase tracking-widest px-4 py-2 border border-cyan-900 hover:bg-cyan-950 transition-all">
-              Initiate_Handshake
-            </button>
-          </SignInButton>
-        </SignedOut>
-        <SignedIn>
-          <UserButton afterSignOutUrl="/" />
-        </SignedIn>
-      </header>
-      <main>
-        {children}
-      </main>
+    <ClerkProvider appearance={ { baseTheme: {{ clerk_aura | default('dark') }} } }>
+      <div className="relative min-h-screen bg-black selection:bg-purple-500/30">
+        <header className="flex justify-between items-center px-8 py-4 border-b border-zinc-900 bg-black/50 backdrop-blur-xl sticky top-0 z-[100]">
+          <div className="flex items-center gap-4 group">
+             <div className="w-2 h-2 bg-purple-500 rounded-full group-hover:scale-150 transition-transform duration-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
+             <h1 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 group-hover:text-white transition-colors">
+               Sovereign_Identity // {{ project_name | upper }}
+             </h1>
+          </div>
+          
+          <div className="flex items-center gap-6">
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="text-[10px] font-bold uppercase tracking-widest px-6 py-2 border border-zinc-800 hover:border-white hover:bg-white hover:text-black transition-all duration-300 rounded-full">
+                  Initiate_Handshake
+                </button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <motion.div 
+                initial={ { opacity: 0, scale: 0.9 } } 
+                animate={ { opacity: 1, scale: 1 } }
+                className="flex items-center gap-4"
+              >
+                <div className="h-4 w-px bg-zinc-800" />
+                <UserButton 
+                  afterSignOutUrl="/" 
+                  appearance={ { 
+                    elements: { 
+                      userButtonAvatarBox: "w-8 h-8 border-2 border-purple-500/20 hover:border-purple-500 transition-colors" 
+                    } 
+                  } } 
+                />
+              </motion.div>
+            </SignedIn>
+          </div>
+        </header>
+        
+        <main className="relative z-10">
+          {children}
+        </main>
+        
+        {/* [ASCENSION 21]: THE METABOLIC AURA GRID */}
+        <div className="fixed inset-0 pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      </div>
     </ClerkProvider>
   );
 }
 """
 
-# --- III. THE MAESTRO'S WILL ---
+# --- IV. THE MAESTRO'S WILL (Rites of Ignition) ---
 %% post-run
-    proclaim: "The [bold cyan]Clerk Identity Stratum[/bold cyan] has achieved Convergence."
-    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Identity Infrastructure -> 0)[/]"
-    proclaim: "[yellow]ACTION REQUIRED:[/yellow] Inscribe [bold]CLERK_SECRET_KEY[/] and [bold]NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY[/] in .env"
+    proclaim: "The [bold magenta]Clerk Citadel Shard[/bold magenta] has achieved Singularity."
+    proclaim: "Role: [bold green]IDENTITY-SOVEREIGN[/bold green] (Priority: 10)"
+    
+    # 1. Sealing the local Vault
+    proclaim: "Phase I: Inscribing the Silver Cords into .env..."
+    >> echo "CLERK_SECRET_KEY={{ clerk_secret }}" >> .env
+    >> echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY={{ clerk_pub }}" >> .env
+    
+    # 2. Final Proclamation
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Identity Schism -> 0)[/]"
+    proclaim: "[bold cyan]OCULAR STATUS:[/bold cyan] Membrane Aura waked as [bold]{{ clerk_aura }}[/]"
+
+%% on-heresy
+    proclaim: "[bold red]Identity materialization fractured.[/bold red]"
+    >> echo "CURE: Ensure 'clerk-backend-api' and '@clerk/nextjs' are manifest in the metabolism."

@@ -1,4 +1,4 @@
-# src/velm/core/runtime/engine/execution/transaction.py
+# Path: core/runtime/engine/execution/transaction.py
 # -----------------------------------------------------------
 
 import shutil
@@ -7,10 +7,26 @@ import sys
 import uuid
 import time
 import threading
+import hashlib
+import contextvars
+import gc
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple, Final, Union, Set
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+
+from .....logger import Scribe
+from .....contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
+from .....interfaces.base import Artifact
+
+# =========================================================================================
+# == [ASCENSION 1]: THE CONTEXTUAL SILVER-CORD                                           ==
+# =========================================================================================
+# This provides O(1) thread-safe access to the active Vessel across the entire Mind.
+_ACTIVE_TX_VESSEL: contextvars.ContextVar[Optional['TransactionVessel']] = contextvars.ContextVar("_ACTIVE_TX_VESSEL",
+                                                                                                  default=None)
+
+Logger = Scribe("TransactionManager")
 
 
 @dataclass
@@ -19,264 +35,376 @@ class FileOp:
     =============================================================================
     == THE ATOM OF CAUSALITY (V-Ω-FILE-OP-VESSEL)                              ==
     =============================================================================
-    A perfect, immutable record of a single physical transmutation.
     """
-    type: str  # 'create', 'modify', 'delete'
+    type: str  # 'create', 'modify', 'delete', 'edict', 'virtual'
     path: Path
     backup_path: Optional[Path] = None
     is_dir: bool = False
     timestamp: float = field(default_factory=time.perf_counter)
+    merkle_hash: str = "0xVOID"
+    edict_command: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+class TransactionVessel:
+    """
+    =============================================================================
+    == THE TRANSACTION VESSEL: THE BODY OF THE STRIKE (V-Ω-TOTALITY-VMAX)      ==
+    =============================================================================
+    LIF: ∞ | ROLE: TEMPORAL_STATE_CONTAINER | RANK: OMEGA
+    """
+    __slots__ = ('tx_id', 'operation_name', 'trace_id', 'ops', 'write_dossier', 'start_ts', '_lock', 'metadata')
+
+    def __init__(self, tx_id: str, op_name: str, trace_id: str):
+        self.tx_id = tx_id
+        self.operation_name = op_name
+        self.trace_id = trace_id
+        self.ops: List[FileOp] = []
+        self.write_dossier: Dict[Path, Artifact] = {}
+        self.start_ts = time.perf_counter()
+        self.metadata: Dict[str, Any] = {}
+        self._lock = threading.RLock()
+
+    def record(self, artifact: Union[Artifact, Any]):
+        """Records a completed artifact into the dossier."""
+        with self._lock:
+            p = getattr(artifact, 'path', Path("VOID"))
+            # Ensure path is a Path object for the key
+            key_path = Path(p) if not isinstance(p, Path) else p
+            self.write_dossier[key_path] = artifact
+
+    def __repr__(self) -> str:
+        return f"<Ω_TX_VESSEL id={self.tx_id[:8]} ops={len(self.ops)} status=ACTIVE>"
 
 
 class TransactionManager:
     """
     =================================================================================
-    == THE CHRONOS VAULT (V-Ω-TOTALITY-V25000-HOLY-GROUND-SEALED)                  ==
+    == THE CHRONOS VAULT: OMEGA POINT (V-Ω-TOTALITY-VMAX-ACID-SUTURED-HEALED)      ==
     =================================================================================
-    LIF: ∞ | ROLE: ENTROPY_REVERSAL_ENGINE | RANK: OMEGA_SOVEREIGN
-    AUTH: Ω_CHRONOS_V25000_TRUE_LAZY_INIT_FINALIS
+    LIF: ∞^∞ | ROLE: ENTROPY_REVERSAL_GOVERNOR | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_CHRONOS_VMAX_SUTURE_2026_FINALIS_!#()@#()
 
-    The supreme arbiter of Atomic File System Transactional Memory. It provides
-    Database-Grade ACID compliance to the raw physical filesystem, enabling
-    perfect, surgical rollbacks if a rite shatters mid-execution.
-
-    ### THE PANTHEON OF 7 LEGENDARY ASCENSIONS:
-    1.  **The Holy Ground Seal (THE CURE):** Absolute Zero-I/O policy. The `.scaffold/chronos`
-        vault is NEVER created unless a physical file mutation is explicitly registered.
-        This guarantees that `--preview` and `--dry-run` leave zero trace on the disk.
-    2.  **Topological Reversal:** Executes rollbacks in reverse-chronological order. This
-        ensures that deeply nested files are deleted before their parent directories,
-        preventing 'Directory Not Empty' heresies during temporal inversion.
-    3.  **Thread-Safe Mutex Grid:** Wrapped in a `threading.RLock`, allowing the
-        Parallel Hurricane of the Dispatcher to register intents asynchronously without
-        corrupting the ledger array.
-    4.  **The Lazarus Sweeper:** An autonomic background check that identifies and
-        evaporates orphaned `.bak` files from previous fatal Kernel Panics (SIGKILL).
-    5.  **Substrate-Aware Cloaking:** Automatically applies Windows Hidden (Attribute 2)
-        flags to the vault, while degrading gracefully in WASM/Emscripten environments.
-    6.  **Idempotent Registration:** Prevents "Double Backup" gluttony if an Artisan
-        modifies the same file multiple times in a single transaction.
-    7.  **The Unbreakable Vow:** A mathematical guarantee that if the `atomic_rite` block
-        fails, the filesystem is restored to its exact byte-for-byte ancestral state.
+    [THE MANIFESTO]
+    The supreme final authority for Atomic File System Transactional Memory. This
+    version has been radically re-aligned to annihilate the residual attribute
+    void during Engine shutdown.
     =================================================================================
     """
 
-    def __init__(self, logger):
-        """[THE RITE OF INCEPTION]"""
-        self.logger = logger
-        # Map[TransactionID, List[FileOp]]
-        self._active_transactions: Dict[str, List[FileOp]] = {}
-        # The Shadow Realm for backups
-        self._staging_area = Path(".scaffold/chronos")
+    STAGING_DIR: Final[Path] = Path(".scaffold/chronos")
 
-        # [ASCENSION 3]: The Mutex Grid
+    # [ASCENSION 1]: ATTRIBUTE SOVEREIGNTY
+    __slots__ = ('logger', '_active_transactions', '_lock', '_is_wasm', '_is_windows', '_staged_paths_bloom')
+
+    def __init__(self, logger: Optional[Any] = None):
+        """
+        =============================================================================
+        == THE RITE OF INCEPTION (V-Ω-TOTALITY-VMAX-HEALED)                        ==
+        =============================================================================
+        [THE MASTER CURE]: Explicitly initializes _active_transactions to prevent
+        AttributeError in the engine.shutdown() pathway.
+        """
+        self.logger = logger or Logger
+
+        # --- THE MASTER CURE ---
+        # Annihilates the 'AttributeError' by ensuring the ledger exists at birth.
+        self._active_transactions: Dict[str, TransactionVessel] = {}
+
         self._lock = threading.RLock()
-
-        # [ASCENSION 5]: Substrate Divination
         self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
         self._is_windows = os.name == 'nt'
 
+        # [ASCENSION 12]: Merkle-Bloom Sieve for fast lookups
+        self._staged_paths_bloom: Set[str] = set()
+
+    # =========================================================================
+    # == [THE MASTER CURE]: THE HOLOGRAPHIC DISCOVERY RITES                  ==
+    # =========================================================================
+
+    def get_active_transaction(self) -> Optional[TransactionVessel]:
+        """
+        =============================================================================
+        == THE RITE OF THE GNOSTIC EYE (V-Ω-TOTALITY-VMAX-HEALED)                  ==
+        =============================================================================
+        LIF: O(1) | Returns the living TransactionVessel from the thread context.
+        """
+        return _ACTIVE_TX_VESSEL.get()
+
     @contextmanager
-    def atomic_rite(self, operation_name: str):
+    def atomic_rite(self, operation_name: str, trace_id: Optional[str] = None):
         """
         =============================================================================
-        == THE RITE OF ATOMICITY (TRANSACTION CONTEXT)                             ==
+        == THE RITE OF ATOMICITY (ACID COMPLIANCE)                                 ==
         =============================================================================
-        Starts a transaction scope.
-        - If an exception bubbles up, ROLLBACK is triggered.
-        - If the block exits cleanly, COMMIT is triggered.
+        LIF: ∞ | Wraps a block of intent in a transactional womb.
         """
-        tx_id = f"{operation_name}-{uuid.uuid4().hex[:8]}"
+        tx_uuid = uuid.uuid4().hex[:8].upper()
+        tx_id = f"TX-{operation_name.upper()}-{tx_uuid}"
+        active_trace = trace_id or f"tr-tx-{tx_uuid.lower()}"
 
+        # 1. MATERIALIZE THE VESSEL
+        vessel = TransactionVessel(tx_id, operation_name, active_trace)
+
+        # 2. SUTURE TO CONTEXT
+        token = _ACTIVE_TX_VESSEL.set(vessel)
+
+        # 3. REGISTER IN GLOBAL LEDGER
         with self._lock:
-            self._active_transactions[tx_id] = []
+            self._active_transactions[tx_id] = vessel
 
-        # [THE CURE]: The Holy Ground Seal is enforced here.
-        # We DO NOT create self._staging_area. It is a strict Lazy Init within register_intent.
+        self._radiate_hud_pulse(tx_id, "TX_BEGIN", "#3b82f6", active_trace)
 
         try:
-            # Yield control to the Maestro/Creator
-            yield tx_id
+            # Yield control to the Architect's Rite
+            yield vessel
 
-            # The Rite concluded purely. Burn the backups.
-            self._commit(tx_id)
+            # [STRIKE]: Transaction Pure. Consecrate the iron.
+            self._commit(vessel)
 
         except Exception as catastrophic_paradox:
-            # The Rite fractured. Reverse the flow of time.
-            self.logger.warn(f"Rite '{operation_name}' shattered. Reversing entropy via Chronos Vault.")
-            self._rollback(tx_id)
+            # [REVERSAL]: Transaction Fractured. Reverse the flow of time.
+            self.logger.critical(f"Lattice Fracture in '{tx_id}'. Reversing entropy.")
+            self._rollback(vessel)
             raise catastrophic_paradox
 
         finally:
-            # Cleanse the ledger
+            # 4. EVAPORATE FROM MIND
+            _ACTIVE_TX_VESSEL.reset(token)
             with self._lock:
                 self._active_transactions.pop(tx_id, None)
 
-    def register_intent(self, tx_id: str, file_path: Path, intent: str = 'modify'):
+            # [ASCENSION 34]: Metabolic Yielding
+            gc.collect(0)
+
+    def register_intent(self, vessel_id: Union[TransactionVessel, str], file_path: Path, intent: str = 'modify'):
         """
         =============================================================================
-        == THE RITE OF REGISTRATION (LAZY VAULT INCEPTION)                         ==
+        == THE RITE OF REGISTRATION (V-Ω-CAUSAL-ANCHORING)                         ==
         =============================================================================
-        Registers an intent to mutate reality. Backs up the target if necessary.
-        Must be called BEFORE the physical write occurs.
         """
-        with self._lock:
-            if tx_id not in self._active_transactions:
-                return  # Not currently warded by a transaction scope
+        # Resolve Vessel Instance
+        vessel = vessel_id if isinstance(vessel_id, TransactionVessel) else self._active_transactions.get(vessel_id)
+        if not vessel:
+            vessel = self.get_active_transaction()
+        if not vessel: return
 
-            file_path = file_path.resolve()
+        with vessel._lock:
+            # [ASCENSION 21]: Geometric Normalization
+            abs_path = file_path.resolve()
+            path_key = str(abs_path).replace('\\', '/')
 
-            # [ASCENSION 6]: Idempotent Registration (No Double-Backups)
-            if any(op.path == file_path for op in self._active_transactions[tx_id]):
+            # [ASCENSION 20]: Idempotency Shield (Avoid double-backups)
+            if any(op.path == abs_path for op in vessel.ops):
                 return
 
-            # =========================================================================
-            # == [ASCENSION 1]: THE HOLY GROUND SEAL (TRUE LAZY INIT)                ==
-            # =========================================================================
-            # We only pierce the void and create the .scaffold/chronos folder when
-            # physical matter is absolutely guaranteed to change.
-            if not self._staging_area.exists() and not self._is_wasm:
-                try:
-                    self._staging_area.mkdir(parents=True, exist_ok=True)
-                    # [ASCENSION 5]: Substrate-Aware Cloaking
-                    if self._is_windows:
-                        try:
-                            import ctypes
-                            ctypes.windll.kernel32.SetFileAttributesW(str(self._staging_area),
-                                                                      2)  # FILE_ATTRIBUTE_HIDDEN
-                        except Exception:
-                            pass
-                except OSError:
-                    pass  # Graceful degradation for locked sandboxes
+            # [ASCENSION 1]: SANCTUM MATERIALIZATION
+            if not self._is_wasm and not self.STAGING_DIR.exists():
+                self._pierce_the_void()
 
-            # Evaluate physical form
-            is_dir = file_path.is_dir() if file_path.exists() else False
+            is_dir = abs_path.is_dir() if abs_path.exists() else False
 
-            # --- CASE A: CREATION INTENT ---
-            # If creating a new file, a rollback simply means deleting it.
-            if intent == 'create' or not file_path.exists():
-                self._active_transactions[tx_id].append(
-                    FileOp(type='create', path=file_path, is_dir=is_dir)
-                )
+            # --- CASE A: CREATION ---
+            if intent == 'create' or not abs_path.exists():
+                vessel.ops.append(FileOp(type='create', path=abs_path, is_dir=is_dir))
 
-            # --- CASE B: MODIFICATION / DELETION INTENT ---
-            # If destroying or altering, we MUST preserve the original soul.
+            # --- CASE B: MUTATION (MODIFY/DELETE) ---
             elif intent in ('modify', 'delete'):
-                backup_name = f"{tx_id}_{uuid.uuid4().hex[:4]}_{file_path.name}.bak"
-                backup_path = self._staging_area / backup_name
+                backup_name = f"{vessel.tx_id}_{uuid.uuid4().hex[:4]}_{abs_path.name}.bak"
+                backup_path = self.STAGING_DIR / backup_name
 
                 try:
-                    if is_dir and not file_path.is_symlink():
-                        # For directories, copytree preserves the entire structure
-                        shutil.copytree(str(file_path), str(backup_path), dirs_exist_ok=True)
+                    # [ASCENSION 13]: Hydraulic Copy Pacing
+                    if is_dir and not abs_path.is_symlink():
+                        shutil.copytree(str(abs_path), str(backup_path), dirs_exist_ok=True)
                     else:
-                        # For files, preserve metadata and contents
-                        shutil.copy2(str(file_path), str(backup_path))
+                        shutil.copy2(str(abs_path), str(backup_path))
 
-                    self._active_transactions[tx_id].append(FileOp(
-                        type=intent,
-                        path=file_path,
-                        backup_path=backup_path,
-                        is_dir=is_dir
+                    # Calculate local Merkle fragment for the op
+                    m_hash = self._calculate_merkle_sample(abs_path)
+
+                    vessel.ops.append(FileOp(
+                        type=intent, path=abs_path, backup_path=backup_path,
+                        is_dir=is_dir, merkle_hash=m_hash
                     ))
+
+                    # Update Bloom Sieve for O(1) lookups
+                    with self._lock:
+                        self._staged_paths_bloom.add(path_key)
+
                 except Exception as e:
-                    # If we cannot backup the file (e.g. Permission Denied), we log a heavy warning.
-                    # The transaction continues, but this specific file loses its immortality.
-                    self.logger.warn(
-                        f"Chronos Vault: Failed to backup '{file_path.name}'. Rollback will be partial: {e}")
+                    self.logger.warn(f"Chronos Vault: Backup of '{abs_path.name}' failed: {e}")
 
-    def _commit(self, tx_id: str):
-        """
-        =============================================================================
-        == THE RITE OF FINALITY (COMMIT)                                           ==
-        =============================================================================
-        The new reality is accepted. The temporal echoes (backups) are incinerated.
-        """
-        with self._lock:
-            ops = self._active_transactions.get(tx_id, [])
+    def record_edict(self, command: str, undo_command: Optional[str] = None):
+        """[ASCENSION 4]: KINETIC WILL REGISTRATION."""
+        vessel = self.get_active_transaction()
+        if not vessel: return
 
-        for op in ops:
-            if op.backup_path and op.backup_path.exists():
-                try:
-                    if op.backup_path.is_dir() and not op.backup_path.is_symlink():
-                        shutil.rmtree(str(op.backup_path), ignore_errors=True)
-                    else:
-                        op.backup_path.unlink(missing_ok=True)
-                except Exception:
-                    pass
+        with vessel._lock:
+            vessel.ops.append(FileOp(
+                type='edict',
+                path=Path("KINETIC_WILL"),
+                edict_command=command,
+                backup_path=Path(undo_command) if undo_command else None
+            ))
 
-        # [ASCENSION 4]: The Lazarus Sweeper Trigger
-        # Occasionally clean up the entire chronos vault if it's empty, keeping the project pristine.
+    def get_staging_path(self, logical_path: Path) -> Path:
+        """[ASCENSION 2]: Returns the temporal backup path for a given file."""
+        vessel = self.get_active_transaction()
+        if not vessel: return logical_path
+
+        abs_path = logical_path.resolve()
+        path_key = str(abs_path).replace('\\', '/')
+
+        # [ASCENSION 12]: Bloom Fast-Path
+        if path_key not in self._staged_paths_bloom:
+            return logical_path
+
+        with vessel._lock:
+            for op in vessel.ops:
+                if op.path == abs_path and op.backup_path:
+                    return op.backup_path
+
+        return logical_path
+
+    def is_file_in_staging(self, rel_path: Path) -> bool:
+        """Used by the Sentinel to perceive future matter."""
+        vessel = self.get_active_transaction()
+        if not vessel: return False
+
+        # Heuristic: verify against Bloom filter
+        # (This assumes relative paths are normalized against project root)
+        search_key = str(rel_path).lower().replace('\\', '/')
+        for path in self._staged_paths_bloom:
+            if path.lower().endswith(search_key):
+                return True
+        return False
+
+    # =========================================================================
+    # == STRATUM III: KINETIC TERMINALS (COMMIT / ROLLBACK)                  ==
+    # =========================================================================
+
+    def _commit(self, vessel: TransactionVessel):
+        """[THE RITE OF CONSECRATION] Seals the new reality."""
+        with vessel._lock:
+            # [ASCENSION 3]: Generate Merkle Anchor
+            hasher = hashlib.sha256()
+            for op in sorted(vessel.ops, key=lambda x: str(x.path)):
+                hasher.update(op.merkle_hash.encode())
+
+            final_seal = hasher.hexdigest()[:16].upper()
+            vessel.metadata["merkle_seal"] = f"0x{final_seal}"
+
+            self.logger.success(f"Transaction '{vessel.tx_id}' consecrated. Seal: 0x{final_seal}")
+            self._radiate_hud_pulse(vessel.tx_id, "TX_COMMIT", "#64ffda", vessel.trace_id)
+
+            # Annihilate the shadows
+            for op in vessel.ops:
+                if op.backup_path and op.backup_path.exists():
+                    try:
+                        if op.backup_path.is_dir() and not op.backup_path.is_symlink():
+                            shutil.rmtree(op.backup_path, ignore_errors=True)
+                        else:
+                            op.backup_path.unlink(missing_ok=True)
+                    except:
+                        pass
+
         self._sweep_orphans()
 
-    def _rollback(self, tx_id: str):
-        """
-        =============================================================================
-        == THE RITE OF REVERSAL (ROLLBACK)                                         ==
-        =============================================================================
-        [ASCENSION 2]: Undoes all operations in reverse-chronological order.
-        """
-        with self._lock:
-            ops = self._active_transactions.get(tx_id, [])
+    def _rollback(self, vessel: TransactionVessel):
+        """[THE RITE OF REVERSAL] Temporal Inversion."""
+        with vessel._lock:
+            # [ASCENSION 3]: Reverse order for topological safety
+            for op in reversed(vessel.ops):
+                try:
+                    # 1. UNDO WILL (EDICTS)
+                    if op.type == 'edict' and op.backup_path:
+                        undo_cmd = str(op.backup_path)
+                        self.logger.warn(f"   <- [REVERSING WILL]: {undo_cmd}")
+                        os.system(undo_cmd)
 
-        # Reverse the timeline: the last file written is the first to be restored/deleted.
-        ops_reversed = sorted(ops, key=lambda x: x.timestamp, reverse=True)
+                    # 2. UNDO MATTER GENESIS (CREATION)
+                    elif op.type == 'create':
+                        if op.path.exists():
+                            if op.path.is_dir() and not op.path.is_symlink():
+                                shutil.rmtree(op.path, ignore_errors=True)
+                            else:
+                                op.path.unlink(missing_ok=True)
 
-        for op in ops_reversed:
-            try:
-                # --- UNDO CREATION -> ANNIHILATE ---
-                if op.type == 'create':
-                    if op.path.exists():
-                        if op.path.is_dir() and not op.path.is_symlink():
-                            shutil.rmtree(str(op.path), ignore_errors=True)
-                        else:
-                            op.path.unlink(missing_ok=True)
+                    # 3. UNDO TRANSMUTATION (MODIFY/DELETE)
+                    elif op.type in ('modify', 'delete') and op.backup_path:
+                        if op.backup_path.exists():
+                            op.path.parent.mkdir(parents=True, exist_ok=True)
+                            if op.is_dir and not op.backup_path.is_symlink():
+                                if op.path.exists(): shutil.rmtree(op.path, ignore_errors=True)
+                                shutil.copytree(op.backup_path, op.path)
+                            else:
+                                shutil.copy2(op.backup_path, op.path)
 
-                # --- UNDO MODIFICATION/DELETION -> RESTORE ---
-                elif op.type in ('modify', 'delete'):
-                    if op.backup_path and op.backup_path.exists():
-                        # Ensure the parent directory still exists (in case it was swept away)
-                        op.path.parent.mkdir(parents=True, exist_ok=True)
+                except Exception as e:
+                    self.logger.error(f"   -> [ROLLBACK_FRACTURE] '{op.path.name}': {e}")
 
-                        # Overwrite the corrupted reality with the pristine backup
-                        if op.backup_path.is_dir() and not op.backup_path.is_symlink():
-                            if op.path.exists():
-                                shutil.rmtree(str(op.path), ignore_errors=True)
-                            shutil.copytree(str(op.backup_path), str(op.path))
-                        else:
-                            shutil.copy2(str(op.backup_path), str(op.path))
+        self._radiate_hud_pulse(vessel.tx_id, "TX_ROLLBACK", "#ef4444", vessel.trace_id)
+        # Force a clean commit state after rollback
+        self._commit(vessel)
 
-            except Exception as e:
-                self.logger.error(f"Chronos Reversal Failed for '{op.path.name}': {e}")
+    # =========================================================================
+    # == INTERNAL ORGANS (PHYSICS & TELEMETRY)                               ==
+    # =========================================================================
 
-        # Clean up the backups used for this rollback
-        self._commit(tx_id)
+    def _pierce_the_void(self):
+        """[ASCENSION 1]: Vault materialization."""
+        try:
+            self.STAGING_DIR.mkdir(parents=True, exist_ok=True)
+            if self._is_windows:
+                # Set hidden attribute on Windows
+                import ctypes
+                ctypes.windll.kernel32.SetFileAttributesW(str(self.STAGING_DIR), 2)
+        except:
+            pass
+
+    def _calculate_merkle_sample(self, path: Path) -> str:
+        """Quick Merkle fragment for state comparison."""
+        try:
+            if path.is_dir(): return "0xDIR"
+            with open(path, 'rb') as f:
+                return hashlib.md5(f.read(4096)).hexdigest()
+        except:
+            return "0xVOID"
 
     def _sweep_orphans(self):
-        """
-        [ASCENSION 4]: THE LAZARUS SWEEPER
-        Quietly evaporates the `.scaffold/chronos` directory if it is empty, or
-        prunes `.bak` files older than 24 hours from hard system crashes.
-        """
-        if self._is_wasm or not self._staging_area.exists():
-            return
-
+        """[ASCENSION 7]: Lazarus Reaper."""
+        if self._is_wasm or not self.STAGING_DIR.exists(): return
+        now = time.time()
         try:
-            now = time.time()
-            is_empty = True
-
-            for item in self._staging_area.iterdir():
-                is_empty = False
-                if item.is_file() and item.suffix == '.bak':
-                    # If older than 24 hours, reap it
-                    if (now - item.stat().st_mtime) > 86400:
+            for item in self.STAGING_DIR.iterdir():
+                if (now - item.stat().st_mtime) > 86400:  # 24hr TTL
+                    if item.is_dir():
+                        shutil.rmtree(item, ignore_errors=True)
+                    else:
                         item.unlink(missing_ok=True)
-                elif item.is_dir():
-                    if (now - item.stat().st_mtime) > 86400:
-                        shutil.rmtree(str(item), ignore_errors=True)
-
-            # If the vault is completely empty, remove it to restore the Holy Ground
-            if is_empty:
-                self._staging_area.rmdir()
-        except Exception:
+            if not any(self.STAGING_DIR.iterdir()): self.STAGING_DIR.rmdir()
+        except:
             pass
+
+    def _radiate_hud_pulse(self, tx_id: str, type_label: str, color: str, trace: str):
+        """[ASCENSION 21]: OCULAR HUD MULTICAST."""
+        try:
+            import sys
+            main_mod = sys.modules.get('__main__')
+            engine = getattr(main_mod, 'engine', None)
+            if engine and hasattr(engine, 'akashic') and engine.akashic:
+                engine.akashic.broadcast({
+                    "method": "novalym/hud_pulse",
+                    "params": {
+                        "type": "TRANSACTION_EVENT",
+                        "label": f"{type_label}: {tx_id[:12]}",
+                        "color": color,
+                        "trace": trace
+                    }
+                })
+        except:
+            pass
+
+    def __repr__(self) -> str:
+        return f"<Ω_CHRONOS_VAULT active_tx={len(self._active_transactions)} status=RESONANT>"

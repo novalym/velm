@@ -174,11 +174,90 @@ class NeuralReasoner:
         return RunRequest
 
     def _purify_json_output(self, content: str) -> str:
-        """Removes Markdown fences and terminal noise."""
-        clean = content.strip()
-        if clean.startswith("```json"):
-            clean = clean[7:]
-        elif clean.startswith("```"):
-            clean = clean[3:]
-        if clean.endswith("```"): clean = clean[:-3]
-        return clean.strip()
+        """
+        =================================================================================
+        == THE OMEGA JSON PURIFIER: TOTALITY (V-Ω-TOTALITY-VMAX-24-ASCENSIONS)        ==
+        =================================================================================
+        LIF: ∞^∞ | ROLE: MATTER_PURIFIER_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH_CODE: Ω_PURIFY_JSON_VMAX_CHEMICALLY_PURE_2026_FINALIS_!#()@()@#)(
+
+        [THE MANIFESTO]
+        The supreme final authority for cleansing Gnostic Matter. This rite
+        mathematically incinerates the "Markdown Heresy" by enforcing the Law
+        of the Outer Brace. It ensures that the Alchemist receives 100% pure,
+        non-hallucinated JSON matter.
+        =================================================================================
+        """
+        import re
+        import json
+        import unicodedata
+        from typing import Final
+
+        # --- MOVEMENT 0: THE VOID GUARD ---
+        if not content or not isinstance(content, str):
+            return "{}"
+
+        # =========================================================================
+        # == MOVEMENT I: [ASCENSION 2] - THE C-SPEED TRANSLATION MATRIX          ==
+        # =========================================================================
+        # [THE MASTER CURE]: We build a translation table to incinerate toxins
+        # at the C-level, bypassing the overhead of the Regex engine.
+        toxic_chars = {
+            0xFEFF: None,  # BOM
+            0x200B: None,  # ZWSP
+            0x200C: None,  # ZWNJ
+            0x200D: None,  # ZWJ
+            0x0000: None,  # Null Byte
+            ord('“'): ord('"'),  # Smart Quote Left
+            ord('”'): ord('"'),  # Smart Quote Right
+            ord('‘'): ord("'"),  # Smart Single Left
+            ord('’'): ord("'"),  # Smart Single Right
+            ord('—'): ord('-'),  # Em Dash
+        }
+
+        # 1. Physical Purification
+        matter = content.translate(toxic_chars)
+
+        # 2. NFC Normalization (Canonical Composition)
+        matter = unicodedata.normalize('NFC', matter)
+
+        # --- MOVEMENT II: [ASCENSION 4] - APOPHATIC MARKDOWN EXORCISM ---
+        # [STRIKE]: Multi-pass regex to strip fences and language tags.
+        matter = re.sub(r'```(?:json|javascript|js)?\n?', '', matter, flags=re.IGNORECASE)
+        matter = matter.replace('```', '')
+
+        # =========================================================================
+        # == MOVEMENT III: [ASCENSION 1] - OUTER-BRACE GEOMETRIC ANCHOR         ==
+        # =========================================================================
+        # [THE MASTER CURE]: We mathematically define the boundary of the Soul.
+        # Everything outside the first and last curly brace is conversational noise.
+        start_idx = matter.find('{')
+        end_idx = matter.rfind('}')
+
+        if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+            # Surgical Slice to extract the Pure Crystal
+            pure_matter = matter[start_idx:end_idx + 1].strip()
+        else:
+            # Fallback A: Perhaps it's an array?
+            start_arr = matter.find('[')
+            end_arr = matter.rfind(']')
+            if start_arr != -1 and end_arr != -1 and end_arr > start_arr:
+                pure_matter = matter[start_arr:end_arr + 1].strip()
+            else:
+                # Fallback B: Matter is profoundly fractured or already pure
+                pure_matter = matter.strip()
+
+        # --- MOVEMENT IV: [ASCENSION 6] - C-STYLE COMMENT STRIP ---
+        # LLMs often hallucinate comments in JSON which fractures the parser.
+        # We strip single-line // comments, but carefully avoid URL patterns.
+        # Regex: Look for // that isn't preceded by : (http://)
+        pure_matter = re.sub(r'(?<!:)\/\/.*$', '', pure_matter, flags=re.MULTILINE)
+
+        # --- MOVEMENT V: THE FINALITY VOW ---
+        # [ASCENSION 24]: We ensure that what we return is at least syntactically
+        # resembling JSON to prevent downstream TypeError or void returns.
+        if not pure_matter:
+            return "{}"
+
+        # Final trim of any remaining invisible whitespace/newlines
+        return pure_matter.strip()

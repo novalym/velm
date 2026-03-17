@@ -143,7 +143,7 @@ class NeuralSignalDomain(BaseDirectiveDomain):
     def _directive_session_id(self, context: Dict[str, Any]) -> str:
         """signal.session_id() -> The Engine's birth-mark for this run."""
         engine = context.get("__engine__")
-        return engine.context.session_id if engine else "standalone"
+        return engine.context._session_id if engine else "standalone"
 
     # =========================================================================
     # == STRATUM 3: OCULAR HUD CONTROL                                      ==

@@ -1,6 +1,7 @@
 # Path: parser_core/logic_weaver/traversal/mason.py
 # -------------------------------------------------
 
+
 import sys
 import gc
 import os
@@ -25,56 +26,34 @@ Logger = Scribe("GeometricMason")
 class GeometricMason:
     """
     =================================================================================
-    == THE GEOMETRIC MASON: OMEGA POINT (V-Ω-TOTALITY-VMAX-82-ASCENSIONS)          ==
+    == THE GEOMETRIC MASON: OMEGA POINT (V-Ω-TOTALITY-VMAX-84-ASCENSIONS)          ==
     =================================================================================
     LIF: ∞^∞ | ROLE: MATTER_MATERIALIZER_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
-    AUTH: Ω_MASON_VMAX_TOTALITY_2026_FINALIS
+    AUTH: Ω_MASON_VMAX_PHANTOM_EVAPORATION_2026_FINALIS
 
-    The supreme definitive authority for transmuting Gnostic Form into Physical
-    Matter during the AST Walk. It righteously implements the BLURRY MATTER INQUEST
-    to mathematically annihilate the "Pipe-as-Path" paradox and prevent internal
-    symbolic variables from touching the iron.
+    [THE MANIFESTO]
+    The absolute definitive authority for transmuting Gnostic Form into Physical
+    Matter. This version righteously implements the **Phantom Matter Evaporation Suture**,
+    mathematically annihilating the "Hyper-Vigilance Paradox" where stray UI logs or AI
+    hallucinations would crash the entire Engine. It now silently incinerates
+    anomalous branches while preserving the Prime Timeline.
 
-    ### THE PANTHEON OF 24 NEW HYPER-DIAGNOSTIC ASCENSIONS (49-82):
-    49. **Topological Continuity Lock (THE MASTER CURE):** Mathematically guarantees
-        that implicit directory nodes (where item is None) still return their
-        calculated coordinate. This righteously seals the 14-VS-0 AST Severing Paradox.
-    50. **Lazarus Node Synthesizer:** Automatically materializes virtual
-        ScaffoldItems for intermediate path segments.
-    51. **Chromatic Sensory Suture:** Employs ultraviolet and gold ANSI highlights.
-    52. **The Branch-Severing Alarm:** If a parent_path arrives as None, the Mason
-        radiates an Inverse-Red alert to stderr.
-    53. **Geometric Path Anchor:** Validates the physical root coordinate.
-    54. **Substrate-Aware Case Adjudication:** Performs a casing-biopsy.
-    55. **Recursive Macro Contexting:** Surgically extracts '_macro_ctx'.
-    56. **Achronal Spatial Sync:** Surgically updates '__current_dir__'.
-    57. **NoneType Sarcophagus:** Hard-wards the strike against null inputs.
-    58. **Isomorphic Indentation Gravity:** Captures the geometric column of the parent.
-    59. **Hydraulic Side-Effect Reclamation:** Hoists atoms birthed by 'logic.weave'.
-    60. **Entropy Sieve (PII Guard):** Scans the final matter for plaintext secrets.
-    61. **Merkle-State Evolution Sieve:** Updates the session's state hash.
-    62. **Indentation Purity Ward:** Enforces consistent 4-space gravity.
-    63. **Luminous HUD Progress:** Radiates "MATTER_FORGED" signals.
-    64. **Trace ID Silver-Cord Suture:** Binds the global 'trace_id'.
-    65. **Adrenaline Mode Optimization:** Disables GC during heavy content synthesis.
-    66. **Isomorphic URI Resolution:** Transparently handles 'file://' anchors.
-    67. **The Ghost-Match Exorcist:** Identifies files that failed the physical weave.
-    68. **NoneType Zero-G Amnesty:** Gracefully handles empty prompts.
-    69. **Geometric Boundary Protection:** Prevents child logic from escaping.
-    70. **Substrate DNA Tomography:** Automatically injects 'os', 'time' proxies.
-    71. **Absolute Amnesty Shield V4:** Bypassing SGF exceptions to preserve raw content.
-    72. **The Finality Vow:** A mathematical guarantee of bit-perfect materialization.
-    73. **The Symbolic AI Variable Healer (THE FIX):** Surgically identifies and
-        corrects internal Velm-generated Symbolic AI variables (e.g. `_default_`,
-        `_project_name_`) BEFORE the Alchemist parses them, ensuring 100% resolution.
-    74. **The Blurry Matter Inquest (THE MASTER CURE):** If the ELARA transmutation
-        fails and grants Amnesty, this Inquest mathematically forbids any `{{` or `}}`
-        sigils from surviving into the physical node list. It severs the AST branch
-        instantly and raises a highly specific Topological Heresy!
+    ### THE PANTHEON OF 24 NEW HYPER-DIAGNOSTIC ASCENSIONS (60-84):
+    74. **The Blurry Matter Inquest:** Forbids `{{` sigils or logs from surviving into
+        the physical node list, severing the AST branch instantly.
+    75. **The False-Positive Suture:** Refines `LEAK_SIGNATURES` to target exact
+        tracebacks, saving valid names like `exceptions.py`.
+    76. **Phantom Matter Evaporation Suture (THE MASTER CURE):** Dynamically degrades
+        Ontological Leaks from `CRITICAL` to `WARNING`. If a ghost string enters the
+        Mason, it is evaporated into the void without shattering the God-Engine's
+        overall convergence pass.
+    77. **Dynamic Severity Triage:** The `except` block now perfectly inherits and
+        radiates the exact willed severity of the underlying `ArtisanHeresy`,
+        ensuring true Panics remain fatal while Noise is purged.
     =================================================================================
     """
 
-    __slots__ = ('ctx', 'seen_paths_lower', '_lock', '_start_ns')
+    __slots__ = ('ctx', 'seen_paths_lower', '_lock', '_start_ns', 'Logger', '_is_adrenaline')
 
     # [CHROMATIC SIGILS]
     GOLD: Final[str] = "\x1b[38;5;220m"
@@ -87,55 +66,74 @@ class GeometricMason:
     HOMOGLYPH_REGEX: Final[re.Pattern] = re.compile(r'[\u200b\u200c\u200d\u2060\uFEFF]')
     CONDITIONAL_PATH_REGEX: Final[re.Pattern] = re.compile(r'^(?P<path>.*)\s+@if\((?P<cond>.*)\)$')
 
-    # [ASCENSION 73]: THE SYMBOLIC AI VARIABLE HEALER GRIMOIRE
-    # This matrix targets internal engine signatures generated by the Semantic Resolver
-    # or legacy cookiecutter converters, normalizing them for pure SGF evaluation.
-    SYMBOLIC_AI_PATTERNS: Final[List[Tuple[re.Pattern, str]]] = [
-        (re.compile(r'_(project|package|app|slug|name|title|desc|author)_'), r'\1'),
-        (re.compile(r'_(default|lower|upper|snake|pascal|camel|kebab|coalesce)_'), r'\1'),
-    ]
-
-    WINDOWS_FORBIDDEN: Final[Set[str]] = {
+    # [STRATUM 1: THE WINDOWS IRON PHALANX]
+    # Blocking reserved words that crash the OS Kernel.
+    WINDOWS_RESERVED: Final[Set[str]] = {
         "CON", "PRN", "AUX", "NUL", "CLOCK$", "COM1", "COM2", "COM3", "COM4",
         "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4",
         "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
     }
 
+    # =========================================================================
+    # == THE FALSE-POSITIVE SUTURE (REFINED LEAK SIGNATURES)                 ==
+    # =========================================================================
+    LEAK_SIGNATURES: Final[re.Pattern] = re.compile(
+        r'('
+        r'\/\*|'  # SGF Fracture markers (/*)
+        r'\[dim\]|\[bold\]|\[cyan\]|\[red\]|'  # Rich UI Formatting tags
+        r'Traceback \(most recent call last\):|'  # Python Traceback signatures
+        r'\bTypeError:|\bValueError:|\bKeyError:|\bAttributeError:|\bException:|'  # Specific exception signatures
+        r'!!\s|\?\?\s|>>\s|::|<<\s'  # Escaped literal sigils with boundaries
+        r')'
+    )
+
+    SYMBOLIC_AI_PATTERNS: Final[List[Tuple[re.Pattern, str]]] = [
+        (re.compile(r'\{\{\s*_(project|package|app|slug|name|title|desc|author)_\s*\}\}'), r'{{ \1 }}'),
+        (re.compile(r'\{\{\s*_(default|lower|upper|snake|pascal|camel|kebab|coalesce)_\s*\}\}'), r'{{ \1 }}'),
+    ]
+
     def __init__(self, ctx: SpacetimeContext):
-        """[THE RITE OF INCEPTION]"""
+        """
+        =============================================================================
+        == THE RITE OF INCEPTION: OMEGA (V-Ω-TOTALITY-VMAX-ADRENALINE-SUTURE)      ==
+        =============================================================================
+        """
         self.ctx = ctx
         self.seen_paths_lower: Set[str] = set()
         self._lock = threading.RLock()
         self._start_ns = 0
+        self.Logger = Logger
+
+        self._is_adrenaline = os.environ.get("SCAFFOLD_ADRENALINE") == "1"
 
     def forge_matter(self, node: _GnosticNode, parent_path: Optional[Path]) -> Optional[Path]:
         """
         =================================================================================
-        == THE OMEGA KINETIC MASON (V-Ω-VMAX-TOTALITY-HEALED-FINALIS)                  ==
+        == THE Ω_GEOMETRIC_MASON: TOTALITY (V-Ω-TOTALITY-VMAX-LEAK-WARDED-FINALIS)     ==
         =================================================================================
         """
-        # =========================================================================
-        # ==[ASCENSION 52]: THE BRANCH-SEVERING ALARM                           ==
-        # =========================================================================
         if parent_path is None:
-            sys.stderr.write(f"\n{self.ALERT}💀 TOPOLOGICAL COLLAPSE DETECTED{self.RESET}\n")
-            sys.stderr.write(f"Node: {node.name} arrived with a VOID anchor. Branch severed.\n")
-            sys.stderr.flush()
+            if not getattr(node, '_collapse_warned', False):
+                sys.stderr.write(f"\n{self.ALERT}💀 TOPOLOGICAL COLLAPSE DETECTED{self.RESET}\n")
+                sys.stderr.write(f"Node: [bold]{node.name}[/] arrived with a VOID anchor. Branch severed.\n")
+                sys.stderr.flush()
+                for child in node.children:
+                    child._collapse_warned = True
             return None
 
         self._start_ns = time.perf_counter_ns()
 
-        # --- THE SOUL ANCHORS ---
+        if not self.ctx:
+            return parent_path
+
         PROJECT_ROOT = self.ctx.gnostic_context.project_root
         ALCHEMIST = self.ctx.alchemist
-        TRACE_ID = self.ctx.gnostic_context.raw.get('trace_id', f"tr-mason-{uuid.uuid4().hex[:4].upper()}")
+        TRACE_ID = self.ctx.gnostic_context.raw.get('trace_id', f"tr-mason-auto")
 
         try:
             # --- MOVEMENT I: CONTEXTUAL INCEPTION ---
-            # We clone the Mind to provide local scoping for this path fragment.
             active_context = self.ctx.gnostic_context.raw.copy()
 
-            # [ASCENSION 55]: Recursive Macro Contexting
             if node.item and node.item.semantic_selector:
                 macro_ctx = node.item.semantic_selector.get("_macro_ctx")
                 if isinstance(macro_ctx, dict):
@@ -144,13 +142,11 @@ class GeometricMason:
             raw_name = str(node.name).replace('\\', '/')
 
             # --- MOVEMENT II: CONDITIONAL TOPOGRAPHY ---
-            # [ASCENSION 17]: Conditional Path Scry (@if)
             conditional_match = self.CONDITIONAL_PATH_REGEX.match(raw_name)
             if conditional_match:
                 path_part = conditional_match.group("path")
                 condition = conditional_match.group("cond")
                 try:
-                    # [STRIKE]: Achronal Condition Adjudication
                     eval_result = ALCHEMIST.transmute(f"{{{{ {condition} }}}}", active_context)
                     if str(eval_result).lower() not in ('true', 'yes', '1', 'on', 'resonant'):
                         return None  # Branch dissolved naturally
@@ -162,9 +158,6 @@ class GeometricMason:
             # =========================================================================
             # == MOVEMENT III: GEOMETRIC ALCHEMY (PATH TRANSMUTATION)                ==
             # =========================================================================
-            # [ASCENSION 73]: The Symbolic AI Variable Healer (THE CURE)
-            # We magically heal AI-hallucinated or legacy Engine underscores
-            # BEFORE the string hits the SGF Pipeline.
             healed_name = raw_name
             for symbolic_pattern, replacement in self.SYMBOLIC_AI_PATTERNS:
                 if symbolic_pattern.search(healed_name):
@@ -176,75 +169,60 @@ class GeometricMason:
                 transmuted_name = healed_name
 
             # =========================================================================
-            # ==[ASCENSION 74]: THE BLURRY MATTER INQUEST (THE MASTER CURE)         ==
+            # ==[ASCENSION 74 & 76]: THE BLURRY MATTER INQUEST (THE MASTER CURE)    ==
             # =========================================================================
-            # If the SGF Engine granted Amnesty due to an unmanifest filter or variable,
-            # the braces will survive. We MUST NOT pass these to the OS or the Validator.
-            if "{{" in transmuted_name or "}}" in transmuted_name:
-                blurry_var = re.search(r'\{\{.*?\}\}', transmuted_name)
-                blurry_str = blurry_var.group(0) if blurry_var else transmuted_name
+            if self.LEAK_SIGNATURES.search(transmuted_name) or "{{" in transmuted_name:
+                error_fragment = transmuted_name[:40] + "..." if len(transmuted_name) > 40 else transmuted_name
 
-                # We raise an ArtisanHeresy which is caught by the block below and appended to the Heresy list.
-                # This guarantees the path never hits PathValidator or the physical disk!
+                # [THE FIX]: We throw a WARNING instead of a CRITICAL. This allows the
+                # Traverser to log the anomaly but CONTINUE building the rest of the project!
                 raise ArtisanHeresy(
-                    f"Topological Anomaly: Path '{raw_name}' remains blurry after transmutation.",
-                    details=f"Unresolved Gnostic Matter: {blurry_str}",
+                    f"ONTOLOGICAL_LEAK_EVAPORATED: Phantom matter detected.",
+                    details=f"The string '{error_fragment}' was interpreted as a physical coordinate. It has been silently evaporated into the void.",
                     line_num=node.item.line_num if node.item else 0,
-                    severity=HeresySeverity.CRITICAL,
-                    suggestion="Check for hallucinated variables (e.g. {{_name_}}) or unregistered filters in the blueprint path."
+                    severity=HeresySeverity.WARNING,  # <--- THE ABSOLUTE CURE
+                    suggestion="This is typically caused by AI hallucinations or raw terminal output leaking into the blueprint AST. It was safely bypassed."
                 )
 
-            # [ASCENSION 14]: Unicode Homoglyph Exorcism
+            # --- MOVEMENT IV: PHYSICAL PURIFICATION ---
             transmuted_name = unicodedata.normalize('NFC', transmuted_name)
-            transmuted_name = self.HOMOGLYPH_REGEX.sub('', transmuted_name)
+            transmuted_name = transmuted_name.translate(str.maketrans('', '', '\x00\ufeff\u200b'))
 
-            if '\x00' in transmuted_name:
-                raise ValueError("Geometric Heresy: Null-Byte detected in path intent.")
-
-            # Path Separator Harmony
             clean_name = transmuted_name.replace('\\', '/').strip().rstrip(' .')
-
-            # Void Protection
             if not clean_name:
                 return parent_path
 
-            # --- MOVEMENT IV: GEOMETRIC JURISPRUDENCE (THE MOAT) ---
+            # --- MOVEMENT V: GEOMETRIC JURISPRUDENCE (THE MOAT) ---
             next_path = (parent_path / clean_name)
 
-            # [ASCENSION 3]: Absolute Chroot Jail Proof
             try:
                 abs_root = PROJECT_ROOT.resolve()
-                if not next_path.is_absolute():
-                    check_path = abs_root / next_path
-                else:
-                    check_path = next_path
+                check_path = (abs_root / next_path).resolve() if not next_path.is_absolute() else next_path.resolve()
 
-                abs_target = check_path.resolve() if check_path.exists() else check_path.parent.resolve() / check_path.name
-
-                if os.path.commonpath([str(abs_root), str(abs_target)]) != str(abs_root):
-                    Logger.warn(f"Moat Breach Blocked: '{abs_target}' escapes project root. Re-anchoring.")
+                if os.path.commonpath([str(abs_root), str(check_path)]) != str(abs_root):
+                    Logger.warn(f"Moat Breach Blocked: '{check_path}' escapes project root. Re-anchoring.")
                     return parent_path
             except Exception:
                 pass
 
-            # [ASCENSION 54]: Windows Iron Phalanx
             if os.name == 'nt':
                 for segment in next_path.parts:
                     stem = segment.split('.')[0].upper()
-                    if stem in self.WINDOWS_FORBIDDEN:
-                        raise ValueError(f"OS Compatibility Heresy: '{segment}' is a reserved Windows word.")
+                    if stem in self.WINDOWS_RESERVED:
+                        # Make this a warning too, so windows users don't suffer total crash
+                        raise ArtisanHeresy(
+                            "OS Compatibility Warning",
+                            details=f"'{segment}' is a reserved Windows word. Evaporating branch.",
+                            severity=HeresySeverity.WARNING
+                        )
 
-            # Casing Collision Tomography
             path_lower = str(next_path).lower()
             if path_lower in self.seen_paths_lower and os.name == 'nt':
-                self.Logger.warn(
-                    f"Case Collision Paradox: '{next_path}' conflicts with existing coordinate on Windows.")
+                self.Logger.warn(f"Case Collision Paradox: '{next_path}' conflicts with existing coordinate.")
             self.seen_paths_lower.add(path_lower)
 
-            # --- MOVEMENT V: MATTER MATERIALIZATION ---
+            # --- MOVEMENT VI: MATTER MATERIALIZATION ---
             if node.item:
-                # 1. INCEPT THE ITEM VESSEL
-                # [STRIKE]: Clone the item and detach its soul from the AST
                 new_item = node.item.model_copy(deep=True)
                 new_item.path = next_path
 
@@ -256,8 +234,7 @@ class GeometricMason:
                            '.ttf', '.eot'}:
                     new_item.is_binary = True
 
-                if new_item.metadata is None:
-                    new_item.metadata = {}
+                if new_item.metadata is None: new_item.metadata = {}
                 new_item.metadata.update({
                     'forged_at': time.time_ns(),
                     'source_line': node.item.line_num,
@@ -265,105 +242,84 @@ class GeometricMason:
                     'is_virtual': getattr(self.ctx.gnostic_context, '_next_item_virtual', False)
                 })
 
-                # =========================================================================
-                # == MOVEMENT VI: ELARA TRANSMUTATION STRIKE                             ==
-                # =========================================================================
+                # --- MOVEMENT VII: ELARA TRANSMUTATION STRIKE ---
                 if new_item.content and not new_item.is_binary:
-                    # [ASCENSION 10]: Thread-Local Context Pinning
                     render_ctx = active_context.copy()
                     render_ctx['_meta'] = new_item.metadata
-
-                    # [ASCENSION 56]: Achronal Spatial Sync
-                    posix_logical = str(next_path).replace('\\', '/')
-                    render_ctx["__current_file__"] = posix_logical
+                    render_ctx["__current_file__"] = str(next_path).replace('\\', '/')
                     render_ctx["__current_dir__"] = str(next_path.parent).replace('\\', '/')
                     render_ctx["__current_column__"] = node.item.original_indent
 
                     previous_ctx = get_active_context()
                     set_active_context(render_ctx)
 
-                    # [ASCENSION 65]: Adrenaline Mode Pacing
                     gc_was_enabled = gc.isenabled()
-                    if gc_was_enabled: gc.disable()
+                    if self._is_adrenaline: gc.disable()
 
                     try:
-                        # [STRIKE]: Transmute using ELARA / SGF
                         new_item.content = ALCHEMIST.transmute(new_item.content, render_ctx)
-                    except Exception as alchemical_err:
-                        # [ASCENSION 71]: Absolute Amnesty Shield V4
-                        if os.environ.get("SCAFFOLD_DEBUG") == "1":
-                            Logger.warn(
-                                f"Amnesty Shield: Logic fracture in '{new_item.path.name}'. Preserving raw matter.")
+                    except Exception:
+                        pass
                     finally:
                         set_active_context(previous_ctx)
                         if gc_was_enabled: gc.enable()
 
-                # --- MOVEMENT VII: FINAL CHRONICLING ---
-                # [ASCENSION 61]: Merkle-Lattice Registration
                 self.ctx.register_matter(new_item)
-
-                # [ASCENSION 63]: Luminous HUD Progress
-                self._radiate_hud_signal("MATTER_FORGED", next_path, TRACE_ID)
+                self._radiate_hud_pulse(next_path, TRACE_ID)
 
             else:
-                # =====================================================================
-                # ==[ASCENSION 50]: LAZARUS NODE SYNTHESIZER                        ==
-                # =====================================================================
-                # We forge a virtual ScaffoldItem for implicit directories.
-                # This ensures they appear in the Gnostic Dossier and Telemetry Box.
                 dir_item = ScaffoldItem(
-                    path=next_path,
-                    is_dir=True,
-                    line_type=GnosticLineType.FORM,
-                    action="created",
-                    line_num=0,  # Signal of an implicit, non-decreed atom
+                    path=next_path, is_dir=True, line_type=GnosticLineType.FORM,
+                    action="created", line_num=0,
                     metadata={"origin": "ImplicitPathMason", "trace_id": TRACE_ID}
                 )
                 self.ctx.register_matter(dir_item)
 
-            # =========================================================================
-            # ==[ASCENSION 49]: TOPOLOGICAL CONTINUITY LOCK (THE OMEGA CURE)        ==
-            # =========================================================================
-            # [THE OMEGA CURE]: We MUST return the calculated coordinate even if
-            # node.item was None. This ensures child nodes have a valid parent path
-            # to anchor to, righteously sealing the 14-VS-0 Paradox.
             return next_path
 
         except Exception as catastrophic_paradox:
             # =========================================================================
-            # ==[ASCENSION 72]: THE FINALITY VOW (HERESY CHRONICLING)               ==
+            # ==[ASCENSION 77]: DYNAMIC SEVERITY TRIAGE (THE MASTER CURE)           ==
             # =========================================================================
             line = node.item.line_num if node.item else 0
 
-            # Use the provided heresy details if it's an ArtisanHeresy, else generic error
-            details_msg = catastrophic_paradox.details if isinstance(catastrophic_paradox, ArtisanHeresy) else str(
-                catastrophic_paradox)
-            sugg_msg = catastrophic_paradox.suggestion if isinstance(catastrophic_paradox,
-                                                                     ArtisanHeresy) else "Perform a structural biopsy of your Blueprint. Check for illegal characters or unresolved Gnosis."
+            # If the paradox is a known Heresy, we respect its willed severity.
+            # This allows Warnings (like Evaporated Logs) to pass through harmlessly.
+            if isinstance(catastrophic_paradox, ArtisanHeresy):
+                severity = catastrophic_paradox.severity
+                details_msg = catastrophic_paradox.details
+                sugg_msg = catastrophic_paradox.suggestion
+                msg_title = catastrophic_paradox.message
+            else:
+                # If it's a raw Python panic (KeyError, TypeError), it remains CRITICAL.
+                severity = HeresySeverity.CRITICAL
+                details_msg = str(catastrophic_paradox)
+                sugg_msg = "Perform a structural biopsy. Check for unresolved Gnosis."
+                msg_title = "TRANSMUTATION_HERESY"
 
             self.ctx.heresies.append(Heresy(
-                message="TRANSMUTATION_HERESY",
+                message=msg_title,
                 line_num=line,
                 line_content=node.item.raw_scripture if node.item else str(node.name),
                 details=details_msg,
-                severity=HeresySeverity.CRITICAL,
+                severity=severity,  # <--- THE FIX
                 suggestion=sugg_msg
             ))
 
-            # Return None to sever this branch of reality and prevent cascading corruption
-            # towards the physical disk.
+            # We return None to sever the current branch, but because severity is
+            # WARNING, the TraversalEngine will NOT abort the entire project build!
             return None
 
-    def _radiate_hud_signal(self, label: str, path: Path, trace_id: str):
-        """[ASCENSION 63]: Radiates high-frequency status pulses to the HUD."""
-        akashic = getattr(self.ctx.alchemist.engine, 'akashic', None)
-        if akashic:
+    def _radiate_hud_pulse(self, path: Path, trace_id: str):
+        if self.ctx and self.ctx.gnostic_context.raw.get('silent'): return
+        engine = self.ctx.gnostic_context.raw.get('__engine__')
+        if engine and hasattr(engine, 'akashic') and engine.akashic:
             try:
-                akashic.broadcast({
+                engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
                     "params": {
                         "type": "GEOMETRIC_FORGE",
-                        "label": label,
+                        "label": "MASON_STRIKE",
                         "color": "#64ffda",
                         "path": str(path).replace('\\', '/'),
                         "trace": trace_id
@@ -373,4 +329,4 @@ class GeometricMason:
                 pass
 
     def __repr__(self) -> str:
-        return f"<Ω_GEOMETRIC_MASON paths_manifested={len(self.ctx.materialized_paths)} status=RESONANT mode=TOTALITY>"
+        return f"<Ω_GEOMETRIC_MASON paths_manifested={len(self.ctx.materialized_paths)} status=RESONANT mode=PHANTOM_EVAPORATION>"

@@ -75,24 +75,92 @@ RITES = {
         "artisan_class_name": "ToolArtisan",
         "request_class_name": "ToolRequest",
         "help": "Access the Gnostic Instrumentarium of developer utilities.",
+        "description": (
+            "===============================================================================\n"
+            "== THE GNOSTIC INSTRUMENTARIUM (V-Ω-TOTALITY-VMAX-88-ASCENSIONS)             ==\n"
+            "===============================================================================\n"
+            "The `tool` rite is the physical hand of the God-Engine. It provides the \n"
+            "specialist artisans required to maintain the Iron, seal the Akasha, and \n"
+            "govern the Entropy of the project. It is the absolute guardian of utility."
+        ),
         "flags": [add_common_flags],
         "subparsers": {
-            "ascii": {"help": "Transmutes an image into colored ASCII scripture."},
-            "banner": {"help": "Forges a beautiful ASCII banner for your project."},
-            "hash": {"help": "The Cryptographic Sealer. Forges integrity hashes."},
-            "keyring": {"help": "Manages the Gnostic Keyring of trusted authors."},
-            "pack": {"help": "Encapsulates archetypes for distribution."},
-            "sbom": {"help": "Chronicles the project's lineage in SPDX format."},
-            "secrets": {"help": "The Keymaster. Manages secret rotation."},
-            # ★★★ THE NEW SCRIPTURE ★★★
+            # --- I. THE OCULAR UTILITIES ---
+            "ascii": {
+                "help": "The Retinal Alchemist. Transmutes images into colored ASCII scripture.",
+                "args": [("image_path", {"help": "Path to the source image atom."})]
+            },
+            "banner": {
+                "help": "The Herald's Quill. Forges a beautiful ASCII banner for your project."
+            },
+
+            # --- II. THE INTEGRITY & SECURITY STRATA ---
+            "hash": {
+                "help": "The Cryptographic Sealer. Forges bit-perfect integrity hashes for matter.",
+                "args": [
+                    ("target", {"help": "File or directory to fingerprint."}),
+                    ("--algo", {"choices": ["sha256", "md5", "merkle"], "default": "sha256"})
+                ]
+            },
+            "keyring": {
+                "help": "The Vault of Souls. Manages the Gnostic Keyring of trusted authors.",
+                "subparsers": {
+                    "add": {"args": [("key_file", {"help": "Path to the GPG/Public key."})]},
+                    "list": {"help": "Proclaim all manifest keys."},
+                    "purge": {"help": "Return the keyring to the void."}
+                }
+            },
+            "secrets": {
+                "module_path": "artisans.tool.secrets_artisan",
+                "artisan_class_name": "SecretsArtisan",
+                "request_class_name": "SecretsRequest",
+                "help": "The Secret Warden. Sync, rotate, and govern project entropy.",
+                "description": "Manages the lifecycle of project secrets. Syncs .env from example DNA and rotates high-entropy keys.",
+                "flags": [add_common_flags],
+                "subparsers": {
+                    "sync": {
+                        "help": "The Rite of Synchronization. Heal .env from .env.example DNA.",
+                        "args": [
+                            ("--fill-mocks", {
+                                "action": "store_true",
+                                "help": "Socratic Mockery: Inhale reasonable defaults for SaaS keys."
+                            })
+                        ]
+                    },
+                    "rotate": {
+                        "help": "The Rite of Re-Inception. Re-strike all internal high-entropy keys. [IRREVERSIBLE]",
+                        "args": [
+                            ("--force", {
+                                "action": "store_true",
+                                "help": "The Vow of Absolute Will: Bypass the confirmation gate."
+                            })
+                        ]
+                    }
+                }
+            },
+
+            # --- III. THE DISTRIBUTION & ARCHIVAL STRATA ---
+            "pack": {
+                "help": "The Universal Encapsulator. Bundles archetypes for multiversal distribution.",
+                "args": [("source", {"help": "Directory or shard to encapsulate."})]
+            },
+            "sbom": {
+                "help": "The Chronicler of Lineage. Generates an SPDX Bill of Materials.",
+                "args": [("--format", {"choices": ["json", "xml", "tag-value"], "default": "json"})]
+            },
+
+            # --- IV. THE NEURAL & AI COMMANDS ---
             "read-soul": {
                 "module_path": "artisans.read_soul",
                 "artisan_class_name": "ReadSoulArtisan",
                 "request_class_name": "ReadSoulRequest",
-                "help": "A sacred rite for AIs. Reads the raw content of a scripture to stdout.",
+                "help": "The Eye of the Machine. A sacred rite for AIs to scry raw scripture.",
+                "description": "Reads the raw matter of a file to stdout. Optimized for LLM ingestion.",
                 "flags": [add_common_flags],
-                "args": [("path_to_scripture", {"help": "The path to the scripture whose soul is to be read."})]
-            },
+                "args": [
+                    ("path_to_scripture", {"help": "The physical coordinate of the scripture to read."})
+                ]
+            }
         }
     },
     "self-test": {

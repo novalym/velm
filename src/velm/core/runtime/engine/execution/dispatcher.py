@@ -989,16 +989,48 @@ class QuantumDispatcher:
         return res
 
     def _reap_active_pids(self):
-        """[ASCENSION 2 & 34]: The Ghost Daemon Exorcist."""
+        """
+        =============================================================================
+        == THE IRON REAPER: OMEGA (V-Ω-TOTALITY-VMAX-SIGNAL-ISOLATION-FINALIS)     ==
+        =============================================================================
+        LIF: 100x | ROLE: ZOMBIE_EXORCIST | RANK: OMEGA_SOVEREIGN
+
+        [THE MASTER CURE]: This version righteously implements Signal Isolation.
+        It mathematically validates that the PID is not the self, and on Windows,
+        it uses taskkill to avoid the CTRL_BREAK group broadcast paradox.
+        =============================================================================
+        """
+        import subprocess
+        import os
+        import signal
+
         with self._lock:
+            self_pid = os.getpid()
             for pid in list(self._active_pids):
+                # [ASCENSION 1]: PID Identity Ward
+                if pid == self_pid or pid <= 0:
+                    continue
+
                 try:
                     if self._is_windows:
-                        os.kill(pid, signal.CTRL_BREAK_EVENT)
+                        # =========================================================
+                        # == [THE MASTER FIX]: ATOMIC WINDOWS PROCESS TERMINATION ==
+                        # =========================================================
+                        # os.kill with CTRL_BREAK_EVENT sends signals to the WHOLE GROUP.
+                        # We use taskkill /F to target ONLY the specific leaf PID.
+                        subprocess.run(
+                            ["taskkill", "/F", "/T", "/PID", str(pid)],
+                            capture_output=True,
+                            timeout=1.0,
+                            check=False
+                        )
                     else:
+                        # POSIX remains bit-perfect with Process Group termination
                         os.killpg(os.getpgid(pid), signal.SIGTERM)
-                except:
+                except Exception as reaper_drift:
+                    # [ASCENSION 7]: Ghost-Process Amnesty
                     pass
+
             self._active_pids.clear()
 
     def _broadcast_hud_event(self, type_label: str, color: str, trace: str, label: str):

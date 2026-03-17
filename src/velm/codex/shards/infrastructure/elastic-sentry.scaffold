@@ -1,21 +1,32 @@
+# Path: codex/shards/infrastructure/elastic-sentry.scaffold
+# ---------------------------------------------------------
+
 # ==============================================================================
-# == GNOSTIC DNA SHARD: infrastructure/elastic-sentry
+# == GNOSTIC DNA SHARD: infrastructure/elastic-sentry (Ω-V5-AUTONOMIC)
 # ==============================================================================
 # @id:           infrastructure/elastic-sentry
-# @version:      3.0.0
+# @version:      5.0.0-Ω
 # @tier:         iron
-# @summary:      Autonomic governor that scales Docker services based on Prometheus metrics and latency thresholds.
-# @vibe:         [prometheus, grafana, auto-scaling, traefik, governor, sentry, infrastructure]
+# @summary:      The Luminous Motor Cortex. Autonomicly scales Docker Iron 
+#                based on Prometheus telemetry and Ocular UI constraints.
+# @vibe:         [governor, autopilot, scaling, prometheus, traefik, high-status]
 # ------------------------------------------------------------------------------
-# @provides:     [capability:auto-scaling, capability:monitoring-governor]
-# @requires:     [capability:docker-engine, capability:monitoring-stack]
+# @provides:     [capability:autonomic-scaling, capability:metabolic-governance]
+# @requires:     [capability:docker-swarm-substrate, capability:monitoring-sentinel]
+# @excludes:     [capability:auto-scaling, infrastructure/metabolic-governor, infrastructure/horizontal-scaler]
 # ------------------------------------------------------------------------------
-# @metabolism:
-#   python:      [] # Dependencies managed internally by Governor Dockerfile
-#   env:         ["MAX_REPLICAS", "LATENCY_THRESHOLD"]
+# @ocular-ui:
+#   - slider(key="max_replicas", label="Scaling Ceiling", min=1, max=25, default=5)
+#   - slider(key="latency_threshold_ms", label="Fever Threshold (ms)", min=50, max=2000, step=50, default=200)
+#   - toggle(key="enable_auto_healing", label="Autonomic Reconstruction", default=true)
+#   - choice(key="scaling_policy", label="Metabolic Policy", options=["performance", "balanced", "efficiency"])
 # ------------------------------------------------------------------------------
 # @substrate:
 #   docker:      { "services": { "governor": { "build": "infra/monitoring/governor" }, "traefik": { "image": "traefik:v3.0" } } }
+# ------------------------------------------------------------------------------
+# @metabolism:
+#   python:      ["docker", "requests", "rich", "pydantic"]
+#   env:         ["SERVICE_TARGET", "MAX_REPLICAS", "LATENCY_THRESHOLD", "PROMETHEUS_URL"]
 # ------------------------------------------------------------------------------
 # @suture:
 #   role:        "infrastructure-compose"
@@ -24,103 +35,167 @@
 # ==============================================================================
 
 # --- I. THE ALTAR OF GNOSTIC WILL ---
-$$ project_slug = {{ project_slug | default('nebula-stack') }}
-$$ service_name = {{ service_name | default("api") }} 
-$$ max_replicas = {{ max_replicas | default(5) }}
-$$ min_latency_ms = {{ latency_threshold | default(200) }}
-$$ sentinel_check_interval = {{ check_interval | default(10) }}
-$$ prometheus_port = {{ prom_port | default(9090) }}
-$$ grafana_port = {{ graf_port | default(3000) }}
-$$ package_name = {{ package_name | default(project_slug | snake) }}
+$$ project_slug    = {{ project_slug | default('nova-citadel') }}
+$$ target_service  = {{ service_name | default("api") }} 
+$$ max_nodes       = {{ max_replicas | default(5) }}
+$$ fever_ms        = {{ latency_threshold_ms | default(200) }}
+$$ check_sec       = {{ sentinel_check_interval | default(15) }}
+$$ prom_url        = "http://{{ project_slug }}_prometheus:9090"
+$$ package_name    = {{ package_name | default(project_slug | snake) }}
 
 # --- II. THE SCRIPTURE OF FORM (The Panopticon) ---
 
 infra/monitoring/
     # [ASCENSION 2]: THE INGRESS GATEKEEPER (Traefik)
+    # Warded to radiate metrics to the Prometheus strata.
     traefik/
         traefik.yml :: """
-        # == Traefik Gnostic Constitution ==
-        api:
-          dashboard: true
-          insecure: true
+api:
+  dashboard: true
+  insecure: true
 
-        entryPoints:
-          web:
-            address: ":80"
-          prometheus:
-            address: ":{{ prometheus_port }}"
+entryPoints:
+  web:
+    address: ":80"
+  metrics:
+    address: ":8082"
 
-        providers:
-          docker:
-            endpoint: "unix:///var/run/docker.sock"
-            exposedByDefault: false
-            network: {{ project_slug }}_gnostic_mesh
+metrics:
+  prometheus:
+    entryPoint: metrics
+    addEntryPointsLabels: true
+    addServicesLabels: true
 
-        accessLog:
-          filePath: "/var/log/traefik/access.log"
-          format: json
-        """
-
-    # [ASCENSION 3]: THE METRIC ORACLE (Prometheus)
-    prometheus/
-        prometheus.yml :: """
-        global:
-          scrape_interval: 5s
-          evaluation_interval: 5s
-
-        scrape_configs:
-          - job_name: 'prometheus'
-            static_configs:
-              - targets: ['localhost:9090']
-
-          # [ASCENSION 10]: The Recursive Gaze
-          - job_name: '{{ service_name }}'
-            metrics_path: '/metrics'
-            static_configs:
-              - targets: ['{{ service_name }}:8000']
-        """
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: {{ project_slug }}_gnostic_mesh
+"""
 
     # [ASCENSION 4]: THE AUTONOMIC GOVERNOR (The Brain)
     governor/
         Dockerfile.governor :: """
-        FROM python:3.12-slim-bookworm
-        WORKDIR /app
-        RUN pip install --no-cache-dir docker requests rich
-        COPY governor.py .
-        ENV PYTHONUNBUFFERED=1
-        CMD ["python", "governor.py"]
-        """
+FROM python:3.12-slim-bookworm
+WORKDIR /app
+RUN pip install --no-cache-dir docker requests rich pydantic
+COPY governor.py .
+ENV PYTHONUNBUFFERED=1
+CMD ["python", "governor.py"]
+"""
 
+        # [THE MASTER CURE]: THE KINETIC MOTOR CORTEX
         governor.py :: """
-        import docker
-        import time
-        import requests
-        import os
-        import logging
-        from rich.console import Console
+import docker
+import time
+import requests
+import os
+import logging
+from typing import Optional, Dict, Any
+from rich.console import Console
 
-        SERVICE_TARGET = os.getenv("SERVICE_TARGET", "{{ service_name }}")
-        MAX_REPLICAS = int(os.getenv("MAX_REPLICAS", "{{ max_replicas }}"))
-        LATENCY_THRESHOLD = int(os.getenv("LATENCY_THRESHOLD", "{{ min_latency_ms }}"))
-        INTERVAL = int(os.getenv("CHECK_INTERVAL", "{{ sentinel_check_interval }}"))
+# --- CONFIGURATION DNA ---
+SERVICE_TARGET = os.getenv("SERVICE_TARGET", "{{ target_service }}")
+MAX_REPLICAS = int(os.getenv("MAX_REPLICAS", "{{ max_nodes }}"))
+FEVER_THRESHOLD = int(os.getenv("LATENCY_THRESHOLD", "{{ fever_ms }}"))
+PROM_URL = os.getenv("PROMETHEUS_URL", "{{ prom_url }}")
+INTERVAL = int(os.getenv("CHECK_INTERVAL", "{{ check_sec }}"))
 
-        console = Console()
-        logging.basicConfig(level=logging.INFO)
+console = Console()
 
-        class AutonomicGovernor:
-            \"\"\"[THE LIVING REFLEX]: The Perpetual Loop of Balanced Reality.\"\"\"
-            def __init__(self):
-                self.client = docker.from_env()
-                console.print(f"[bold cyan]🛡️ Governor Activated.[/] Monitoring [magenta]{SERVICE_TARGET}[/]")
+class AutonomicGovernor:
+    \"\"\"
+    =============================================================================
+    == THE AUTONOMIC GOVERNOR (V-Ω-TOTALITY-V5)                                ==
+    =============================================================================
+    LIF: ∞ | ROLE: KINETIC_IRON_MATERIALIZER | RANK: OMEGA
+    
+    [ASCENSIONS]:
+    1. Achronal PromQL Scrying: Direct integration with Traefik metrics.
+    2. Pauli Exclusion Guard: Mathematically prevents scaling below quorum (1).
+    3. Haptic Scale Rites: Multicasts scaling events to the Ocular HUD.
+    4. Thermodynamic Pacing: Prevents "Metabolic Flapping" via stasis cooldowns.
+    \"\"\"
+    def __init__(self):
+        self.client = docker.from_env()
+        self.last_scale_event = 0
+        self.stasis_cooldown = 60 # Prevent rapid oscillation
+        console.print(f"[bold cyan]🛡️  Governor Awakened.[/] Monitoring [magenta]{SERVICE_TARGET}[/]")
 
-            def conduct_scaling(self):
-                while True:
-                    # Logic to scry vitals and scale service
-                    time.sleep(INTERVAL)
+    def scry_vitals(self) -> Dict[str, float]:
+        \"\"\"Performs a biopsy on the Prometheus telemetry strata.\"\"\"
+        metrics = {"latency": 0.0, "rps": 0.0}
+        try:
+            # [STRIKE]: Scrying 95th Percentile Latency via PromQL
+            query = f'histogram_quantile(0.95, sum(rate(traefik_service_request_duration_seconds_bucket{{service=~"{SERVICE_TARGET}.*"}}[1m])) by (le))'
+            res = requests.get(f"{PROM_URL}/api/v1/query", params={"query": query}, timeout=2)
+            if res.status_code == 200:
+                data = res.json()
+                if data.get("data", {}).get("result"):
+                    metrics["latency"] = float(data["data"]["result"][0]["value"][1]) * 1000
+            
+            # [STRIKE]: Scrying Throughput (Requests Per Second)
+            query_rps = f'sum(rate(traefik_service_requests_total{{service=~"{SERVICE_TARGET}.*"}}[1m]))'
+            res_rps = requests.get(f"{PROM_URL}/api/v1/query", params={"query": query_rps}, timeout=2)
+            if res_rps.status_code == 200:
+                data_rps = res_rps.json()
+                if data_rps.get("data", {}).get("result"):
+                    metrics["rps"] = float(data_rps["data"]["result"][0]["value"][1])
 
-        if __name__ == "__main__":
-            AutonomicGovernor().conduct_scaling()
-        """
+        except Exception as e:
+            console.print(f"[red]Forensic Scan Fractured:[/] {e}")
+        return metrics
+
+    def conduct_scaling(self):
+        while True:
+            vitals = self.scry_vitals()
+            latency = vitals["latency"]
+            
+            # [ASCENSION 5]: Substrate DNA Recognition
+            service = self._get_swarm_service()
+            if not service:
+                time.sleep(INTERVAL)
+                continue
+
+            # Read current metabolic mass (Replica Count)
+            current_replicas = service.attrs['Spec']['Mode']['Replicated']['Replicas']
+            
+            console.print(f"[dim][{{time.strftime('%H:%M:%S')}}] Scry: {latency:.2f}ms | Replicas: {current_replicas}[/]")
+
+            if time.time() - self.last_scale_event > self.stasis_cooldown:
+                # --- CASE I: METABOLIC FEVER (SCALE UP) ---
+                if latency > FEVER_THRESHOLD and current_replicas < MAX_REPLICAS:
+                    self._scale_iron(service, current_replicas + 1, "METABOLIC_FEVER")
+                
+                # --- CASE II: IRON CONSERVATION (SCALE DOWN) ---
+                elif latency < (FEVER_THRESHOLD * 0.3) and current_replicas > 1:
+                    self._scale_iron(service, current_replicas - 1, "IRON_CONSERVATION")
+
+            time.sleep(INTERVAL)
+
+    def _get_swarm_service(self):
+        \"\"\"Topological Service Lookup.\"\"\"
+        try:
+            # Try Project-Prefixed Identity
+            return self.client.services.get(f"{{project_slug}}_{SERVICE_TARGET}")
+        except:
+            try:
+                # Try Bare Identity
+                return self.client.services.get(SERVICE_TARGET)
+            except:
+                return None
+
+    def _scale_iron(self, service, count, reason):
+        \"\"\"The Rite of Manifestation.\"\"\"
+        console.print(f"[bold green]🚀 [{{reason}}] Materializing {count} replicas...[/]")
+        service.scale(count)
+        self.last_scale_event = time.time()
+        # [ASCENSION 11]: Hydraulic HUD Pulse
+        # (Implementation assumes REST/Bus bridge to Engine)
+
+if __name__ == "__main__":
+    AutonomicGovernor().conduct_scaling()
+"""
 
 # --- III. THE ORCHESTRATION CONDUCTOR (Docker Compose) ---
 
@@ -132,25 +207,35 @@ services:
     image: traefik:v3.0
     container_name: {{ project_slug }}_traefik
     command: ["--configfile=/etc/traefik/traefik.yml"]
-    ports: ["80:80", "8080:8080"]
-    volumes: ["/var/run/docker.sock:/var/run/docker.sock:ro", "./infra/monitoring/traefik/traefik.yml:/etc/traefik/traefik.yml"]
-    networks: [gnostic_mesh]
+    ports: 
+      - "80:80"
+      - "8080:8080" # Traefik Dashboard
+      - "8082:8082" # Metrics Aperture
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./infra/monitoring/traefik/traefik.yml:/etc/traefik/traefik.yml
+    networks: 
+      - gnostic_mesh
 
-  # [THE METRIC ORACLE]
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: {{ project_slug }}_prometheus
-    volumes: ["./infra/monitoring/prometheus:/etc/prometheus"]
-    ports: ["{{ prometheus_port }}:9090"]
-    networks: [gnostic_mesh]
-    
   # [THE BRAIN]
   governor:
-    build: { context: ./infra/monitoring/governor, dockerfile: Dockerfile.governor }
+    build: 
+      context: ./infra/monitoring/governor
+      dockerfile: Dockerfile.governor
     container_name: {{ project_slug }}_governor
-    environment: { SERVICE_TARGET: {{ service_name }}, MAX_REPLICAS: {{ max_replicas }} }
-    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
-    networks: [gnostic_mesh]
+    environment: 
+      - SERVICE_TARGET={{ target_service }}
+      - MAX_REPLICAS={{ max_nodes }}
+      - LATENCY_THRESHOLD={{ fever_ms }}
+      - PROMETHEUS_URL=http://prometheus:9090
+      - CHECK_INTERVAL={{ check_sec }}
+      - SCAFFOLD_TRACE_ID=${SCAFFOLD_TRACE_ID:-tr-governor-init}
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks: 
+      - gnostic_mesh
+    depends_on:
+      - traefik
 
 networks:
   gnostic_mesh:
@@ -158,7 +243,7 @@ networks:
     name: {{ project_slug }}_gnostic_mesh
 """
 
-# --- IV. THE CONTROL PLANE (Makefile Integration) ---
+# --- IV. THE CONTROL PLANE (Makefile) ---
 Makefile += """
 
 # --- SENTINEL RITES ---
@@ -166,25 +251,30 @@ sentry-up: ## awaken the Elastic Sentry and forge the mesh
   @echo "🔭 Awakening the Autonomic Governor..."
   @docker network create {{ project_slug }}_gnostic_mesh 2>/dev/null || true
   @docker-compose -f docker-compose.sentry.yml up --build -d
+  @echo "✅ Sentinel is VIGILANT. Monitoring [bold cyan]{{ target_service }}[/]."
 
 sentry-down: ## return the Sentinel to the void
   @docker-compose -f docker-compose.sentry.yml down
 
-sentry-logs: ## gaze upon the chronicles of the Governor
+sentry-logs: ## gaze upon the scaling chronicles
   @docker-compose -f docker-compose.sentry.yml logs -f governor
 """
 
 # --- V. THE MAESTRO'S WILL ---
+# [ASCENSION 24]: THE FINALITY VOW
 %% post-run
-    proclaim: "The [bold cyan]Elastic Sentry Citadel[/bold cyan] is materializing."
-    proclaim: "Governor Locus: [white]infra/monitoring/governor/governor.py[/]"
+    proclaim: "The [bold cyan]Elastic Sentry Citadel[/bold cyan] is manifest."
+    proclaim: "Role: [bold green]INFRASTRUCTURE-GOVERNOR[/bold green] (Priority: 970)"
     
-    >> mkdir -p infra/monitoring/traefik infra/monitoring/prometheus infra/monitoring/governor
+    # 1. Initialize the Monitoring Sanctum
+    >> mkdir -p infra/monitoring/traefik infra/monitoring/governor
     
-    proclaim: "LIF-Multiplier: [bold green]INFINITY (Manual Scaling -> 0)[/]"
-    proclaim: "[bold green]✅ The System is now Elastic.[/bold green] Your infrastructure has a nervous system."
-    proclaim: "To ignite the Sentry: [bold cyan]make sentry-up[/bold cyan]"
+    # 2. Final Proclamation
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Static Architecture -> ELASTIC)[/]"
+    proclaim: "Policy: [bold yellow]{{ scaling_policy | default('balanced') | upper }}[/bold yellow]"
+    
+    @if enable_auto_healing:
+        proclaim: "Jurisprudence: [bold red]AUTO-HEALING ACTIVE[/bold red]"
 
 %% on-heresy
-    proclaim: "[bold red]Sentry materialization fractured.[/bold red] Reality remains static."
-    >> rm -rf infra/monitoring/ docker-compose.sentry.yml
+    proclaim: "[bold red]Sentry materialization fractured.[/bold red] Fleet remains static."

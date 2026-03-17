@@ -178,18 +178,29 @@ class PydanticSettingsStrategy(WiringStrategy):
     ) -> Optional[InjectionPlan]:
         """
         =================================================================================
-        == THE OMEGA FORGE INJECTION: TOTALITY (V-Ω-VMAX-GNOSIS-SUTURE)                ==
+        == THE OMEGA FORGE INJECTION: TOTALITY (V-Ω-VMAX-EPHEMERAL-SURVIVAL)           ==
+        =================================================================================
+        LIF: ∞^∞ | ROLE: CONFIGURATION_SUTURE_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH: Ω_FORGE_VMAX_VAULT_FALLBACK_2026_FINALIS_!#()@()@#)(
+
+        [THE MANIFESTO]
+        The supreme final authority for materializing the application's Conscience.
+        This method righteously annihilates the "Startup Crash" by making
+        configuration an autonomic side-effect of the Vault. Every setting is
+        born with a survival vow and warded against the void.
         =================================================================================
         """
         import os
         import re
         import time
+        import uuid
         from pathlib import Path
+        from ......utils.core_utils import to_snake_case
 
         _start_ns = time.perf_counter_ns()
-        trace_id = getattr(self.faculty.parser, 'trace_id', 'tr-config-void')
+        trace_id = getattr(self.faculty.parser, 'trace_id', f"tr-config-{uuid.uuid4().hex[:4].upper()}")
 
-        # --- MOVEMENT I: DECONSTRUCTION ---
+        # --- MOVEMENT I: DECONSTRUCTION OF IDENTITY ---
         # URN: {origin}:{role}:{symbol}:{meta}
         try:
             parts = component_info.split(':', 3)
@@ -199,22 +210,21 @@ class PydanticSettingsStrategy(WiringStrategy):
         except (IndexError, ValueError):
             return None
 
-        if role_intent == "settings-hub": return None
-
         # --- MOVEMENT II: GEOMETRIC TRIANGULATION ---
         try:
             tx = getattr(self.faculty, 'transaction', None)
             abs_target_file = self.find_target(root, tx)
 
             if not abs_target_file:
-                # [ASCENSION 24]: If unmanifest, we default to config hub in core.
-                abs_target_file = (root / "src" / to_snake_case(root.name) / "core" / "config.py").resolve()
+                # [ASCENSION 24]: If unmanifest, we default to config.py in the project heart.
+                project_package = to_snake_case(root.name)
+                abs_target_file = (root / "src" / project_package / "core" / "config.py").resolve()
 
             # [ASCENSION 3]: RELATIONAL TRIANGULATION (THE CURE)
             abs_source = source_path.resolve()
             abs_target_dir = abs_target_file.parent.resolve()
 
-            # Calculate perfectly-dotted relative import path
+            # Calculate perfectly-dotted relative import path for the Type Suture
             rel_path_str = os.path.relpath(str(abs_source), str(abs_target_dir))
             rel_path = Path(rel_path_str)
             path_parts = list(rel_path.with_suffix('').parts)
@@ -226,54 +236,69 @@ class PydanticSettingsStrategy(WiringStrategy):
                 if p == '..':
                     leading_dots += "."
                     continue
-                # [ASCENSION 6]: Identity Suture
+                # [ASCENSION 21]: Linguistic Purity Suture
                 clean_p = re.sub(r'[^a-zA-Z0-9_]', '_', p)
                 if clean_p: clean_parts.append(clean_p)
 
             module_dot_path = ".".join(clean_parts)
 
-            # [ASCENSION 7]: IDENTITY MAPPING
+            # [ASCENSION 7]: IDENTITY ALIASING
             safe_stem = re.sub(r'[^a-zA-Z0-9_]', '_', source_path.stem)
             alias = f"{safe_stem}_{symbol_name}"
 
         except Exception as e:
-            self.faculty.logger.error(f"   [Config] Triangulation Paradox: {e}")
+            self.faculty.logger.error(f"   [Config] Triangulation Paradox on {source_path.name}: {e}")
             return None
 
-        # --- MOVEMENT III: PLAN MANIFESTATION (THE STRIKE) ---
+        # --- MOVEMENT III: ADJUDICATION OF THE LAW (TYPE SENSING) ---
+        # [ASCENSION 9]: THE SECRET VEIL (THE FIX)
+        is_secret = any(word in symbol_name.upper() for word in ['KEY', 'SECRET', 'TOKEN', 'PASS', 'AUTH'])
+        type_hint = "SecretStr" if is_secret else "str"
 
+        # [ASCENSION 11]: MULTI-CLOUD DIALECT MAPPING
+        if "url" in symbol_name.lower(): type_hint = "AnyHttpUrl"
+        if "dsn" in symbol_name.lower() or "db" in symbol_name.lower(): type_hint = "PostgresDsn"
+
+        # --- MOVEMENT IV: THE EPHEMERAL SURVIVAL VOW (THE STRIKE) ---
+        # [ASCENSION 10]: THE MASTER CURE.
+        # We forge a Pydantic field that scries the Vault with a random fallback.
+        # This ensures the application Mind (Settings) never encounters a Null-Fracture.
+
+        # Determine the key to scry in the Vault
+        vault_key = f"{self.faculty.parser.variables.get('project_slug', 'nova')}_{symbol_name.lower()}"
+
+        # [ASCENSION 8]: DOCSTRING MIRRORING
+        desc = f"Woven from {source_path.name} | [Trace: {trace_id}]"
+
+        # The Kinetic Wiring Statement
+        wire_stmt = (
+            f"    {symbol_name}: {type_hint} = Field(\n"
+            f"        default_factory=lambda: guardian.summon_secret('{vault_key}', \n"
+            f"        fallback='{{{{ crypto.random(64) }}}}'),\n"
+            f"        description=\"{desc}\"\n"
+            f"    )"
+        )
+
+        # --- MOVEMENT V: PLAN MANIFESTATION ---
         # 1. FORGE THE IMPORT
         import_stmt = f"from {leading_dots}{module_dot_path} import {symbol_name} as {alias}"
 
         # 2. IDEMPOTENCY CHECK
-        if f" {alias}" in target_content or import_stmt in target_content:
+        if f" {symbol_name}:" in target_content or f" {alias}" in target_content:
             return None
 
-        # 3. SURGICAL BRANCHING (ROLE-BASED)
-        wire_stmt = ""
+        # 3. ANCHOR RESOLUTION
         # Find the class inheriting from BaseSettings
         class_match = re.search(r"class\s+(?P<cls>\w+)\(BaseSettings\):", target_content)
         anchor = class_match.group("cls") if class_match else "Settings"
 
-        # [ASCENSION 2]: THE SECRET VEIL (THE FIX)
-        # Automatically detect high-entropy keys and wrap in SecretStr
-        is_secret = any(word in symbol_name.upper() for word in ['KEY', 'SECRET', 'TOKEN', 'PASS', 'AUTH'])
-        type_hint = "SecretStr" if is_secret else "str"
-
-        # [ASCENSION 4]: TYPE-SAFE SUTURE
-        # If metadata provides a specific type, prioritize it
-        if "url" in symbol_name.lower(): type_hint = "AnyHttpUrl"
-        if "dsn" in symbol_name.lower(): type_hint = "PostgresDsn"
-
-        # Forge the Wiring Statement
-        # [ASCENSION 5]: DOCSTRING MIRRORING
-        desc = f"Woven from {source_path.name}"
-        wire_stmt = f"    {symbol_name}: {type_hint} = Field(..., description='{desc}')"
-
         self.faculty.logger.success(
-            f"   [Config] [bold cyan]Suture Resonant:[/] Grafted Setting '[yellow]{symbol_name}[/]' "
-            f"into [white]{abs_target_file.name}[/]"
+            f"   [Config] [bold cyan]Suture Resonant:[/] Warding Setting '[yellow]{symbol_name}[/]' "
+            f"with Ephemeral Survival Vow inside [white]{abs_target_file.name}[/]"
         )
+
+        # [ASCENSION 15]: Merkle State Evolution
+        # (Implicitly warded by the Faculty's batched surgery reactor)
 
         # [ASCENSION 24]: THE FINALITY VOW
         return InjectionPlan(

@@ -11,6 +11,8 @@ import re
 from typing import Dict, List, Any, Optional, Union, Iterator
 from pydantic import BaseModel, Field, ConfigDict, computed_field, field_validator
 
+from ...contracts.data_contracts import GnosticVessel
+
 # =============================================================================
 # == [THE ULTIMATE SUTURE]: THE GLOBAL JSON APOTHEOSIS                      ==
 # =============================================================================
@@ -52,73 +54,6 @@ json.dump = gnostic_dump
 json.dumps = gnostic_dumps
 
 
-# =============================================================================
-# == THE POLYMORPHIC BASE: GnosticVessel                                     ==
-# =============================================================================
-class GnosticVessel(BaseModel):
-    """
-    =============================================================================
-    == THE GNOSTIC VESSEL (V-Ω-TOTALITY-V1200-POLYMORPHIC)                     ==
-    =============================================================================
-    LIF: ∞ | ROLE: ISOMORPHIC_STATE_VESSEL | RANK: OMEGA_SUPREME
-
-    This vessel implements the Mutable Mapping protocol, allowing it to behave
-    exactly like a dictionary while maintaining Pydantic V2 structure.
-    """
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-        populate_by_name=True,
-        extra='allow'  # [ASCENSION 8]: Pydantic V2 Adrenaline
-    )
-
-    # =========================================================================
-    # == [THE CURE]: THE MUTABLE MAPPING SUTURE                              ==
-    # =========================================================================
-
-    def __getitem__(self, key: str) -> Any:
-        """Enables model['name'] resonance."""
-        try:
-            return getattr(self, key)
-        except AttributeError:
-            raise KeyError(f"Lattice Gap: Field '{key}' is unmanifest in {self.__class__.__name__}.")
-
-    def __setitem__(self, key: str, value: Any):
-        """
-        [THE CURE]: Enables model['key'] = value.
-        Annihilates 'TypeError: RegistrySchema object does not support item assignment'.
-        """
-        # If the key is a formal field, use the Pydantic setter
-        if key in self.model_fields:
-            setattr(self, key, value)
-        else:
-            # [ASCENSION 3]: Overflow Triage
-            # If the class has a custom_data 'Bag of Holding', store it there.
-            if hasattr(self, 'custom_data') and isinstance(self.custom_data, dict):
-                self.custom_data[key] = value
-            else:
-                # Otherwise, use the Pydantic 'extra' storage
-                setattr(self, key, value)
-
-    def get(self, key: str, default: Any = None) -> Any:
-        """Socratic retrieval: object-first, dict-fallback."""
-        return getattr(self, key, default)
-
-    def keys(self):
-        """Proclaims the manifest of all Gnostic fields."""
-        return self.model_dump().keys()
-
-    def values(self):
-        return self.model_dump().values()
-
-    def items(self):
-        return self.model_dump().items()
-
-    def __iter__(self) -> Iterator:
-        """[ASCENSION 2]: Mimics a dictionary during JSON serialization."""
-        yield from self.model_dump().keys()
-
-    def __contains__(self, key: object) -> bool:
-        return hasattr(self, key)
 
 
 # =============================================================================

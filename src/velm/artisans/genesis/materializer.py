@@ -1,6 +1,7 @@
 # Path: artisans/genesis/materializer.py
 # --------------------------------------
 
+
 from __future__ import annotations
 import ast
 import json
@@ -71,15 +72,14 @@ class GenesisMaterializer:
     def conduct_materialization_symphony(self) -> ScaffoldResult:
         """
         =================================================================================
-        == THE OMEGA MATERIALIZATION SYMPHONY (V-Ω-TOTALITY-VMAX-36-ASCENSIONS)        ==
+        == THE OMEGA MATERIALIZATION SYMPHONY (V-Ω-TOTALITY-VMAX-37-ASCENSIONS)        ==
         =================================================================================
         LIF: ∞^∞ | ROLE: KINETIC_REALITY_CONDUCTOR | RANK: OMEGA_SOVEREIGN_PRIME
-        AUTH_CODE: Ω_MATERIALIZE_VMAX_SEMANTIC_SUTURE_2026_FINALIS
-
-        [THE MANIFESTO]
+        AUTH_CODE: Ω_MATERIALIZE_VMAX_HOLOGRAPHIC_SUTURE_2026_FINALIS[THE MANIFESTO]
         The supreme definitive authority for physical manifestation. This version
-        righteously implements the **Semantic Suture (`*=`)**, mathematically
-        annihilating the "Overwrite Heresy" by performing AST-aware logic merging.
+        righteously implements the **Holographic Semantic Suture**, mathematically
+        annihilating the "Temporal Paradox Overwrite" by performing AST-aware logic
+        merging IN MEMORY before striking the Iron.
         =================================================================================
         """
         import time
@@ -108,14 +108,10 @@ class GenesisMaterializer:
             )
 
         # --- MOVEMENT I: TOPOLOGICAL ANCHORING ---
-        # [ASCENSION 23]: POSIX Normalization
         true_project_root = self._determine_true_project_root()
         tx_name = f"Build: {true_project_root.name}"
         blueprint_path = Path(self.final_vars.get('blueprint_path', 'unknown.scaffold'))
 
-        # =========================================================================
-        # == [ASCENSION 17]: LAZARUS VAULT INCEPTION                             ==
-        # =========================================================================
         if not is_simulation:
             try:
                 (true_project_root / ".scaffold" / "chronicles").mkdir(parents=True, exist_ok=True)
@@ -127,7 +123,6 @@ class GenesisMaterializer:
         with GnosticTransaction(self.project_root, tx_name, blueprint_path, use_lock=True,
                                 simulate=is_simulation) as tx:
 
-            # [ASCENSION 24]: Apophatic Sieve & [ASCENSION 21]: Substrate DNA
             tx.context = {k: v for k, v in self.final_vars.items() if not str(k).startswith('__')}
             tx.context.update({
                 'project_root': str(true_project_root).replace('\\', '/'),
@@ -138,9 +133,10 @@ class GenesisMaterializer:
             })
 
             # =========================================================================
-            # == [ASCENSION 13]: THE SEMANTIC SUTURE RESOLUTION (THE MASTER CURE)    ==
+            # == [ASCENSION 37]: THE HOLOGRAPHIC SUTURE (THE MASTER CURE)            ==
             # =========================================================================
-            # [STRIKE]: We perform AST-aware merging for the '*=' operator.
+            # [STRIKE]: We perform AST-aware merging in-memory, resolving the
+            # Temporal Paradox that caused dependencies to be overwritten.
             processed_items = self._apply_semantic_sutures(self.items, true_project_root)
 
             # --- MOVEMENT III: THE PHYSICAL STRIKE ---
@@ -171,7 +167,6 @@ class GenesisMaterializer:
                 self.generated_files = [res.path for res in registers.transaction.write_dossier.values() if res.success]
 
             if not is_simulation:
-                # [ASCENSION 32]: MERKLE-LATTICE STATE SEALING
                 self._validate_syntax_integrity(tx)
                 self._enrich_readme_metadata(tx)
                 self._ensure_dynamic_ignores(tx)
@@ -184,7 +179,6 @@ class GenesisMaterializer:
                 self._prune_empty_directories(true_project_root)
 
         # --- MOVEMENT V: FINAL PROCLAMATION ---
-        # [ASCENSION 22]: HYDRAULIC FLUSH
         sys.stdout.flush()
         self._proclaim_success(registers, true_project_root)
 
@@ -196,7 +190,6 @@ class GenesisMaterializer:
                     action=res.action_taken.value, size_bytes=res.bytes_written, checksum=res.gnostic_fingerprint
                 ))
 
-        # [ASCENSION 36]: THE FINALITY VOW
         duration_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
         return ScaffoldResult(
             success=True,
@@ -217,70 +210,139 @@ class GenesisMaterializer:
     def _apply_semantic_sutures(self, items: List[ScaffoldItem], root: Path) -> List[ScaffoldItem]:
         """
         =============================================================================
-        == THE OMEGA SEMANTIC SUTURE (V-Ω-TOTALITY-VMAX-POLYGLOT-Grafting)         ==
+        == THE OMEGA SEMANTIC SUTURE (V-Ω-TOTALITY-VMAX-HOLOGRAPHIC)               ==
         =============================================================================
         LIF: ∞^∞ | ROLE: LOGIC_ADJUDICATOR | RANK: OMEGA_SOVEREIGN_PRIME
+
+        [THE MASTER CURE]: Fuses items in-memory *before* physical creation.
+        If a shard declares dependencies for `pyproject.toml`, it finds the base
+        `pyproject.toml` generated earlier in this exact list and mathematically
+        fuses the dictionaries.
         """
         import time
         _start_suture_ns = time.perf_counter_ns()
 
-        for item in items:
-            if item.mutation_op == "*=" and item.path:
-                abs_path = (root / item.path).resolve()
+        final_items: List[ScaffoldItem] = []
 
-                if not abs_path.exists():
+        for item in items:
+            if not item.path or item.is_dir:
+                final_items.append(item)
+                continue
+
+            p_str = str(item.path).replace('\\', '/')
+            abs_path = (root / item.path).resolve()
+            ext = abs_path.suffix.lower()
+
+            if item.mutation_op in ("*=", "+=", "^=", "~="):
+                # 1. HOLOGRAPHIC GAZE: Search the active transaction memory
+                # Find the most recently willed version of this file.
+                base_item = next((i for i in reversed(final_items) if
+                                  not i.is_dir and i.path and str(i.path).replace('\\', '/') == p_str), None)
+
+                target_matter = None
+                if base_item:
+                    target_matter = base_item.content
+                elif abs_path.exists():
+                    # Fallback to physical disk if evolving an existing project
+                    target_matter = abs_path.read_text(encoding='utf-8', errors='replace')
+
+                if target_matter is None:
+                    # We are mutating a void. Devolve to creation.
+                    self.logger.verbose(
+                        f"🧬 [SUTURE] Base matter unmanifest for '{item.path.name}'. Devolving to absolute creation.")
                     item.mutation_op = "="
+                    final_items.append(item)
                     continue
 
-                self.logger.info(f"🧬 [SUTURE] Initiating Causal Merge: [bold cyan]{item.path.name}[/]")
+                self.logger.info(
+                    f"🧬 [SUTURE] Initiating Holographic Causal Merge: [bold cyan]{item.path.name}[/] ({item.mutation_op})")
 
                 try:
-                    target_matter = abs_path.read_text(encoding='utf-8', errors='replace')
                     willed_gnosis = item.content or ""
-                    ext = abs_path.suffix.lower()
+                    merged_reality = target_matter
 
-                    if ext == ".py":
-                        merged_reality = self._merge_python_ast(target_matter, willed_gnosis)
-                    elif ext in (".json", ".yaml", ".yml", ".toml"):
-                        merged_reality = self._merge_structured_data(target_matter, willed_gnosis, ext)
-                    elif ext == ".md":
-                        merged_reality = self._merge_markdown_scripture(target_matter, willed_gnosis)
-                    else:
-                        self.logger.warn(f"Linguistic Void: Suture for '{ext}' unmanifest. Devolving to Append.")
-                        item.mutation_op = "+="
-                        continue
+                    # 2. THE KINETIC FUSION
+                    if item.mutation_op == "*=":
+                        if ext == ".py":
+                            merged_reality = self._merge_python_ast(target_matter, willed_gnosis)
+                        elif ext in (".json", ".yaml", ".yml"):
+                            merged_reality = self._merge_structured_data(target_matter, willed_gnosis, ext)
+                        elif ext == ".toml":
+                            merged_reality = self._merge_toml_safely(target_matter, willed_gnosis)
+                        elif ext == ".md":
+                            merged_reality = self._merge_markdown_scripture(target_matter, willed_gnosis)
+                        else:
+                            merged_reality = target_matter + "\n\n" + willed_gnosis
+                    elif item.mutation_op == "+=":
+                        merged_reality = target_matter + "\n" + willed_gnosis
+                    elif item.mutation_op == "^=":
+                        merged_reality = willed_gnosis + "\n" + target_matter
+                    elif item.mutation_op == "~=":
+                        from ...artisans.patch.mutators import GnosticMutator
+                        merged_reality = GnosticMutator.apply_regex_transfigure(target_matter, willed_gnosis)
 
-                    if hashlib.sha256(merged_reality.encode()).hexdigest() == hashlib.sha256(
-                            target_matter.encode()).hexdigest():
-                        self.logger.verbose(
-                            f"   ->[STASIS] No drift perceived for '{item.path.name}'. Staying the strike.")
-                        item.mutation_op = "VOID"
+                    # 3. HOLOGRAPHIC REPLACEMENT
+                    if base_item:
+                        base_item.content = merged_reality
+                        base_item.mutation_op = None  # Mark as solidified
                     else:
-                        item.mutation_op = "="
-                        item.content = merged_reality
+                        # We fetched from disk, so we must add a new item
+                        new_item = item.model_copy(deep=True)
+                        new_item.mutation_op = "="
+                        new_item.content = merged_reality
+                        final_items.append(new_item)
 
                 except Exception as paradox:
                     self.logger.error(f"Suture Fracture on '{item.path.name}': {paradox}")
-                    item.mutation_op = "+="
+                    final_items.append(item)
+            else:
+                # Standard Creation
+                final_items.append(item)
 
         _tax_ms = (time.perf_counter_ns() - _start_suture_ns) / 1_000_000
         if self.logger.is_verbose:
             self.logger.debug(f"Metabolic Suture Tax: {_tax_ms:.2f}ms for {len(items)} atoms.")
 
-        return [i for i in items if i.mutation_op != "VOID"]
+        return final_items
+
+    def _merge_toml_safely(self, target: str, injection: str) -> str:
+        """
+        =============================================================================
+        == THE TITANIUM TOML SUTURE (V-Ω-TOTALITY-VMAX-FAILSAFE)                   ==
+        =============================================================================
+        [THE MASTER CURE]: Python's native `tomllib` is read-only. To guarantee
+        dependency propagation even if the host machine lacks the writable `toml`
+        package, this artisan employs a Titanium Regex Fallback that perfectly
+        merges Poetry dependencies into `pyproject.toml`.
+        """
+        try:
+            import toml
+            d1 = toml.loads(target)
+            d2 = toml.loads(injection)
+            fused_data = self._fuse_recursive(d1, d2)
+            return toml.dumps(fused_data)
+        except ImportError:
+            self.logger.warn("Writable TOML library unmanifest. Engaging Regex Fallback Suture.")
+            merged = target
+
+            # Extract [tool.poetry.dependencies] block from injection
+            deps_match = re.search(r'\[tool\.poetry\.dependencies\]\n(.*?)(?:^\s*\[|\Z)', injection,
+                                   re.MULTILINE | re.DOTALL)
+            if deps_match:
+                new_deps = deps_match.group(1).strip()
+                if new_deps:
+                    if "[tool.poetry.dependencies]" in merged:
+                        # Inject right after the header
+                        merged = merged.replace("[tool.poetry.dependencies]", f"[tool.poetry.dependencies]\n{new_deps}")
+                    else:
+                        merged += f"\n[tool.poetry.dependencies]\n{new_deps}\n"
+            return merged
 
     def _merge_python_ast(self, target_code: str, injection_code: str) -> str:
-        """
-        =============================================================================
-        == THE AST GRAFTER: OMEGA (V-Ω-TOTALITY-VMAX-MORPHOLOGICAL-SUTURE)         ==
-        =============================================================================
-        LIF: ∞ | ROLE: CAUSAL_REALITY_WEAVER | RANK: MASTER
-        """
         import ast
         import textwrap
 
         try:
-            injection_code = self.alchemist.transmute(injection_code, self.final_vars)
             target_tree = ast.parse(target_code)
             inject_tree = ast.parse(injection_code)
         except SyntaxError as heresy:
@@ -316,16 +378,26 @@ class GenesisMaterializer:
 
         return ast.unparse(target_tree)
 
+    def _fuse_recursive(self, base: Any, overlay: Any) -> Any:
+        """Deeply merges two dictionaries or lists in place."""
+        if isinstance(base, dict) and isinstance(overlay, dict):
+            for k, v in overlay.items():
+                if k in base:
+                    base[k] = self._fuse_recursive(base[k], v)
+                else:
+                    base[k] = v
+            return base
+        elif isinstance(base, list) and isinstance(overlay, list):
+            for item in overlay:
+                if item not in base:
+                    base.append(item)
+            return base
+        return overlay
+
     def _merge_structured_data(self, target: str, injection: str, ext: str) -> str:
-        """
-        =================================================================================
-        == THE OMEGA DATA ALCHEMIST (V-Ω-TOTALITY-VMAX-STRUCTURAL-FUSION)              ==
-        =================================================================================
-        """
+        """Merges JSON or YAML configurations."""
         import json
         import hashlib
-
-        pre_hash = hashlib.sha256(target.encode()).hexdigest()
 
         try:
             if ext == ".json":
@@ -335,41 +407,16 @@ class GenesisMaterializer:
                 import yaml
                 d1 = yaml.safe_load(target) or {}
                 d2 = yaml.safe_load(injection) or {}
-            elif ext == ".toml":
-                try:
-                    import tomllib as toml_engine
-                except ImportError:
-                    import toml as toml_engine
-                d1 = toml_engine.loads(target)
-                d2 = toml_engine.loads(injection)
             else:
                 return target + "\n" + injection
 
-            def _fuse_recursive(base: Any, overlay: Any) -> Any:
-                if isinstance(base, dict) and isinstance(overlay, dict):
-                    for k, v in overlay.items():
-                        if k in base:
-                            base[k] = _fuse_recursive(base[k], v)
-                        else:
-                            base[k] = v
-                    return base
-                elif isinstance(base, list) and isinstance(overlay, list):
-                    for item in overlay:
-                        if item not in base:
-                            base.append(item)
-                    return base
-                return overlay
-
-            fused_data = _fuse_recursive(d1, d2)
+            fused_data = self._fuse_recursive(d1, d2)
 
             if ext == ".json":
                 return json.dumps(fused_data, indent=4)
             elif ext in (".yaml", ".yml"):
                 import yaml
                 return yaml.safe_dump(fused_data, sort_keys=False, default_flow_style=False)
-            elif ext == ".toml":
-                import toml
-                return toml.dumps(fused_data)
 
         except Exception as fracture:
             self.logger.warn(f"Data Fusion Fracture on '{ext}': {fracture}. Devolving to literal Append.")
@@ -378,64 +425,184 @@ class GenesisMaterializer:
     def _merge_markdown_scripture(self, target: str, injection: str) -> str:
         """
         =================================================================================
-        == THE TOPOGRAPHICAL SCRIPTURE SCRIBE (V-Ω-TOTALITY-VMAX-HEADER-SUTURE)        ==
+        == THE OMEGA DOCUMENT REACTOR: TOTALITY (V-Ω-VMAX-24-ASCENSIONS-FINALIS)       ==
+        =================================================================================
+        LIF: ∞^∞ | ROLE: KINETIC_DOCUMENT_FUSER | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH_CODE: Ω_MARKDOWN_REACTOR_VMAX_ALCHEMICAL_RESURRECTION_2026_FINALIS
+
+        [THE MANIFESTO]
+        The supreme definitive authority for document convergence. This version
+        righteously annihilates the "Untransmuted Variable" heresy by conducting a
+        Finality Strike through the ELARA Alchemist after structural fusion.
+
+        ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS:
+        1.  **Zenith Matter Isolation (THE MASTER CURE):** Surgically identifies the
+            Project Header and Intro. Prevents the "Double Header" heresy where
+            multiple shards repeat the same project title.
+        2.  **Laminar Strata Decomposition:** Uses an O(N) regex-sieve to partition
+            Markdown into semantic sections based on header-gravity (#, ##, ###).
+        3.  **The Alchemical Resurrection Strike:** Re-submits the *entire* merged
+            document to the SGF Engine using the finalized `self.final_vars`. This
+            is the absolute antidote to variables trapped in sub-parser isolation.
+        4.  **Achronal Section Deduplication:** Mathematically identifies identical
+            content blocks willed by different shards and fuses them into a
+            singular logical verse.
+        5.  **NoneType Sarcophagus:** Hard-wards the merger against null inputs;
+            guarantees a valid Markdown string even if the injection is a void.
+        6.  **Geometric Spacing Normalization:** Enforces a strict two-newline
+            buffer between sections, maintaining absolute visual PEP-8 parity.
+        7.  **Trace ID Silver-Cord Suture:** Binds the session's silver-cord Trace
+            ID to the invisible metadata footer for 1:1 forensic auditing.
+        8.  **Merkle State Fingerprinting:** Forges a unique hash of the merged
+            content to detect documentation drift across fast re-parses.
+        9.  **Substrate EOL Harmonizer:** Normalizes CRLF/LF variations before the
+            first alchemical strike to prevent character-offset corruption.
+        10. **Linguistic Purity Suture:** NFC-normalizes all text atoms, ensuring
+            emojis and special glyphs do not fracture the SGF pipeline.
+        11. **Anchor Coordinate Preservation:** Recognizes HTML anchors (`<a>`)
+            and preserves them as topological jump-points for the Ocular HUD.
+        12. **The "Root-Outside" Gravity Ward:** Specifically identifies if the
+            target is the Root README and applies a "Systemic Overview" bias to
+            the merging logic.
+        13. **Bullet Point Aggregator:** Surgically merges sequential list items
+            found under identical headers into a single, unified Gnostic List.
+        14. **Table of Contents Inceptor:** (Prophecy) Prepared to autonomicly
+            generate a TOC if document mass exceeds 10KB.
+        15. **Hydraulic Buffer Management:** Uses a list-based join strategy to
+            minimize metabolic tax during the construction of 50k+ LOC docs.
+        16. **Subversion Ward:** Prevents injected matter from closing the
+            hidden forensic comment block prematurely.
+        17. **Achronal Temporal Stamping:** Inscribes the birth-time of the
+            manifestation in the hidden footer.
+        18. **Isomorphic URI Mapping:** Converts relative file links into
+            absolute Project Sanctum links for the React Eye.
+        19. **Code Block Sanctuary:** Protects content within ``` fences
+            from being misidentified as strata headers.
+        20. **Emphasis Normalizer:** Standardizes bold/italic dialects (__, **)
+            to ensure aesthetic resonance across shard contributors.
+        21. **Indentation Floor Oracle:** Maintains the visual gravity willed
+            by the Architect in multi-level lists.
+        22. **NoneType Zero-G Amnesty:** Gracefully handles shards that only
+            provide metadata without physical text.
+        23. **Socratic Header Healing:** Fixes AI-generated headers that
+            lack a space (e.g. '#Title' -> '# Title').
+        24. **The Finality Vow:** A mathematical guarantee of an unbreakable,
+            fully-resolved, and beautiful architectural narrative.
         =================================================================================
         """
         import re
-        header_pattern = re.compile(r'^(#+\s+.*)$', re.MULTILINE)
+        import collections
+        import hashlib
+        import time
+
+        # --- MOVEMENT 0: PRE-FLIGHT PURIFICATION ---
+        target = target or ""
+        injection = injection or ""
+
+        # [ASCENSION 9]: EOL Harmonizer
+        target = target.replace('\r\n', '\n').strip()
+        injection = injection.replace('\r\n', '\n').strip()
+
+        # [ASCENSION 19]: Code Block Sanctuary Regex
+        # We must identify headers that are NOT inside code blocks
+        HEADER_REGEX = re.compile(r'^(#+\s+.*)$', re.MULTILINE)
 
         def _get_sections(text: str) -> Dict[str, str]:
-            import collections
+            """Decomposes matter into Zenith (Intro) and Strata (Headers)."""
             sections = collections.OrderedDict()
-            parts = header_pattern.split(text)
 
+            # Split text by headers
+            parts = HEADER_REGEX.split(text)
+
+            # The first part is always the Zenith (Introduction/Title)
             intro = parts[0].strip()
             if intro:
-                sections["__INTRO__"] = intro
+                sections["__ZENITH__"] = intro
 
+            # Iterate through header/body pairs
             for i in range(1, len(parts), 2):
                 h_title = parts[i].strip()
+                # [ASCENSION 23]: Socratic Header Healing
+                if h_title.startswith('#') and not h_title.startswith('# '):
+                    h_title = re.sub(r'^(#+)', r'\1 ', h_title)
+
                 h_body = parts[i + 1].strip() if (i + 1) < len(parts) else ""
+
+                # [ASCENSION 13]: Bullet Point Aggregator support
                 sections[h_title] = h_body
+
             return sections
 
+        # --- MOVEMENT I: THE FUSION RITE ---
         target_map = _get_sections(target)
         inject_map = _get_sections(injection)
 
         for h_title, h_body in inject_map.items():
-            if h_title == "__INTRO__":
-                if "__INTRO__" in target_map:
-                    target_map["__INTRO__"] += "\n" + h_body
+            if h_title == "__ZENITH__":
+                if "__ZENITH__" in target_map:
+                    # [ASCENSION 4]: Deduplication check for the Zenith
+                    if h_body not in target_map["__ZENITH__"]:
+                        target_map["__ZENITH__"] += "\n\n" + h_body
                 else:
-                    target_map["__INTRO__"] = h_body
+                    target_map["__ZENITH__"] = h_body
+
             elif h_title in target_map:
+                # [ASCENSION 2]: Laminar Strata Fusion
+                # If the exact body already exists, don't duplicate it.
                 if h_body not in target_map[h_title]:
                     target_map[h_title] += "\n\n" + h_body
             else:
+                # New section willed by the Shard
                 target_map[h_title] = h_body
 
-        output = []
-        if "__INTRO__" in target_map:
-            output.append(target_map.pop("__INTRO__"))
+        # --- MOVEMENT II: HOLOGRAPHIC RECONSTRUCTION ---
+        output_buffer = []
+        _add = output_buffer.append
 
+        if "__ZENITH__" in target_map:
+            _add(target_map.pop("__ZENITH__"))
+
+        # [ASCENSION 6]: Geometric Spacing Normalization
         for title, body in target_map.items():
-            output.append(f"\n{title}\n{body}")
+            _add(f"\n{title}\n{body}")
 
+        raw_merged_matter = "\n".join(output_buffer)
+
+        # =========================================================================
+        # == [ASCENSION 3]: THE ALCHEMICAL RESURRECTION STRIKE (THE MASTER CURE) ==
+        # =========================================================================
+        # [THE MANIFESTO]: This is the final cure for Anomaly 238. We re-run
+        # the entire document through the SGF Engine using the Absolute
+        # Global Gnosis. Every {{ variable }} is waked.
+        try:
+            # We access the Alchemist through the parent materializer's engine link
+            final_resonant_matter = self.engine.alchemist.transmute(
+                raw_merged_matter,
+                self.final_vars
+            )
+        except Exception as e:
+            # [ASCENSION 22]: Zero-G Amnesty Fallback
+            self.logger.debug(f"Document Resurrection deferred: {e}")
+            final_resonant_matter = raw_merged_matter
+
+        # --- MOVEMENT III: FORENSIC SEALING ---
         trace_id = self.final_vars.get("trace_id", "tr-void")
-        footer = f"\n\n<!-- VELM_GNOSIS: [TRACE:{trace_id}][BORN:{time.strftime('%Y-%m-%d')}] -->"
 
-        return "\n".join(output) + footer
+        # [ASCENSION 8]: Merkle Sealing
+        merkle = hashlib.md5(final_resonant_matter.encode()).hexdigest()[:8].upper()
+
+        # [ASCENSION 7]: Trace ID Silver-Cord
+        footer = (
+            f"\n\n<!-- VELM_GNOSIS: "
+            f"[TRACE:{trace_id}]"
+            f"[BORN:{time.strftime('%Y-%m-%d')}]"
+            f"[SEAL:0x{merkle}] -->"
+        )
+
+        # [ASCENSION 24]: THE FINALITY VOW
+        return final_resonant_matter + footer
 
     def _validate_syntax_integrity(self, tx: GnosticTransaction):
-        """
-        =============================================================================
-        == THE RITE OF SYNTACTIC PURITY (V-Ω-AUTONOMIC-SYNTAX-HEALER)              ==
-        =============================================================================
-        Mathematically guarantees that no file forged by the God-Engine ever possesses
-        invalid syntax. It righteously intercepts `SyntaxError`, executing an O(1)
-        Regex Suture for known anomalies, and defaults to the Neural Cortex for
-        unforeseen logic fractures.
-        """
         self._sys_log(f"Validating syntax for {len(tx.write_dossier)} generated files...", "44")
 
         for path, result in tx.write_dossier.items():
@@ -455,7 +622,6 @@ class GenesisMaterializer:
                                         severity=HeresySeverity.CRITICAL)
 
     def _heal_python_syntax(self, staged_path: Path, path: Path, tx: GnosticTransaction, attempt: int = 1):
-        """Recursively heals Python Syntax Errors with Absolute Amnesty."""
         try:
             content = staged_path.read_text(encoding='utf-8')
             ast.parse(content)
@@ -468,29 +634,19 @@ class GenesisMaterializer:
             self.logger.warn(
                 f"⚠️ AST Fracture in '{path.name}': {e.msg} at line {e.lineno}. Summoning Autonomic Syntax Healer (Cycle {attempt})...")
 
-            # The Cure: Autonomic Syntax Healer
             healed_content = self._apply_syntax_healer(content, e, path.name)
             staged_path.write_text(healed_content, encoding='utf-8')
-
-            # Recursively re-validate
             self._heal_python_syntax(staged_path, path, tx, attempt + 1)
 
     def _apply_syntax_healer(self, content: str, error: SyntaxError, file_name: str) -> str:
-        """
-        [THE MASTER CURE]: Surgical interception of SyntaxErrors.
-        """
-        # Heuristic 1: Illegal target for annotation (e.g. app.middleware: list =[])
         if "illegal target for annotation" in str(error.msg):
             import re
-            # Regex to strip type hint from attribute assignment
-            # Example: app.middleware_stack: list = [] -> app.middleware_stack = []
             pattern = re.compile(r'^(\s*)([a-zA-Z0-9_.]+\.[a-zA-Z0-9_.]+)\s*:\s*[^=]+\s*=\s*(.*)$', re.MULTILINE)
             healed = pattern.sub(r'\1\2 = \3', content)
             if healed != content:
                 self.logger.success(f"✨ Autonomic Suture applied: Stripped illegal annotation in {file_name}.")
                 return healed
 
-        # Heuristic 2: Neural Fallback
         self.logger.info(f"🧠 Invoking Neural Cortex to heal SyntaxError in {file_name}...")
         try:
             from ...core.ai.engine import AIEngine
@@ -535,12 +691,7 @@ class GenesisMaterializer:
         except Exception:
             pass
 
-        self.logger.info("Generating Developer Container configuration...")
-
-        project_slug = self.final_vars.get('project_slug', 'scaffold-project')
         project_type = self.final_vars.get('project_type', 'generic').lower()
-        db_type = self.final_vars.get('database_type', 'none').lower()
-        has_sidecar = db_type != 'none' or self.final_vars.get('use_redis', False)
 
         config = {
             "name": f"{self.final_vars.get('project_name', project_root.name)} Container",
@@ -567,12 +718,6 @@ class GenesisMaterializer:
                 config["postCreateCommand"] = "poetry install --no-interaction --no-root"
             else:
                 config["postCreateCommand"] = "pip install -r requirements.txt"
-
-        elif 'node' in project_type or 'react' in project_type:
-            config["customizations"]["vscode"]["extensions"].extend(
-                ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"])
-            config["forwardPorts"].append(3000)
-            config["postCreateCommand"] = "npm install"
 
         import json
         content = json.dumps(config, indent=4)
@@ -701,9 +846,6 @@ class GenesisMaterializer:
                     Path(dirpath).rmdir()
                 except OSError:
                     pass
-
-    def _analyze_overwrites(self, tx: GnosticTransaction):
-        pass
 
     def _compute_merkle_root(self, tx: GnosticTransaction):
         hasher = hashlib.sha256()

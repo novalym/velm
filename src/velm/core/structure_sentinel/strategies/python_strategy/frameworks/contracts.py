@@ -1,10 +1,10 @@
-# Path: scaffold/artisans/translocate_core/conductor/structure_sentinel/strategies/python_strategy/frameworks/contracts.py
-# -----------------------------------------------------------------------------------------------------------------------
+# Path: core/structure_sentinel/strategies/python_strategy/frameworks/contracts.py
+# --------------------------------------------------------------------------------
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Any, TYPE_CHECKING
+from typing import Optional, Any, TYPE_CHECKING, Dict
 
 if TYPE_CHECKING:
     from .engine import FrameworkFaculty
@@ -12,12 +12,27 @@ if TYPE_CHECKING:
 
 @dataclass
 class InjectionPlan:
-    """The blueprint for a surgical insertion."""
+    """
+    =============================================================================
+    == THE INJECTION PLAN (V-Ω-TOTALITY-VMAX-METADATA-SUTURE)                  ==
+    =============================================================================
+    LIF: ∞^∞ | ROLE: SURGICAL_BLUEPRINT | RANK: OMEGA_GUARDIAN
+
+    The absolute blueprint for a surgical insertion. It has been ascended
+    to carry `metadata`, preventing the AttributeError paradox during
+    Laminar Sanctuary Triage. This mathematically guarantees that the
+    ASTSurgeon receives its spatial coordinates without fracturing.
+    """
     target_file: Path
     import_stmt: str
     wiring_stmt: str
     anchor: str  # The AST node or string to attach to
     strategy_name: str
+
+    # [THE MASTER CURE]: The Laminar Sanctuary Metadata Suture.
+    # Defaults to an empty dict to perfectly preserve backward compatibility
+    # with legacy strategies while empowering FastAPI and Panopticon.
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 class WiringStrategy(ABC):
@@ -45,8 +60,5 @@ class WiringStrategy(ABC):
     @abstractmethod
     def forge_injection(self, source_path: Path, component_var: str, target_content: str, root: Path) -> Optional[
         InjectionPlan]:
-        """
-        Surgically calculates what to insert and where.
-        """
+        """Surgically calculates what to insert and where."""
         pass
-

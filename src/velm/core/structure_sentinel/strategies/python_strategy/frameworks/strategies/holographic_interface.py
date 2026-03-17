@@ -177,19 +177,27 @@ class HolographicInterfaceStrategy(WiringStrategy):
     ) -> Optional[InjectionPlan]:
         """
         =================================================================================
-        == THE OMEGA FORGE INJECTION: TOTALITY (V-Ω-VMAX-ISOMORPHIC-SUTURE)            ==
+        == THE OMEGA FORGE INJECTION: TOTALITY (V-Ω-TOTALITY-VMAX-ISOMORPHIC-SUTURE)   ==
+        =================================================================================
+        LIF: ∞^∞ | ROLE: ISOMORPHIC_REALITY_MIRROR | RANK: OMEGA_SOVEREIGN_PRIME
+        AUTH: Ω_FORGE_VMAX_ZOD_TRANSMUTATION_2026_FINALIS_!#()@()@#)(
+
+        [THE MANIFESTO]
+        The supreme final authority for cross-strata interface alignment. This rite
+        righteously annihilates the "Linguistic Schism" by transmuting Pydantic
+        Souls into Zod validation Laws with bit-perfect geometric parity.
         =================================================================================
         """
         import os
         import re
         import time
+        import hashlib
         from pathlib import Path
 
         _start_ns = time.perf_counter_ns()
-        trace_id = getattr(self.faculty.parser, 'trace_id', 'tr-ocular-void')
+        trace_id = getattr(self.faculty.parser, 'trace_id', 'tr-isomorph-void')
 
-        # --- MOVEMENT I: DECONSTRUCTION ---
-        # URN: {origin}:{role}:{symbol}:{meta}
+        # --- MOVEMENT I: DECONSTRUCTION & DNA EXTRACTION ---
         try:
             parts = component_info.split(':', 3)
             role_intent = parts[1]
@@ -199,50 +207,71 @@ class HolographicInterfaceStrategy(WiringStrategy):
             return None
 
         # --- MOVEMENT II: GEOMETRIC TRIANGULATION ---
-        try:
-            tx = getattr(self.faculty, 'transaction', None)
-            abs_target_file = self.find_target(root, tx)
+        tx = getattr(self.faculty, 'transaction', None)
+        abs_target_file = self.find_target(root, tx)
 
-            if not abs_target_file:
-                self.faculty.logger.warn(f"   [Ocular] Triangulation Void: Type Registry unmanifest.")
-                return None
-
-            # [ASCENSION 23]: GEOMETRIC PATH ANCHOR
-            abs_source = source_path.resolve()
-            # For cross-strata (Python to TS) we don't do relative imports.
-            # We use virtual anchors to signal the Ocular Transmuter.
-
-            # [ASCENSION 17]: IDENTITY ALIASING
-            safe_stem = re.sub(r'[^a-zA-Z0-9_]', '_', source_path.stem)
-            alias = f"{safe_stem}_{symbol_name}"
-
-        except Exception as e:
-            self.faculty.logger.error(f"   [Ocular] Triangulation Paradox: {e}")
+        if not abs_target_file:
+            self.faculty.logger.warn(f"   [Ocular] Triangulation Void: Ocular Type Registry unmanifest.")
             return None
 
-        # --- MOVEMENT III: PLAN MANIFESTATION (THE STRIKE) ---
+        # [ASCENSION 23]: GEOMETRIC PATH ANCHOR
+        abs_source = source_path.resolve()
 
-        # 1. FORGE THE IMPORT
-        # Since this is Python-to-TypeScript, we don't import the .py file.
-        # We inject a Gnostic Anchor that the Ocular Transmuter (Strike 22) will fill.
-        import_stmt = f"// [Gnostic Suture]: Mirrored from {source_path.name}"
+        # --- MOVEMENT III: GENOMIC FIELD SCRYING (THE MASTER CURE) ---
+        # [STRIKE]: We peer into the source matter to extract the Pydantic DNA.
+        source_content = self._read(source_path, SharedContext(root, tx, self.faculty.logger))
+        extracted_fields = self._scry_pydantic_fields(source_content, symbol_name)
 
-        # 2. IDEMPOTENCY CHECK
-        if f"export const {symbol_name}Schema" in target_content:
+        # =========================================================================
+        # == MOVEMENT IV: ISOMORPHIC TYPE TRANSMUTATION                          ==
+        # =========================================================================
+        zod_fields = []
+        for f_name, f_type, f_constraints in extracted_fields:
+            # [ASCENSION 4]: Linguistic Casing Harmonizer
+            # Transmutes 'user_id' -> 'userId' for Ocular DX
+            ts_name = re.sub(r'_([a-z])', lambda x: x.group(1).upper(), f_name)
+
+            # [ASCENSION 2]: Isomorphic Type Mapping
+            z_type = self._transmute_to_zod_type(f_type, f_constraints)
+            zod_fields.append(f"  {ts_name}: {z_type}")
+
+        # --- MOVEMENT V: PLAN MANIFESTATION (THE STRIKE) ---
+
+        # 1. THE IMPORT SUTURE
+        # We ensure Zod is manifest in the target membrane.
+        import_stmt = "import { z } from 'zod';"
+        if "from 'zod'" in target_content or 'from "zod"' in target_content:
+            import_stmt = ""  # Already resonant
+
+        # 2. IDEMPOTENCY GAZE
+        schema_name = f"{symbol_name}Schema"
+        if f"export const {schema_name}" in target_content:
+            # (Prophecy: Future versions will perform an AST diff to update fields)
             return None
 
         # 3. THE HOLOGRAPHIC SUTURE (WIRING)
-        # [ASCENSION 2]: JIT ZOD TRANSMUTATION
-        # We forge the Zod Schema skeleton.
+        # [ASCENSION 6]: Trace ID Silver-Cord Suture
+        # [ASCENSION 7]: describe() Inception
+        field_block = ",\n".join(zod_fields)
         wire_stmt = (
-            f"// [Trace: {trace_id}]\n"
-            f"export const {symbol_name}Schema = z.object({{ /* Isomorphic Refraction Pending */ }});"
+            f"/**\n"
+            f" * @generated [Trace: {trace_id}]\n"
+            f" * @source {source_path.name}\n"
+            f" */\n"
+            f"export const {schema_name} = z.object({{\n"
+            f"{field_block}\n"
+            f"}}).describe('Isomorphic reflection of {symbol_name}');"
         )
 
         self.faculty.logger.success(
-            f"   [Ocular] [bold cyan]Suture Resonant:[/] Reflecting Mind Soul '[yellow]{symbol_name}[/]' "
-            f"into [white]{abs_target_file.name}[/]"
+            f"   [Ocular] [bold cyan]Suture Resonant:[/] Projected Isomorph '[yellow]{schema_name}[/]' "
+            f"({len(zod_fields)} fields) into [white]{abs_target_file.name}[/]"
         )
+
+        # --- MOVEMENT VI: METABOLIC FINALITY ---
+        _duration_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
+        if _duration_ms > 20.0:
+            self.faculty.logger.verbose(f"   -> Refraction Tax: {_duration_ms:.2f}ms")
 
         # [ASCENSION 24]: THE FINALITY VOW
         return InjectionPlan(
@@ -252,6 +281,68 @@ class HolographicInterfaceStrategy(WiringStrategy):
             anchor="export",
             strategy_name=self.name
         )
+
+    def _scry_pydantic_fields(self, content: str, class_name: str) -> List[Tuple[str, str, Dict]]:
+        """
+        [ASCENSION 1]: GENOMIC FIELD SCRYING.
+        Uses a high-status regex matrix to extract field names and type hints.
+        """
+        # 1. Isolate the Class Body
+        class_pattern = re.compile(rf"class\s+{class_name}\(.*?BaseModel.*?\):(?P<body>.*?)(\n\s*class|\Z)", re.DOTALL)
+        match = class_pattern.search(content)
+        if not match: return []
+
+        body = match.group("body")
+        fields = []
+
+        # 2. Extract Fields: name: type = Field(...)
+        field_pattern = re.compile(
+            r"^\s+(?P<name>[a-zA-Z_]\w*)\s*:\s*(?P<type>[^=\n#]+)(?:\s*=\s*Field\((?P<meta>.*?)\))?", re.MULTILINE)
+
+        for f_match in field_pattern.finditer(body):
+            name = f_match.group("name")
+            f_type = f_match.group("type").strip()
+            raw_meta = f_match.group("meta") or ""
+
+            # Simple Constraint Extraction
+            constraints = {}
+            if "ge=" in raw_meta: constraints["min"] = re.search(r"ge=(\d+)", raw_meta).group(1)
+            if "min_length=" in raw_meta: constraints["min_len"] = re.search(r"min_length=(\d+)", raw_meta).group(1)
+
+            fields.append((name, f_type, constraints))
+
+        return fields
+
+    def _transmute_to_zod_type(self, py_type: str, constraints: Dict) -> str:
+        """
+        [ASCENSION 2 & 5]: THE ALCHEMICAL TYPE TRANSMUTER.
+        """
+        # --- 1. BASE TYPE MAPPING ---
+        mapping = {
+            "str": "z.string()",
+            "int": "z.number().int()",
+            "float": "z.number()",
+            "bool": "z.boolean()",
+            "datetime": "z.string().datetime()",
+            "UUID": "z.string().uuid()",
+            "EmailStr": "z.string().email()",
+            "HttpUrl": "z.string().url()"
+        }
+
+        # Handle Optional/Union[T, None]
+        is_optional = "Optional" in py_type or "None" in py_type
+        core_type = py_type.replace("Optional[", "").replace("]", "").split("|")[0].strip()
+
+        base_zod = mapping.get(core_type, "z.any()")
+
+        # --- 2. CONSTRAINT SUTURE ---
+        if "min" in constraints: base_zod += f".min({constraints['min']})"
+        if "min_len" in constraints: base_zod += f".min({constraints['min_len']})"
+
+        if is_optional:
+            base_zod += ".nullable()"
+
+        return base_zod
 
     def _find_symbol_near_marker(self, content: str, marker_line: str) -> Optional[str]:
         """Finds the class definition associated with the ocular intent."""

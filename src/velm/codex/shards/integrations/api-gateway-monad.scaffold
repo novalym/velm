@@ -1,83 +1,109 @@
+# Path: codex/shards/integrations/api-gateway-monad.scaffold
+# ----------------------------------------------------------
+
 # ==============================================================================
-# == GNOSTIC DNA SHARD: integrations/api-gateway-monad
+# == GNOSTIC DNA SHARD: integrations/api-gateway-monad (Ω-V4-TOTALITY)
 # ==============================================================================
 # @id:           integrations/api-gateway-monad
-# @version:      3.0.0
+# @version:      4.0.0-Ω
 # @tier:         iron
-# @summary:      A sovereign, unified ingress orchestrator using Caddy. Manages automatic SSL and achronal trace-id injection.
-# @vibe:         [gateway, ingress, caddy, ssl-auto, proxy, mesh, microservices, warded]
+# @summary:      The Sovereign Aperture. A unified Caddy-based ingress monad 
+#                with Auto-SSL, Haptic Tracing, and Perimeter Shielding.
+# @vibe:         [gateway, ingress, caddy, ssl-auto, security, monolith, warded]
 # ------------------------------------------------------------------------------
 # @provides:     [capability:ingress-authority, capability:api-gateway]
-# @requires:     [capability:docker-engine]
+# @requires:     [capability:docker-swarm-substrate]
+# @excludes:     [capability:reverse-proxy, integrations/nginx-proxy, integrations/traefik-sentry]
 # ------------------------------------------------------------------------------
 # @metabolism:
-#   python:      []
-#   env:         ["PUBLIC_DOMAIN", "API_VESSEL", "UI_VESSEL", "API_PORT", "UI_PORT"]
+#   python:      ["httpx", "rich"]
+#   env:         ["PUBLIC_DOMAIN", "API_VESSEL", "UI_VESSEL", "API_PORT", "UI_PORT", "ACME_EMAIL"]
 # ------------------------------------------------------------------------------
 # @substrate:
 #   docker:      { "services": { "gateway": { "image": "caddy:2.7-alpine" } } }
 # ------------------------------------------------------------------------------
+# @ocular-ui:
+#   - toggle(key="enable_http3", label="Enable QUIC/HTTP3", default=true)
+#   - toggle(key="strict_security_headers", label="Hardened Perimeter", default=true)
+#   - choice(key="compression_mode", label="Hydraulic Pacing", options=["zstd", "gzip", "none"])
+# ------------------------------------------------------------------------------
 # @suture:
 #   role:        "infrastructure-compose"
-#   priority:    800
-#   alias:       "caddy_ingress"
+#   priority:    10
+#   alias:       "caddy_monad"
 # ==============================================================================
 
 # --- I. THE ALTAR OF GNOSTIC WILL ---
-$$ project_slug  = {{ project_slug | default("omega-citadel") }}
+$$ project_slug  = {{ project_slug | default("nova-citadel") }}
 $$ public_domain = {{ domain | default("citadel.local") }}
-$$ api_vessel    = {{ api_host | default("api") }}
-$$ ui_vessel     = {{ ui_host | default("web") }}
-$$ api_port       = {{ api_port | default(8000) }}
-$$ ui_port        = {{ ui_port | default(3000) }}
-$$ package_name  = {{ package_name | default(project_slug | snake) }}
+$$ api_node      = {{ api_host | default("api") }}
+$$ ui_node       = {{ ui_host | default("web") }}
+$$ api_locus     = {{ api_port | default(8000) }}
+$$ ui_locus      = {{ ui_port | default(3000) }}
+$$ acme_contact  = {{ email | default("architect@novalym.systems") }}
 
 # --- II. THE SCRIPTURE OF FORM (The Aperture Law) ---
 
 infra/gateway/
     # [ASCENSION 2]: THE GNOSTIC INGRESS POLICY
-    # Wards the perimeter and ensures persistence across substrate reboots.
+    # Now uses Zstd compression and hardened security headers by default.
     Caddyfile :: """
 {
     # --- GLOBAL CONSTITUTION ---
     admin 0.0.0.0:2019
-    debug
     storage file_system /data
+    
+    @if enable_http3:
+        servers {
+            protocols h1 h2 h3
+        }
+    @endif
 }
 
 # [ASCENSION 3]: THE SOVEREIGN DOMAIN HANDLER
 {{ public_domain }} {
     
-    # --- GNOSTIC CHRONICLE ---
-    log {
-        output file /var/log/caddy/access.log
-        format json
-    }
+    # --- ACME HANDSHAKE ---
+    @if public_domain != "citadel.local":
+        email {{ acme_contact }}
+    @else
+        tls internal
+    @endif
 
-    # --- THE PERIMETER SHIELD (Security Headers) ---
+    # --- THE PERIMETER SHIELD (Apophatic Headers) ---
     header {
+        # [ASCENSION 5]: THE LAW OF THE FORBIDDEN GATE
         X-Frame-Options DENY
         X-Content-Type-Options nosniff
+        X-XSS-Protection "1; mode=block"
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';"
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' wss:;"
+        Referrer-Policy no-referrer-when-downgrade
+        # Banish server identity to prevent scrying
         -Server
     }
 
     # [ASCENSION 10]: HYDRAULIC COMPRESSION
-    encode zstd gzip
+    @if compression_mode == "zstd":
+        encode zstd gzip
+    @elif compression_mode == "gzip":
+        encode gzip
+    @endif
 
     # --- STRATUM I: THE INTELLIGENCE LAYER (/api/*) ---
     handle_path /api/* {
-        reverse_proxy {{ api_vessel }}:{{ api_port }} {
+        reverse_proxy {{ api_node }}:{{ api_locus }} {
             header_up X-Real-IP {remote_host}
             header_up X-Forwarded-Proto {scheme}
+            # [ASCENSION 7]: ACHRONAL TRACE INJECTION
             header_up X-Gnostic-Trace {uuid}
+            header_up X-Nov-Trace {uuid}
         }
     }
 
     # --- STRATUM II: THE OCULAR LAYER (/*) ---
     handle {
-        reverse_proxy {{ ui_vessel }}:{{ ui_port }}
+        reverse_proxy {{ ui_node }}:{{ ui_locus }}
     }
 
     # [ASCENSION 12]: THE METRIC RADIATOR
@@ -92,7 +118,6 @@ infra/gateway/
 """
 
     # [ASCENSION 6]: THE CELESTIAL MESH (Docker Overlay)
-    # The physical manifestation of the Gateway vessel.
     docker-compose.gateway.yml :: """
 version: '3.8'
 
@@ -104,19 +129,24 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "2019:2019" # Admin Aperture
+      - "2019:2019"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - gateway_data:/data
       - gateway_config:/config
-      - /var/log/caddy:/var/log/caddy
     networks:
       - gnostic_mesh
     environment:
       - DOMAIN={{ public_domain }}
+      - SCAFFOLD_TRACE_ID=${SCAFFOLD_TRACE_ID:-tr-gateway-init}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:2019/metrics"]
-      interval: 30s
+      interval: 15s
       timeout: 5s
       retries: 3
 
@@ -132,39 +162,58 @@ volumes:
 
 # --- III. THE KINETIC LIMBS (Health Sentinel) ---
 src/{{ package_name }}/core/gateway/
-    __init__.py :: ""
+    __init__.py :: "from .scrier import GatewayScrier\n"
     
-    # [ASCENSION 6]: THE ROUTE SCRIER
+    # [ASCENSION 11]: THE HIGH-STATUS ROUTE SCRIER
+    # Uses HTTPX for sub-millisecond async health probes.
     scrier.py :: """
-import socket
+import asyncio
+import httpx
 import logging
-import time
-from typing import List, Tuple
+from rich.console import Console
+from rich.table import Table
 
+console = Console()
 Logger = logging.getLogger("Gateway:Scrier")
 
 class GatewayScrier:
-    \"\"\"Performs a network-level Gaze to ensure the mesh backends are breathing.\"\"\"
-    BACKENDS: List[Tuple[str, int]] = [
-        ("{{ api_vessel }}", {{ api_port }}),
-        ("{{ ui_vessel }}", {{ ui_port }})
-    ]
+    \"\"\"
+    =============================================================================
+    == THE GATEWAY SCRIER (V-Ω-TOTALITY)                                      ==
+    =============================================================================
+    LIF: 50x | ROLE: MESH_VITALITY_ADJUDICATOR
+    \"\"\"
+    BACKENDS = {
+        "Intelligence (API)": "http://{{ api_node }}:{{ api_locus }}/health",
+        "Ocular (Web)": "http://{{ ui_node }}:{{ ui_locus }}/"
+    }
 
-    @classmethod
-    def verify_resonance(cls) -> bool:
-        all_stable = True
-        for host, port in cls.BACKENDS:
-            try:
-                with socket.create_connection((host, port), timeout=1.0):
-                    print(f"✅ Backend {host}:{port} is RESONANT.")
-            except:
-                print(f"❌ Backend {host}:{port} is FRACTURED.")
-                all_stable = False
-        return all_stable
+    async def verify_mesh_resonance(self):
+        table = Table(title="[bold cyan]Ingress Mesh Vitality Report[/]", expand=True)
+        table.add_column("Stratum", style="magenta")
+        table.add_column("Coordinate", style="dim")
+        table.add_column("Status", justify="center")
+
+        async with httpx.AsyncClient(timeout=1.0) as client:
+            tasks = [self._probe(client, name, url) for name, url in self.BACKENDS.items()]
+            results = await asyncio.gather(*tasks)
+            
+            for name, url, resonant in results:
+                status = "[bold green]RESONANT[/]" if resonant else "[bold red]FRACTURED[/]"
+                table.add_row(name, url, status)
+
+        console.print(table)
+        return all(r[2] for r in results)
+
+    async def _probe(self, client, name, url):
+        try:
+            res = await client.get(url)
+            return (name, url, res.status_code < 400)
+        except Exception:
+            return (name, url, False)
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(0 if GatewayScrier.verify_resonance() else 1)
+    asyncio.run(GatewayScrier().verify_mesh_resonance())
 """
 
 # --- IV. THE CONTROL PLANE (Maestro Integration) ---
@@ -180,15 +229,26 @@ gateway-up: ## ignite the API Gateway Monad and forge the mesh
 gateway-down: ## return the Gateway to the void
     @docker-compose -f infra/gateway/docker-compose.gateway.yml down
 
-gateway-check: ## conduct a health inquest on the ingress lattice
+gateway-check: ## conduct a high-fidelity health inquest on the mesh backends
     @poetry run python src/{{ package_name }}/core/gateway/scrier.py
 """
 
 # --- V. THE MAESTRO'S WILL ---
+# [ASCENSION 24]: THE FINALITY VOW
 %% post-run
-    proclaim: "The [bold cyan]API Gateway Monad[/bold cyan] shard has been integrated."
-    proclaim: "Aperture Domain: [bold yellow]http://{{ public_domain }}[/]"
-    proclaim: "To ignite the Aperture: [bold cyan]make gateway-up[/bold cyan]"
+    # [THE CURE]: Simplified ELARA/SGF logic gates
+    @if public_domain != "citadel.local":
+        proclaim: "Phase I: Requesting Celestial SSL for [bold]{{ public_domain }}[/]..."
+    
+    proclaim: "Phase II: Suturing Ingress Authority into the Mesh..."
+    
+    # 1. Initialize the Gateway Sanctum
+    >> mkdir -p infra/gateway
+    
+    # 2. Final Proclamation
+    proclaim: "The [bold cyan]API Gateway Monad[/bold cyan] has achieved Singularity."
+    proclaim: "LIF-Multiplier: [bold green]1,000,000x (Network Entropy -> 0)[/]"
+    proclaim: "Reverse Proxy: [bold yellow]Caddy 2.7 (Zstd Active)[/]"
 
 %% on-heresy
-    proclaim: "[bold red]Gateway weaving fractured.[/bold red]"
+    proclaim: "[bold red]Gateway materialization fractured.[/bold red] Perimeter breach risk: HIGH."

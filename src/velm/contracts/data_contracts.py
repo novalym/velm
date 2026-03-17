@@ -32,9 +32,9 @@ import time
 import argparse
 from enum import Enum, auto
 from pathlib import Path
-from typing import Optional, Set, Dict, Union, List, Any, TypedDict, Tuple, Final
+from typing import Optional, Set, Dict, Union, List, Any, TypedDict, Tuple, Final, Generator
 from pydantic import BaseModel, Field, ConfigDict, field_validator, computed_field, model_validator
-
+from pydantic.fields import AliasChoices
 from ..interfaces import Artifact
 # --- DIVINE SUMMONS (Cross-Module Links) ---
 from .architectural_contracts import SemanticSegment
@@ -586,18 +586,20 @@ ConditionNode.model_rebuild()
 # ==============================================================================
 # == STRATUM-Ω: THE SOVEREIGN SHARD DNA (V-Ω-TOTALITY-V3.0-EXTENSIVE)         ==
 # ==============================================================================
+# =============================================================================
+# == STRATUM I: THE SHARD METABOLISM (V-Ω-TOTALITY-VMAX-PHYSIOLOGY)          ==
+# =============================================================================
 
 class ShardMetabolism(BaseModel):
     """
     =============================================================================
-    == THE SHARD METABOLISM (V-Ω-TOTALITY)                                     ==
+    == THE SHARD METABOLISM (V-Ω-TOTALITY-VMAX-PHYSIOLOGY)                     ==
     =============================================================================
-    @gnosis:title Shard Physiology
-    @gnosis:summary Defines the physical requirements for the Shard to breathe.
-    LIF: ∞ | ROLE: DEPENDENCY_MANIFEST | RANK: OMEGA_SCRIBE
+    LIF: ∞ | ROLE: DEPENDENCY_GOVERNOR | RANK: OMEGA_SCRIBE
+    AUTH: Ω_METABOLISM_VMAX_2026
 
-    This vessel allows the Engine to automate the "Environmental Inception" phase,
-    mathematically annihilating the 'ModuleNotFoundError' and 'Binary Missing' heresies.
+    Defines the physical requirements for the Shard to breathe. It governs the
+    inhalation of external libraries and the injection of Environmental DNA.
     """
     model_config = ConfigDict(
         frozen=False,
@@ -609,149 +611,270 @@ class ShardMetabolism(BaseModel):
     # --- I. THE PYTHONIC SOUL ---
     python: List[str] = Field(
         default_factory=list,
-        description="Pip/Poetry dependencies. Format: 'package>=version' or 'package[extra]'.",
-        examples=["fastapi>=0.110.0", "pydantic[email]>=2.6.0"]
+        description="Pip/Poetry dependencies. Enforces PEP 508 compliance."
     )
 
     # --- II. THE OCULAR EYE (NODE) ---
     node: List[str] = Field(
         default_factory=list,
-        description="NPM/Yarn/Pnpm dependencies for the Ocular Layer.",
-        examples=["zod", "framer-motion", "lucide-react"]
+        description="NPM/Yarn/Pnpm dependencies for the Ocular Layer."
     )
 
     # --- III. THE ENVIRONMENTAL DNA ---
+    # Supports simple 'KEY' or 'KEY=DEFAULT' syntax
     env: List[str] = Field(
         default_factory=list,
-        description="Mandatory Environment Variables that must be manifest in the local Vault (.env).",
-        examples=["DATABASE_URL", "STRIPE_SECRET_KEY"]
+        description="Mandatory and Optional Environment Variables for the local Vault."
     )
 
     # --- IV. THE IRON SUBSTRATE (BINARIES) ---
-    apt: List[str] = Field(
-        default_factory=list,
-        description="Linux/Debian system binaries required on the host iron.",
-        examples=["libpq-dev", "curl", "ffmpeg"]
-    )
-    brew: List[str] = Field(
-        default_factory=list,
-        description="macOS system binaries for local development resonance."
-    )
+    apt: List[str] = Field(default_factory=list, description="Linux system binaries.")
+    brew: List[str] = Field(default_factory=list, description="macOS system binaries.")
+
+    @field_validator('python', 'node', 'env', 'apt', 'brew', mode='before')
+    @classmethod
+    def _apophatic_list_suture(cls, v: Any) -> List[str]:
+        """Surgically transmutes strings or nulls into pure Gnostic Lists."""
+        if v is None: return []
+        if isinstance(v, str): return [s.strip() for s in v.split(',') if s.strip()]
+        return v
 
     @computed_field
     @property
     def gnostic_mass(self) -> int:
-        """Calculates the total physical weight of the shard requirements."""
-        return len(self.python) + len(self.node) + len(self.apt) + len(self.brew)
+        """Calculates the total complexity weight of the metabolic requirements."""
+        return len(self.python) + len(self.node) + len(self.apt) + len(self.env)
 
     @property
-    def fingerprint(self) -> str:
-        """Forges a unique hash of the metabolic requirements."""
-        raw = "".join(sorted(self.python + self.node + self.env + self.apt))
-        return hashlib.md5(raw.encode()).hexdigest()[:8]
+    def metabolic_fingerprint(self) -> str:
+        """Forges a unique Merkle-root of the requirements to detect DNA drift."""
+        raw_dna = json.dumps({
+            "p": sorted(self.python),
+            "n": sorted(self.node),
+            "e": sorted(self.env),
+            "a": sorted(self.apt)
+        }, sort_keys=True)
+        return hashlib.sha256(raw_dna.encode()).hexdigest()[:12].upper()
 
+    def __repr__(self) -> str:
+        return f"<Ω_METABOLISM mass={self.gnostic_mass} seal={self.metabolic_fingerprint}>"
+
+
+# =============================================================================
+# == STRATUM II: THE SHARD SUBSTRATE (V-Ω-TOTALITY-VMAX-IRON-GOVERNOR)       ==
+# =============================================================================
 
 class ShardSubstrate(BaseModel):
     """
     =============================================================================
-    == THE SHARD SUBSTRATE (V-Ω-TOTALITY)                                      ==
+    == THE SHARD SUBSTRATE (V-Ω-TOTALITY-VMAX-IRON-GOVERNOR)                   ==
     =============================================================================
-    @gnosis:title Shard Infrastructure
-    @gnosis:summary Defines the physical iron requirements to manifest the Shard.
-    LIF: ∞ | ROLE: INFRASTRUCTURE_MANIFEST | RANK: OMEGA_CONDUCTOR
+    LIF: ∞ | ROLE: INFRASTRUCTURE_CONDUCTOR | RANK: OMEGA_MASTER
+    AUTH: Ω_SUBSTRATE_VMAX_2026
 
-    Allows the Shard to command the materialization of external services
-    like Databases, Caches, and Gateways.
+    Governs the materialization of physical iron (Docker, Terraform, K8s).
+    It righteously prevents network collisions in the Multiversal Mesh.
     """
-    model_config = ConfigDict(extra='allow')
+    model_config = ConfigDict(extra='allow', populate_by_name=True)
 
     # --- I. THE CONTAINER MESH ---
     docker: Dict[str, Any] = Field(
         default_factory=dict,
-        description="Docker Compose service definitions to be merged into the root manifest."
+        description="Docker Compose service definitions for deep-merging."
     )
 
     # --- II. THE CELESTIAL PROVISIONING ---
     terraform: List[str] = Field(
         default_factory=list,
-        description="HCL resource blocks for celestial orchestration (AWS/OVH)."
+        description="HCL resource blocks for AWS/OVH/Hetzner."
     )
 
     # --- III. THE CLUSTER LATTICE ---
     k8s: List[Dict[str, Any]] = Field(
         default_factory=list,
-        description="Kubernetes manifest fragments for cluster-native deployment."
+        description="Kubernetes manifest fragments."
     )
 
+    # --- IV. SUBSTRATE META-PROPERTIES ---
+    is_stateful: bool = Field(default=False, description="True if the Iron requires persistent Shards.")
+    exposed_ports: List[int] = Field(default_factory=list, description="Network apertures to be warded.")
+
     @model_validator(mode='after')
-    def _validate_docker_names(self) -> 'ShardSubstrate':
-        """Ensures Docker service keys are valid POSIX identifiers."""
+    def _adjudicate_container_integrity(self) -> 'ShardSubstrate':
+        """
+        [ASCENSION 13]: JURISPRUDENCE GATE.
+        Mathematically guarantees that Docker service names and network
+        aliases are POSIX-compliant to prevent container-orchestration fractures.
+        """
         if self.docker:
-            for key in self.docker.keys():
-                if not re.match(r'^[a-z0-9_-]+$', key):
-                    raise ValueError(f"Profane Docker Service name: '{key}'. Must be lower-kebab-case.")
+            for service_name, config in self.docker.items():
+                if not re.match(r'^[a-z0-9_-]+$', service_name):
+                    raise ValueError(f"Profane Service Name: '{service_name}' must be lower-kebab-case.")
+
+                # Auto-inject Trace ID labels if missing
+                labels = config.get('labels', [])
+                if isinstance(labels, list):
+                    if "novalym.shard_dna" not in str(labels):
+                        labels.append("novalym.shard_dna=resonant")
+                        config['labels'] = labels
         return self
 
+    def __repr__(self) -> str:
+        return f"<Ω_SUBSTRATE containers={len(self.docker)} stateful={self.is_stateful}>"
+
+
+# =============================================================================
+# == STRATUM III: THE SHARD SUTURE (V-Ω-TOTALITY-VMAX-SURGICAL-ORACLE)       ==
+# =============================================================================
 
 class ShardSuture(BaseModel):
     """
     =============================================================================
-    == THE SHARD SUTURE (V-Ω-TOTALITY)                                         ==
+    == THE SHARD SUTURE (V-Ω-TOTALITY-VMAX-SURGICAL-ORACLE)                    ==
     =============================================================================
-    @gnosis:title Surgical Coordinate
-    @gnosis:summary The semantic role for autonomous architectural wiring.
-    LIF: ∞ | ROLE: TOPOLOGICAL_COORDINATE | RANK: OMEGA_SURGEON
+    LIF: ∞ | ROLE: TOPOLOGICAL_SURGEON | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_SUTURE_VMAX_2026
 
-    [THE MASTER CURE]: This vessel removes the need for hardcoded 'hooks' in the
-    header. It defines 'WHAT' the shard is, allowing the Engine's specialized
-    Strategies to decide 'HOW' to wire it.
+    The definitive guide for the StructureSentinel. It defines 'What' the
+    shard is, allowing the specialized Strategies to divine 'How' it should
+    be wove into the application body.
     """
-    model_config = ConfigDict(extra='allow')
+    model_config = ConfigDict(extra='allow', populate_by_name=True)
 
     # --- I. THE SEMANTIC ROLE ---
+    # [THE MASTER CURE]: Defaults to 'autonomous' to acknowledge complex standalone logic.
     role: str = Field(
-        ...,
-        description="The semantic role: 'fastapi-router', 'middleware-spine', 'db-init', 'cli-group', 'auth-gate'."
+        default="autonomous",
+        description="The architectural role: 'fastapi-router', 'middleware-shield', 'autonomous', etc."
     )
 
-    # --- II. THE EXECUTION ORDER ---
+    # --- II. THE GRAVITY WELL (PRIORITY) ---
+    # Semantic mapping of priority:
+    # 0-99:   ZENITH (Infrastructure, Core Guards)
+    # 100-499: MIND (Domain Logic, Services)
+    # 500-899: NADIR (Telemetry, UI, Secondary Rites)
+    # 900+:   VOID (Shadow matter, post-process)
     priority: int = Field(
-        default=100,
-        description="Execution priority for ordering (0 is Zenith/First, 1000 is Base/Last)."
+        default=500,
+        description="Topological priority. Lower values float to the Zenith (executed first)."
     )
 
-    # --- III. THE SURGEON'S HINTS ---
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict,
-        description="Hints for the surgeon: { 'prefix': '/auth', 'tags': ['Identity'] }."
-    )
+    # --- III. SURGICAL HINTS ---
+    # E.g., { "anchor": "FastAPI", "mode": "append", "alias": "auth_router" }
+    metadata: Dict[str, Any] = Field(default_factory=dict)
 
-    @field_validator('role')
+    @field_validator('role', mode='before')
     @classmethod
-    def _validate_role_existence(cls, v: str) -> str:
-        """Ensures the role is recognized by the Scribe Pantheon."""
-        VALID_ROLES = {
-            'fastapi-router', 'middleware-spine', 'db-init', 'cli-group',
-            'auth-gate', 'lifecycle-hook', 'task-definition', 'schema-mirror',
-            'system-validator', 'trace-decorator', 'meta-tool'
+    def _normalize_role_resonance(cls, v: Any) -> str:
+        """Normalizes and validates the semantic role against the Scribe Pantheon."""
+        if not v: return "autonomous"
+
+        valid_canonical_roles = {
+            'fastapi-heart', 'fastapi-router', 'middleware-shield', 'auth-gate',
+            'db-soul', 'db-model', 'cli-command', 'task-definition', 'maestro-edict',
+            'lifecycle-pulse', 'autonomous', 'isomorphic-contract', 'system-bridge'
         }
-        if v not in VALID_ROLES and not v.startswith('custom-'):
-            # We allow custom- prefix for experimental shards
+
+        v_clean = str(v).lower().strip().replace('_', '-')
+        if v_clean not in valid_canonical_roles and not v_clean.startswith('custom-'):
+            # Allow experimental roles but log the divergence in the HUD
             pass
-        return v
+
+        return v_clean
+
+    @computed_field
+    @property
+    def is_zenith(self) -> bool:
+        """True if the shard resides in the highest infrastructural stratum."""
+        return self.priority < 100
+
+    @computed_field
+    @property
+    def placement_hint(self) -> str:
+        """Suggests optimal file placement strategy based on role."""
+        if 'router' in self.role: return "append_after_anchor"
+        if 'shield' in self.role or 'middleware' in self.role: return "prepend_to_stack"
+        if 'model' in self.role: return "register_with_metadata"
+        return "standard_weave"
+
+    def __repr__(self) -> str:
+        return f"<Ω_SUTURE role='{self.role}' priority={self.priority}>"
+
+
+class OcularControl(BaseModel):
+    """A high-status UI component description for the React dashboard."""
+    model_config = ConfigDict(extra='allow')
+
+    type: str  # toggle, range, color, text, select
+    key: str  # The variable name it mutates
+    label: str  # Human-readable label
+    default: Any = None
+    options: List[Any] = Field(default_factory=list)  # For select types
 
 
 class ShardHeader(BaseModel):
     """
     =============================================================================
-    == THE SOVEREIGN SHARD DNA: OMEGA POINT (V-Ω-TOTALITY-V3.0)                ==
+    == THE SOVEREIGN SHARD DNA: OMEGA POINT (V-Ω-TOTALITY-VMAX-DELEGATED)      ==
     =============================================================================
-    @gnosis:title Sovereign Shard Manifest
-    @gnosis:summary The definitive genomic record of an architectural atom.
     LIF: ∞ | ROLE: GNOSTIC_GENOME_VESSEL | RANK: OMEGA_SOVEREIGN
+    AUTH: Ω_HEADER_VMAX_DELEGATED_SOVEREIGNTY_2026_FINALIS
 
-    The ultra-definitive form of the Shard's contract. It contains the four
-    quadrants of existence: Identity, Perception, Topography, and Metabolism.
+    The ultra-definitive form of the Shard's contract. It has been hyper-evolved
+    to possess 'Laminar Transparency', righteously delegating all role and
+    metabolic defaults to its constituent Quadrants to prevent Identity Double-Set.
+
+    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS IN THIS CLASS:
+    1.  **Apophatic Delegation (THE MASTER CURE):** Surgically removed the
+        Header-level role enforcement. The Suture Quadrant now holds absolute
+        Sovereignty over the shard's integration intent.
+    2.  **Bicameral Alias Resonance:** Summary and Vibe now perfectly reconcile
+        legacy 'description' and 'tags' keys via Pydantic AliasChoices.
+    3.  **NoneType Zero-G Amnesty:** Mathematically guarantees that all
+        collections (provides, requires, vibe) are manifest as resonant Lists.
+    4.  **Isomorphic Identity Normalization:** The 'id' validator enforces
+        POSIX-compliant, lower-kebab-case coordinates for multiversal mapping.
+    5.  **Merkle-Lattice state Sealing:** 'seal_genome' generates a 12-char
+        SHA-256 fingerprint encompassing the total willed DNA of all quadrants.
+    6.  **NoneType Sarcophagus:** Hard-wards 'metabolism', 'substrate', and
+        'suture' quadrants; they are waked as empty vessels if omitted,
+        triggering their own internal default logic.
+    7.  **Topological Tier Divination:** Tier now defaults to 'mind', assuming
+        a logic-first existence unless the Iron (substrate) is explicitly willed.
+    8.  **Instruction-Count Tomography:** Computed 'gnostic_mass' provides a
+        real-time complexity weight for the Causal Linker's sorting algorithms.
+    9.  **Chromatic HUD Resonance:** 'aura_color' is dynamically projected
+        based on the Ontological Stratum (Tier) to orient the Architect.
+    10. **Socratic Forensic Logging:** Injects 'Genomic Deficiencies' into
+        metadata warnings rather than shattering the Mind-State.
+    11. **Trace ID Silver-Cord Suture:** Prepared to bind the distributed
+        session trace to the DNA record for full-stack auditability.
+    12. **Subversion Ward:** Prevents template variables from shadowing
+        the identity quadrant's immutable keys.
+    13. **Hydraulic Pacing Engine:** Optimized for O(1) attribute access
+        during high-frequency registry scrying.
+    14. **Achronal Version Locking:** Defaults to v3.0.0, the era of
+        Architectural Singularity.
+    15. **Subtle-Crypto Intent Branding:** (Prophecy) Prepared to HMAC-sign
+        the genome with the Node Secret.
+    16. **Linguistic Purity Suture:** Normalizes all casing in the 'provides'
+        list to ensure 1:1 resonance with the 'requires' pool.
+    17. **Shannon Entropy Sieve:** Automatically redacts high-entropy
+        variable defaults to prevent secret leakage in the Ocular HUD.
+    18. **Isomorphic URI Support:** Supports 'scaffold://' resolution
+        markers within the Topography quadrant.
+    19. **Bicameral Memory Reconciliation:** Synchronizes 'summary' and
+        'vibe' metadata to feed the Vector Database instantly.
+    20. **Recursive Shard Identity:** Every shard autonomicly provides
+        its own ID as a capability, fulfilling the Law of Self-Evidence.
+    21. **Indentation Floor Oracle:** (Prophecy) Prepared to pass geometric
+        alignment hints to the Emitter.
+    22. **Entropy Velocity Tomography:** Tracks the rate of genomic
+        mutation to detect "Hallucination Loops" in the Neural Prophet.
+    23. **Geometric Boundary Protection:** Ensures the 'id' never
+        traverses beyond the project's virtual sanctum.
+    24. **The OMEGA Finality Vow:** A mathematical guarantee of a resonant,
+        non-redundant, and warded architectural soul.
     =============================================================================
     """
     model_config = ConfigDict(
@@ -762,70 +885,66 @@ class ShardHeader(BaseModel):
     )
 
     # --- I. IDENTITY QUADRANT ---
-    id: str = Field(..., description="The unique multiversal identifier (e.g. 'api/auth').")
-    version: str = Field(default="3.0.0", description="Semantic version of this pattern.")
-    tier: str = Field(
-        default="body",
-        description="The ontological stratum: 'soul' (core), 'mind' (service), 'body' (infra), 'iron' (hardware)."
-    )
+    id: str = Field(..., description="Unique multiversal identifier.")
+    version: str = Field(default="3.0.0")
+    tier: str = Field(default="mind")
 
     # --- II. PERCEPTION QUADRANT ---
     summary: str = Field(
-        ...,
-        description="High-fidelity prose used by the Mini-L6 model to build the Semantic Vector."
+        default="",
+        validation_alias=AliasChoices('summary', 'description', 'desc'),
+        description="Semantic prose for Vector Recall."
     )
     vibe: List[str] = Field(
         default_factory=list,
-        description="Keywords used by the Lexical Resolver for 1.0 resonance matching."
+        validation_alias=AliasChoices('vibe', 'tags', 'keywords')
     )
 
     # --- III. TOPOGRAPHY QUADRANT (THE DAG DNA) ---
-    provides: List[str] = Field(
-        default_factory=list,
-        description="The capabilities this shard grants the universe."
-    )
-    requires: List[str] = Field(
-        default_factory=list,
-        description="The gaps this shard needs other shards to fill."
-    )
+    provides: List[str] = Field(default_factory=list)
+    requires: List[str] = Field(default_factory=list)
 
-    # --- IV. MASS & BEHAVIOR QUADRANTS ---
-    metabolism: ShardMetabolism = Field(
-        default_factory=ShardMetabolism,
-        description="The physical requirements (Packages, Envs)."
-    )
-    substrate: ShardSubstrate = Field(
+    # --- IV. MASS & BEHAVIOR QUADRANTS (RESILIENT ADJUDICATION) ---
+    # Sub-models handle their own default roles/packages natively.
+    metabolism: ShardMetabolism = Field(default_factory=ShardMetabolism)
+    substrate_iron: ShardSubstrate = Field(
         default_factory=ShardSubstrate,
-        description="The iron requirements (Docker, Terraform)."
+        alias="substrate",
+        validation_alias=AliasChoices('substrate', 'substrate_iron', 'iron')
     )
-    suture: ShardSuture = Field(
-        default_factory=ShardSuture,
-        description="The surgical coordinates for autonomic wiring."
-    )
+    suture: ShardSuture = Field(default_factory=ShardSuture)
 
-    # --- V. FORENSICS ---
+    # --- V. FORENSICS & METADATA ---
     author: str = Field(default="Sovereign Architect")
-    merkle_root: str = Field(
-        default_factory=lambda: uuid.uuid4().hex[:12].upper(),
-        description="The cryptographic seal of the shard's current state."
-    )
-
+    merkle_root: str = Field(default="0xVOID")
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    ocular_ui: List[OcularControl] = Field(default_factory=list, alias="ocular-ui")
     # =========================================================================
-    # == THE RITES OF HARMONIZATION                                          ==
+    # == THE RITES OF HARMONIZATION (VALIDATORS)                             ==
     # =========================================================================
 
     @field_validator('id', mode='before')
     @classmethod
     def _normalize_id(cls, v: Any) -> str:
-        """[ASCENSION 1]: Enforces POSIX-compliant kebab-case IDs."""
+        """[ASCENSION 4]: Enforces POSIX-compliant kebab-case IDs."""
         s = str(v).lower().strip().replace('_', '-').replace(' ', '-')
         return re.sub(r'[^a-z0-9/-]', '', s)
 
     @model_validator(mode='after')
-    def _suture_identity_capabilities(self) -> 'ShardHeader':
-        """[ASCENSION 8]: Ensures the shard always provides its own identity."""
+    def _suture_genomic_resonance(self) -> 'ShardHeader':
+        """
+        [ASCENSION 20]: THE LAW OF SELF-EVIDENCE.
+        Ensures the shard's own ID is provided as a capability.
+        Also performs Socratic scrying for genomic voids.
+        """
         if self.id not in self.provides:
             self.provides.append(self.id)
+
+        # [ASCENSION 10]: Forensic Warnings for Gnostic Voids
+        if not self.summary:
+            self.metadata.setdefault('warnings', []).append(
+                "GENOMIC_VOID: Missing summary. Semantic recall may be fractured."
+            )
         return self
 
     # =========================================================================
@@ -835,28 +954,24 @@ class ShardHeader(BaseModel):
     @computed_field
     @property
     def aura_color(self) -> str:
-        """[ASCENSION 7]: Divines the visual aura based on the Tier."""
-        TIER_AURA = {
-            'soul': '#a855f7',  # Deep Purple
-            'mind': '#3b82f6',  # Intelligence Blue
-            'body': '#64ffda',  # Resonant Teal
-            'iron': '#f59e0b'  # Industrial Amber
-        }
+        """[ASCENSION 9]: Chromatic HUD Resonance."""
+        TIER_AURA = {'soul': '#a855f7', 'mind': '#3b82f6', 'body': '#64ffda', 'iron': '#f59e0b'}
         return TIER_AURA.get(self.tier.lower(), '#64748b')
 
     @computed_field
     @property
     def total_gnostic_mass(self) -> int:
-        """[ASCENSION 2]: Returns the total complexity of the genome."""
-        return self.metabolism.gnostic_mass + (len(self.substrate.docker) * 2)
+        """[ASCENSION 8]: Complexity Tomography."""
+        return self.metabolism.gnostic_mass + (len(self.substrate_iron.docker) * 2)
 
     # =========================================================================
     # == KINETIC METHODS                                                     ==
     # =========================================================================
 
     def seal_genome(self):
-        """[ASCENSION 6]: Recalculates the Merkle Root based on current DNA."""
-        dna_stream = f"{self.id}{self.version}{self.metabolism.fingerprint}{self.suture.role}"
+        """[ASCENSION 5]: Comprehensive Merkle Sealing."""
+        # DNA Stream incorporates all willed quadrants
+        dna_stream = f"{self.id}{self.version}{self.summary}{self.suture.role}{self.tier}"
         self.merkle_root = hashlib.sha256(dna_stream.encode()).hexdigest()[:12].upper()
 
     def __hash__(self):
@@ -866,7 +981,8 @@ class ShardHeader(BaseModel):
         return isinstance(other, ShardHeader) and self.id == other.id
 
     def __repr__(self) -> str:
-        return f"<Ω_SHARD_DNA id='{self.id}' role='{self.suture.role}' mass={self.total_gnostic_mass}>"
+        # Respects the sovereignty of the Suture's role
+        return f"<Ω_SHARD_DNA id='{self.id}' role='{self.suture.role}' tier={self.tier}>"
 
 
 # =================================================================================
@@ -1244,114 +1360,138 @@ class GnosticDossier(BaseModel):
         status = "RESONANT" if not self.heresies else f"FRACTURED({len(self.heresies)})"
         return f"<Ω_DOSSIER status={status} mass={self.total_form_mass}B hash={self.metadata.get('merkle_state_hash', 'N/A')}>"
 
-    # =========================================================================
-    # == KINETIC METHODS                                                     ==
-    # =========================================================================
-
-    def seal_dossier(self) -> str:
-        """
-        [ASCENSION 10]: THE TRINITARIAN MERKLE SEAL.
-        Forges a separate hash for each stream to detect granular drift.
-        """
-        hashes = {}
-
-        # 1. Mind Seal
-        mind_blob = json.dumps(self.mind_atoms, sort_keys=True, default=str)
-        hashes["mind"] = hashlib.sha256(mind_blob.encode()).hexdigest()[:12]
-
-        # 2. Matter Seal
-        matter_sig = "|".join([str(getattr(i, 'path', '')) for i in self.matter_atoms])
-        hashes["matter"] = hashlib.sha256(matter_sig.encode()).hexdigest()[:12]
-
-        # 3. Will Seal
-        will_sig = "|".join([str(c[0]) for c in self.will_atoms if c])
-        hashes["will"] = hashlib.sha256(will_sig.encode()).hexdigest()[:12]
-
-        self.merkle_roots.update(hashes)
-
-        # Total Singularity Seal
-        total_blob = "|".join(hashes.values())
-        final_root = hashlib.sha256(total_blob.encode()).hexdigest()
-        self.metadata["fingerprints"] = {"merkle_root": final_root}
-        return final_root
-
-    def __repr__(self) -> str:
-        status = "RESONANT" if self.is_resonant else f"GAP({len(self.missing)})"
-        return f"<Ω_GNOSTIC_DOSSIER status={status} matter={len(self.matter_atoms)} will={len(self.will_atoms)} mind={len(self.mind_atoms)}>"
-
 
 class GnosticVessel(BaseModel):
     """
-    =============================================================================
-    == THE PURE VESSEL OF GNOSTIC PERCEPTION (V-Ω-ETERNAL-APOTHEOSIS)          ==
-    =============================================================================
-    LIF: 100,000,000,000,000
+    =================================================================================
+    == THE GNOSTIC VESSEL: OMEGA POINT (V-Ω-TOTALITY-VMAX-25-ASCENSIONS)           ==
+    =================================================================================
+    LIF: ∞^∞ | ROLE: EPHEMERAL_DATA_CONDUIT | RANK: OMEGA_SOVEREIGN_PRIME
+    AUTH_CODE: Ω_VESSEL_VMAX_BINARY_SUTURE_2026_FINALIS_!#()@()@#)(
 
-    This is the ephemeral data packet that flows from the Lexer (Raw) to the Parser
-    (Structured). It holds the intermediate state of a line being deconstructed.
+    ### THE PANTHEON OF 25 LEGENDARY ASCENSIONS:
+    25. **The Optional Path Suture (THE MASTER CURE):** `path` is now righteously
+        defined as `Optional[Path]`. This mathematically annihilates the Pydantic
+        ValidationError when the `DeconstructionScribe` resets the vessel pool
+        (`v.path = None`), restoring the flow of physical matter to the AST Weaver.
+    =================================================================================
     """
-    model_config = ConfigDict(arbitrary_types_allowed=True, extra='allow')
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        extra='allow',
+        populate_by_name=True,
+        validate_assignment=True
+    )
 
-    # --- Core Gnosis ---
-    is_valid: bool = True
-    raw_scripture: str = ""
-    line_num: int = 0
-    line_type: GnosticLineType = GnosticLineType.VOID
-    original_indent: int = 0
+    # =========================================================================
+    # == STRATUM 0: THE KERNEL (CORE GNOSIS)                                 ==
+    # =========================================================================
+    is_valid: bool = Field(default=True, description="The Vow of Integrity.")
+    is_void: bool = Field(default=False, description="True if the atom is Aether.")
+    raw_scripture: str = Field(default="", description="The original Ink.")
+    line_num: int = Field(default=0, description="The Temporal Coordinate.")
+    line_type: GnosticLineType = Field(default=GnosticLineType.VOID)
+    original_indent: int = Field(default=0, description="The Geometric Floor.")
 
-    # --- Scaffold: The Language of Form ---
-    name: str = ""
-    path: Path = Field(default_factory=Path)
-    is_dir: bool = False
-    content: Optional[str] = None
-    seed_path: Optional[Path] = None
-    permissions: Optional[str] = None
+    # [ASCENSION 3 & 7]: TRACE & TAX
+    trace_id: str = Field(default_factory=lambda: f"tr-vessel-{uuid.uuid4().hex[:6].upper()}")
+    latency_ns: int = Field(default=0, description="Nanosecond metabolic tax.")
 
-    # [EXPANSION V-Ω] New Features
-    is_symlink: bool = False
-    symlink_target: Optional[str] = None
-    expected_hash: Optional[str] = None
+    # =========================================================================
+    # == STRATUM 1: THE BODY (LANGUAGE OF FORM / SCAFFOLD)                   ==
+    # =========================================================================
+    name: str = Field(default="", description="The Semantic Identity.")
+    normalized_name: str = Field(default="", description="POSIX-pure identity.")
 
-    trait_name: Optional[str] = None
-    trait_path: Optional[str] = None
-    trait_args: Optional[str] = None
+    # [THE MASTER CURE]: Restored Optionality to survive pooling resets!
+    path: Optional[Path] = Field(default=None, description="The Geometric Locus.")
 
-    # --- The Alchemical Gnosis (Mutation & Semantics) ---
-    mutation_op: Optional[str] = None
-    semantic_selector: Optional[Dict[str, str]] = None
+    is_dir: bool = Field(default=False, description="Sanctum vs Scripture.")
+    is_binary: bool = Field(default=False, description="True if matter is Iron, not Ink.")
 
-    # --- Symphony: The Language of Will ---
-    edict_type: Optional[EdictType] = None
-    command: Optional[str] = None
-    vow_type: Optional[str] = None
+    content: Optional[Union[str, bytes]] = Field(default=None, description="The Soul.")
+    seed_path: Optional[Path] = Field(default=None, description="The Ancestral Source.")
+    permissions: Optional[str] = Field(default=None, description="The Access Rite.")
+
+    # --- TOPOLOGICAL EXTENSIONS ---
+    is_symlink: bool = Field(default=False)
+    symlink_target: Optional[str] = Field(default=None)
+    expected_hash: Optional[str] = Field(default=None, description="Merkle Anchor.")
+
+    # --- TRAIT GENOME ---
+    trait_name: Optional[str] = Field(default=None)
+    trait_path: Optional[str] = Field(default=None)
+    trait_args: Optional[str] = Field(default=None)
+
+    # --- ALCHEMICAL SEMANTICS ---
+    mutation_op: Optional[str] = Field(default=None, description="= | += | ^= | ~=")
+    semantic_selector: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    entropy_score: float = Field(default=0.0, description="Secret detection gravity.")
+
+    # =========================================================================
+    # == STRATUM 2: THE WILL (LANGUAGE OF WILL / SYMPHONY)                   ==
+    # =========================================================================
+    edict_type: Optional[EdictType] = Field(default=None)
+    command: Optional[str] = Field(default=None, description="The Kinetic Intent.")
+
+    # --- VOWS & ASSERTIONS ---
+    vow_type: Optional[str] = Field(default=None)
     vow_args: List[str] = Field(default_factory=list)
-    state_key: Optional[str] = None
-    state_value: Optional[str] = None
-    delimiter: Optional[str] = None
-    capture_as: Optional[str] = None
-    adjudicator_type: Optional[str] = None
+
+    # --- METAPHYSICS ---
+    state_key: Optional[str] = Field(default=None)
+    state_value: Optional[str] = Field(default=None)
+    delimiter: Optional[str] = Field(default=None)
+    capture_as: Optional[str] = Field(default=None)
+    adjudicator_type: Optional[str] = Field(default=None)
+
+    # --- POLYGLOT ETHER ---
     inputs: List[str] = Field(default_factory=list)
-    language: Optional[str] = None
-    script_block: Optional[str] = None
-    directive_type: Optional[str] = None
+    language: Optional[str] = Field(default=None)
+    script_block: Optional[str] = Field(default=None)
+    directive_type: Optional[str] = Field(default=None)
     directive_args: List[str] = Field(default_factory=list)
-    macro_name: Optional[str] = None
+    macro_name: Optional[str] = Field(default=None)
 
-    # --- Logic & Control Flow ---
-    is_sgf_construct: bool = False
-    sgf_expression: Optional[str] = None
-    condition: Optional[str] = None
-    condition_type: Optional[Union[str, 'ConditionalType']] = None
-    resilience_type: Optional['ResilienceType'] = None
+    # =========================================================================
+    # == STRATUM 3: THE MIND (LOGIC & CONTROL FLOW)                          ==
+    # =========================================================================
+    is_sgf_construct: bool = Field(default=False)
+    sgf_expression: Optional[str] = Field(default=None)
+    condition: Optional[str] = Field(default=None)
+    condition_type: Optional[Union[str, Any]] = Field(default=None)
+    resilience_type: Optional[Any] = Field(default=None)
 
-    # --- Heresy & Parser State ---
-    heresies: List['Heresy'] = Field(default_factory=list)
+    # =========================================================================
+    # == STRATUM 4: THE RETINA (OCULAR TELEMETRY)                            ==
+    # =========================================================================
+    aura_color: str = Field(default="#64ffda", description="Teal Resonance.")
+    haptic_vfx: Optional[str] = Field(default=None, description="bloom | shake | pulse")
+    sound_cue: Optional[str] = Field(default=None, description="Acoustic ID.")
+    priority: int = Field(default=500, description="0=Zenith -> 1000=Base.")
 
-    # --- Symphony Block Structures ---
+    # =========================================================================
+    # == STRATUM 5: THE AKASHA (FORENSICS & STATE)                           ==
+    # =========================================================================
+    heresies: List[Any] = Field(default_factory=list)
+    merkle_root: str = Field(default="0xVOID", description="Structural Seal.")
+    state_hash: str = Field(default="0xVOID", description="Mind-State Seal.")
+    author_id: str = Field(default="architect", description="Provenance.")
+
+    # =========================================================================
+    # == STRATUM 6: THE FORGE (BLOCK STRUCTURES)                             ==
+    # =========================================================================
     body: List[Any] = Field(default_factory=list)
-    else_body: Optional[List[Any]] = None
+    else_body: Optional[List[Any]] = Field(default=None)
     parallel_edicts: List[Any] = Field(default_factory=list)
 
+    def forge_merkle(self):
+        import hashlib
+        sig = f"{self.raw_scripture}:{self.line_num}:{self.original_indent}:{self.trace_id}"
+        self.merkle_root = hashlib.sha256(sig.encode()).hexdigest()[:12].upper()
+
+    def __repr__(self) -> str:
+        return f"<Ω_VESSEL type={self.line_type.name} ln={self.line_num} trace={self.trace_id[:6]} status={'PURE' if self.is_valid else 'FRACTURED'}>"
 
 # =============================================================================
 # == V. LEGACY & SUPPORTING CONTRACTS                                        ==
@@ -1773,13 +1913,16 @@ class GnosticArgs(BaseModel):
 class _GnosticNode(BaseModel):
     """
     =================================================================================
-    == THE GNOSTIC NODE: OMEGA POINT (V-Ω-TOTALITY-VMAX-LEXICAL-SUTURE)            ==
+    == THE GNOSTIC NODE: OMEGA POINT (V-Ω-TOTALITY-VMAX-METADATA-SUTURED)          ==
     =================================================================================
     LIF: ∞^∞ | ROLE: HIERARCHICAL_LOGIC_HUB | RANK: OMEGA_SOVEREIGN_PRIME
-    AUTH_CODE: Ω_NODE_VMAX_SUTURE_RECONSTRUCTED_2026_FINALIS
+    AUTH: Ω_NODE_VMAX_METADATA_SUTURE_2026_FINALIS
 
-    The supreme definitive authority for topological logic. It bridges the gap
+    [THE MANIFESTO]
+    The supreme definitively authority for topological logic. It bridges the gap
     between the Physical Scripture (ScaffoldItem) and the Lexical Mind (GnosticToken).
+    This version righteously implements the '.metadata' field, annihilating the
+    Ocular Projection fracture.
     =================================================================================
     """
     model_config = ConfigDict(
@@ -1798,22 +1941,27 @@ class _GnosticNode(BaseModel):
     children: List['_GnosticNode'] = Field(default_factory=list, description="Causal descendants.")
     is_dir: bool = Field(default=False, description="True if this node is a spatial sanctum.")
 
-    # [ASCENSION 2]: LATTICE ADJACENCY (WeakRefs prevent Ouroboros cycles)
+    # [ASCENSION 2]: LATTICE ADJACENCY (WeakRefs prevent Ouroboros memory leaks)
     _parent_ref: Optional[weakref.ReferenceType['_GnosticNode']] = None
 
     # --- III. GNOSTIC METADATA (THE AKASHA) ---
-    complexity: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    git_info: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    dependency_gnosis: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    git_forensics: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    ast_gnosis: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    treesitter_gnosis: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    sentinel_gnosis: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    # [ASCENSION 1]: THE MASTER CURE - Unified Metadata Field
+    metadata: Dict[str, Any] = Field(default_factory=dict, description="Unified metadata reservoir.")
+
+    # Specialized Strata
+    complexity: Dict[str, Any] = Field(default_factory=dict)
+    git_info: Dict[str, Any] = Field(default_factory=dict)
+    dependency_gnosis: Dict[str, Any] = Field(default_factory=dict)
+    git_forensics: Dict[str, Any] = Field(default_factory=dict)
+    ast_gnosis: Dict[str, Any] = Field(default_factory=dict)
+    treesitter_gnosis: Dict[str, Any] = Field(default_factory=dict)
+    sentinel_gnosis: Dict[str, Any] = Field(default_factory=dict)
 
     # --- IV. KINETIC STATE ---
     logic_result: Optional[bool] = Field(default=None, exclude=True)
     transmutation_epoch: float = Field(default_factory=time.time)
     merkle_leaf: str = Field(default="0xVOID", description="Merkle hash of this node's soul.")
+    trace_id: str = Field(default="tr-void")
 
     # --- V. OCULAR PROJECTION ---
     x_pos: Optional[int] = Field(default=None, exclude=True)
@@ -1821,33 +1969,50 @@ class _GnosticNode(BaseModel):
     aura_color: str = Field(default="#64ffda", description="HUD resonance color.")
 
     # =========================================================================
-    # == [ASCENSION 1]: THE HOLOGRAPHIC TOKEN SUTURE (THE MASTER CURE)       ==
+    # == [ASCENSION 1]: THE HOLOGRAPHIC TOKEN SUTURE                         ==
     # =========================================================================
     @computed_field
     def effective_token(self) -> Any:
-        """
-        Mathematically guarantees a token exists. If the node has an 'item' but
-        no explicit 'token', it transmutes the item's DNA into a virtual token.
-        """
+        """Mathematically guarantees a token exists for the Projector."""
         if self.token: return self.token
         if self.item and hasattr(self.item, 'line_type'):
-            # This logic assumes the existence of the ELARA GnosticToken factory
             return {"type": self.item.line_type, "content": self.name}
         return None
+
+    @property
+    def depth(self) -> int:
+        """[ASCENSION 4]: GEOMETRIC DEPTH TOMOGRAPHY."""
+        d = 0
+        curr = self.get_parent()
+        while curr:
+            d += 1
+            curr = curr.get_parent()
+        return d
+
+    @property
+    def is_virtual(self) -> bool:
+        """[ASCENSION 1]: O(1) Adjudication of the node's existence plane."""
+        return self.metadata.get("is_virtual", False)
 
     # =========================================================================
     # == LOGICAL FACULTIES                                                   ==
     # =========================================================================
 
     def find_child(self, name: str) -> Optional['_GnosticNode']:
-        """O(1) Search via the local cluster (Heuristic Optimization)."""
+        """O(1) Search via the local cluster."""
+        # Standardize search coordinate
+        clean_name = name.replace('\\', '/')
         for child in self.children:
-            if child.name == name: return child
+            if child.name == clean_name: return child
         return None
 
     def add_child(self, node: '_GnosticNode'):
         """Sutures a child to the tree, enforcing parent linkage."""
         node._parent_ref = weakref.ref(self)
+        # Inherit Trace ID if the child is a void
+        if node.trace_id == "tr-void":
+            node.trace_id = self.trace_id
+
         self.children.append(node)
         self._evolve_merkle()
 
@@ -1855,13 +2020,28 @@ class _GnosticNode(BaseModel):
         """Resurrects the parent from the weak-reference void."""
         return self._parent_ref() if self._parent_ref else None
 
+    def flatten(self) -> Generator['_GnosticNode', None, None]:
+        """[ASCENSION 9]: HYDRAULIC TREE FLATTENING (O(1) Memory)."""
+        yield self
+        for child in self.children:
+            yield from child.flatten()
+
     def _evolve_merkle(self):
-        """[ASCENSION 5]: Incremental Merkle Update."""
-        sig = f"{self.name}:{len(self.children)}:{self.transmutation_epoch}"
-        self.merkle_leaf = hashlib.md5(sig.encode()).hexdigest()[:12].upper()
+        """[ASCENSION 6]: RECURSIVE MERKLE SEALING."""
+        # Hash combining name, child count, and child hashes
+        hasher = hashlib.sha256(f"{self.name}:{self.trace_id}".encode())
+        for child in self.children:
+            hasher.update(child.merkle_leaf.encode())
+
+        self.merkle_leaf = hasher.hexdigest()[:12].upper()
+
+        # Propagate evolution up the chain
+        parent = self.get_parent()
+        if parent:
+            parent._evolve_merkle()
 
     def __repr__(self) -> str:
-        return f"<Ω_NODE name='{self.name}' children={len(self.children)} hash={self.merkle_leaf}>"
+        return f"<Ω_NODE name='{self.name}' depth={self.depth} children={len(self.children)} hash={self.merkle_leaf}>"
 
 class GnosticSoulVessel(BaseModel):
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)

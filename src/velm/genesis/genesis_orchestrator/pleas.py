@@ -240,6 +240,6 @@ class PleasMixin:
                 pass
 
     def __repr__(self) -> str:
-        return f"<Ω_GNOSTIC_PLEA_FORGE status=RESONANT session={self.engine.context.session_id[:8]}>"
+        return f"<Ω_GNOSTIC_PLEA_FORGE status=RESONANT session={self.engine.context._session_id[:8]}>"
 
 # == SCRIPTURE SEALED: THE ORACLE OF COMMUNION HAS ACHIEVED OMEGA TOTALITY ==
