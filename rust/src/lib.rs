@@ -502,7 +502,9 @@ fn analyze_ast(py: Python, content: String, language: &str, query_str: &str) -> 
         let ts_lang = match language.to_lowercase().as_str() {
             "python" => tree_sitter_python::language(),
             "javascript" | "js" => tree_sitter_javascript::language(),
+            "jsx" => tree_sitter_javascript::language(), // Map JSX to standard JS parser
             "typescript" | "ts" => tree_sitter_typescript::language_typescript(),
+            "tsx" => tree_sitter_typescript::language_tsx(), // THE MASTER CURE: Native TSX support
             "go" => tree_sitter_go::language(),
             "rust" | "rs" => tree_sitter_rust::language(),
             "ruby" | "rb" => tree_sitter_ruby::language(),
