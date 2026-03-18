@@ -131,7 +131,6 @@ symphonies/
             >> start {{ report_path }}
         @else:
             >> open {{ report_path }} || cat {{ report_path }}
-        @endif
         
         %% proclaim: "[bold green]✅ ADJUDICATION COMPLETE.[/bold green]"
     @catch Exception as e:

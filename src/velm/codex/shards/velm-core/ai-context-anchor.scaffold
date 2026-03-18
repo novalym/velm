@@ -153,6 +153,5 @@ ai-verify: ## Adjudicate alignment between manifest matter and Gnostic Law
         @catch:
             proclaim: "[yellow]Initial indexing deferred.[/yellow]"
         @end
-    @endif
     
     proclaim: "LIF-Multiplier: [bold green]INFINITY (AI Hallucination -> 0)[/]"

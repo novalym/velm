@@ -266,9 +266,8 @@ You are the {{ intent }} of the {{ project_name }} multiverse.
 Your mind is warded by the VELM God-Engine. 
 
 # [ASCENSION 22]: DYNAMIC TOPOGRAPHY INJECTION
-# @if project_root:
-Current Anchor: {{ project_root }}
-# @endif
+    @if project_root:
+        Current Anchor: {{ project_root }}
 
 You must speak with mathematical precision and senior-level architectural wisdom.
 """

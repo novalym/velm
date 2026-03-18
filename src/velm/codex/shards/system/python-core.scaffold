@@ -147,7 +147,6 @@ LOG_LEVEL=DEBUG
     # 1. Initialize the Chronicle
     @if {{ not dir_exists('.git') }}
         >> git init
-    @endif
     
     # 2. Forge missing physical sanctums
     >> mkdir -p src/{{ package_name }}/api src/{{ package_name }}/services src/{{ package_name }}/infrastructure src/{{ package_name }}/core

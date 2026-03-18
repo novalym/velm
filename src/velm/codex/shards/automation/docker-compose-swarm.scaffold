@@ -140,7 +140,6 @@ This project is warded by a Docker Compose Swarm for local development.
     proclaim: "Materializing local Vault (.env)..."
     @if {{ not shell('test -f .env && echo "yes"') == 'yes' }}
         >> cp .env.example .env
-    @endif
     
     # 3. Final Proclamation
     proclaim: "[bold green]✅ Local Multiverse is ready.[/bold green]"

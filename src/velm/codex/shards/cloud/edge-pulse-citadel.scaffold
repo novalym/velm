@@ -169,7 +169,7 @@ class EdgePulseMiddleware(BaseHTTPMiddleware):
         if not hmac.compare_digest(expected, signature):
             raise HTTPException(status_code=403, detail="Profane Signature")
 """
-@endif
+
 
 # --- IV. THE MAESTRO'S WILL ---
 %% post-run

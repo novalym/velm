@@ -134,7 +134,6 @@ native-build: ## forge the Iron Core using Maturin
         -> proclaim: "Rust Artisan: [green]RESONANT[/green]"
     @else
         -> proclaim: "[bold yellow]WARNING:[/bold yellow] Rust not found. The Iron Core will remain a ghost until Rust is installed."
-    @endif
 
     proclaim: "LIF-Multiplier: [bold green]1,000,000x (Compute Latency -> 0)[/]"
     proclaim: "[bold green]The project now possesses an Iron Core.[/bold green]"

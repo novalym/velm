@@ -1,6 +1,7 @@
 # Path: parser_core/parser/parser_scribes/scaffold_scribes/structural_scribe/identity.py
 # --------------------------------------------------------------------------------------
 
+
 import re
 import os
 import threading
@@ -20,71 +21,27 @@ Logger = Scribe("OntologicalIdentity:Apotheosis")
 class OntologicalIdentity:
     """
     =================================================================================
-    == THE ONTOLOGICAL IDENTITY ORACLE (V-Ω-TOTALITY-VMAX-72-ASCENSIONS)           ==
+    == THE ONTOLOGICAL IDENTITY ORACLE (V-Ω-TOTALITY-VMAX-73-ASCENSIONS)           ==
     =================================================================================
     LIF: ∞^∞ | ROLE: GEOMETRIC_FORM_CLASSIFIER | RANK: OMEGA_SOVEREIGN_PRIME
-    AUTH_CODE: !#()_IDENTITY_VMAX_2026_FINALIS
+    AUTH_CODE: !#()_IDENTITY_VMAX_SOVEREIGN_FILES_FINALIS
 
     The supreme arbiter of physical existence within the God-Engine. It makes the
     Final Decree: Is this atom a File (Scripture) or a Directory (Sanctum)?
 
-    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS (49-72):
+    ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS (49-73):
     49.  **The Law of the Trailing Colon (THE MASTER CURE):** Mathematically forces
          `is_dir=False` if an explicit colon (:) exists, annihilating the
          Makefile-directory hallucination for all time.
-    50.  **Isomorphic Geometric Sieve:** Normalizes and anchors paths to POSIX
-         standards before classification, neutralizing the Windows Backslash Paradox.
-    51.  **Emoji Semantic Gaze:** Identifies 📁, 📂 as Sanctum markers and 📄, 📝
-         as Scripture markers to resolve ambiguous AI-generated intents.
-    52.  **Apophatic SGF Sanctuary:** Shields `{{ var }}` and `{% %}` logic from
-         triggering extension-based classification during the scry.
-    53.  **Achronal State-Lock (Loop Annihilation):** Caches decided identities
-         to prevent "Topological Schisms" where a path shifts identity mid-parse.
-    54.  **Substrate Windows-IRON Phalanx:** Automatically rejects reserved
-         Windows names (CON, PRN, AUX, NUL) to prevent Kernel Panics.
-    55.  **The Abyssal Short-Circuit:** Instantly identifies Abyssal zones
-         (node_modules, .git) and stays the hand of deep classification.
-    56.  **Case-Collision Biopsy:** Detects if casing drift on NTFS/APFS would
-         cause logic-shadowing and radiates a warning to the Ocular HUD.
-    57.  **NoneType Sarcophagus v10:** Hard-wards the scry against null, empty,
-         or whitespace-only paths; returns a bit-perfect Void.
-    58.  **Hydraulic Lookahead Oracle:** Advanced scrying for "Disciples"
-         (indented children) with a 20-line temporal horizon.
-    59.  **Merkle Coordinate Hashing:** Fingerprints the path coordinate to
-         ensure bit-perfect alignment in the Gnostic Chronicle (scaffold.lock).
-    60.  **Linguistic Purity Suture:** Normalizes smart quotes and zero-width
-         toxins before the identity scry begins.
-    61.  **The Extension Sovereignty Oracle:** An O(1) hash-map of 120+
-         extensions, ensuring extension-less files aren't misclassified.
-    62.  **Explicit Sigil Primacy:** Guarantees that `::`, `+=`, `<<`
-         overrule any heuristic guesses about directory status.
-    63.  **Ghost Match Exorcist:** Prevents "Phantom Files" by ensuring paths
-         ending in specific noise characters are cleaned before birth.
-    64.  **Isomorphic URI Support:** Recognizes and wards `file://` or `s3://`
-         style virtual coordinates.
-    65.  **NoneType Zero-G Amnesty:** Gracefully handles empty prompts by
-         returning a resonant "VOID_ATOM" marker.
-    66.  **Geometric Boundary Protection:** Prevents child nodes from
-         occupying coordinates shallower than their parent's willed moat.
-    67.  **Haptic HUD Multicast:** Radiates "IDENTITY_DECREED" pulses with
-         Teal (File) or Blue (Dir) aura resonance.
-    68.  **Instruction-Count Tomography:** Monitors the nanosecond tax of
-         complex regex scrying for the system performance ledger.
-    69.  **Trailing Phantom Exorcist:** Removes OS-hostile trailing spaces
-         and dots that cause "Identity Loss" on Windows volumes.
-    70. **Semantic Path Fission:** Dissects multi-segment paths (a/b/c)
-        to ensure parent segments are correctly waked as Sanctums.
-    71. **Subversion Ward:** Protects internal engine directories
-        (.scaffold) from being shadow-parsed.
-    72. **The Finality Vow:** A mathematical guarantee of an unbreakable,
-        internally-consistent topological manifest.
+    73.  **Sovereign File Recognition (THE MASTER CURE):** Enshrines extension-less
+         files (`Makefile`, `Dockerfile`, `.gitignore`) natively, preventing them
+         from being misidentified as Directories if they house indented recipes.
     =================================================================================
     """
 
     __slots__ = ('_lock', '_identity_cache', '_trace_id')
 
     # [ASCENSION 61]: THE EXTENSION SOVEREIGNTY ORACLE (O(1) Matrix)
-    # Comprehensive map of all known scriptures across 12+ strata.
     EXTENSION_LATTICE: Final[Set[str]] = {
         'py', 'js', 'ts', 'tsx', 'jsx', 'css', 'scss', 'less', 'html', 'htm', 'json',
         'md', 'markdown', 'yaml', 'yml', 'toml', 'ini', 'cfg', 'conf', 'sh', 'bash',
@@ -95,7 +52,13 @@ class OntologicalIdentity:
         'eslintrc', 'prettierrc', 'dockerfile', 'makefile', 'gemfile', 'rakefile'
     }
 
-    # [ASCENSION 54]: THE WINDOWS IRON PHALANX
+    # [ASCENSION 73]: SOVEREIGN FILE RECOGNITION
+    SOVEREIGN_FILES: Final[Set[str]] = {
+        'makefile', 'dockerfile', 'caddyfile', 'gemfile', 'rakefile', 'procfile',
+        '.gitignore', '.dockerignore', '.env', '.env.example', 'cmakelists.txt', 'license'
+    }
+
+    #[ASCENSION 54]: THE WINDOWS IRON PHALANX
     WINDOWS_RESERVED: Final[Set[str]] = {
         "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5",
         "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4",
@@ -150,7 +113,7 @@ class OntologicalIdentity:
     def divine_form(cls, vessel: GnosticVessel, pure_name: str, lines: List[str], i: int, parser: Any) -> str:
         """
         =============================================================================
-        == THE SUPREME DECREE OF FORM (V-Ω-TOTALITY-VMAX-72)                       ==
+        == THE SUPREME DECREE OF FORM (V-Ω-TOTALITY-VMAX-73)                       ==
         =============================================================================
         LIF: ∞ | ROLE: ONTOLOGICAL_ADJUDICATOR
         """
@@ -159,7 +122,7 @@ class OntologicalIdentity:
             vessel.is_dir = False
             return "Decree: Void Nullification"
 
-        # [ASCENSION 60]: Linguistic Purity Suture
+        #[ASCENSION 60]: Linguistic Purity Suture
         # Normalize Unicode and exorcise zero-width toxins
         clean_name = unicodedata.normalize('NFC', pure_name)
         clean_name = clean_name.replace('\u200b', '').replace('\ufeff', '').strip()
@@ -187,11 +150,12 @@ class OntologicalIdentity:
         # We strip variables before extension check to avoid false positives
         phantom_name = cls.SGF_VAR_REGEX.sub('GNOSTIC_ATOM', test_name)
 
-        # [ASCENSION 61]: Extension Sovereignty Oracle
-        # Extract the extension if it exists
+        #[ASCENSION 61 & 73]: Extension & File Sovereignty Oracle
         ext_match = re.search(r'\.([a-zA-Z0-9]+)$', phantom_name)
         ext = ext_match.group(1).lower() if ext_match else None
         has_sovereign_ext = ext in cls.EXTENSION_LATTICE
+
+        is_sovereign_file = phantom_name.lower().split('/')[-1] in cls.SOVEREIGN_FILES
 
         # --- MOVEMENT III: GEOMETRIC ADJUDICATION ---
         # [ASCENSION 50]: POSIX Slash Harmony
@@ -222,19 +186,19 @@ class OntologicalIdentity:
             vessel.is_dir = True
             decision = "Triage: Geometric Trailing Slash"
         elif has_trailing_colon:
-            # [THE MASTER CURE]: Forced File status for Makefile/Recipe blocks
+            # Forced File status for Makefile/Recipe blocks
             vessel.is_dir = False
             decision = "Triage: Explicit Block Authority (:)"
-        elif has_sovereign_ext:
+        elif has_sovereign_ext or is_sovereign_file:
             vessel.is_dir = False
-            decision = "Triage: Extension Sovereignty"
+            decision = "Triage: Extension/File Sovereignty"
         elif has_disciples:
             vessel.is_dir = True
             decision = "Triage: Indented Disciple Perception"
         else:
             vessel.is_dir = False
 
-        # --- MOVEMENT IV: [ASCENSION 54] - WINDOWS IRON PHALANX ---
+        # --- MOVEMENT IV:[ASCENSION 54] - WINDOWS IRON PHALANX ---
         # Security Ward for forbidden names
         for segment in test_name.split('/'):
             stem = segment.split('.')[0].upper()
@@ -246,7 +210,7 @@ class OntologicalIdentity:
             parser._identity_cache = {}
         parser._identity_cache[path_key] = vessel.is_dir
 
-        # [ASCENSION 67]: HUD Pulse
+        #[ASCENSION 67]: HUD Pulse
         cls._radiate_identity_pulse(vessel, test_name, parser)
 
         return decision
@@ -298,4 +262,4 @@ class OntologicalIdentity:
                 pass
 
     def __repr__(self) -> str:
-        return f"<Ω_ONTOLOGICAL_IDENTITY_ORACLE status=RESONANT mode=VMAX_72 version=2026.FINALIS>"
+        return f"<Ω_ONTOLOGICAL_IDENTITY_ORACLE status=RESONANT mode=VMAX_73 version=2026.FINALIS>"

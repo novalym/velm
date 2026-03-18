@@ -57,7 +57,6 @@ infra/gateway/
         servers {
             protocols h1 h2 h3
         }
-    @endif
 }
 
 # [ASCENSION 3]: THE SOVEREIGN DOMAIN HANDLER
@@ -68,8 +67,6 @@ infra/gateway/
         email {{ acme_contact }}
     @else
         tls internal
-    @endif
-
     # --- THE PERIMETER SHIELD (Apophatic Headers) ---
     header {
         # [ASCENSION 5]: THE LAW OF THE FORBIDDEN GATE
@@ -88,7 +85,6 @@ infra/gateway/
         encode zstd gzip
     @elif compression_mode == "gzip":
         encode gzip
-    @endif
 
     # --- STRATUM I: THE INTELLIGENCE LAYER (/api/*) ---
     handle_path /api/* {

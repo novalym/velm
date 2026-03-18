@@ -161,7 +161,6 @@ scripts/security/
     proclaim: "Materializing the local Vault (.env)..."
     @if {{ not file_exists('.env') }}
         >> cp .env.example .env
-    @endif
     
     # 2. Security Audit
     proclaim: "Conducting Leak Sentinel Inquest..."

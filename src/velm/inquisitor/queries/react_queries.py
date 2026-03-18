@@ -35,10 +35,8 @@ QUERY_NAMED_IMPORTS = """
 
 # Finds the Gnostic Injection Marker.
 QUERY_GNOSTIC_MARKER = """
-(jsx_expression
-  (comment) @marker
-  (#match? @marker "Gnostic Injection Point")
-)
+(comment) @marker
+(#match? @marker "Gnostic Injection Point")
 """
 
 # --- THE UNIVERSAL ROOT GAZE (HEALED) ---

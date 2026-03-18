@@ -113,7 +113,6 @@ consecrate.symphony :: """
             >> chmod +x consecrate_machine.sh
             >> ./consecrate_machine.sh
             >> rm -f consecrate_machine.*
-        @endif
     @end
 """
 

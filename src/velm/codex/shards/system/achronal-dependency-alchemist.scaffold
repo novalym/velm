@@ -86,7 +86,6 @@ symphonies/
             ?? succeeds
             >> velm shadow merge --label "upgrade-trial"
             %% proclaim: "[bold green]✅ ASCENSION SUCCESSFUL.[/bold green]"
-        @endif
     @catch Exception as e:
         %% error: "Ascension failed: {{ e }}."
         >> velm undo

@@ -118,7 +118,6 @@ unprotect: ## return the chronicle to an unwarded state
         ?? succeeds
     @else:
         proclaim: "[bold yellow]WARNING:[/bold yellow] .git sanctum not found. Guardian is latent."
-    @endif
     
     proclaim: "LIF-Multiplier: [bold green]INFINITY (Accidental Drift -> 0)[/]"
     proclaim: "✅ [bold red]REALITY LOCKED[/bold red]. The circle is closed."

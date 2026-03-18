@@ -42,7 +42,6 @@ $$ python_version = {{ python_version | default("3.12") }}
         proclaim: "Suggestion: Use 'pyenv' to align realities."
     @else
         proclaim: "✅ [bold green]Active Python is resonant.[/bold green]"
-    @endif
     
     # 2. Final Proclamation
     proclaim: "LIF-Multiplier: [bold green]1,000,000x (Interpreter Drift -> 0)[/]"

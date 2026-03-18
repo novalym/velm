@@ -47,7 +47,6 @@ services:
     cap_add:
       - IPC_LOCK
 """
-@endif
 
 # --- III. THE GUARDIAN CORE (Logic) ---
 src/{{ package_name }}/

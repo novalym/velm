@@ -87,7 +87,6 @@ class TerraformConductor:
         proclaim: "[bold red]HERESY:[/bold red] 'terraform' binary is unmanifested."
     @else
         proclaim: "✅ [bold green]Terraform Artisan confirmed.[/bold green]"
-    @endif
     
     proclaim: "LIF-Multiplier: [bold green]1,000,000x (Infrastructure Drift -> 0)[/]"
     proclaim: "[bold green]✅ The God-Engine can now strike the Celestial Iron.[/bold green]"

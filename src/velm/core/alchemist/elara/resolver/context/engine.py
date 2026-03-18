@@ -99,7 +99,8 @@ class LexicalScope:
         '__start_time_ns__', '_start_time_ns', '__current_line_aura__',
         '__parse_depth__', '__trace_id__', '__spacetime_id__',
         '__current_file__', '__current_dir__', '__import_anchor__',
-        '__woven_matter__', '__woven_commands__'
+        '__woven_matter__', '__woven_commands__',
+        '__filters__'
     }
 
     def __init__(
