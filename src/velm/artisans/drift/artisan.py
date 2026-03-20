@@ -62,6 +62,7 @@ from rich.table import Table
 from rich.layout import Layout
 from rich.live import Live
 
+from contracts.data_contracts import ScaffoldItem
 # --- THE DIVINE UPLINKS ---
 from ...core.artisan import BaseArtisan
 from ...interfaces.requests import DriftRequest, DriftCommand
@@ -85,7 +86,6 @@ class DriftArtisan(BaseArtisan[DriftRequest]):
         """[THE RITE OF INCEPTION]"""
         super().__init__(engine)
         self.Logger = Logger
-        self.project_root: Optional[Path] = None
 
     def execute(self, request: DriftRequest) -> ScaffoldResult:
         """
@@ -93,8 +93,6 @@ class DriftArtisan(BaseArtisan[DriftRequest]):
         == THE GRAND RITE OF RECONCILIATION (V-Ω-TOTALITY-EXECUTION)               ==
         =============================================================================
         """
-        self.request = request
-        self.project_root = request.project_root or Path.cwd()
         start_ns = time.perf_counter_ns()
 
         self.logger.info(f"Initiating Drift Inquest for Sanctum: [cyan]{self.project_root.name}[/cyan]...")

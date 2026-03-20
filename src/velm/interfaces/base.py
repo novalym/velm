@@ -24,6 +24,7 @@ from pydantic import (
     field_validator
 )
 
+from .artifact import Artifact
 # --- GNOSTIC UPLINKS ---
 from ..contracts.heresy_contracts import Heresy, HeresySeverity
 
@@ -61,102 +62,6 @@ class SubstrateDNA(str, Enum):
     ETHER = "ether_wasm"  # Browser / Pyodide / WASM Ethereal Plane.
     VOID = "void_sim"  # Quantum Simulation / Shadow Clone / Dry-run.
 
-
-# =========================================================================================
-# == STRATUM 1: THE ATOMIC ARTIFACT (PHYSICAL MATTER)                                    ==
-# =========================================================================================
-
-class Artifact(BaseModel):
-    """
-    =============================================================================
-    == THE ATOMIC ARTIFACT (V-Ω-MATTER-VESSEL-ASCENDED)                        ==
-    =============================================================================
-    LIF: 1,000,000 | ROLE: MATTER_FINGERPRINT
-    """
-    model_config = ConfigDict(
-        frozen=True,
-        arbitrary_types_allowed=True,
-        populate_by_name=True,
-        json_encoders={Path: lambda p: str(p).replace('\\', '/')}
-    )
-
-    # --- I. THE COORDINATE (SPACETIME) ---
-    path: Path = Field(..., description="The logical coordinate in the project sanctum.")
-    type: str = Field("file", pattern=r"^(file|directory|symlink|socket|virtual)$")
-
-    # [ASCENSION 18]: Action Verb Normalization via validation
-    action: str = Field(..., description="The rite performed (created|modified|deleted|skipped).")
-
-    # --- II. THE MASS (METABOLISM) ---
-    size_bytes: int = Field(0, ge=0)
-    checksum: Optional[str] = Field(None, description="The SHA256 Merkle Fingerprint.")
-
-    # --- III. THE SOUL (LANGUAGE) ---
-    mime_type: str = Field("text/plain", description="The Gnostic dialect for UI highlighters.")
-    encoding: str = Field("utf-8", description="The character-set of the soul.")
-
-    # --- IV. THE CONTEXT (FORENSICS) ---
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-
-    # =========================================================================
-    # == COMPUTED REALITIES & VALIDATORS                                     ==
-    # =========================================================================
-
-    @computed_field
-    @property
-    def name(self) -> str:
-        """The atomic name of the artifact, extracted from the coordinate."""
-        return self.path.name
-
-    @computed_field
-    @property
-    def extension(self) -> str:
-        """The lexical suffix of the matter."""
-        return self.path.suffix.lstrip('.')
-
-    @field_validator('path', mode='before')
-    @classmethod
-    def _normalize_geometry(cls, v: Any) -> Path:
-        """Absolute POSIX slash harmony."""
-        if isinstance(v, str):
-            v = Path(os.path.expanduser(v.replace('\\', '/')))
-        return v
-
-    @model_validator(mode='before')
-    @classmethod
-    def _divine_mime_type(cls, data: Any) -> Any:
-        """
-        [ASCENSION 4]: THE MIME-TYPE ORACLE.
-        Automatically guesses the MIME type if the Architect left it void.
-        """
-        if isinstance(data, dict):
-            # Normalize Action Verb
-            if 'action' in data:
-                act = str(data['action']).lower()
-                if 'create' in act:
-                    data['action'] = 'created'
-                elif 'transfigur' in act or 'modif' in act or 'updat' in act:
-                    data['action'] = 'modified'
-                elif 'excis' in act or 'delet' in act or 'remov' in act:
-                    data['action'] = 'deleted'
-
-            # Divine Mime Type
-            if 'mime_type' not in data or data['mime_type'] == 'text/plain':
-                path_obj = data.get('path')
-                if path_obj:
-                    p_str = str(path_obj)
-                    mime, _ = mimetypes.guess_type(p_str)
-                    if mime:
-                        data['mime_type'] = mime
-                    elif p_str.endswith(('.ts', '.tsx')):
-                        data['mime_type'] = 'application/typescript'
-                    elif p_str.endswith(('.scaffold', '.arch', '.symphony')):
-                        data['mime_type'] = 'text/x-scaffold'
-                    elif p_str.endswith(('.rs',)):
-                        data['mime_type'] = 'text/rust'
-                    elif p_str.endswith(('.go',)):
-                        data['mime_type'] = 'text/x-go'
-        return data
 
 
 # =========================================================================================

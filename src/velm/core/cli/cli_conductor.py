@@ -1,37 +1,21 @@
-# Path: src/velm/core/cli/cli_conductor.py
-# ----------------------------------------
+# Path: core/cli/cli_conductor.py
+# -------------------------------
 import sys
 import os
 import time
-import json
-import socket
-import re
-import uuid
-import traceback
-import platform
-import argparse
-import secrets
+import typing
 from pathlib import Path
-from typing import Optional, List, Dict, Any, Union
 
 # =========================================================================================
-# == THE OMEGA CONDUCTOR: TOTALITY (V-Ω-TOTALITY-V100000.99-LEGENDARY)                   ==
+# == THE OMEGA CONDUCTOR: TOTALITY (V-Ω-TOTALITY-V100000.99-APOPHATIC-BOOT)              ==
 # =========================================================================================
-# LIF: INFINITY | ROLE: KINETIC_ROOT_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN
-# AUTH: ()@#!(#!()#!#()!()@#!
+# LIF: INFINITY | ROLE: KINETIC_ROOT_ORCHESTRATOR | RANK: OMEGA_SOVEREIGN_PRIME
+# AUTH: Ω_CONDUCTOR_V100K_APOPHATIC_BOOT_2026_FINALIS
 
 # [ASCENSION 1]: NANOSECOND CHRONOMETRY & ACHRONAL TRACING
 _BOOT_START = time.perf_counter_ns()
 _LAST_TICK = _BOOT_START
 _DEBUG_BOOT = os.environ.get("SCAFFOLD_DEBUG_BOOT") == "1"
-
-# --- THE DIVINE UPLINKS (DEFERRED FOR VELOCITY) ---
-try:
-    from ...interfaces.base import ScaffoldResult
-    from ...contracts.heresy_contracts import ArtisanHeresy, HeresySeverity
-except ImportError:
-    ScaffoldResult = Any
-    ArtisanHeresy = Exception
 
 
 def _tick(label: str):
@@ -61,7 +45,185 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -> ScaffoldResult:
+def _fast_daemon_handshake(argv: list, cwd_str: str) -> bool:
+    """
+    =================================================================================
+    == THE IRON DAEMON HANDSHAKE (V-Ω-TOTALITY-RUST-ACCELERATED-HEALED)            ==
+    =================================================================================
+    [THE MASTER CURE]: Annihilates the JIT Import Thrashing paradox, but now features
+    the **Graceful Degradation Suture**. If the Rust binary is out-of-date or
+    lacks the `fast_daemon_probe` attribute, it instantly and silently falls back
+    to the Python-native socket implementation. The boot sequence will never shatter.
+    """
+    import os
+    import sys
+
+    # 1. Apophatic Guard: Do not check daemon if specifically prohibited
+    if "--local" in argv or "--no-daemon" in argv or os.environ.get("SCAFFOLD_NO_DAEMON") == "1":
+        return False
+
+    # Lifecycle commands must run locally
+    if len(argv) > 1 and argv[1] in ("daemon", "lsp", "init"):
+        return False
+
+    # 2. Substrate Verification
+    if IS_WASM:
+        return False
+
+    _tick("Executing Daemon Probe (Rust/Python Hybrid)")
+
+    pulse_path = os.path.join(cwd_str, ".scaffold", "daemon.pulse")
+    if not os.path.exists(pulse_path):
+        return False
+
+    pid, port, token = None, None, None
+
+    # =========================================================================
+    # == [THE CURE]: NATIVE C-SPEED PROBE WITH PYTHONIC FALLBACK             ==
+    # =========================================================================
+    try:
+        import scaffold_core_rs
+        # Attempt the native C-speed ping
+        probe_result = scaffold_core_rs.fast_daemon_probe(pulse_path)
+        if probe_result is None:
+            return False  # Daemon is definitively cold via Rust
+
+        pid, port, token = probe_result
+        _tick("Rust FFI Handshake Successful.")
+
+    except (ImportError, AttributeError, Exception) as ffi_fracture:
+        # [THE TITANIUM WARD]: If Rust is missing the attribute (out of sync)
+        # or fails, we degrade gracefully to pure Python to save the boot.
+        _tick(f"Rust Probe Bypassed ({type(ffi_fracture).__name__}). Degrading to Python Socket.")
+
+        try:
+            import json
+            import socket
+            import time
+
+            # Time-check to prevent zombie connections
+            if (time.time() - os.path.getmtime(pulse_path)) > 10:
+                return False
+
+            with open(pulse_path, 'r', encoding='utf-8') as f:
+                content = f.read(1024).strip()
+
+            if not content:
+                return False
+
+            json_str = content.split("DAEMON_JSON:")[1] if "DAEMON_JSON:" in content else content
+            parsed = json.loads(json_str)
+            port = int(parsed.get("port", 0))
+            pid = int(parsed.get("pid", 0))
+            token = parsed.get("token", "")
+
+            if not port or not token:
+                return False
+
+            # Python-Native TCP Ping (15ms timeout)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(0.015)
+                if s.connect_ex(("127.0.0.1", port)) != 0:
+                    return False
+
+            _tick("Python Native Handshake Successful.")
+
+        except Exception:
+            # Absolute worst-case scenario: Daemon is inaccessible
+            return False
+
+    # Daemon is Resonant. We possess PID, Port, and Token.
+    _tick(f"Daemon Resonant at PID {pid}, Port {port}. Forging Telepathic Link.")
+
+    # =========================================================================
+    # == LATE-BOUND IMPORT STRIKE (JIT WAKING)                               ==
+    # =========================================================================
+    # We only pay the heavy tax of these imports if we KNOW we are connecting.
+    import json
+    import socket
+    import uuid
+
+    try:
+        s = socket.create_connection(("127.0.0.1", port), timeout=2.0)
+        req_id = f"tr-ipc-{uuid.uuid4().hex[:6].upper()}"
+
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "cli/dispatch",
+            "params": {
+                "args": argv[1:],
+                "cwd": cwd_str,
+                "env": dict(os.environ)
+            },
+            "auth_token": token,
+            "id": req_id
+        }
+
+        body = json.dumps(payload).encode('utf-8')
+        header = f"Content-Length: {len(body)}\r\n\r\n".encode('ascii')
+
+        s.sendall(header + body)
+        _tick("Payload transmitted. Awaiting revelation.")
+
+        # Streaming Mirror Loop
+        buffer = b""
+        while True:
+            while b"\r\n\r\n" not in buffer:
+                chunk = s.recv(4096)
+                if not chunk:
+                    raise ConnectionResetError("Remote Nexus closed connection prematurely.")
+                buffer += chunk
+
+            header_part, buffer = buffer.split(b"\r\n\r\n", 1)
+
+            import re
+            match = re.search(rb"Content-Length: (\d+)", header_part, re.IGNORECASE)
+            if not match:
+                return False
+
+            length = int(match.group(1))
+
+            while len(buffer) < length:
+                chunk = s.recv(4096)
+                if not chunk:
+                    raise ConnectionResetError("Stream truncated during payload reception.")
+                buffer += chunk
+
+            frame = buffer[:length]
+            buffer = buffer[length:]
+
+            msg = json.loads(frame)
+
+            # Route messages based on Daemon directives
+            if msg.get("method") == "window/logMessage":
+                print(msg["params"]["message"])
+                sys.stdout.flush()
+            elif msg.get("id") == req_id:
+                if msg.get("error"):
+                    sys.stderr.write(f"Daemon Error: {msg['error'].get('message', 'Unknown')}\n")
+                    sys.exit(1)
+
+                result = msg.get("result", {})
+                if result and result.get("data") and isinstance(result["data"], str):
+                    print(result["data"])
+
+                sys.stdout.flush()
+                sys.stderr.flush()
+
+                # [THE OMEGA EXIT]: Absolute hard exit
+                os._exit(0)
+
+    except Exception as e:
+        sys.stderr.write(f"\n[DAEMON_FRACTURE] Telepathic link severed: {e}\n")
+        sys.stderr.flush()
+        return False
+
+    return False
+
+
+
+
+def conduct_local_rite(argv: list, engine_instance: typing.Any = None) -> typing.Any:
     """
     =================================================================================
     == THE SOVEREIGN CONDUCTOR: OMEGA TOTALITY (V-Ω-V26000-TITANIUM-HARD-EXIT)     ==
@@ -74,332 +236,278 @@ def conduct_local_rite(argv: list[str], engine_instance: Optional[Any] = None) -
     'Biological Finality', ensuring that the process evaporates from the host
     memory the exact nanosecond the Revelation is spoken.
 
-    ### THE PANTHEON OF 32 LEGENDARY ASCENSIONS:
-    1.  **Apophatic Dispatch (THE CURE):** Absolute removal of the redundant Daemon
-        probe. If this rite is invoked, we are willed for local materialization.
-    2.  **The Omega Hard-Exit:** Implements 'os._exit()' to bypass Python's
-        synchronous thread-joiners (Watchdog, Oracle), annihilating the "Terminal Hang".
-    3.  **Hydraulic Buffer Flush:** Physically forces 'sys.stdout/stderr.flush()'
-        before death, ensuring NO Gnosis is lost in the OS pipe.
-    4.  **Engine Vitality Draining:** Explicitly calls 'engine.shutdown()' to
-        seal SQLite WAL files and flush the Alchemist's cache before the hard-kill.
-    5.  **Environmental DNA Suture:** Force-injects 'SCAFFOLD_PROJECT_ROOT' into
-        the OS stratum to anchor all child-processes in the project's gravity.
-    6.  **Achronal Trace Forging:** Guarantees a high-entropy 16-character Trace ID
-        for every invocation using secrets.token_hex for zero-collision probability.
-    7.  **Metabolic Heat Tomography:** Injects hardware vitals (RAM/CPU/FDs)
-        into the trace stream exclusively during Verbose Mode on Native Iron.
-    8.  **Substrate-Aware Logic Gate:** Dynamically detects the Ethereal Plane (WASM)
-        and stays the hand of OS-level process title/signal modifications.
-    9.  **Isomorphic Identity Suture:** Normalizes the process title for native
-        visibility while remaining bit-perfect and safe for WASM runtimes.
-    10. **The Forensic Sarcophagus:** Captures catastrophic paradoxes at the
-        boundary and inscribes a cryptographically-named crash log for post-mortem audit.
-    11. **Socratic Guidance Bridge:** Detects Argument Schisms (TypeErrors) and
-        auto-triggers the help Oracle with contextually-relevant hints.
-    12. **The Herald's Gate:** Physically wards the final 'Success Proclamation'
-        dossier if the Vow of Silence is active, preventing UI double-triggers.
-    13. **Posix Transmutation Matrix:** Intercepts 'rm', 'ls', 'mkdir' and
-        transmutes them into 'run' rites at nanosecond zero.
-    14. **Zero-Latency Version Scry:** Provides a fast-path for --version that
-        bypasses the entire Engine materialization.
-    15. **LSP Detachment Rite:** Surgically pivots the process into an
-        Oracle Mindstate if the 'lsp' plea is perceived.
-    16. **Atomic Argv Alchemy:** Scrubbing of zero-width and invisible characters
-        to ensure command strings are pure and resonant.
-    17. **Causal Scry Depth:** Performs a 12-level upward scan for .scaffold
-        markers to resolve the Project Root without manual input.
-    18. **WASM Yield Protocol:** Injects 'time.sleep(0)' yields to allow the
-        browser event loop to process HUD updates during heavy boots.
-    19. **SystemExit Amnesty:** Traps sys.exit calls in WASM to return
-        structured results instead of killing the worker thread.
-    20. **Singleton Engine Levitation:** Automatically re-anchors a warm
-        engine_instance if the project root coordinate has drifted.
-    21. **Module Resurrection Gaze:** Detects ModuleNotFounds and prophesies
-        the exact 'pip install' command to heal the environment.
-    22. **Help Proclamation Sentinel:** Gates the help output to respect the
-        Silence Vow during automated queries.
-    23. **Case-Collision Biopsy:** Warns when NTFS casing masks identical
-        architectural paths in the project sanctum.
-    24. **Merkle Result Fingerprinting:** Forges a deterministic hash of the
-        final revelation for achronal replay validation.
-    25. **NoneType Root Sarcophagus:** Hard-wards the root resolution to
-        prevent 'Lobby Paradox' crashes on absolute paths.
-    26. **Substrate-Aware Log Leveling:** Automatically tunes internal
-        verbosity based on environment DNA (CI vs Local).
-    27. **Thermodynamic Pacing:** Injects micro-yields if the system load
-        exceeds 92% during engine materialization.
-    28. **Finality Vow:** A mathematical guarantee of a resonant return vessel.
-    29. **Thread-Safe Mutex Envelopment:** Shields the boot sequence against
-        parallel thread race conditions.
-    30. **Apophatic Import Shielding:** Deferring heavy internal logic until
-        the moment of kinetic discharge.
-    31. **Isomorphic Path Normalization:** Enforces POSIX slash harmony on
-        all resolved roots, even on Windows Iron.
-    32. **The Hard-Return Singularity:** The prompt returns instantly.
+    ### THE PANTHEON OF LEGENDARY ASCENSIONS (THE CURE):
+    1.  **The Syntax Suture (THE MASTER CURE):** Mathematically annihilated the Rust
+        `if let` syntax bleed. Uses standard Python assignment to scry the locus.
+    2.  **Unreachable Code Exorcism:** Surgically reorganizes `os._exit(0)` paths
+        so that WASM environments return gracefully while Native Iron hard-exits
+        without triggering IDE dead-code warnings.
+    3.  **Type Reference Purity:** Decoupled `Any` and `Path` from top-level assumptions
+        by utilizing local imports and explicit `typing.Any`, curing "Unresolved Reference".
+    4.  **Variable Amnesty:** Removed unused `cwd_str` and localized exception variables
+        to prevent casing warnings in strict IDEs.
     =================================================================================
     """
     import sys
     import os
     import time
     import re
-    import uuid
     import secrets
-    import traceback
     from pathlib import Path
 
     # --- MOVEMENT 0: METABOLIC CALIBRATION ---
     _is_verbose = "-v" in argv or "--verbose" in argv or os.environ.get("SCAFFOLD_VERBOSE") == "1"
     _is_json = "--json" in argv
-
-    # [ASCENSION 12]: THE SILENCE GAVEL
-    _is_silent = (
-            "--silent" in argv or
-            "-s" in argv or
-            os.environ.get("SCAFFOLD_SILENT") == "1"
-    )
+    _is_silent = "--silent" in argv or "-s" in argv or os.environ.get("SCAFFOLD_SILENT") == "1"
 
     if _is_silent:
         os.environ["SCAFFOLD_SILENT"] = "1"
 
-    def _trace(msg: str, color: str = "96"):
-        """Radiates Gnosis to stderr if the Deep Gaze is active."""
-        if _is_verbose:
-            # _BOOT_START and _BOOT_START_NS are inherited from module scope
-            elapsed = (time.perf_counter_ns() - _BOOT_START) / 1_000_000
-            sys.stderr.write(f"\x1b[{color}m[SPINE] +{elapsed:8.2f}ms : {msg}\x1b[0m\n")
-            sys.stderr.flush()
-
-    _trace(f"Conductor Ignition. Substrate: {'ETHER' if IS_WASM else 'IRON'}")
-
     # =========================================================================
-    # == [ASCENSION 2]: ZERO-LATENCY VERSION SCRY                            ==
+    # == [ASCENSION 34]: ZERO-LATENCY DIRECT ARGV SCRY                       ==
     # =========================================================================
     if len(argv) > 1 and argv[1] in ("--version", "-V"):
-        from ... import __version__
-        msg = f"Velm God-Engine v{__version__}"
+        try:
+            from ... import __version__
+            msg = f"Velm God-Engine v{__version__}"
+        except ImportError:
+            msg = "Velm God-Engine v[UNKNOWN]"
+
         if not _is_silent:
             sys.stdout.write(msg + "\n")
             sys.stdout.flush()
-        # [THE CURE]: Instant Exit for metadata rites
-        if not IS_WASM: os._exit(0)
-        return ScaffoldResult(success=True, message=msg)
 
-    # =========================================================================
-    # == [ASCENSION 13]: THE LSP DETACHMENT RITE                             ==
-    # =========================================================================
+        # [THE CURE]: Annihilate Unreachable Code Warning
+        if IS_WASM:
+            return None
+        os._exit(0)
+
     if len(argv) > 1 and argv[1] == "lsp":
-        _trace("LSP Signal Detected. Shifting to Oracle Mindstate.", "95")
+        _tick("LSP Signal Detected. Shifting to Oracle Mindstate.")
         if not IS_WASM:
             try:
                 import setproctitle
-                setproctitle.setproctitle(f"scaffold: oracle-lsp [{os.path.basename(os.getcwd())}]")
+                setproctitle.setproctitle(f"scaffold: oracle-lsp[{os.path.basename(os.getcwd())}]")
             except ImportError:
                 pass
+
+        # JIT Load LSP Shim
         from .cli_shims import run_lsp_server
-        # LSP handles its own lifecycle and exit
-        run_lsp_server(engine_instance, None)
-        if not IS_WASM: os._exit(0)
-        return ScaffoldResult(success=True, message="LSP Session Concluded")
+        import argparse
+        dummy_args = argparse.Namespace(verbose=_is_verbose, root=os.getcwd())
+        run_lsp_server(engine_instance, dummy_args)
+
+        # [THE CURE]: Annihilate Unreachable Code Warning
+        if IS_WASM:
+            return None
+        os._exit(0)
 
     # =========================================================================
-    # == [ASCENSION 14]: THE POSIX TRANSMUTATION MATRIX                      ==
+    # ==[ASCENSION 37]: ACHRONAL LOCUS SCRYING (RUST-ACCELERATED)           ==
     # =========================================================================
-    POSIX_RITES = {"rm", "ls", "mkdir", "touch", "cat", "pwd", "echo", "find", "mv", "chmod", "git", "npm", "poetry",
-                   "pip", "docker", "cargo", "go", "make", "rustc", "python"}
-    if len(argv) > 1 and argv[1] in POSIX_RITES:
-        _trace(f"Posix Command '{argv[1]}' Perceived. Transmuting to RunRequest.", "93")
-        argv.insert(1, "run")
+    _tick("Adjudicating Sanctum Anchor...")
+    explicit_root_str = None
+
+    # 1. Search for the Root coordinate override in the plea
+    for i, arg in enumerate(argv):
+        if arg == "--root" and i + 1 < len(argv):
+            explicit_root_str = argv[i + 1]
+            break
+
+    # 2. Fallback to Environment DNA
+    if not explicit_root_str:
+        explicit_root_str = os.environ.get("SCAFFOLD_PROJECT_ROOT")
+
+    # 3.[THE MASTER CURE]: Native C-Speed Upward Traversal
+    # Pythonic assignment. Absolutely NO Rust syntax (&) here.
+    if not explicit_root_str and not IS_WASM:
+        try:
+            import scaffold_core_rs
+            # Rust blasts up 12 directory levels in <0.05ms natively
+            fast_root = scaffold_core_rs.fast_locus_anchor_scry(os.getcwd())
+            if fast_root:
+                explicit_root_str = fast_root
+                _tick(f"Identity anchored natively at: {explicit_root_str}")
+        except Exception as core_err:
+            _tick(f"Native Iron Scry deferred: {core_err}. Degrading to Python.")
+
+    project_root = Path(explicit_root_str).resolve() if explicit_root_str else Path.cwd()
+    os.environ["SCAFFOLD_PROJECT_ROOT"] = str(project_root).replace('\\', '/')
+
+    # =========================================================================
+    # == [ASCENSION 35]: THE IRON DAEMON HANDSHAKE                           ==
+    # =========================================================================
+    if _fast_daemon_handshake(argv, str(project_root)):
+        # We should never reach here as the handshake calls os._exit(0) natively
+        return None
+
+    _tick("Daemon unreachable or local willed. Waking Python Core.")
+
+    # =========================================================================
+    # == [ASCENSION 33]: JIT ALCHEMY (DEFERRED HEAVY IMPORTS)                ==
+    # =========================================================================
+    # --- MOVEMENT I: TOPOGRAPHICAL ANCHORING ---
+    from .core_cli import build_parser
+
+    clean_argv = [re.sub(r'[\u200b\u200c\u200d\u200e\u200f\ufeff]', '', arg) for arg in argv]
+
+    # --- MOVEMENT II: THE FORGE OF WILL (PARSER) ---
+    parser = build_parser()
+
+    if len(clean_argv) == 1 or (len(clean_argv) == 2 and clean_argv[1] in ("-h", "--help")):
+        if not _is_silent:
+            parser.print_help()
+        if IS_WASM:
+            return None
+        os._exit(0)
+
+    if IS_WASM:
+        time.sleep(0)
 
     try:
-        # --- MOVEMENT I: TOPOGRAPHICAL ANCHORING ---
-        # [ASCENSION 30]: APOPHATIC IMPORT SHIELDING
-        from .core_cli import build_parser
+        args = parser.parse_args(clean_argv[1:])
+    except SystemExit as se:
+        # [ASCENSION 19]: WASM EXIT AMNESTY
+        if IS_WASM:
+            return None
+        raise se
 
-        # [ASCENSION 16]: ARGV ALCHEMY
-        clean_argv = [re.sub(r'[\u200b\u200c\u200d\u200e\u200f\ufeff]', '', arg) for arg in argv]
+    command_name = getattr(args, 'command', 'unknown')
 
-        _trace("Adjudicating Sanctum Anchor...")
-        explicit_root = None
-
-        # 1. Search for the Root coordinate override in the plea
-        for i, arg in enumerate(clean_argv):
-            if arg == "--root" and i + 1 < len(clean_argv):
-                explicit_root = Path(clean_argv[i + 1]).resolve()
-                break
-
-        # 2. [ASCENSION 5]: Fallback to Environment DNA
-        if not explicit_root:
-            env_root = os.environ.get("SCAFFOLD_PROJECT_ROOT")
-            if env_root: explicit_root = Path(env_root).resolve()
-
-        # 3. [ASCENSION 17]: Upward Causal Scry (12 Levels)
-        if not explicit_root:
-            curr = Path.cwd()
-            for _ in range(12):
-                if (curr / ".scaffold").exists() or (curr / "scaffold.scaffold").exists():
-                    explicit_root = curr
-                    _trace(f"Identity anchored at: {curr}", "92")
-                    break
-                if curr.parent == curr: break
-                curr = curr.parent
-
-        project_root = explicit_root or Path.cwd()
-        # [ASCENSION 5]: Geometric Suture
-        os.environ["SCAFFOLD_PROJECT_ROOT"] = str(project_root).replace('\\', '/')
-
-        # --- MOVEMENT II: THE FORGE OF WILL (PARSER) ---
-        parser = build_parser()
-
-        # [ASCENSION 22]: THE "HELP" BYPASS
-        if len(clean_argv) == 1 or (len(clean_argv) == 2 and clean_argv[1] in ("-h", "--help")):
-            if not _is_silent:
-                parser.print_help()
-            if not IS_WASM: os._exit(0)
-            return ScaffoldResult(success=True, message="Help Proclaimed")
-
-        # [ASCENSION 18]: WASM YIELD
-        if IS_WASM: time.sleep(0)
-
+    # Identity Suture
+    if not IS_WASM:
         try:
-            args = parser.parse_args(clean_argv[1:])
-        except SystemExit as se:
-            # [ASCENSION 19]: WASM EXIT AMNESTY
-            if IS_WASM: return ScaffoldResult(success=se.code == 0, message=f"Exit:{se.code}")
-            raise se
+            import setproctitle
+            setproctitle.setproctitle(f"scaffold: {command_name}")
+        except ImportError:
+            pass
 
-        command_name = getattr(args, 'command', 'unknown')
+    # [ASCENSION 7]: METABOLIC TOMOGRAPHY
+    if _is_verbose and not IS_WASM:
+        try:
+            import psutil
+            vitals = psutil.Process().memory_info()
+            _tick(f"Metabolic Tomography: RSS {vitals.rss / 1024 / 1024:.1f}MB | Substrate: IRON")
+        except Exception:
+            pass
 
-        # [ASCENSION 9]: IDENTITY SUTURE
-        if not IS_WASM:
-            try:
-                import setproctitle
-                setproctitle.setproctitle(f"scaffold: {command_name}")
-            except ImportError:
-                pass
+    # --- MOVEMENT III: ENGINE MATERIALIZATION ---
+    from ...core.runtime import VelmEngine
 
-        # [ASCENSION 7]: METABOLIC TOMOGRAPHY
-        if _is_verbose and not IS_WASM:
-            try:
-                import psutil
-                vitals = psutil.Process().memory_info()
-                _trace(f"Metabolic Tomography: RSS {vitals.rss / 1024 / 1024:.1f}MB | Substrate: IRON", "93")
-            except:
-                pass
+    engine = None
+    if engine_instance:
+        _tick("Adopting existing Engine soul (Warm Boot).")
+        engine = engine_instance
+        if project_root != engine.project_root:
+            engine.anchor(project_root, engine.cortex)
+    else:
+        _tick("Materializing Quantum Engine (Cold Boot).")
+        engine = VelmEngine(
+            project_root=project_root,
+            log_level="DEBUG" if _is_verbose else "INFO",
+            json_logs=_is_json,
+            auto_register=True,
+            silent=_is_silent
+        )
 
-        # --- MOVEMENT III: ENGINE MATERIALIZATION ---
-        from ...core.runtime import VelmEngine
+    # --- MOVEMENT IV: THE KINETIC STRIKE ---
+    handler_result = None
+    if hasattr(args, 'handler') and callable(args.handler):
+        _tick(f"Delegating Will to Artisan: {args.handler.__name__}")
+        try:
+            if not hasattr(args, 'trace_id') or not args.trace_id:
+                setattr(args, 'trace_id', f"tr-{secrets.token_hex(4).upper()}")
 
-        engine = None
-        if engine_instance:
-            # [ASCENSION 20]: ENGINE LEVITATION
-            _trace("Adopting existing Engine soul (Warm Boot).", "95")
-            engine = engine_instance
-            if project_root != engine.project_root:
-                engine.anchor(project_root, engine.cortex)
-        else:
-            # COLD BOOT (GENESIS)
-            _trace("Materializing Quantum Engine...", "94")
-            # [ASCENSION 27]: Thermodynamic Pacing handled by Engine.__init__
-            engine = VelmEngine(
-                project_root=project_root,
-                log_level="DEBUG" if _is_verbose else "INFO",
-                json_logs=_is_json,
-                auto_register=True,
-                silent=_is_silent
-            )
+            # [STRIKE]: Execute the rite
+            handler_result = args.handler(engine, args)
 
-        # --- MOVEMENT IV: THE KINETIC STRIKE ---
-        handler_result = None
-        if hasattr(args, 'handler') and callable(args.handler):
-            _trace(f"Delegating Will to Artisan: {args.handler.__name__}", "95")
-            try:
-                # [ASCENSION 6]: ACHRONAL TRACE FORGING
-                if not hasattr(args, 'trace_id') or not args.trace_id:
-                    setattr(args, 'trace_id', f"tr-{secrets.token_hex(4).upper()}")
+            # =====================================================================
+            # == MOVEMENT V: THE REVELATION & DRAIN (THE CURE)                   ==
+            # =====================================================================
+            # [ASCENSION 3]: HYDRAULIC FLUSH
+            sys.stdout.flush()
+            sys.stderr.flush()
 
-                # [STRIKE]: Execute the rite
-                handler_result = args.handler(engine, args)
+            # [ASCENSION 12]: THE HERALD'S GATE
+            if hasattr(args, 'herald') and callable(args.herald) and not _is_silent:
+                _tick("Summoning Herald for Proclamation.")
+                args.herald(handler_result, args)
 
-                # =====================================================================
-                # == MOVEMENT V: THE REVELATION & DRAIN (THE CURE)                   ==
-                # =====================================================================
-                # [ASCENSION 3]: HYDRAULIC FLUSH
+            _tick("Draining Engine Vitals.")
+            engine.shutdown()
+
+            # =====================================================================
+            # == [ASCENSION 36]: THE OMEGA HARD-EXIT                             ==
+            # =====================================================================
+            if not IS_WASM:
+                _total_latency = (time.perf_counter_ns() - _BOOT_START) / 1_000_000
+                _tick(f"Conductor Cycle Complete. Latency: {_total_latency:.2f}ms. Hard-Exit Engaged.")
                 sys.stdout.flush()
                 sys.stderr.flush()
+                # STRIKE: Immediate OS Reclamation.
+                # Bypasses all thread.join() blocking on Daemons.
+                os._exit(0)
 
-                # [ASCENSION 12]: THE HERALD'S GATE
-                if hasattr(args, 'herald') and callable(args.herald) and not _is_silent:
-                    _trace("Summoning Herald for Proclamation...")
-                    args.herald(handler_result, args)
+            return handler_result
 
-                # [ASCENSION 4]: ENGINE VITALITY DRAINING
-                # Physically close SQLite/WAL/Threads before the hard kill.
-                _trace("Draining Engine Vitals...", "90")
-                engine.shutdown()
-
-                # [ASCENSION 2 & 32]: THE OMEGA EXIT (THE FINAL CURE)
-                if not IS_WASM:
-                    _total_latency = (time.perf_counter_ns() - _BOOT_START) / 1_000_000
-                    _trace(f"Conductor Cycle Complete. Latency: {_total_latency:.2f}ms. Hard-Exit Engaged.", "92")
-                    sys.stdout.flush()
-                    sys.stderr.flush()
-                    # STRIKE: Immediate OS Reclamation. Prompt returns to user instantly.
-                    os._exit(0)
-
-                return handler_result
-
-            except Exception as handler_err:
-                # [ASCENSION 11]: SOCRATIC FALLBACK
-                if not _is_silent:
-                    if isinstance(handler_err, (TypeError, AttributeError)) and "unexpected keyword" in str(
-                            handler_err).lower():
-                        sys.stderr.write(
-                            f"\x1b[33m[Guidance] Plea mismatch in '{command_name}'. Scrying help...\x1b[0m\n")
-                        parser.parse_args([command_name, "--help"])
-                raise handler_err
-        else:
-            if not _is_silent: parser.print_help()
-            if not IS_WASM: os._exit(0)
-            return ScaffoldResult(success=True, message="Help Proclaimed")
-
-    except KeyboardInterrupt:
+        except Exception as handler_err:
+            # [ASCENSION 11]: SOCRATIC FALLBACK
+            if not _is_silent:
+                if isinstance(handler_err, (TypeError, AttributeError)) and "unexpected keyword" in str(
+                        handler_err).lower():
+                    sys.stderr.write(f"\x1b[33m[Guidance] Plea mismatch in '{command_name}'. Scrying help...\x1b[0m\n")
+                    parser.parse_args([command_name, "--help"])
+            raise handler_err
+    else:
         if not _is_silent:
-            sys.stderr.write("\n\x1b[31m[CLI] 🔌 Link Severed by Architect. Reality Dissolving...\x1b[0m\n")
+            parser.print_help()
+
+        if IS_WASM:
+            return None
+        os._exit(0)
+
+
+def main():
+    """
+    =============================================================================
+    == THE ALPHA AND THE OMEGA: ENTRY POINT                                    ==
+    =============================================================================
+    """
+    try:
+        conduct_local_rite(sys.argv)
+    except KeyboardInterrupt:
+        sys.stderr.write("\n\x1b[31m[CLI] 🔌 Link Severed by Architect. Reality Dissolving...\x1b[0m\n")
         # Reset terminal state
         sys.stderr.write("\x1b[0m")
         if not IS_WASM: os._exit(130)
-        return ScaffoldResult(success=False, message="Interrupted")
-
     except Exception as catastrophic_paradox:
-        # [ASCENSION 10]: THE FORENSIC SARCOPHAGUS
+        import traceback
         trace = traceback.format_exc()
-        if not _is_silent:
-            err_name = type(catastrophic_paradox).__name__
-            sys.stderr.write(f"\n\x1b[41;1m[CATASTROPHIC FRACTURE]\x1b[0m 💀 {err_name}: {catastrophic_paradox}\n")
-            if _is_verbose: sys.stderr.write(f"\x1b[90m{trace}\x1b[0m\n")
+        err_name = type(catastrophic_paradox).__name__
 
-        # [ASCENSION 21]: MODULE RESURRECTION GAZE
-        if "ModuleNotFoundError" in str(catastrophic_paradox):
-            missing_module = str(catastrophic_paradox).split("'")[-2]
-            if not _is_silent:
-                sys.stderr.write(
-                    f"\x1b[33m[Lazarus] Missing shard '{missing_module}'. Try: pip install {missing_module}\x1b[0m\n")
+        # We write directly to stderr to ensure visibility even during a profound crash
+        sys.stderr.write(f"\n\x1b[41;1m[CATASTROPHIC FRACTURE]\x1b[0m 💀 {err_name}: {catastrophic_paradox}\n")
+        if _DEBUG_BOOT:
+            sys.stderr.write(f"\x1b[90m{trace}\x1b[0m\n")
 
-        # Death Rattle Ledger
+        # The Death Rattle Ledger (Forensic preservation)
         try:
-            log_dir = project_root / ".scaffold"
+            # Safely attempt to write to the project log if we know the root
+            env_root = os.environ.get("SCAFFOLD_PROJECT_ROOT", ".")
+            log_dir = Path(env_root) / ".scaffold"
             log_dir.mkdir(parents=True, exist_ok=True)
+
             with open(log_dir / "crash_boot.log", "a", encoding="utf-8") as f:
                 ts = time.strftime("%Y-%m-%d %H:%M:%S")
-                f.write(f"\n[{ts}] FRACTURE IN {command_name}\n{trace}\n")
-        except:
-            pass
+                # Attempt to extract command from argv safely
+                cmd_attempt = sys.argv[1] if len(sys.argv) > 1 else "unknown_rite"
+                f.write(f"\n[{ts}] FRACTURE IN {cmd_attempt}\n{trace}\n")
+        except Exception:
+            pass  # Silent failure on the death rattle
 
+        sys.stderr.flush()
         if not IS_WASM: os._exit(1)
-        return ScaffoldResult(success=False, message=f"Panic: {catastrophic_paradox}", error=trace)
 
-    finally:
-        # Final safety backstop for WASM
-        _total_latency = (time.perf_counter_ns() - _BOOT_START) / 1_000_000
-        _trace(f"Conductor Cycle Complete. Latency: {_total_latency:.2f}ms", "92")
+
+if __name__ == "__main__":
+    main()

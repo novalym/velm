@@ -1,6 +1,7 @@
 # Path: core/cortex/causal_linker/resolver.py
 # -------------------------------------------
 
+
 """
 =================================================================================
 == THE OMNISCIENT DEPENDENCY RESOLVER: TOTALITY (V-Ω-VMAX-INDESTRUCTIBLE-FINAL) ==
@@ -21,8 +22,7 @@ and transaction-ready Directed Acyclic Graph (DAG).
      `ShardNode.model_validate`, trusting the internal `@model_validator` to
      adjudicate the Type Schism in O(1) time.
 234. **Beautiful Chromatic Telemetry:** Injects high-status ANSI/Rich colors
-     into the kinetic log stream. [cyan]Shard IDs[/] are highlighted against
-     [yellow]Satisfied Requirements[/], providing instant visual gnosis.
+     into the kinetic log stream. [cyan]Shard IDs[/] are highlighted against[yellow]Satisfied Requirements[/], providing instant visual gnosis.
 235. **Prophetic Multi-Pass Discovery:** If a primary requirement is missing,
      the engine performs an "Apophatic Gaze," scrying for alternate providers
      that offer the same semantic capability before throwing a heresy.
@@ -52,7 +52,7 @@ and transaction-ready Directed Acyclic Graph (DAG).
 247. **Tarjan-Kahn Assembly Hook:** Feeds the resolved nodes directly into the
      `DirectedAcyclicGraph` for perfect, deadlock-free topological sorting.
 248. **Isomorphic Capability Aliasing:** Treats `provides: [api]` the exact same
-     as `provides: [capability:api]`.
+     as `provides:[capability:api]`.
 249. **The Absolute Path Exorcist:** Strips relative pathing (../, ./) from
      requirement strings to find the true, absolute shard ID.
 250. **Conflict Battleground Isolation:** Maps unresolvable dependencies to a
@@ -69,8 +69,9 @@ and transaction-ready Directed Acyclic Graph (DAG).
      shadowed by user variables during the assembly.
 256. **Adrenaline Mode Build Bypass:** Skips heavy cross-project validation
      if the engine load exceeds the 92% fever threshold.
-257. **The Finality Vow:** A mathematical guarantee of an unbreakable,
-     runnable, and warded architectural manifest.
+257. **The Finality Vow (LIF-1000x Inverted Index):** Implement O(1) `_capability_locus`
+     to mathematically bypass the O(N³) node-intersection loops, unlocking
+     Singularity-speed DAG resolutions.
 =================================================================================
 """
 import os
@@ -110,15 +111,21 @@ class DependencyResolver:
         "zod", "pydantic", "fastapi", "sqlalchemy", "alembic", "uvicorn"
     }
 
-    __slots__ = ('grimoire', 'adjudicator', 'trace_id', '_lock')
+    __slots__ = ('grimoire', 'adjudicator', 'trace_id', '_lock', 'engine', '_capability_locus')
 
-    def __init__(self, global_grimoire: List[ShardNode]):
+    def __init__(self, global_grimoire: List[ShardNode], engine: Optional[Any] = None):
         """[THE RITE OF INCEPTION]"""
         self.grimoire = global_grimoire
-        # The Adjudicator handles the primary O(1) normalization and election physics
-        self.adjudicator = ProviderAdjudicator(self.grimoire)
-        self.trace_id = "tr-unbound"
+        self.engine = engine  # Anchor the cord
+        # [THE CURE]: Propagate the Engine reference to the Adjudicator
+        self.adjudicator = ProviderAdjudicator(self.grimoire, engine=self.engine)
         self._lock = threading.RLock()
+        self.trace_id = "tr-unbound"
+
+        # [ASCENSION 257]: THE INVERTED INDEX CURE
+        # Maps Normalized Capability -> Set of Node IDs that provide it.
+        # This achieves O(1) mathematical lookup time for dependency resolution.
+        self._capability_locus: Dict[str, Set[str]] = collections.defaultdict(set)
 
     def resolve(self, initial_shards: List[Union[Dict, Any]]) -> AssemblyManifest:
         """
@@ -138,6 +145,9 @@ class DependencyResolver:
         active_substrates: Set[str] = set()
         active_nodes: Dict[str, ShardNode] = {}
 
+        # Reset the Inverted Index for this transaction
+        self._capability_locus.clear()
+
         # [ASCENSION 237]: Queue Idempotency Shield
         queue = collections.deque()
         enqueued_ids: Set[str] = set()
@@ -154,7 +164,7 @@ class DependencyResolver:
                 node = ShardNode.model_validate(raw)
             except Exception as validation_fracture:
                 Logger.error(
-                    f"   -> [Topological Fracture] Initial Shard '{getattr(raw, 'id', 'void')}' rejected: {validation_fracture}")
+                    f"   ->[Topological Fracture] Initial Shard '{getattr(raw, 'id', 'void')}' rejected: {validation_fracture}")
                 continue
 
             node.is_explicitly_willed = True
@@ -196,13 +206,14 @@ class DependencyResolver:
                 # =========================================================================
                 norm_req = self.adjudicator._normalize(req)
 
-                # 1. IS THE REQUIREMENT ALREADY MANIFEST IN THE DAG?
+                # =========================================================================
+                # == 1. [ASCENSION 257]: THE O(1) INVERTED INDEX STRIKE                  ==
+                # =========================================================================
                 if norm_req in provided_caps:
-                    for pid, pnode in active_nodes.items():
-                        # Scry all capabilities of active nodes for a match
-                        p_caps = {self.adjudicator._normalize(c) for c in (pnode.provides + [pnode.id])}
-                        if norm_req in p_caps:
-                            dag.add_edge(pid, current_node.id)
+                    # Look up all provider nodes directly in O(1) time.
+                    # This annihilates the historic O(N^3) nested loop iteration tax!
+                    for pid in self._capability_locus.get(norm_req, set()):
+                        dag.add_edge(pid, current_node.id)
                     continue
 
                 # 2. [ASCENSION 238]: CHECK THE SYSTEM BINARY AMNESTY WARD
@@ -219,7 +230,7 @@ class DependencyResolver:
                         dag.add_edge(provider.id, current_node.id)
                     else:
                         # =====================================================================
-                        # == [ASCENSION 234]: BEAUTIFUL CHROMATIC TELEMETRY                  ==
+                        # ==[ASCENSION 234]: BEAUTIFUL CHROMATIC TELEMETRY                  ==
                         # =====================================================================
                         Logger.info(
                             f"🔗 [DAG] [bold cyan]Autonomic Suture:[/] Injecting [cyan]{provider.id}[/] "
@@ -332,9 +343,20 @@ class DependencyResolver:
         return "VARIABLE"
 
     def _update_context(self, node: ShardNode, caps: Set[str], subs: Set[str]):
-        """[ASCENSION 236]: DNA Suture."""
-        caps.add(self.adjudicator._normalize(node.id))
-        for cap in node.provides: caps.add(self.adjudicator._normalize(cap))
+        """
+        =============================================================================
+        ==[ASCENSION 257]: DNA SUTURE & LATTICE INSCRIPTION                       ==
+        =============================================================================
+        Inscribes capabilities directly into the O(1) `_capability_locus`.
+        """
+        norm_id = self.adjudicator._normalize(node.id)
+        caps.add(norm_id)
+        self._capability_locus[norm_id].add(node.id)
+
+        for cap in node.provides:
+            norm_cap = self.adjudicator._normalize(cap)
+            caps.add(norm_cap)
+            self._capability_locus[norm_cap].add(node.id)
 
         if isinstance(node.substrate, list):
             for s in node.substrate:

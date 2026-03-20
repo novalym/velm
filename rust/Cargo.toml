@@ -1,5 +1,6 @@
 # Path: rust/Cargo.toml
 # ---------------------
+
 [package]
 name = "scaffold_core_rs"
 version = "0.1.0"
@@ -7,7 +8,7 @@ edition = "2021"
 
 [lib]
 name = "scaffold_core_rs"
-crate-type =["cdylib"]
+crate-type = ["cdylib"]
 
 [[bin]]
 name = "scaffold"
@@ -25,9 +26,13 @@ memmap2 = "0.9"
 memchr = "2.7"
 encoding_rs = "0.8"
 rayon = "1.10"
+regex = "1.10.0"
+lazy_static = "1.4.0"
+base64 = "0.21.5"
+uuid = { version = "1.8", features =["v4", "fast-rng"] }
+chrono = "0.4"
 
 #[THE MASTER CURE]: The Schism of Tongues is Healed.
-# All grammars are strictly aligned to the 0.20.x epoch to annihilate E0308.
 tree-sitter = "=0.20.10"
 tree-sitter-python = "=0.20.4"
 tree-sitter-javascript = "=0.20.1"
@@ -39,3 +44,4 @@ tree-sitter-cpp = "=0.20.0"
 tree-sitter-java = "=0.20.0"
 tree-sitter-html = "=0.20.0"
 tree-sitter-css = "=0.20.0"
+hasher = "0.1.4"

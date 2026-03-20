@@ -653,13 +653,50 @@ class GenesisArtisan(BaseArtisan[GenesisRequest]):
         return self.engine.dispatch(workspace_request)
 
     def _survey_for_collisions(self, items: List[ScaffoldItem], final_vars: Dict, project_root: Path) -> List[Path]:
-        self.logger.info("The Guardian awakens to survey the mortal realm for collisions...")
-        alchemist = get_alchemist()
-        return [
-            resolved_path for item in items if not item.is_dir
-            for resolved_path_str in [alchemist.transmute(str(item.path), final_vars)]
-            for resolved_path in [(project_root / resolved_path_str).resolve()] if resolved_path.exists()
-        ]
+        """
+        =================================================================================
+        == THE Ω_SURVEY_FOR_COLLISIONS: TOTALITY (V-Ω-VMAX-TEMPORAL-SUTURE)            ==
+        =================================================================================
+        LIF: ∞ | ROLE: MATTER_INTEGRITY_ORACLE | RANK: OMEGA_SOVEREIGN
+        AUTH: Ω_GENESIS_SURVEY_VMAX_DELEGATED_2026_FINALIS
+
+        [THE MASTER CURE]
+        This method has been decapitated. It now delegates total authority to the
+        specialized `TopologicalGuardian` organ. This righteously annihilates the
+        "False-Positive Collision" anomaly by using achronal process birth-clocks
+        to grant amnesty to internal metabolic inception (.env).
+        =================================================================================
+        """
+        # --- MOVEMENT 0: ORGAN MATERIALIZATION ---
+        # [ASCENSION 1]: JIT Materialization of the specialized Warden.
+        try:
+            from ...core.runtime.engine.execution.guardian import TopologicalGuardian
+        except ImportError:
+            # Fallback for flattened WASM structures
+            try:
+                from core.runtime.engine.execution.guardian import TopologicalGuardian
+            except ImportError:
+                # Fallback to the archaic logic if the organ is unmanifest
+                self.logger.warn("TopologicalGuardian unmanifest. Falling back to Strata-0 scry.")
+                alchemist = get_alchemist()
+                return [
+                    resolved_path for item in items if not item.is_dir
+                    for resolved_path_str in [alchemist.transmute(str(item.path), final_vars).strip().strip('"\'')]
+                    for resolved_path in [(project_root / resolved_path_str).resolve()] if resolved_path.exists()
+                ]
+
+        trace_id = final_vars.get("trace_id", "tr-survey-void")
+
+        # [ASCENSION 1]: The Anchor Rite
+        # Instantiate the Guardian, passing the Engine to enable HUD multicast.
+        guardian = TopologicalGuardian(self.engine, project_root, trace_id=trace_id)
+
+        # --- MOVEMENT I: THE KINETIC STRIKE ---
+        # [STRIKE]: Adjudicate pre-existing debt vs. willed inception.
+        collisions = guardian.survey(items, final_vars)
+
+        # [ASCENSION 12]: THE FINALITY VOW
+        return collisions
 
     def _conduct_simulation(self, request: GenesisRequest) -> ScaffoldResult:
         from ...core.simulation import SimulationConductor

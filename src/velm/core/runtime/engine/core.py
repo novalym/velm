@@ -201,8 +201,59 @@ class VelmEngine:
 
         [THE MANIFESTO]
         The supreme definitive authority for Kernel awakening. This version
-        righteously annihilates the "Attribute Mirage" by enforcing the Law of
-        Substrate Perception and Chromatic Forensic Authority.
+        righteously annihilates the "Attribute Mirage" and the "Bootstrap Race"
+        by enforcing the Law of Substrate Perception and Chromatic Forensic Authority.
+
+        ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS IN THIS RITE:
+        1.  **Laminar Substrate DNA Scrying (THE MASTER CURE):** Instantly identifies
+            the physical plane (IRON vs ETHER) at nanosecond zero to tune
+            metabolic pacing.
+        2.  **Chromatic Forensic Suture (THE MASTER CURE):** Injects warded
+            ANSI escape sequences directly into the kernel for high-intensity
+            failure signaling (ALERT, UV, TEAL, GOLD).
+        3.  **High-Entropy Session Inception:** Forges a unique, non-colliding
+            8-char hex identity for the current multiversal timeline.
+        4.  **The Akasha Suture:** Pre-materializes the `_akashic` void pointer,
+            preparing the neural uplink to the Ocular HUD.
+        5.  **Apophatic Skill Awakening:** Direct execution of the bootstrap
+            registration warded against partial-import fractures.
+        6.  **Ouroboros Loop Guard:** Initializes the trace stack and recursion
+            locks to prevent infinite @macro or @call recursion.
+        7.  **Substrate-Aware Visual Cortex:** Forces responsive geometry for
+            WASM stages while maintaining native Iron fidelity.
+        8.  **The NoneType Sarcophagus:** Hard-wards the organ manifold; all void
+            slots are waked as `None` to prevent AttributeError drift.
+        9.  **Achronal Trace-ID Chaining:** Force-binds the session ID to the
+            Silver Cord of the current Trace.
+        10. **Geometric Path Normalization:** Standardizes the project root
+            coordinate at birth to neutralize the Backslash Paradox.
+        11. **Adrenaline Mode Suture:** Pre-materializes the metabolic toggle
+            for high-throughput kinetic strikes.
+        12. **The Finality Vow:** A mathematical guarantee of a stable,
+            transactional, and sentient kernel awakening.
+        13. **Metabolic Chronometry Inception:** Starts the nanosecond
+            'Birth NS' clock to measure the 'Time-to-Truth' (TTT).
+        14. **Hydraulic Mutex Inception:** Forges the thread-local re-entrant
+            locks required for parallel component swarms.
+        15. **The Sentinel Matrix Slot:** [THE FIX] Inscribes the `_sentinel_orchestrator`
+            artery into the Organ Manifold.
+        16. **Subversion Ward Initialization:** Prepares the kernel locks for
+            protecting reserved system arteries.
+        17. **Luminous Log Leveling:** Sets the threshold of perception
+            (INFO/DEBUG) based on willed intent.
+        18. **Isomorphic Path Recognition:** Resolves the project anchor
+            regardless of the Architect's current directory depth.
+        19. **NoneType Zero-G Amnesty:** Gracefully handles missing 'cortex'
+            or 'nexus' arguments by transmuting them into bit-perfect Voids.
+        20. **Hydraulic I/O Unbuffering:** Physically forces a flush of
+            sys.stderr to ensure the "Engine waked" signal is instantaneous.
+        21. **Bicameral Scoping Inception:** Segregates the internal kernel
+            state from the public variable altar.
+        22. **Thermodynamic Flow Pacing:** (Prophecy) Prepared to delay boot
+            if the host iron is perceived as feverish (>95% load).
+        23. **NoneType Bridge Suture:** Harmonizes null-references across the
+            Python/JS divide for the Ethereal Cell.
+        24. **The Absolute Singularity State:** Reality is manifest.
         =================================================================================
         """
         import time
@@ -281,8 +332,12 @@ class VelmEngine:
         self._akashic = None
         self._akashic_initialized = False
 
-        # --- MOVEMENT IV: THE ORGAN MANIFOLD (VOID SLOTS) ---
+        # =========================================================================
+        # == MOVEMENT IV: THE ORGAN MANIFOLD (VOID SLOTS)                        ==
+        # =========================================================================
         # [ASCENSION 8]: NoneType Sarcophagus - Bit-perfect O(1) boot
+        # [THE FIX]: All internal arteries are initialized to None to prevent
+        # the Attribute Mirage.
         self._bootstrap = None
         self._transactions = None
         self._predictor = None
@@ -298,6 +353,10 @@ class VelmEngine:
         self._conductor = None
         self._traceback_handler = None
         self._pipeline = None
+
+        # [ASCENSION 15]: THE MASTER FIX
+        # The artery for the Sentient Automation Lattice.
+        self._sentinel_orchestrator = None
 
         # --- MOVEMENT V: KINETIC STATE ---
         self.last_reality: Optional[ScaffoldResult] = None
@@ -466,6 +525,21 @@ class VelmEngine:
     # == LAZY FACULTIES (JIT)                                                ==
     # =========================================================================
     # Zero-cost accessors for heavy subsystems.
+    @property
+    def sentinel(self) -> 'SentinelOrchestrator':
+        """
+        [THE MASTER CURE]: Lazy materialization of the Sentient Automation Lattice.
+        Remains dormant until willed by a blueprint.
+        """
+        if self._sentinel_orchestrator is None:
+            with self._lock:
+                if self._sentinel_orchestrator is None:
+                    from .execution.sentinel_orchestrator import SentinelOrchestrator
+                    self._sentinel_orchestrator = SentinelOrchestrator(self)
+                    # We only ignite the async loop if we are not in a strict one-shot CLI mode
+                    if not self._is_wasm:
+                        self._sentinel_orchestrator.ignite()
+        return self._sentinel_orchestrator
 
     @property
     def engine(self):
@@ -1834,6 +1908,8 @@ class VelmEngine:
         [THE FINAL RITE]
         Gracefully dissolves the Engine.
         """
+        if self._sentinel_orchestrator:
+            self._sentinel_orchestrator._is_active = False
         self.shutdown_manager.execute()
 
 

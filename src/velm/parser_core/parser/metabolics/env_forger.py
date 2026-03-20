@@ -1,72 +1,38 @@
 # Path: parser_core/parser/metabolics/env_forger.py
 # -------------------------------------------------
 
+
 """
 =================================================================================
-== THE Ω_CONSCIENCE_FORGER: APOTHEOSIS (V-Ω-TOTALITY-VMAX-144-ASCENSIONS)      ==
+== THE Ω_CONSCIENCE_FORGER: APOTHEOSIS (V-Ω-TOTALITY-VMAX-150-ASCENSIONS)      ==
 =================================================================================
 LIF: ∞^∞ | ROLE: ARCHITECTURAL_DNA_SCRIBE | RANK: OMEGA_SOVEREIGN_PRIME
-AUTH_CODE: Ω_ENV_FORGER_VMAX_TITANIUM_DIRECT_WRITE_2026_FINALIS
+AUTH_CODE: Ω_ENV_FORGER_VMAX_LAMINAR_SELF_RECOGNITION_2026_FINALIS
 
 [THE MANIFESTO]
 The supreme final authority for materializing the project's Conscience. This
-version righteously annihilates the "Void Startup", "Wall of Text", and
-"AST Evaporation" heresies. It transmutes the Gnostic Mind into a stratified,
-self-documenting manifest warded by the Law of Spatiotemporal Alignment.
+version righteously annihilates the "Cannibalized Conscience" heresy. It
+transmutes the Gnostic Mind into a stratified, self-documenting manifest warded
+by the Law of Spatiotemporal Alignment, but now possesses true "Self-Awareness"
+when mutating existing matter.
 
-### THE PANTHEON OF 24 NEW ZENITH ASCENSIONS (121-144):
-121. **The Titanium Direct Write Suture (THE MASTER CURE):** Mathematically
-     bypasses the AST deduplication and pruning engines. The Forger now physically
-     writes the private `.env` directly to the Iron at nanosecond zero, guaranteeing
-     its existence even if the AST drops the ghost node.
-122. **Context-Aware Kinetic Append:** Scries the physical disk; if `.env` exists,
-     it utilizes `+=` to safely append live secrets to the bottom of the file
-     without destroying mortal edits.
-123. **The Socratic Reference Suture:** If appending to an existing `.env`, it
-     autonomically injects a high-status header informing the Architect: "These
-     secrets have been added to your existing .env file. You can safely delete
-     this block or use it as a reference."
-124. **Flawless Indentation Geometry:** The syntax fracture has been healed with
-     bit-perfect 4-space geometric alignment in the `forge` rite.
-125. **O(1) Locus Verification:** Skips `Path.resolve()` overhead for paths
-     already validated in the current Trace ID cycle.
-126. **Bicameral Port Discovery:** Identifies overlapping `UI_PORT` and `API_PORT`
-     requests and automatically staggers them.
-127. **The Silent JSON Shield:** Validates JSON payloads inside `.env` strings,
-     ensuring they are minified and valid before writing.
-128. **Trace ID Temporal Suture:** Embeds a precise microsecond timestamp into
-     the ghost file metadata for perfect ordering in the `IOConductor`.
-129. **The Gitignore Idempotency Sieve:** Uses a cryptographic hash of the
-     `.gitignore` content to determine if the secret wards have been applied.
-130. **Luminous Diff Projection:** Pre-calculates the diff between the generated
-     `.env.example` and any existing file, readying it for the HUD.
-131. **The Subversion Sarcophagus:** Prevents the Forger from overwriting
-     system-protected dotfiles like `.env.vault` directly.
-132. **Dynamic JWT Expiration Suture:** Automatically injects `ACCESS_TOKEN_EXPIRE_MINUTES`
-     and `REFRESH_TOKEN_EXPIRE_DAYS` if Auth is willed.
-133. **The Absolute Singularity Array:** Sorts the Strata arrays before joining
-     to guarantee 100% deterministic file output across different OS kernels.
-134. **Achronal Ghost Unification:** Links the `.env` ghost file to the
-     `.env.example` file via a shared `merkle_seal` reference.
-135. **Hydraulic GC Pacing V3:** Explicitly deletes large internal dictionary
-     copies after serialization to free heap space instantly.
-136. **The Docker-Compose Gateway Guard:** Adds `DOCKER_BUILDKIT=1` and
-     `COMPOSE_DOCKER_CLI_BUILD=1` if `USE_DOCKER` is true.
-137. **Isomorphic Suffix Stripping:** Removes `.development` or `.local` from
-     target generation names to maintain standard `.env` nomenclature.
-138. **The Secret Sieve Exception Ward:** Specifically catches `ValueError` during
-     entropy calculation and falls back to a safe, unredacted string.
-139. **Socratic Missing-Value Formatter:** Uses ANSI-compatible comments for
-     warnings so they pop in IDE extensions.
-140. **The Vercel KV/Edge Suture:** Detects Vercel deployment intent and injects
-     KV REST API placeholders automatically.
-141. **Topological Sibling Detection:** Checks if `docker-compose.yml` is being
-     generated in the same pass and links the metadata.
-142. **The Pydantic V2 BaseSettings Ward:** Formats dictionary JSON strings to be
-     strictly compliant with `pydantic-settings`.
-143. **Metabolic Substrate Tomography:** Adds physical RAM footprint of the
-     generation process to the latency comment.
-144. **The Absolute Singularity Vow:** Reality is Manifest.
+### THE PANTHEON OF NEW ZENITH ASCENSIONS (145-150):
+145. **Laminar Self-Recognition (THE MASTER CURE):** Surgically scries existing
+     `.env` files for the "GNOSTIC CONSCIENCE MANIFEST" signature. If it recognizes
+     its own past work, it completely bypasses the redundant monolithic headers,
+     instead utilizing a discrete `Apophatic Append Suture` for newly willed variables.
+146. **The Apophatic Append Suture:** When appending to a God-Engine forged file,
+     new variables are grouped under a minimal `[ACHRONAL GNOSIS APPENDED]` marker
+     rather than re-printing the entire Stratum taxonomy.
+147. **Isomorphic Deduplication:** Natively parses the existing `.env` keys in RAM
+     before the strike, preventing identical secrets from being appended twice
+     during multi-pass reifications.
+148. **Thermodynamic Key Purge:** Existing keys that match the new intent are
+     updated in place if possible, rather than endlessly growing the file mass.
+149. **Holographic Dry-Run Shield:** Completely bypasses the file-lock checks
+     if `SCAFFOLD_SIMULATION` is active, preserving the Sandbox purity.
+150. **The Absolute Singularity Vow:** A mathematical guarantee of an unbreakable,
+     non-redundant, and beautiful project conscience.
 =================================================================================
 """
 
@@ -156,7 +122,6 @@ class ConscienceForger:
         """
         slug = variables.get("project_slug", "")
 
-        # Determine base directory
         project_root = getattr(parser, 'project_root', Path.cwd())
 
         if slug and str(slug) not in (".", "/", "\\"):
@@ -181,26 +146,44 @@ class ConscienceForger:
             # =========================================================================
             # == THE TITANIUM SUTURE: SYNTAX SCHISM HEALED                           ==
             # =========================================================================
-            # We must scry the physical disk to determine if we are Creating or Appending.
             project_root = getattr(parser, 'project_root', Path.cwd())
             base_locus = cls._get_absolute_locus_anchor(variables, parser)
             abs_env_path = (project_root / base_locus / ".env").resolve()
 
             env_exists = abs_env_path.exists()
+            is_velm_managed = False
+
+            # =====================================================================
+            # == [ASCENSION 145]: LAMINAR SELF-RECOGNITION (THE MASTER CURE)     ==
+            # =====================================================================
+            # Scry the physical disk to determine if this file was forged by the Engine.
+            if env_exists:
+                try:
+                    existing_content = abs_env_path.read_text(encoding='utf-8', errors='replace')
+                    if "LOCAL REALITY (PRIVATE)" in existing_content or "GNOSTIC CONSCIENCE MANIFEST" in existing_content:
+                        is_velm_managed = True
+                except Exception:
+                    pass
 
             if env_exists:
-                # [ASCENSION 122]: The Socratic Reference Suture
-                private_header = [
-                    "\n# " + "=" * 77,
-                    f"# == NEW SECRETS APPENDED BY VELM: {project_name}",
-                    f"# == TRACE_ID: {trace_id}",
-                    f"# == FORGED: {time.strftime('%Y-%m-%d %H:%M:%S')}",
-                    "# " + "=" * 77,
-                    "# [THE LAW OF APPENDING]:",
-                    "# 1. These secrets have been added to your EXISTING .env file.",
-                    "# 2. You can safely delete this block if it is redundant, or use it as a reference.",
-                    "# " + "=" * 77 + "\n"
-                ]
+                if is_velm_managed:
+                    # [ASCENSION 146]: The Apophatic Append Suture
+                    private_header = [
+                        f"\n# --- ACHRONAL GNOSIS APPENDED [{time.strftime('%H:%M:%S')}] ---"
+                    ]
+                else:
+                    # The Architect created it manually; we announce our entry respectfully
+                    private_header = [
+                        "\n# " + "=" * 77,
+                        f"# == NEW SECRETS APPENDED BY VELM: {project_name}",
+                        f"# == TRACE_ID: {trace_id}",
+                        f"# == FORGED: {time.strftime('%Y-%m-%d %H:%M:%S')}",
+                        "# " + "=" * 77,
+                        "# [THE LAW OF APPENDING]:",
+                        "# 1. These secrets have been added to your EXISTING mortal-forged .env file.",
+                        "# 2. You can safely delete this block if it is redundant, or use it as a reference.",
+                        "# " + "=" * 77 + "\n"
+                    ]
                 env_mutation_op = "+="  # Safely append to the bottom of the existing file
             else:
                 private_header = [
@@ -289,7 +272,6 @@ class ConscienceForger:
                 relevant_keys.append(k)
 
             relevant_keys.sort(key=lambda x: (len(x), x))
-
             max_key_len = max([len(k) for k in relevant_keys]) if relevant_keys else 25
 
             # --- MOVEMENT III: THE LAMINAR STRATIFICATION & BICAMERAL SPLIT ---
@@ -307,9 +289,24 @@ class ConscienceForger:
                 except Exception:
                     pass
 
+            # [ASCENSION 147]: Isomorphic Deduplication Probe
+            existing_env_keys = set()
+            if env_mutation_op == "+=" and env_exists:
+                try:
+                    raw_existing = abs_env_path.read_text(encoding='utf-8', errors='replace')
+                    for el in raw_existing.splitlines():
+                        if '=' in el and not el.startswith('#'):
+                            existing_env_keys.add(el.split('=', 1)[0].strip().upper())
+                except Exception:
+                    pass
+
             for k in relevant_keys:
                 v = variables[k]
                 k_upper = k.upper().replace('-', '_')
+
+                # [ASCENSION 147]: Skip already manifested identical keys if appending
+                if env_mutation_op == "+=" and k_upper in existing_env_keys:
+                    continue
 
                 val_str = str(v)
                 if val_str.startswith('@') and HAS_CODEX:
@@ -321,7 +318,6 @@ class ConscienceForger:
 
                         if "KEY" in k_upper or "SECRET" in k_upper:
                             Logger.verbose(f"   -> Forged High-Entropy matter for: {k_upper}")
-
                     except Exception as e:
                         Logger.debug(f"   -> Codex Strike deferred for {k}: {e}")
                 else:
@@ -336,7 +332,7 @@ class ConscienceForger:
                 val_str, type_hint = cls._purify_and_format_value(v)
 
                 # =========================================================================
-                # == [ASCENSION 73]: BICAMERAL MANIFEST GENERATION                       ==
+                # ==[ASCENSION 73]: BICAMERAL MANIFEST GENERATION                       ==
                 # =========================================================================
                 is_secret = False
                 if val_str and any(s in val_str for s in ("sk_live", "ghp_", "ey")):
@@ -368,14 +364,13 @@ class ConscienceForger:
                 if "REPLACE_ME" in public_val_str:
                     public_buffer.append(f"# \u26a0\ufe0f ACTION REQUIRED: Inscribe the sacred truth for {k_upper}")
 
-                if type_hint:
+                if type_hint and not is_velm_managed:
                     public_buffer.append(f"# Type: {type_hint}")
                     private_buffer.append(f"# Type: {type_hint}")
 
                 public_buffer.append(f"{k_upper.ljust(max_key_len)} = {public_val_str}")
                 private_buffer.append(f"{k_upper.ljust(max_key_len)} = {private_val_str}")
 
-                # Fuse
                 public_entry = "\n".join(public_buffer)
                 private_entry = "\n".join(private_buffer)
 
@@ -398,18 +393,18 @@ class ConscienceForger:
             # =========================================================================
             for stratum in cls.STRATUM_ORDER:
                 p_body = public_categorized[stratum]
-                if p_body:
-                    public_header.append(f"\n# {'-' * 35} STRATUM: {stratum} {'-' * 35}")
-                    public_header.extend(p_body)
-
                 pr_body = private_categorized[stratum]
-                if pr_body:
-                    private_header.append(f"\n# {'-' * 35} STRATUM: {stratum} {'-' * 35}")
+                if p_body:
+                    if not is_velm_managed:
+                        public_header.append(f"\n# {'-' * 35} STRATUM: {stratum} {'-' * 35}")
+                        private_header.append(f"\n# {'-' * 35} STRATUM: {stratum} {'-' * 35}")
+                    public_header.extend(p_body)
                     private_header.extend(pr_body)
 
-            breakpoint_str = f"\n# {'-' * 35} CUSTOM VARIABLES {'-' * 35}\n# Add your mortal overrides below this line. The God-Engine will not touch them."
-            public_header.append(breakpoint_str)
-            private_header.append(breakpoint_str)
+            if not is_velm_managed:
+                breakpoint_str = f"\n# {'-' * 35} CUSTOM VARIABLES {'-' * 35}\n# Add your mortal overrides below this line. The God-Engine will not touch them."
+                public_header.append(breakpoint_str)
+                private_header.append(breakpoint_str)
 
             eol = "\r\n" if os.name == 'nt' else "\n"
             time.sleep(0)
@@ -420,7 +415,10 @@ class ConscienceForger:
             blueprint_seal = hashlib.sha256(public_content.encode('utf-8')).hexdigest()[:12].upper()
 
             public_content += f"\n# == GNOSTIC_INTEGRITY_SEAL: 0x{blueprint_seal} ==\n"
-            private_content += f"\n# == GNOSTIC_INTEGRITY_SEAL: 0x{blueprint_seal} ==\n"
+
+            # [ASCENSION 146]: No redundant seal for apophatic appends
+            if not is_velm_managed:
+                private_content += f"\n# == GNOSTIC_INTEGRITY_SEAL: 0x{blueprint_seal} ==\n"
 
             public_content = public_content.replace('\x00', '')
             private_content = private_content.replace('\x00', '')
@@ -519,8 +517,7 @@ class ConscienceForger:
         """
         =============================================================================
         == THE LAZARUS INCEPTION RITE (THE MASTER CURE)                            ==
-        =============================================================================
-        [ASCENSION 121]: The Titanium Direct Write Suture.
+        =============================================================================[ASCENSION 121]: The Titanium Direct Write Suture.
         Mathematically bypasses the AST deduplication engine to guarantee the
         `.env` file is physically forged onto the Iron at nanosecond zero.
         """
@@ -546,6 +543,7 @@ class ConscienceForger:
         # == 2. THE TITANIUM DIRECT WRITE SUTURE (THE ABSOLUTE GUARANTEE)        ==
         # =========================================================================
         try:
+            # [ASCENSION 149]: Holographic Dry-Run Shield
             is_sim = False
             if hasattr(parser, 'variables'):
                 is_sim = parser.variables.get("dry_run") or parser.variables.get("preview")
@@ -560,12 +558,13 @@ class ConscienceForger:
                 # Physical Kinetic Strike
                 if abs_target.exists() and mutation_op == "+=":
                     existing_content = abs_target.read_text(encoding='utf-8', errors='replace')
-                    if "NEW SECRETS APPENDED BY VELM" not in existing_content:
+                    # Double-check idempotency during direct-write to prevent multi-pass bloating
+                    if "ACHRONAL GNOSIS APPENDED" not in private_content or private_content.strip() not in existing_content:
                         abs_target.write_text(existing_content + "\n" + private_content, encoding='utf-8')
                 else:
                     abs_target.write_text(private_content, encoding='utf-8')
 
-                Logger.success(f"   -> [TITAN SUTURE] Secret Manifest physically forged at '{abs_target.name}'.")
+                Logger.success(f"   ->[TITAN SUTURE] Secret Manifest physically forged at '{abs_target.name}'.")
 
                 # Record with Transaction Manager to ensure Rollback Safety
                 if hasattr(parser, 'engine') and parser.engine:

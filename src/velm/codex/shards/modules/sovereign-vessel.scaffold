@@ -1,0 +1,100 @@
+# =============================================================================
+# == GNOSTIC SHARD: modules/sovereign-vessel
+# =============================================================================
+# @id: modules/sovereign-vessel
+# @version: 3.5.0-Ω
+# @tier: mind
+# @summary: An isomorphic vertical-slice component for autonomic service creation.
+# @author: SCAF-GenesisEngine-Prime
+# @vibe: [isomorphic, atomic, self-wiring, polyglot]
+# -----------------------------------------------------------------------------
+# @metabolism:
+#   python: [fastapi, pydantic]
+#   node: [axios, react-query]
+# -----------------------------------------------------------------------------
+# @substrate: {"agnostic": true}
+# -----------------------------------------------------------------------------
+# @suture:
+#   role: service-provider
+#   priority: 500
+#   alias: vessel
+# -----------------------------------------------------------------------------
+# @ocular-ui:
+#   - toggle(key="strict_types", label="Enforce Gnostic Types", default=true)
+#   - toggle(key="generate_client", label="Materialize TS Client", default=true)
+#   - input(key="base_path", label="API Route Prefix", default="/api/v1")
+# -----------------------------------------------------------------------------
+# @provides: [capability:service-atom]
+# @requires: [capability:api-heart]
+# =============================================================================
+
+# --- THE ARCHITECTURAL SIGNALS ---
+@signal strict_mode = {{ strict_types | default(true) }}
+
+# =============================================================================
+# == THE SOVEREIGN COMPONENT DEFINITION                                      ==
+# =============================================================================
+@component SovereignVessel(name: str, endpoint: str, schema: str = "Any"):
+    """
+    LIF: ∞ | ROLE: VERTICAL_SLICE_PROVISIONER
+    Transmutes a single Domain Name into a Full-Stack Reality.
+    """
+    
+    # 1. TELEPATHIC HOISTING
+    # We scream our existence into the Akasha so the Global Router can find us.
+    @hoist routes = {
+        "name": name,
+        "path": endpoint,
+        "module": "api.routes." + (name | snake),
+        "handler": (name | pascal) + "Router"
+    }
+
+    # 2. QUANTUM ENTANGLEMENT
+    # We fetch the Database connection without ever seeing the parent props.
+    @entangle DatabaseConnection as db
+
+    # --- MOVEMENT I: THE MIND (PYTHON BACKEND) ---
+    src/{{ package_name }}/api/routes/{{ name | snake }}.py :: """
+    from fastapi import APIRouter, Depends
+    from ...core.auth import current_user
+    
+    # [GNOSTIC SUTURE]: Anchored to Database at {{ db.url }}
+    {{ name | pascal }}Router = APIRouter(tags=["{{ name }}"])
+
+    @{{ name | pascal }}Router.get("/{{ endpoint }}")
+    async def get_{{ name | snake }}(user=Depends(current_user)):
+        return {"service": "{{ name }}", "status": "resonant", "db": "connected"}
+    """
+
+    # --- MOVEMENT II: THE EYE (TYPESCRIPT CLIENT) ---
+    @if generate_client:
+        src/ui/generated/{{ name | camel }}Client.ts :: """
+        import { useQuery } from '@tanstack/react-query';
+        import axios from 'axios';
+
+        // [AUTONOMIC CLIENT]: Generated via SovereignVessel
+        export const use{{ name | pascal }} = () => {
+            return useQuery({
+                queryKey: ['{{ name | snake }}'],
+                queryFn: async () => {
+                    const { data } = await axios.get(`{{ base_path }}/{{ endpoint }}`);
+                    return data;
+                }
+            });
+        };
+        """
+
+    # --- MOVEMENT III: KINETIC SIDE EFFECTS ---
+    @on_mount:
+        proclaim: "Vessel [bold cyan]{{ name }}[/] mounted at {{ endpoint }}."
+        # Autonomicly trigger a lint pass on the new files
+        >> ruff check src/{{ package_name }}/api/routes/{{ name | snake }}.py --fix
+
+
+# =============================================================================
+# == THE MOUNTING RITE (EXAMPLE USAGE)                                       ==
+# =============================================================================
+# This is how the Architect summons the component in the root blueprint.
+
+# mount SovereignVessel(name="UserProfiles", endpoint="profiles")
+# mount SovereignVessel(name="Inventory", endpoint="stock", schema="ProductSchema")

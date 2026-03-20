@@ -1,5 +1,3 @@
-# Path: src/velm/parser_core/parser/parser_scribes/scaffold_scribes/directive_scribe/handlers/test.py
-# -----------------------------------------------------------------------------------------------------------
 import re
 import time
 import uuid
@@ -22,9 +20,7 @@ class TestHandler(BaseDirectiveHandler):
     LIF: 500x | ROLE: BLUEPRINT_INQUISITOR | RANK: OMEGA_SOVEREIGN
 
     The Supreme Judge of Blueprint Integrity.
-    It parses test definitions, assertions, mocks, and now... CHAOS (@fuzz).
-
-    [DIRECTIVES]:
+    It parses test definitions, assertions, mocks, and now... CHAOS (@fuzz).[DIRECTIVES]:
     - @test <name>: Begins a named test scenario.
     - @assert <expr>: Evaluates a logic expression.
     - @assert_file <path>: Verifies file existence/content.
@@ -317,8 +313,7 @@ class TestHandler(BaseDirectiveHandler):
         return i + 1
 
     def _conduct_mock(self, vessel: GnosticVessel) -> int:
-        """
-        [THE MOCKINGBIRD]
+        """[THE MOCKINGBIRD]
         Syntax: @mock db_url = "sqlite:///:memory:"
         """
         if '=' in vessel.name:
@@ -334,7 +329,8 @@ class TestHandler(BaseDirectiveHandler):
             self.parser.variables[k] = v
             self.Logger.verbose(f"L{vessel.line_num}: Mock injected: {k} -> {v}")
 
-        return vessel.line_num - self.parser.line_offset + 1
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset
 
     def _conduct_snapshot(self, vessel: GnosticVessel) -> int:
         """
@@ -347,7 +343,9 @@ class TestHandler(BaseDirectiveHandler):
         # (The actual snapshot logic resides in the Runtime, triggered by this edict)
         # For now, we log the intent.
         self.Logger.info(f"L{vessel.line_num}: Snapshot point '{name}' registered.")
-        return vessel.line_num - self.parser.line_offset + 1
+
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset
 
     def _conduct_var_assertion(self, vessel: GnosticVessel, i: int) -> int:
         """[THE VARIABLE PROBE] @assert_var name == value"""

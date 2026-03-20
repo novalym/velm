@@ -3,77 +3,23 @@
 
 """
 =================================================================================
-== THE HEURISTIC ADJUDICATOR: APOTHEOSIS (V-Ω-TOTALITY-VMAX-GNOSTIC-ORACLE)    ==
+== THE HEURISTIC ADJUDICATOR: ZENITH (V-Ω-TOTALITY-VMAX-VOID-SHIELDED-FINALIS) ==
 =================================================================================
-LIF: ∞^∞ | ROLE: CAPABILITY_ARBITRATION_ORACLE | RANK: OMEGA_SOVEREIGN_PRIME
-AUTH_CODE: Ω_HEURISTICS_VMAX_TOTALITY_2026_FINALIS
+LIF: ∞^∞^∞ | ROLE: OPTIMAL_SHARD_SELECTOR_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
+AUTH_CODE: Ω_HEURISTICS_VMAX_VOID_SHIELD_2026_FINALIS
 
 [THE MANIFESTO]
-The supreme definitive authority for capability arbitration. It has been
-re-engineered to perform high-fidelity matching across the multiversal rift,
-annihilating the 'Regex Bottleneck' and 'Substrate Loop' paradoxes. It
-establishes the Law of Genomic Normalization, ensuring that Shard IDs and
-Abstract Capabilities resonate at the Absolute Semantic Root in O(1) time.
+The supreme final authority for architectural election. This version righteously
+implements the **Apophatic Void Shield**, mathematically annihilating the
+'NoneType' AttributeError by enforcing safe sensory scrying through the
+Kernel's mental strata.
 
-### THE PANTHEON OF 56 LEGENDARY ASCENSIONS IN THIS RITE (NEWLY ASCENDED 33-56):
-33. **O(1) Pauli Exclusion Sieve V4 (THE MASTER CURE):** The `elect_best_provider`
-    now mathematically accepts the `banned_capabilities` set. Any shard whose
-    Identity or Provided Capabilities intersect with this list is instantly
-    vaporized from the election pool, solving the Security Mirage anomaly forever.
-34. **Cross-Strata Repulsion Magic:** The `excludes` array can now target specific
-    shard IDs (`security/fastapi-auth`) OR abstract capabilities (`capability:auth`),
-    granting the Architect supreme negative-space control.
-35. **Excommunication Tracing (Forensic Autopsy):** When a shard is vaporized by
-    the Pauli Sieve, its exact reasoning is logged via `Logger.warn` and etched
-    into the `match_reason` for Ocular HUD visibility.
-36. **O(1) Laminar Normalization Cache:** The `_normalize` function is wrapped in
-    a Class-level LRU Cache. This eliminates the regex bottleneck during the
-    triple-nested Topological Sort, achieving 50,000x faster string normalization.
-37. **True Double-Checked Locking (Zero-Stiction):** The `_NORM_LOCK` is completely
-    evicted from the primary read path. Parallel worker threads can read the
-    normalization cache simultaneously without hitting OS mutexes.
-38. **Pre-Normalized Substrate Matrix (THE KINETIC CURE):** Eradicates the $O(N^2)$
-    overhead inside the `rank_score` loop. Shards now cache their normalized
-    substrates in `_shard_subs_cache` at the moment of birth.
-39. **C-Optimized Set Disjoint Mathematics:** Replaces slow Python list iterations
-    with native C-backed `isdisjoint()` checks during the Substrate DNA Resonance
-    calculation, providing instantaneous environmental matching.
-40. **Apophatic Type Coercion:** Safely bypasses `AttributeError` by handling
-    malformed, non-string substrates before they touch the normalization engine.
-41. **Short-Circuit Election Mastery:** If the capability map yields only a single
-    candidate (and it isn't banned), the Oracle instantly crowns it without invoking
-    the complex sorting matrix, saving crucial CPU cycles.
-42. **Cache Key Cryptographic Suture:** Transmutes the active substrates and bans
-    into a flattened, sorted string directly concatenated to the requirement,
-    forming an unbreakable O(1) cache key.
-43. **Harmonic Tier Decay Matrix:** Converts the `TIER_GRAVITY` lookup into a
-    fast-path `.get()` with a 0.0 float default to bypass KeyError handling.
-44. **Hydraulic Cache Eviction:** Automatically clears the `_NORM_CACHE` if it
-    exceeds 10,000 entries, preventing memory leaks in endless daemon modes.
-45. **Bicameral Manifest Scrying:** Evaluates both `provides` and the implicit
-    `id` during the capability map build to guarantee self-referential parity.
-46. **Substrate-Aware Routing V2:** Differentiates between 'agnostic' and native
-    strata at the genomic level.
-47. **NoneType Zero-G Amnesty:** Hard-wards the `_normalize` function; returns
-    empty strings instantly if fed Null or void data.
-48. **Isomorphic Variable Extraction:** Direct link to the NER Scribe to ensure
-    ports and IDs influence the election gravity safely.
-49. **Merkle-Lattice State Sealing:** Forges a unique hash of the normalized
-    capabilities map to prevent stale elections.
-50. **Haptic Resonance Scribe:** Mutates the `match_reason` on the winning Shard
-    in-place to feed the Ocular HUD with forensic decision logs.
-51. **Semantic Versioning Oracle:** Gracefully handles malformed string versions
-    by splitting and mapping to a default integer tuple `(1, 0, 0)`.
-52. **Categorical Gravity Boost:** Assigns a 2.5x multiplier to shards matching
-    the primary intent category.
-53. **Elegance Factor Deduction:** Rewards shards that require fewer dependencies,
-    naturally promoting simpler, more robust architectural foundations.
-54. **Prefix Incinerator Phalanx:** Uses `re.IGNORECASE` to strip `capability:`,
-    `logic:`, `urn:`, and `trait:` modifiers flawlessly.
-55. **Isomorphic Suffix Stripping:** Exorcises local directory geometry (e.g.
-    `system/` or `core/`) to find the absolute atomic name.
-56. **The Finality Vow:** A mathematical guarantee of selecting the single
-    most optimal, non-banned architectural shard in the Multiverse.
+It fuses the parallel SIMD power of the Rust Iron with an indestructible Python
+Prophet. It mathematically guarantees that no logic from the SemanticResolver,
+the GnosticTensor, or the StructureSentinel is bypassed. It exists solely to
+rank and elect shards with Absolute Precision.
+
+Axiom Zero: The Mind shall not fracture even if the Body is unmanifest.
 =================================================================================
 """
 
@@ -82,11 +28,21 @@ import collections
 import time
 import hashlib
 import threading
+import os
 from typing import List, Dict, Optional, Set, Tuple, Any, Final
 
 # --- CORE UPLINKS ---
 from .contracts import ShardNode
+from .heuristics_data import TECH_SYNERGY, SOVEREIGN_HEARTS, AXIOMATIC_STRATA, REALM_GRAVITY
 from ....logger import Scribe
+
+# [ASCENSION 1]: THE BINARY KERNEL PIVOT
+try:
+    import scaffold_core_rs
+
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
 
 Logger = Scribe("HeuristicAdjudicator")
 
@@ -94,138 +50,148 @@ Logger = Scribe("HeuristicAdjudicator")
 class ProviderAdjudicator:
     """
     =============================================================================
-    == THE GNOSTIC ORACLE (V-Ω-CAPABILITY-ARBITRATOR-O(1)-MEMOIZED)            ==
+    == THE OMEGA PROVIDER ADJUDICATOR (V-Ω-TOTALITY-VMAX-INDESTRUCTIBLE)       ==
     =============================================================================
-    LIF: ∞ | ROLE: OPTIMAL_SHARD_SELECTOR | RANK: OMEGA_SUPREME
-
-    The high-status judge that ensures the most resonant, elegant, and
-    reliable shards are wove into the project's soul.
+    LIF: 1,000,000,000x | ROLE: ARCHITECTURAL_PROPHET | RANK: OMEGA_SOVEREIGN
     """
 
     # [PHYSICS CONSTANTS]
-    # The atomic sieve for semantic normalization
     NORMALIZATION_PATTERN: Final[re.Pattern] = re.compile(r'[^a-z0-9]')
-    # The prefix incinerator (Covers all known Gnostic sigils)
-    PREFIX_PATTERN: Final[re.Pattern] = re.compile(r'^(capability|logic|urn|shard|vow|trait):', re.IGNORECASE)
-
-    # [ARCHITECTURAL JURISPRUDENCE]
-    # Weighting the Strata of Reality
-    TIER_GRAVITY: Final[Dict[str, float]] = {
-        "soul": 10.0,  # Core Domain (Highest Priority)
-        "mind": 5.0,  # Service Layer
-        "body": 2.0,  # Infrastructure
-        "iron": 1.0,  # Hardware / OS
-        "void": 0.0  # Fractured matter
-    }
+    PREFIX_PATTERN: Final[re.Pattern] = re.compile(r'^(capability|logic|urn|shard|vow|trait|dna):', re.IGNORECASE)
 
     # [THE CURE: STRUCTURAL ENVELOPES]
-    # Shards that can satisfy multiple realities simultaneously
     UNIVERSAL_ENVELOPES: Final[Set[str]] = {
-        "docker", "kubernetes", "system", "bash", "shell",
-        "terraform", "cloud", "iron", "agnostic", "universal"
+        "docker", "kubernetes", "system", "bash", "shell", "terraform", "cloud", "iron", "agnostic"
     }
 
     OCULAR_ENVELOPES: Final[Set[str]] = {
-        "react", "vue", "nextjs", "browser", "wasm",
-        "ether", "ui", "ocular", "membrane"
+        "react", "vue", "nextjs", "browser", "wasm", "ether", "ui", "ocular", "membrane"
     }
 
-    # =========================================================================
-    # == [ASCENSION 36]: O(1) LAMINAR NORMALIZATION CACHE                    ==
-    # =========================================================================
+    # [ASCENSION 3]: O(1) LAMINAR NORMALIZATION CACHE
     _NORM_CACHE: Dict[str, str] = {}
     _NORM_LOCK = threading.RLock()
 
-    __slots__ = ('engine', 'grimoire', 'logger', '_cache', '_lock', 'capability_map', '_state_hash',
-                 '_shard_subs_cache')
+    __slots__ = (
+        'engine', 'grimoire', 'logger', '_cache', '_lock', 'capability_map',
+        '_state_hash', '_shard_subs_cache', '_rust_oracle', '_is_wasm'
+    )
 
     def __init__(self, global_grimoire: List[ShardNode], engine: Optional[Any] = None):
-        """[THE RITE OF ANCHORING]
-        Initializes the Oracle and materializes the Normalized Capability Map.
-        """
+        """[THE RITE OF ANCHORING]"""
         self.engine = engine
         self.grimoire = global_grimoire
         self.logger = Logger
+        self._is_wasm = os.environ.get("SCAFFOLD_ENV") == "WASM"
 
         self._cache: Dict[str, ShardNode] = {}
         self._shard_subs_cache: Dict[str, Set[str]] = {}
         self._lock = threading.RLock()
+        self._rust_oracle = None
 
-        # --- THE MASTER CURE: ATOMIC SUTURE ---
-        # Build the capability map immediately using the new Genomic Sieve.
+        # --- MOVEMENT I: TOPOLOGICAL DNA MAPPING ---
         self.capability_map: Dict[str, List[ShardNode]] = self._build_normalized_map()
-
-        # [ASCENSION 49]: MERKLE STATE FINGERPRINT
         self._state_hash = self._compute_state_hash()
+
+        # =========================================================================
+        # == MOVEMENT II: [ASCENSION 57] - QUANTUM SUBSTRATE SUTURE (RUST)       ==
+        # =========================================================================
+        if RUST_AVAILABLE and not self._is_wasm:
+            try:
+                self._rust_oracle = scaffold_core_rs.QuantumAdjudicator()
+
+                rust_payload = []
+                for s in self.grimoire:
+                    rust_payload.append({
+                        "id": s.id,
+                        "tier": s.tier,
+                        "provides": s.provides,
+                        "substrate": s.substrate,
+                        "requires": s.requires,  # [THE FIX]: Passing explicit requirements array
+                        "version": s.version,
+                        "resonance_score": getattr(s, 'resonance_score', 0.0),
+                        "semantic_vector": getattr(s, 'semantic_vector', None)
+                    })
+
+                self._rust_oracle.ingest_grimoire(rust_payload)
+                self.logger.verbose("Quantum Adjudicator (Rust) engaged. Parallel SIMD active.")
+            except Exception as e:
+                self.logger.debug(f"Quantum Adjudicator deferred: {e}. Clinging to Python Prophet.")
+                self._rust_oracle = None
+
+    # =========================================================================
+    # ==[THE MASTER CURE]: THE APOPHATIC VOID SHIELD                        ==
+    # =========================================================================
+
+    @property
+    def variables_altar(self) -> Dict[str, Any]:
+        """
+        [ASCENSION 1]: THE INDESTRUCTIBLE SENSORY BRIDGE.
+        Righteously uses `getattr` to scry the Engine's variable altar.
+        Mathematically annihilates the 'NoneType' attribute heresy.
+        """
+        # We attempt to pierce the Engine's mind. If it is a Void (None),
+        # we return a bit-perfect empty dictionary to prevent the fracture.
+        return getattr(self.engine, 'variables', {})
+
+    @property
+    def is_silent(self) -> bool:
+        """[ASCENSION 2]: Safe scrying for the Vow of Silence."""
+        if os.environ.get("SCAFFOLD_SILENT") == "1":
+            return True
+        # Scry the altar safely
+        return bool(self.variables_altar.get('silent', False))
+
+    @property
+    def active_trace(self) -> str:
+        """[ASCENSION 3]: Safe scrying for the Silver Cord."""
+        return str(self.variables_altar.get('trace_id', 'tr-adjudicator-void'))
+
+    # =========================================================================
+    # == STRATUM I: NORMALIZATION & MAPPING                                  ==
+    # =========================================================================
 
     @classmethod
     def _normalize(cls, text: str) -> str:
-        """
-        =============================================================================
-        == THE GENOMIC SIEVE (V-Ω-TOTALITY-PREFIX-ANNIHILATOR)                     ==
-        =============================================================================[THE MASTER CURE]: This function is the single source of truth for resonance.
-        Wrapped in a True Double-Checked Locking LRU Cache to annihilate the
-        Regex Bottleneck.
-        """
-        if not text:
-            return ""
+        """[ASCENSION 36]: O(1) LAMINAR NORMALIZATION CACHE."""
+        if not text: return ""
 
-        # [ASCENSION 37]: O(1) Optimistic Read without Lock
         cached = cls._NORM_CACHE.get(text)
-        if cached is not None:
-            return cached
+        if cached is not None: return cached
 
         with cls._NORM_LOCK:
-            # Double-Check inside the lock
             cached = cls._NORM_CACHE.get(text)
-            if cached is not None:
-                return cached
+            if cached is not None: return cached
 
-            # 1. Strip Prefixes (capability:docker -> docker)
+            # 1. Strip Prefixes
             clean = cls.PREFIX_PATTERN.sub('', text.strip())
-
-            # 2. Extract Geometric Tail (system/pydantic-v2 -> pydantic-v2)
+            # 2. Extract Geometric Tail
             if '/' in clean:
                 clean = clean.split('/')[-1]
             elif '\\' in clean:
                 clean = clean.split('\\')[-1]
-
-            # 3. Final Purgation (pydantic-v2 -> pydanticv2)
+            # 3. Final Purgation
             result = cls.NORMALIZATION_PATTERN.sub('', clean.lower())
 
-            # [ASCENSION 44]: Hydraulic Cache Eviction
-            if len(cls._NORM_CACHE) > 10000:
-                cls._NORM_CACHE.clear()
-
+            if len(cls._NORM_CACHE) > 10000: cls._NORM_CACHE.clear()
             cls._NORM_CACHE[text] = result
             return result
 
     def _build_normalized_map(self) -> Dict[str, List[ShardNode]]:
-        """
-        =============================================================================
-        == THE OMEGA MAP FORGE: TOTALITY (V-Ω-LAMINAR-DECOMPOSITION-SUTURE)        ==
-        =============================================================================
-        LIF: ∞ | ROLE: TOPOLOGICAL_DNA_INDEXER | RANK: OMEGA_SOVEREIGN
-        """
         cap_map = collections.defaultdict(list)
         DELIMITER_PATTERN = re.compile(r'[/\-_\.]')
 
         for shard in self.grimoire:
-            # --- MOVEMENT I: SUBSTRATE CACHING ---
             norm_subs = {self._normalize(sub) for sub in shard.substrate if isinstance(sub, str)}
             self._shard_subs_cache[shard.id] = norm_subs
 
-            # --- MOVEMENT II: THE RITE OF DECOMPOSITION ---
             raw_intent_sources = shard.provides + [shard.id]
 
             for raw_cap in raw_intent_sources:
                 if not raw_cap: continue
-
-                # 1. The Absolute Identity (Full String)
                 norm_full = self._normalize(raw_cap)
                 cap_map[norm_full].append(shard)
 
-                # 2. Laminar Stemming (Progressive Pathing)
                 segments = DELIMITER_PATTERN.split(raw_cap)
                 if len(segments) > 1:
                     for i in range(1, len(segments)):
@@ -234,7 +200,6 @@ class ProviderAdjudicator:
                         alt_stem = "-".join(segments[:i])
                         cap_map[self._normalize(alt_stem)].append(shard)
 
-                # 3. Atomic Particle Fission (Individual Atoms)
                 for atom in segments:
                     if len(atom) > 2:
                         norm_atom = self._normalize(atom)
@@ -243,168 +208,237 @@ class ProviderAdjudicator:
 
         return dict(cap_map)
 
+    # =========================================================================
+    # == STRATUM II: THE OMEGA PROVIDER ELECTION                             ==
+    # =========================================================================
+
     def elect_best_provider(
             self,
             requirement: str,
             active_substrates: Set[str],
             active_nodes: Optional[Dict[str, Any]] = None,
-            banned_capabilities: Optional[Set[str]] = None
+            banned_capabilities: Optional[Set[str]] = None,
+            query_dense: Optional[List[float]] = None,
+            query_sparse_tokens: Optional[List[str]] = None
     ) -> Optional[ShardNode]:
         """
         =================================================================================
-        == THE OMEGA PROVIDER ELECTION: TOTALITY (V-Ω-TOTALITY-VMAX-PAULI-SUTURE)      ==
+        == THE OMEGA PROVIDER ELECTION: TOTALITY (V-Ω-VMAX-AXIOMATIC-SUTURE)           ==
         =================================================================================
-        LIF: ∞^∞ | ROLE: OPTIMAL_SHARD_SELECTOR_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
-        AUTH_CODE: Ω_ELECTION_VMAX_PAULI_EXCLUSION_2026_FINALIS
+        LIF: ∞^∞^∞ | ROLE: OPTIMAL_SHARD_SELECTOR_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
 
         [THE MANIFESTO]
-        The supreme definitive authority for Shard Election. This version annihilates
-        the "Security Mirage" via the absolute induction of the `banned_capabilities`
-        matrix. It is the Savior of the Causal Graph.
+        This method perfectly bridges the Python Semantic Resolver with the Rust Core.
+        It forwards the Dense and Sparse vectors untouched, guaranteeing absolute
+        fidelity of intention.
         """
-        import time
-        import hashlib
-
         _start_ns = time.perf_counter_ns()
-        trace_id = getattr(self.engine, 'trace_id', 'tr-election-void')
+        trace_id = self.active_trace
 
-        # --- MOVEMENT 0: THE PURIFICATION RITE ---
-        if not requirement:
-            return None
+        if not requirement: return None
 
+        # --- MOVEMENT 0: TOPOLOGICAL PURIFICATION ---
         norm_req = self._normalize(requirement)
         norm_active_subs = {self._normalize(s) for s in active_substrates}
-
-        # [ASCENSION 33]: Banned Capabilities Normalization
         norm_bans = {self._normalize(b) for b in (banned_capabilities or set())}
 
-        # [ASCENSION 42]: Merkle Intent Fingerprinting (Cache Key)
+        # [ASCENSION 12]: Merkle Intent Cache Key
         sub_fingerprint = hashlib.md5("".join(sorted(list(norm_active_subs))).encode()).hexdigest()[:4]
         ban_fingerprint = hashlib.md5("".join(sorted(list(norm_bans))).encode()).hexdigest()[:4]
-        cache_key = f"{norm_req}:{sub_fingerprint}:{ban_fingerprint}"
+        cache_key = f"Ω_PROPHET:{norm_req}:{sub_fingerprint}:{ban_fingerprint}"
 
         with self._lock:
-            if cache_key in self._cache:
-                return self._cache[cache_key]
+            if cache_key in self._cache: return self._cache[cache_key]
 
-        # --- MOVEMENT I: THE CANDIDATE BIOPSY ---
-        candidates = self.capability_map.get(norm_req)
-        if not candidates:
-            # Fallback if primary map is void
-            return None
+        # --- MOVEMENT I: DNA & SYNERGY EXTRACTION ---
+        willed_shards = list(active_nodes.keys()) if active_nodes else []
 
-        # =========================================================================
-        # == MOVEMENT II:[ASCENSION 33] THE PAULI EXCLUSION SIEVE               ==
-        # =========================================================================
-        # We must mathematically vaporize any candidate whose identity OR capabilities
-        # intersect with the `banned_capabilities` matrix willed by the Architect
-        # or the superior nodes in the DAG.
-        viable_candidates = []
-        for candidate in candidates:
-            # 1. Identity Intersection
-            cand_norm_id = self._normalize(candidate.id)
-            if cand_norm_id in norm_bans:
-                self.logger.warn(f"[{trace_id}] Pauli Sieve: Vaporizing banned shard '{candidate.id}'")
-                continue
+        # 1. Determine Dominant Language DNA
+        lang_dist = collections.defaultdict(int)
+        has_sovereign_heart = False
+        for aid in willed_shards:
+            s_obj = next((s for s in self.grimoire if s.id == aid), None)
+            if s_obj:
+                for sub in s_obj.substrate:
+                    if sub != "agnostic": lang_dist[sub.lower()] += 1
 
-            # 2. Capability Intersection (Cross-Strata Repulsion)
-            cand_caps = {self._normalize(c) for c in candidate.provides}
-            if not cand_caps.isdisjoint(norm_bans):
-                overlap = cand_caps.intersection(norm_bans)
-                self.logger.warn(
-                    f"[{trace_id}] Pauli Sieve: Vaporizing '{candidate.id}' due to forbidden capability overlap: {overlap}")
-                continue
+                # HEART DETECTION (Pauli V3)
+                role = str(getattr(s_obj.suture, 'role', 'file')).lower()
+                if any(h in role for h in ("heart", "base-api", "citadel", "gateway")):
+                    has_sovereign_heart = True
 
-            viable_candidates.append(candidate)
+        dominant_lang = max(lang_dist, key=lang_dist.get) if lang_dist else None
 
-        if not viable_candidates:
-            self.logger.debug(f"[{trace_id}] All providers for '{requirement}' were vaporized by the Pauli Sieve.")
-            return None
-
-        # --- MOVEMENT III: ADRENALINE SHORT-CIRCUIT ---
-        if len(viable_candidates) == 1:
-            winner = viable_candidates[0]
-            winner.match_reason = f"Sovereign Election: Sole Provider for '{requirement}'"
-            with self._lock:
-                self._cache[cache_key] = winner
-            return winner
-
-        # --- MOVEMENT IV: THE QUANTUM COHESION CALCULATION ---
+        # 2. Project Centroid Preparation (Neural)
         project_centroid = None
         if active_nodes:
             active_vectors = [n.semantic_vector for n in active_nodes.values() if
                               hasattr(n, 'semantic_vector') and n.semantic_vector]
             if active_vectors:
-                # Mean-Pooling the active Gnosis
-                num_v = len(active_vectors)
-                dim_v = len(active_vectors[0])
-                project_centroid = [sum(v[i] for v in active_vectors) / num_v for i in range(dim_v)]
+                dim = len(active_vectors[0])
+                project_centroid = [sum(v[i] for v in active_vectors) / len(active_vectors) for i in range(dim)]
 
-        # --- MOVEMENT V: THE CALCULUS OF RESONANCE (SCORING) ---
+        # =========================================================================
+        # == MOVEMENT II: [STRIKE] - THE IRON ORACLE (RUST ZENITH PATH)          ==
+        # =========================================================================
+        if self._rust_oracle:
+            try:
+                # The Python Cortex successfully passes the Dense AND Sparse matrices down into the Iron
+                winner_id = self._rust_oracle.elect_best_provider(
+                    requirement,
+                    list(active_substrates),
+                    list(banned_capabilities or set()),
+                    project_centroid,
+                    willed_shards,
+                    query_dense,
+                    query_sparse_tokens.copy() if query_sparse_tokens else []
+                )
+                if winner_id:
+                    winner = next((s for s in self.grimoire if s.id == winner_id), None)
+                    if winner:
+                        return self._finalize_and_cache(winner, requirement, cache_key, _start_ns, trace_id,
+                                                        "Quantum Oracle")
+            except Exception as rust_fracture:
+                self.logger.debug(f"Iron Oracle fractured: {rust_fracture}. Devolving to Python Matrix.")
+
+        # =========================================================================
+        # == MOVEMENT III: THE PYTHON PROPHET (AXIOMATIC REINFORCED)             ==
+        # =========================================================================
+        # This fallback mirrors the exact math of the Rust Adjudicator, guaranteeing
+        # safety if running in WASM or if the native extension fails.
+
+        candidates = self.capability_map.get(norm_req)
+        if not candidates: return None
+
+        # 1.[ASCENSION 1]: THE PAULI EXCLUSION SIEVE (Axiomatic Aware)
+        viable_candidates = []
+        for cand in candidates:
+            # =====================================================================
+            # == AXIOMATIC SOVEREIGN IMMUNITY (RESTORES 104-SHARD DENSITY)       ==
+            # =====================================================================
+            # Testing, Security, and CI are Bedrock Axioms. They bypass all competitive pruning.
+            is_axiomatic = any(cand.id.startswith(p) for p in
+                               ("tests/", "test-utils/", "scripts/security/", "ci/", ".github/", ".scaffold/"))
+
+            if not is_axiomatic:
+                # Pauli V3: Prevent Heart-Tier collisions (Chimera State)
+                role = str(getattr(cand.suture, 'role', 'file')).lower()
+                if has_sovereign_heart and any(h in role for h in ("heart", "base-api", "citadel")):
+                    continue
+
+                # Standard Competitive Excommunication
+                cand_norm_id = self._normalize(cand.id)
+                if cand_norm_id in norm_bans: continue
+
+                cand_caps = {self._normalize(c) for c in cand.provides}
+                if not cand_caps.isdisjoint(norm_bans): continue
+
+            viable_candidates.append(cand)
+
+        if not viable_candidates: return None
+        if len(viable_candidates) == 1:
+            return self._finalize_and_cache(viable_candidates[0], requirement, cache_key, _start_ns, trace_id,
+                                            "Sole Provider")
+
+        # 2. [ASCENSION 4-7]: THE CALCULUS OF SUPREME ARCHITECTURE
         def rank_score(s: ShardNode) -> Tuple[Any, ...]:
-            """The Calculus of Resonance."""
-            # 1. Geometric Gravity (Substrate Match)
             s_subs = self._shard_subs_cache.get(s.id,
                                                 {self._normalize(sub) for sub in s.substrate if isinstance(sub, str)})
-            dna_gravity = 0
+
+            # A. Geometric Substrate Resonance
+            sub_gravity = 0
             if "agnostic" in s_subs or not norm_active_subs or not s_subs.isdisjoint(norm_active_subs):
-                dna_gravity = 3
+                sub_gravity = 5000.0
             elif not s_subs.isdisjoint(self.UNIVERSAL_ENVELOPES):
-                dna_gravity = 2
-            elif not s_subs.isdisjoint(self.OCULAR_ENVELOPES):
-                dna_gravity = 1
+                sub_gravity = 2500.0
 
-            # 2. Harmonic Tier Decay
-            tier_val = self.TIER_GRAVITY.get(s.tier.lower(), 0.0)
+            # Language Bias Enforcement
+            if dominant_lang and dominant_lang not in s_subs and "agnostic" not in s_subs:
+                sub_gravity -= 2000.0
 
-            # 3. Quantum Cohesion (Vibe Match)
-            cohesion_score = 0.0
+            # B. [ASCENSION 2]: ZENITH AXIOM BOOST (+50,000.0 Magnitude)
+            # This mathematically ensures that Tests and Security outrank random utils
+            axiom_boost = 50000.0 if any(s.id.startswith(p) for p in
+                                         ("tests/", "test-utils/", "scripts/security/", "ci/", ".github/",
+                                          ".scaffold/")) else 0.0
+
+            # C. Synaptic Synergy [ASCENSION 5]
+            synergy_multiplier = 1.0
+            for aid in willed_shards:
+                if aid in TECH_SYNERGY and s.id in TECH_SYNERGY[aid]:
+                    synergy_multiplier += 2.0
+
+            # D.[ASCENSION 7]: Matter Density (Form weight)
+            # Higher provided atom count = higher density = better shard.
+            density_factor = (len(s.provides) + 1) * 10.0
+
+            # E. Neural Cohesion (SIMD Dot Product Equivalent for Python)
+            cohesion = 0.0
             if project_centroid and hasattr(s, 'semantic_vector') and s.semantic_vector:
-                dot = sum(a * b for a, b in zip(project_centroid, s.semantic_vector))
-                cohesion_score = dot  # Ranges -1 to 1
+                cohesion = sum(a * b for a, b in zip(project_centroid, s.semantic_vector))
 
-            # 4. Recursive Dependency Sieve (Elegance)
-            elegance = 100 - len(s.requires)
+            # F. Topological Prophecy (Lookahead Equivalent)
+            prophecy_boost = getattr(s, 'potential_unlocks', 0) * 35.0
 
-            # 5. Temporal Law (Version)
+            # G. Sparse Keyword Intersection (If Query Tokens available)
+            sparse_score = 0.0
+            if query_sparse_tokens:
+                query_set = set(query_sparse_tokens)
+                shard_set = set(s.provides)
+                intersection = len(query_set.intersection(shard_set))
+                sparse_score = intersection * 25.0
+
+            # [STRIKE]: Final Magnitude Fusion
+            magnitude = (
+                    (sub_gravity * synergy_multiplier) +
+                    axiom_boost +
+                    (REALM_GRAVITY.get(s.tier.lower(), 0.0) * 200.0) +
+                    (getattr(s, 'resonance_score', 0.0) * 100.0) +
+                    (cohesion * 50.0) +
+                    sparse_score +
+                    prophecy_boost +
+                    density_factor +
+                    (200.0 - len(s.requires))
+            )
+
             try:
                 version_tuple = tuple(int(p) if p.isdigit() else 0 for p in s.version.split('.'))
-            except Exception:
+            except:
                 version_tuple = (1, 0, 0)
 
-            resonance = s.resonance_score or 0.0
+            return (magnitude, version_tuple)
 
-            return (dna_gravity, tier_val, resonance, cohesion_score, elegance, version_tuple)
-
-        # --- MOVEMENT VI: THE FINAL ELECTION ---
+        # 3. THE FINAL ELECTION
         sorted_candidates = sorted(viable_candidates, key=rank_score, reverse=True)
         winner = sorted_candidates[0]
 
-        # Check for Domain Sovereign Status
+        return self._finalize_and_cache(winner, requirement, cache_key, _start_ns, trace_id, "Python Prophet")
+
+    def _finalize_and_cache(self, winner: ShardNode, requirement: str, cache_key: str,
+                            start_ns: int, trace_id: str, logic_path: str) -> ShardNode:
+        """[THE FINALITY SUTURE]"""
         shard_role = str(getattr(winner.suture, 'role', 'file')).lower()
-        if "heart" in shard_role or "base-api" in shard_role or "ocular-membrane" in shard_role:
-            domain_id = "UI" if "ocular" in shard_role else "API"
-            winner.match_reason = f"Domain Sovereign [{domain_id}] Elected: {winner.id}"
+        if any(h in shard_role for h in ("heart", "base-api", "citadel")):
+            winner.match_reason = f"Zenith Sovereign Elected: {winner.id}"
         else:
-            winner.match_reason = f"Resonance Match: {winner.resonance_score:.2f} (Cohesion: {winner.resonance_score + 0.05:.2f})"
+            winner.match_reason = f"Synaptic Resonance Match (Via {logic_path})"
 
-        # --- MOVEMENT VII: METABOLIC FINALITY & HUD SYNC ---
-        self._radiate_election_pulse(winner, requirement)
+        # Radiate Pulse to HUD
+        if not self.is_silent:
+            self._radiate_election_pulse(winner, requirement)
 
-        _tax_ms = (time.perf_counter_ns() - _start_ns) / 1_000_000
-        if _tax_ms > 5.0:
-            self.logger.verbose(f"L? High-Mass Election concluded in {_tax_ms:.2f}ms for '{requirement}'")
+        _tax_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
+        if _tax_ms > 5.0 and not self.is_silent:
+            self.logger.verbose(f"L? Zenith Election for '{requirement}' concluded in {_tax_ms:.2f}ms.")
 
-        # [ASCENSION 56]: THE FINALITY VOW
+        # Update Cache
         with self._lock:
-            if len(self._cache) > 5000:
-                self._cache.clear()
+            if len(self._cache) > 5000: self._cache.clear()
             self._cache[cache_key] = winner
 
         return winner
 
     def _compute_state_hash(self) -> str:
-        """Forges the Merkle Root of the active election matrix."""
         hasher = hashlib.sha256()
         for cap in sorted(self.capability_map.keys()):
             hasher.update(cap.encode('utf-8'))
@@ -414,15 +448,14 @@ class ProviderAdjudicator:
     def _radiate_election_pulse(self, winner: ShardNode, requirement: str):
         if self.engine and hasattr(self.engine, 'akashic') and self.engine.akashic:
             try:
-                trace_id = getattr(self.engine.context, 'session_id', 'tr-unbound')
                 self.engine.akashic.broadcast({
                     "method": "novalym/hud_pulse",
                     "params": {
                         "type": "SHARD_ELECTED",
                         "label": f"RESONANCE_STRIKE: {requirement}",
-                        "message": f"Candidate [cyan]{winner.id}[/] won election with {winner.resonance_score:.2f} confidence.",
+                        "message": f"Candidate [cyan]{winner.id}[/] won election.",
                         "color": "#64ffda",
-                        "trace": trace_id,
+                        "trace": self.active_trace,
                         "timestamp": time.time()
                     }
                 })
@@ -430,5 +463,5 @@ class ProviderAdjudicator:
                 pass
 
     def __repr__(self) -> str:
-        status = "RESONANT" if self.capability_map else "VOID"
-        return f"<Ω_HEURISTIC_ADJUDICATOR status={status} matrix_hash={self._state_hash[:12]} grimoire_mass={len(self.grimoire)}>"
+        engine_mode = "QUANTUM_IRON" if self._rust_oracle else "PYTHON_MATRIX"
+        return f"<Ω_HEURISTIC_ADJUDICATOR status=RESONANT mode={engine_mode} mass={len(self.grimoire)}>"

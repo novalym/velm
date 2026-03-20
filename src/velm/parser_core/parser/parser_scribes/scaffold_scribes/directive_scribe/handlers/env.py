@@ -1,5 +1,3 @@
-# Path: src/velm/parser_core/parser/parser_scribes/scaffold_scribes/directive_scribe/handlers/env.py
-# ----------------------------------------------------------------------------------------------------------
 import re
 import os
 import sys
@@ -234,11 +232,12 @@ class EnvHandler(BaseDirectiveHandler):
             original_indent=vessel.original_indent
         )
         self.parser.raw_items.append(item)
-        return vessel.line_num - self.parser.line_offset + 1
+
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset
 
     def _conduct_kill_port(self, vessel: GnosticVessel) -> int:
-        """
-        [THE RITE OF THE CLEAR PATH]
+        """[THE RITE OF THE CLEAR PATH]
         Syntax: @kill_port 8000
         Injects a kinetic edict to free the port before execution proceeds.
         """
@@ -278,11 +277,12 @@ class EnvHandler(BaseDirectiveHandler):
             ))
 
         self.parser.post_run_commands.append((cmd, vessel.line_num, None, None))
-        return vessel.line_num - self.parser.line_offset + 1
+
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset
 
     def _conduct_pre_flight(self, vessel: GnosticVessel) -> int:
-        """
-        [THE RITE OF IMMEDIATE ACTION]
+        """[THE RITE OF IMMEDIATE ACTION]
         Syntax: @pre_flight echo "Starting..."
         Executes a command *during* the parsing phase. Dangerous but powerful.
         """
@@ -301,7 +301,8 @@ class EnvHandler(BaseDirectiveHandler):
             self.Logger.warn(f"Pre-Flight Fracture: {e.stderr.strip()}")
             # We do not crash the parser for a pre-flight failure, just warn.
 
-        return vessel.line_num - self.parser.line_offset + 1
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset
 
     def _conduct_virtual_marker(self, vessel: GnosticVessel) -> int:
         """
@@ -314,7 +315,9 @@ class EnvHandler(BaseDirectiveHandler):
         # and tag the next forged item.
         self.parser._next_item_virtual = True
         self.Logger.verbose(f"L{vessel.line_num}: Virtual Marker set. Next item will be Ethereal.")
-        return vessel.line_num - self.parser.line_offset + 1
+
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset
 
     def _conduct_api_definition(self, vessel: GnosticVessel) -> int:
         """
@@ -336,7 +339,8 @@ class EnvHandler(BaseDirectiveHandler):
             if token_key in os.environ:
                 self.parser.variables[f"api_{name}_token"] = os.environ[token_key]
 
-        return vessel.line_num - self.parser.line_offset + 1
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset
 
     def _conduct_cron_registration(self, vessel: GnosticVessel) -> int:
         """
@@ -360,7 +364,8 @@ class EnvHandler(BaseDirectiveHandler):
             })
             self.Logger.verbose(f"L{vessel.line_num}: Cron job registered: {schedule} -> {command}")
 
-        return vessel.line_num - self.parser.line_offset + 1
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset
 
     def _conduct_watch_registration(self, vessel: GnosticVessel) -> int:
         """
@@ -381,7 +386,8 @@ class EnvHandler(BaseDirectiveHandler):
             })
             self.Logger.verbose(f"L{vessel.line_num}: Watcher set: {pattern}")
 
-        return vessel.line_num - self.parser.line_offset + 1
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset
 
     def _conduct_database_inception(self, vessel: GnosticVessel) -> int:
         """
@@ -451,7 +457,8 @@ class EnvHandler(BaseDirectiveHandler):
         # [ASCENSION 8]: We mathematically forbid "Metabolic Gluttony".
         if self.parser.variables.get("__primary_db_manifested__"):
             self.Logger.warn(f"L{line_num}: Secondary DB decree '{dna['engine']}' stayed to prevent Gluttony.")
-            return vessel.line_num - self.parser.line_offset + 1
+            # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+            return vessel.line_num - self.parser.line_offset
 
         # =========================================================================
         # == MOVEMENT III: THE KINETIC SUTURE (THE QUATERNITY STRIKE)            ==
@@ -527,7 +534,7 @@ class EnvHandler(BaseDirectiveHandler):
                     "params": {
                         "type": "INFRA_STRIKE_INITIATED",
                         "label": f"INCEPTION: {dna['engine'].upper()}",
-                        "message": f"Materializing {dna['size']} in {dna['region']} [Budget: ${budget_guard}]",
+                        "message": f"Materializing {dna['size']} in {dna['region']}[Budget: ${budget_guard}]",
                         "color": "#f59e0b",  # Gold/Amber Aura
                         "trace": trace_id
                     }
@@ -542,6 +549,5 @@ class EnvHandler(BaseDirectiveHandler):
             f"[Iron:{dna['engine'].upper()}] willed into {dna['provider'].upper()} ({_tax_ms:.2f}ms)."
         )
 
-        # [ASCENSION 24]: THE FINALITY VOW
-        # Returning control to the conductor, loop is advanced.
-        return vessel.line_num - self.parser.line_offset + 1
+        # [THE MASTER CURE]: Aligns pointer flawlessly to prevent skipping subsequent lines.
+        return vessel.line_num - self.parser.line_offset

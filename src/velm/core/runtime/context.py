@@ -1,9 +1,9 @@
-# Path: velm/core/runtime/context.py
-# -------------------------------------
+# Path: core/runtime/context.py
+# -----------------------------
 # LIF: INFINITY | AUTH_CODE: Ω_CONTEXT_TOTALITY_V2026_FINALIS
 # SYSTEM: SCAFFOLD_RUNTIME | ROLE: REALITY_ANCHOR_PRIME
 # =================================================================================
-# [THE PANTHEON OF 24 LEGENDARY ASCENSIONS - THE APOTHEOSIS]:
+#[THE PANTHEON OF 25 LEGENDARY ASCENSIONS - THE APOTHEOSIS]:
 # 1.  ATOMIC SLOT ALLOCATION: Annihilates __dict__ overhead via __slots__.
 # 2.  BICAMERAL GNOSIS SUTURE: Materializes the 'variables' Altar as a Sovereign Matrix.
 # 3.  DOUBLE-CHECKED JIT LOCKING: Contention-free reality resolution.
@@ -27,7 +27,8 @@
 # 21. HAPTIC HUD MULTICAST: Radiates state shifts to the React Stage at 144Hz.
 # 22. ENTROPY SIEVE REDACTION: Automatically masks secrets in telemetry logs.
 # 23. FAULT-ISOLATED SNAPSHOT: Can capture and restore the Mind-State transactionally.
-# 24. THE FINALITY VOW: Mathematical guarantee of an unbreakable reality anchor.
+# 24. SPATIOTEMPORAL ANCHOR SUTURE (THE MASTER CURE): Enables dynamic re-anchoring of the engine.
+# 25. THE FINALITY VOW: Mathematical guarantee of an unbreakable reality anchor.
 # =================================================================================
 
 import os
@@ -87,7 +88,7 @@ class RuntimeContext:
         self._variables = GnosticSovereignDict()
 
         # --- STRATUM 2: THE SOUL (IDENTITY) ---
-        # [ASCENSION 10]: Keeping the underscore session_id as willed.
+        #[ASCENSION 10]: Keeping the underscore session_id as willed.
         self._session_id = secrets.token_hex(6).upper()
         self._trace_id = trace_id or f"tr-{uuid.uuid4().hex[:8].upper()}"
 
@@ -100,7 +101,7 @@ class RuntimeContext:
         self._logger = None
         self._machine_id = None
 
-        # [ASCENSION 4]: ACHRONAL DNA INHALATION
+        #[ASCENSION 4]: ACHRONAL DNA INHALATION
         self._inhale_substrate_dna()
 
     # =========================================================================
@@ -126,6 +127,46 @@ class RuntimeContext:
         if not (self._state_mask & 1):
             self._resolve_reality()
         return self._project_root
+
+    @project_root.setter
+    def project_root(self, new_root: Union[str, Path]):
+        """
+        =========================================================================
+        == [ASCENSION 24]: SPATIOTEMPORAL ANCHOR SUTURE (THE MASTER CURE)      ==
+        =========================================================================
+        Mathematically annihilates the `AttributeError: property 'project_root' of
+        'RuntimeContext' object has no setter` heresy.
+
+        When the God-Engine is re-anchored to a new coordinate (e.g. by the
+        RunConductor or the ContextLevitator), we must instantly invalidate the
+        current spatial cache and force a re-resolution of reality to ensure
+        the workspace, substrate, and merkle seal reflect the new dimension.
+        """
+        with self._lock:
+            target_root = Path(new_root) if isinstance(new_root, str) else new_root
+
+            # Avoid redundant re-resolutions if the anchor hasn't shifted
+            if self._project_root and self._project_root.resolve() == target_root.resolve():
+                return
+
+            # Update the physical anchors
+            self._explicit_root = target_root
+            self._project_root = None  # Force re-resolution
+            self._workspace_root = None
+
+            # Drop the spatial bits from the state mask (0=Cold for paths)
+            # We keep bit 8 (Gnosis_Warmed) intact so we don't wipe variables.
+            self._state_mask &= ~7
+
+            # Trigger immediate reality re-alignment
+            self._resolve_reality()
+
+            # Update the geometric variables in the Mind-State
+            if (self._state_mask & 8):
+                self._variables["project_root"] = str(self._project_root).replace('\\', '/')
+                if self._workspace_root:
+                    self._variables["workspace_root"] = str(self._workspace_root).replace('\\', '/')
+
 
     @property
     def workspace_root(self) -> Optional[Path]:
@@ -178,7 +219,7 @@ class RuntimeContext:
 
             # 2. ANCHOR THE PROJECT ROOT
             if self._explicit_root:
-                # [ASCENSION 12]: Phantom Path Virtualization
+                #[ASCENSION 12]: Phantom Path Virtualization
                 if str(self._explicit_root).startswith("virtual://"):
                     self._project_root = self._explicit_root
                     self._state_mask |= 4  # Mark as Virtual Reality
@@ -186,26 +227,26 @@ class RuntimeContext:
                     # [ASCENSION 5]: UNC/Long-Path normalizer
                     self._project_root = self._explicit_root.resolve()
             else:
-                # [ASCENSION 11]: Gnostic Marker Priority Search
+                #[ASCENSION 11]: Gnostic Marker Priority Search
                 cwd = Path.cwd()
                 self._project_root = (
-                        self._fast_scan_upwards(cwd, ["scaffold.scaffold", "scaffold.arch", ".scaffold"]) or
-                        self._fast_scan_upwards(cwd, ["pyproject.toml", "package.json", "go.mod", "Cargo.toml"]) or
+                        self._fast_scan_upwards(cwd,["scaffold.scaffold", "scaffold.arch", ".scaffold"]) or
+                        self._fast_scan_upwards(cwd,["pyproject.toml", "package.json", "go.mod", "Cargo.toml"]) or
                         cwd
                 )
 
             self._state_mask |= 1
 
             # 3. PERCEIVE THE WORKSPACE (THE COSMOS)
-            ws_indicators = ["pnpm-workspace.yaml", "scaffold.workspace", "nx.json", ".git"]
+            ws_indicators =["pnpm-workspace.yaml", "scaffold.workspace", "nx.json", ".git"]
             self._workspace_root = self._fast_scan_upwards(self._project_root.parent, ws_indicators)
             self._state_mask |= 2
 
             # 4. SEAL THE REALITY (MERKLE)
             self._seal_reality()
 
-            # 5. [ASCENSION 13]: METABOLIC PROCLAMATION
-            if not self._is_adrenaline:
+            # 5.[ASCENSION 13]: METABOLIC PROCLAMATION
+            if not self._is_adrenaline and getattr(self, 'logger', None):
                 latency = (time.perf_counter() - start_t) * 1000
                 self.logger.success(f"Reality Resonant in {latency:.2f}ms. Seal: [bold cyan]{self._merkle_seal}[/]")
 
@@ -214,8 +255,9 @@ class RuntimeContext:
         try:
             current = start_dir.resolve()
         except OSError as e:
-            # [ASCENSION 20]: Socratic Error Enrichment
-            self.logger.warn(f"Geometric Fracture at {start_dir}: {e}")
+            #[ASCENSION 20]: Socratic Error Enrichment
+            if getattr(self, 'logger', None):
+                self.logger.warn(f"Geometric Fracture at {start_dir}: {e}")
             return None
 
         for depth in range(12):
@@ -310,7 +352,8 @@ class RuntimeContext:
     def shadow_clone(self, virtual_root: str) -> 'RuntimeContext':
         """[ASCENSION 12]: GHOST ROOT VIRTUALIZATION."""
         clone = RuntimeContext(project_root=f"virtual://{virtual_root}", trace_id=self._trace_id)
-        self.logger.info(f"Reality Fission: Shadow Clone waked at [magenta]{virtual_root}[/]")
+        if getattr(self, 'logger', None):
+            self.logger.info(f"Reality Fission: Shadow Clone waked at[magenta]{virtual_root}[/]")
         return clone
 
     @property
@@ -338,5 +381,5 @@ class RuntimeContext:
         return f"<Ω_CONTEXT id={self._session_id} seal={self._merkle_seal} plane={self._substrate} state={status}>"
 
     def __bool__(self) -> bool:
-        """[ASCENSION 24]: THE FINALITY VOW."""
+        """[ASCENSION 25]: THE FINALITY VOW."""
         return self.project_root is not None and self._merkle_seal != "0xVOID"

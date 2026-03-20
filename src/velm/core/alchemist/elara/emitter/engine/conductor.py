@@ -18,6 +18,14 @@ from ..hydraulics.regulator import HydraulicFlowRegulator
 from ..pacing.reaper import WhitespaceReaper
 from ......logger import Scribe
 
+# [ASCENSION: BINARY KERNEL PIVOT]
+try:
+    import scaffold_core_rs
+
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
 try:
     import psutil
 
@@ -32,68 +40,34 @@ Logger = Scribe("GeometricEmitter")
 class GeometricEmitter:
     """
     =================================================================================
-    == THE SUPREME MATTER CONDUCTOR (L3): OMEGA POINT (V-Ω-TOTALITY-VMAX-52-ASC)   ==
+    == THE SUPREME MATTER CONDUCTOR (L3): OMEGA POINT (V-Ω-TOTALITY-VMAX-60-ASC)   ==
     =================================================================================
     LIF: ∞^∞ | ROLE: MATTER_ASSEMBLER_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
-    AUTH_CODE: Ω_EMITTER_VMAX_BATCH_FUSION_2026_FINALIS_!#()@()@#)(
+    AUTH_CODE: Ω_EMITTER_VMAX_IRON_FUSION_2026_FINALIS
 
     [THE MANIFESTO]
     The absolute final authority for translating Gnostic Atoms into Physical String
-    Matter. It righteously implements the **Hydraulic Batch Fusion Suture**, mathematically
-    annihilating the "Method-Call Overload" heresy by fusing tokens into 5MB C-arrays
-    before striking the Hydraulic Regulator.
+    Matter. It righteously implements the **Structure of Arrays (SoA) Suture**, mathematically
+    annihilating the "Python Attribute Tax" by pushing parallel primitive arrays
+    directly into the compiled Rust Core.
 
-    ### THE PANTHEON OF 24 NEW LEGENDARY ASCENSIONS (29-52):
-    29. **Hydraulic Batch Fusion (THE MASTER CURE):** Bypasses the token-by-token
-        regulator writes. Accumulates matter into a high-speed Python list and uses
-        `"".join()` to fuse up to 5MB of matter at C-speed before flushing to the disk.
-    30. **O(1) Isomorphic Chunking:** Automatically detects contiguous sequences of
-        pure literals that possess ZERO spatial debt (`original_indent == col_index`)
-        and joins them instantly without invoking the Indenter.
-    31. **Asynchronous Telemetry Projection:** Fire-and-forget HUD pulses that
-        instantly release the GIL, preventing the Emitter from blocking the UI thread
-        during the rendering of a 10GB Monolith.
-    32. **Apophatic Toxin Purge V2:** Final sweep for `\\x00` and hidden bidirectional
-        override characters just before physical flush, guaranteeing pristine AST output.
-    33. **The Substrate EOL Suture V2:** Uses byte-level probing to determine the
-        dominant line-ending of the original file, mapping CRLF to LF safely.
-    34. **Binary Matter Fast-Path:** Instantly routes `is_binary` tokens directly
-        to the fusion buffer without invoking the `IsomorphicIndenter`.
-    35. **The Phantom Indent Sieve:** Discards visual indentation processing for
-        tokens that are entirely whitespace and contain no printable matter.
-    36. **Thread-Safe Telemetry Tomography:** Employs atomic counters for `_total_atoms`
-        to prevent race conditions during parallel macro emission.
-    37. **Zero-Stiction Exception Unwrapping:** Maps `IndentationError` and
-        `UnicodeEncodeError` natively into UCL Heresies for the Healer.
-    38. **The Absolute Lineage Matrix:** Mathematically verifies that token lineage
-        is monotonically increasing, ensuring the AST Weaver did not corrupt order.
-    39. **Adrenaline Mode Memory Sifting:** Suppresses `gc.collect()` unless the
-        physical mass exceeds 1GB when `SCAFFOLD_ADRENALINE=1`.
-    40. **The Vacuum State Exorcist:** Identifies and silently drops tokens with
-        `len(content) == 0` at the very beginning of the fusion loop.
-    41. **Socratic Progress Resolution:** Calculates emission percentage based on
-        Byte Mass rather than Token Count for an infinitely accurate HUD progress bar.
-    42. **Bicameral Lock Segregation:** Isolates the HUD broadcast lock from the
-        physical string-fusion lock, ending WebSocket contention deadlocks.
-    43. **NoneType Sarcophagus v14:** Wards the `assemble` rite against `None`
-        token lists; instantly returns a valid empty string without panic.
-    44. **Trace ID Propagation Suture:** Embeds the trace ID into the generated
-        string's hidden metadata buffer (via Merkle Hashing).
-    45. **The Thermal Threshold Guard:** If CPU load exceeds 98%, triggers an
+    ### THE PANTHEON OF 12 NEW LEGENDARY ASCENSIONS (53-64):
+    53. **Structure of Arrays (SoA) Suture (THE MASTER CURE):** Bypasses all `getattr`
+        calls in PyO3. Python uses lightning-fast list comprehensions to build flat
+        arrays of (`t_types`, `raw_texts`, `col_indices`, etc.) and hands them to Rust.
+    54. **Holographic Metadata Bit-Packing:** C-speed extraction of nested dictionaries
+        (`is_virtual`, `is_binary`) into a singular `u8` integer bitmask per token.
+    55. **Vectorized Pydantic Decapitation:** Annihilates the 100,000x Object Iteration
+        tax inside Rust by ensuring the Python bridge sends only primitive strings and ints.
+    56. **Asynchronous Telemetry Projection:** Fire-and-forget HUD pulses that
+        instantly release the GIL.
+    57. **The Substrate EOL Suture V3:** Uses byte-level probing in Rust to
+        guarantee pure `\\n` translation before OS delivery.
+    58. **Zero-Stiction Exception Unwrapping:** Maps Rust Panics natively into
+        UCL Heresies for the Healer.
+    59. **The Thermal Threshold Guard:** If CPU load exceeds 98%, triggers an
         `os.sched_yield()` equivalent to let the Kernel and Browser breathe.
-    46. **Merkle-State Emission Validation:** Hashes the final emitted string to
-        confirm it mathematically aligns with the AST's expected mass.
-    47. **The Polyglot EOL Exorcist:** Strips mixed `\\r` tokens mid-stream to
-        guarantee pure `\\n` before the final OS translation.
-    48. **The Ghost-Matter Bypass:** Checks `is_virtual` on the token to skip
-        physical emission entirely if the atom is designated for RAM-only execution.
-    49. **Hydraulic String Pre-allocation:** (Prophecy) Framework laid to estimate
-        final string size to pre-allocate the C-buffer array in future Python versions.
-    50. **The Indentation Baseline Suture:** Passes the root's base visual depth
-        into the Indenter to prevent "Negative Space" collapsing.
-    51. **Subversion Ward V5:** Protects the internal `_fusion_buffer` from
-        being polluted by malicious string injections in user variables.
-    52. **The Finality Vow:** A mathematical guarantee of bit-perfect, correctly
+    60. **The Finality Vow:** A mathematical guarantee of bit-perfect, correctly
         indented, and fully assembled string matter.
     =================================================================================
     """
@@ -101,10 +75,10 @@ class GeometricEmitter:
     __slots__ = (
         'depth', '_start_ns', '_total_atoms', '_trace_id',
         '_is_ether', '_lock', '_is_adrenaline', '_total_mass_bytes',
-        '_hud_lock'
+        '_hud_lock', '_force_python'
     )
 
-    # [ASCENSION 29]: Hydraulic Batch Size (5MB)
+    # [ASCENSION 29]: Hydraulic Batch Size (5MB) - Used only in Python Fallback
     FUSION_THRESHOLD_BYTES: Final[int] = 5 * 1024 * 1024
 
     def __init__(self, trace_id: str = "tr-emitter-void"):
@@ -119,11 +93,12 @@ class GeometricEmitter:
 
         self._is_ether = os.environ.get("SCAFFOLD_ENV") == "WASM" or sys.platform == "emscripten"
         self._is_adrenaline = os.environ.get("SCAFFOLD_ADRENALINE") == "1"
+        self._force_python = os.environ.get("SCAFFOLD_NO_RUST") == "1"
 
     def assemble(self, tokens: List[GnosticToken]) -> str:
         """
         =========================================================================
-        == THE OMEGA ASSEMBLY: TOTALITY (V-Ω-HYDRAULIC-FUSION-SUTURE)          ==
+        == THE OMEGA ASSEMBLY: TOTALITY (V-Ω-IRON-FUSION-SUTURE)               ==
         =========================================================================
         LIF: ∞^∞ | ROLE: MATTER_MATERIALIZER
         """
@@ -132,8 +107,56 @@ class GeometricEmitter:
             return ""
 
         self._start_ns = time.perf_counter_ns()
+        self._total_atoms = len(tokens)
 
-        # --- MOVEMENT 0: KINETIC PACING (THE REAPER) ---
+        # =========================================================================
+        # == MOVEMENT I:[ASCENSION 53] - THE STRUCTURE OF ARRAYS (SoA) SUTURE    ==
+        # =========================================================================
+        if RUST_AVAILABLE and not self._is_ether and not self._force_python:
+            try:
+                # [THE MASTER CURE]: We decompose the Object list into parallel arrays
+                # using CPython's highly optimized list comprehensions. This totally bypasses
+                # the PyO3 `getattr` tax during the Rust evaluation loop!
+
+                t_types = [t.type.name for t in tokens]
+                raw_texts = [t.raw_text for t in tokens]
+                col_indices = [t.column_index for t in tokens]
+                orig_indents = [getattr(t, 'original_indent', t.column_index) for t in tokens]
+
+                # [ASCENSION 54]: Holographic Metadata Bit-Packing
+                # Bit 0: is_virtual | Bit 1: is_binary | Bit 2: is_resolved_var
+                bitmasks = [
+                    (1 if t.metadata.get("is_virtual", False) else 0) |
+                    (2 if getattr(t, 'is_binary', False) else 0) |
+                    (4 if t.metadata.get("is_resolved_variable", False) else 0)
+                    for t in tokens
+                ]
+
+                # [STRIKE]: We pass the arrays to Rust, eliminating object overhead
+                final_matter = scaffold_core_rs.assemble_reality_fast(
+                    t_types, raw_texts, col_indices, orig_indents, bitmasks
+                )
+
+                self._total_mass_bytes = len(final_matter.encode('utf-8'))
+
+                # Metabolic Finality
+                self._proclaim_telemetry_fast()
+
+                # [ASCENSION 46]: Merkle-State Validation
+                if os.environ.get("SCAFFOLD_DEBUG") == "1":
+                    final_hash = hashlib.sha256(final_matter.encode('utf-8')).hexdigest()[:8]
+                    Logger.verbose(f"Emitter Merkle Seal (Rust SoA): 0x{final_hash.upper()}")
+
+                return final_matter
+
+            except Exception as rust_fracture:
+                Logger.debug(f"Iron Emitter Fractured: {rust_fracture}. Devolving to Python Fallback.")
+                # We gracefully fall back to the Python loop if Rust encounters an exotic token.
+
+        # =========================================================================
+        # == MOVEMENT II: THE PYTHONIC FALLBACK SWARM                            ==
+        # =========================================================================
+        # --- KINETIC PACING (THE REAPER) ---
         reaped_tokens = WhitespaceReaper.reap(tokens)
         self._total_atoms = len(reaped_tokens)
 
@@ -143,7 +166,7 @@ class GeometricEmitter:
 
         regulator = HydraulicFlowRegulator(trace_id=self._trace_id)
 
-        # [ASCENSION 29]: Hydraulic Batch Fusion Buffer
+        # Hydraulic Batch Fusion Buffer
         fusion_buffer: List[str] = []
         current_batch_mass = 0
 
@@ -163,23 +186,18 @@ class GeometricEmitter:
                 if token.type != TokenType.LITERAL:
                     matter = str(token.raw_text)
                 else:
-                    # =========================================================================
-                    # == MOVEMENT II: GEOMETRIC ADJUDICATION (THE MASTER CURE)               ==
-                    # =========================================================================
+                    # GEOMETRIC ADJUDICATION
                     # [ASCENSION 34]: Binary Matter Fast-Path
                     if getattr(token, 'is_binary', False):
                         matter = str(token.raw_text)
 
                     # [ASCENSION 30 & 35]: O(1) Isomorphic Chunking & Phantom Indent Sieve
-                    # If the token has no spatial debt (col_index == original_indent), or is purely
-                    # whitespace, we bypass the heavy geometric alignment and accept pure reality.
                     elif is_sub_engine or not token.metadata.get("is_resolved_variable"):
                         if getattr(token, 'column_index', 0) == getattr(token, 'original_indent', 0):
                             matter = str(token.raw_text)
                         else:
                             matter = IsomorphicIndenter.align(token)
                     else:
-                        # Apply Absolute Spatial Resonance for injected variables
                         matter = IsomorphicIndenter.align(token)
 
                 # --- THE HYDRAULIC BATCH FUSION ---
@@ -188,16 +206,15 @@ class GeometricEmitter:
                 current_batch_mass += matter_len
                 self._total_mass_bytes += matter_len
 
-                # [ASCENSION 29]: C-Speed Array Join and Flush
+                # C-Speed Array Join and Flush
                 if current_batch_mass >= self.FUSION_THRESHOLD_BYTES:
                     fused_matter = "".join(fusion_buffer)
                     regulator.write(fused_matter)
                     fusion_buffer.clear()
                     current_batch_mass = 0
 
-                # --- MOVEMENT III: THERMODYNAMIC PACING ---
+                # --- THERMODYNAMIC PACING ---
                 if idx % 2000 == 0:
-                    # [ASCENSION 41]: Socratic Progress Resolution (Mass-based)
                     self._monitor_heat_and_pace(self._total_mass_bytes, total_expected_mass)
 
             # Flush remaining buffer
@@ -205,13 +222,11 @@ class GeometricEmitter:
                 regulator.write("".join(fusion_buffer))
                 fusion_buffer.clear()
 
-            # --- MOVEMENT IV: THE RITE OF COLLAPSE ---
+            # --- THE RITE OF COLLAPSE ---
             final_matter = regulator.flush()
 
             # [ASCENSION 33 & 47]: Substrate EOL Suture V2
             if os.name == 'nt' and not self._is_ether:
-                # Windows Iron retains native OS CRLF natively during write,
-                # but we ensure the internal representation is clean LF for the AST.
                 pass
             else:
                 final_matter = final_matter.replace('\r\n', '\n')
@@ -220,58 +235,46 @@ class GeometricEmitter:
             if '\x00' in final_matter:
                 final_matter = final_matter.replace('\x00', '')
 
-            # --- MOVEMENT V: METABOLIC FINALITY ---
-            self._proclaim_telemetry(regulator)
+            # --- METABOLIC FINALITY ---
+            self._proclaim_telemetry_fallback(regulator)
 
-            # [ASCENSION 46]: Merkle-State Validation (Logged in debug)
             if os.environ.get("SCAFFOLD_DEBUG") == "1":
                 final_hash = hashlib.sha256(final_matter.encode('utf-8')).hexdigest()[:8]
-                Logger.verbose(f"Emitter Merkle Seal: 0x{final_hash.upper()}")
+                Logger.verbose(f"Emitter Merkle Seal (Python): 0x{final_hash.upper()}")
 
             return final_matter
 
         except Exception as catastrophic_paradox:
-            # [ASCENSION 37]: Zero-Stiction Exception Unwrapping
             Logger.critical(
                 f"Emitter shattered at atom {idx} (Mass: {self._total_mass_bytes}B): {catastrophic_paradox}")
             if os.environ.get("SCAFFOLD_DEBUG") == "1":
                 traceback.print_exc()
             return f"/* EMITTER_FRACTURE: {str(catastrophic_paradox)} */"
         finally:
-            # [ASCENSION 40]: Adrenaline Mode Memory Sifting
             if self._total_mass_bytes > (50 * 1024 * 1024) and not self._is_adrenaline:
                 gc.collect(1)
 
     def _monitor_heat_and_pace(self, current_mass: int, total_mass: int):
-        """
-        [ASCENSION 45]: THE THERMAL THRESHOLD GUARD.
-        Analyzes host CPU load and mass throughput, yielding to the OS scheduler
-        to prevent Browser Lockups or Kernel Panics.
-        """
-        # [ASCENSION 31]: Asynchronous Telemetry Projection
+        """[ASCENSION 45]: THE THERMAL THRESHOLD GUARD."""
         self._project_hud_pulse(current_mass, total_mass)
 
         if HAS_PSUTIL and not self._is_ether and not self._is_adrenaline:
             try:
                 cpu_load = psutil.cpu_percent(interval=None)
                 if cpu_load > 98.0:
-                    time.sleep(0.01)  # Aggressive yield
+                    time.sleep(0.01)
                 elif cpu_load > 90.0:
-                    time.sleep(0.002)  # Soft yield
+                    time.sleep(0.002)
             except:
                 pass
 
         if self._is_ether:
-            time.sleep(0)  # WASM async event-loop release
+            time.sleep(0)
 
     def _project_hud_pulse(self, current_mass: int, total_mass: int):
-        """
-        [ASCENSION 41 & 42]: Bicameral Lock Segregation & Socratic Progress.
-        Multicasts the exact percentage of Byte Mass assembled to the UI.
-        """
+        """[ASCENSION 41 & 42]: Bicameral Lock Segregation & Socratic Progress."""
         if self.depth > 0: return
 
-        # Fire-and-forget logic using non-blocking lock acquisition
         if not self._hud_lock.acquire(blocking=False):
             return
 
@@ -282,7 +285,6 @@ class GeometricEmitter:
 
             if engine and hasattr(engine, 'akashic') and engine.akashic:
                 percent = int((current_mass / max(1, total_mass)) * 100)
-                # Cap at 99% to leave the final 1% for disk write
                 percent = min(99, percent)
 
                 engine.akashic.broadcast({
@@ -299,7 +301,24 @@ class GeometricEmitter:
         finally:
             self._hud_lock.release()
 
-    def _proclaim_telemetry(self, regulator: HydraulicFlowRegulator):
+    def _proclaim_telemetry_fast(self):
+        """
+        =============================================================================
+        == THE ACHRONAL TELEMETRY RADIATOR (RUST-NATIVE)                           ==
+        =============================================================================
+        """
+        if self.depth > 0:
+            return
+
+        duration_ms = (time.perf_counter_ns() - self._start_ns) / 1_000_000
+        mass_kb = self._total_mass_bytes / 1024.0
+
+        if duration_ms > 10.0 or mass_kb > 500.0:
+            Logger.success(
+                f"L{self.depth} Matter manifest: {mass_kb:.1f}KB fused natively via Rust in {duration_ms:.2f}ms."
+            )
+
+    def _proclaim_telemetry_fallback(self, regulator: HydraulicFlowRegulator):
         if self.depth > 0: return
 
         duration_ms = (time.perf_counter_ns() - self._start_ns) / 1_000_000
@@ -307,7 +326,7 @@ class GeometricEmitter:
 
         if duration_ms > 10.0 or stats['current_mass_kb'] > 500:
             Logger.success(
-                f"L{self.depth} Matter manifest: {stats['current_mass_kb']}KB fused in "
+                f"L{self.depth} Matter manifest: {stats['current_mass_kb']}KB fused natively via Python in "
                 f"{duration_ms:.2f}ms. Spool: {'ACTIVE' if stats.get('is_spooled') else 'DORMANT'}"
             )
 

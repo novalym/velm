@@ -81,7 +81,8 @@ class PathPurifier:
         # [ASCENSION 1 & 15]: C-Speed string translation bypasses python overhead entirely.
         if RUST_AVAILABLE and not IS_WASM:
             try:
-                clean = scaffold_core_rs.purify_string(raw)
+                # [THE FIX]: Ensure the correct method name `purify_string_fast` is invoked
+                clean = scaffold_core_rs.purify_string_fast(raw)
             except Exception:
                 clean = raw.translate(cls._TOXIN_MAP)
         else:
@@ -109,7 +110,7 @@ class PathPurifier:
 
         # --- MOVEMENT VI: JURISPRUDENCE GATING ---
         segments = [s.strip() for s in clean.split('/') if s.strip()]
-        sanitized_segments =[]
+        sanitized_segments = []
 
         for segment in segments:
             seg_clean = segment.rstrip(' .')

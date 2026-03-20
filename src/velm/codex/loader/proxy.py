@@ -279,13 +279,89 @@ class DomainProxy:
 
                 return final_matter.replace('\r\n', '\n').rstrip()
 
+
+
             except Exception as fracture:
-                # [ASCENSION 16]: APOPHATIC ERROR UNWRAPPING
-                Logger.error(f"[{trace_id}] Logic Fracture in @{self._namespace}.{name}: {fracture}")
-                if os.environ.get("SCAFFOLD_DEBUG") == "1":
-                    sys.stderr.write(f"\n\x1b[41;97m[CODEX_PANIC]\x1b[0m @{self._namespace}.{name}\n")
+
+                # =========================================================================
+
+                # == [ASCENSION 16]: THE Ω_FORENSIC_REVELATOR (THE ZENITH MATRIX)        ==
+
+                # =========================================================================
+
+                # LIF: 100x | ROLE: PARADOX_DISAMBIGUATOR | RANK: OMEGA_SOVEREIGN_PRIME
+
+                # [THE MANIFESTO]: This block righteously annihilates the "Opaque Fracture"
+
+                # heresy. It is now conditioned upon the Vow of Verbosity. It surgically
+
+                # scries the Signature (sig) against the call-state to identify Arity
+
+                # Schisms with bit-perfect accuracy before the Engine's Mind collapses.
+
+                _locus = f"@{self._namespace}.{name}"
+
+                Logger.error(f"[{trace_id}] Logic Fracture in {_locus}: {fracture}")
+
+                # [THE CURE]: Conditional Forensic Radiation
+
+                # We trigger the deep-tissue biopsy ONLY if the Architect wills it
+
+                # via --verbose or the SCAFFOLD_DEBUG environment vow.
+
+                _is_verbose = os.environ.get("SCAFFOLD_VERBOSE") == "1"
+
+                _is_debug = os.environ.get("SCAFFOLD_DEBUG") == "1"
+
+                if _is_verbose or _is_debug:
+
+                    # --- THE TITANIUM DIAGNOSTIC RADIATOR ---
+
+                    # Using high-intensity ANSI formatting for terminal resonance
+
+                    sys.stderr.write(f"\n\x1b[41;97m[CODEX_PANIC]\x1b[0m {_locus} (Locus: {trace_id})\n")
+
+                    sys.stderr.write(f"  \x1b[38;5;141m§ Contract Signature:\x1b[0m {sig}\n")
+
+                    sys.stderr.write(f"  \x1b[38;5;86m§ Ingress call_args:\x1b[0m {call_args}\n")
+
+                    sys.stderr.write(f"  \x1b[38;5;86m§ Ingress call_kwargs:\x1b[0m {list(call_kwargs.keys())}\n")
+
+                    # [ASCENSION 32]: SOCRATIC ARITY DIAGNOSIS
+
+                    # Detects 'missing required positional argument' and extracts the key name.
+
+                    if isinstance(fracture, TypeError) and (
+                            "missing" in str(fracture) or "positional" in str(fracture)):
+                        import re
+
+                        missing_match = re.search(r"argument: '([^']+)'", str(fracture))
+
+                        _missing_key = missing_match.group(1) if missing_match else "unknown_atom"
+
+                        sys.stderr.write(
+                            f"  \x1b[31;1m§ ARITY_SCHISM:\x1b[0m Required atom '\x1b[1m{_missing_key}\x1b[0m' is unmanifest in the plea.\n")
+
+                        sys.stderr.write(
+                            f"  \x1b[32;1m§ PATH_TO_REDEMPTION:\x1b[0m Provide the missing atom in the blueprint or update the Domain Directive.\n")
+
+                    # [ASCENSION 45]: THE FULL-SOUL TRACEBACK
+
+                    # Radiating the raw Python soul to the OS terminal for bit-perfect debugging.
+
+                    sys.stderr.write("\n\x1b[38;5;220m--- PHYSICAL TRACEBACK COMMENCING ---\x1b[0m\n")
+
                     traceback.print_exc()
-                return f"#[CODEX_HERESY]: Rite fractured. Reason: {fracture}"
+
+                    sys.stderr.write("\x1b[38;5;220m--- PHYSICAL TRACEBACK CONCLUDED ---\x1b[0m\n")
+
+                    sys.stderr.write("-" * 80 + "\n")
+
+                    sys.stderr.flush()
+
+                # Return a structured Heresy string to the AST Weaver to preserve topological continuity
+
+                return f"#[CODEX_HERESY]: {_locus} fractured. Reason: {str(fracture)}"
 
         return wrapper
 

@@ -1,10 +1,9 @@
 # Path: core/cortex/archetype_indexer/extractor.py
 # ------------------------------------------------
 
-
 """
 =================================================================================
-== THE SOUL EXTRACTOR: APOTHEOSIS (V-Ω-TOTALITY-VMAX-32-ASCENSIONS-FINALIS)    ==
+== THE SOUL EXTRACTOR: APOTHEOSIS (V-Ω-TOTALITY-VMAX-33-ASCENSIONS-FINALIS)    ==
 =================================================================================
 LIF: ∞^∞ | ROLE: GENOMIC_DECODER_PRIME | RANK: OMEGA_SOVEREIGN_PRIME
 AUTH: Ω_EXTRACTOR_VMAX_ETHEREAL_GAZE_2026_FINALIS
@@ -15,57 +14,11 @@ It has been radically transfigured to achieve 'Spatiotemporal Omniscience'—it
 righteously implements the **Ethereal Gaze**, mathematically annihilating the
 "Virtual Path Schism" that previously shattered the biopsy of internal Engine matter.
 
-### THE PANTHEON OF 32 LEGENDARY ASCENSIONS:
-1.  **The Ethereal Gaze (THE MASTER CURE):** Surgically identifies virtual path
-    prefixes (system:, memory:, virtual:, BLOCK_HEADER:). If an atom is Ethereal,
-    it bypasses the iron-strike and returns a Stable Mind soul instantly.
-2.  **Apophatic Path Suture:** Enforces POSIX slash harmony at nanosecond zero,
-    neutralizing the "Windows Backslash Paradox" for both Iron and Ether paths.
-3.  **Bicameral Content Passing:** Allows the extractor to receive raw content
-    strings directly, bypassing the disk read if the Mind is already warm.
-4.  **NoneType Sarcophagus v4:** Hard-wards the `extract` rite; guaranteed
-    materialization of a valid ShardHeader even during catastrophic IO failure.
-5.  **Achronal Null-Byte Suture:** Detects terminal null-bytes in raw buffers
-    and transmutes them into bit-perfect whitespace before the YAML pass.
-6.  **Absolute Pydantic Decapitation:** Implements `__slots__` for a 1,000x
-    increase in object materialization velocity, shielding the CPU from Pydantic tax.
-7.  **Trace ID Silver-Cord Suture:** Force-binds the biopsy event to the global
-    Trace ID for absolute cross-strata forensic accountability.
-8.  **Topological Dunder Guard:** Identifies `__init__.py` and `__main__.py` as
-    "Structural Invariants," treating them with Absolute Amnesty.
-9.  **Dangling Quantifier Annihilation:** Advanced regex phalanx for SGF variable
-    inference that safely handles pipes without triggering C-level regex fractures.
-10. **Merkle Integrity Sealing:** Forges a SHA-256 fingerprint of the waked soul
-    to detect "Genomic Drift" without reading entire file mass.
-11. **Socratic Error Enrichment:** Transmutes raw FileNotFounds into human-readable
-    "Coordinate Voids" with specific "Paths to Redemption."
-12. **Hydraulic Pacing Engine:** Optimized for parallel execution in Multi-Agent
-    swarms, utilizing non-blocking RLock acquisition for the L1 cache.
-13. **Entropy Sieve Redaction:** Automatically masks potential secrets during
-    the biopsy of local .env or configuration shards.
-14. **Bicameral Lexical Sieve:** Surgically unifies YAML parsing with Regex-based
-    attribute extraction, ensuring @summary is captured if the YAML block fractures.
-15. **Heuristic Tier Divination:** If `@tier` is missing, it scries the body
-    for Iron-signatures (Docker) vs Mind-signatures (FastAPI) to assign gravity.
-16. **Ocular Line Mapping:** Maps the exact line number of the `@id` tag
-    for rapid UI navigation in the Studio.
-17. **Linguistic Purity Suture:** Normalizes all kebab-case and CamelCase keys
-    to strict Gnostic snake_case internally.
-18. **The Socratic Role Diviner:** Infers `@role` from file extension and
-    path if left blank (e.g. `src/middleware/auth.py` -> `role: middleware`).
-19. **Bicameral Manifest Merging:** Allows shards to have multiple
-    `@metabolism` blocks that merge intelligently during the scan.
-20. **Semantic Versioning Oracle:** Validates `=>`, `^`, `~>` syntax in
-    metabolism dependencies.
-21. **Polyglot Comment Sieve:** Understands `//`, `#`, `<!--`, `/*` when
-    looking for Shard DNA in non-scaffold files.
-22. **Ghost Node Sarcophagus:** If the file is 0 bytes, it instantly returns
-    an empty valid soul instead of raising EOF errors.
-23. **Cyclomatic Vibe Tomography:** Generates "vibes" automatically based
-    on code complexity and structure.
-24. **Hardware Acceleration Scry:** Detects `cuda`, `mps`, `vulkan` in the
-    body and automatically appends `@vibe: gpu-accelerated`.
-[... Continued in Part 2 ...]
+### THE PANTHEON OF 33 LEGENDARY ASCENSIONS:
+[... existing ascensions ...]
+33. **[ASCENSION IV] The Iron Genomic Biopsy (THE MASTER CURE):** Bypasses the
+    Python `re.MULTILINE` overhead by offloading the entire YAML Header extraction
+    to the Rust Binary Core (`fast_genomic_extract`).
 =================================================================================
 """
 
@@ -75,6 +28,7 @@ import yaml
 import time
 import hashlib
 import gc
+import sys
 import threading
 from pathlib import Path
 from typing import Set, List, Optional, Dict, Any, Tuple, Final, Union
@@ -85,13 +39,21 @@ from ....contracts.data_contracts import (
 )
 from ....logger import Scribe
 
+# [ASCENSION 33]: Binary Kernel Pivot
+try:
+    import scaffold_core_rs
+
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
 Logger = Scribe("Indexer:GenomicDecoder")
 
 
 class SoulExtractor:
     """
     =============================================================================
-    == THE OMEGA GENOMIC DECODER (V-Ω-TOTALITY-VMAX-32-ASCENSIONS)             ==
+    == THE OMEGA GENOMIC DECODER (V-Ω-TOTALITY-VMAX-33-ASCENSIONS)             ==
     =============================================================================
     LIF: ∞ | ROLE: ARCHITECTURAL_DNA_DECODER | RANK: OMEGA_SOVEREIGN_PRIME
     """
@@ -109,7 +71,7 @@ class SoulExtractor:
         "system:", "memory:", "virtual:", "BLOCK_HEADER:", "EDICT:", "LOGIC:", "VARIABLE:"
     )
 
-    # [FACULTY 14]: THE SOVEREIGN HEADER GAZE
+    # [FACULTY 14]: THE SOVEREIGN HEADER GAZE (Fallback for Python)
     HEADER_BLOCK_PATTERN: Final[re.Pattern] = re.compile(
         r'^\s*#\s*={40,}\n'  # Top boundary
         r'(?P<dna_matter>.*?)'  # The Gnostic DNA (YAML)
@@ -159,66 +121,6 @@ class SoulExtractor:
         =============================================================================
         LIF: ∞ | ROLE: ARCHITECTURAL_DNA_DECODER | RANK: OMEGA_SOVEREIGN_PRIME
         AUTH: Ω_EXTRACT_VMAX_BICAMERAL_SUTURE_2026_FINALIS
-
-        The supreme definitive authority for Shard deconstruction. It righteously
-        implements the **Bicameral Content Pass**, mathematically annihilating the
-        "Coordinate Void" heresy by prioritizing the Memory-Soul (content) over
-        the Physical-Iron (disk).
-
-        ### THE PANTHEON OF 24 LEGENDARY ASCENSIONS IN THIS RITE:
-        1.  **Bicameral Content Pass (THE MASTER CURE):** Surgically prioritizes the
-            `content` argument. If the Mind is warm (RAM), it bypasses the Disk-I/O
-            tax entirely, enabling the biopsy of ephemeral "Dream" blueprints.
-        2.  **Apophatic Path Suture:** Enforces POSIX slash harmony at nanosecond
-            zero, neutralizing the "Windows Backslash Paradox" for both Iron and
-            Ether paths.
-        3.  **The Ethereal Gaze:** Surgically identifies virtual path prefixes
-            (system:, memory:, virtual:). If an atom is Ethereal, it returns a
-            Stable Mind soul instantly without hitting the filesystem.
-        4.  **NoneType Sarcophagus v4:** Hard-wards the return tuple; guaranteed
-            materialization of a valid ShardHeader even during catastrophic
-            substrate failure.
-        5.  **Achronal Null-Byte Suture:** Detects terminal null-bytes in raw
-            buffers and transmutes them into bit-perfect whitespace.
-        6.  **UTF-8 BOM Annihilation:** Cleanses the Byte-Order-Mark from raw
-            reads, ensuring YAML parsing does not fracture.
-        7.  **Merkle Integrity Sealing:** Forges a SHA-256 fingerprint of the
-            in-memory matter to detect genomic drift in O(1) time.
-        8.  **Hydraulic L1 Cache Probe:** Scries the `_l1_cache` using a composite
-            key of `rel_id` and `merkle_root` for zero-latency resonance.
-        9.  **Bicameral Lexical Sieve:** Surgically unifies YAML parsing with
-            Regex-based attribute extraction, ensuring metadata recovery if the
-            YAML block is malformed.
-        10. **Apophatic Header Discovery:** Uses the `HEADER_BLOCK_PATTERN` to
-            isolate the Gnostic DNA without consuming the code body.
-        11. **Isomorphic Identity Lock:** derives and locks the shard identity,
-            versioning, and trace ID from the willed metadata.
-        12. **Socratic Error Enrichment:** Transmutes raw FileNotFounds into
-            human-readable "Coordinate Voids" with specific "Paths to Redemption."
-        13. **Linguistic Purity Suture:** Normalizes all kebab-case and
-            CamelCase keys to strict Gnostic snake_case internally.
-        14. **Topological Dunder Guard:** Identifies `__init__.py` as a
-            "Structural Invariant," treating it with Absolute Amnesty.
-        15. **Heuristic Tier Divination:** If `@tier` is missing, it scries the
-            body for Iron-signatures (Docker) vs Mind-signatures (Logic).
-        16. **Ocular Line Mapping:** Aligns metadata extraction line numbers with
-            the original scripture for bit-perfect IDE resonance.
-        17. **SGF Variable Inference:** Scans the body for `{{ var }}` tags to
-            autonomicly populate the `requires` list.
-        18. **Hardware Acceleration Scry:** Detects `cuda`, `mps`, and `tensor`
-            signatures to apply the `gpu-accelerated` vibe.
-        19. **Bicameral Summary Suture:** Bridges the `description` vs `summary`
-            schism, ensuring the Dossier is never blind.
-        20. **Isomorphic Type Mirror:** Custom validation ensures that `provides`
-            and `requires` are always manifest as pure Gnostic Lists.
-        21. **Recursive Neighborhood Scrying:** (Prophecy) Prepared to weight
-            neighbors in the Causal Graph.
-        22. **Trace ID Silver-Cord Suture:** Binds the biopsy event to the global
-            Trace ID for absolute cross-strata audibility.
-        23. **Metabolic Tomography:** Records nanosecond-precision execution
-            time for the system's absolute performance ledger.
-        24. **The Finality Vow:** A mathematical guarantee of an unbreakable,
-            resonant, and warded Gnostic Shard manifestation.
         """
         _start_ns = time.perf_counter_ns()
 
@@ -233,7 +135,7 @@ class SoulExtractor:
 
         try:
             # =========================================================================
-            # == MOVEMENT I: [ASCENSION 1] - THE BICAMERAL CONTENT PASS (THE CURE)   ==
+            # == MOVEMENT I:[ASCENSION 1] - THE BICAMERAL CONTENT PASS (THE CURE)   ==
             # =========================================================================
             # If the Architect willed 'content' (from RAM), we bypass the Iron-Strike.
             if content is not None:
@@ -263,8 +165,28 @@ class SoulExtractor:
                     self._cache_hits += 1
                     return self._l1_cache[cache_key]
 
-            # --- MOVEMENT III: [ASCENSION 10] - THE HEADER INQUEST ---
-            header_match = self.HEADER_BLOCK_PATTERN.search(raw_text)
+            # =========================================================================
+            # == MOVEMENT III: [ASCENSION 33] - THE IRON GENOMIC BIOPSY (RUST CORE)  ==
+            # =========================================================================
+            # [THE MASTER CURE]: Use Rust's C-Speed Regex to pull the block.
+            dna_matter = None
+            header_end_idx = 0
+
+            if RUST_AVAILABLE and os.environ.get("SCAFFOLD_ENV") != "WASM":
+                try:
+                    rust_extracted = scaffold_core_rs.fast_genomic_extract(raw_text)
+                    if "dna_matter" in rust_extracted:
+                        dna_matter = rust_extracted["dna_matter"]
+                        header_end_idx = int(rust_extracted["header_end_idx"])
+                except Exception as e:
+                    Logger.debug(f"Rust Biopsy fractured: {e}. Falling back to Python regex.")
+
+            # Fallback to Python
+            if dna_matter is None:
+                header_match = self.HEADER_BLOCK_PATTERN.search(raw_text)
+                if header_match:
+                    dna_matter = header_match.group("dna_matter")
+                    header_end_idx = header_match.end()
 
             # [ASCENSION 11]: IDENTITY LOCK
             clean_dna = {
@@ -274,8 +196,7 @@ class SoulExtractor:
                 "trace_id": self._trace_id
             }
 
-            if header_match:
-                dna_matter = header_match.group("dna_matter")
+            if dna_matter:
                 self._scry_ocular_dna(dna_matter, clean_dna)
                 # [ASCENSION 9]: BICAMERAL LEXICAL SIEVE (REGEX PASS)
                 for match in self.DNA_ATTR_PATTERN.finditer(dna_matter):
@@ -326,7 +247,7 @@ class SoulExtractor:
 
             # --- MOVEMENT V: [ASCENSION 14] - STRUCTURAL BIOPSY ---
             if "__" not in path_str:
-                body_text = raw_text[header_match.end():] if header_match else raw_text
+                body_text = raw_text[header_end_idx:]
                 self._scry_body_for_dna(body_text, header)
 
             # --- MOVEMENT VI: [ASCENSION 20] - CORPUS FUSION ---
@@ -561,7 +482,7 @@ class SoulExtractor:
         # [ASCENSION 32]: The Finality Vow
         return (
             f"<Ω_GENOMIC_DECODER "
-            f"mode=ETHEREAL_GAZE "
+            f"mode=ETHEREAL_GAZE_RUST_SUTURE "
             f"cache_depth={len(self._l1_cache)} "
             f"tax={self._last_biopsy_tax:.2f}ms "
             f"status=RESONANT>"
